@@ -56,10 +56,12 @@ std::cout << "---------- TabuSearch::solve: iter: " << iter << std::endl;
 
         cleanTabuList();
 
-        Plot plot(S);
-        char file[100];
-        sprintf(file, "out/vrpdptw-%04d.png", iter);
-        plot.out(file, true, 800, 800, file);
+        if (debugPlots) {
+            Plot plot(S);
+            char file[100];
+            sprintf(file, "out/vrpdptw-%04d.png", iter);
+            plot.out(file, true, 800, 800, file);
+        }
 
     }
 

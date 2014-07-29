@@ -52,6 +52,7 @@ int main (int argc, char **argv)
 #if 1
         TabuSearch TS(S);
         TS.debugTabu = true;
+        TS.debugPlots = false;
         Solution B = TS.solve();
 
         std::cout << "TabuSearch Results (1)" << std::endl;

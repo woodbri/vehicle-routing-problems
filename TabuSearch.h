@@ -31,12 +31,14 @@ class TabuSearch {
     int tabuLength;
 
     bool debugTabu;
+    bool debugPlots;
 
     TabuSearch(Solution &s) : S(s), Best(s) {
         iter = 0;
         tabuLength = 30;            // set a reasonable default
         SCost = BestCost = Best.getCost();  // cost of the best
         debugTabu = false;
+        debugPlots = false;
     };
 
     Solution solve();
