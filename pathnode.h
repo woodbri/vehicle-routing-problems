@@ -15,9 +15,8 @@
 class pathNode {
   private:
     Node *node;
-    const double cargoLimit;
+    double cargoLimit;
 
-  public:
     bool twv;
     bool cv;
     int twvTot;
@@ -26,6 +25,7 @@ class pathNode {
     double distPrev;
     double totDistFromDepot;
 
+  public:
     Node& getnode(){return *node;};
     bool isdepot() const {return node->isvehicle();}
     bool ispickup() const {return node->ispickup();}
@@ -73,6 +73,9 @@ class pathNode {
         totDistFromDepot = 0;
     };
 
+    void setMaxCargo(double cargo) {
+        cargoLimit=cargo;
+    };
 
     pathNode(const pathNode &other) : node(other.node) {
         copyvalues(other);

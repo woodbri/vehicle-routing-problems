@@ -29,12 +29,12 @@ class Node {
     int getvehiclenid() const {return vehiclenid;};
     int getdumpdist() const {return dumpdist;};
     int getdumpnid() const {return dumpnid;};
-    int getx() const {return x;};
-    int gety() const {return y;};
+    double getx() const {return x;};
+    double gety() const {return y;};
     int opens() const {return tw_open;};
     int closes() const {return tw_close;};
-    double getDemand() const{ return demand;};
-    double getServiceTime() const{  return service;};
+    int getDemand() const{ return demand;};
+    int getServiceTime() const{  return service;};
     int windowLength() const { return  tw_close - tw_open; };
 
     // mutators

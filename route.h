@@ -13,6 +13,8 @@
 #include "path.h"
 #include "problem.h"
 
+class Problem; // forward reference
+
 class Route {
 
   private:

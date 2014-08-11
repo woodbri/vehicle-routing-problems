@@ -21,8 +21,8 @@ class Path {
 
     Path (Node &d){
         depot = &d;
-        twv_depot = false;
-        cv_depot = false;
+        //twv_depot = false;
+        //cv_depot = false;
         D = TWV = CV = 0;
         pathNode dep(d);
         path.push_back(dep);
