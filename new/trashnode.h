@@ -4,7 +4,7 @@
 #include "twnode.h"
 
 class Trashnode : public Twnode {
-  private:
+  protected:
     int ntype;              // node type (0=depot, 1=dump, 2=pickup)
     double depotdist;     // distance to nearest depot
     int depotnid;         // nid of the closet depot
@@ -22,6 +22,8 @@ class Trashnode : public Twnode {
     bool isdepot() const {return ntype==0;};
     bool isdump() const {return ntype==1;};
     bool ispickup() const {return ntype==2;};
+
+    bool isvalid() const {return Node::isvalid() and (ispickup() or isdepot() or isdump()); };
 
     void dump() const;
 

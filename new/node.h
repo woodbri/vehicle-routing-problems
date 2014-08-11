@@ -5,7 +5,7 @@
 #include <string>
 
 class Node {
-  private:
+  protected:
     int nid;
     double x;
     double y;

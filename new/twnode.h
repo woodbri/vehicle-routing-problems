@@ -6,7 +6,7 @@
 #include "node.h"
 
 class Twnode: public Node {
-  private:
+  protected:
     int demand;
     int tw_open;
     int tw_close;
