@@ -27,12 +27,12 @@ class Twnode: public Node {
 
     void dump() const;
 
-    void setvalues(int nid, double x, double y, int demand,
-                   int tw_open, int tw_close, int service);
-    void setdemand(int v) { demand = v; };
-    void settwopen(int v) { tw_open = v; };
-    void settwclose(int v) { tw_close = v; };
-    void setservice(int v) { service = v; };
+    void setvalues(int _nid, double _x, double _y, int _demand,
+                   int _tw_open, int _tw_close, int _service);
+    void setdemand(int _demand) { demand = _demand; };
+    void settwopen(int _tw_open) { tw_open = _tw_open; };
+    void settwclose(int _tw_close) { tw_close = _tw_close; };
+    void setservice(int _service) { service = _service; };
 
     Twnode() {
         Node();

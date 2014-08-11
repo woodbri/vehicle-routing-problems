@@ -27,9 +27,9 @@ class Node {
     bool isSamePos(const Node &n) { return distance(n) == 0; };
     bool isSamePos(const Node &n, double tol) { return distance(n) < tol; };
 
-    void setnid(int n) { nid = n; };
-    void setx(double v) { x = v; };
-    void sety(double v) {y = v; };
+    void setnid(int _nid) { nid = _nid; };
+    void setx(double _x) { x = _x; };
+    void sety(double _y) {y = _y; };
 
     bool operator<(const Node &n) const { return nid < n.nid; };
     bool operator==(const Node &n) const { return nid == n.nid && x == n.x && y == n.y; };

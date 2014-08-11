@@ -25,12 +25,12 @@ class Trashnode : public Twnode {
 
     void dump() const;
 
-    void setvalues(int nid, double x, double y, int demand,
-                   int tw_open, int tw_close, int service,
-                   int ntype);
-    void setntype(int v) { ntype = v; };
-    void setdepotdist(int nid, double dist, int nid2, double dist2);
-    void setdumpdist(int nid, double dist);
+    void setvalues(int _nid, double _x, double _y, int _demand,
+                   int _tw_open, int _tw_close, int _service,
+                   int _ntype);
+    void setntype(int _ntype) { ntype = _ntype; };
+    void setdepotdist(int _nid, double _dist, int _nid2, double _dist2);
+    void setdumpdist(int _nid, double _dist);
 
     Trashnode() {
         Twnode();
