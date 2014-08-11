@@ -2,6 +2,7 @@
 #include <stdexcept>
 #include <algorithm>
 #include <math.h>
+#include <map>
 
 #include "problem.h"
 
@@ -32,12 +33,46 @@ double Problem::distance(int n1, int n2) const {
 }
 
 
+void Problem::initialDemand() {
+    
+    std::map<int,double> demand;
+
+    for (int i=0; i<Pickups.size(); i++) {
+
+        Node& node = Nodes[Pickups[i]];
+        int nid = node.getvehiclenid();
+        double nd = node.getDemand();
+
+        try {
+            demand.at(nid) += nd;
+        }
+        catch (const std::out_of_range& oor) {
+            demand[nid] = nd;
+        }
+    }
+
+    std::cout << "------- initial vehicle demands -------" << std::endl;
+    for (int i=0; i<Vehicles.size(); i++) {
+        int nid = Vehicles[i];
+        double nd;
+        try {
+            nd = demand.at(nid);
+        }
+        catch (const std::out_of_range& oor) {
+            nd = -1.0;
+        }
+        std::cout << "Vehicle[" << nid << "]: Capacity: " << Nodes[nid].getDemand() << ", initDemand: " << nd << std::endl;
+    }
+}
+
 void Problem::setNodeDistances(Node& n) {
-    double dist;
+    double dist = -1.0;
     int nid = -1;
+    double dist2 = -1.0;
+    int nid2 = -1;
 
     if (n.isvehicle()) {
-        n.setvehicledist(n.getnid(), 0.0);
+        n.setvehicledist(n.getnid(), 0.0, -1, -1.0);
         for (int i=0; i<Dumps.size(); i++) {
             double d = n.distance(Nodes[Dumps[i]]);
             if (nid == -1 or d < dist) {
@@ -56,7 +91,7 @@ void Problem::setNodeDistances(Node& n) {
                 nid = Vehicles[i];
             }
         }
-        n.setvehicledist(nid, dist);
+        n.setvehicledist(nid, dist, -1, -1.0);
     }
     else if (n.ispickup()) {
         for (int i=0; i<Dumps.size(); i++) {
@@ -72,11 +107,13 @@ void Problem::setNodeDistances(Node& n) {
         for (int i=0; i<Vehicles.size(); i++) {
             double d = n.distance(Nodes[Vehicles[i]]);
             if (nid == -1 or d < dist) {
+                dist2 = dist;
+                nid2 = nid;
                 dist = d;
                 nid = Vehicles[i];
             }
         }
-        n.setvehicledist(nid, dist);
+        n.setvehicledist(nid, dist, nid2, dist2);
     }
 }
 
@@ -127,27 +164,42 @@ void Problem::loadProblem(char *infile)
 
     for (int i=0; i<getNodeCount(); i++)
         setNodeDistances(Nodes[i]);
+
+    buildDistanceMatrix();
+}
+
+
+void Problem::buildDistanceMatrix() {
+    dMatrix.clear();
+    dMatrix.resize(Nodes.size());
+    for (int i=0; i<Nodes.size(); i++) {
+        dMatrix[i].clear();
+        dMatrix[i].resize(Nodes.size());
+        for (int j=0; j<Nodes.size(); j++) {
+            dMatrix[i][j] = Nodes[i].distance(Nodes[j]);
+        }
+    }
 }
 
 
 void Problem::dumpVehicles() {
     std::cout << "---- Vehicles --------------\n";
     for (int i=0; i<Vehicles.size(); i++)
-        Nodes[i].dump();
+        Nodes[Vehicles[i]].dump();
 }
 
 
 void Problem::dumpDumps() {
     std::cout << "---- Dumps --------------\n";
     for (int i=0; i<Dumps.size(); i++)
-        Nodes[i].dump();
+        Nodes[Dumps[i]].dump();
 }
 
 
 void Problem::dumpPickups() {
     std::cout << "---- Pickups --------------\n";
     for (int i=0; i<Pickups.size(); i++)
-        Nodes[i].dump();
+        Nodes[Pickups[i]].dump();
 }
 
 
@@ -160,6 +212,8 @@ void Problem::dump() {
     dumpVehicles();
     dumpDumps();
     dumpPickups();
+
+    initialDemand();
 
     std::cout << std::endl;
 }

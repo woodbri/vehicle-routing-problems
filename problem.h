@@ -21,6 +21,8 @@ class Problem {
     std::vector<int> Dumps;     // vector of all dump nids
     std::vector<int> Pickups;   // vector of all pickup point nids
 
+    std::vector< std::vector<double> > dMatrix;
+
     // variables for plotting
     double extents[4];
 
@@ -32,7 +34,9 @@ class Problem {
     unsigned int getPickupCount();
 
     double distance(int n1, int n2) const;
+    void initialDemand();
     void setNodeDistances(Node& n);
+    void buildDistanceMatrix();
 
     void dumpVehicles();
     void dumpDumps();

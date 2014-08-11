@@ -45,9 +45,11 @@ bool Node::checkIntegrity() {
     return ok;
 }
 
-void Node::setvehicledist(int nid, double dist) {
+void Node::setvehicledist(int nid, double dist, int nid2, double dist2) {
     vehicledist = dist;
     vehiclenid = nid;
+    vehicledist2 = dist2;
+    vehiclenid2 = nid2;
 }
 
 
@@ -69,6 +71,8 @@ void Node::dump()const {
               << service << ", "
               << vehicledist << ", "
               << vehiclenid << ", "
+              << vehicledist2 << ", "
+              << vehiclenid2 << ", "
               << dumpdist << ", "
               << dumpnid
               << std::endl;

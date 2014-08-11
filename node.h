@@ -1,6 +1,7 @@
 #ifndef NODE_H
 #define NODE_H
 
+#include <string>
 #include <math.h>
 
 
@@ -16,6 +17,8 @@ class Node {
     int service;    // service time
     double vehicledist;     // distance to nearest depot
     int vehiclenid;         // nid of the closet depot
+    double vehicledist2;    // distance to nearest depot
+    int vehiclenid2;        // nid of the closet depot
     double dumpdist;        // distance to nearest dump
     int dumpnid;            // nid of closet dump
 
@@ -35,7 +38,7 @@ class Node {
     int windowLength() const { return  tw_close - tw_open; };
 
     // mutators
-    void setvehicledist(int nid, double dist);
+    void setvehicledist(int nid, double dist, int nid2, double dist2);
     void setdumpdist(int nid, double dist);
 
     // other
@@ -45,6 +48,7 @@ class Node {
     bool isvehicle() const {return ntype==0;};
     bool isdump() const {return ntype==1;};
     bool ispickup() const {return ntype==2;};
+
     double distance(const Node &n2) const {
         double dx = n2.x - x;
         double dy = n2.y - y;
@@ -67,7 +71,9 @@ class Node {
         dumpdist = 0.0;
         dumpnid = -1;
     };
+
     Node(std::string line);
+
     ~Node() {};
 
 };
