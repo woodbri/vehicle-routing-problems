@@ -2,12 +2,14 @@
 #define PATH_H
 
 #include <deque>
+#include <iostream>
 
 #include "trashnode.h"
 
 class Path {
   private:
     Trashnode home;
+    Trashnode dumpsite;
     std::deque<Trashnode> path;
 
   public:
@@ -59,6 +61,15 @@ class Path {
     //iterator emplace(const_iterator it, const Trashnode& n) { return path.emplace(it, n); };
     //iterator emplace_front(const Trashnode& n) { return path.emplace_front(n); };
     //iterator emplace_back(const Trashnode& n) { return path.emplace_back(n); };
+
+    void dump() {
+        std::cout << "Path: " << home.getnid();
+        for (int i=0; i<path.size(); i++)
+            std::cout << ", " << path[i].getnid();
+        std::cout << ", " << dumpsite.getnid()
+                  << ", " << home.getnid()
+                  << std::endl;
+    };
 
 };
 
