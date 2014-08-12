@@ -51,10 +51,10 @@ class Path {
     void push_front(Trashnode& n) { path.push_front(n); };
     void pop_back() { path.pop_back(); };
     void pop_front() { path.pop_front(); };
-    iterator insert(const_iterator it, const Trashnode& n) { return path.insert(it, n); };
-    iterator insert(const_iterator it, Trashnode& n) { return path.insert(it, n); };
-    iterator erase(const_iterator it) { return path.erase(it); };
-    iterator erase(const_iterator first, const_iterator last) { return path.erase(first, last); };
+    iterator insert(iterator it, const Trashnode& n) { return path.insert(it, n); };
+    iterator insert(iterator it, Trashnode& n) { return path.insert(it, n); };
+    iterator erase(iterator it) { return path.erase(it); };
+    iterator erase(iterator first, iterator last) { return path.erase(first, last); };
     void clear() { path.clear(); };
     //iterator emplace(const_iterator it, const Trashnode& n) { return path.emplace(it, n); };
     //iterator emplace_front(const Trashnode& n) { return path.emplace_front(n); };
