@@ -12,6 +12,7 @@ void Trashnode::dump() const {
               << ", " << tw_open
               << ", " << tw_close
               << ", " << service
+              << ", " << ntype
               << std::endl;
 }
 
