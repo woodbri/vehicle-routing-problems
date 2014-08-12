@@ -6,6 +6,14 @@
 
 #include "trashnode.h"
 
+/*
+    TODO
+    * would probably ne nice to have prev() and next()
+    * this implies that we have whereami() that returns iterator
+      pointing to self
+    * what should prev() and next() do at the begin(0 and end() ?
+*/
+
 class Path {
   private:
     Trashnode home;
