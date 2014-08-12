@@ -50,8 +50,8 @@ int main(int argc, char **argv) {
         std::cout << "tw.getservicetime(): " << tw.getservicetime() << std::endl;
         std::cout << "tw.windowlength(): " << tw.windowlength() << std::endl;
         std::cout << "tw.checkintegrity(): " << tw.checkintegrity() << std::endl;
-        std::cout << "tw.ispickup(): " << tw.ispickup() << std::endl;
-        std::cout << "tw.isdelivery(): " << tw.isdelivery() << std::endl;
+        std::cout << "tw.hasdemand(): " << tw.hasdemand() << std::endl;
+        std::cout << "tw.hassupply(): " << tw.hassupply() << std::endl;
         std::cout << "tw.earlyarrival(110): " << tw.earlyarrival(110) << std::endl;
         std::cout << "tw.earlyarrival(120): " << tw.earlyarrival(120) << std::endl;
         std::cout << "tw.earlyarrival(620): " << tw.earlyarrival(620) << std::endl;
@@ -60,6 +60,9 @@ int main(int argc, char **argv) {
         std::cout << "tw.latearrival(620): " << tw.latearrival(620) << std::endl;
 
         Trashnode tn;
+        std::cout << "tn.hasdemand(): " << tn.hasdemand() << std::endl;
+        std::cout << "tn.hassupply(): " << tn.hassupply() << std::endl;
+        std::cout << "tn.hasnogoods(): " << tn.hasnogoods() << std::endl;
         tn.setvalues(3, 21, 32, 40, 120, 600, 5, 2);
         tn.dump();
         std::cout << "tn.isvalid(): " << tn.isvalid() << std::endl;
@@ -69,8 +72,8 @@ int main(int argc, char **argv) {
         std::cout << "tn.getservicetime(): " << tn.getservicetime() << std::endl;
         std::cout << "tn.windowlength(): " << tn.windowlength() << std::endl;
         std::cout << "tn.checkintegrity(): " << tn.checkintegrity() << std::endl;
-        std::cout << "tn.ispickup(): " << tn.ispickup() << std::endl;
-        std::cout << "tn.isdelivery(): " << tn.isdelivery() << std::endl;
+        std::cout << "tn.hasdemand(): " << tn.hasdemand() << std::endl;
+        std::cout << "tn.hassupply(): " << tn.hassupply() << std::endl;
         std::cout << "tn.isdepot(): " << tn.isdepot() << std::endl;
         std::cout << "tn.isdump(): " << tn.isdump() << std::endl;
         std::cout << "tn.ispickupnode(): " << tn.ispickupnode() << std::endl;

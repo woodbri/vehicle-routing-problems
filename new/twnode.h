@@ -20,8 +20,9 @@ class Twnode: public Node {
     int windowlength() const { return  tw_close - tw_open; };
 
     bool checkintegrity() const;
-    bool ispickup() const { return getdemand()>0; };
-    bool isdelivery() const { return getdemand()<0; };
+    bool hasdemand() const { return getdemand()>0; };
+    bool hassupply() const { return getdemand()<0; };
+    bool hasnogoods() const { return getdemand()==0; };
     bool earlyarrival(const double D) const { return D < tw_open; };
     bool latearrival(const double D) const { return D > tw_close; };
 
