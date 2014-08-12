@@ -23,6 +23,12 @@ class Path {
         return *this;
     };
 
+    Trashnode& getdepot() { return home; };
+    Trashnode& getdumpsite() { return dumpsite; };
+
+    void setdepot(Trashnode& n) { home = n; };
+    void setdumpsite(Trashnode& n) { dumpsite = n; };
+
     // element access
     Trashnode& operator[](unsigned int n) { return path[n]; };
     Trashnode& at(int n) { return path.at(n); };

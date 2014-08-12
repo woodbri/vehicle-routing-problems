@@ -11,6 +11,7 @@
 #include "node.h"
 #include "twnode.h"
 #include "trashnode.h"
+#include "path.h"
 
 
 void Usage() {
@@ -79,6 +80,17 @@ int main(int argc, char **argv) {
         std::cout << "tn.latearrival(110): " << tn.latearrival(110) << std::endl;
         std::cout << "tn.latearrival(600): " << tn.latearrival(600) << std::endl;
         std::cout << "tn.latearrival(620): " << tn.latearrival(620) << std::endl;
+
+        Trashnode depot(1, 0, 0, 0, 0, 24*60, 0, 0);
+        Trashnode dumpsite(2, 10, 10, 0, 0, 24*60, 30, 1);
+        Path route;
+        route.setdepot(depot);
+        route.setdumpsite(dumpsite);
+        route.dump();
+        route.push_back(tn);
+        tn = Trashnode(4, 15, 35, 10, 0, 24*60, 15, 2);
+        route.push_front(tn);
+        route.dump();
 
 
     }
