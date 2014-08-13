@@ -12,6 +12,7 @@
 #include "twnode.h"
 #include "trashnode.h"
 #include "path.h"
+#include "trashproblem.h"
 
 
 void Usage() {
@@ -25,7 +26,7 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    char * infile = argv[1];
+    std::string infile = argv[1];
 
     try {
 
@@ -95,6 +96,15 @@ int main(int argc, char **argv) {
         route.push_front(tn);
         route.dump();
 
+        // ----------------------------------------------------------------
+
+        TrashProblem tp;
+
+        tp.loadproblem( infile );
+
+        tp.dumpdataNodes();
+        tp.dumpDmatrix();
+        tp.dump();
 
     }
     catch (const std::exception &e) {

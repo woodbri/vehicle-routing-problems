@@ -23,11 +23,7 @@ class Trashnode : public Twnode {
     bool isdump() const {return ntype==1;};
     bool ispickup() const {return ntype==2;};
 
-    bool isvalid() const {
-        return Node::isvalid()
-           and (ispickup() or isdepot() or isdump())
-           and (ispickup() and demand>0);
-    };
+    bool isvalid() const;
 
     void dump() const;
 

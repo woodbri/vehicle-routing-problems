@@ -31,8 +31,8 @@ class TrashProblem {
     void buildDistanceMatrix();
 
     // get solution
-    std::string solutionAsText() const;
-    std::vector<int> solutionAsVector() const;
+    std::string solutionAsText();
+    std::vector<int> solutionAsVector();
 
     // methods to build initial solution
     void nearestNeighbor();
@@ -49,7 +49,7 @@ class TrashProblem {
     void dumpDepots() const;
     void dumpDumps() const;
     void dumpPickups() const;
-    void dump() const;
+    void dump();
 
 };
 

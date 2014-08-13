@@ -32,7 +32,7 @@ void TrashProblem::loadproblem(std::string& file) {
 
         Trashnode node( line );
         if (!node.isvalid())
-            std::cout << "ERROR: line: " << cnt << ": " << line;
+            std::cout << "ERROR: line: " << cnt << ": " << line << std::endl;
 
         // compute the extents as we load the data for plotting
         if (node.getx() < extents[0]) extents[0] = node.getx();
@@ -131,7 +131,7 @@ void TrashProblem::buildDistanceMatrix() {
 }
 
 
-std::string TrashProblem::solutionAsText() const {
+std::string TrashProblem::solutionAsText() {
     std::stringstream ss;;
     std::vector<int> s = solutionAsVector();
     for (int i=0; i<s.size(); i++) {
@@ -142,12 +142,12 @@ std::string TrashProblem::solutionAsText() const {
 }
 
 
-std::vector<int>  TrashProblem::solutionAsVector() const {
+std::vector<int>  TrashProblem::solutionAsVector() {
     std::vector<int> s;
     for (int i=0; i<fleet.size(); i++) {
-        if (fleet[i].route.size() == 0) continue;
-        for (int j=0; j<fleet[i].route.size(); j++) {
-            s.push_back(fleet[i].route[j].getnid());
+        if (fleet[i].size() == 0) continue;
+        for (int j=0; j<fleet[i].size(); j++) {
+            s.push_back(fleet[i][j].getnid());
         }
         s.push_back(-1);
     }
@@ -224,7 +224,7 @@ void TrashProblem::dumpPickups() const {
 }
 
 
-void TrashProblem::dump() const {
+void TrashProblem::dump() {
     dumpDepots();
     dumpDumps();
     dumpPickups();
