@@ -76,7 +76,7 @@ int main(int argc, char **argv) {
         std::cout << "tn.hassupply(): " << tn.hassupply() << std::endl;
         std::cout << "tn.isdepot(): " << tn.isdepot() << std::endl;
         std::cout << "tn.isdump(): " << tn.isdump() << std::endl;
-        std::cout << "tn.ispickupnode(): " << tn.ispickupnode() << std::endl;
+        std::cout << "tn.ispickup(): " << tn.ispickup() << std::endl;
         std::cout << "tn.earlyarrival(110): " << tn.earlyarrival(110) << std::endl;
         std::cout << "tn.earlyarrival(120): " << tn.earlyarrival(120) << std::endl;
         std::cout << "tn.earlyarrival(620): " << tn.earlyarrival(620) << std::endl;

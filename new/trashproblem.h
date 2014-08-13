@@ -22,13 +22,17 @@ class TrashProblem {
     double extents[4];
 
   public:
-    void loadproblem(std::string file);
+
+    double distance(int nq, int n2) const;
+
+    void loadproblem(std::string& file);
+    void setNodeDistances(Trashnode& n);
 
     void buildDistanceMatrix();
 
     // get solution
-    std::string solutionAsText();
-    std::vector<int> solutionAsVector();
+    std::string solutionAsText() const;
+    std::vector<int> solutionAsVector() const;
 
     // methods to build initial solution
     void nearestNeighbor();
@@ -39,12 +43,12 @@ class TrashProblem {
     // optimization routines
     void opt_2opt();
 
-    void dumpDmatrix();
-    void dumpFleet();
-    void dumpdataNodes();
-    void dumpDepots();
-    void dumpDumps();
-    void dumpPickups();
+    void dumpDmatrix() const;
+    void dumpFleet() const;
+    void dumpdataNodes() const;
+    void dumpDepots() const;
+    void dumpDumps() const;
+    void dumpPickups() const;
     void dump() const;
 
 };

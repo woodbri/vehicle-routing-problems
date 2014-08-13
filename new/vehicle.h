@@ -11,6 +11,10 @@ class Vehicle : public Path {
     int CV;
 
   public:
+    int size() const { return route.size(); };
+    Trashnode& at(int i) { return route.at(i); };
+    Trashnode& operator[](unsigned int n) { return route[n]; };
+
     int getcapacity() const { return capacity; };
     void setcapacity(int _capacity) { capacity = _capacity; };
 
