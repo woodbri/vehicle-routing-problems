@@ -15,7 +15,7 @@
 */
 
 class Path {
-  private:
+  protected:
     Trashnode home;
     Trashnode dumpsite;
     std::deque<Trashnode> path;

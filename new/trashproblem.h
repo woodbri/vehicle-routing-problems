@@ -44,7 +44,7 @@ class TrashProblem {
     void opt_2opt();
 
     void dumpDmatrix() const;
-    void dumpFleet() const;
+    void dumpFleet();
     void dumpdataNodes() const;
     void dumpDepots() const;
     void dumpDumps() const;

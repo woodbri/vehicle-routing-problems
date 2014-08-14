@@ -156,7 +156,59 @@ std::vector<int>  TrashProblem::solutionAsVector() {
 
 
 void TrashProblem::nearestNeighbor() {
+    // create a list of all pickup nodes and make them unassigned
+    std::vector<int> unassigned(datanodes.size(), 1);
 
+    for (int i=0; i<depots.size(); i++) {
+        Vehicle truck;
+
+        // add this depot as the vehicles home location
+        Trashnode& depot(datanodes[depots[i]]);
+        truck.setdepot(depot);
+        // add the closest dump for now, this might change later
+        truck.setdumpsite(datanodes[depot.getdumpnid()]);
+
+        // remember the last node we inserted
+        Trashnode& last_node = datanodes[depots[i]];
+
+        truck.evaluate();
+
+        while (truck.getcurcapacity() <= truck.getmaxcapacity()) {
+
+            // add the nearest unassigned node to path after the last node
+            int nnid = -1;
+            double ndist;
+            for (int j=0; j<pickups.size(); j++) {
+                // skip if assigned to another truck
+                if (! unassigned[pickups[j]]) continue;
+                // skip if adding this node exceeds capacity
+                if (truck.getcurcapacity() + datanodes[pickups[j]].getdemand()
+                    > truck.getmaxcapacity()) continue;
+
+                double d = dMatrix[pickups[j]][last_node.getnid()];
+                if (nnid == -1 or d < ndist) {
+                    nnid = pickups[j];
+                    ndist = d;
+                }
+            }
+            // if we did not find a node we can add break
+            if (nnid == -1) break;
+
+            // add node to route
+            unassigned[nnid] = 0;
+            truck.push_back(datanodes[nnid]);
+            truck.evaluate();
+        }
+        std::cout << "nearestNeighbor: depot: " << i << std::endl;
+        truck.dump();
+        fleet.push_back(truck);
+    }
+    // report unassigned nodes
+    std::cout << "-------- Unassigned after TrashProblem::nearestNeighbor\n";
+    for (int i=0; i<pickups.size(); i++) {
+        if (unassigned[pickups[i]])
+            std::cout << "    " << pickups[i] << std::endl;
+    }
 }
 
 
@@ -189,7 +241,7 @@ void TrashProblem::dumpDmatrix() const {
 }
 
 
-void TrashProblem::dumpFleet() const {
+void TrashProblem::dumpFleet() {
     std::cout << "--------- Fleet ------------" << std::endl;
     for (int i=0; i<fleet.size(); i++)
         fleet[i].dump();

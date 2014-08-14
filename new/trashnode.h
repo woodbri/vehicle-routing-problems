@@ -7,18 +7,18 @@ class Trashnode : public Twnode {
   protected:
     int ntype;              // node type (0=depot, 1=dump, 2=pickup)
     double depotdist;     // distance to nearest depot
-    int depotnid;         // nid of the closet depot
+    long int depotnid;         // nid of the closet depot
     double depotdist2;    // distance to nearest depot
-    int depotnid2;        // nid of the closet depot
+    long int depotnid2;        // nid of the closet depot
     double dumpdist;        // distance to nearest dump
-    int dumpnid;            // nid of closet dump
+    long int dumpnid;            // nid of closet dump
 
 
   public:
-    int getdepotdist() const {return depotdist;};
-    int getdepotnid() const {return depotnid;};
-    int getdumpdist() const {return dumpdist;};
-    int getdumpnid() const {return dumpnid;};
+    double getdepotdist() const {return depotdist;};
+    long int getdepotnid() const {return depotnid;};
+    double getdumpdist() const {return dumpdist;};
+    long int getdumpnid() const {return dumpnid;};
     bool isdepot() const {return ntype==0;};
     bool isdump() const {return ntype==1;};
     bool ispickup() const {return ntype==2;};

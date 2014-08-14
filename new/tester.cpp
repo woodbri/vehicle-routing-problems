@@ -105,6 +105,8 @@ int main(int argc, char **argv) {
         tp.dumpdataNodes();
         tp.dumpDmatrix();
         tp.dump();
+        tp.nearestNeighbor();
+        tp.dumpFleet();
 
     }
     catch (const std::exception &e) {
