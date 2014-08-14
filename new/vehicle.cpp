@@ -54,7 +54,7 @@ void Vehicle::evaluate() {
 
 void Vehicle::dump() {
     std::cout << "---------- Vehicle ---------------" << std::endl;
-    std::cout << "maxcapacity: " << maxcapacity << std::endl;
+    std::cout << "maxcapacity: " << getmaxcapacity() << std::endl;
     std::cout << "curcapacity: " << curcapacity << std::endl;
     std::cout << "duration: " << duration << std::endl;
     std::cout << "cost: " << cost << std::endl;

@@ -3,7 +3,7 @@
 
 class Vehicle : public Path {
   private:
-    int maxcapacity;
+    //int maxcapacity;
 
     int curcapacity;
     double duration;
@@ -18,7 +18,7 @@ class Vehicle : public Path {
   public:
 
     Vehicle() {
-        maxcapacity = 0;
+        //maxcapacity = 0;
         curcapacity = 0;
         duration    = 0;
         cost        = 0;
@@ -27,7 +27,9 @@ class Vehicle : public Path {
         w1 = w2 = w3 = 1.0;
     };
 
-    int getmaxcapacity() const { return maxcapacity; };
+    int getmaxcapacity() {
+        return getdepot().getdemand();
+    };
     int getTWV() const { return TWV; };
     int getCV() const { return CV; };
     int getcurcapacity() const { return curcapacity; };
@@ -37,7 +39,7 @@ class Vehicle : public Path {
     double getw2() const { return w2; };
     double getw3() const { return w3; };
 
-    void setmaxcapacity(int _maxcapacity) { maxcapacity = _maxcapacity; };
+    //void setmaxcapacity(int _maxcapacity) { maxcapacity = _maxcapacity; };
     void setweights(double _w1, double _w2, double _w3) {
         w1 = _w1;
         w2 = _w2;
