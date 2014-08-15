@@ -126,10 +126,17 @@ int main(int argc, char **argv) {
         tp.loadproblem( infile );
 
         tp.dumpdataNodes();
-        tp.dumpDmatrix();
+        //tp.dumpDmatrix();
         tp.dump();
         tp.nearestNeighbor();
         tp.dumpFleet();
+
+        int a = tp.findNearestNodeTo(2, PICKUP);
+        std::cout << "tp.findNearestNodeTo(2, PICKUP) = " << a << std::endl;
+        a = tp.findNearestNodeTo(2, DUMP);
+        std::cout << "tp.findNearestNodeTo(2, DUMP) = " << a << std::endl;
+        a = tp.findNearestNodeTo(2, DUMP|PICKUP);
+        std::cout << "tp.findNearestNodeTo(2, DUMP|PICKUP) = " << a << std::endl;
 
     }
     catch (const std::exception &e) {

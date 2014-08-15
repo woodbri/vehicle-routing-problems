@@ -9,6 +9,16 @@
 #include "path.h"
 #include "vehicle.h"
 
+enum Selector {
+    ANY         =0,
+    UNASSIGNED  =1,
+    CLUSTER1    =2,
+    CLUSTER2    =4,
+    PICKUP      =16,
+    DEPOT       =32,
+    DUMP        =64
+};
+
 
 class TrashProblem {
   private:

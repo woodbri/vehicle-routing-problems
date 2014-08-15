@@ -145,7 +145,7 @@ void TrashProblem::buildDistanceMatrix() {
 int TrashProblem::findNearestNodeTo(int nid, int selector) {
     Trashnode &tn(datanodes[nid]);
     int nn = -1;    // init to not found
-    double dist;    // dist to nn
+    double dist = -1;    // dist to nn
 
     for (int i=0; i<datanodes.size(); i++) {
         bool select = false;
@@ -179,11 +179,12 @@ int TrashProblem::findNearestNodeTo(int nid, int selector) {
             continue;
 
         double d = dMatrix[tn.getnid()][i];
-        if (nid == -1 or d < dist) {
+        if (nn == -1 or d < dist) {
             dist = d;
-            nid = i;
+            nn = i;
         }
     }
+    std::cout << "TrashProblem::findNearestNodeTo(" << nid << ", " << selector << ") = " << nn << " at dist = " << dist << std::endl;
     return nn;
 }
 
