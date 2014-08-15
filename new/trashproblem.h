@@ -14,6 +14,7 @@ enum Selector {
     UNASSIGNED  =1,
     CLUSTER1    =2,
     CLUSTER2    =4,
+    LIMITDEMAND =8,
     PICKUP      =16,
     DEPOT       =32,
     DUMP        =64
@@ -42,12 +43,17 @@ class TrashProblem {
 
     void buildDistanceMatrix();
 
-    // search for node methods
-    // filter: 0 - unfiltered
-    //         1 - unassigned only
-    //         2 - only those nodes in nid's cluster
-    //         3 - 1 and 2
-    int findNearestNodeTo(int nid, int filter);
+    // selector is a bit mask (TODO: make these an enum)
+    // selector: 0 - any
+    //           1 - must be unassigned
+    //           2 - in nid's cluster1
+    //           4 - in nid's cluster2
+    //           8 - with demand < demandLimit
+    //          16 - must be pickup nodes
+    //          32 - must be depot nodes
+    //          64 - must be dump nodes
+
+    int findNearestNodeTo(int nid, int selector, int demandLimit);
 
     // get solution
     std::string solutionAsText();

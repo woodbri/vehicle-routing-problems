@@ -131,12 +131,14 @@ int main(int argc, char **argv) {
         tp.nearestNeighbor();
         tp.dumpFleet();
 
-        int a = tp.findNearestNodeTo(2, PICKUP);
+        int a = tp.findNearestNodeTo(2, PICKUP, 0);
         std::cout << "tp.findNearestNodeTo(2, PICKUP) = " << a << std::endl;
-        a = tp.findNearestNodeTo(2, DUMP);
+        a = tp.findNearestNodeTo(2, DUMP, 0);
         std::cout << "tp.findNearestNodeTo(2, DUMP) = " << a << std::endl;
-        a = tp.findNearestNodeTo(2, DUMP|PICKUP);
+        a = tp.findNearestNodeTo(2, DUMP|PICKUP, 0);
         std::cout << "tp.findNearestNodeTo(2, DUMP|PICKUP) = " << a << std::endl;
+        a = tp.findNearestNodeTo(2, PICKUP|LIMITDEMAND, 90);
+        std::cout << "tp.findNearestNodeTo(2, PICKUP|LIMITDEMAND,90) = " << a << std::endl;
 
     }
     catch (const std::exception &e) {

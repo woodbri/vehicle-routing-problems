@@ -133,22 +133,26 @@ void TrashProblem::buildDistanceMatrix() {
 // search for node methods
 
 // selector is a bit mask (TODO: make these an enum)
-// selector: 0 - any
-//           1 - must be unassigned
-//           2 - in nid's cluster1
-//           4 - in nid's cluster2
-//           8 - 
-//          16 - must be pickup nodes
-//          32 - must be depot nodes
-//          64 - must be dump nodes
+// selector: 0 - anyi                       ANY
+//           1 - must be unassigned         UNASSIGNED
+//           2 - in nid's cluster1          CLUSTER1
+//           4 - in nid's cluster2          CLUSTER2
+//           8 - with demand <= demandLimit LIMITDEMAND
+//          16 - must be pickup nodes       PICKUP
+//          32 - must be depot nodes        DEPOT
+//          64 - must be dump nodes         DUMP
 
-int TrashProblem::findNearestNodeTo(int nid, int selector) {
+int TrashProblem::findNearestNodeTo(int nid, int selector, int demandLimit) {
     Trashnode &tn(datanodes[nid]);
     int nn = -1;    // init to not found
     double dist = -1;    // dist to nn
 
     for (int i=0; i<datanodes.size(); i++) {
         bool select = false;
+
+        // filter out nodes where the demand > demandLimit
+        if (selector & 8 and datanodes[i].getdemand() > demandLimit)
+            continue;
 
         // if select any
         if (!selector)
@@ -162,9 +166,6 @@ int TrashProblem::findNearestNodeTo(int nid, int selector) {
         // is dump node
         else if (selector & 64 and datanodes[i].isdump())
             select = true;
-        // is unassigned node
-        else if (selector & 1 and unassigned[i])
-            select = true;
         // belongs to cluster1
         else if (selector & 2 and (
                  tn.getdepotnid() == datanodes[i].getdepotnid() or
@@ -175,7 +176,12 @@ int TrashProblem::findNearestNodeTo(int nid, int selector) {
                  tn.getdepotnid2() == datanodes[i].getdepotnid() or
                  tn.getdepotnid2() == datanodes[i].getdepotnid2() ) )
                 select = true;
-        else
+
+        // is unassigned node
+        if (selector & 1 and ! unassigned[i])
+            continue;
+
+        if (!select)
             continue;
 
         double d = dMatrix[tn.getnid()][i];
@@ -233,23 +239,11 @@ void TrashProblem::nearestNeighbor() {
 
         while (truck.getcurcapacity() <= truck.getmaxcapacity()) {
 
-            // add the nearest unassigned node to path after the last node
-            int nnid = -1;
-            double ndist;
-            for (int j=0; j<pickups.size(); j++) {
-                // skip if assigned to another truck
-                if (! unassigned[pickups[j]]) continue;
-                // skip if adding this node exceeds capacity
-                if (truck.getcurcapacity() + datanodes[pickups[j]].getdemand()
-                    > truck.getmaxcapacity()) continue;
+            int nnid = findNearestNodeTo(depot.getnid(),
+                            UNASSIGNED|PICKUP|LIMITDEMAND,
+                            truck.getmaxcapacity() - truck.getcurcapacity());
 
-                double d = dMatrix[pickups[j]][last_node.getnid()];
-                if (nnid == -1 or d < ndist) {
-                    nnid = pickups[j];
-                    ndist = d;
-                }
-            }
-            // if we did not find a node we can add break
+            // if we did not find a node we can break
             if (nnid == -1) break;
 
             // add node to route
