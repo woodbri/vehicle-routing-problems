@@ -8,12 +8,31 @@
 #include <vector>
 #include <math.h>
 
+#include "vec2d.h"
+#include <stdio.h>
+
 #include "node.h"
 #include "twnode.h"
 #include "trashnode.h"
 #include "path.h"
 #include "trashproblem.h"
 
+void TestDistanceFromLineSegmentToPoint( double segmentX1, double segmentY1, double segmentX2, double segmentY2, double pX, double pY ) {
+    double qX;
+    double qY;
+    double d = distanceFromLineSegmentToPoint( segmentX1, segmentY1, segmentX2, segmentY2, pX, pY, &qX, &qY );
+    printf( "line segment = ( ( %f, %f ), ( %f, %f ) ), p = ( %f, %f ), distance = %f, q = ( %f, %f )\n",
+            segmentX1, segmentY1, segmentX2, segmentY2, pX, pY, d, qX, qY );
+}
+
+void TestDistanceFromLineSegmentToPoint() {
+    TestDistanceFromLineSegmentToPoint( 0, 0, 1, 1, 1, 0 );
+    TestDistanceFromLineSegmentToPoint( 0, 0, 20, 10, 5, 4 );
+    TestDistanceFromLineSegmentToPoint( 0, 0, 20, 10, 30, 15 );
+    TestDistanceFromLineSegmentToPoint( 0, 0, 20, 10, -30, 15 );
+    TestDistanceFromLineSegmentToPoint( 0, 0, 10, 0, 5, 1 );
+    TestDistanceFromLineSegmentToPoint( 0, 0, 0, 10, 1, 5 );
+}
 
 void Usage() {
     std::cout << "Usage: tester in.txt\n";
@@ -29,6 +48,10 @@ int main(int argc, char **argv) {
     std::string infile = argv[1];
 
     try {
+
+        std::cout << "Testing Vec2d ------------"  << std::endl;
+        TestDistanceFromLineSegmentToPoint();
+        std::cout << "--------------------------" << std::endl << std::endl;
 
         Node n;
         std::cout << "Empty Node validity: " << n.isvalid() << std::endl;
