@@ -17,6 +17,8 @@ class Trashnode : public Twnode {
   public:
     double getdepotdist() const {return depotdist;};
     long int getdepotnid() const {return depotnid;};
+    double getdepotdist2() const {return depotdist2;};
+    long int getdepotnid2() const {return depotnid2;};
     double getdumpdist() const {return dumpdist;};
     long int getdumpnid() const {return dumpnid;};
     bool isdepot() const {return ntype==0;};

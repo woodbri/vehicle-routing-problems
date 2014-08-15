@@ -18,6 +18,8 @@ class TrashProblem {
     std::vector<int> dumps;
     std::vector<int> pickups;
 
+    std::vector<int> unassigned;
+
     std::vector< std::vector<double> > dMatrix;
     double extents[4];
 
@@ -29,6 +31,13 @@ class TrashProblem {
     void setNodeDistances(Trashnode& n);
 
     void buildDistanceMatrix();
+
+    // search for node methods
+    // filter: 0 - unfiltered
+    //         1 - unassigned only
+    //         2 - only those nodes in nid's cluster
+    //         3 - 1 and 2
+    int findNearestNodeTo(int nid, int filter);
 
     // get solution
     std::string solutionAsText();

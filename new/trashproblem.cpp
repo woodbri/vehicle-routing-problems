@@ -130,6 +130,63 @@ void TrashProblem::buildDistanceMatrix() {
     }
 }
 
+// search for node methods
+
+// selector is a bit mask (TODO: make these an enum)
+// selector: 0 - any
+//           1 - must be unassigned
+//           2 - in nid's cluster1
+//           4 - in nid's cluster2
+//           8 - 
+//          16 - must be pickup nodes
+//          32 - must be depot nodes
+//          64 - must be dump nodes
+
+int TrashProblem::findNearestNodeTo(int nid, int selector) {
+    Trashnode &tn(datanodes[nid]);
+    int nn = -1;    // init to not found
+    double dist;    // dist to nn
+
+    for (int i=0; i<datanodes.size(); i++) {
+        bool select = false;
+
+        // if select any
+        if (!selector)
+            select = true;
+        // is pickup node
+        else if (selector & 16 and datanodes[i].ispickup())
+            select = true;
+        // is depot node
+        else if (selector & 32 and datanodes[i].isdepot())
+            select = true;
+        // is dump node
+        else if (selector & 64 and datanodes[i].isdump())
+            select = true;
+        // is unassigned node
+        else if (selector & 1 and unassigned[i])
+            select = true;
+        // belongs to cluster1
+        else if (selector & 2 and (
+                 tn.getdepotnid() == datanodes[i].getdepotnid() or
+                 tn.getdepotnid() == datanodes[i].getdepotnid2() ) )
+                select = true;
+        // belongs to cluster2
+        else if (selector & 4 and (
+                 tn.getdepotnid2() == datanodes[i].getdepotnid() or
+                 tn.getdepotnid2() == datanodes[i].getdepotnid2() ) )
+                select = true;
+        else
+            continue;
+
+        double d = dMatrix[tn.getnid()][i];
+        if (nid == -1 or d < dist) {
+            dist = d;
+            nid = i;
+        }
+    }
+    return nn;
+}
+
 
 std::string TrashProblem::solutionAsText() {
     std::stringstream ss;;
@@ -157,7 +214,7 @@ std::vector<int>  TrashProblem::solutionAsVector() {
 
 void TrashProblem::nearestNeighbor() {
     // create a list of all pickup nodes and make them unassigned
-    std::vector<int> unassigned(datanodes.size(), 1);
+    unassigned = std::vector<int>(datanodes.size(), 1);
 
     for (int i=0; i<depots.size(); i++) {
         Vehicle truck;
@@ -210,6 +267,9 @@ void TrashProblem::nearestNeighbor() {
             std::cout << "    " << pickups[i] << std::endl;
     }
 }
+
+
+
 
 
 void TrashProblem::nearestInsertion() {
