@@ -55,7 +55,7 @@ class TrashProblem {
 
     bool filterNode(Trashnode &tn, int i, int selector, int demandLimit);
     int findNearestNodeTo(int nid, int selector, int demandLimit);
-    int findNearestNodeTo(const Vehicle &v, int selector, int demandLimit);
+    int findNearestNodeTo(const Vehicle &v, int selector, int demandLimit, int *pos);
 
     // get solution
     std::string solutionAsText();

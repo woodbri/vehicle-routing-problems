@@ -6,6 +6,7 @@
 #include <sstream>
 #include <fstream>
 
+#include "vec2d.h"
 #include "trashproblem.h"
 
 double TrashProblem::distance(int n1, int n2) const {
@@ -185,9 +186,44 @@ int TrashProblem::findNearestNodeTo(int nid, int selector, int demandLimit) {
 }
 
 
-int findNearestNodeTo(const Vehicle &v, int selector, int demandLimit) {
+int TrashProblem::findNearestNodeTo(const Vehicle &v, int selector, int demandLimit, int *pos) {
+    Trashnode &depot(v.getdepot());
+    Trashnode &dump(v.getdumpsite());
+    int nn = -1;        // init to not found
+    int loc = 0;        // position in path to insert
+    double dist = -1;   // dist to nn
+    double qx, qy;
 
+    for (int i=0; i<datanodes.size(); i++) {
 
+        if (filterNode(depot, i, selector, demandLimit)) continue;
+
+        double d;
+        Trashnode &last = depot;
+
+        for (int j=0; j<v.size(); j++) {
+            d = distanceFromLineSegmentToPoint(
+                last.getx(), last.gety(), v[j].getx(), v[j].gety(),
+                datanodes[i].getx(), datanodes[i].gety(), &qx, &qy);
+            if (nn == -1 or d < dist) {
+                dist = d;
+                loc = j;
+                nn = i;
+            }
+            last = v[j];
+        }
+        d = distanceFromLineSegmentToPoint(
+            last.getx(), last.gety(), dump.getx(), dump.gety(),
+            datanodes[i].getx(), datanodes[i].gety(), &qx, &qy);
+        if (nn == -1 or d < dist) {
+            dist = d;
+            loc = v.size();
+            nn = i;
+        }
+    }
+
+    *pos = loc;
+    return nn;
 }
 
 
