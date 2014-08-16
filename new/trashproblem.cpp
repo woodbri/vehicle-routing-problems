@@ -17,12 +17,6 @@ void TrashProblem::loadproblem(std::string& file) {
     std::ifstream in( file.c_str() );
     std::string line;
 
-    // initialize the extents
-    extents[0] = std::numeric_limits<double>::max();
-    extents[1] = std::numeric_limits<double>::max();
-    extents[2] = std::numeric_limits<double>::min();
-    extents[3] = std::numeric_limits<double>::min();
-
     // read the nodes
     int cnt = 0;
     while ( std::getline(in, line) ) {
@@ -33,12 +27,6 @@ void TrashProblem::loadproblem(std::string& file) {
         Trashnode node( line );
         if (!node.isvalid())
             std::cout << "ERROR: line: " << cnt << ": " << line << std::endl;
-
-        // compute the extents as we load the data for plotting
-        if (node.getx() < extents[0]) extents[0] = node.getx();
-        if (node.gety() < extents[1]) extents[1] = node.gety();
-        if (node.getx() > extents[2]) extents[2] = node.getx();
-        if (node.gety() > extents[3]) extents[3] = node.gety();
 
         datanodes.push_back(node);
 
@@ -51,12 +39,6 @@ void TrashProblem::loadproblem(std::string& file) {
     }
 
     in.close();
-
-    // add a small buffer around the extents
-    extents[0] -= (extents[2] - extents[0]) * 0.02;
-    extents[2] += (extents[2] - extents[0]) * 0.02;
-    extents[1] -= (extents[3] - extents[1]) * 0.02;
-    extents[3] += (extents[3] - extents[1]) * 0.02;
 
     buildDistanceMatrix();
 
@@ -142,17 +124,12 @@ void TrashProblem::buildDistanceMatrix() {
 //          32 - must be depot nodes        DEPOT
 //          64 - must be dump nodes         DUMP
 
-int TrashProblem::findNearestNodeTo(int nid, int selector, int demandLimit) {
-    Trashnode &tn(datanodes[nid]);
-    int nn = -1;    // init to not found
-    double dist = -1;    // dist to nn
-
-    for (int i=0; i<datanodes.size(); i++) {
+bool TrashProblem::filterNode(Trashnode &tn, int i, int selector, int demandLimit) {
         bool select = false;
 
         // filter out nodes where the demand > demandLimit
         if (selector & 8 and datanodes[i].getdemand() > demandLimit)
-            continue;
+            return true;
 
         // if select any
         if (!selector)
@@ -179,10 +156,23 @@ int TrashProblem::findNearestNodeTo(int nid, int selector, int demandLimit) {
 
         // is unassigned node
         if (selector & 1 and ! unassigned[i])
-            continue;
+            return true;
 
         if (!select)
-            continue;
+            return true;
+
+        return ! select;
+}
+
+
+int TrashProblem::findNearestNodeTo(int nid, int selector, int demandLimit) {
+    Trashnode &tn(datanodes[nid]);
+    int nn = -1;    // init to not found
+    double dist = -1;    // dist to nn
+
+    for (int i=0; i<datanodes.size(); i++) {
+
+        if (filterNode(tn, i, selector, demandLimit)) continue;
 
         double d = dMatrix[tn.getnid()][i];
         if (nn == -1 or d < dist) {
@@ -192,6 +182,12 @@ int TrashProblem::findNearestNodeTo(int nid, int selector, int demandLimit) {
     }
     std::cout << "TrashProblem::findNearestNodeTo(" << nid << ", " << selector << ") = " << nn << " at dist = " << dist << std::endl;
     return nn;
+}
+
+
+int findNearestNodeTo(const Vehicle &v, int selector, int demandLimit) {
+
+
 }
 
 
