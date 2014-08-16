@@ -10,14 +10,14 @@
 #include "vehicle.h"
 
 enum Selector {
-    ANY         =0,
-    UNASSIGNED  =1,
-    CLUSTER1    =2,
-    CLUSTER2    =4,
-    LIMITDEMAND =8,
-    PICKUP      =16,
-    DEPOT       =32,
-    DUMP        =64
+    ANY         =0,     // any
+    UNASSIGNED  =1,     // must be unassigned
+    CLUSTER1    =2,     // in nid's cluster1
+    CLUSTER2    =4,     // in nid's cluster2
+    LIMITDEMAND =8,     // with demand < demandLimit
+    PICKUP      =16,    // must be pickup nodes
+    DEPOT       =32,    // must be depot nodes
+    DUMP        =64     // must be dump nodes
 };
 
 
@@ -32,36 +32,37 @@ class TrashProblem {
     std::vector<int> unassigned;
 
     std::vector< std::vector<double> > dMatrix;
-    double extents[4];
 
   public:
-
+    // accessors
     double distance(int nq, int n2) const;
 
+    bool filterNode(const Trashnode &tn, int i, int selector, int demandLimit);
+
+    //// these should be const
+    int findNearestNodeTo(int nid, int selector, int demandLimit);
+    int findNearestNodeTo(Vehicle &v, int selector, int demandLimit, int *pos);
+
+    // get solution
+    std::string solutionAsText();           //// const
+    std::vector<int> solutionAsVector();    //// const
+
+    void dumpDmatrix() const;
+    void dumpFleet();                       //// const
+    void dumpdataNodes() const;
+    void dumpDepots() const;
+    void dumpDumps() const;
+    void dumpPickups() const;
+    void dump();                            /// const
+
+    // mutators
     void loadproblem(std::string& file);
     void setNodeDistances(Trashnode& n);
 
     void buildDistanceMatrix();
 
-    // selector is a bit mask (TODO: make these an enum)
-    // selector: 0 - any
-    //           1 - must be unassigned
-    //           2 - in nid's cluster1
-    //           4 - in nid's cluster2
-    //           8 - with demand < demandLimit
-    //          16 - must be pickup nodes
-    //          32 - must be depot nodes
-    //          64 - must be dump nodes
-
-    bool filterNode(const Trashnode &tn, int i, int selector, int demandLimit);
-    int findNearestNodeTo(int nid, int selector, int demandLimit);
-    int findNearestNodeTo(Vehicle &v, int selector, int demandLimit, int *pos);
-
-    // get solution
-    std::string solutionAsText();
-    std::vector<int> solutionAsVector();
-
     // methods to build initial solution
+    void clearFleet() { fleet.clear(); };
     void nearestNeighbor();
     void nearestInsertion();
     void farthestInsertion();
@@ -69,14 +70,6 @@ class TrashProblem {
 
     // optimization routines
     void opt_2opt();
-
-    void dumpDmatrix() const;
-    void dumpFleet();
-    void dumpdataNodes() const;
-    void dumpDepots() const;
-    void dumpDumps() const;
-    void dumpPickups() const;
-    void dump();
 
 };
 

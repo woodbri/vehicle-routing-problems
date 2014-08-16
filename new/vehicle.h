@@ -1,21 +1,25 @@
 #ifndef VEHICLE_H
 #define VEHICLE_H
 
+// TODO: change curcapacity to curload
+//       add getcurload() and change getcurcapacity(0 to return
+//       getmaxcapacity()-curload
+
 class Vehicle : public Path {
   private:
-    //int maxcapacity;
+    int curcapacity;    // current USED capacity of the vehicle
+    double duration;    // duration of the route
+    double cost;        // cost of the route
+    int TWV;            // number of time window violations
+    int CV;             // number of capacity violations
 
-    int curcapacity;
-    double duration;
-    double cost;
-    int TWV;
-    int CV;
-
-    double w1;
-    double w2;
-    double w3;
+    double w1;          // weight for duration in cost
+    double w2;          // weight for TWV in cost
+    double w3;          // weight for CV in cost
 
   public:
+
+    // structors
 
     Vehicle() {
         //maxcapacity = 0;
@@ -27,7 +31,8 @@ class Vehicle : public Path {
         w1 = w2 = w3 = 1.0;
     };
 
-    int getmaxcapacity() {
+    // accessors
+    int getmaxcapacity() {              //// should be const
         return getdepot().getdemand();
     };
     int getTWV() const { return TWV; };
@@ -39,21 +44,20 @@ class Vehicle : public Path {
     double getw2() const { return w2; };
     double getw3() const { return w3; };
 
-    //void setmaxcapacity(int _maxcapacity) { maxcapacity = _maxcapacity; };
+    // these should be const
+    double distancetodepot(int i) { return path[i].distance(getdepot()); };
+    double distancetodump(int i) { return path[i].distance(getdumpsite()); };
+
+    void dump();
+
+    // mutators
     void setweights(double _w1, double _w2, double _w3) {
         w1 = _w1;
         w2 = _w2;
         w3 = _w3;
     };
 
-
     void evaluate();
-
-    double distancetodepot(int i) { return path[i].distance(getdepot()); };
-    double distancetodump(int i) { return path[i].distance(getdumpsite()); };
-
-    void dump();
-
 
 };
 

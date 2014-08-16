@@ -15,7 +15,7 @@
 */
 
 class Path {
-  protected:
+  protected:            //// should be privet
     Trashnode home;
     Trashnode dumpsite;
     std::deque<Trashnode> path;
@@ -25,15 +25,18 @@ class Path {
     typedef Trashnodepath::iterator iterator;
     typedef Trashnodepath::const_iterator const_iterator;
 
+    // assignment operator
     Path& operator=(const Path& n) {
         home = n.home;
         path = n.path;
         return *this;
     };
 
+    // accessors
     Trashnode getdepot() const { return home; };
     Trashnode getdumpsite() const { return dumpsite; };
 
+    // mutators
     void setdepot(Trashnode& n) { home = n; };
     void setdumpsite(Trashnode& n) { dumpsite = n; };
 
@@ -76,7 +79,8 @@ class Path {
     //iterator emplace_front(const Trashnode& n) { return path.emplace_front(n); };
     //iterator emplace_back(const Trashnode& n) { return path.emplace_back(n); };
 
-    void dump() {
+    // accessor
+    void dump() {           //// make this const
         std::cout << "Path: " << home.getnid();
         for (int i=0; i<path.size(); i++)
             std::cout << ", " << path[i].getnid();

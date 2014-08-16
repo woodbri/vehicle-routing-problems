@@ -128,8 +128,6 @@ int main(int argc, char **argv) {
         tp.dumpdataNodes();
         //tp.dumpDmatrix();
         tp.dump();
-        tp.nearestNeighbor();
-        tp.dumpFleet();
 
         int a = tp.findNearestNodeTo(2, PICKUP, 0);
         std::cout << "tp.findNearestNodeTo(2, PICKUP) = " << a << std::endl;
@@ -139,6 +137,15 @@ int main(int argc, char **argv) {
         std::cout << "tp.findNearestNodeTo(2, DUMP|PICKUP) = " << a << std::endl;
         a = tp.findNearestNodeTo(2, PICKUP|LIMITDEMAND, 90);
         std::cout << "tp.findNearestNodeTo(2, PICKUP|LIMITDEMAND,90) = " << a << std::endl;
+
+        std::cout << "\n----------- nearestNeighbor -----------------------\n";
+        tp.nearestNeighbor();
+        tp.dumpFleet();
+
+        std::cout << "\n----------- assignmentSweep -----------------------\n";
+        tp.assignmentSweep();
+        tp.dumpFleet();
+
 
     }
     catch (const std::exception &e) {

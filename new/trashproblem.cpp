@@ -222,6 +222,8 @@ int TrashProblem::findNearestNodeTo(Vehicle &v, int selector, int demandLimit, i
         }
     }
 
+    std::cout << "TrashProblem::findNearestNodeTo(V" << depot.getnid() << ", " << selector << ") = " << nn << " at dist = " << dist << " at pos = " << loc << std::endl;
+
     *pos = loc;
     return nn;
 }
@@ -254,6 +256,8 @@ std::vector<int>  TrashProblem::solutionAsVector() {
 void TrashProblem::nearestNeighbor() {
     // create a list of all pickup nodes and make them unassigned
     unassigned = std::vector<int>(datanodes.size(), 1);
+
+    clearFleet();
 
     for (int i=0; i<depots.size(); i++) {
         Vehicle truck;
@@ -312,6 +316,8 @@ void TrashProblem::farthestInsertion() {
 void TrashProblem::assignmentSweep() {
     // create a list of all pickup nodes and make them unassigned
     unassigned = std::vector<int>(datanodes.size(), 1);
+
+    clearFleet();
 
     for (int i=0; i<depots.size(); i++) {
         Vehicle truck;

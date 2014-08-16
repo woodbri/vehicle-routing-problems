@@ -5,12 +5,13 @@
 #include <string>
 
 class Node {
-  protected:
+  protected:        //// should be private
     int nid;
     double x;
     double y;
 
   public:
+    // accessors
     int getnid() const { return nid; };
     int getx() const { return x; };
     int gety() const { return y; };
@@ -23,10 +24,14 @@ class Node {
 
     void dump() const;
 
+    // state
     bool isvalid() const { return nid > -1; };
+
+    //// these 2 should be const ??
     bool isSamePos(const Node &n) { return distance(n) == 0; };
     bool isSamePos(const Node &n, double tol) { return distance(n) < tol; };
 
+    // mutators
     void setvalues(int _nid, double _x, double _y) {
         nid = _nid;
         x = _x;
@@ -37,11 +42,13 @@ class Node {
     void setx(double _x) { x = _x; };
     void sety(double _y) {y = _y; };
 
+    // operators
     bool operator<(const Node &n) const { return nid < n.nid; };
     bool operator==(const Node &n) const { return nid == n.nid && x == n.x && y == n.y; };
     bool operator!=(const Node &n) const { return ! (*this == n); };
     bool operator>(const Node &n) const { return nid > n.nid; };
 
+    // structors
 
     Node() {
         nid = -1;
