@@ -31,8 +31,8 @@ class Path {
         return *this;
     };
 
-    Trashnode& getdepot() { return home; };
-    Trashnode& getdumpsite() { return dumpsite; };
+    Trashnode getdepot() const { return home; };
+    Trashnode getdumpsite() const { return dumpsite; };
 
     void setdepot(Trashnode& n) { home = n; };
     void setdumpsite(Trashnode& n) { dumpsite = n; };

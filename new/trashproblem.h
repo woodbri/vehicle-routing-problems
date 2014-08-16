@@ -53,9 +53,9 @@ class TrashProblem {
     //          32 - must be depot nodes
     //          64 - must be dump nodes
 
-    bool filterNode(Trashnode &tn, int i, int selector, int demandLimit);
+    bool filterNode(const Trashnode &tn, int i, int selector, int demandLimit);
     int findNearestNodeTo(int nid, int selector, int demandLimit);
-    int findNearestNodeTo(const Vehicle &v, int selector, int demandLimit, int *pos);
+    int findNearestNodeTo(Vehicle &v, int selector, int demandLimit, int *pos);
 
     // get solution
     std::string solutionAsText();
