@@ -14,7 +14,7 @@
     * what should prev() and next() do at the begin(0 and end() ?
 */
 
-template <class knode> class Path {
+template <class knode> class Twpath {
   protected:
     knode home;
     knode dumpsite;
@@ -27,7 +27,7 @@ template <class knode> class Path {
     typedef typename std::deque<knode>::iterator iterator;
     typedef typename std::deque<knode>::const_iterator const_iterator;
 
-    Path& operator=(const Path& n) {
+    Twpath& operator=(const Twpath& n) {
         home = n.home;
         path = n.path;
         return *this;
