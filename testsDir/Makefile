@@ -1,6 +1,6 @@
 
 CPP = g++
-UTIL = ../basicClasses
+UTIL = ../baseClasses
 CPPFLAGS = -g -O0 -MMD -MP -I$(UTIL)
 LDFLAGS = -lgd -I$(UTIL)
 
