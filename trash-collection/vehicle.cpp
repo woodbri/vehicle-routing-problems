@@ -63,6 +63,6 @@ void Vehicle::dump() {
     std::cout << "w2: " << w2 << std::endl;
     std::cout << "w3: " << w3 << std::endl;
     std::cout << "path nodes: -----------------" << std::endl;
-    Path::dump();
+    Twpath::dump();
 }
 

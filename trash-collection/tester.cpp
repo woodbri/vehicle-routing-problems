@@ -110,7 +110,7 @@ int main(int argc, char **argv) {
 
         Trashnode depot(1, 0, 0, 0, 0, 24*60, 0, 0);
         Trashnode dumpsite(2, 10, 10, 0, 0, 24*60, 30, 1);
-        Path<Trashnode> route;
+        Twpath<Trashnode> route;
         route.setdepot(depot);
         route.setdumpsite(dumpsite);
         route.dump();
