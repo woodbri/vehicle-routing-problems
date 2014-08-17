@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Compiled Object files
 *.slo
 *.lo
@@ -24,6 +25,7 @@
 out/*.png
 *.o
 *.d
+
 tester
-
-
+vrpdptw
+collection
