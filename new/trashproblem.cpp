@@ -129,34 +129,34 @@ bool TrashProblem::filterNode(const Trashnode &tn, int i, int selector, int dema
         bool select = false;
 
         // filter out nodes where the demand > demandLimit
-        if (selector & 8 and datanodes[i].getdemand() > demandLimit)
+        if (selector & LIMITDEMAND and datanodes[i].getdemand() > demandLimit)
             return true;
 
         // if select any
         if (!selector)
             select = true;
         // is pickup node
-        else if (selector & 16 and datanodes[i].ispickup())
+        else if (selector & PICKUP and datanodes[i].ispickup())
             select = true;
         // is depot node
-        else if (selector & 32 and datanodes[i].isdepot())
+        else if (selector & DEPOT and datanodes[i].isdepot())
             select = true;
         // is dump node
-        else if (selector & 64 and datanodes[i].isdump())
+        else if (selector & DUMP and datanodes[i].isdump())
             select = true;
         // belongs to cluster1
-        else if (selector & 2 and (
+        else if (selector & CLUSTER1 and (
                  tn.getdepotnid() == datanodes[i].getdepotnid() or
                  tn.getdepotnid() == datanodes[i].getdepotnid2() ) )
                 select = true;
         // belongs to cluster2
-        else if (selector & 4 and (
+        else if (selector & CLUSTER2 and (
                  tn.getdepotnid2() == datanodes[i].getdepotnid() or
                  tn.getdepotnid2() == datanodes[i].getdepotnid2() ) )
                 select = true;
 
         // is unassigned node
-        if (selector & 1 and ! unassigned[i])
+        if (selector & UNASSIGNED and ! unassigned[i])
             return true;
 
         if (!select)
@@ -194,9 +194,15 @@ int TrashProblem::findNearestNodeTo(Vehicle &v, int selector, int demandLimit, i
     double dist = -1;   // dist to nn
     double qx, qy;
 
+    std::cout << "TrashProblem::findNearestNodeTo(V" << depot.getnid() << ", " << selector << ")\n";
+
     for (int i=0; i<datanodes.size(); i++) {
 
-        if (filterNode(depot, i, selector, demandLimit)) continue;
+        if (filterNode(depot, i, selector, demandLimit)) {
+            std::cout << "FILTERED: ";
+            datanodes[i].dump();
+            continue;
+        }
 
         double d;
         Trashnode &last = depot;
