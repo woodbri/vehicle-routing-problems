@@ -26,4 +26,5 @@ out/*.png
 *.o
 *.d
 
+tester
 collection
