@@ -14,7 +14,7 @@
 #include "node.h"
 #include "twnode.h"
 #include "trashnode.h"
-#include "path.h"
+#include "twpath.h"
 #include "trashproblem.h"
 
 void TestDistanceFromLineSegmentToPoint( double segmentX1, double segmentY1, double segmentX2, double segmentY2, double pX, double pY ) {
@@ -110,7 +110,7 @@ int main(int argc, char **argv) {
 
         Trashnode depot(1, 0, 0, 0, 0, 24*60, 0, 0);
         Trashnode dumpsite(2, 10, 10, 0, 0, 24*60, 30, 1);
-        Path route;
+        Path<Trashnode> route;
         route.setdepot(depot);
         route.setdumpsite(dumpsite);
         route.dump();

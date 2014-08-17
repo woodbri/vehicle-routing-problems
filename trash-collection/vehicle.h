@@ -1,11 +1,14 @@
 #ifndef VEHICLE_H
 #define VEHICLE_H
 
+#include "twpath.h"
+#include "trashnode.h"
+
 // TODO: change curcapacity to curload
 //       add getcurload() and change getcurcapacity(0 to return
 //       getmaxcapacity()-curload
 
-class Vehicle : public Path {
+class Vehicle : public Path<Trashnode> {
   private:
     int curcapacity;    // current USED capacity of the vehicle
     double duration;    // duration of the route
