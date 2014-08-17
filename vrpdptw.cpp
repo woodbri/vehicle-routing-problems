@@ -49,6 +49,8 @@ int main (int argc, char **argv)
         std::cout << "Initial Solution: SCost: " << S.getCost() << std::endl;
         S.dump();
 
+return 0;
+
 #if 1
         TabuSearch TS(S);
         TS.debugTabu = true;

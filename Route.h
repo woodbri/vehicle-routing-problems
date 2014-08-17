@@ -26,13 +26,13 @@ class Route {
 //    std::vector<int> capacity;  // capacity after node is loaded
 //    std::vector<double> pdist;  // distance at node max(arrival time, tw_open)
     bool updated;
-    int D;      // duration
+    double D;      // duration
     int TWV;    // TW violations
     int CV;     // capacity violations
     double cost;
 
     // these are used by testPath()
-    int tD;      // duration
+    double tD;      // duration
     int tTWV;    // TW violations
     int tCV;     // capacity violations
 
