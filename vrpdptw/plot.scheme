@@ -1,0 +1,26 @@
+void Solution::printgraph() {
+
+plot graph(" my solution name ");
+
+x1=P.getx1();
+y1=P.gety1();
+x2=P.getx2();
+y2=P.gety2();
+
+graph.setExtents(double x1,double y1,double x2, double y2);
+
+for (i=0; i<.S.getRoutesCant();i++) {
+
+double x[] = S.getXvalues(i);  
+double y[] = S.getYvalues(i);  
+
+graph.getXY(x,y) 
+graph.doplotting();
+graph.clearXY();
+
+}
+
+graph.printGraph();
+
+};
+

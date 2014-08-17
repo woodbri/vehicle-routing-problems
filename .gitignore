@@ -26,6 +26,4 @@ out/*.png
 *.o
 *.d
 
-tester
-vrpdptw
 collection
