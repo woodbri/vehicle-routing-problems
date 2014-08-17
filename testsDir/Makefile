@@ -2,17 +2,22 @@
 CPP = g++
 UTIL = ../baseClasses
 CPPFLAGS = -g -O0 -MMD -MP -I$(UTIL)
-LDFLAGS = -lgd -I$(UTIL)
+LDFLAGS = -lgd -I$(UTIL) -L$(UTIL)
 
 
 SRCS = $(wildcard *.cpp) 
-OBJS = $(SRCS:.cpp=.o) $(wildcard $(UTIL)/*.o)
+OBJS = $(SRCS:.cpp=.o)
+UTILSRCS = $(wildcard $(UTIL)/*.cpp)
+UTILOBJS = $(UTILSRCS:.cpp=.o)
 DEPS = $(SRCS:.cpp=.d)
 
 
 all: tester
 
-tester: $(OBJS)
+$(UTIL)/%.o: $(UTIL)/%.cpp
+	$(MAKE) -C $(UTIL)
+
+tester: $(UTILOBJS) $(OBJS)
 	$(CPP) $^ -o $@ $(LDFLAGS)
 
 %.o: %.cpp
@@ -28,5 +33,6 @@ valgrind: tester p50.txt
 
 clean:
 	rm -f tester $(SRCS:.cpp=.o) $(DEPS) out/*.png
+	$(MAKE) -C $(UTIL) clean
 
 -include $(DEPS)
