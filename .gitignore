@@ -19,3 +19,11 @@
 *.exe
 *.out
 *.app
+
+*.png
+out/*.png
+*.o
+*.d
+tester
+
+
