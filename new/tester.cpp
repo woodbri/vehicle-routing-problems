@@ -55,7 +55,7 @@ int main(int argc, char **argv) {
 
         Node n;
         std::cout << "Empty Node validity: " << n.isvalid() << std::endl;
-        n.setvalues(1, 10, 20);
+        n.set(1, 10, 20);
         n.dump();
         std::cout << "Node validity: " << n.isvalid() << std::endl;
 
@@ -66,7 +66,7 @@ int main(int argc, char **argv) {
         std::cout << "n[1].distance(n[2]): " << n.distance(n2) << std::endl;
 
         Twnode tw;
-        tw.setvalues(2, 20, 30, 40, 120, 600, 5);
+        tw.set(2, 20, 30, 40, 120, 600, 5);
         tw.dump();
         std::cout << "tw.opens(): " << tw.opens() << std::endl;
         std::cout << "tw.closes(): " << tw.closes() << std::endl;

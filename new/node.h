@@ -5,7 +5,7 @@
 #include <string>
 
 class Node {
-  protected:        //// should be private
+  protected:
     int nid;
     double x;
     double y;
@@ -27,12 +27,11 @@ class Node {
     // state
     bool isvalid() const { return nid > -1; };
 
-    //// these 2 should be const ??
-    bool isSamePos(const Node &n) { return distance(n) == 0; };
-    bool isSamePos(const Node &n, double tol) { return distance(n) < tol; };
+    bool isSamePos(const Node &n) const { return distance(n) == 0; };
+    bool isSamePos(const Node &n, double tol) const { return distance(n) < tol; };
 
     // mutators
-    void setvalues(int _nid, double _x, double _y) {
+    void set(int _nid, double _x, double _y) {
         nid = _nid;
         x = _x;
         y = _y;

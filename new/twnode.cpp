@@ -26,8 +26,8 @@ void Twnode::dump() const {
 }
 
 
-void Twnode::setvalues(int _nid, double _x, double _y, int _demand,
-                       int _tw_open, int _tw_close, int _service) {
+void Twnode::set(int _nid, double _x, double _y, int _demand,
+                 int _tw_open, int _tw_close, int _service) {
     nid = _nid;
     x = _x;
     y = _y;

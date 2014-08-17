@@ -4,7 +4,7 @@
 #include "twnode.h"
 
 class Trashnode : public Twnode {
-  protected:                        //// should be private
+  protected:
     int ntype;              // node type (0=depot, 1=dump, 2=pickup)
     double depotdist;       // distance to nearest depot
     long int depotnid;      // nid of the closet depot
@@ -39,16 +39,8 @@ class Trashnode : public Twnode {
 
     // structors
     Trashnode(int _nid, double _x, double _y, int _demand,
-              int _tw_open, int _tw_close, int _service, int _ntype) {
-        // in Node
-        nid = _nid;
-        x = _x;
-        y = _y;
-        // in Twnode
-        demand = _demand;
-        tw_open = _tw_open;
-        tw_close = _tw_close;
-        service = _service;
+              int _tw_open, int _tw_close, int _service, int _ntype) 
+              : Twnode(_nid, _x, _y, _demand, _tw_open, _tw_close, _service) {
         // in Trashnode
         ntype = _ntype;
         depotdist = 0.0;
