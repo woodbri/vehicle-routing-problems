@@ -4,6 +4,7 @@
 *.lo
 *.o
 *.obj
+*.d
 
 # Compiled Dynamic libraries
 *.so
@@ -21,10 +22,11 @@
 *.out
 *.app
 
+# vim swp files
+.*.swp
+
+# png images
 *.png
-out/*.png
-*.o
-*.d
 
 tester
 collection
