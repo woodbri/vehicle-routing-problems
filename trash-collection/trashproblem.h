@@ -6,7 +6,6 @@
 #include <vector>
 
 #include "trashnode.h"
-//#include "twpath.h"
 #include "vehicle.h"
 
 enum Selector {
@@ -55,6 +54,7 @@ class TrashProblem {
     void dumpPickups() const;
     void dump();                            /// const
 
+    int makeColor(int i) const;
     void plot( std::string file, std::string title );
 
     // mutators

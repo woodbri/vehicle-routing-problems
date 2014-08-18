@@ -13,7 +13,7 @@ static const char *font = (char *)"/u/data/maps/fonts/verdana.ttf";
 
 template <class knode> class Plot1 {
 private:
-    std::vector<knode> &pts;
+    const std::vector<knode> &pts;
     std::string file;
     std::string title;
     int width;
@@ -100,7 +100,7 @@ public:
         // make sure drawInit() has been called
         if (!im) {
             fprintf(stderr, "Plot1::drawInit() has not been called!\n");
-            return 1;
+            return;
         }
 
         // set the line thickness for drawing
@@ -132,11 +132,11 @@ public:
         // make sure drawInit() has been called
         if (!im) {
             fprintf(stderr, "Plot1::drawInit() has not been called!\n");
-            return 1;
+            return;
         }
 
         // draw the nodes as filled circles
-        for (int i=0; i<ids.size()-1; i++) {
+        for (int i=0; i<ids.size(); i++) {
             const knode &a = pts[ids[i]];
             gdImageFilledEllipse(im, scalex(a.getx()), scaley(a.gety()), 7, 7, color);
         }
@@ -147,7 +147,7 @@ public:
             for (int i=0; i<ids.size(); i++) {
                 const knode &a = pts[ids[i]];
                 sprintf(str, "%d", a.getnid());
-                gdImageStringFT(im, NULL, 0x00000000, font, 6, 0,
+                gdImageStringFT(im, NULL, 0x00000000, (char *)font, 6, 0,
                                 scalex(a.getx()), scaley(a.gety())-5, str);
             }
         }
@@ -178,7 +178,7 @@ public:
         }
 
         // draw the title
-        gdImageStringFT(im, NULL, 0x00000000, font, 8, 0, 5, 20, title.c_str());
+        gdImageStringFT(im, NULL, 0x00000000, (char *)font, 8, 0, 5, 20, (char *)(title.c_str()));
 
         // save the image and clean up
         gdImagePng(im, fp);

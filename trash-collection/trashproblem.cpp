@@ -6,7 +6,7 @@
 #include <sstream>
 #include <fstream>
 
-#include "plot.h"
+#include "plot1.h"
 #include "vec2d.h"
 #include "trashproblem.h"
 
@@ -438,28 +438,28 @@ void TrashProblem::dump() {
 }
 
 
-void TrashProblem::plot( std::string file, std::string title ) {
-    std::vector<double> x;
-    std::vector<double> y;
-    std::vector<int> label;
-    std::vector<int> pcolor;
-    std::vector<int> lcolor;
-    int basecolor=10;
-    for (int i=0; i<fleet.size(); i++) {
-        fleet[i].plot(x, y, label, pcolor);
-        for (int j=0; j<x.size(); j++) {
-            if (label[j]==0) basecolor+=10;
-            lcolor.push_back(basecolor);
-        }
-    }
-    x.push_back(x[0]);
-    y.push_back(y[0]);
-    pcolor.push_back(pcolor[0]);
-    lcolor.push_back(lcolor[0]);
-    label.push_back(label[0]);
+int TrashProblem::makeColor(int i) const {
+    int b = i % 4;
+    int g = (i /  4) % 4;
+    int r = (i / 16) % 4;
 
-    Plot graph(x, y, pcolor, lcolor, label);
-    graph.setFile( file );
-    graph.setTitle( title );
-    graph.plot(false);
+    b = b ? (b*0x40-1)+0xf : 0xf;
+    g = g ? (g*0x40-1)+0xf : 0xf;
+    r = r ? (r*0x40-1)+0xf : 0xf;
+
+    return  r<<16 + g<<8 + b;
+}
+
+
+void TrashProblem::plot( std::string file, std::string title ) {
+    Plot1<Trashnode> plot( datanodes );
+    plot.setFile( file );
+    plot.setTitle( title );
+    plot.drawInit();
+    for (int i=0; i<fleet.size(); i++)
+        plot.drawPath(fleet[i].getpath(), makeColor(i), false);
+    plot.drawPoints(depots, 0xff0000, true);
+    plot.drawPoints(dumps, 0x00ff00, true);
+    plot.drawPoints(pickups, 0x0000ff, true);
+    plot.save();
 }

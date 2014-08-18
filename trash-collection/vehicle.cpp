@@ -2,8 +2,20 @@
 
 #include <iostream>
 
-
 #include "vehicle.h"
+
+
+std::vector<int> Vehicle::getpath() {
+    std::vector<int> p;
+    p.push_back(getdepot().getnid());
+    for (int i=0; i<path.size(); i++)
+        p.push_back(path[i].getnid());
+    p.push_back(getdumpsite().getnid());
+    p.push_back(getdepot().getnid());
+
+    return p;
+}
+
 
 void Vehicle::evaluate() {
     curcapacity = 0;
@@ -65,20 +77,5 @@ void Vehicle::dump() {
     std::cout << "path nodes: -----------------" << std::endl;
     Twpath::dump();
 }
-
-
-void Vehicle::plot( std::vector<double> &x, std::vector<double> &y,
-                    std::vector<int> &label, std::vector<int> &color ) {
-    for (int i=0; i<path.size(); i++) {
-        x.push_back(path[i].getx());
-        y.push_back(path[i].gety());
-        label.push_back(path[i].getnid());
-        if (path[i].isdepot()) color.push_back(0xff0000);
-        else if (path[i].ispickup()) color.push_back(0x00ff00);
-        else if (path[i].isdump()) color.push_back(0x0000ff);
-        else color.push_back(0xffff00);
-    }
-}
-
 
 

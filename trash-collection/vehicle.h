@@ -37,6 +37,7 @@ class Vehicle : public Twpath<Trashnode> {
     };
 
     // accessors
+    std::vector<int> getpath();
     int getmaxcapacity() {              //// should be const
         return getdepot().getdemand();
     };
@@ -54,8 +55,6 @@ class Vehicle : public Twpath<Trashnode> {
     double distancetodump(int i) { return path[i].distance(getdumpsite()); };
 
     void dump();
-    void plot(std::vector<double> &x, std::vector<double> &y,
-              std::vector<int> &label, std::vector<int> &color);
 
     // mutators
     void setweights(double _w1, double _w2, double _w3) {
