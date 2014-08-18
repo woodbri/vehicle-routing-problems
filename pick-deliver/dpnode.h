@@ -1,11 +1,13 @@
 #ifndef DPNODE_H
 #define DPNODE_H
 
-
+#include <string>
 #include "twnode.h"
 
 class Dpnode: public Twnode {
 private:
+    //to know the other node in the order
+    int nodepair;
     //to evaluate the vehicle at node level
     bool twv;
     bool cv;
@@ -24,18 +26,24 @@ public:
     bool isdelivery() const {return  hasnogoods();}
     bool hastwv() const {return twv;}
     bool hascv() const {return cv;}
+
     void dumpeval();
+    void dump();
 /*accessors*/
     int  gettwvTot() const {return twvTot;}
     int  getcvTot() const {return cvTot;}
     double getcargo() const {return cargo;}
     double getdistPrev() const {return distPrev;};
     double gettotDist() const {return totDist;};
-    
+    int getdid() const {return hassupply()?  nodepair: -1;};
+    int getpid() const {return hasdemand()?  nodepair: -1;};
 /* mutators */        
     void evaluate (double cargoLimit) ;
     void evaluate (const Dpnode &pred,double cargoLimit);  
 /* constructors &destructors */
+
+   Dpnode(std::string line);
+
    Dpnode(){};
    ~Dpnode(){};
 

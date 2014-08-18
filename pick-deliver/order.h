@@ -10,8 +10,8 @@ private:
   public:
     int oid;        // order id
     int rid;
-//    double dist;    // distance from depot to pickup location  can be calculated
-//    double dist2;   // distance from delivery to depot
+    double dist;    // distance from depot to pickup location  can be calculated
+    double dist2;   // distance from delivery to depot
     bool asigned;   
     Twnode *pickup;
     Twnode *delivery;
@@ -57,8 +57,8 @@ int getdid() const {return delivery->getnid();}
 int getoid() const {return oid;};
 int getrid() const {return rid;};
 
-//double getdistPickupDepot() const {return pickup->getdist();};
-//double getdistDeliveryDepot() const {return delivery->getdist();};
+double getdistPickupDepot() const {return dist;};
+double getdistDeliveryDepot() const {return dist2;};
 double getdistPickupOther(const Twnode other) const {return pickup->distance(other);};
 double getdistDeliveryOther(const Twnode other) const {return pickup->distance(other);};
 double getdistPickDeliver() const {return pickup->distance(*delivery);};
