@@ -66,3 +66,19 @@ void Vehicle::dump() {
     Twpath::dump();
 }
 
+
+void Vehicle::plot( std::vector<double> &x, std::vector<double> &y,
+                    std::vector<int> &label, std::vector<int> &color ) {
+    for (int i=0; i<path.size(); i++) {
+        x.push_back(path[i].getx());
+        y.push_back(path[i].gety());
+        label.push_back(path[i].getnid());
+        if (path[i].isdepot()) color.push_back(0xff0000);
+        else if (path[i].ispickup()) color.push_back(0x00ff00);
+        else if (path[i].isdump()) color.push_back(0x0000ff);
+        else color.push_back(0xffff00);
+    }
+}
+
+
+
