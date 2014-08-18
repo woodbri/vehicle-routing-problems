@@ -55,6 +55,8 @@ class TrashProblem {
     void dumpPickups() const;
     void dump();                            /// const
 
+    void plot( std::string file, std::string title );
+
     // mutators
     void loadproblem(std::string& file);
     void setNodeDistances(Trashnode& n);

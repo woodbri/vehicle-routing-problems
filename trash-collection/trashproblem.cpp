@@ -6,6 +6,7 @@
 #include <sstream>
 #include <fstream>
 
+#include "plot.h"
 #include "vec2d.h"
 #include "trashproblem.h"
 
@@ -436,3 +437,29 @@ void TrashProblem::dump() {
     std::cout << "Solution: " << solutionAsText() << std::endl;
 }
 
+
+void TrashProblem::plot( std::string file, std::string title ) {
+    std::vector<double> x;
+    std::vector<double> y;
+    std::vector<int> label;
+    std::vector<int> pcolor;
+    std::vector<int> lcolor;
+    int basecolor=10;
+    for (int i=0; i<fleet.size(); i++) {
+        fleet[i].plot(x, y, label, pcolor);
+        for (int j=0; j<x.size(); j++) {
+            if (label[j]==0) basecolor+=10;
+            lcolor.push_back(basecolor);
+        }
+    }
+    x.push_back(x[0]);
+    y.push_back(y[0]);
+    pcolor.push_back(pcolor[0]);
+    lcolor.push_back(lcolor[0]);
+    label.push_back(label[0]);
+
+    Plot graph(x, y, pcolor, lcolor, label);
+    graph.setFile( file );
+    graph.setTitle( title );
+    graph.plot(false);
+}

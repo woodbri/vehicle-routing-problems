@@ -141,10 +141,12 @@ int main(int argc, char **argv) {
         std::cout << "\n----------- nearestNeighbor -----------------------\n";
         tp.nearestNeighbor();
         tp.dumpFleet();
+        tp.plot("p1.png", "nearestNeighbor");
 
         std::cout << "\n----------- assignmentSweep -----------------------\n";
         tp.assignmentSweep();
         tp.dumpFleet();
+        tp.plot("p2.png", "assignmentSweep");
 
 
     }
