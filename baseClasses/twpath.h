@@ -4,7 +4,8 @@
 #include <deque>
 #include <iostream>
 
-//#include "trashnode.h"
+#include "node.h"
+#include "twnode.h"
 
 /*
     TODO
@@ -19,10 +20,42 @@ template <class knode> class Twpath {
     knode home;
     knode dumpsite;
     std::deque<knode> path;
-    //std::deque<knode>::iterator pathIterator;
 
   public:
-    
+   /* node related */
+   double getnid(int i) const  {return path[i].getnid();}; 
+   double getx(int i) const  {return path[i].getx();}; 
+   double gety(int i) const  {return path[i].gety();}; 
+   bool isvalid(int i) const { return path[i].isvalid(); };
+   bool issamepos(int i,int j) const { return path[i].isSamePos(path[j]); };
+   bool issamepos(int i,int j,double tol) const { return path[i].isSamePos(path[j],tol); };
+   bool issamepos(int i,const Node &n) const { return path[i].isSamePos(n); };
+   bool issamepos(int i,const Node &n, double tol) const { return path[i].isSamePos(n,tol); };
+   /* twnode related */
+   bool checkintegrity(int i) const {return path[i].checkintegrity();};
+   bool checkintegrity() const {  //of all nodes in path
+        bool flag=true;
+        for (int i=0; i<path.size();i++) {
+            flag=flag and checkintegrity(i);
+        }
+        return flag;
+   }
+   bool hasdemand(int i) const { return path[i].hasdemand(); };
+   bool hassupply(int i) const { return path[i].hassupply(); };
+   bool hasnogoods(int i) const { return path[i].hasnogoods(); };
+   bool earlyarrival(int i,const double D) const { return path[i].earlyarrival(D); };
+   bool latearrival(int i,const double D) const { return path[i].latearrival(D); };
+
+
+    int opens(int i) const {return path[i].opens();};
+    int closes(int i) const {return path[i].closes();};
+    int getdemand(int i) const{ return path[i].getdemand();};
+    int getservicetime(int i) const{  return path[i].servicetime();};
+    int windowlength(int i) const { return  path[i].windowlength(); };
+    void dump(int i) const {path[i].dump();};
+
+ 
+/* path specific operations */
     typedef typename std::deque<knode> nodepath;
     typedef typename std::deque<knode>::iterator iterator;
     typedef typename std::deque<knode>::const_iterator const_iterator;
