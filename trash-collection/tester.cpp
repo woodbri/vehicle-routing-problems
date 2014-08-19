@@ -49,6 +49,7 @@ int main(int argc, char **argv) {
 
     try {
 
+/*
         std::cout << "Testing Vec2d ------------"  << std::endl;
         TestDistanceFromLineSegmentToPoint();
         std::cout << "--------------------------" << std::endl << std::endl;
@@ -118,7 +119,7 @@ int main(int argc, char **argv) {
         tn = Trashnode(4, 15, 35, 10, 0, 24*60, 15, 2);
         route.push_front(tn);
         route.dump();
-
+*/
         // ----------------------------------------------------------------
 
         TrashProblem tp;
@@ -129,6 +130,7 @@ int main(int argc, char **argv) {
         //tp.dumpDmatrix();
         tp.dump();
 
+/*
         int a = tp.findNearestNodeTo(2, PICKUP, 0);
         std::cout << "tp.findNearestNodeTo(2, PICKUP) = " << a << std::endl;
         a = tp.findNearestNodeTo(2, DUMP, 0);
@@ -137,15 +139,25 @@ int main(int argc, char **argv) {
         std::cout << "tp.findNearestNodeTo(2, DUMP|PICKUP) = " << a << std::endl;
         a = tp.findNearestNodeTo(2, PICKUP|LIMITDEMAND, 90);
         std::cout << "tp.findNearestNodeTo(2, PICKUP|LIMITDEMAND,90) = " << a << std::endl;
+*/
 
         std::cout << "\n----------- nearestNeighbor -----------------------\n";
         tp.nearestNeighbor();
-        tp.dumpFleet();
+        tp.dump();
         tp.plot("p1.png", "nearestNeighbor");
+
+        tp.dump();
+
+        std::cout << "\n---------------------------------------------------\n";
+        std::cout << "\n---------------------------------------------------\n";
+        std::cout << "\n---------------------------------------------------\n";
+
+        //tp.loadproblem( infile );
+        //tp.dump();
 
         std::cout << "\n----------- assignmentSweep -----------------------\n";
         tp.assignmentSweep();
-        tp.dumpFleet();
+        tp.dump();
         tp.plot("p2.png", "assignmentSweep");
 
 

@@ -55,6 +55,7 @@ class Vehicle : public Twpath<Trashnode> {
     double distancetodump(int i) { return path[i].distance(getdumpsite()); };
 
     void dump();
+    void dumppath();
 
     // mutators
     void setweights(double _w1, double _w2, double _w3) {

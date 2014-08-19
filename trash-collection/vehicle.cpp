@@ -79,3 +79,9 @@ void Vehicle::dump() {
 }
 
 
+void Vehicle::dumppath() {
+    Twpath::dump();
+}
+
+
+

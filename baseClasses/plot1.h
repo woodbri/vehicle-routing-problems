@@ -96,7 +96,7 @@ public:
     }
 
 
-    void drawPath(std::vector<int> ids, int color, bool label) {
+    void drawPath(std::vector<int> ids, int color, int thick, bool label) {
         // make sure drawInit() has been called
         if (!im) {
             fprintf(stderr, "Plot1::drawInit() has not been called!\n");
@@ -104,7 +104,7 @@ public:
         }
 
         // set the line thickness for drawing
-        gdImageSetThickness(im, 1);
+        gdImageSetThickness(im, thick);
 
         // extract the color into RGB values and set the line draw color
         int blue = color % 256;
@@ -128,7 +128,7 @@ public:
     }
 
 
-    void drawPoints(std::vector<int> ids, int color, bool label) {
+    void drawPoints(std::vector<int> ids, int color, int size, bool label) {
         // make sure drawInit() has been called
         if (!im) {
             fprintf(stderr, "Plot1::drawInit() has not been called!\n");
@@ -138,7 +138,7 @@ public:
         // draw the nodes as filled circles
         for (int i=0; i<ids.size(); i++) {
             const knode &a = pts[ids[i]];
-            gdImageFilledEllipse(im, scalex(a.getx()), scaley(a.gety()), 7, 7, color);
+            gdImageFilledEllipse(im, scalex(a.getx()), scaley(a.gety()), size, size, color);
         }
 
         // label the nodes if requested

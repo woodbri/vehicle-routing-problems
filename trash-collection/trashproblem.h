@@ -46,6 +46,11 @@ class TrashProblem {
     std::string solutionAsText();           //// const
     std::vector<int> solutionAsVector();    //// const
 
+    double getduration();
+    double getcost();
+    int getTWV();
+    int getCV();
+
     void dumpDmatrix() const;
     void dumpFleet();                       //// const
     void dumpdataNodes() const;
@@ -56,6 +61,7 @@ class TrashProblem {
 
     int makeColor(int i) const;
     void plot( std::string file, std::string title );
+    void plot( std::string file, std::string title, std::vector<int> highlight );
 
     // mutators
     void loadproblem(std::string& file);
