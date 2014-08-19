@@ -276,13 +276,13 @@ void TrashProblem::nearestNeighbor() {
         truck.setdumpsite(datanodes[depot.getdumpnid()]);
 
         // remember the last node we inserted
-        Trashnode& last_node = datanodes[depots[i]];
+        Trashnode& last_node = depot;
 
         truck.evaluate();
 
         while (truck.getcurcapacity() <= truck.getmaxcapacity()) {
 
-            int nnid = findNearestNodeTo(depot.getnid(),
+            int nnid = findNearestNodeTo(last_node.getnid(),
                             UNASSIGNED|PICKUP|LIMITDEMAND,
                             truck.getmaxcapacity() - truck.getcurcapacity());
 
@@ -293,6 +293,7 @@ void TrashProblem::nearestNeighbor() {
             unassigned[nnid] = 0;
             truck.push_back(datanodes[nnid]);
             truck.evaluate();
+            last_node = datanodes[nnid];
         }
         std::cout << "nearestNeighbor: depot: " << i << std::endl;
         truck.dump();
@@ -458,8 +459,8 @@ void TrashProblem::plot( std::string file, std::string title ) {
     plot.drawInit();
     for (int i=0; i<fleet.size(); i++)
         plot.drawPath(fleet[i].getpath(), makeColor(i), false);
+    plot.drawPoints(pickups, 0x0000ff, true);
     plot.drawPoints(depots, 0xff0000, true);
     plot.drawPoints(dumps, 0x00ff00, true);
-    plot.drawPoints(pickups, 0x0000ff, true);
     plot.save();
 }
