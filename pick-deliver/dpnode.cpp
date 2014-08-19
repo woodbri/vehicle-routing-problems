@@ -1,3 +1,6 @@
+#include <string>
+#include <iostream>
+#include <sstream>
 
 #include "dpnode.h"
 
@@ -12,10 +15,10 @@
     void Dpnode::evaluate (const Dpnode &pred,double cargoLimit){  
         distPrev=distance(pred);      //vehicle last move
         totDist=pred.gettotDist();
-        twv=lateArrival(totDist);     //Time Window Violation
+        twv=latearrival(totDist);     //Time Window Violation
              
-        waitTime=earlyArrival(totDist)? opens()-totDist:0;
-        totDist+=waitTime+getServiceTime(); //totDist=opens()   should gice the same result
+        waitTime=earlyarrival(totDist)? opens()-totDist:0;
+        totDist+=waitTime+getservicetime(); //totDist=opens()   should gice the same result
 
         cargo=pred.getcargo()+getdemand();       //loading or unloading 
         cv= cargo>cargoLimit or cargo < 0;  //capacity Violation
@@ -25,6 +28,11 @@
 
 
 
+    void Dpnode::dump() {
+        Twnode::dump();
+        std::cout<<"\t "<<pid
+                 <<"\t "<<did<<"\n";
+        }
 
     void Dpnode::dumpeval() {
         dump();
@@ -58,4 +66,19 @@
               distPrev=0;
               totDist=0;
     };
+
+Dpnode::Dpnode(std::string line) {
+
+    std::istringstream buffer( line );
+    buffer >> nid;
+    buffer >> x;
+    buffer >> y;
+    buffer >> demand;
+    buffer >> tw_open;
+    buffer >> tw_close;
+    buffer >> service;
+    buffer >> pid;
+    buffer >> did;
+    dump();
+}
 

@@ -22,29 +22,6 @@ template <class knode> class Twpath {
     //std::deque<knode>::iterator pathIterator;
 
   public:
-
-    void swap(int i,int j) {
-        knode temp=path[i];
-        path[i]=path[j];
-        path[j]=temp;
-    } 
-
-    void insert(const knode &n,int at) {
-        path.insert(path.begin()+at,n);
-    };
-
-    void move(int fromi,int toj) {
-         if (fromi==toj) return;
-         if (fromi<toj){
-           insert(path[fromi],toj+1);
-           remove(fromi);
-         } else {
-           insert(path[fromi],toj);
-           remove(fromi+1);
-         }
-    };
-    void remove (int i) { path.erase(path.begin()+i);};
-
     
     typedef typename std::deque<knode> nodepath;
     typedef typename std::deque<knode>::iterator iterator;
@@ -64,7 +41,6 @@ template <class knode> class Twpath {
 
     // element access
     knode& operator[](unsigned int n) { return path[n]; };
-    knode  operator[] (unsigned int n) const { return path[n]; };
     knode& at(int n) { return path.at(n); };
     knode& front() { return path.front(); };
     knode& back() { return path.back(); };

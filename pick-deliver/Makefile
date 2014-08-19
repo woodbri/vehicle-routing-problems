@@ -24,9 +24,9 @@ tester: $(UTILOBJS) $(OBJS)
 	$(CPP) $(CPPFLAGS) -c $< -o $@
 
 test: tester p50.txt
-	./tester p50.txt
+	./tester lc008.txt
 
-valgrind: tester p50.txt
+valgrind: tester lc008.txt 
 	valgrind -v --track-origins=yes --leak-check=full ./tester p50.txt
 
 .PHONY: clean

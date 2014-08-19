@@ -11,38 +11,49 @@
 
 #include "node.h"
 #include "order.h"
-class Solution;
+#include "vehicle.h"
+//class Solution;
 
-const double w1 = 1.0;  // route duration weighting
-const double w2 = 1000.0;  // total number of time violations weight
-const double w3 = 1.0;  // total number of capacity violations weight
+//const double w1 = 1.0;  // route duration weighting
+//const double w2 = 1000.0;  // total number of time violations weight
+//const double w3 = 1.0;  // total number of capacity violations weight
 
-class Problem {
-  private:
-    Node depot;
+class Prob_pd {
+  protected:
+    Dpnode depot;
+    double w1,w2,w3;
+
+    std::vector<Vehicle> fleet;
+    std::vector<Dpnode> datanodes;
+    std::vector<int> depots;
+    std::vector<int> dumps;
+    std::vector<int> pickups;
+    std::deque<Order> ordersList;   // vector of orders
+
+    std::vector<int> unassigned;
+
   public:
     int K;      // number of vehicles
     int Q;      // capacity
     int DepotClose;
-    //Node depot;
+    //Dpnode depot;
     double atwl;
-    std::vector<Node> N;    // vector of nodes
-    std::deque<Order> O;   // vector of orders
+    //std::vector<Dpnode> N;    // vector of nodes
 
 
     // variables for plotting
-    double extents[4]; 
+    //double extents[4]; 
 
     // Problem() {};
     // ~Problem() {};
 
-    Node &getdepot(){ return depot;};
+    Dpnode getdepot() const { return depot;};
     void loadProblem(char *infile);
 
-    unsigned int getNodeCount();
+    unsigned int getNodeCount() const;
     bool checkIntegrity() const;
 
-    unsigned int getOrderCount();
+    unsigned int getOrderCount() const;
 
     double distance(int n1, int n2) const;
     double DepotToPickup(int n1) const ;
@@ -55,8 +66,8 @@ class Problem {
     bool earlyArrival(int nid,double D) const; 
     bool lateArrival(int nid,double D) const; 
     bool isAsignedOrder(int oid) const;
-    Node& getDeliveryNodeFromOrder(int i);
-    Node& getPickupNodeFromOrder(int i);
+    Dpnode& getDeliveryNodeFromOrder(int i);
+    Dpnode& getPickupNodeFromOrder(int i);
     void sortOrdersbyDist();
     void sortOrdersbyDistReverse();
 
@@ -68,7 +79,7 @@ class Problem {
     void ordersdump();
     void dump();
 
-    void calcAvgTWLen();
+    //void calcAvgTWLen();
 };
 
 #endif
