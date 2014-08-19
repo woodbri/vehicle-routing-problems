@@ -2,7 +2,7 @@
 #define ORDER_H
 
 #include <iostream>
-#include "twnode.h"
+#include "dpnode.h"
 
 class Order {
 private:
@@ -13,16 +13,16 @@ private:
     double dist;    // distance from depot to pickup location  can be calculated
     double dist2;   // distance from delivery to depot
     bool asigned;   
-    Twnode *pickup;
-    Twnode *delivery;
+    Dpnode *pickup;
+    Dpnode *delivery;
 
 
 
-Order(Twnode &p,Twnode &d , int i_oid, const Twnode depot){ 
+Order(Dpnode &p,Dpnode &d , int i_oid, const Dpnode depot){ 
       fillOrder(p,d,i_oid,depot);
 }
 
-void fillOrder(Twnode &p, Twnode &d , int i_oid, const Twnode depot){ 
+void fillOrder(Dpnode &p, Dpnode &d , int i_oid, const Dpnode depot){ 
       oid=i_oid;
       pickup=&p;
       delivery=&d;
@@ -59,8 +59,8 @@ int getrid() const {return rid;};
 
 double getdistPickupDepot() const {return dist;};
 double getdistDeliveryDepot() const {return dist2;};
-double getdistPickupOther(const Twnode other) const {return pickup->distance(other);};
-double getdistDeliveryOther(const Twnode other) const {return pickup->distance(other);};
+double getdistPickupOther(const Dpnode other) const {return pickup->distance(other);};
+double getdistDeliveryOther(const Dpnode other) const {return pickup->distance(other);};
 double getdistPickDeliver() const {return pickup->distance(*delivery);};
 /************state*/
 bool isUnasigned() const { return !asigned;}

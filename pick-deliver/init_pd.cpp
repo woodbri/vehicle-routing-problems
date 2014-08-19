@@ -12,13 +12,14 @@ bool sortByOid(Order a, Order b)
 // Class functions
 
 void Init_pd::dumbConstruction() {
-    Vehicle truck;
+    Vehicle truck(depot);
     sortOrdersbyDistReverse();
         for (int i=0; i<getOrderCount(); i++) {
            truck.addOrder(getOrder(i));
         }
-    truck.dump();
     fleet.push_back(truck);
+    dump();
+    plot();
 };
 
 void Init_pd::dumbConstructionAndBestMoveForward() {/*

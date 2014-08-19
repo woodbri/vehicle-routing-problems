@@ -92,6 +92,7 @@ void Prob_pd::dump() {
     std::cout << "K: " << K << std::endl;
     std::cout << "Q: " << Q << std::endl;
     ordersdump();
+    std::cout << "\n";
     nodesdump();
 }
 
@@ -115,6 +116,8 @@ void Prob_pd::loadProblem(char *infile)
         if (node.isdepot()) {
             DepotClose = node.closes();
             depot=node;
+std::cout<<"\n the depot";
+depot.dump();
         }
     }
     in.close();
@@ -141,12 +144,9 @@ void Prob_pd::makeOrders ()
     Order order;
     // for each pickup, get its delivery and create an order
     for (int i=0; i<getNodeCount(); i++) {
-        if (datanodes[i].isdepot()) continue;  //no order for depot}
-        if (datanodes[i].ispickup()) {
+        if (datanodes[i].isdepot() or datanodes[i].isdelivery()) continue; 
               order.fillOrder(datanodes[i],datanodes[datanodes[i].getdid()],oid++,depot);
               ordersList.push_back(order);
-
-        }
     }
 }
 

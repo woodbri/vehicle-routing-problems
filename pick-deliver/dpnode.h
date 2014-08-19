@@ -23,9 +23,9 @@ private:
     void copyvalues (const Dpnode &other);
 
 public:
-    bool ispickup() const {return hassupply();}
-    bool isdepot() const {return hasdemand();}
-    bool isdelivery() const {return  hasnogoods();}
+    bool ispickup() const {return hasdemand();}
+    bool isdelivery() const {return hassupply();}
+    bool isdepot() const {return  hasnogoods();}
     bool hastwv() const {return twv;}
     bool hascv() const {return cv;}
 
@@ -50,15 +50,16 @@ public:
    Dpnode(){};
    ~Dpnode(){};
 
-   Dpnode(Twnode &n);
-
+//   Dpnode(Twnode &n);
+/*
     Dpnode(const Dpnode &other):Twnode(other) {
               copyvalues(other);
      };
     Dpnode& operator=(const Dpnode &other) {
+              
               copyvalues(other);
      };        
-
+*/
 };    
 
 #endif

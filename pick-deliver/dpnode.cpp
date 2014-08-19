@@ -54,10 +54,13 @@
               cargo=other.cargo;
               distPrev=other.distPrev;
               totDist=other.totDist;
+              pid=other.pid;
+              did=other.did;
+              oid=other.oid;
              };
 
 
-   Dpnode::Dpnode(Twnode &n):Twnode(n) {
+/*   Dpnode::Dpnode(Twnode &n):Twnode(n) {
               twv=false;
               cv=false;
               twvTot=0;
@@ -65,8 +68,9 @@
               cargo=0;
               distPrev=0;
               totDist=0;
+              oid=did=pid=0;
     };
-
+*/
 Dpnode::Dpnode(std::string line) {
 
     std::istringstream buffer( line );
@@ -79,6 +83,6 @@ Dpnode::Dpnode(std::string line) {
     buffer >> service;
     buffer >> pid;
     buffer >> did;
-    dump();
+//std::cout<<"\njust read:"; dump();
 }
 

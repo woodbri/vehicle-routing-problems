@@ -32,7 +32,7 @@ valgrind: tester lc008.txt
 .PHONY: clean
 
 clean:
-	rm -f tester $(SRCS:.cpp=.o) $(DEPS) out/*.png
+	rm -f tester $(SRCS:.cpp=.o) $(DEPS) out/*.png ./*.png
 	$(MAKE) -C $(UTIL) clean
 
 -include $(DEPS)
