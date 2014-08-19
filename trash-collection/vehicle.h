@@ -1,6 +1,8 @@
 #ifndef VEHICLE_H
 #define VEHICLE_H
 
+#include <vector>
+
 #include "twpath.h"
 #include "trashnode.h"
 
@@ -35,6 +37,7 @@ class Vehicle : public Twpath<Trashnode> {
     };
 
     // accessors
+    std::vector<int> getpath();
     int getmaxcapacity() {              //// should be const
         return getdepot().getdemand();
     };

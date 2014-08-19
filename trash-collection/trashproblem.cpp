@@ -6,6 +6,7 @@
 #include <sstream>
 #include <fstream>
 
+#include "plot1.h"
 #include "vec2d.h"
 #include "trashproblem.h"
 
@@ -275,13 +276,13 @@ void TrashProblem::nearestNeighbor() {
         truck.setdumpsite(datanodes[depot.getdumpnid()]);
 
         // remember the last node we inserted
-        Trashnode& last_node = datanodes[depots[i]];
+        Trashnode& last_node = depot;
 
         truck.evaluate();
 
         while (truck.getcurcapacity() <= truck.getmaxcapacity()) {
 
-            int nnid = findNearestNodeTo(depot.getnid(),
+            int nnid = findNearestNodeTo(last_node.getnid(),
                             UNASSIGNED|PICKUP|LIMITDEMAND,
                             truck.getmaxcapacity() - truck.getcurcapacity());
 
@@ -292,6 +293,7 @@ void TrashProblem::nearestNeighbor() {
             unassigned[nnid] = 0;
             truck.push_back(datanodes[nnid]);
             truck.evaluate();
+            last_node = datanodes[nnid];
         }
         std::cout << "nearestNeighbor: depot: " << i << std::endl;
         truck.dump();
@@ -436,3 +438,29 @@ void TrashProblem::dump() {
     std::cout << "Solution: " << solutionAsText() << std::endl;
 }
 
+
+int TrashProblem::makeColor(int i) const {
+    int b = i % 4;
+    int g = (i /  4) % 4;
+    int r = (i / 16) % 4;
+
+    b = b ? (b*0x40-1)+0xf : 0xf;
+    g = g ? (g*0x40-1)+0xf : 0xf;
+    r = r ? (r*0x40-1)+0xf : 0xf;
+
+    return  r<<16 + g<<8 + b;
+}
+
+
+void TrashProblem::plot( std::string file, std::string title ) {
+    Plot1<Trashnode> plot( datanodes );
+    plot.setFile( file );
+    plot.setTitle( title );
+    plot.drawInit();
+    for (int i=0; i<fleet.size(); i++)
+        plot.drawPath(fleet[i].getpath(), makeColor(i), false);
+    plot.drawPoints(pickups, 0x0000ff, true);
+    plot.drawPoints(depots, 0xff0000, true);
+    plot.drawPoints(dumps, 0x00ff00, true);
+    plot.save();
+}
