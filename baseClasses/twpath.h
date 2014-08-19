@@ -28,7 +28,6 @@ template <class knode> class Twpath {
         path[i]=path[j];
         path[j]=temp;
     } 
-
     void insert(const knode &n,int at) {
         path.insert(path.begin()+at,n);
     };

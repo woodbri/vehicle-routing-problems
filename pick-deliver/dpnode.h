@@ -29,8 +29,8 @@ public:
     bool hastwv() const {return twv;}
     bool hascv() const {return cv;}
 
-    void dumpeval();
-    void dump();
+    void dumpeval() const;
+    void dump() const ;
 /*accessors*/
     int  gettwvTot() const {return twvTot;}
     int  getcvTot() const {return cvTot;}

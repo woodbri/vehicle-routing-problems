@@ -46,7 +46,7 @@ int main (int argc, char **argv)
         Init_pd S(P);  //setting the problem to start looling for an initial solution
         S.setweights(1,1000,1); //this solution will have this weigths
         std::cout << "\n\n\n**Solution: S.dumbConstruction\n";
-        S.dumbConstruction();  
+        S.dumbConstruction();  P.dump(); S.dump(); S.plot("test1.png","Dumb construction");
         //S.initialFeasableSolution();
 /*
         std::cout << "\n\n\n******************Y************Solution: initial no hill Construction \n";

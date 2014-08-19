@@ -18,6 +18,13 @@ bool sortByDistReverse(Order a, Order b)
     return a.getdistPickupDepot() > b.getdistPickupDepot();
 }
 
+bool sortByOid(Order a, Order b)
+{
+    return a.oid < b.oid;
+}
+
+
+
 // Class functions
 
 unsigned int Prob_pd::getNodeCount() const { return (unsigned int) datanodes.size(); } 
@@ -127,7 +134,9 @@ depot.dump();
 void Prob_pd::sortOrdersbyDistReverse(){
     sort(ordersList.begin(), ordersList.end(), sortByDistReverse);
 };
-
+void Prob_pd::sortOrdersbyId(){
+    sort(ordersList.begin(), ordersList.end(), sortByOid);
+};
 void Prob_pd::sortOrdersbyDist(){
     sort(ordersList.begin(), ordersList.end(), sortByDist);
 };

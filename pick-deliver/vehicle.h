@@ -14,12 +14,12 @@ class Vehicle {
     Dpnode depot;
     //deque<Order> orders;
 
-    /* for evaluatin the truck */
+    /* for evaluating the truck */
     int  curcapacity;   
     double duration;  
     double cost;     
-    int TWV;            // number of time window violations
-    int CV;             // number of capacity violations
+    int twvTot;            // number of time window violations
+    int cvTot;             // number of capacity violations
     bool cv_depot;
     bool twv_depot;
 
@@ -37,13 +37,14 @@ class Vehicle {
         curcapacity = 0;
         duration    = 0;
         cost        = 0;
-        TWV         = 0;
-        CV          = 0;
+        twvTot         = 0;
+        cvTot          = 0;
         w1 = w2 = w3 = 1.0;
     };
 
-   Vehicle(const Dpnode &_depot) {
+   Vehicle(const Dpnode &_depot,double _maxcapacity) {
         depot=_depot;
+        maxcapacity=_maxcapacity;
     depot.dump();
         path.push_back(depot);
         //path.setdepot(depot);
@@ -65,32 +66,41 @@ class Vehicle {
     void move(int fromi,int toj);
     void push_back(Dpnode pathstop);
     void insert(Dpnode pathstop,int at);
-    void setvalues(int at);
-    void setDepotValues();
+    //void setvalues(int at);
+    //void setDepotValues();
     void dump() ;
     void smalldump();
     //bool ispickup(int i) {return path[i].ispickup();}
     //bool isdelivery(int i) {return path[i].isdelivery();}
     //bool isdepot(int i) {return path[i].isdepot();}
     bool sameorder(int i,int j){return path[i].getoid()==path[j].getoid();}
-    bool feasable() { return TWV == 0 and CV == 0;}
-    bool hascv()const { return CV != 0;}
-    bool hastwv()const { return TWV != 0;}
-    double getcost(double w1,double w2,double w3);// { return   w1*D + w2*TWV + w3*CV; }
+    void clean() {path.resize(0); };
 
-
-
+    /*algorithm spesific */
+    void findBetterForward(int &bestI, int &bestJ);
+    bool findImprovment(int i);
+    void hillClimbOpt();
+    int  findForwardImprovment(const int i,double &bestcost) ;
 
 
 
 
 
 /* evaluation */
-    int getTWV() const { return TWV; };
-    int getCV() const { return CV; };
+    bool feasable() { return twvTot == 0 and cvTot == 0;}
+    bool hascv()const { return cvTot != 0;}
+    bool hastwv()const { return twvTot != 0;}
+
+    void evaluate();
+    void evalLast();
+    void evaluate(int from);
+    int gettwvTot() const { return twvTot; };
+    int getcvTot() const { return cvTot; };
     int getcurcapacity() const { return curcapacity; };
     double getduration() const { return duration; };
     double getcost() const { return cost; };
+    //double getcost(double w1,double w2,double w3);// { return   w1*D + w2*TWV + w3*CV; }
+
     double getw1() const { return w1; };
     double getw2() const { return w2; };
     double getw3() const { return w3; };
@@ -107,7 +117,6 @@ class Vehicle {
         w3 = _w3;
     };
 
-    void evaluate();
     void tau() ;
 
     void plot(std::vector<double> &x, std::vector<double> &y,std::vector<int> &label,std::vector<int> &color);
@@ -122,7 +131,6 @@ class Vehicle {
     int getoid(int i) const { return path[i].getoid(); }
     double getx(const int i) const {path[i].getx();}
     double gety(const int i) const {path[i].gety();}
-
     bool hasdemand(int i) const { return path[i].hasdemand(); };
     bool hassupply(int i) const { return path[i].hassupply(); };
     bool hasnogoods(int i) const { return path[i].hasnogoods(); };

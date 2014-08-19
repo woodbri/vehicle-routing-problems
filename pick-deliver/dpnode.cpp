@@ -10,38 +10,46 @@
         waitTime=0;
         distPrev=0;
         totDist=0;
+        twvTot=cvTot=0;
+        twv=cv=false;
         }
         
     void Dpnode::evaluate (const Dpnode &pred,double cargoLimit){  
-        distPrev=distance(pred);      //vehicle last move
-        totDist=pred.gettotDist();
-        twv=latearrival(totDist);     //Time Window Violation
-             
-        waitTime=earlyarrival(totDist)? opens()-totDist:0;
-        totDist+=waitTime+getservicetime(); //totDist=opens()   should gice the same result
+std::cout<<"cargo Limit\n"<<cargoLimit;
 
-        cargo=pred.getcargo()+getdemand();       //loading or unloading 
-        cv= cargo>cargoLimit or cargo < 0;  //capacity Violation
-        twvTot = (twv)? pred.twvTot+pred.twvTot:pred.twvTot;
-        cvTot = (cv)? pred.cvTot+1:pred.cvTot;
+        distPrev=distance(pred);       //vehicle last move length
+        totDist=pred.totDist+distPrev; //tot length travel drom 1st node
+        twv=latearrival(totDist);      //Time Window Violation
+
+        waitTime=earlyarrival(totDist)? opens()-totDist:0;   //truck arrives before node opens, so waits 
+        totDist+=waitTime;                                    // we add the waiting time
+std::cout<<"previus\n";
+pred.dumpeval();
+std::cout<<"actual\n";
+dumpeval();
+        cargo=pred.cargo+getdemand();                       //loading truck demand>0 or unloading demand<0
+        cv= cargo>cargoLimit;                               //capacity Violation
+        twvTot = (twv)? pred.twvTot+1:pred.twvTot;          //keep a total of violations
+        cvTot =  (cv)?  pred.cvTot+1 :pred.cvTot;
    };
 
 
 
-    void Dpnode::dump() {
+    void Dpnode::dump() const {
         Twnode::dump();
         std::cout<<"\t "<<pid
                  <<"\t "<<did<<"\n";
         }
 
-    void Dpnode::dumpeval() {
+    void Dpnode::dumpeval() const  {
         dump();
         std::cout<<"twv="<<twv
                  <<",cv="<<cv
                  <<",twvTot="<<twvTot
                  <<",cvTot="<<cvTot
                  <<",cargo="<<cargo
-                 <<",distPrev="<<distPrev
+                 <<",distWithPrev="<<distPrev
+                 <<",waitTime="<<waitTime
                  <<",totDist="<<totDist
                  <<"\n";
     };
@@ -83,6 +91,11 @@ Dpnode::Dpnode(std::string line) {
     buffer >> service;
     buffer >> pid;
     buffer >> did;
+    waitTime=0;
+    distPrev=0;
+    totDist=0;
+    twvTot=cvTot=0;
+    twv=cv=false;
 //std::cout<<"\njust read:"; dump();
 }
 
