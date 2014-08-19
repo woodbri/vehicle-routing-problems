@@ -7,7 +7,9 @@
 class Dpnode: public Twnode {
 private:
     //to know the other node in the order
-    int nodepair;
+    int oid;
+    int did;
+    int pid;
     //to evaluate the vehicle at node level
     bool twv;
     bool cv;
@@ -35,8 +37,9 @@ public:
     double getcargo() const {return cargo;}
     double getdistPrev() const {return distPrev;};
     double gettotDist() const {return totDist;};
-    int getdid() const {return hassupply()?  nodepair: -1;};
-    int getpid() const {return hasdemand()?  nodepair: -1;};
+    int getdid() const {return  did;};
+    int getpid() const {return  pid;};
+    int getoid() const {return oid;};
 /* mutators */        
     void evaluate (double cargoLimit) ;
     void evaluate (const Dpnode &pred,double cargoLimit);  

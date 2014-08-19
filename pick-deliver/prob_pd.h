@@ -36,9 +36,9 @@ class Prob_pd {
     int K;      // number of vehicles
     int Q;      // capacity
     int DepotClose;
-    //Node depot;
+    //Dpnode depot;
     double atwl;
-    std::vector<Node> N;    // vector of nodes
+    //std::vector<Dpnode> N;    // vector of nodes
 
 
     // variables for plotting

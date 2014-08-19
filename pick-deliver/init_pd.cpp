@@ -1,3 +1,4 @@
+#include <cmath>
 #include "plot.h"
 #include "vehicle.h"
 #include "init_pd.h"
@@ -11,17 +12,17 @@ bool sortByOid(Order a, Order b)
 // Class functions
 
 void Init_pd::dumbConstruction() {
-    Route dumbroute(P);
-    P.sortOrdersbyDistReverse();
-        for (int i=0; i<P.getOrderCount(); i++) {
-           dumbroute.addOrder(P.getOrder(i));
+    Vehicle truck;
+    sortOrdersbyDistReverse();
+        for (int i=0; i<getOrderCount(); i++) {
+           truck.addOrder(getOrder(i));
         }
-    dumbroute.dump();
-    R.push_back(dumbroute);
+    truck.dump();
+    fleet.push_back(truck);
 };
 
 void Init_pd::dumbConstructionAndBestMoveForward() {/*
-    Route dumbroute(P);
+    Vehicle dumbroute(P);
     int bestI;
     int bestJ;
         for (int i=0; i<P.getOrderCount(); i++) {
@@ -37,15 +38,15 @@ std::cout<<"best I"<<bestI<<", best J"<<bestJ<<"\n";
 */};
      
 void Init_pd::withSortedOrdersConstruction() {
-    P.sortOrdersbyDist();
+    sortOrdersbyDist();
     dumbConstruction();
 };
 
 void Init_pd::dumbAndHillConstruction() {/*
-    Route dumbroute(P);
-    P.sortOrdersbyDistReverse();
-        for (int i=0; i<P.getOrderCount(); i++) {
-           dumbroute.addOrder(P.getOrder(i));
+    Vehicle dumbroute(P);
+    sortOrdersbyDistReverse();
+        for (int i=0; i<getOrderCount(); i++) {
+           dumbroute.addOrder(getOrder(i));
         }
     dumbroute.hillClimbOpt();
     dumbroute.dump();
@@ -53,9 +54,9 @@ void Init_pd::dumbAndHillConstruction() {/*
 */};
 
 void Init_pd::deliveryBeforePickupConstruction() {/*
-    Route dumbroute(P);
+    Vehicle dumbroute(P);
         for (int i=0; i<getOrderCount(); i++) {
-           dumbroute.addDelivery(P.getOrder(i));
+           dumbroute.addDelivery(getOrder(i));
            dumbroute.addPickup(P.getOrder(i));
         }
     dumbroute.dump();
@@ -68,10 +69,10 @@ void Init_pd::sequentialConstruction() {
     Order order;
     std::deque<Order> unOrders;
     std::deque<Order> waitOrders;
-    P.sortOrdersbyDist();
+    sortOrdersbyDist();
     unOrders=P.O;
     while (!unOrders.empty()) {
-       Route route(P);
+       Vehicle route(P);
        std::cout<<"\n\n*******1 original orders"<<P.O.size()<<" wait orders "<< waitOrders.size()<<" unassigned Orders "<<unOrders.size()<<"\n";
        while (!unOrders.empty()) {
           order=unOrders.front();
@@ -99,10 +100,10 @@ void Init_pd::initialByOrderSolution() {
     Order order;
     std::deque<Order> unOrders;
     std::deque<Order> waitOrders;
-    P.sortOrdersbyDistReverse();
+    sortOrdersbyDistReverse();
     unOrders=P.O;
     while (!unOrders.empty()) {
-       Route route(P);
+       Vehicle route(P);
        while (!unOrders.empty()) {
          order=unOrders.front();
           unOrders.pop_front();
@@ -141,7 +142,7 @@ void  Init_pd::initialFeasableSolution() {/*
     P.sortOrdersbyDistReverse();
     unOrders=P.O;
     while (!unOrders.empty()) {
-       Route route(P);
+       Vehicle route(P);
        while (!unOrders.empty()) {
          order=unOrders.front();
           unOrders.pop_front();
@@ -177,7 +178,7 @@ void Init_pd::computeCosts() {
     totalDistance = 0.0;
     for (int i=0; i<fleet.size(); i++) {
         totalCost += fleet[i].getcost();
-        totalDistance += fleet[i].D;
+        totalDistance += fleet[i].getduration();
     }
 }
 
@@ -192,7 +193,7 @@ double Init_pd::getDistance() {
 }
 
 
-void Init_pd::plotTau(){
+void Init_pd::plot(){
     std::vector<double> x;
     std::vector<double> y;
     std::vector<int> label;
@@ -200,7 +201,7 @@ void Init_pd::plotTau(){
     std::vector<int> lcolor;
     int basecolor=10;
     for (int i=0; i<fleet.size(); i++) {
-        fleet[i].plotTau(x,y,label,pcolor);
+        fleet[i].plot(x,y,label,pcolor);
         for (int j=0; j<x.size(); j++) {
             if (label[j]==0) basecolor+=10;
             lcolor.push_back(basecolor);
@@ -217,17 +218,18 @@ void Init_pd::plotTau(){
 }
 
 
-void Init_pd::Init_pd() {
+void Init_pd::tau() {
     std::cout<< "\nTau:" << std::endl;
-    for (int i=0; i<R.size(); i++) {
+    for (int i=0; i<fleet.size(); i++) {
         fleet[i].tau();
     };
     std::cout<<"0\n";
 }
+
 void Init_pd::dumproutes()  {
-    std::cout<< "\nRoutes:" << std::endl;
+    std::cout<< "\nVehicle:" << std::endl;
     for (int i=0; i<fleet.size(); i++) {
-        std::cout<<"\n -----> Route#"<<i<<"\n";
+        std::cout<<"\n -----> Vehicle#"<<i<<"\n";
         fleet[i].dump();
     }
     tau();
@@ -241,7 +243,7 @@ void Init_pd::dump() {
               << std::endl;
     tau();
     for (int i=0; i<fleet.size(); i++) {
-        fleet[i].dumppath();
+        fleet[i].dump();
     }
 }
 
@@ -250,14 +252,12 @@ double Init_pd::getAverageRouteDurationLength() {
     double len = 0.0;
     int n = 0;
     for (int i=0; i<fleet.size(); i++) {
-        if (fleet[i].path.size() == 0) continue;
-        if (fleet[i].updated) fleet[i].update();
-        len += fleet[i].D;
+        //compact the fleet (i.e. eliminate from the list vehicles with no route  if (fleet[i].path.size() == 0) continue;
+        fleet[i].evaluate();
+        //if (fleet[i].updated) fleet[i].update();
+        len += fleet[i].getduration();
         n++;
     }
-    if (n == 0) {
-        std::string errmsg = "Solution.getAverageRouteDurationLength: There do not appear to be any routes!";
-        throw std::runtime_error(errmsg);
-    }
+    if (n == 0) return 0;
     return len/n;
 }

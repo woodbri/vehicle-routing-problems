@@ -10,12 +10,13 @@
 const double EPSILON = 0.001;
 
 class Init_pd: public Prob_pd {
-  public:
-    //Problem P;
-    //std::vector<Route> R;
+  private:
+
     double totalDistance;
     double totalCost;
+    double w1,w2,w3;
 
+  public:
     Init_pd() {
         totalDistance = 0;
         //P=p;
@@ -23,14 +24,19 @@ class Init_pd: public Prob_pd {
         fleet.clear();
     };
 
+    Init_pd(const Prob_pd& P):Prob_pd(P){}; 
+
+
+    void setweights(double _w1,double _w2,double _w3) {w1=_w1;w2=_w2;w3=_w3;};
     void dump();
     void dumproutes();
     void tau() ;
-    void plotTau();
+    void plot();
 /* Diferent initial Constructions */
     void insertByOrderSolution();
     void dumbConstruction();
     void dumbConstructionAndBestMoveForward();
+    void withSortedOrdersConstruction();
     void initialByOrderSolution();
     void dumbAndHillConstruction();
     void deliveryBeforePickupConstruction();
@@ -49,26 +55,28 @@ class Init_pd: public Prob_pd {
             totalDistance = rhs.totalDistance;
             totalCost = rhs.totalCost;
             fleet = rhs.fleet;
-            //mapOtoR = rhs.mapOtoR;
         }
         return *this;
     };
 
     bool operator == (Init_pd &another) const {
-        return fleeet.size() == another.fleet.size() &&
-               abs(totalCost - another.totalCost) < EPSILON;
+        return fleet.size() == another.fleet.size() &&
+               std::abs(totalCost - another.totalCost) < EPSILON;
     };
 
    bool solutionEquivalent (Init_pd &another)  {
         computeCosts();
         another.computeCosts();
-        return R.size() == another.R.size() &&
-               abs(totalCost - another.totalCost) < EPSILON;
+        return fleet.size() == another.fleet.size() &&
+               std::abs(totalCost - another.totalCost) < EPSILON;
 
     };
 
     bool operator <  (Init_pd &another) const {
-        return R.size() < another.R.size() || totalCost < another.totalCost;
+        return fleet.size() < another.fleet.size() || totalCost < another.totalCost;
+
+    
+
     };
 };
 

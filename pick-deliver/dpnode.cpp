@@ -30,7 +30,8 @@
 
     void Dpnode::dump() {
         Twnode::dump();
-        std::cout<<"other="<<nodepair;
+        std::cout<<"\t "<<pid
+                 <<"\t "<<did<<"\n";
         }
 
     void Dpnode::dumpeval() {
@@ -66,8 +67,7 @@
               totDist=0;
     };
 
-   Dpnode::Dpnode(std::string line) {
-    int pid,did;
+Dpnode::Dpnode(std::string line) {
 
     std::istringstream buffer( line );
     buffer >> nid;
@@ -79,6 +79,6 @@
     buffer >> service;
     buffer >> pid;
     buffer >> did;
-    nodepair=pid>0?pid:did;
+    dump();
 }
 

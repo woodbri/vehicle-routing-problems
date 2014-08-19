@@ -1,55 +1,165 @@
 
 #include <iostream>
+#include <vector>
 
 
+#include "order.h"
+#include "twpath.h"
 #include "vehicle.h"
 
-void Vehicle::evaluate() {
-    curcapacity = 0;
-    duration = 0;
-    cost = 0;
-    TWV = 0;
-    CV = 0;
 
-    if (path.size()) {
-        for (int i=0; i<path.size(); i++) {
-            if (i == 0)
-                duration += distancetodepot(i);
-            else
-                duration += path[i].distance(path[i-1]);
 
-            if (path[i].earlyarrival(duration))
-                duration = path[i].opens();
 
-            if (path[i].latearrival(duration)) 
-                TWV++;
-
-            duration += path[i].getservicetime();
-
-            curcapacity += path[i].getdemand();
-            if (curcapacity > getmaxcapacity())
-                CV++;
-        }
-
-        duration += getdumpsite().distance(path.back());
-
-        if (getdumpsite().earlyarrival(duration))
-            duration = getdumpsite().opens();
-
-        if (getdumpsite().latearrival(duration))
-            TWV++;
-
-        duration += getdumpsite().getservicetime();
-
-        duration += getdumpsite().distance(getdepot());
-        if (getdepot().latearrival(duration))
-            TWV++;
-
+   int Vehicle::getdpos(const int oid) const {
+          int at=0;
+          while (at<path.size() and !(isdelivery(at) and getnid(at)==oid))
+            at++; 
+         return at;
     }
-    cost = w1*duration + w2*TWV +w3*CV;
+   int Vehicle::getppos(const int oid) const {
+          int at=0;
+          while (at<path.size() and !(ispickup(at) and getoid(at)==oid))
+            at++; 
+         return at;
+    }
+
+
+
+    void Vehicle::removeOrder(const int oid){
+         removePickup(oid);
+         removeDelivery(oid);
+    }
+
+    void Vehicle::removePickup(int oid){
+          for (int at=0;at<path.size();at++) {
+               if (ispickup(at) and getoid(at)==oid ){
+                   remove(at); break; 
+               }
+
+         }
+   }
+
+    void Vehicle::removeDelivery(int oid){
+           for (int at=0;at<path.size();at++) {
+               if (isdelivery(at) and getoid(at)==oid ){
+                   remove(at); break; //only 1 delivery per order
+               }
+           }
+    }
+
+    void Vehicle::remove(int at){
+          if (!path.empty()) path.remove(at);
+    }
+
+
+    double Vehicle::getcost(double w1,double w2,double w3) {
+        setvalues(0);
+        return   w1*duration + w2*TWV + w3*CV;
+    }
+
+
+    void Vehicle::push_back(Dpnode pathstop) {
+          path.push_back(pathstop);
+    }
+
+    void Vehicle::insert(Dpnode pathstop,int at) {
+         path.insert(pathstop,at);
+    }
+
+    void Vehicle::setvalues(int at){
+         if (at<path.size()) {
+              if (at==0) path[at].evaluate(maxcapacity);
+              else path[at].evaluate(path[at-1],maxcapacity);
+              setvalues(at+1);
+         } else {
+              setDepotValues();
+         };
+     }
+
+
+    void Vehicle::move(int fromi,int toj) {
+              path.move(fromi,toj);
+              //some checking migh go in route level
+              //if (fromi<toj){
+              //    insert(path[fromi],toj+1);
+              //    remove(fromi);
+              //}
+               //else {
+              //    insert(path[fromi],toj);
+              //    remove(fromi+1);
+              //}
+    }
+
+     void Vehicle::swapnodes(int i,int j){
+          if(i>j)  std::cout<<"This is a restrictive swap, requierment: i<j\n";  
+          else if (ispickup(i) and isdelivery(j) and sameorder(i,j)) std::cout<<"This is a restrictive swap, requierment: cant swap from the same order\n";
+          else {
+              path.swap(i,j);
+              //Dpnode temp(path[i]);
+              //path[i]=path[j];
+              //path[j]=temp;
+  //            setvalues(i); //update values starting from i
+  //            setvalues(0);
+          }
+     }
+
+     void Vehicle::swap(int i,int j){	
+          path.swap(i,j);
+    //      Dpnode temp(path[i]);
+    //      path[i]=path[j];
+    //      path[j]=temp;
+    //      if (i<j) setvalues(i);
+    //      else setvalues(j);
+    //      setvalues(0);
+     }
+
+
+     void Vehicle::setDepotValues() {
+              int at= path.size()-1;
+              //D = path[at].totDistFromDepot()+depot->distance(path[at].getnode());
+              //D = path[at].totDistFromDepot+depot->distance(path[at]);
+              //wv_depot=depot->lateArrival(D);
+              cv_depot=path[at].getcvTot();
+              TWV = path[at].gettwvTot();
+              CV = path[at].getcvTot();
+              TWV = (twv_depot)? TWV+1:TWV;
+              CV = (cv_depot)? CV+1:CV;
+      }
+
+
+void Vehicle::dump()  {
+    setvalues(0);
+     for (int i=0;i<path.size();i++){
+          std::cout<<"\npath stop #:"<<i<<"\n";
+          path[i].dump();
+     };
 }
 
 
+
+void Vehicle::smalldump() {
+    setvalues(0);
+    std::cout << "D="<<duration << ", "
+              << "TWV="<<TWV << ", "
+              << "CV=" <<CV<< ", ";
+    if(twv_depot) std::cout<<"depot: has twv ";
+    if(cv_depot) std::cout<<"depot: has cv ";
+    std::cout << "\nVehicle(nid,oid): [";
+    for (int i=0; i<path.size(); i++) {
+        if (i) std::cout << ", ";
+        std::cout << "("<<getnid(i)/*<<","<<getoid(i)<<")"*/;
+    }
+    std::cout << "]\n";
+}
+
+
+void Vehicle::evaluate() {
+/*
+
+*/
+}
+
+/*
 void Vehicle::dump() {
     std::cout << "---------- Vehicle ---------------" << std::endl;
     std::cout << "maxcapacity: " << getmaxcapacity() << std::endl;
@@ -64,10 +174,52 @@ void Vehicle::dump() {
     std::cout << "path nodes: -----------------" << std::endl;
     Twpath::dump();
 }
+*/
+
+
+void Vehicle::plot(std::vector<double> &x, std::vector<double> &y,std::vector<int> &label,std::vector<int> &color) {
+    for (int i=0; i< path.size(); i++) {
+       x.push_back(path[i].getx());
+       y.push_back(path[i].gety());
+       label.push_back(path[i].getnid());
+       if (isdepot(i)) color.push_back(0xff0000);
+       else if (isdelivery(i)) color.push_back(0x00ff00);
+       else color.push_back(0x0000ff);
+    }
+}
 
 
 
 
+void  Vehicle::insertPickup(const Order &o, const int at) {
+    Dpnode pickup(*o.pickup);
+    path.insert(pickup,at);
+}
+
+//void  Vehicle::remove(const int at) {
+//    path.remove(at);
+//}
+
+void  Vehicle::addPickup(const Order &o) {
+    Dpnode  pickup(*o.pickup);
+    path.push_back(pickup);
+}
+
+
+void Vehicle::addDelivery(const Order &o) {
+    Dpnode delivery(*o.delivery);
+    path.push_back(delivery);
+}
+
+void Vehicle::addOrder( const Order &o) {
+    addPickup(o);
+    addDelivery(o);
+}
+
+void Vehicle::tau() {
+    for (int i=0; i< path.size(); i++)
+       std::cout<<getnid(i)<<" , ";
+}
 
 /*
 #include <limits>
@@ -80,7 +232,7 @@ inline void swap(int a, int b) {
     b = tmp;
 }
 
-Route::Route(Problem& p) : P(p) , routePath(p.getdepot()) {
+Route::Route(Problem& p) : P(p) , routeVehicle(p.getdepot()) {
     updated = true;
     D = 0;
     TWV = 0;
@@ -155,7 +307,7 @@ void Route::update() {
 
 
 
-double Route::testPath(const std::vector<int>& tp) {
+double Route::testVehicle(const std::vector<int>& tp) {
     tD = 0;
     tTWV = 0;
     tCV = 0;
@@ -229,7 +381,7 @@ bool Route::insertOrder(int oid, bool mustBeValid) {
         // insert the predecessor and check for violations
         it2 = newpath.begin();
         newpath.insert(it2+i, np.getnid());
-        testPath(newpath);
+        testVehicle(newpath);
         // a valid placement of the predessor node
         // requires that there are NO CV ot TW violations
         if (tCV > 0 || tTWV > 0) continue;
@@ -239,7 +391,7 @@ bool Route::insertOrder(int oid, bool mustBeValid) {
             newpath2 = newpath;
             it2 = newpath2.begin();
             newpath2.insert(it2+j, nd.getnid());
-            double tcost = testPath(newpath2);
+            double tcost = testVehicle(newpath2);
             // if we are eliminating a route then mustBeValid is true
             // and we must be able to also place the successor node
             // without creating violations
@@ -261,7 +413,7 @@ bool Route::insertOrder(int oid, bool mustBeValid) {
         newpath2 = path;
         newpath2.push_back(np.getnid());
         newpath2.push_back(nd.getnid());
-        double tcost = testPath(newpath2);
+        double tcost = testVehicle(newpath2);
         if (mustBeValid && tCV == 0 && tTWV == 0) {
             bestTestCost = tcost;
             bestPosition = path.size();
@@ -287,60 +439,35 @@ bool Route::insertOrder(int oid, bool mustBeValid) {
     return false;
 }
 
-void Route::addOrder( const Order &o) {
-    addPickup(o);
-    addDelivery(o);
-
-}
 
 
 int  Route::getppos  (const int oid) const  {
-    return routePath.getppos(oid);
+    return routeVehicle.getppos(oid);
 }
 
 int  Route::getdpos (const int oid) const {
-    return routePath.getdpos(oid);
+    return routeVehicle.getdpos(oid);
 }
 
 void Route::removeOrder(const Order &o) {
-    routePath.removeOrder(o.oid);
+    routeVehicle.removeOrder(o.oid);
 }
 
 void Route::removeOrder(const int oid) {
-    routePath.removeOrder(oid);
+    routeVehicle.removeOrder(oid);
 }
 
 void Route::move(int fromi,int toj) {
    //checks are missing for valid moves
-   routePath.move(fromi,toj);
+   routeVehicle.move(fromi,toj);
 }
 
-
-void  Route::insertPickup(const Order &o, const int at) {
-    pathNode pickup(*o.pickup);
-    routePath.insert(pickup,at);
-}
-
-void  Route::remove(const int at) {
-    routePath.remove(at);
-}
-
-void  Route::addPickup(const Order &o) {
-    pathNode pickup(*o.pickup);
-    routePath.push_back(pickup);
-}
-
-
-void Route::addDelivery(const Order &o) {
-    pathNode delivery(*o.delivery);
-    routePath.push_back(delivery);
-}
 
 int Route::findForwardImprovment(const int i,double &bestcost) {
            bool improved=false;
            int bestJ=-1;
            if (isdepot(i)) return -1;
-           for (int j=i+1; j<routePath.size() and !(ispickup(i) and isdelivery(j) and sameorder(i,j)); j++) {
+           for (int j=i+1; j<routeVehicle.size() and !(ispickup(i) and isdelivery(j) and sameorder(i,j)); j++) {
                   move(i,j);
                   if (getcost()<bestcost){
                              bestcost=getcost();
@@ -355,7 +482,7 @@ int Route::findForwardImprovment(const int i,double &bestcost) {
 void Route::findBetterForward(int &bestI, int &bestJ) {
            double bestcost=getcost();
            int j=-1;
-           for (int i=1;i<routePath.size()-1;i++) { //not even bothering with the depot
+           for (int i=1;i<routeVehicle.size()-1;i++) { //not even bothering with the depot
               j=-1;
               j=findForwardImprovment(i,bestcost); 
               if (j>0) { //a better cost was found
@@ -373,7 +500,7 @@ int Route::findBetterDeliveryForward(const int ppos,const int dpos,double &bestc
            int bestJ=-1;
            int deliveryPos=dpos;
            if ( not (ppos<dpos and sameorder(ppos,dpos) and ispickup(ppos) and isdelivery(dpos) ))  return -1; //thoerically we never get to this point if called from funtion bellow
-           for (int j=ppos+1; j<routePath.size(); j++) {
+           for (int j=ppos+1; j<routeVehicle.size(); j++) {
                   move(deliveryPos,j); deliveryPos=j;   
                   if (getcost()<bestcost and feasable()){
                              bestcost=getcost();
@@ -416,8 +543,8 @@ double Route::costBetterPickupBackward(int &bppos, int &bdpos) {
 }
 
 double Route::findBestCostBackForw(const int oid,int &bppos,int &bdpos){
-          int ppos=routePath.getppos(oid);  //actual positions and costs as best
-          int dpos=routePath.getdpos(oid);
+          int ppos=routeVehicle.getppos(oid);  //actual positions and costs as best
+          int dpos=routeVehicle.getdpos(oid);
           double actualcost=getcost();
           double bestcost=actualcost;
           bppos=ppos; bdpos=dpos; 
@@ -432,7 +559,7 @@ bool Route::findImprovment(int i) {
            double oldcost= getcost();
            bool improved=false;
            if (isdepot(i)) return false;
-           for (int j=i+1; j<routePath.size() and !(ispickup(i) and isdelivery(j) and sameorder(i,j)); j++) {
+           for (int j=i+1; j<routeVehicle.size() and !(ispickup(i) and isdelivery(j) and sameorder(i,j)); j++) {
                    swapnodes(i,j);
                    if (getcost()<oldcost)  return true;
                    else  swap(i,j);
@@ -444,7 +571,7 @@ bool Route::findImprovment(int i) {
 void Route::hillClimbOpt() {
            double original=getcost();
            int i=0;
-           while (i<routePath.size()-1) {
+           while (i<routeVehicle.size()-1) {
               if (!findImprovment(i)) i++;
               else 
                  i=0;
@@ -453,31 +580,13 @@ void Route::hillClimbOpt() {
 
 
 void Route::dump() {
-    routePath.smalldump();
+    routeVehicle.smalldump();
     std::cout <<  " Route cost: "<< getcost();
-    routePath.dump();
+    routeVehicle.dump();
 }
-
-void Route::tau() {
-    for (int i=0; i< routePath.size(); i++)
-       std::cout<<routePath.getnid(i)<<" , ";
-}
-
-void Route::plotTau(std::vector<double> &x, std::vector<double> &y,std::vector<int> &label,std::vector<int> &color) {
-    for (int i=0; i< routePath.size(); i++) {
-       x.push_back(routePath.getx(i));
-       y.push_back(routePath.gety(i));
-       label.push_back(routePath.getnid(i));
-       if (isdepot(i)) color.push_back(0xff0000);
-       else if (isdelivery(i)) color.push_back(0x00ff00);
-       else color.push_back(0x0000ff);
-    }
-}
-
-
 
 
 void Route::dumppath() {
-    routePath.smalldump();
+    routeVehicle.smalldump();
 }
 */

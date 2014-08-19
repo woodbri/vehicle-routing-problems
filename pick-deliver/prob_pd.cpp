@@ -36,27 +36,20 @@ Order& Prob_pd::getOrder(int oid) { return ordersList[oid]; }
 
 double Prob_pd::DepotToDelivery(int n1) const {
     return  (n1>=0 && n1 <= datanodes.size()) ? datanodes[datanodes[n1].getdid()].distance(depot):-1;
-    //return N[N[n1].did].distance(depot);
 }
 
 double Prob_pd::DepotToPickup(int n1) const {
-    return  (n1>=0 && n1 <= N.size()) ? datanodes[n1].distance(depot):-1;
-    //return N[n1].distance(depot);
+    return  (n1>=0 && n1 <= datanodes.size()) ? datanodes[n1].distance(depot):-1;
 }
 
-double Prob_pd::distance(int n1,int n2) const {
-    return N[n1].distance(N[n2]);
-/*    double dx = N[n2].x - N[n1].x;
-    double dy = N[n2].y - N[n1].y;
-    return sqrt( dx*dx + dy*dy );*/
-}
+double Prob_pd::distance(int n1,int n2) const { return datanodes[n1].distance(datanodes[n2]); }
 
 bool Prob_pd::checkIntegrity() const {
    bool flag=true;
    int nodesCant=datanodes.size();
    int ordersCant=ordersList.size();
 
-   if (N.empty()) {
+   if (datanodes.empty()) {
         std::cout << "Nodes is empty\n";
         flag=false; }
    else std::cout << "# of Nodes:"<<nodesCant<<"\n";
@@ -91,31 +84,15 @@ void Prob_pd::ordersdump() {
 
 void Prob_pd::nodesdump() {
     std::cout << "---- Nodes  --------------\n";
-    for (int i=0; i<N.size(); i++)
+    for (int i=0; i<datanodes.size(); i++)
         datanodes[i].dump();
 }
 void Prob_pd::dump() {
     std::cout << "---- Problem -------------\n";
     std::cout << "K: " << K << std::endl;
     std::cout << "Q: " << Q << std::endl;
-    std::cout << "w1: " << w1 << std::endl;
-    std::cout << "w2: " << w2 << std::endl;
-    std::cout << "w3: " << w3 << std::endl;
-    /*std::cout << "extents: " << extents[0] << ", "
-                             << extents[1] << ", "
-                             << extents[2] << ", "
-                             << extents[3] << std::endl;*/
     ordersdump();
     nodesdump();
-/*
-    std::cout << "---- Orders --------------\n";
-    for (int i=0; i<O.size(); i++)
-        O[i].dump();
-    std::cout << "---- Nodes  --------------\n";
-    for (int i=0; i<N.size(); i++)
-        N[i].dump();
-*/
-    std::cout << std::endl;
 }
 
 
@@ -130,44 +107,18 @@ void Prob_pd::loadProblem(char *infile)
     buffer >> K;
     buffer >> Q;
 
-    // initialize the extents
-    //extents[0] = std::numeric_limits<double>::max();
-    //extents[1] = std::numeric_limits<double>::max();
-    //extents[2] = std::numeric_limits<double>::min();
-    //extents[3] = std::numeric_limits<double>::min();
-
 
     // read the nodes
     while ( getline(in, line) ) {
         Dpnode node(line);  //create node from line on file
-
-        // compute the extents as we load the data for plotting 
-      //  if (node.getx() < extents[0]) extents[0] = node.getx();
-      //  if (node.gety() < extents[1]) extents[1] = node.gety();
-      //  if (node.getx() > extents[2]) extents[2] = node.getx();
-      //  if (node.gety() > extents[3]) extents[3] = node.gety();
-
         datanodes.push_back(node);
-        //if (node.nid == 0)
         if (node.isdepot()) {
             DepotClose = node.closes();
             depot=node;
         }
     }
-
     in.close();
-
-    // add a small buffer around the extents
-    //extents[0] -= (extents[2] - extents[0]) * 0.02;
-    //extents[2] += (extents[2] - extents[0]) * 0.02;
-    //extents[1] -= (extents[3] - extents[1]) * 0.02;
-    //extents[3] += (extents[3] - extents[1]) * 0.02;
-
-    // make orders from the nodes
     makeOrders();
-
-    // sort the orders
-    //calcAvgTWLen();
 }
 
 void Prob_pd::sortOrdersbyDistReverse(){

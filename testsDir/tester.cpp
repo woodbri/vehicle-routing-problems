@@ -28,9 +28,12 @@ int main(int argc, char **argv) {
 
     char * infile = argv[1];
     //try {
+        Node mydepot(0,0,0);
 	Twpath<Node> p;
+        p.setdepot(mydepot);
+        p.push_back(mydepot);
         Node n;
-        for (int i=0;i<10;i++){
+        for (int i=10;i<20;i++){
           n.set(i,i,i);
           p.push_back(n);
         }
