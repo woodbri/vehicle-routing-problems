@@ -119,7 +119,7 @@ class Vehicle {
 
     void tau() ;
 
-    void plot(std::vector<double> &x, std::vector<double> &y,std::vector<int> &label,std::vector<int> &color);
+    void plot(std::string file,std::string title,int carnumber);
     void pushOrder(const Order &o);
     void pushPickup(const Order &o);
     void pushDelivery(const Order &o);

@@ -1,4 +1,3 @@
-
 #include <iostream>
 #include <vector>
 
@@ -6,7 +5,9 @@
 #include "order.h"
 #include "twpath.h"
 #include "vehicle.h"
+#include "plot1.h"
 
+#include <sstream>
 
 /***************************** DUMP PRINTS PLOTS   ********/
 
@@ -238,15 +239,38 @@ void Vehicle::findBetterForward(int &bestI, int &bestJ) {
           swap(i,j);
      }
 
-void Vehicle::plot(std::vector<double> &x, std::vector<double> &y,std::vector<int> &label,std::vector<int> &color) {
-    for (int i=0; i< path.size(); i++) {
-       x.push_back(path[i].getx());
-       y.push_back(path[i].gety());
-       label.push_back(path[i].getnid());
-       if (isdepot(i)) color.push_back(0xff0000);
-       else if (isdelivery(i)) color.push_back(0x00ff00);
-       else color.push_back(0x0000ff);
+void Vehicle::plot(std::string file,std::string title,int carnumber){
+    std::vector<Dpnode> nimodoporqueusavector;
+    std::vector<int> pickups;
+    std::vector<int> deliverys;
+    std::vector<int> depots;
+    /** cpp11  the following next 3 lines become std::string carnum=std::to_string(carnumber */
+    std::stringstream convert; 
+    convert << carnumber;
+    std::string carnum = convert.str();
+    std::string extra=file+"vehicle"+carnum+".png" ;
+
+	
+   
+    for (int i=0; i<path.size(); i++){
+        nimodoporqueusavector.push_back(path[i]);  
+        if (ispickup(i))
+        pickups.push_back(getnid(i));
+        else if (isdelivery(i))
+        deliverys.push_back(getnid(i));
+        else  depots.push_back(0);
     }
+
+    // Plot1<Dpnode> graph( path )   //if plot used deque this could be used 
+    Plot1<Dpnode> graph( nimodoporqueusavector ); 
+    graph.setFile( file+extra );
+    graph.setTitle( title+extra );
+    graph.drawInit();
+    graph.drawPath(getpath(), graph.makeColor(carnumber*10), 1, false);
+    graph.drawPoints(pickups, 0x0000ff, 9, true);
+    graph.drawPoints(depots, 0xff0000, 7, true);
+    graph.drawPoints(deliverys, 0x00ff00, 5, true);
+    graph.save();
 }
 
 
