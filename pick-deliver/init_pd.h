@@ -33,6 +33,7 @@ class Init_pd: public Prob_pd {
     void dumproutes();
     void tau() ;
     void plot(std::string file,std::string title);
+    int makeColor(int i) const;
 /* Diferent initial Constructions */
     void insertByOrderSolution();
     void dumbConstruction();
