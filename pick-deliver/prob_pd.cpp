@@ -113,19 +113,6 @@ void Prob_pd::loadProblem(char *infile)
     while ( getline(in, line) ) {
         Dpnode node(line);  //create node from line on file
         datanodes.push_back(node);
-
-        // classify the nodes
-        if (node.ispickup())
-            pickups.push_back(node.getnid());
-        else if (node.isdelivery())
-            dumps.push_back(node.getnid());
-        else if (node.isdepot())
-            depots.push_back(node.isdepot());
-        else {
-            std::cout << "ERROR: Can't identify the type of node!" << std::endl;
-            node.dump();
-        }
-
         if (node.isdepot()) {
             //DepotClose = node.closes();
             depot=node;

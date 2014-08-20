@@ -233,6 +233,22 @@ void Init_pd::plot(std::string file,std::string title){
     graph.setTitle(title);
     graph.plot(false);
 */
+    std::vector<int> pickups;
+    std::vector<int> deliverys;
+    std::vector<int> depots;
+
+    for (int i=0; i<datanodes.size(); i++)
+        if (datanodes[i].ispickup())
+            pickups.push_back(datanodes[i].getnid());
+        else if (datanodes[i].isdelivery())
+            deliverys.push_back(datanodes[i].getnid());
+        else if (datanodes[i].isdepot())
+            depots.push_back(datanodes[i].getnid());
+        else {
+            std::cout << "ERROR: Can't identify the type of node!" << std::endl;
+            datanodes[i].dump();
+        }
+
     Plot1<Dpnode> plot( datanodes );
     plot.setFile( file );
     plot.setTitle( title );
@@ -242,7 +258,7 @@ void Init_pd::plot(std::string file,std::string title){
     }
     plot.drawPoints(pickups, 0x0000ff, 9, true);
     plot.drawPoints(depots, 0xff0000, 7, true);
-    plot.drawPoints(dumps, 0x00ff00, 5, true);
+    plot.drawPoints(deliverys, 0x00ff00, 5, true);
     plot.save();
 }
 
