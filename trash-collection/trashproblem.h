@@ -59,7 +59,6 @@ class TrashProblem {
     void dumpPickups() const;
     void dump();                            /// const
 
-    int makeColor(int i) const;
     void plot( std::string file, std::string title );
     void plot( std::string file, std::string title, std::vector<int> highlight );
 

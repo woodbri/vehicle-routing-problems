@@ -30,6 +30,23 @@
      
    }
 
+   std::vector<int> Vehicle::getpath() {
+      std::vector<int> p;
+/*
+      p=path.getpath();
+      p.pushback(depot.getnid());
+*/
+
+
+      for (int i=0; i< path.size(); i++)
+        p.push_back(getnid(i));
+
+      if (! path.back().isdepot())
+        p.push_back(depot.getnid());
+
+      return p;
+   }
+
    void Vehicle::smalldump() {
 //    evaluate();
       std::cout << "D="<<duration << ", "

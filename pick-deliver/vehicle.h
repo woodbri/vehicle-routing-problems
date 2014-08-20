@@ -2,6 +2,7 @@
 #define VEHICLE_H
 
 #include <deque> 
+#include <vector>
 #include "twpath.h"
 #include "order.h"
 #include "dpnode.h"
@@ -56,6 +57,7 @@ class Vehicle {
  //   int  getoid(int i) const { return path[i].getoid(); };
     int getdpos(const int oid) const;
     int getppos(const int oid) const;
+    std::vector<int> getpath();
 
     void remove(int at);
     void removeOrder(int orderid);

@@ -1,5 +1,5 @@
 #include <cmath>
-#include "plot.h"
+#include "plot1.h"
 #include "vehicle.h"
 #include "init_pd.h"
 
@@ -20,10 +20,11 @@ void Init_pd::dumbConstruction() {
 
     fleet[0].removeOrder(2); std::cout<<"\nremoveOrder(2)->>>>"; truck.tau();
     plot("testing2.png"," with out order 2 in the path");
-    fleet[0].insert(datanodes[6],2); std::cout<<"\ninsert(datanodes[6],2)->>>"; truck.tau();
+    fleet[0].insert(datanodes[6],2); std::cout<<"\ninsert(datanodes[6],2)->>>";
     plot("testing3.png"," wdded node 6 in the path");
     fleet[0].move(2,4); std::cout<<"\nmove(2,4)->>>>"; truck.tau();
     plot("testing4.png","swaped the nodes 2 and 4");
+
     truck.move(4,2); std::cout<<"\nmove(4,2)->>>>"; truck.tau();
     truck.swap(2,5); std::cout<<"\nswap(5,2)->>>>"; truck.tau();
     truck.swapstops(2,5); std::cout<<"\nswapstops(2,5)->>>>"; truck.tau();
@@ -205,6 +206,7 @@ double Init_pd::getDistance() {
 
 
 void Init_pd::plot(std::string file,std::string title){
+/*
     std::vector<double> x;
     std::vector<double> y;
     std::vector<int> label;
@@ -227,6 +229,34 @@ void Init_pd::plot(std::string file,std::string title){
     graph.setFile(file);
     graph.setTitle(title);
     graph.plot(false);
+*/
+    std::vector<int> pickups;
+    std::vector<int> deliverys;
+    std::vector<int> depots;
+
+    for (int i=0; i<datanodes.size(); i++)
+        if (datanodes[i].ispickup())
+            pickups.push_back(datanodes[i].getnid());
+        else if (datanodes[i].isdelivery())
+            deliverys.push_back(datanodes[i].getnid());
+        else if (datanodes[i].isdepot())
+            depots.push_back(datanodes[i].getnid());
+        else {
+            std::cout << "ERROR: Can't identify the type of node!" << std::endl;
+            datanodes[i].dump();
+        }
+
+    Plot1<Dpnode> plot( datanodes );
+    plot.setFile( file );
+    plot.setTitle( title );
+    plot.drawInit();
+    for (int i=0; i<fleet.size(); i++) {
+        plot.drawPath(fleet[i].getpath(), plot.makeColor(i), 1, false);
+    }
+    plot.drawPoints(pickups, 0x0000ff, 9, true);
+    plot.drawPoints(depots, 0xff0000, 7, true);
+    plot.drawPoints(deliverys, 0x00ff00, 5, true);
+    plot.save();
 }
 
 

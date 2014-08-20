@@ -518,15 +518,6 @@ void TrashProblem::dump() {
 }
 
 
-int TrashProblem::makeColor(int i) const {
-    int b = (i % 4 + 1) * 0x40 - 1;
-    int g = ((i /  4) % 4 + 1) * 0x40 - 1;
-    int r = ((i / 16) % 4 + 1) * 0x40 - 1;
-
-    return  r*256*256 + g*256 + b;
-}
-
-
 void TrashProblem::plot( std::string file, std::string title, std::vector<int> highlight ) {
     Plot1<Trashnode> plot( datanodes );
     plot.setFile( file );
@@ -536,8 +527,8 @@ void TrashProblem::plot( std::string file, std::string title, std::vector<int> h
     plot.drawPath(highlight, 0xffff00, 3, false);
 
     for (int i=0; i<fleet.size(); i++) {
-        plot.drawPath(fleet[i].getpath(), makeColor(i), 1, false);
-        // printf("COLOR: %3d - 0x%06x\n", i, makeColor(i));
+        plot.drawPath(fleet[i].getpath(), plot.makeColor(i), 1, false);
+        // printf("COLOR: %3d - 0x%06x\n", i, plot.makeColor(i));
     }
     plot.drawPoints(pickups, 0x0000ff, 7, true);
     plot.drawPoints(depots, 0xff0000, 7, true);
@@ -552,8 +543,8 @@ void TrashProblem::plot( std::string file, std::string title ) {
     plot.setTitle( title );
     plot.drawInit();
     for (int i=0; i<fleet.size(); i++) {
-        plot.drawPath(fleet[i].getpath(), makeColor(i), 1, false);
-        // printf("COLOR: %3d - 0x%06x\n", i, makeColor(i));
+        plot.drawPath(fleet[i].getpath(), plot.makeColor(i), 1, false);
+        // printf("COLOR: %3d - 0x%06x\n", i, plot.makeColor(i));
     }
     plot.drawPoints(pickups, 0x0000ff, 7, true);
     plot.drawPoints(depots, 0xff0000, 7, true);
