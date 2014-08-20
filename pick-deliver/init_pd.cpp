@@ -17,7 +17,7 @@ void Init_pd::dumbConstruction() {
     Vehicle oherTruck(depot,Q);
     truck.pushOrder(getOrder(getOrderCount()-1));
     fleet.push_back(truck);
-    plot("far+localized.png","two trucks");
+    plot("far+localized","two trucks");
 
     
 /*
@@ -215,49 +215,23 @@ double Init_pd::getDistance() {
 
 
 void Init_pd::plot(std::string file,std::string title){
-/*
-    std::vector<double> x;
-    std::vector<double> y;
-    std::vector<int> label;
-    std::vector<int> pcolor;
-    std::vector<int> lcolor;
-    int basecolor=10;
-    for (int i=0; i<fleet.size(); i++) {
-        fleet[i].plot(x,y,label,pcolor);
-        for (int j=0; j<x.size(); j++) {
-            if (label[j]==0) basecolor+=10;
-            lcolor.push_back(basecolor);
-        }
-    }
-    x.push_back(x[0]);
-    y.push_back(y[0]);
-    pcolor.push_back(pcolor[0]);
-    lcolor.push_back(lcolor[0]);
-    label.push_back(label[0]);
-    Plot graph(x,y,pcolor,lcolor,label);
-    graph.setFile(file);
-    graph.setTitle(title);
-    graph.plot(false);
-*/
+    std::vector<Dpnode> nodes;
     std::vector<int> pickups;
     std::vector<int> deliverys;
     std::vector<int> depots;
 
-    for (int i=0; i<datanodes.size(); i++)
+    for (int i=0; i<datanodes.size(); i++){
+        nodes.push_back(datanodes[i]);
         if (datanodes[i].ispickup())
             pickups.push_back(datanodes[i].getnid());
         else if (datanodes[i].isdelivery())
             deliverys.push_back(datanodes[i].getnid());
         else if (datanodes[i].isdepot())
             depots.push_back(datanodes[i].getnid());
-        else {
-            std::cout << "ERROR: Can't identify the type of node!" << std::endl;
-            datanodes[i].dump();
-        }
-
-    Plot1<Dpnode> plot( datanodes );
+    }
+    Plot1<Dpnode> plot( nodes );
     plot.setFile( file );
-    plot.setTitle( title );
+    plot.setTitle( title+".png" );
     plot.drawInit();
     for (int i=0; i<fleet.size(); i++) {
         plot.drawPath(fleet[i].getpath(), plot.makeColor(i), 1, false);
@@ -266,6 +240,10 @@ void Init_pd::plot(std::string file,std::string title){
     plot.drawPoints(depots, 0xff0000, 7, true);
     plot.drawPoints(deliverys, 0x00ff00, 5, true);
     plot.save();
+    /* now a graph for each individual trucl */
+    for (int i=0;i<fleet.size();i++) {
+        fleet[i].plot(file,title,i);
+    }
 }
 
 
