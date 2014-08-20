@@ -23,8 +23,8 @@ private:
     void copyvalues (const Dpnode &other);
 
 public:
-    bool ispickup() const {return hasdemand();}
-    bool isdelivery() const {return hassupply();}
+    bool ispickup() const {return demand>0;}
+    bool isdelivery() const {return demand<0;}
     bool isdepot() const {return  hasnogoods();}
     bool hastwv() const {return twv;}
     bool hascv() const {return cv;}
@@ -41,6 +41,7 @@ public:
     int getpid() const {return  pid;};
     int getoid() const {return oid;};
 /* mutators */        
+    void setoid(int _oid)  {oid=_oid;};
     void evaluate (double cargoLimit) ;
     void evaluate (const Dpnode &pred,double cargoLimit);  
 /* constructors &destructors */

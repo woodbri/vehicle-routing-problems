@@ -15,7 +15,7 @@
         }
         
     void Dpnode::evaluate (const Dpnode &pred,double cargoLimit){  
-std::cout<<"cargo Limit\n"<<cargoLimit;
+//std::cout<<"cargo Limit\n"<<cargoLimit;
 
         distPrev=distance(pred);       //vehicle last move length
         totDist=pred.totDist+distPrev; //tot length travel drom 1st node
@@ -23,12 +23,12 @@ std::cout<<"cargo Limit\n"<<cargoLimit;
 
         waitTime=earlyarrival(totDist)? opens()-totDist:0;   //truck arrives before node opens, so waits 
         totDist+=waitTime;                                    // we add the waiting time
-std::cout<<"previus\n";
-pred.dumpeval();
-std::cout<<"actual\n";
-dumpeval();
+//std::cout<<"previus\n";
+//pred.dumpeval();
+//std::cout<<"actual\n";
+//dumpeval();
         cargo=pred.cargo+getdemand();                       //loading truck demand>0 or unloading demand<0
-        cv= cargo>cargoLimit;                               //capacity Violation
+        cv= cargo>cargoLimit or cargo <0;                   //capacity Violation
         twvTot = (twv)? pred.twvTot+1:pred.twvTot;          //keep a total of violations
         cvTot =  (cv)?  pred.cvTot+1 :pred.cvTot;
    };
@@ -38,7 +38,10 @@ dumpeval();
     void Dpnode::dump() const {
         Twnode::dump();
         std::cout<<"\t "<<pid
-                 <<"\t "<<did<<"\n";
+                 <<"\t "<<did;
+       if (ispickup()) std::cout<<"\tpickup:"<<demand;
+       if (isdelivery()) std::cout<<"\tdelivery:"<<demand;
+       std::cout<<"\n";
         }
 
     void Dpnode::dumpeval() const  {

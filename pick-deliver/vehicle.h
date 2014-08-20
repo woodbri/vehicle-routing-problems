@@ -45,9 +45,9 @@ class Vehicle {
    Vehicle(const Dpnode &_depot,double _maxcapacity) {
         depot=_depot;
         maxcapacity=_maxcapacity;
-    depot.dump();
-        path.push_back(depot);
-        //path.setdepot(depot);
+        w1 = w2 = w3 = 1.0;
+ depot.dump();
+        push_back(depot);
    };
 
     // accessors
@@ -61,7 +61,7 @@ class Vehicle {
     void removeOrder(int orderid);
     void removePickup(int orderid);
     void removeDelivery(int orderid);
-    void swapnodes(int i,int j);
+    void swapstops(int i,int j);
     void swap(int i,int j);
     void move(int fromi,int toj);
     void push_back(Dpnode pathstop);
@@ -70,9 +70,7 @@ class Vehicle {
     //void setDepotValues();
     void dump() ;
     void smalldump();
-    //bool ispickup(int i) {return path[i].ispickup();}
-    //bool isdelivery(int i) {return path[i].isdelivery();}
-    //bool isdepot(int i) {return path[i].isdepot();}
+    bool ispickup(int i) {return path[i].ispickup();}
     bool sameorder(int i,int j){return path[i].getoid()==path[j].getoid();}
     void clean() {path.resize(0); };
 
@@ -120,9 +118,9 @@ class Vehicle {
     void tau() ;
 
     void plot(std::vector<double> &x, std::vector<double> &y,std::vector<int> &label,std::vector<int> &color);
-    void addOrder(const Order &o);
-    void addPickup(const Order &o);
-    void addDelivery(const Order &o);
+    void pushOrder(const Order &o);
+    void pushPickup(const Order &o);
+    void pushDelivery(const Order &o);
     void insertPickup(const Order &o, const int at);
 
 
@@ -137,14 +135,9 @@ class Vehicle {
     bool earlyarrival(int i,const double D) const { return path[i].earlyarrival(D); };
     bool latearrival(int i,const double D) const { return path[i].latearrival(D); };
     bool ontime(int i, const double D) const {return not earlyarrival(i,D) and not latearrival(i,D);};
-    bool isdelivery(int i) const { return path[i].hasdemand(); };
-    bool ispickup(int i) const { return path[i].hassupply(); };
+    bool isdelivery(int i) const { return path[i].isdelivery(); };
+    bool ispickup(int i) const { return path[i].ispickup(); };
     bool isdepot(int i) const { return path[i].hasnogoods(); };
-
-
-
-
-
 
 };
 

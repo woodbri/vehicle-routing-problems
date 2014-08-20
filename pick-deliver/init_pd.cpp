@@ -3,17 +3,25 @@
 #include "vehicle.h"
 #include "init_pd.h"
 
-/*
-constructions:
-dumb construction: fllowint the ordering of Orders
-*/
+
+
+
+
 void Init_pd::dumbConstruction() {
     Vehicle truck(depot,Q);
-truck.dump();
     fleet.empty();
         for (int i=0; i<getOrderCount(); i++) {
-           truck.addOrder(getOrder(i));
+           truck.pushOrder(getOrder(i));
         }
+    std::cout<<"pushOrder()----->";    truck.tau();
+    std::cout<<"\norder to be removed():"; ordersList[2].dump();
+    truck.removeOrder(2); std::cout<<"\nremoveOrder(2)->>>>"; truck.tau();
+    truck.insert(datanodes[6],2); std::cout<<"\ninsert(datanodes[6],2)->>>"; truck.tau();
+    truck.move(2,4); std::cout<<"\nmove(2,4)->>>>"; truck.tau();
+    truck.move(4,2); std::cout<<"\nmove(4,2)->>>>"; truck.tau();
+    truck.swap(2,5); std::cout<<"\nswap(5,2)->>>>"; truck.tau();
+    truck.swapstops(2,5); std::cout<<"\nswapstops(2,5)->>>>"; truck.tau();
+    truck.swapstops(6,7); std::cout<<"\nswapstops(6,7)->>>>"; truck.tau();
     fleet.push_back(truck);
 }
 
@@ -24,7 +32,7 @@ void Init_pd::dumbConstructionAndBestMoveForward() {
     int bestI;
     int bestJ;
         for (int i=0; i<getOrderCount(); i++) {
-           truck.addOrder(getOrder(i));
+           truck.pushOrder(getOrder(i));
         }
     truck.findBetterForward(bestI, bestJ);
     truck.move(bestI,bestJ);
@@ -42,7 +50,7 @@ void Init_pd::dumbAndHillConstruction() {
     fleet.empty();
     sortOrdersbyDistReverse();
         for (int i=0; i<getOrderCount(); i++) {
-           truck.addOrder(getOrder(i));
+           truck.pushOrder(getOrder(i));
         }
     truck.hillClimbOpt();
     fleet.push_back(truck);
@@ -52,8 +60,8 @@ void Init_pd::deliveryBeforePickupConstruction() {
     Vehicle truck(depot,Q);
     fleet.empty();
         for (int i=0; i<getOrderCount(); i++) {
-           truck.addDelivery(getOrder(i));
-           truck.addPickup(getOrder(i));
+           truck.pushDelivery(getOrder(i));
+           truck.pushPickup(getOrder(i));
         }
     truck.dump();
     fleet.push_back(truck);
@@ -74,7 +82,7 @@ void Init_pd::sequentialConstruction() {
        while (!unOrders.empty()) {
           order=unOrders.front();
           unOrders.pop_front();
-          truck.addOrder(order);
+          truck.pushOrder(order);
           truck.hillClimbOpt();     
           if (!truck.feasable()) {
                 truck.removeOrder(order.getoid());
@@ -104,7 +112,7 @@ void Init_pd::initialByOrderSolution() {
        while (!unOrders.empty()) {
          order=unOrders.front();
           unOrders.pop_front();
-          route.addOrder(order);
+          route.pushOrder(order);
           ppos=bppos=route.getppos(order.oid);
           dpos=bdpos=route.getdpos(order.oid);
           actualcost=getcost();
@@ -143,7 +151,7 @@ void  Init_pd::initialFeasableSolution() {/*
        while (!unOrders.empty()) {
          order=unOrders.front();
           unOrders.pop_front();
-          route.addOrder(order);
+          route.pushOrder(order);
           ppos=bppos=route.getppos(order.oid);
           dpos=bdpos=route.getdpos(order.oid);
           actualcost=getcost();

@@ -26,8 +26,8 @@ void fillOrder(Dpnode &p, Dpnode &d , int i_oid, const Dpnode depot){
       oid=i_oid;
       pickup=&p;
       delivery=&d;
-      //pickup->setoid(i_oid);  //tell pickup and delivery they belong to the order
-      //delivery->setoid(i_oid);
+      pickup->setoid(i_oid);  //tell pickup and delivery they belong to the order
+      delivery->setoid(i_oid);
       //pickup->setdist(depot);
       //delivery->setdist(depot);
       asigned=false;

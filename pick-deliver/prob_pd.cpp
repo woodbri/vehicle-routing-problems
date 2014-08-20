@@ -71,16 +71,9 @@ bool Prob_pd::checkIntegrity() const {
         flag=false;}
    else std::cout << "Found expected # of Orders\n";
 
-  for (std::vector<Dpnode>::const_iterator it= datanodes.begin(); it!=datanodes.end(); ++it) {
-     bool flag1=true;
-     Dpnode node=*it;
-     flag= flag and node.checkintegrity();
+   for (int i=1;i<nodesCant-1;i++) {
+     flag= flag and datanodes[i].checkintegrity();
    }
-  for (std::deque<Order>::const_iterator it= ordersList.begin(); it!=ordersList.end(); ++it) {
-     Order order=*it;
-     flag= flag and order.checkIntegrity(nodesCant);
-   }
-   return flag;
 }
 
 void Prob_pd::ordersdump() {
@@ -121,8 +114,9 @@ void Prob_pd::loadProblem(char *infile)
         Dpnode node(line);  //create node from line on file
         datanodes.push_back(node);
         if (node.isdepot()) {
-            DepotClose = node.closes();
+            //DepotClose = node.closes();
             depot=node;
+            depot.setoid(-1);
 std::cout<<"\n the depot";
 depot.dump();
         }

@@ -8,6 +8,49 @@
 #include "vehicle.h"
 
 
+/***************************** DUMP PRINTS PLOTS   ********/
+
+   void Vehicle::dump()  {
+//     evaluate();
+     for (int i=0;i<path.size();i++){
+         std::cout<<"\npath stop #:"<<i<<"\n";
+          //path[i].dump();
+          path[i].dumpeval();
+     }
+     std::cout<<"\nBack to depot:"<<"\n";
+     std::cout<<"twv_depot="<<twv_depot
+                 <<",cv_depot="<<cv_depot
+                 <<",twvTot="<<twvTot
+                 <<",cvTot="<<cvTot
+                 <<",current cargo="<<curcapacity
+                 <<",duration="<<duration
+                 <<",cost="<<cost
+                 <<"\n";
+
+     
+   }
+
+   void Vehicle::smalldump() {
+//    evaluate();
+      std::cout << "D="<<duration << ", "
+              << "TWV="<<twvTot << ", "
+              << "CV=" <<cvTot<< ", ";
+      if(twv_depot) std::cout<<"depot: has twv ";
+      if(cv_depot) std::cout<<"depot: has cv ";
+      std::cout << "\nVehicle(nid,oid): [";
+      for (int i=0; i<path.size(); i++) {
+        if (i) std::cout << ", ";
+        std::cout << "("<<getnid(i)/*<<","<<getoid(i)<<")"*/;
+      }
+      std::cout << "]\n";
+   }
+
+   void Vehicle::tau() {
+      for (int i=0; i< path.size(); i++)
+         std::cout<<getnid(i)<<" , ";
+   }
+
+
 
 int Vehicle::findForwardImprovment(const int i,double &bestcost) {
            bool improved=false;
@@ -30,7 +73,7 @@ bool Vehicle::findImprovment(int i) {
            bool improved=false;
            if (isdepot(i)) return false;
            for (int j=i+1; j<path.size() and !(ispickup(i) and isdelivery(j) and sameorder(i,j)); j++) {
-                   swapnodes(i,j);
+                   swapstops(i,j);
                    if (getcost()<oldcost)  return true;
                    else  swap(i,j);
            }
@@ -78,13 +121,26 @@ void Vehicle::findBetterForward(int &bestI, int &bestJ) {
          return at;
     }
 
+/********* MOVEMENT OF PATHSTOPS WITHIN PATH  *****/
 
+/****** removal of nodes from the path  ********/
+
+/***  direct evaluation **/
+   void Vehicle::remove(int at){
+          if (!path.empty()) {
+              path.remove(at);
+              evaluate(at);  
+          }
+    }
+
+/****** Indirect evaluation *****/    
 
     void Vehicle::removeOrder(const int oid){
          removePickup(oid);
          removeDelivery(oid);
     }
 
+/* O(n) */
     void Vehicle::removePickup(int oid){
           for (int at=0;at<path.size();at++) {
                if (ispickup(at) and getoid(at)==oid ){
@@ -94,6 +150,7 @@ void Vehicle::findBetterForward(int &bestI, int &bestJ) {
          }
    }
 
+/* O(n) */
     void Vehicle::removeDelivery(int oid){
            for (int at=0;at<path.size();at++) {
                if (isdelivery(at) and getoid(at)==oid ){
@@ -102,149 +159,67 @@ void Vehicle::findBetterForward(int &bestI, int &bestJ) {
            }
     }
 
-    void Vehicle::remove(int at){
-          if (!path.empty()) path.remove(at);
-    }
+ /****** Insertion of nodes from the path  ********/
 
-
-    //double Vehicle::getcost(double w1,double w2,double w3) { evaluate(); return   w1*duration + w2*TWV + w3*CV; }
-
-
+/***  direct evaluation **/ 
     void Vehicle::push_back(Dpnode pathstop) {
           path.push_back(pathstop);
+          evalLast();
     }
 
+    
     void Vehicle::insert(Dpnode pathstop,int at) {
          path.insert(pathstop,at);
+         evaluate(at);
     }
-/*
-    void Vehicle::setvalues(int at){
-         if (at<path.size()) {
-              if (at==0) path[at].evaluate(maxcapacity);
-              else path[at].evaluate(path[at-1],maxcapacity);
-              setvalues(at+1);
-         } else {
-              setDepotValues();
-         };
-     }
-*/
 
+/****** Indirect evaluation *****/    
+    void  Vehicle::insertPickup(const Order &o, const int at) {
+        Dpnode pickup(*o.pickup);
+        insert(pickup,at);
+    }
+
+    
+    void  Vehicle::pushPickup(const Order &o) {
+        Dpnode  pickup(*o.pickup);
+        push_back(pickup);
+    }
+
+    
+    void Vehicle::pushDelivery(const Order &o) {
+       Dpnode delivery(*o.delivery);
+       push_back(delivery);
+    }
+
+    
+    void Vehicle::pushOrder( const Order &o) {
+        pushPickup(o);
+        pushDelivery(o);
+    }
+
+    
+/****** moves between pathstops  ********/
     void Vehicle::move(int fromi,int toj) {
+              if (fromi==toj) return; //nothing to move
               path.move(fromi,toj);
-              //some checking migh go in route level
-              //if (fromi<toj){
-              //    insert(path[fromi],toj+1);
-              //    remove(fromi);
-              //}
-               //else {
-              //    insert(path[fromi],toj);
-              //    remove(fromi+1);
-              //}
+              evaluate(fromi<toj?fromi:toj);
     }
 
-     void Vehicle::swapnodes(int i,int j){
-          if(i>j)  std::cout<<"This is a restrictive swap, requierment: i<j\n";  
-          else if (ispickup(i) and isdelivery(j) and sameorder(i,j)) std::cout<<"This is a restrictive swap, requierment: cant swap from the same order\n";
-          else {
-              path.swap(i,j);
-              //Dpnode temp(path[i]);
-              //path[i]=path[j];
-              //path[j]=temp;
-  //            setvalues(i); //update values starting from i
-  //            setvalues(0);
-          }
-     }
-
-     void Vehicle::swap(int i,int j){	
+       
+    void Vehicle::swap(int i,int j){	
+          if (i==j) return; //nothing to swap
           path.swap(i,j);
-    //      Dpnode temp(path[i]);
-    //      path[i]=path[j];
-    //      path[j]=temp;
-    //      if (i<j) setvalues(i);
-    //      else setvalues(j);
-    //      setvalues(0);
-     }
-
-/*
-     void Vehicle::setDepotValues() {
-              int at= path.size()-1;
-              //D = path[at].totDistFromDepot()+depot->distance(path[at].getnode());
-              //D = path[at].totDistFromDepot+depot->distance(path[at]);
-              //wv_depot=depot->lateArrival(D);
-              cv_depot=path[at].getcvTot();
-              TWV = path[at].gettwvTot();
-              CV = path[at].getcvTot();
-              TWV = (twv_depot)? TWV+1:TWV;
-              CV = (cv_depot)? CV+1:CV;
-      }
-*/
-
-void Vehicle::dump()  {
-//     evaluate();
-     for (int i=0;i<path.size();i++){
-         std::cout<<"\npath stop #:"<<i<<"\n";
-          //path[i].dump();
-          path[i].dumpeval();
-     }
-     std::cout<<"\nBack to depot:"<<"\n";
-     std::cout<<"twv_depot="<<twv_depot
-                 <<",cv_depot="<<cv_depot
-                 <<",twvTot="<<twvTot
-                 <<",cvTot="<<cvTot
-                 <<",current cargo="<<curcapacity
-                 <<",duration="<<duration
-                 <<",cost="<<cost
-                 <<"\n";
-
-     
-}
-
-
-
-void Vehicle::smalldump() {
-//    evaluate();
-    std::cout << "D="<<duration << ", "
-              << "TWV="<<twvTot << ", "
-              << "CV=" <<cvTot<< ", ";
-    if(twv_depot) std::cout<<"depot: has twv ";
-    if(cv_depot) std::cout<<"depot: has cv ";
-    std::cout << "\nVehicle(nid,oid): [";
-    for (int i=0; i<path.size(); i++) {
-        if (i) std::cout << ", ";
-        std::cout << "("<<getnid(i)/*<<","<<getoid(i)<<")"*/;
+          evaluate(i<j?i:j);
     }
-    std::cout << "]\n";
-}
 
-void Vehicle::evaluate() {
-   evaluate(0);
-};
-
-void Vehicle::evaluate(int from) {
-   
-   if (from <0 or from >path.size()) from=0;
-   for (int i=from; i< path.size(); i++) {
-       if (i==0)path[0].evaluate(maxcapacity);
-       else path[i].evaluate(path[i-1],maxcapacity);
-   };
-   Dpnode last=path[path.size()-1];
-   if (path.size()>1) {  //if I add the depot and calculate???
-     curcapacity=last.getcargo();
-     duration=last.gettotDist()+depot.distance(last);
-     cv_depot=curcapacity!=0;
-     twv_depot=depot.latearrival(duration);
-     cvTot=last.getcvTot();
-     twvTot=last.gettwvTot();
-     cvTot=cv_depot? cvTot:cvTot+1;
-     twvTot=twv_depot? twvTot:twvTot+1;
-     cost= w1*duration + w2*twvTot + w3*twvTot;
-   } else {
-     curcapacity=duration=cvTot=twvTot=0;
-     cv_depot=twv_depot=false;
-   }
-}
-
-
+    void Vehicle::swapstops(int i,int j){
+          if(i>j)  std::cout<<"This is a restrictive swap, requierment: i<j\n";  
+          if ( ispickup(i) and isdelivery(j) and sameorder(i,j) ) {
+               std::cout<<"This is a restrictive swap, requierment: cant swap from the same order\n";
+               return;
+          }
+          swap(i,j);
+     }
 
 void Vehicle::plot(std::vector<double> &x, std::vector<double> &y,std::vector<int> &label,std::vector<int> &color) {
     for (int i=0; i< path.size(); i++) {
@@ -259,42 +234,36 @@ void Vehicle::plot(std::vector<double> &x, std::vector<double> &y,std::vector<in
 
 
 
-
-void  Vehicle::insertPickup(const Order &o, const int at) {
-    Dpnode pickup(*o.pickup);
-    path.insert(pickup,at);
-}
-
-//void  Vehicle::remove(const int at) {
-//    path.remove(at);
-//}
-
-void  Vehicle::addPickup(const Order &o) {
-    Dpnode  pickup(*o.pickup);
-    path.push_back(pickup);
-    evalLast();
-}
+/***********************   EVALUATION **************************/
 
 
-void Vehicle::addDelivery(const Order &o) {
-    Dpnode delivery(*o.delivery);
-    path.push_back(delivery);
-    evalLast();
-}
+   void Vehicle::evaluate() {
+     evaluate(0);
+   };
 
-void Vehicle::addOrder( const Order &o) {
-    addPickup(o);
-    addDelivery(o);
-}
+   void Vehicle::evaluate(int from) {
+   
+      if (from <0 or from >path.size()) from=0;
+      for (int i=from; i< path.size(); i++) {
+          if (i==0)path[0].evaluate(maxcapacity);
+          else path[i].evaluate(path[i-1],maxcapacity);
+      };
+      Dpnode last=path[path.size()-1];
+      curcapacity=last.getcargo();
+      duration=last.gettotDist()+depot.distance(last);
+      cv_depot=(curcapacity!=0);
+      twv_depot=depot.latearrival(duration);
+      cvTot=last.getcvTot();
+      twvTot=last.gettwvTot();
+      cvTot=cv_depot? cvTot+1:cvTot;
+      twvTot=twv_depot? twvTot+1:twvTot;
+      cost= w1*duration + w2*cvTot + w3*twvTot;
+   }
 
-void Vehicle::tau() {
-    for (int i=0; i< path.size(); i++)
-       std::cout<<getnid(i)<<" , ";
-}
+   void Vehicle::evalLast() {
+       evaluate(path.size()-1);
+   }
 
-void Vehicle::evalLast() {
-    evaluate(path.size()-1);
-}
 
 
 
