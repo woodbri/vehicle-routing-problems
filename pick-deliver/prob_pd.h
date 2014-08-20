@@ -23,12 +23,11 @@ class Prob_pd {
     Dpnode depot;
     double w1,w2,w3;
 
-    std::vector<Vehicle> fleet;
     std::vector<Dpnode> datanodes;
+    std::deque<Order> ordersList;   // vector of orders
     std::vector<int> depots;
     std::vector<int> dumps;
     std::vector<int> pickups;
-    std::deque<Order> ordersList;   // vector of orders
 
     std::vector<int> unassigned;
 
@@ -69,6 +68,7 @@ class Prob_pd {
     Dpnode& getDeliveryNodeFromOrder(int i);
     Dpnode& getPickupNodeFromOrder(int i);
     void sortOrdersbyDist();
+    void sortOrdersbyId();
     void sortOrdersbyDistReverse();
 
     Order& getOrder(int i) ;

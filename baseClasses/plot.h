@@ -41,8 +41,8 @@ public:
     void setLabel(std::vector<int> ilabel){ label=label; };
     void setPointColor(std::vector<int> pc){ pointclr=pc; };
     void setLineColor(std::vector<int> lc){ lineclr=lc; };
-    void setFile(std::string ifile) { file=ifile; };
-    void setTitle(std::string ititle) { title=ititle; };
+    void setFile(const std::string &ifile) { file=ifile; };
+    void setTitle(const std::string &ititle) { title=ititle; };
     void setsize(int iwidth, int iheight){ width=iwidth; height=iheight; };
     int scalex(double x);
     int scaley(double y);

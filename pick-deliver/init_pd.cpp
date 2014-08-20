@@ -3,93 +3,98 @@
 #include "vehicle.h"
 #include "init_pd.h"
 
-// NON class functions for sorting
-bool sortByOid(Order a, Order b)
-{
-    return a.oid < b.oid;
-}
 
-// Class functions
+
+
 
 void Init_pd::dumbConstruction() {
-    Vehicle truck;
+    Vehicle truck(depot,Q);
+    fleet.empty();
+        for (int i=0; i<getOrderCount(); i++) {
+           truck.pushOrder(getOrder(i));
+        }
+    std::cout<<"pushOrder()----->";    truck.tau();
+    std::cout<<"\norder to be removed():"; ordersList[2].dump();
+    truck.removeOrder(2); std::cout<<"\nremoveOrder(2)->>>>"; truck.tau();
+    truck.insert(datanodes[6],2); std::cout<<"\ninsert(datanodes[6],2)->>>"; truck.tau();
+    truck.move(2,4); std::cout<<"\nmove(2,4)->>>>"; truck.tau();
+    truck.move(4,2); std::cout<<"\nmove(4,2)->>>>"; truck.tau();
+    truck.swap(2,5); std::cout<<"\nswap(5,2)->>>>"; truck.tau();
+    truck.swapstops(2,5); std::cout<<"\nswapstops(2,5)->>>>"; truck.tau();
+    truck.swapstops(6,7); std::cout<<"\nswapstops(6,7)->>>>"; truck.tau();
+    fleet.push_back(truck);
+}
+
+void Init_pd::dumbConstructionAndBestMoveForward() {
+    Vehicle truck(depot,Q);
+    fleet.empty();
+    sortOrdersbyDistReverse();
+    int bestI;
+    int bestJ;
+        for (int i=0; i<getOrderCount(); i++) {
+           truck.pushOrder(getOrder(i));
+        }
+    truck.findBetterForward(bestI, bestJ);
+    truck.move(bestI,bestJ);
+    fleet.push_back(truck);
+};
+     
+void Init_pd::withSortedOrdersConstruction() {
+    sortOrdersbyDist();
+    dumbConstruction();
+    sortOrdersbyId();
+};
+
+void Init_pd::dumbAndHillConstruction() {
+    Vehicle truck(depot,Q);
+    fleet.empty();
     sortOrdersbyDistReverse();
         for (int i=0; i<getOrderCount(); i++) {
-           truck.addOrder(getOrder(i));
+           truck.pushOrder(getOrder(i));
+        }
+    truck.hillClimbOpt();
+    fleet.push_back(truck);
+};
+
+void Init_pd::deliveryBeforePickupConstruction() {
+    Vehicle truck(depot,Q);
+    fleet.empty();
+        for (int i=0; i<getOrderCount(); i++) {
+           truck.pushDelivery(getOrder(i));
+           truck.pushPickup(getOrder(i));
         }
     truck.dump();
     fleet.push_back(truck);
 };
 
-void Init_pd::dumbConstructionAndBestMoveForward() {/*
-    Vehicle dumbroute(P);
-    int bestI;
-    int bestJ;
-        for (int i=0; i<P.getOrderCount(); i++) {
-           dumbroute.addOrder(P.getOrder(i));
-        }
-    dumbroute.dumppath();
-    dumbroute.findBetterForward(bestI, bestJ);
-std::cout<<"best I"<<bestI<<", best J"<<bestJ<<"\n";
-    dumbroute.move(bestI,bestJ);
-    dumbroute.dumppath();
-    
-    fleet.push_back(dumbroute);
-*/};
-     
-void Init_pd::withSortedOrdersConstruction() {
-    sortOrdersbyDist();
-    dumbConstruction();
-};
-
-void Init_pd::dumbAndHillConstruction() {/*
-    Vehicle dumbroute(P);
-    sortOrdersbyDistReverse();
-        for (int i=0; i<getOrderCount(); i++) {
-           dumbroute.addOrder(getOrder(i));
-        }
-    dumbroute.hillClimbOpt();
-    dumbroute.dump();
-    fleet.push_back(dumbroute);
-*/};
-
-void Init_pd::deliveryBeforePickupConstruction() {/*
-    Vehicle dumbroute(P);
-        for (int i=0; i<getOrderCount(); i++) {
-           dumbroute.addDelivery(getOrder(i));
-           dumbroute.addPickup(P.getOrder(i));
-        }
-    dumbroute.dump();
-    fleet.push_back(dumbroute);
-*/};
-
 void Init_pd::sequentialConstruction() {
-/*    // std::cout << "Enter Problem::sequentialConstruction\n";
+    std::cout << "Enter Problem::sequentialConstruction\n";
     fleet.clear();
+    Vehicle truck(depot,Q);
     Order order;
     std::deque<Order> unOrders;
     std::deque<Order> waitOrders;
     sortOrdersbyDist();
-    unOrders=P.O;
+    unOrders=ordersList;
     while (!unOrders.empty()) {
-       Vehicle route(P);
-       std::cout<<"\n\n*******1 original orders"<<P.O.size()<<" wait orders "<< waitOrders.size()<<" unassigned Orders "<<unOrders.size()<<"\n";
+       truck.clean();  
+       //std::cout<<"\n\n*******1 original orders"<<P.O.size()<<" wait orders "<< waitOrders.size()<<" unassigned Orders "<<unOrders.size()<<"\n";
        while (!unOrders.empty()) {
           order=unOrders.front();
           unOrders.pop_front();
-          route.addOrder(order);
-          route.hillClimbOpt();     
-          if (!route.feasable()) {
-                route.removeOrder(order);
+          truck.pushOrder(order);
+          truck.hillClimbOpt();     
+          if (!truck.feasable()) {
+                truck.removeOrder(order.getoid());
                 waitOrders.push_back(order);
           }
        }
-       fleet.push_back(route);
+       fleet.push_back(truck);
        unOrders=waitOrders;
        waitOrders.clear();
      }
      dump();
-*/}
+}
 
 
 void Init_pd::initialByOrderSolution() {
@@ -107,7 +112,7 @@ void Init_pd::initialByOrderSolution() {
        while (!unOrders.empty()) {
          order=unOrders.front();
           unOrders.pop_front();
-          route.addOrder(order);
+          route.pushOrder(order);
           ppos=bppos=route.getppos(order.oid);
           dpos=bdpos=route.getdpos(order.oid);
           actualcost=getcost();
@@ -146,7 +151,7 @@ void  Init_pd::initialFeasableSolution() {/*
        while (!unOrders.empty()) {
          order=unOrders.front();
           unOrders.pop_front();
-          route.addOrder(order);
+          route.pushOrder(order);
           ppos=bppos=route.getppos(order.oid);
           dpos=bdpos=route.getdpos(order.oid);
           actualcost=getcost();
@@ -193,7 +198,7 @@ double Init_pd::getDistance() {
 }
 
 
-void Init_pd::plot(){
+void Init_pd::plot(std::string file,std::string title){
     std::vector<double> x;
     std::vector<double> y;
     std::vector<int> label;
@@ -212,8 +217,9 @@ void Init_pd::plot(){
     pcolor.push_back(pcolor[0]);
     lcolor.push_back(lcolor[0]);
     label.push_back(label[0]);
-
     Plot graph(x,y,pcolor,lcolor,label);
+    graph.setFile(file);
+    graph.setTitle(title);
     graph.plot(false);
 }
 

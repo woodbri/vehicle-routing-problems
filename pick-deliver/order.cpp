@@ -1,4 +1,4 @@
-#include "node.h"
+#include "dpnode.h"
 #include "order.h"
 
 
@@ -36,7 +36,7 @@ void Order::debugdump() const {
 
 
 void Order::dump() const {
-    std::cout << "O#"<<oid << "("
+    std::cout << "("
               << getpid() << ","
               << getdid() << ") ";
 }
