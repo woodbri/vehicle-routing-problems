@@ -10,9 +10,17 @@
 void Init_pd::dumbConstruction() {
     Vehicle truck(depot,Q);
     fleet.empty();
-        for (int i=0; i<getOrderCount(); i++) {
+        for (int i=0; i<getOrderCount()-1; i++) {
            truck.pushOrder(getOrder(i));
         }
+    fleet.push_back(truck);
+    Vehicle oherTruck(depot,Q);
+    truck.pushOrder(getOrder(getOrderCount()-1));
+    fleet.push_back(truck);
+    plot("far+localized.png","two trucks");
+
+    
+/*
     std::cout<<"pushOrder()----->";    truck.tau();
     std::cout<<"\norder to be removed():"; ordersList[2].dump();
     fleet.push_back(truck);
@@ -30,6 +38,7 @@ void Init_pd::dumbConstruction() {
     truck.swapstops(2,5); std::cout<<"\nswapstops(2,5)->>>>"; truck.tau();
     truck.swapstops(6,7); std::cout<<"\nswapstops(6,7)->>>>"; truck.tau();
     fleet.push_back(truck);
+*/
 }
 
 void Init_pd::dumbConstructionAndBestMoveForward() {
