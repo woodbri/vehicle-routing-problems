@@ -38,14 +38,11 @@
 */
 
 
-      if (! path.front().isdepot())
-        p.push_back(path.getdepot().getnid());
-
       for (int i=0; i< path.size(); i++)
         p.push_back(getnid(i));
 
       if (! path.back().isdepot())
-        p.push_back(path.getdepot().getnid());
+        p.push_back(depot.getnid());
 
       return p;
    }
