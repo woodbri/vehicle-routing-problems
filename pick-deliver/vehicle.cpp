@@ -34,7 +34,7 @@
       std::vector<int> p;
 /*
       p=path.getpath();
-      p.pushback(depot);
+      p.pushback(depot.getnid());
 */
 
 
