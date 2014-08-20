@@ -32,6 +32,11 @@
 
    std::vector<int> Vehicle::getpath() {
       std::vector<int> p;
+/*
+      p=path.getpath();
+      p.pushback(depot);
+*/
+
 
       if (! path.front().isdepot())
         p.push_back(path.getdepot().getnid());
