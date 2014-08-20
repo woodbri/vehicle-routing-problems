@@ -12,11 +12,6 @@
 #include "node.h"
 #include "order.h"
 #include "vehicle.h"
-//class Solution;
-
-//const double w1 = 1.0;  // route duration weighting
-//const double w2 = 1000.0;  // total number of time violations weight
-//const double w3 = 1.0;  // total number of capacity violations weight
 
 class Prob_pd {
   protected:
@@ -25,26 +20,12 @@ class Prob_pd {
 
     std::vector<Dpnode> datanodes;
     std::deque<Order> ordersList;   // vector of orders
-    std::vector<int> depots;
-    std::vector<int> dumps;
-    std::vector<int> pickups;
 
     std::vector<int> unassigned;
 
   public:
     int K;      // number of vehicles
     int Q;      // capacity
-    int DepotClose;
-    //Dpnode depot;
-    double atwl;
-    //std::vector<Dpnode> N;    // vector of nodes
-
-
-    // variables for plotting
-    //double extents[4]; 
-
-    // Problem() {};
-    // ~Problem() {};
 
     Dpnode getdepot() const { return depot;};
     void loadProblem(char *infile);

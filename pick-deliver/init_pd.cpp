@@ -104,45 +104,6 @@ void Init_pd::sequentialConstruction() {
 
 
 void Init_pd::initialByOrderSolution() {
-/*    int bppos, bdpos;
-    int ppos, dpos;
-    double actualcost, bestcost;
-    fleet.clear();
-    Order order;
-    std::deque<Order> unOrders;
-    std::deque<Order> waitOrders;
-    sortOrdersbyDistReverse();
-    unOrders=P.O;
-    while (!unOrders.empty()) {
-       Vehicle route(P);
-       while (!unOrders.empty()) {
-         order=unOrders.front();
-          unOrders.pop_front();
-          route.pushOrder(order);
-          ppos=bppos=route.getppos(order.oid);
-          dpos=bdpos=route.getdpos(order.oid);
-          actualcost=getcost();
-          bestcost=route.findBestCostBackForw(order.oid,bppos,bdpos); //can it come back with already tested for feasability
-          if (bestcost<actualcost) {     //found a better place
-             if (bppos<bdpos) {
-                 route.move(ppos,bppos);
-                 route.move(dpos,bdpos);
-             }
-          }
-          if (!route.feasable() ) {
-                route.removeOrder(order);
-                waitOrders.push_back(order);
-          }
-       }
-       fleet.push_back(route);
-       unOrders=waitOrders;
-       waitOrders.clear();
-     }
-     dump();*/
-}
-
-
-void  Init_pd::initialFeasableSolution() {/*
     int bppos, bdpos;
     int ppos, dpos;
     double actualcost, bestcost;
@@ -150,36 +111,75 @@ void  Init_pd::initialFeasableSolution() {/*
     Order order;
     std::deque<Order> unOrders;
     std::deque<Order> waitOrders;
-    P.sortOrdersbyDistReverse();
-    unOrders=P.O;
+    sortOrdersbyDistReverse();
+    //unOrders=P.O;
     while (!unOrders.empty()) {
-       Vehicle route(P);
+     //  Vehicle route(P);
        while (!unOrders.empty()) {
          order=unOrders.front();
           unOrders.pop_front();
-          route.pushOrder(order);
-          ppos=bppos=route.getppos(order.oid);
-          dpos=bdpos=route.getdpos(order.oid);
+          //route.pushOrder(order);
+          //ppos=bppos=route.getppos(order.oid);
+          //dpos=bdpos=route.getdpos(order.oid);
           actualcost=getcost();
-          bestcost=route.findBestCostBackForw(order.oid,bppos,bdpos); //can it come back with already tested for feasability
+          //bestcost=route.findBestCostBackForw(order.oid,bppos,bdpos); //can it come back with already tested for feasability
           if (bestcost<actualcost) {     //found a better place
-             if (bppos<bdpos) {          
-                 route.move(ppos,bppos); 
-                 route.move(dpos,bdpos);
+             if (bppos<bdpos) {
+                 //route.move(ppos,bppos);
+                 //route.move(dpos,bdpos);
              }
           }
-          if (!route.feasable() ) {
+        /*  if (!route.feasable() ) {
                 route.removeOrder(order);
                 waitOrders.push_back(order);
-          }
-       }      
-       fleet.push_back(route);
+          } */
+       }
+       //fleet.push_back(route);
        unOrders=waitOrders;
        waitOrders.clear();
      }
      dump();
-     plotTau();
-*/
+}
+
+
+void  Init_pd::initialFeasableSolution() {
+    int bppos, bdpos;
+    int ppos, dpos;
+    double actualcost, bestcost;
+    fleet.clear();
+    Order order;
+    std::deque<Order> unOrders;
+    std::deque<Order> waitOrders;
+    //P.sortOrdersbyDistReverse();
+    //unOrders=P.O;
+    while (!unOrders.empty()) {
+       //Vehicle route(P);
+       while (!unOrders.empty()) {
+         order=unOrders.front();
+          unOrders.pop_front();
+          //route.pushOrder(order);
+          //ppos=bppos=route.getppos(order.oid);
+          ////dpos=bdpos=route.getdpos(order.oid);
+          actualcost=getcost();
+          //bestcost=route.findBestCostBackForw(order.oid,bppos,bdpos); //can it come back with already tested for feasability
+          if (bestcost<actualcost) {     //found a better place
+             if (bppos<bdpos) {          
+                 //route.move(ppos,bppos); 
+                 //route.move(dpos,bdpos);
+             }
+          }
+       /*   if (!route.feasable() ) {
+                route.removeOrder(order);
+                waitOrders.push_back(order);
+          } */
+       }      
+       //fleet.push_back(route);
+       unOrders=waitOrders;
+       waitOrders.clear();
+     }
+     dump();
+     //plotTau();
+
 }
 
 
