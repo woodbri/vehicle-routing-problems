@@ -198,16 +198,6 @@ double Init_pd::getDistance() {
 }
 
 
-// this should get moved to plot1.h
-int Init_pd::makeColor(int i) const {
-    int b = (i % 4 + 1) * 0x40 - 1;
-    int g = ((i /  4) % 4 + 1) * 0x40 - 1;
-    int r = ((i / 16) % 4 + 1) * 0x40 - 1;
-
-    return  r*256*256 + g*256 + b;
-}
-
-
 void Init_pd::plot(std::string file,std::string title){
 /*
     std::vector<double> x;
@@ -238,7 +228,7 @@ void Init_pd::plot(std::string file,std::string title){
     plot.setTitle( title );
     plot.drawInit();
     for (int i=0; i<fleet.size(); i++) {
-        plot.drawPath(fleet[i].getpath(), makeColor(i), 1, false);
+        plot.drawPath(fleet[i].getpath(), plot.makeColor(i), 1, false);
     }
     plot.drawPoints(pickups, 0x0000ff, 9, true);
     plot.drawPoints(depots, 0xff0000, 7, true);

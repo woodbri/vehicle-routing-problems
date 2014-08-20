@@ -72,6 +72,13 @@ public:
         calcExtents();
     };
 
+    int makeColor(int i) const {
+        int b = (i % 4 + 1) * 0x40 - 1;
+        int g = ((i /  4) % 4 + 1) * 0x40 - 1;
+        int r = ((i / 16) % 4 + 1) * 0x40 - 1;
+
+        return  r*256*256 + g*256 + b;
+    };
 
     void setFile(std::string _file) { file = _file; };
 
