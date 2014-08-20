@@ -13,32 +13,25 @@ void Init_pd::dumbConstruction() {
         for (int i=0; i<getOrderCount()-1; i++) {
            truck.pushOrder(getOrder(i));
         }
-    fleet.push_back(truck);
-    Vehicle oherTruck(depot,Q);
-    truck.pushOrder(getOrder(getOrderCount()-1));
-    fleet.push_back(truck);
-    plot("far+localized","two trucks");
-
-    
-/*
-    std::cout<<"pushOrder()----->";    truck.tau();
+    std::cout<<"pushOrder()----->";    truck.tau(); truck.dump();
     std::cout<<"\norder to be removed():"; ordersList[2].dump();
-    fleet.push_back(truck);
-    plot("testing1.png","with all nodes in the path");
+//    plot("testing1.png","with all nodes in the path");
 
-    fleet[0].removeOrder(2); std::cout<<"\nremoveOrder(2)->>>>"; truck.tau();
-    plot("testing2.png"," with out order 2 in the path");
-    fleet[0].insert(datanodes[6],2); std::cout<<"\ninsert(datanodes[6],2)->>>";
-    plot("testing3.png"," wdded node 6 in the path");
-    fleet[0].move(2,4); std::cout<<"\nmove(2,4)->>>>"; truck.tau();
+    truck.removeOrder(2); std::cout<<"\nremoveOrder(2)->>>>"; truck.tau(); truck.dump();
+//    plot("testing2.png"," with out order 2 in the path");
+    truck.insert(datanodes[6],2); std::cout<<"\ninsert(datanodes[6],2)->>>"; truck.tau(); truck.dump();
+
+//    plot("testing3.png"," wdded node 6 in the path");
+    truck.move(2,4); std::cout<<"\nmove(2,4)->>>>"; truck.tau(); truck.dump();
+/*
     plot("testing4.png","swaped the nodes 2 and 4");
 
     truck.move(4,2); std::cout<<"\nmove(4,2)->>>>"; truck.tau();
     truck.swap(2,5); std::cout<<"\nswap(5,2)->>>>"; truck.tau();
     truck.swapstops(2,5); std::cout<<"\nswapstops(2,5)->>>>"; truck.tau();
     truck.swapstops(6,7); std::cout<<"\nswapstops(6,7)->>>>"; truck.tau();
-    fleet.push_back(truck);
 */
+    fleet.push_back(truck);
 }
 
 void Init_pd::dumbConstructionAndBestMoveForward() {
