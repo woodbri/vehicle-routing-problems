@@ -22,7 +22,7 @@
         twv=latearrival(totDist);      //Time Window Violation
 
         waitTime=earlyarrival(totDist)? opens()-totDist:0;   //truck arrives before node opens, so waits 
-        totDist+=waitTime;                                    // we add the waiting time
+        totDist+=waitTime+service;                          // we add the waiting time + service time
 //std::cout<<"previus\n";
 //pred.dumpeval();
 //std::cout<<"actual\n";
