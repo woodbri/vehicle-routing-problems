@@ -1,7 +1,7 @@
 
 CPP = g++
 UTIL = ../baseClasses
-CPPFLAGS = -g -O0 -MMD -MP -I$(UTIL)
+CPPFLAGS = -g -O0 -MMD -MP  -Dusedeque -I$(UTIL)
 LDFLAGS = -lgd -I$(UTIL) -L$(UTIL)
 
 
@@ -23,7 +23,7 @@ tester: $(UTILOBJS) $(OBJS)
 %.o: %.cpp
 	$(CPP) $(CPPFLAGS) -c $< -o $@
 
-test: tester p50.txt
+test: tester lc008.txt
 	./tester lc008.txt
 
 valgrind: tester lc008.txt 

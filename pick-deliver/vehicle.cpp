@@ -1,5 +1,5 @@
 #include <iostream>
-#include <vector>
+#include <deque>
 
 
 #include "order.h"
@@ -12,55 +12,26 @@
 /***************************** DUMP PRINTS PLOTS   ********/
 
    void Vehicle::dump()  {
-//     evaluate();
      for (int i=0;i<path.size();i++){
          std::cout<<"\npath stop #:"<<i<<"\n";
-          //path[i].dump();
           path[i].dumpeval();
      }
      std::cout<<"\nBack to depot:"<<"\n";
-     std::cout<<"twv_depot="<<twv_depot
-                 <<",cv_depot="<<cv_depot
-                 <<",twvTot="<<twvTot
-                 <<",cvTot="<<cvTot
-                 <<",current cargo="<<curcapacity
-                 <<",duration="<<duration
-                 <<",cost="<<cost
-                 <<"\n";
-
-     
+     backToDepot.dumpeval();
+     std::cout <<"TOTAL COST="<<cost <<"\n";
    }
 
-   std::vector<int> Vehicle::getpath() {
-      std::vector<int> p;
-/*
+   std::deque<int> Vehicle::getpath()  {
+      std::deque<int> p;
       p=path.getpath();
-      p.pushback(depot.getnid());
-*/
-
-
-      for (int i=0; i< path.size(); i++)
-        p.push_back(getnid(i));
-
-      if (! path.back().isdepot())
-        p.push_back(depot.getnid());
-
+      p.push_back(backToDepot.getnid());
       return p;
    }
 
    void Vehicle::smalldump() {
-//    evaluate();
-      std::cout << "D="<<duration << ", "
-              << "TWV="<<twvTot << ", "
-              << "CV=" <<cvTot<< ", ";
-      if(twv_depot) std::cout<<"depot: has twv ";
-      if(cv_depot) std::cout<<"depot: has cv ";
-      std::cout << "\nVehicle(nid,oid): [";
-      for (int i=0; i<path.size(); i++) {
-        if (i) std::cout << ", ";
-        std::cout << "("<<getnid(i)/*<<","<<getoid(i)<<")"*/;
-      }
-      std::cout << "]\n";
+      backToDepot.dumpeval();
+      std::cout << "TOTAL COST="<<cost << ", TAU= ";
+      tau(); std::cout<<"\n";
    }
 
    void Vehicle::tau() {
@@ -146,8 +117,8 @@ void Vehicle::findBetterForward(int &bestI, int &bestJ) {
 /***  direct evaluation **/
    void Vehicle::remove(int at){
           if (!path.empty()) {
-              path.remove(at);
-              evaluate(at);  
+              path.remove(at,maxcapacity);
+              evalLast();  
           }
     }
 
@@ -177,19 +148,20 @@ void Vehicle::findBetterForward(int &bestI, int &bestJ) {
            }
     }
 
- /****** Insertion of nodes from the path  ********/
+ /****** Insertion of nodes to the path  ********/
 
-/***  direct evaluation **/ 
+/****** Direct evaluation *****/    
     void Vehicle::push_back(Dpnode pathstop) {
-          path.push_back(pathstop);
+          path.push_back(pathstop,maxcapacity);
           evalLast();
     }
 
     
     void Vehicle::insert(Dpnode pathstop,int at) {
-         path.insert(pathstop,at);
-         evaluate(at);
+         path.insert(pathstop,at,maxcapacity);
+         evalLast();
     }
+
 
 /****** Indirect evaluation *****/    
     void  Vehicle::insertPickup(const Order &o, const int at) {
@@ -218,18 +190,19 @@ void Vehicle::findBetterForward(int &bestI, int &bestJ) {
     
 /****** moves between pathstops  ********/
     void Vehicle::move(int fromi,int toj) {
-              if (fromi==toj) return; //nothing to move
-              path.move(fromi,toj);
-              evaluate(fromi<toj?fromi:toj);
+          if (fromi==toj) return; //nothing to move
+          path.move(fromi,toj,maxcapacity);
+          evalLast();
     }
 
        
     void Vehicle::swap(int i,int j){	
           if (i==j) return; //nothing to swap
-          path.swap(i,j);
-          evaluate(i<j?i:j);
+          path.swap(i,j,maxcapacity);
+          evalLast();
     }
 
+/*indirect*/
     void Vehicle::swapstops(int i,int j){
           if(i>j)  std::cout<<"This is a restrictive swap, requierment: i<j\n";  
           if ( ispickup(i) and isdelivery(j) and sameorder(i,j) ) {
@@ -239,11 +212,12 @@ void Vehicle::findBetterForward(int &bestI, int &bestJ) {
           swap(i,j);
      }
 
+
+/***PLOT***/
 void Vehicle::plot(std::string file,std::string title,int carnumber){
-    std::vector<Dpnode> nimodoporqueusavector;
-    std::vector<int> pickups;
-    std::vector<int> deliverys;
-    std::vector<int> depots;
+    std::deque<int> pickups;
+    std::deque<int> deliverys;
+    std::deque<int> depots;
     /** cpp11  the following next 3 lines become std::string carnum=std::to_string(carnumber */
     std::stringstream convert; 
     convert << carnumber;
@@ -253,7 +227,6 @@ void Vehicle::plot(std::string file,std::string title,int carnumber){
 	
    
     for (int i=0; i<path.size(); i++){
-        nimodoporqueusavector.push_back(path[i]);  
         if (ispickup(i))
         pickups.push_back(getnid(i));
         else if (isdelivery(i))
@@ -262,7 +235,7 @@ void Vehicle::plot(std::string file,std::string title,int carnumber){
     }
 
     // Plot1<Dpnode> graph( path )   //if plot used deque this could be used 
-    Plot1<Dpnode> graph( nimodoporqueusavector ); 
+    Plot1<Dpnode> graph( path ); 
     graph.setFile( file+extra );
     graph.setTitle( title+extra );
     graph.drawInit();
@@ -275,30 +248,18 @@ void Vehicle::plot(std::string file,std::string title,int carnumber){
 
 
 
+
 /***********************   EVALUATION **************************/
 
 
    void Vehicle::evaluate() {
-     evaluate(0);
+     path.evaluate(maxcapacity);
    };
 
    void Vehicle::evaluate(int from) {
-   
-      if (from <0 or from >path.size()) from=0;
-      for (int i=from; i< path.size(); i++) {
-          if (i==0)path[0].evaluate(maxcapacity);
-          else path[i].evaluate(path[i-1],maxcapacity);
-      };
       Dpnode last=path[path.size()-1];
-      curcapacity=last.getcargo();
-      duration=last.gettotDist()+depot.distance(last);
-      cv_depot=(curcapacity!=0);
-      twv_depot=depot.latearrival(duration);
-      cvTot=last.getcvTot();
-      twvTot=last.gettwvTot();
-      cvTot=cv_depot? cvTot+1:cvTot;
-      twvTot=twv_depot? twvTot+1:twvTot;
-      cost= w1*duration + w2*cvTot + w3*twvTot;
+      backToDepot.evaluate(last,maxcapacity);
+      cost= w1*backToDepot.gettotDist()+ w2*backToDepot.getcvTot() + w3*backToDepot.gettwvTot();
    }
 
    void Vehicle::evalLast() {
@@ -394,7 +355,7 @@ void Route::update() {
 
 
 
-double Route::testVehicle(const std::vector<int>& tp) {
+double Route::testVehicle(const std::deque<int>& tp) {
     tD = 0;
     tTWV = 0;
     tCV = 0;
@@ -447,7 +408,7 @@ double Route::testVehicle(const std::vector<int>& tp) {
 bool Route::insertOrder(int oid, bool mustBeValid) {
 
     // check if the order is already in the route
-    std::vector<int>::iterator it;
+    std::deque<int>::iterator it;
     it = std::find(orders.begin(), orders.end(), oid);
     if (it != orders.end()) return false;
 
@@ -458,12 +419,12 @@ bool Route::insertOrder(int oid, bool mustBeValid) {
 
     double bestTestCost = std::numeric_limits<double>::max();
     int bestPosition = -1;
-    std::vector<int> newpath; // path with predecessor inserted
-    std::vector<int> newpath2; // path with predecessot and successor inserted
+    std::deque<int> newpath; // path with predecessor inserted
+    std::deque<int> newpath2; // path with predecessot and successor inserted
 
     for (int i=0; i<path.size(); i++) {
         newpath = path;
-        std::vector<int>::iterator it2;
+        std::deque<int>::iterator it2;
 
         // insert the predecessor and check for violations
         it2 = newpath.begin();
@@ -510,7 +471,7 @@ bool Route::insertOrder(int oid, bool mustBeValid) {
     if (bestPosition != -1) {
         // apply the moves to this route
         path.clear();
-        std::vector<int>::iterator it;
+        std::deque<int>::iterator it;
         for (int i=0; i<newpath2.size(); i++) {
             path.push_back(newpath2[i]);
             if (newpath2[i] == np.getnid() || newpath2[i] == nd.getnid()) {

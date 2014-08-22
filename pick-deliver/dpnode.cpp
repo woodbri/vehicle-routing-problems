@@ -4,7 +4,7 @@
 
 #include "dpnode.h"
 
-    
+/*    
     void Dpnode::evaluate (double cargoLimit) {
         cargo=getdemand();
         waitTime=0;
@@ -32,7 +32,7 @@
         twvTot = (twv)? pred.twvTot+1:pred.twvTot;          //keep a total of violations
         cvTot =  (cv)?  pred.cvTot+1 :pred.cvTot;
    };
-
+*/
 
 
     void Dpnode::dump() const {
@@ -46,6 +46,8 @@
 
     void Dpnode::dumpeval() const  {
         dump();
+        Tweval::dumpeval();
+        /*
         std::cout<<"twv="<<twv
                  <<",cv="<<cv
                  <<",twvTot="<<twvTot
@@ -54,9 +56,9 @@
                  <<",distWithPrev="<<distPrev
                  <<",waitTime="<<waitTime
                  <<",totDist="<<totDist
-                 <<"\n";
+                 <<"\n";*/
     };
-
+/*
     void Dpnode::copyvalues (const Dpnode &other) {
               twv=other.twv;
               cv=other.cv;
@@ -69,7 +71,7 @@
               did=other.did;
               oid=other.oid;
              };
-
+*/
 
 /*   Dpnode::Dpnode(Twnode &n):Twnode(n) {
               twv=false;
@@ -82,7 +84,8 @@
               oid=did=pid=0;
     };
 */
-Dpnode::Dpnode(std::string line) {
+
+Dpnode::Dpnode(std::string line):Tweval() {
 
     std::istringstream buffer( line );
     buffer >> nid;
@@ -94,11 +97,11 @@ Dpnode::Dpnode(std::string line) {
     buffer >> service;
     buffer >> pid;
     buffer >> did;
-    waitTime=0;
+ /*   waitTime=0;
     distPrev=0;
     totDist=0;
     twvTot=cvTot=0;
-    twv=cv=false;
+    twv=cv=false;*/
 //std::cout<<"\njust read:"; dump();
 }
 

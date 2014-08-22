@@ -1,3 +1,4 @@
+#define USEDEQUE
 #include <cmath>
 #include "plot1.h"
 #include "vehicle.h"
@@ -10,28 +11,30 @@
 void Init_pd::dumbConstruction() {
     Vehicle truck(depot,Q);
     fleet.empty();
-        for (int i=0; i<getOrderCount()-1; i++) {
+        for (int i=0; i<getOrderCount(); i++) {
            truck.pushOrder(getOrder(i));
         }
-    std::cout<<"pushOrder()----->";    truck.tau(); truck.dump();
+   std::cout<<"pushOrder()----->";    truck.tau(); 
+    fleet.push_back(truck);
+    plot("testing1.png","with all nodes in the path");
+/*
     std::cout<<"\norder to be removed():"; ordersList[2].dump();
-//    plot("testing1.png","with all nodes in the path");
-
-    truck.removeOrder(2); std::cout<<"\nremoveOrder(2)->>>>"; truck.tau(); truck.dump();
+    truck.removeOrder(2); std::cout<<"\nremoveOrder(2)->>>>"; truck.smalldump();
 //    plot("testing2.png"," with out order 2 in the path");
-    truck.insert(datanodes[6],2); std::cout<<"\ninsert(datanodes[6],2)->>>"; truck.tau(); truck.dump();
+    truck.insert(datanodes[6],2); std::cout<<"\ninsert(datanodes[6],2)->>>"; truck.smalldump(); 
 
 //    plot("testing3.png"," wdded node 6 in the path");
-    truck.move(2,4); std::cout<<"\nmove(2,4)->>>>"; truck.tau(); truck.dump();
-/*
-    plot("testing4.png","swaped the nodes 2 and 4");
+    truck.move(2,4); std::cout<<"\nmove(2,4)->>>>"; truck.smalldump(); 
 
-    truck.move(4,2); std::cout<<"\nmove(4,2)->>>>"; truck.tau();
-    truck.swap(2,5); std::cout<<"\nswap(5,2)->>>>"; truck.tau();
-    truck.swapstops(2,5); std::cout<<"\nswapstops(2,5)->>>>"; truck.tau();
-    truck.swapstops(6,7); std::cout<<"\nswapstops(6,7)->>>>"; truck.tau();
-*/
+//    plot("testing4.png","swaped the nodes 2 and 4");
+
+    truck.move(4,2); std::cout<<"\nmove(4,2)->>>>"; truck.smalldump();
+    truck.swap(2,5); std::cout<<"\nswap(5,2)->>>>"; truck.smalldump();
+    truck.swapstops(2,5); std::cout<<"\nswapstops(2,5)->>>>"; truck.smalldump();
+    truck.swapstops(6,7); std::cout<<"\nswapstops(6,7)->>>>"; truck.smalldump();
+
     fleet.push_back(truck);
+*/
 }
 
 void Init_pd::dumbConstructionAndBestMoveForward() {
@@ -208,13 +211,11 @@ double Init_pd::getDistance() {
 
 
 void Init_pd::plot(std::string file,std::string title){
-    std::vector<Dpnode> nodes;
-    std::vector<int> pickups;
-    std::vector<int> deliverys;
-    std::vector<int> depots;
+    std::deque<int> pickups;
+    std::deque<int> deliverys;
+    std::deque<int> depots;
 
     for (int i=0; i<datanodes.size(); i++){
-        nodes.push_back(datanodes[i]);
         if (datanodes[i].ispickup())
             pickups.push_back(datanodes[i].getnid());
         else if (datanodes[i].isdelivery())
@@ -222,12 +223,12 @@ void Init_pd::plot(std::string file,std::string title){
         else if (datanodes[i].isdepot())
             depots.push_back(datanodes[i].getnid());
     }
-    Plot1<Dpnode> plot( nodes );
+    Plot1<Dpnode> plot( datanodes );
     plot.setFile( file );
     plot.setTitle( title+".png" );
     plot.drawInit();
     for (int i=0; i<fleet.size(); i++) {
-        plot.drawPath(fleet[i].getpath(), plot.makeColor(i), 1, false);
+        //plot.drawPath(fleet[i].getpath(), plot.makeColor(i), 1, false);
     }
     plot.drawPoints(pickups, 0x0000ff, 9, true);
     plot.drawPoints(depots, 0xff0000, 7, true);

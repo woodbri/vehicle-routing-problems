@@ -5,15 +5,22 @@
 #include <limits>
 #include <string>
 #include <vector>
+#include <deque>
 #include <cmath>
 
+#include "twpath.h"
 #include "plot1.h"
 
 static const char *font = (char *)"/u/data/maps/fonts/verdana.ttf";
 
 template <class knode> class Plot1 {
 private:
+
+#ifdef USEDEQUE
+    const Twpath<knode> &pts;
+#else
     const std::vector<knode> &pts;
+#endif
     std::string file;
     std::string title;
     int width;
@@ -57,7 +64,11 @@ private:
 
 
 public:
+#ifdef USEDEQUE
+    Plot1(const Twpath<knode> &_pts) : pts(_pts) {
+#else
     Plot1(const std::vector<knode> &_pts) : pts(_pts) {
+#endif
         file = "plot1.png";
         title = file;
         width = 800;
@@ -67,7 +78,11 @@ public:
     }
 
 
+#ifdef USEDEQUE
+    void setPoints(const std::deque<knode> &_pts) {
+#else
     void setPoints(const std::vector<knode> &_pts) {
+#endif
         pts = _pts;
         calcExtents();
     };
@@ -103,7 +118,11 @@ public:
     }
 
 
+#ifdef USEDEQUE
+    void drawPath(std::deque<int> ids, int color, int thick, bool label) {
+#else
     void drawPath(std::vector<int> ids, int color, int thick, bool label) {
+#endif
         // make sure drawInit() has been called
         if (!im) {
             fprintf(stderr, "Plot1::drawInit() has not been called!\n");
@@ -135,7 +154,11 @@ public:
     }
 
 
+#ifdef USEDEQUE
+    void drawPoints(std::deque<int> ids, int color, int size, bool label) {
+#else
     void drawPoints(std::vector<int> ids, int color, int size, bool label) {
+#endif
         // make sure drawInit() has been called
         if (!im) {
             fprintf(stderr, "Plot1::drawInit() has not been called!\n");
