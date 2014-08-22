@@ -9,6 +9,7 @@
 std::deque<int> Vehicle::getpath()  {
       std::deque<int> p;
       p=Twpath::getpath();
+      p.push_front(getdepot().getnid());
       p.push_back(getdumpsite().getnid());
       p.push_back(getdepot().getnid());
       return p;
