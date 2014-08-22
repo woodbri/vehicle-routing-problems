@@ -1,4 +1,3 @@
-#define USEDEQUE
 #include <cmath>
 #include "plot1.h"
 #include "vehicle.h"
@@ -228,7 +227,7 @@ void Init_pd::plot(std::string file,std::string title){
     plot.setTitle( title+".png" );
     plot.drawInit();
     for (int i=0; i<fleet.size(); i++) {
-        //plot.drawPath(fleet[i].getpath(), plot.makeColor(i), 1, false);
+        plot.drawPath(fleet[i].getpath(), plot.makeColor(i), 1, false);
     }
     plot.drawPoints(pickups, 0x0000ff, 9, true);
     plot.drawPoints(depots, 0xff0000, 7, true);

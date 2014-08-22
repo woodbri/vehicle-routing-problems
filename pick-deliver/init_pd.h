@@ -1,6 +1,5 @@
 #ifndef INIT_PD_H
 #define INIT_PD_H
-#define USEDEQUE
 
 #include <vector>
 #include <cmath>

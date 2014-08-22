@@ -1,7 +1,6 @@
 #ifndef VEHICLE_H
 #define VEHICLE_H
 
-#define USEDEQUE
 #include <deque> 
 #include <vector>
 #include "twpath.h"
