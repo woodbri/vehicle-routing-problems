@@ -23,82 +23,92 @@ template <class knode> class Twpath {
 
   public:
 
-    void swap(int i,int j) {
-        knode temp=path[i];
-        path[i]=path[j];
-        path[j]=temp;
+    void swap(int i, int j) {
+        knode temp = path[i];
+        path[i] = path[j];
+        path[j] = temp;
     } 
 
-    void move(int fromi,int toj) {
-         if (fromi==toj) return;
-         if (fromi<toj){
-           insert(path[fromi],toj+1);
-           remove(fromi);
-         } else {
-           insert(path[fromi],toj);
-           remove(fromi+1);
-         }
+    void move(int fromi, int toj) {
+        if (fromi == toj) return;
+        if (fromi < toj){
+            insert(path[fromi], toj + 1);
+            remove(fromi);
+        } else {
+            insert(path[fromi], toj);
+            remove(fromi + 1);
+        }
     };
 
-    void insert(const knode &n,int at) {
-        path.insert(path.begin()+at,n);
+    void insert(const knode &n, int at) {
+        path.insert(path.begin() + at, n);
     };
 
-
-
-
-    void move(int fromi,int toj,double maxcapacity) {
-         if (fromi==toj) return;
-         if (fromi<toj){
-           insert(path[fromi],toj+1);
-           remove(fromi,maxcapacity);
-         } else {
-           insert(path[fromi],toj);
-           remove(fromi+1,maxcapacity);
-         }
+    void move(int fromi, int toj, double maxcapacity) {
+        if (fromi == toj) return;
+        if (fromi < toj){
+            insert(path[fromi], toj + 1);
+            remove(fromi, maxcapacity);
+        } else {
+            insert(path[fromi], toj);
+            remove(fromi + 1, maxcapacity);
+        }
     };
+
     void swap(int i,int j,double maxcapacity) {
-        knode temp=path[i];
-        path[i]=path[j];
-        path[j]=temp;
-        i<j? evaluate(i,maxcapacity): evaluate(j,maxcapacity);
-    } 
-    void insert(const knode &n,int at,double maxcapacity) {
-        path.insert(path.begin()+at,n);
+        knode temp = path[i];
+        path[i] = path[j];
+        path[j] = temp;
+        i < j ? evaluate(i, maxcapacity): evaluate(j, maxcapacity);
+    };
+
+    void insert(const knode &n, int at, double maxcapacity) {
+        path.insert(path.begin() + at, n);
         path[at].evaluate(maxcapacity);
     };
-    void push_back(const knode& n,double maxcapacity) { path.push_back(n);evalLast(maxcapacity); };
-    void push_back(knode& n,double maxcapacity) { path.push_back(n);evalLast(maxcapacity); };
-    void remove (int i, double maxcapacity) { path.erase(path.begin()+i); evaluate(i, maxcapacity);};
 
-    std::deque<int> getpath() const  {
+    void push_back(const knode& n, double maxcapacity) {
+        path.push_back(n);
+        evalLast(maxcapacity);
+    };
+
+    void push_back(knode& n, double maxcapacity) {
+        path.push_back(n);
+        evalLast(maxcapacity);
+    };
+
+    void remove (int i, double maxcapacity) {
+        path.erase(path.begin() + i);
+        evaluate(i, maxcapacity);
+    };
+
+    std::deque<int> getpath() const {
         std::deque<int> p;
-        for (int i=0; i< path.size(); i++){
+        for (int i=0; i<path.size(); i++){
               p.push_back(path[i].getnid());}
-      return p;
-   }
+        return p;
+    };
 
 
-   void evaluate(int from,double maxcapacity) {
+    void evaluate(int from,double maxcapacity) {
 
-      if (from <0 or from >path.size()) from=0;
-      for (int i=from; i< path.size(); i++) {
-          if (i==0)path[0].evaluate(maxcapacity);
-          else path[i].evaluate(path[i-1],maxcapacity);
-      };
-   }
+        if (from < 0 or from > path.size()) from = 0;
+        for (int i=from; i<path.size(); i++) {
+            if (i == 0) path[0].evaluate(maxcapacity);
+            else path[i].evaluate(path[i-1], maxcapacity);
+        };
+    };
 
-   void evalLast(double maxcapacity) {
-       evaluate(path.size()-1,maxcapacity);
-   }
+    void evalLast(double maxcapacity) {
+        evaluate(path.size()-1, maxcapacity);
+    };
 
-   void evaluate(double maxcapacity){
-       evaluate(0,maxcapacity);
-   }
+    void evaluate(double maxcapacity){
+        evaluate(0,maxcapacity);
+    };
     
-    void remove (int i) { path.erase(path.begin()+i);};
+    void remove (int i) { path.erase(path.begin()+i); };
 
-    
     typedef typename std::deque<knode> nodepath;
     typedef typename std::deque<knode>::iterator iterator;
     typedef typename std::deque<knode>::const_iterator const_iterator;
@@ -157,9 +167,12 @@ template <class knode> class Twpath {
                   << ", " << home.getnid()
                   << std::endl;
     };
-/* hsould be handled in Trashnodes vehicle */
+
+    /* should be handled in Trashnodes vehicle */
     knode& getdepot() { return home; };
+    knode getdepot() const { return home; };
     knode& getdumpsite() { return dumpsite; };
+    knode getdumpsite() const { return dumpsite; };
 
     void setdepot(knode& n) { home = n; };
     void setdumpsite(knode& n) { dumpsite = n; };
