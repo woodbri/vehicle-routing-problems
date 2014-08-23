@@ -3,7 +3,7 @@
 The following moves describe various optimization moves that can be applied
 to either single routes or multiple routes. These are fairly standard
 moves and can be applied during TABU or VLNS search optimization. These
-moves are lower level perturbations of the the path, but there may be
+moves are lower level perturbations of the path, but there may be
 problem specific constraints like capacity, time windows or pickup before
 delivery that need to be assessed at the problem level as opossed to the
 path level.
@@ -13,7 +13,7 @@ intra-route move, or between two different routes, ie: inter-route move.
 
 In the following examples, assume the depot is ``0`` and the other numbers
 are customer nodes. The *before* and *after* routes will show how the
-proposed move impacts the ordering if the nodes in the route.
+proposed move impacts the ordering of the nodes in the route.
 
 
 ## 1-opt move
@@ -22,7 +22,7 @@ Remove a node from the path and insert it elsewhere.
 
 ### intra-route
 
-Move node 3 after node 5
+Example: Move node 3 after node 5
 
  * before:
 
@@ -38,7 +38,7 @@ Move node 3 after node 5
 
 ### inter-route
 
-Move node 3 from route a to route b.
+Move node 3 from route a to route b before 6.
 
 It should be noted that this is and the n-opt move the only moves that have
 the possibility to reduce the number of routes needed in the solution. When
@@ -66,7 +66,7 @@ Remove a sequence of 2 or more nodes from the path and insert it elsewhere.
 
 ### intra-route
 
-Move node 2-3 after node 5
+Example: Move node 2-3 after node 5
 
  * before:
 
@@ -82,7 +82,7 @@ Move node 2-3 after node 5
 
 ### inter-route
 
-Move node 2-3 from route a to route b before 6.
+Example: Move node 2-3 from route a to route b before 6.
 
 It should be noted that this is and the 1-opt move the only moves that have
 the possibility to reduce the number of routes needed in the solution. When
@@ -110,7 +110,7 @@ Exchange a pair of nodes
 
 ### intra-route
 
-Exchange (swap) nodes 3 and 5
+Example: Exchange (swap) nodes 3 and 5
 
  * before
 
@@ -126,7 +126,7 @@ Exchange (swap) nodes 3 and 5
 
 ### inter-route
 
-Exchange node 3 in route a with node 6 in route b
+Example: Exchange node 3 in route a with node 6 in route b
 
  * before
 
@@ -149,7 +149,7 @@ nodes
 
 ### intra-route
 
-Exchange nodes 1-2 with nodes 4-5
+Example: Exchange nodes 1-2 with nodes 4-5
 
  * before
 
@@ -163,7 +163,7 @@ Exchange nodes 1-2 with nodes 4-5
 0-4-5-3-1-2-0
 ```
 
-Exchange nodes 2-3-4 with nodes 7-8
+Example: Exchange nodes 2-3-4 with nodes 7-8
 
  * before
 
@@ -179,7 +179,7 @@ Exchange nodes 2-3-4 with nodes 7-8
 
 ### inter-route
 
-Exchange nodes 1-2 in route a with nodes 7-8 in route b
+Example: Exchange nodes 1-2 in route a with nodes 7-8 in route b
 
  * before
 
@@ -195,7 +195,7 @@ a: 0-7-8-3-4-5-0
 b: 0-6-1-2-0
 ```
 
-Exchange nodes 2-3-4 in route a with nodes 7-8 in route b
+Example: Exchange nodes 2-3-4 in route a with nodes 7-8 in route b
 
   * before
 
