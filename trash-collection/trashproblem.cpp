@@ -518,7 +518,7 @@ void TrashProblem::dump() {
 }
 
 
-void TrashProblem::plot( std::string file, std::string title, std::vector<int> highlight ) {
+void TrashProblem::plot( std::string file, std::string title, std::deque<int> highlight ) {
     Plot1<Trashnode> plot( datanodes );
     plot.setFile( file );
     plot.setTitle( title );

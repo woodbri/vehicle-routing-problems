@@ -5,23 +5,12 @@
 #include <fstream>
 #include <sstream>
 #include <string>
-#include <vector>
+#include <deque>
 #include <math.h>
 
-//#include "node.h"
-//#include "order.h"
 #include "init_pd.h"
 #include "prob_pd.h"
 
-//#include "route.h"
-//#include "tau.h"
-//#include "plot.h"
-//#include "tabusearch.h"
-
-
-// create a static global variable for the problem
-// this gets passed around as a reference in many of the objects
-// that need to refer to it for data
 
 void Usage()
 {
@@ -47,6 +36,7 @@ int main (int argc, char **argv)
         S.setweights(1,1,1); //this solution will have this weigths
         std::cout << "\n\n\n**Solution: S.dumbConstruction\n";
         S.dumbConstruction();  P.dump(); S.dump(); S.plot("test1.png","Dumb construction");
+
         //S.initialFeasableSolution();
 /*
         std::cout << "\n\n\n******************Y************Solution: initial no hill Construction \n";

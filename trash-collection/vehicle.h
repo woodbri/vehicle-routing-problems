@@ -37,7 +37,7 @@ class Vehicle : public Twpath<Trashnode> {
     };
 
     // accessors
-    std::vector<int> getpath();
+    std::deque<int> getpath();
     int getmaxcapacity() {              //// should be const
         return getdepot().getdemand();
     };

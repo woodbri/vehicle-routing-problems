@@ -1,6 +1,6 @@
 
 CPP = g++
-CPPFLAGS = -g -O0 -MMD -MP
+CPPFLAGS = -g -O0 -MMD -MP 
 LDFLAGS = -lgd
 
 SRCS = $(wildcard *.cpp)

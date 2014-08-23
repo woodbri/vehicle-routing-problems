@@ -1,9 +1,9 @@
 #ifndef TRASHNODE_H
 #define TRASHNODE_H
 
-#include "twnode.h"
+#include "tweval.h"
 
-class Trashnode : public Twnode {
+class Trashnode : public Tweval {
   protected:
     int ntype;              // node type (0=depot, 1=dump, 2=pickup)
     double depotdist;       // distance to nearest depot
@@ -38,9 +38,9 @@ class Trashnode : public Twnode {
     void setdumpdist(int _nid, double _dist);
 
     // structors
-    Trashnode(int _nid, double _x, double _y, int _demand,
+/*    Trashnode(int _nid, double _x, double _y, int _demand,
               int _tw_open, int _tw_close, int _service, int _ntype) 
-              : Twnode(_nid, _x, _y, _demand, _tw_open, _tw_close, _service) {
+              : Tweval(_nid, _x, _y, _demand, _tw_open, _tw_close, _service) {
         // in Trashnode
         ntype = _ntype;
         depotdist = 0.0;
@@ -50,7 +50,7 @@ class Trashnode : public Twnode {
         dumpdist = 0.0;
         dumpnid = -1;
     };
-
+*/
     Trashnode() {
         Twnode();
         ntype = -1;

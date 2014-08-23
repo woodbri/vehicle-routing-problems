@@ -1,20 +1,20 @@
 
 
 #include <iostream>
+#include <deque>
 
+#include "twpath.h"
 #include "vehicle.h"
 
-
-std::vector<int> Vehicle::getpath() {
-    std::vector<int> p;
-    p.push_back(getdepot().getnid());
-    for (int i=0; i<path.size(); i++)
-        p.push_back(path[i].getnid());
-    p.push_back(getdumpsite().getnid());
-    p.push_back(getdepot().getnid());
-
-    return p;
+std::deque<int> Vehicle::getpath()  {
+      std::deque<int> p;
+      p=Twpath::getpath();
+      p.push_front(getdepot().getnid());
+      p.push_back(getdumpsite().getnid());
+      p.push_back(getdepot().getnid());
+      return p;
 }
+
 
 
 void Vehicle::evaluate() {

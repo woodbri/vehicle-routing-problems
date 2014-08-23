@@ -12,17 +12,12 @@ class Vehicle {
   private:
     int  maxcapacity;   
     Twpath<Dpnode> path;
-    Dpnode depot;
+    Dpnode backToDepot;
+    double cost;     
     //deque<Order> orders;
 
     /* for evaluating the truck */
     int  curcapacity;   
-    double duration;  
-    double cost;     
-    int twvTot;            // number of time window violations
-    int cvTot;             // number of capacity violations
-    bool cv_depot;
-    bool twv_depot;
 
     double w1;          // weight for duration in cost
     double w2;          // weight for TWV in cost
@@ -36,19 +31,15 @@ class Vehicle {
     Vehicle() {
         maxcapacity = 0;
         curcapacity = 0;
-        duration    = 0;
         cost        = 0;
-        twvTot         = 0;
-        cvTot          = 0;
         w1 = w2 = w3 = 1.0;
     };
 
    Vehicle(const Dpnode &_depot,double _maxcapacity) {
-        depot=_depot;
+        backToDepot=_depot;
         maxcapacity=_maxcapacity;
         w1 = w2 = w3 = 1.0;
- depot.dump();
-        push_back(depot);
+        push_back(_depot);
    };
 
     // accessors
@@ -57,7 +48,7 @@ class Vehicle {
  //   int  getoid(int i) const { return path[i].getoid(); };
     int getdpos(const int oid) const;
     int getppos(const int oid) const;
-    std::vector<int> getpath();
+    std::deque<int> getpath() ;
 
     void remove(int at);
     void removeOrder(int orderid);
@@ -68,8 +59,7 @@ class Vehicle {
     void move(int fromi,int toj);
     void push_back(Dpnode pathstop);
     void insert(Dpnode pathstop,int at);
-    //void setvalues(int at);
-    //void setDepotValues();
+
     void dump() ;
     void smalldump();
     bool ispickup(int i) {return path[i].ispickup();}
@@ -87,17 +77,17 @@ class Vehicle {
 
 
 /* evaluation */
-    bool feasable() { return twvTot == 0 and cvTot == 0;}
-    bool hascv()const { return cvTot != 0;}
-    bool hastwv()const { return twvTot != 0;}
+    bool feasable() { return backToDepot.gettwvTot() == 0 and backToDepot.getcvTot() == 0;}
+    bool hascv()const { return backToDepot.getcvTot() != 0;}
+    bool hastwv()const { return backToDepot.gettwvTot() != 0;}
 
     void evaluate();
     void evalLast();
     void evaluate(int from);
-    int gettwvTot() const { return twvTot; };
-    int getcvTot() const { return cvTot; };
+    int gettwvTot() const { return backToDepot.gettwvTot(); };
+    int getcvTot() const { return backToDepot.getcvTot(); };
     int getcurcapacity() const { return curcapacity; };
-    double getduration() const { return duration; };
+    double getduration() const { return backToDepot.gettotDist(); };
     double getcost() const { return cost; };
     //double getcost(double w1,double w2,double w3);// { return   w1*D + w2*TWV + w3*CV; }
 
@@ -119,7 +109,7 @@ class Vehicle {
 
     void tau() ;
 
-    void plot(std::vector<double> &x, std::vector<double> &y,std::vector<int> &label,std::vector<int> &color);
+    void plot(std::string file,std::string title,int carnumber);
     void pushOrder(const Order &o);
     void pushPickup(const Order &o);
     void pushDelivery(const Order &o);

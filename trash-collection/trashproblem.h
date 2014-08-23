@@ -23,10 +23,10 @@ enum Selector {
 class TrashProblem {
   private:
     std::vector<Vehicle> fleet;
-    std::vector<Trashnode> datanodes;
-    std::vector<int> depots;
-    std::vector<int> dumps;
-    std::vector<int> pickups;
+    Twpath<Trashnode> datanodes;
+    std::deque<int> depots;
+    std::deque<int> dumps;
+    std::deque<int> pickups;
 
     std::vector<int> unassigned;
 
@@ -60,7 +60,7 @@ class TrashProblem {
     void dump();                            /// const
 
     void plot( std::string file, std::string title );
-    void plot( std::string file, std::string title, std::vector<int> highlight );
+    void plot( std::string file, std::string title, std::deque<int> highlight );
 
     // mutators
     void loadproblem(std::string& file);

@@ -13,23 +13,27 @@ void Init_pd::dumbConstruction() {
         for (int i=0; i<getOrderCount(); i++) {
            truck.pushOrder(getOrder(i));
         }
-    std::cout<<"pushOrder()----->";    truck.tau();
-    std::cout<<"\norder to be removed():"; ordersList[2].dump();
+   std::cout<<"pushOrder()----->";    truck.tau(); 
     fleet.push_back(truck);
     plot("testing1.png","with all nodes in the path");
+/*
+    std::cout<<"\norder to be removed():"; ordersList[2].dump();
+    truck.removeOrder(2); std::cout<<"\nremoveOrder(2)->>>>"; truck.smalldump();
+//    plot("testing2.png"," with out order 2 in the path");
+    truck.insert(datanodes[6],2); std::cout<<"\ninsert(datanodes[6],2)->>>"; truck.smalldump(); 
 
-    fleet[0].removeOrder(2); std::cout<<"\nremoveOrder(2)->>>>"; truck.tau();
-    plot("testing2.png"," with out order 2 in the path");
-    fleet[0].insert(datanodes[6],2); std::cout<<"\ninsert(datanodes[6],2)->>>";
-    plot("testing3.png"," wdded node 6 in the path");
-    fleet[0].move(2,4); std::cout<<"\nmove(2,4)->>>>"; truck.tau();
-    plot("testing4.png","swaped the nodes 2 and 4");
+//    plot("testing3.png"," wdded node 6 in the path");
+    truck.move(2,4); std::cout<<"\nmove(2,4)->>>>"; truck.smalldump(); 
 
-    truck.move(4,2); std::cout<<"\nmove(4,2)->>>>"; truck.tau();
-    truck.swap(2,5); std::cout<<"\nswap(5,2)->>>>"; truck.tau();
-    truck.swapstops(2,5); std::cout<<"\nswapstops(2,5)->>>>"; truck.tau();
-    truck.swapstops(6,7); std::cout<<"\nswapstops(6,7)->>>>"; truck.tau();
+//    plot("testing4.png","swaped the nodes 2 and 4");
+
+    truck.move(4,2); std::cout<<"\nmove(4,2)->>>>"; truck.smalldump();
+    truck.swap(2,5); std::cout<<"\nswap(5,2)->>>>"; truck.smalldump();
+    truck.swapstops(2,5); std::cout<<"\nswapstops(2,5)->>>>"; truck.smalldump();
+    truck.swapstops(6,7); std::cout<<"\nswapstops(6,7)->>>>"; truck.smalldump();
+
     fleet.push_back(truck);
+*/
 }
 
 void Init_pd::dumbConstructionAndBestMoveForward() {
@@ -206,49 +210,21 @@ double Init_pd::getDistance() {
 
 
 void Init_pd::plot(std::string file,std::string title){
-/*
-    std::vector<double> x;
-    std::vector<double> y;
-    std::vector<int> label;
-    std::vector<int> pcolor;
-    std::vector<int> lcolor;
-    int basecolor=10;
-    for (int i=0; i<fleet.size(); i++) {
-        fleet[i].plot(x,y,label,pcolor);
-        for (int j=0; j<x.size(); j++) {
-            if (label[j]==0) basecolor+=10;
-            lcolor.push_back(basecolor);
-        }
-    }
-    x.push_back(x[0]);
-    y.push_back(y[0]);
-    pcolor.push_back(pcolor[0]);
-    lcolor.push_back(lcolor[0]);
-    label.push_back(label[0]);
-    Plot graph(x,y,pcolor,lcolor,label);
-    graph.setFile(file);
-    graph.setTitle(title);
-    graph.plot(false);
-*/
-    std::vector<int> pickups;
-    std::vector<int> deliverys;
-    std::vector<int> depots;
+    std::deque<int> pickups;
+    std::deque<int> deliverys;
+    std::deque<int> depots;
 
-    for (int i=0; i<datanodes.size(); i++)
+    for (int i=0; i<datanodes.size(); i++){
         if (datanodes[i].ispickup())
             pickups.push_back(datanodes[i].getnid());
         else if (datanodes[i].isdelivery())
             deliverys.push_back(datanodes[i].getnid());
         else if (datanodes[i].isdepot())
             depots.push_back(datanodes[i].getnid());
-        else {
-            std::cout << "ERROR: Can't identify the type of node!" << std::endl;
-            datanodes[i].dump();
-        }
-
+    }
     Plot1<Dpnode> plot( datanodes );
     plot.setFile( file );
-    plot.setTitle( title );
+    plot.setTitle( title+".png" );
     plot.drawInit();
     for (int i=0; i<fleet.size(); i++) {
         plot.drawPath(fleet[i].getpath(), plot.makeColor(i), 1, false);
@@ -257,6 +233,10 @@ void Init_pd::plot(std::string file,std::string title){
     plot.drawPoints(depots, 0xff0000, 7, true);
     plot.drawPoints(deliverys, 0x00ff00, 5, true);
     plot.save();
+    /* now a graph for each individual trucl */
+    for (int i=0;i<fleet.size();i++) {
+        fleet[i].plot(file,title,i);
+    }
 }
 
 

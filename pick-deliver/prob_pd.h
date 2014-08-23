@@ -18,7 +18,7 @@ class Prob_pd {
     Dpnode depot;
     double w1,w2,w3;
 
-    std::vector<Dpnode> datanodes;
+    Twpath<Dpnode> datanodes;
     std::deque<Order> ordersList;   // vector of orders
 
     std::vector<int> unassigned;
