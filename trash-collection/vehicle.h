@@ -38,9 +38,7 @@ class Vehicle : public Twpath<Trashnode> {
 
     // accessors
     std::deque<int> getpath();
-    int getmaxcapacity() {              //// should be const
-        return getdepot().getdemand();
-    };
+    int getmaxcapacity() const { return getdepot().getdemand(); };
     int getTWV() const { return TWV; };
     int getCV() const { return CV; };
     int getcurcapacity() const { return curcapacity; };
@@ -50,9 +48,8 @@ class Vehicle : public Twpath<Trashnode> {
     double getw2() const { return w2; };
     double getw3() const { return w3; };
 
-    // these should be const
-    double distancetodepot(int i) { return path[i].distance(getdepot()); };
-    double distancetodump(int i) { return path[i].distance(getdumpsite()); };
+    double distancetodepot(int i) const { return path[i].distance(getdepot()); };
+    double distancetodump(int i) const { return path[i].distance(getdumpsite()); };
 
     void dump();
     void dumppath();

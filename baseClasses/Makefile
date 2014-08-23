@@ -25,6 +25,6 @@ valgrind: tester p50.txt
 .PHONY: clean
 
 clean:
-	rm -f tester $(OBJS) $(DEPS) out/*.png
+	rm -f tester *.o *.d out/*.png
 
 -include $(DEPS)

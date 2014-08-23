@@ -31,7 +31,7 @@ valgrind: tester p50.txt
 .PHONY: clean
 
 clean:
-	rm -f tester $(SRCS:.cpp=.o) $(DEPS) out/*.png
+	rm -f tester *.o *.d out/*.png
 	$(MAKE) -C $(UTIL) clean
 
 -include $(DEPS)
