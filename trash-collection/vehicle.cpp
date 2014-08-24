@@ -8,7 +8,7 @@
 
 std::deque<int> Vehicle::getpath()  {
       std::deque<int> p;
-      p=Twpath::getpath();
+      p = path.getpath();
       p.push_front(getdepot().getnid());
       p.push_back(getdumpsite().getnid());
       p.push_back(getdepot().getnid());
@@ -75,12 +75,12 @@ void Vehicle::dump() {
     std::cout << "w2: " << w2 << std::endl;
     std::cout << "w3: " << w3 << std::endl;
     std::cout << "path nodes: -----------------" << std::endl;
-    Twpath::dump();
+    path.dump();
 }
 
 
 void Vehicle::dumppath() {
-    Twpath::dump();
+    path.dump();
 }
 
 

@@ -16,8 +16,8 @@
 
 template <class knode> class Twpath {
   protected:
-    knode home;
-    knode dumpsite;
+//    knode home;
+//    knode dumpsite;
     std::deque<knode> path;
     //std::deque<knode>::iterator pathIterator;
 
@@ -113,11 +113,13 @@ template <class knode> class Twpath {
     typedef typename std::deque<knode>::iterator iterator;
     typedef typename std::deque<knode>::const_iterator const_iterator;
 
+/*
     Twpath& operator=(const Twpath& n) {
         home = n.home;
         path = n.path;
         return *this;
     };
+*/
 
     // element access
     knode& operator[](unsigned int n) { return path[n]; };
@@ -160,15 +162,15 @@ template <class knode> class Twpath {
     //iterator emplace_back(const Trashnode& n) { return path.emplace_back(n); };
 
     void dump() {
-        std::cout << "Twpath: " << home.getnid();
+        std::cout << "Twpath: "; // << home.getnid();
         for (int i=0; i<path.size(); i++)
             std::cout << ", " << path[i].getnid();
-        std::cout << ", " << dumpsite.getnid()
-                  << ", " << home.getnid()
+        std::cout // << ", " << dumpsite.getnid()
+//                  << ", " << home.getnid()
                   << std::endl;
     };
 
-    /* should be handled in Trashnodes vehicle */
+    /* should be handled in Trashnodes vehicle
     knode& getdepot() { return home; };
     knode getdepot() const { return home; };
     knode& getdumpsite() { return dumpsite; };
@@ -176,6 +178,7 @@ template <class knode> class Twpath {
 
     void setdepot(knode& n) { home = n; };
     void setdumpsite(knode& n) { dumpsite = n; };
+    */
 
 };
 
