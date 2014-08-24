@@ -25,6 +25,9 @@ tester: $(UTILOBJS) $(OBJS)
 test: tester p50.txt
 	./tester p50.txt
 
+small: tester p10.txt
+	./tester p10.txt
+
 valgrind: tester p50.txt
 	valgrind -v --track-origins=yes --leak-check=full ./tester p50.txt
 
