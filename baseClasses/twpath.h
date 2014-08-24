@@ -4,8 +4,6 @@
 #include <deque>
 #include <iostream>
 
-//#include "trashnode.h"
-
 /*
     TODO
     * would probably ne nice to have prev() and next()
@@ -16,10 +14,7 @@
 
 template <class knode> class Twpath {
   protected:
-//    knode home;
-//    knode dumpsite;
     std::deque<knode> path;
-    //std::deque<knode>::iterator pathIterator;
 
   public:
 
@@ -56,6 +51,11 @@ template <class knode> class Twpath {
     };
 
     void swap(int i,int j,double maxcapacity) {
+if(i>j) std::cout<<"This is a restrictive swap, requierment: i<j\n";
+if ( ispickup(i) and isdelivery(j) and sameorder(i,j) ) {
+std::cout<<"This is a restrictive swap, requierment: cant swap from the same order\n";
+return;
+}
         knode temp = path[i];
         path[i] = path[j];
         path[j] = temp;

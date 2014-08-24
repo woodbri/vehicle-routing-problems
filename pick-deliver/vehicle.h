@@ -116,20 +116,20 @@ class Vehicle {
     void insertPickup(const Order &o, const int at);
 
 
-    /*myshortcurts*/
-    int getnid(int i) const { return path[i].getnid(); }
-    int getoid(int i) const { return path[i].getoid(); }
-    double getx(const int i) const {path[i].getx();}
-    double gety(const int i) const {path[i].gety();}
-    bool hasdemand(int i) const { return path[i].hasdemand(); };
-    bool hassupply(int i) const { return path[i].hassupply(); };
-    bool hasnogoods(int i) const { return path[i].hasnogoods(); };
-    bool earlyarrival(int i,const double D) const { return path[i].earlyarrival(D); };
-    bool latearrival(int i,const double D) const { return path[i].latearrival(D); };
-    bool ontime(int i, const double D) const {return not earlyarrival(i,D) and not latearrival(i,D);};
-    bool isdelivery(int i) const { return path[i].isdelivery(); };
-    bool ispickup(int i) const { return path[i].ispickup(); };
-    bool isdepot(int i) const { return path[i].hasnogoods(); };
+    /* my inline functions */
+    inline int getnid(int i) const { return path[i].getnid(); }
+    inline int getoid(int i) const { return path[i].getoid(); }
+    inline double getx(const int i) const {path[i].getx();}
+    inline double gety(const int i) const {path[i].gety();}
+    inline bool hasdemand(int i) const { return path[i].hasdemand(); };
+    inline bool hassupply(int i) const { return path[i].hassupply(); };
+    inline bool hasnogoods(int i) const { return path[i].hasnogoods(); };
+    inline bool earlyarrival(int i,const double D) const { return path[i].earlyarrival(D); };
+    inline bool latearrival(int i,const double D) const { return path[i].latearrival(D); };
+    inline bool ontime(int i, const double D) const {return not earlyarrival(i,D) and not latearrival(i,D);};
+    inline bool isdelivery(int i) const { return path[i].isdelivery(); };
+    inline bool ispickup(int i) const { return path[i].ispickup(); };
+    inline bool isdepot(int i) const { return path[i].hasnogoods(); };
 
 };
 
