@@ -96,8 +96,8 @@ class Vehicle {
     double getw3() const { return w3; };
 
     // these should be const
-    double distancetodepot(int i) { return path[i].distance(path.getdepot()); };
-    double distancetodump(int i) { return path[i].distance(path.getdumpsite()); };
+    //double distancetodepot(int i) { return path[i].distance(path.getdepot()); };
+    //double distancetodump(int i) { return path[i].distance(path.getdumpsite()); };
 
 
     // mutators

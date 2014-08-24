@@ -400,7 +400,7 @@ void TrashProblem::assignmentSweep() {
             else if (pos == truck.size())
                 truck.push_back(datanodes[nnid]);
             else 
-                truck.insert(truck.begin()+pos, datanodes[nnid]);
+                truck.insert(datanodes[nnid], pos);
 
             truck.evaluate();
 
