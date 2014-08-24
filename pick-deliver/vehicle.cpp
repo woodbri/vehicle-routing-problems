@@ -212,6 +212,12 @@ void Vehicle::findBetterForward(int &bestI, int &bestJ) {
           swap(i,j);
      }
 
+    void Vehicle::swapstops(Vehicle &rhs, int i, int j){
+          path.swap(rhs.path,i,j,maxcapacity,rhs.maxcapacity);
+          evalLast();
+          rhs.evalLast();
+     }
+
 
 /***PLOT***/
 void Vehicle::plot(std::string file,std::string title,int carnumber){

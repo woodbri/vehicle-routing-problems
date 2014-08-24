@@ -114,11 +114,8 @@ void Prob_pd::loadProblem(char *infile)
         Dpnode node(line);  //create node from line on file
         datanodes.push_back(node);
         if (node.isdepot()) {
-            //DepotClose = node.closes();
             depot=node;
             depot.setoid(-1);
-std::cout<<"\n the depot";
-depot.dump();
         }
     }
     in.close();
