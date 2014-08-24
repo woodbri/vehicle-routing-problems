@@ -212,8 +212,8 @@ void Vehicle::findBetterForward(int &bestI, int &bestJ) {
           swap(i,j);
      }
 
-    void Vehicle::swapstops(Vehicle &rhs, int i, int j){
-          path.swap(rhs.path,i,j,maxcapacity,rhs.maxcapacity);
+    void Vehicle::swapstops(int i, Vehicle &rhs, int j){
+          path.swap(i, maxcapacity, rhs.path, j, rhs.maxcapacity);
           evalLast();
           rhs.evalLast();
      }

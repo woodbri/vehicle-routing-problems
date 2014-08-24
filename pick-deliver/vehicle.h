@@ -55,7 +55,7 @@ class Vehicle {
     void removePickup(int orderid);
     void removeDelivery(int orderid);
     void swapstops(int i,int j);
-    void swapstops(Vehicle &rhs ,int i,int j);
+    void swapstops(int i, Vehicle &rhs, int j);
     void swap(int i,int j);
     void move(int fromi,int toj);
     void push_back(Dpnode pathstop);
