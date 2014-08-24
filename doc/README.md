@@ -12,9 +12,9 @@ Longer term we plan to also wrap our solvers into the
 
 * [Base Classes](./BaseClasses.md)
 * [Pickup and Delivery with Time Windows](./PickupAndDelivery.md)
-* [Trash Collection](.TrashCollection.md)
+* [Trash Collection](./TrashCollection.md)
 * More to come ...
 
 ---
 
-[Up](..)
+[Up](../README.md)
