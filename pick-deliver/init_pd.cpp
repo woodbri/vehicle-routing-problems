@@ -23,7 +23,7 @@ void Init_pd::dumbConstruction() {
    std::cout<<"before----->i\n"; 
    tau(); 
    dump();
-   fleet[0].swapstops(2, fleet[1], 3);
+   fleet[0].korenamaewaruidesu(fleet[1],2, 3);
    std::cout<<"after----->i\n"; 
    tau(); 
    dump();
