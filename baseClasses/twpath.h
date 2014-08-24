@@ -86,7 +86,7 @@ std::cout<<"************CALL to non evaluating function ¿how do we handle this 
 
 
     /* nodes handling within two  paths */
-    void swap(Twpath<knode> &rhs, int i,int j,double maxcap,double rhs_maxcap) {
+    void swap(int i, double maxcap, Twpath<knode> &rhs, int j, double rhs_maxcap) {
         knode temp = path[i];
         path[i] = rhs.path[j];
         rhs.path[j] = temp;
