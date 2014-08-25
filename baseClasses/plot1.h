@@ -29,8 +29,8 @@ private:
     double scale;
     gdImagePtr im;
 
-    // private method no need to call this externally
-    void calcExtents() {
+public:
+    void calcExtents(const Twpath<knode>& pnts) {
         double extents[4];
 
         extents[0] = std::numeric_limits<double>::max();
@@ -39,10 +39,10 @@ private:
         extents[3] = std::numeric_limits<double>::min();
 
         for (int i=0; i<pts.size(); i++) {
-            if (pts[i].getx() < extents[0]) extents[0] = pts[i].getx();
-            if (pts[i].gety() < extents[1]) extents[1] = pts[i].gety();
-            if (pts[i].getx() > extents[2]) extents[2] = pts[i].getx();
-            if (pts[i].gety() > extents[3]) extents[3] = pts[i].gety();
+            if (pnts[i].getx() < extents[0]) extents[0] = pnts[i].getx();
+            if (pnts[i].gety() < extents[1]) extents[1] = pnts[i].gety();
+            if (pnts[i].getx() > extents[2]) extents[2] = pnts[i].getx();
+            if (pnts[i].gety() > extents[3]) extents[3] = pnts[i].gety();
         }
 
         extents[0] -= (extents[2] - extents[0]) * 0.02;
@@ -59,13 +59,12 @@ private:
     }
 
 
-public:
     Plot1(const Twpath<knode> &_pts) : pts(_pts) {
         file = "plot1.png";
         title = file;
         width = 800;
         height = 800;
-        calcExtents();
+        calcExtents(_pts);
         im = NULL;
     }
 
@@ -103,6 +102,38 @@ public:
         if (im) gdImageDestroy(im);
         im = gdImageCreateTrueColor(width, height);
         gdImageFilledRectangle(im, 0, 0, width-1, height-1, 0x00ffffff);
+    }
+
+
+    void drawPath(const Twpath<knode>& path, int color, int thick, bool label) {
+        // make sure drawInit() has been called
+        if (!im) {
+            fprintf(stderr, "Plot1::drawInit() has not been called!\n");
+            return;
+        }
+
+        // set the line thickness for drawing
+        gdImageSetThickness(im, thick);
+
+        // extract the color into RGB values and set the line draw color
+        int blue = color % 256;
+        int green = (color / 256) % 256;
+        int red = (color / 65536) % 256;
+        gdImageSetAntiAliased(im, gdImageColorExactAlpha(im, red, green, blue, 0));
+
+        // draw the path based on a list of node ids
+        for (int i=0; i<path.size()-1; i++) {
+            const knode &a = path[i];
+            const knode &b = path[i+1];
+            gdImageLine(im, scalex(a.getx()), scaley(a.gety()),
+                            scalex(b.getx()), scaley(b.gety()), gdAntiAliased);
+        }
+
+        // label the paths if requested
+        if (label) {
+            // TODO pick midpoint of 2nd segment calc angle of segment
+            //  and label along it
+        }
     }
 
 
@@ -149,13 +180,31 @@ public:
         for (int i=0; i<ids.size(); i++) {
             const knode &a = pts[ids[i]];
             gdImageFilledEllipse(im, scalex(a.getx()), scaley(a.gety()), size, size, color);
+            // label the nodes if requested
+            if (label) {
+                char str[80];
+                sprintf(str, "%d", a.getnid());
+                gdImageStringFT(im, NULL, 0x00000000, (char *)font, 6, 0,
+                                scalex(a.getx()), scaley(a.gety())-5, str);
+            }
+        }
+    }
+
+
+    void drawPoints(std::deque<knode> pnts, int color, int size, bool label) {
+        // make sure drawInit() has been called
+        if (!im) {
+            fprintf(stderr, "Plot1::drawInit() has not been called!\n");
+            return;
         }
 
-        // label the nodes if requested
-        if (label) {
-            char str[80];
-            for (int i=0; i<ids.size(); i++) {
-                const knode &a = pts[ids[i]];
+        // draw the nodes as filled circles
+        for (int i=0; i<pnts.size(); i++) {
+            const knode &a = pnts[i];
+            gdImageFilledEllipse(im, scalex(a.getx()), scaley(a.gety()), size, size, color);
+            // label the nodes if requested
+            if (label) {
+                char str[80];
                 sprintf(str, "%d", a.getnid());
                 gdImageStringFT(im, NULL, 0x00000000, (char *)font, 6, 0,
                                 scalex(a.getx()), scaley(a.gety())-5, str);
