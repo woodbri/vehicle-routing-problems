@@ -19,7 +19,6 @@ void Init_pd::dumbConstruction() {
            car.pushOrder(getOrder(i));
    }
    fleet.push_back(car);  
-   fleet[0].korenamaewaruidesu(fleet[1],2, 3);
 }
 
 void Init_pd::dumbConstructionAndBestMoveForward() {
@@ -37,9 +36,9 @@ void Init_pd::dumbConstructionAndBestMoveForward() {
 };
      
 void Init_pd::withSortedOrdersConstruction() {
-    sortOrdersbyDist();
+    sortOrdersbyIdReverse();
     dumbConstruction();
-    sortOrdersbyId();
+    //sortOrdersbyDist();
 };
 
 void Init_pd::dumbAndHillConstruction() {
@@ -60,7 +59,6 @@ void Init_pd::deliveryBeforePickupConstruction() {
            truck.pushDelivery(getOrder(i));
            truck.pushPickup(getOrder(i));
         }
-    truck.dump();
     fleet.push_back(truck);
 };
 
@@ -196,10 +194,11 @@ double Init_pd::getDistance() {
 
 
 void Init_pd::plot(std::string file,std::string title){
+
     std::deque<int> pickups;
     std::deque<int> deliverys;
     std::deque<int> depots;
-std::cout<<"1---\n";
+
     for (int i=0; i<datanodes.size(); i++){
         if (datanodes[i].ispickup())
             pickups.push_back(datanodes[i].getnid());
@@ -208,31 +207,21 @@ std::cout<<"1---\n";
         else if (datanodes[i].isdepot())
             depots.push_back(datanodes[i].getnid());
     }
-std::cout<<"2---\n";
+
     Plot1<Dpnode> plot( datanodes );
-std::cout<<"3---\n";
-    plot.setFile( file );
-std::cout<<"4---\n";
-    plot.setTitle( title+".png" );
-std::cout<<"5---\n";
+    plot.setFile( file+".png" );
+    plot.setTitle( title );
     plot.drawInit();
-std::cout<<"6---\n";
     for (int i=0; i<fleet.size(); i++) {
-std::cout<<"6---"<<i<<"\n";
-        plot.drawPath(fleet[i].getpath(), plot.makeColor(i), 1, false);
+        plot.drawPath(fleet[i].getpath(), plot.makeColor(i*10), 1, false);
     }
-std::cout<<"7---\n";
     plot.drawPoints(pickups, 0x0000ff, 9, true);
-std::cout<<"8---\n";
     plot.drawPoints(depots, 0xff0000, 7, true);
-std::cout<<"9---\n";
     plot.drawPoints(deliverys, 0x00ff00, 5, true);
-std::cout<<"10---\n";
     plot.save();
-std::cout<<"11---\n";
-    /* now a graph for each individual trucl */
+
+/*     now a graph for each individual trucl */
     for (int i=0;i<fleet.size();i++) {
-std::cout<<"11---"<<i<<"\n";
         fleet[i].plot(file,title,i);
     }
 }

@@ -27,48 +27,38 @@ int main (int argc, char **argv)
 
     char * infile = argv[1];
     
-    try {
+    try {   //ALL THESE ARE TESTS DONT NEED TO BE REAL SOLUTIONS
+
         Prob_pd P;   //setting a new problem
         std::string title;
         P.loadProblem(infile); //load problem
         std::cout << "Problem '" << infile << "'loaded\n";
+        P.dump();
+
         std::cout << "\n\n\n**SOLUTION: dumbConstruction\n";
         Init_pd S(P);  S.setweights(1,1,1); 
-        S.dumbConstruction();  P.dump(); S.dump(); 
-        S.plot("test1.png","Dumb construction");
+        S.dumbConstruction(); S.tau(); S.plot("dumbConstruction","Dumb construction");
 
-//        std::cout << "\n\n\n**SOLUTION: deliveryBeforePickupConstruction\n";
-//        Init_pd S1(P);  
+        std::cout << "\n\n\n**SOLUTION: deliveryBeforePickupConstruction\n";
+        Init_pd S1(P);  S1.setweights(1,1,1); 
+        S1.deliveryBeforePickupConstruction(); S1.tau(); S1.plot("DeliverybeforePickup","ideliveryBeforePickup");
 
-//        S1.setweights(1,1,1); 
-//        P.dump(); 
-//        S1.deliveryBeforePickupConstruction();  
-//        S1.dump(); 
-//        S1.plot("test2.png","Dumb construction & best move forward");
-/*        std::cout << "\n\n\n**SOLUTION: dumbConstruction and bestmove forward\n";
+
+        std::cout << "\n\n\n**SOLUTION: dumbConstruction and bestmove forward\n";
         Init_pd S2(P);  S2.setweights(1,1,1); 
-        S2.dumbConstructionAndBestMoveForward();  P.dump(); S2.dump(); S2.plot("test2.png","Dumb construction & best move forward");
+        S2.dumbConstructionAndBestMoveForward();  S2.tau(); S2.plot("dumbConstructionAndBestMoveForward","Dumb construction & best move forward");
 
-   */     //S.initialFeasableSolution();
+        std::cout << "\n\n\n**SOLUTION: withSortedOrdersConstruction\n";
+        Init_pd S3(P);  S3.setweights(1,1,1); 
+        S3.withSortedOrdersConstruction();  S3.tau(); S3.plot("withSortedOrdersConstruction","withSortedOrdersConstruction");
+
+        //S.initialFeasableSolution();
 /*
         std::cout << "\n\n\n******************Y************Solution: initial no hill Construction \n";
         S.initialNoHillConstruction();
         Plot plot4(S);
         title = (std::string)infile+"-initialNoHillSolution.png";
         plot4.out(title, true, 800, 800, (char*)title.c_str());
-S.R.clear();
-        std::cout << "\n\n\n******************************Solution: delivery befor pickup, The NO NO solution\n";
-        S.deliveryBeforePickupConstruction();
-        Plot plot3(S);
-        title = (std::string)infile+"-NoNoSolution.png";
-        plot3.out(title, true, 800, 800, (char*)title.c_str());
-
-S.R.clear();
-        std::cout << "\n\n\n******************************Solution: dumb solution \n";
-        S.dumbConstruction();
-//        Plot plot(S);
-//        title = (std::string)infile+"-DumbSolution.png";
-//        plot.out(title, true, 800, 800, (char*)title.c_str());
 S.R.clear();
         std::cout << "\n\n\n******************************Solution: dumb and hill opt \n";
         S.dumbAndHillConstruction();

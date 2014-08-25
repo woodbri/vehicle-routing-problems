@@ -48,7 +48,7 @@ class Vehicle {
  //   int  getoid(int i) const { return path[i].getoid(); };
     int getdpos(const int oid) const;
     int getppos(const int oid) const;
-    std::deque<int> getpath() ;
+    Twpath<Dpnode> getpath() ;
 
     void remove(int at);
     void removeOrder( const Order &order);

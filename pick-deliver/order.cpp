@@ -26,8 +26,8 @@ void Order::debugdump() const {
     std::cout << "Order#"<<oid << ":  "
               << getpid() << ", "
               << getdid() << ", ";
-//              << getdistPickupDepot() <<  ", "
-//              << getdistDeliveryDepot() << std::endl;
+std::cout              << getdistPickupDepot() <<  ", "
+              << getdistDeliveryDepot() << std::endl;
     std::cout <<  "Pickup \n";
     pickup->dump();
     std::cout <<  "Delivery \n";
@@ -39,4 +39,6 @@ void Order::dump() const {
     std::cout << "("
               << getpid() << ","
               << getdid() << ") ";
+std::cout              << getdistPickupDepot() <<  ", "
+              << getdistDeliveryDepot() << std::endl;
 }

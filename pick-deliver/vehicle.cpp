@@ -82,10 +82,10 @@ double Vehicle::findBestCostBackForw(const int oid,int &bppos,int &bdpos){
      std::cout <<"TOTAL COST="<<cost <<"\n";
    }
 
-   std::deque<int> Vehicle::getpath()  {
-      std::deque<int> p;
-      p=path.getpath();
-      p.push_back(backToDepot.getnid());
+   Twpath<Dpnode> Vehicle::getpath()  {
+      Twpath<Dpnode> p;
+      p=path;
+      p.push_back(backToDepot);
       return p;
    }
 
@@ -286,50 +286,31 @@ void Vehicle::findBetterForward(int &bestI, int &bestJ) {
 
 /***PLOT***/
 void Vehicle::plot(std::string file,std::string title,int carnumber){
-    std::deque<int> pickups;
-    std::deque<int> deliverys;
-    std::deque<int> depots;
-    std::deque<int> trace;
+    Twpath<Dpnode> trace=path;
+    trace.push_back(backToDepot);
+    
     /** cpp11  the following next 3 lines become std::string carnum=std::to_string(carnumber */
     std::stringstream convert; 
     convert << carnumber;
     std::string carnum = convert.str();
-    std::string extra=file+"vehicle"+carnum+".png" ;
+    std::string extra=file+"vehicle"+carnum ;
 
-	
-   trace=getpath();
-
-    for (int i=0; i<path.size(); i++){
-std::cout<<trace[i]<<"..";
-        if (ispickup(i))
-        pickups.push_back(getnid(i));
-        else if (isdelivery(i))
-        deliverys.push_back(getnid(i));
-        else  depots.push_back(0);
-    }
-std::cout<<"\n++++++++    1---\n";
-
-    // Plot1<Dpnode> graph( path )   //if plot used deque this could be used 
-    Plot1<Dpnode> graph( path ); 
-std::cout<<"++++++++    2---\n";
-    graph.setFile( file+extra );
-std::cout<<"++++++++    3---\n";
+    Plot1<Dpnode> graph( trace ); 
+    graph.setFile( file+extra+".png" );
     graph.setTitle( title+extra );
-std::cout<<"++++++++    4---\n";
     graph.drawInit();
-std::cout<<"++++++++    5---\n";
-    //graph.drawPath(getpath(), graph.makeColor(carnumber*10), 1, false);
-    graph.drawPath(trace, graph.makeColor(carnumber*10), 1, false);
 
-std::cout<<"++++++++    6---\n";
-    graph.drawPoints(pickups, 0x0000ff, 9, true);
-std::cout<<"++++++++    7---\n";
-    graph.drawPoints(depots, 0xff0000, 7, true);
-std::cout<<"++++++++    8---\n";
-    graph.drawPoints(deliverys, 0x00ff00, 5, true);
-std::cout<<"++++++++    9---\n";
+    for (int i=0; i<trace.size(); i++){
+        if (ispickup(i))  { 
+             graph.drawPoint(trace[i], 0x0000ff, 9, true);
+        } else if (isdelivery(i)) {
+             graph.drawPoint(trace[i], 0x00ff00, 5, true);
+        } else  {
+             graph.drawPoint(trace[i], 0xff0000, 7, true);
+        }
+    }
+    graph.drawPath(trace,graph.makeColor(carnumber*10), 1, true);
     graph.save();
-std::cout<<"++++++++    10---\n";
 }
 
 
