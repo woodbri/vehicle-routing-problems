@@ -15,8 +15,48 @@ std::deque<int> Vehicle::getpath()  {
       return p;
 }
 
+void Vehicle::push_back(Trashnode node) {
+    path.push_back(node, getmaxcapacity());
+    evalLast();
+}
 
 
+void Vehicle::push_front(Trashnode node) {
+    // position 0 is the depot we can not put a node before that
+    path.insert(node, 1, getmaxcapacity());
+    evalLast();
+}
+
+
+
+void Vehicle::insert(Trashnode node, int at) {
+    path.insert(node, at, getmaxcapacity());
+    evalLast();
+}
+
+
+void Vehicle::evaluate() {
+    path.evaluate(getmaxcapacity());
+};
+
+
+void Vehicle::evaluate(int from) {
+    Trashnode last = path[path.size()-1];
+    dumpsite.evaluate(last, getmaxcapacity());
+    backToDepot.evaluate(dumpsite, getmaxcapacity());
+    cost = w1*backToDepot.gettotDist() +
+           w2*backToDepot.getcvTot() +
+           w3*backToDepot.gettwvTot();
+}
+
+
+void Vehicle::evalLast() {
+    evaluate(path.size()-1);
+}
+
+
+
+/*
 void Vehicle::evaluate() {
     curcapacity = 0;
     duration = 0;
@@ -61,7 +101,7 @@ void Vehicle::evaluate() {
     }
     cost = w1*duration + w2*TWV +w3*CV;
 }
-
+*/
 
 void Vehicle::dump() {
     std::cout << "---------- Vehicle ---------------" << std::endl;
@@ -76,6 +116,16 @@ void Vehicle::dump() {
     std::cout << "w3: " << w3 << std::endl;
     std::cout << "path nodes: -----------------" << std::endl;
     path.dump();
+    std::cout << "--------- dumpeval ----------" << std::endl;
+    for (int i=0;i<path.size();i++){
+        std::cout<<"\npath stop #:"<<i<<"\n";
+        path[i].dumpeval();
+    }
+    std::cout<<"\ndumpsite:"<<"\n";
+    dumpsite.dumpeval();
+    std::cout<<"\nBack to depot:"<<"\n";
+    backToDepot.dumpeval();
+    std::cout <<"TOTAL COST="<<cost <<"\n";
 }
 
 

@@ -141,6 +141,14 @@ int main(int argc, char **argv) {
         std::cout << "tp.findNearestNodeTo(2, PICKUP|LIMITDEMAND,90) = " << a << std::endl;
 */
 
+        std::cout << "\n----------- dumbConstruction -----------------------\n";
+        tp.dumbConstruction();
+        tp.dump();
+        tp.plot("p0.png", "dumbConstruction");
+
+        std::cout << "\n---------------------------------------------------\n";
+/*
+
         std::cout << "\n----------- nearestNeighbor -----------------------\n";
         tp.nearestNeighbor();
         tp.dump();
@@ -159,7 +167,7 @@ int main(int argc, char **argv) {
         tp.assignmentSweep();
         tp.dump();
         tp.plot("p2.png", "assignmentSweep");
-
+*/
 
     }
     catch (const std::exception &e) {

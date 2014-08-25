@@ -45,7 +45,7 @@ class Vehicle {
         curcapacity  = 0;
         cost         = 0;
         w1 = w2 = w3 = 1.0;
-        // push_back( _depot );
+        push_back( _depot );
     }
 
     // accessors
@@ -70,9 +70,9 @@ class Vehicle {
 
     Trashnode operator[](int i) const { return path[i]; };
 
-    void push_back(Trashnode node) { path.push_back(node); };
-    void push_front(Trashnode node) { path.push_front(node); };
-    void insert(Trashnode node, int at) { path.insert(node, at); };
+    void push_back(Trashnode node);
+    void push_front(Trashnode node);
+    void insert(Trashnode node, int at);
 
     // I really hate these shortcuts
     int getnid(int i) const { return path[i].getnid(); };
@@ -101,6 +101,8 @@ class Vehicle {
     };
 
     void evaluate();
+    void evaluate(int from);
+    void evalLast();
 
 };
 

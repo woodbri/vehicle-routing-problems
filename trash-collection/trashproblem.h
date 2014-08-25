@@ -70,6 +70,7 @@ class TrashProblem {
 
     // methods to build initial solution
     void clearFleet() { fleet.clear(); };
+    void dumbConstruction();
     void nearestNeighbor();
     void nearestInsertion();
     void farthestInsertion();
