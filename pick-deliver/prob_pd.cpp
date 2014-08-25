@@ -23,6 +23,10 @@ bool sortByOid(Order a, Order b)
     return a.oid < b.oid;
 }
 
+bool sortByOidReverse(Order a, Order b)
+{
+    return a.oid > b.oid;
+}
 
 
 // Class functions
@@ -128,8 +132,15 @@ void Prob_pd::sortOrdersbyDistReverse(){
 void Prob_pd::sortOrdersbyId(){
     sort(ordersList.begin(), ordersList.end(), sortByOid);
 };
+
+void Prob_pd::sortOrdersbyIdReverse(){
+    sort(ordersList.begin(), ordersList.end(), sortByOidReverse);
+};
+
 void Prob_pd::sortOrdersbyDist(){
+std::cout<<"going to sort Orders by Dist";
     sort(ordersList.begin(), ordersList.end(), sortByDist);
+std::cout<<"done sort Orders by Dist";
 };
 
 void Prob_pd::makeOrders ()
@@ -144,9 +155,11 @@ void Prob_pd::makeOrders ()
     Order order;
     // for each pickup, get its delivery and create an order
     for (int i=0; i<getNodeCount(); i++) {
-        if (datanodes[i].isdepot() or datanodes[i].isdelivery()) continue; 
-              order.fillOrder(datanodes[i],datanodes[datanodes[i].getdid()],oid++,depot);
-              ordersList.push_back(order);
+        if (datanodes[i].isdepot() or datanodes[i].isdelivery()) continue;
+           int j;
+           for (j=0; j<getNodeCount() and datanodes[j].getnid()!=datanodes[i].getdid(); j++) {}
+           order.fillOrder(datanodes[i],datanodes[j],oid++,depot);
+           ordersList.push_back(order);
     }
 }
 

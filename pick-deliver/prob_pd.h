@@ -50,6 +50,7 @@ class Prob_pd {
     Dpnode& getPickupNodeFromOrder(int i);
     void sortOrdersbyDist();
     void sortOrdersbyId();
+    void sortOrdersbyIdReverse();
     void sortOrdersbyDistReverse();
 
     Order& getOrder(int i) ;
