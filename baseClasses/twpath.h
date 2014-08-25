@@ -35,7 +35,7 @@ std::cout<<"************CALL to non evaluating function move\n";
     };
 
     void insert(const knode &n, int at) {
-std::cout<<"************CALL to non evaluating function insert\n";
+std::cout<<"************CALL to non evaluating function insert (could be called by evaluated move)\n";
         path.insert(path.begin() + at, n);
     };
 
