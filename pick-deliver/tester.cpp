@@ -32,12 +32,24 @@ int main (int argc, char **argv)
         std::string title;
         P.loadProblem(infile); //load problem
         std::cout << "Problem '" << infile << "'loaded\n";
-        Init_pd S(P);  //setting the problem to start looling for an initial solution
-        S.setweights(1,1,1); //this solution will have this weigths
-        std::cout << "\n\n\n**Solution: S.dumbConstruction\n";
-        S.dumbConstruction(); // P.dump(); S.dump(); S.plot("test1.png","Dumb construction");
+        std::cout << "\n\n\n**SOLUTION: dumbConstruction\n";
+        Init_pd S(P);  S.setweights(1,1,1); 
+        S.dumbConstruction();  P.dump(); S.dump(); 
+        S.plot("test1.png","Dumb construction");
 
-        //S.initialFeasableSolution();
+//        std::cout << "\n\n\n**SOLUTION: deliveryBeforePickupConstruction\n";
+//        Init_pd S1(P);  
+
+//        S1.setweights(1,1,1); 
+//        P.dump(); 
+//        S1.deliveryBeforePickupConstruction();  
+//        S1.dump(); 
+//        S1.plot("test2.png","Dumb construction & best move forward");
+/*        std::cout << "\n\n\n**SOLUTION: dumbConstruction and bestmove forward\n";
+        Init_pd S2(P);  S2.setweights(1,1,1); 
+        S2.dumbConstructionAndBestMoveForward();  P.dump(); S2.dump(); S2.plot("test2.png","Dumb construction & best move forward");
+
+   */     //S.initialFeasableSolution();
 /*
         std::cout << "\n\n\n******************Y************Solution: initial no hill Construction \n";
         S.initialNoHillConstruction();

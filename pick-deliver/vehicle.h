@@ -51,6 +51,7 @@ class Vehicle {
     std::deque<int> getpath() ;
 
     void remove(int at);
+    void removeOrder( const Order &order);
     void removeOrder(int orderid);
     void removePickup(int orderid);
     void removeDelivery(int orderid);
@@ -72,7 +73,9 @@ class Vehicle {
     bool findImprovment(int i);
     void hillClimbOpt();
     int  findForwardImprovment(const int i,double &bestcost) ;
-
+    double costBetterPickupBackward(int &bppos, int &bdpos);
+    double findBestCostBackForw(const int oid,int &bppos,int &bdpos);
+    int    findBetterDeliveryForward(const int ppos,const int dpos,double &bestcost);
 
 
 

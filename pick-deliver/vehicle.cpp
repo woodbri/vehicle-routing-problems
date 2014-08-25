@@ -9,6 +9,67 @@
 
 #include <sstream>
 
+
+
+
+int Vehicle::findBetterDeliveryForward(const int ppos,const int dpos,double &bestcost) {
+           int bestJ=-1;
+           int deliveryPos=dpos;
+           if ( not (ppos<dpos and sameorder(ppos,dpos) and ispickup(ppos) and isdelivery(dpos) ))  return -1; //thoerically we never get to this point if called from funtion bellow
+           for (int j=ppos+1; j<path.size(); j++) {
+                  move(deliveryPos,j); deliveryPos=j;   
+                  if (getcost()<bestcost and feasable()){
+                             bestcost=getcost();
+                             bestJ=j;
+                  }
+           }
+           return  bestJ;
+}
+
+
+double Vehicle::costBetterPickupBackward(int &bppos, int &bdpos) {
+           double bestcost=getcost();
+           int ppos=bppos;
+	   int dpos=bdpos;
+	   int bestI=-1;
+           int bestJ=-1;
+           int j;
+           if ( not (ppos<dpos and sameorder(ppos,dpos) and ispickup(ppos) and isdelivery(dpos)) ) return bestcost;
+           for (int i=1;i<dpos;i++) { //ensuring pickup comes before delivery
+              j=-1;
+              move (ppos, i); ppos=i;               
+              j=findBetterDeliveryForward(ppos,dpos,bestcost);
+              if (j>0) { //a better cost was found
+                    bestI=i;
+                    bestJ=j;
+             }
+           }
+           if ( bestI=bestJ=-1 ) {
+                 bppos=ppos;
+                 bdpos=dpos;
+                 return bestcost;                    //no better cost was found
+           } else {
+                 bppos=bestI;
+                 bdpos=bestJ;
+                 return bestcost;
+           }
+}
+          
+
+
+double Vehicle::findBestCostBackForw(const int oid,int &bppos,int &bdpos){
+    int ppos=getppos(oid);  //actual positions and costs as best
+    int dpos=getdpos(oid);
+    double actualcost=getcost();
+    double bestcost=actualcost;
+    bppos=ppos; bdpos=dpos; 
+    bestcost=costBetterPickupBackward(bppos, bdpos);
+    return bestcost;
+}
+
+
+
+
 /***************************** DUMP PRINTS PLOTS   ********/
 
    void Vehicle::dump()  {
@@ -124,6 +185,10 @@ void Vehicle::findBetterForward(int &bestI, int &bestJ) {
 
 /****** Indirect evaluation *****/    
 
+    void Vehicle::removeOrder(const Order &order){
+         removeOrder(order.getoid());
+    }
+    
     void Vehicle::removeOrder(const int oid){
          removePickup(oid);
          removeDelivery(oid);
@@ -224,6 +289,7 @@ void Vehicle::plot(std::string file,std::string title,int carnumber){
     std::deque<int> pickups;
     std::deque<int> deliverys;
     std::deque<int> depots;
+    std::deque<int> trace;
     /** cpp11  the following next 3 lines become std::string carnum=std::to_string(carnumber */
     std::stringstream convert; 
     convert << carnumber;
@@ -231,25 +297,39 @@ void Vehicle::plot(std::string file,std::string title,int carnumber){
     std::string extra=file+"vehicle"+carnum+".png" ;
 
 	
-   
+   trace=getpath();
+
     for (int i=0; i<path.size(); i++){
+std::cout<<trace[i]<<"..";
         if (ispickup(i))
         pickups.push_back(getnid(i));
         else if (isdelivery(i))
         deliverys.push_back(getnid(i));
         else  depots.push_back(0);
     }
+std::cout<<"\n++++++++    1---\n";
 
     // Plot1<Dpnode> graph( path )   //if plot used deque this could be used 
     Plot1<Dpnode> graph( path ); 
+std::cout<<"++++++++    2---\n";
     graph.setFile( file+extra );
+std::cout<<"++++++++    3---\n";
     graph.setTitle( title+extra );
+std::cout<<"++++++++    4---\n";
     graph.drawInit();
-    graph.drawPath(getpath(), graph.makeColor(carnumber*10), 1, false);
+std::cout<<"++++++++    5---\n";
+    //graph.drawPath(getpath(), graph.makeColor(carnumber*10), 1, false);
+    graph.drawPath(trace, graph.makeColor(carnumber*10), 1, false);
+
+std::cout<<"++++++++    6---\n";
     graph.drawPoints(pickups, 0x0000ff, 9, true);
+std::cout<<"++++++++    7---\n";
     graph.drawPoints(depots, 0xff0000, 7, true);
+std::cout<<"++++++++    8---\n";
     graph.drawPoints(deliverys, 0x00ff00, 5, true);
+std::cout<<"++++++++    9---\n";
     graph.save();
+std::cout<<"++++++++    10---\n";
 }
 
 
@@ -517,88 +597,9 @@ void Route::move(int fromi,int toj) {
 }
 
 
-void Route::findBetterForward(int &bestI, int &bestJ) {
-           double bestcost=getcost();
-           int j=-1;
-           for (int i=1;i<routeVehicle.size()-1;i++) { //not even bothering with the depot
-              j=-1;
-              j=findForwardImprovment(i,bestcost); 
-              if (j>0) { //a better cost was found
-                    bestI=i;
-                    bestJ=j;
-             }
-           }
-}
 
 
 //bppos, bdpos = best pickup postition, best delivery postition
 //ppos, dpos = pickup postition, delivery postition
 
-int Route::findBetterDeliveryForward(const int ppos,const int dpos,double &bestcost) {
-           int bestJ=-1;
-           int deliveryPos=dpos;
-           if ( not (ppos<dpos and sameorder(ppos,dpos) and ispickup(ppos) and isdelivery(dpos) ))  return -1; //thoerically we never get to this point if called from funtion bellow
-           for (int j=ppos+1; j<routeVehicle.size(); j++) {
-                  move(deliveryPos,j); deliveryPos=j;   
-                  if (getcost()<bestcost and feasable()){
-                             bestcost=getcost();
-                             bestJ=j;
-                  }
-           }
-           return  bestJ;
-}
-
-
-//bppos, bdpos = best pickup postition, best delivery postition
-//ppos, dpos = pickup postition, delivery postition
-
-double Route::costBetterPickupBackward(int &bppos, int &bdpos) {
-           double bestcost=getcost();
-           int ppos=bppos;
-	   int dpos=bdpos;
-	   int bestI=-1;
-           int bestJ=-1;
-           int j;
-           if ( not (ppos<dpos and sameorder(ppos,dpos) and ispickup(ppos) and isdelivery(dpos)) ) return bestcost;
-           for (int i=1;i<dpos;i++) { //ensuring pickup comes before delivery
-              j=-1;
-              move (ppos, i); ppos=i;               
-              j=findBetterDeliveryForward(ppos,dpos,bestcost);
-              if (j>0) { //a better cost was found
-                    bestI=i;
-                    bestJ=j;
-             }
-           }
-           if ( bestI=bestJ=-1 ) {
-                 bppos=ppos;
-                 bdpos=dpos;
-                 return bestcost;                    //no better cost was found
-           } else {
-                 bppos=bestI;
-                 bdpos=bestJ;
-                 return bestcost;
-           }
-}
-
-double Route::findBestCostBackForw(const int oid,int &bppos,int &bdpos){
-          int ppos=routeVehicle.getppos(oid);  //actual positions and costs as best
-          int dpos=routeVehicle.getdpos(oid);
-          double actualcost=getcost();
-          double bestcost=actualcost;
-          bppos=ppos; bdpos=dpos; 
-          bestcost=costBetterPickupBackward(bppos, bdpos);
-          return bestcost;
-}
-          
-
-void Route::dump() {
-    routeVehicle.smalldump();
-    std::cout <<  " Route cost: "<< getcost();
-    routeVehicle.dump();
-}
-
-
-void Route::dumppath() {
-    routeVehicle.smalldump();
-}
 */

@@ -19,18 +19,7 @@ void Init_pd::dumbConstruction() {
            car.pushOrder(getOrder(i));
    }
    fleet.push_back(car);  
-
-   std::cout<<"before----->i\n"; 
-   tau(); 
-   dump();
    fleet[0].korenamaewaruidesu(fleet[1],2, 3);
-   std::cout<<"after----->i\n"; 
-   tau(); 
-   dump();
-
-
-   // plot("testing1.png","with all nodes in the path");
-
 }
 
 void Init_pd::dumbConstructionAndBestMoveForward() {
@@ -114,29 +103,29 @@ void Init_pd::initialByOrderSolution() {
     std::deque<Order> unOrders;
     std::deque<Order> waitOrders;
     sortOrdersbyDistReverse();
-    //unOrders=P.O;
+    unOrders=ordersList;
     while (!unOrders.empty()) {
-     //  Vehicle route(P);
+       Vehicle route(depot,Q);
        while (!unOrders.empty()) {
          order=unOrders.front();
           unOrders.pop_front();
-          //route.pushOrder(order);
-          //ppos=bppos=route.getppos(order.oid);
-          //dpos=bdpos=route.getdpos(order.oid);
+          route.pushOrder(order);
+          ppos=bppos=route.getppos(order.oid);
+          dpos=bdpos=route.getdpos(order.oid);
           actualcost=getcost();
-          //bestcost=route.findBestCostBackForw(order.oid,bppos,bdpos); //can it come back with already tested for feasability
+          bestcost=route.findBestCostBackForw(order.oid,bppos,bdpos); //can it come back with already tested for feasability
           if (bestcost<actualcost) {     //found a better place
              if (bppos<bdpos) {
-                 //route.move(ppos,bppos);
-                 //route.move(dpos,bdpos);
+                 route.move(ppos,bppos);
+                 route.move(dpos,bdpos);
              }
           }
-        /*  if (!route.feasable() ) {
+          if (!route.feasable() ) {
                 route.removeOrder(order);
                 waitOrders.push_back(order);
-          } */
+          } 
        }
-       //fleet.push_back(route);
+       fleet.push_back(route);
        unOrders=waitOrders;
        waitOrders.clear();
      }
@@ -152,30 +141,30 @@ void  Init_pd::initialFeasableSolution() {
     Order order;
     std::deque<Order> unOrders;
     std::deque<Order> waitOrders;
-    //P.sortOrdersbyDistReverse();
-    //unOrders=P.O;
+    sortOrdersbyDistReverse();
+    unOrders=ordersList;
     while (!unOrders.empty()) {
-       //Vehicle route(P);
+       Vehicle route(depot,Q);
        while (!unOrders.empty()) {
          order=unOrders.front();
           unOrders.pop_front();
-          //route.pushOrder(order);
-          //ppos=bppos=route.getppos(order.oid);
-          ////dpos=bdpos=route.getdpos(order.oid);
+          route.pushOrder(order);
+          ppos=bppos=route.getppos(order.oid);
+          dpos=bdpos=route.getdpos(order.oid);
           actualcost=getcost();
-          //bestcost=route.findBestCostBackForw(order.oid,bppos,bdpos); //can it come back with already tested for feasability
+          bestcost=route.findBestCostBackForw(order.oid,bppos,bdpos); //can it come back with already tested for feasability
           if (bestcost<actualcost) {     //found a better place
              if (bppos<bdpos) {          
-                 //route.move(ppos,bppos); 
-                 //route.move(dpos,bdpos);
+                 route.move(ppos,bppos); 
+                 route.move(dpos,bdpos);
              }
           }
-       /*   if (!route.feasable() ) {
+          if (!route.feasable() ) {
                 route.removeOrder(order);
                 waitOrders.push_back(order);
-          } */
+          } 
        }      
-       //fleet.push_back(route);
+       fleet.push_back(route);
        unOrders=waitOrders;
        waitOrders.clear();
      }
@@ -210,7 +199,7 @@ void Init_pd::plot(std::string file,std::string title){
     std::deque<int> pickups;
     std::deque<int> deliverys;
     std::deque<int> depots;
-
+std::cout<<"1---\n";
     for (int i=0; i<datanodes.size(); i++){
         if (datanodes[i].ispickup())
             pickups.push_back(datanodes[i].getnid());
@@ -219,19 +208,31 @@ void Init_pd::plot(std::string file,std::string title){
         else if (datanodes[i].isdepot())
             depots.push_back(datanodes[i].getnid());
     }
+std::cout<<"2---\n";
     Plot1<Dpnode> plot( datanodes );
+std::cout<<"3---\n";
     plot.setFile( file );
+std::cout<<"4---\n";
     plot.setTitle( title+".png" );
+std::cout<<"5---\n";
     plot.drawInit();
+std::cout<<"6---\n";
     for (int i=0; i<fleet.size(); i++) {
+std::cout<<"6---"<<i<<"\n";
         plot.drawPath(fleet[i].getpath(), plot.makeColor(i), 1, false);
     }
+std::cout<<"7---\n";
     plot.drawPoints(pickups, 0x0000ff, 9, true);
+std::cout<<"8---\n";
     plot.drawPoints(depots, 0xff0000, 7, true);
+std::cout<<"9---\n";
     plot.drawPoints(deliverys, 0x00ff00, 5, true);
+std::cout<<"10---\n";
     plot.save();
+std::cout<<"11---\n";
     /* now a graph for each individual trucl */
     for (int i=0;i<fleet.size();i++) {
+std::cout<<"11---"<<i<<"\n";
         fleet[i].plot(file,title,i);
     }
 }
@@ -271,11 +272,10 @@ double Init_pd::getAverageRouteDurationLength() {
     double len = 0.0;
     int n = 0;
     for (int i=0; i<fleet.size(); i++) {
-        //compact the fleet (i.e. eliminate from the list vehicles with no route  if (fleet[i].path.size() == 0) continue;
-        fleet[i].evaluate();
-        //if (fleet[i].updated) fleet[i].update();
+      if (fleet[i].size()>0) {
         len += fleet[i].getduration();
         n++;
+      }
     }
     if (n == 0) return 0;
     return len/n;
