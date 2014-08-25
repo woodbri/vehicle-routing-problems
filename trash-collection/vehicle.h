@@ -16,6 +16,7 @@ class Vehicle {
     Trashnode backToDepot;
     Trashnode dumpsite;
 
+    int maxcapacity;
     int curcapacity;    // current USED capacity of the vehicle
     double duration;    // duration of the route
     double cost;        // cost of the route
@@ -40,18 +41,20 @@ class Vehicle {
         w1 = w2 = w3 = 1.0;
     };
 
-    Vehicle( const Trashnode& _depot ) {
+    Vehicle( Trashnode& _depot ) {
+        maxcapacity  = _depot.getdemand();
+        _depot.setdemand(0);
         backToDepot  = _depot;
+        push_back( _depot );
         curcapacity  = 0;
         cost         = 0;
         w1 = w2 = w3 = 1.0;
-        push_back( _depot );
     }
 
     // accessors
     std::deque<int> getpath();
     int size() const { return path.size(); };
-    int getmaxcapacity() const { return getdepot().getdemand(); };
+    int getmaxcapacity() const { return maxcapacity; };
     int getTWV() const { return TWV; };
     int getCV() const { return CV; };
     int getcurcapacity() const { return curcapacity; };

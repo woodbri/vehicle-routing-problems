@@ -42,6 +42,7 @@ void Vehicle::evaluate() {
 
 void Vehicle::evaluate(int from) {
     Trashnode last = path[path.size()-1];
+    dumpsite.setdemand(-last.getcargo());
     dumpsite.evaluate(last, getmaxcapacity());
     backToDepot.evaluate(dumpsite, getmaxcapacity());
     cost = w1*backToDepot.gettotDist() +
