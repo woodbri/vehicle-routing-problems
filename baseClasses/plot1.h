@@ -11,7 +11,8 @@
 #include "twpath.h"
 #include "plot1.h"
 
-static const char *font = (char *)"/u/data/maps/fonts/verdana.ttf";
+static const char *font = (char *)"/usr/share/fonts/truetype/msttcorefonts/Verdana.ttf";
+
 
 template <class knode> class Plot1 {
 private:
@@ -199,7 +200,61 @@ public:
     }
 
 
+
+/* with this vehicle plot work and uses the class template */
+
+    void drawPoint(const knode &a, int color, int size, bool label) {
+        // make sure drawInit() has been called
+        if (!im) {
+            fprintf(stderr, "Plot1::drawInit() has not been called!\n");
+            return;
+        }
+
+        gdImageFilledEllipse(im, scalex(a.getx()), scaley(a.gety()), size, size, color);
+
+        if (label) {
+            char str[80];
+            sprintf(str, "%d", a.getnid());
+            gdImageStringFT(im, NULL, 0x00000000, (char *)font, 6, 0,
+                                scalex(a.getx()), scaley(a.gety())-5, str);
+        }
+    }
+
+
+    void drawPath( Twpath<knode> path, int color, int thick, bool label) {
+        // make sure drawInit() has been called
+        if (!im) {
+            fprintf(stderr, "Plot1::drawInit() has not been called!\n");
+            return;
+        }
+
+        // set the line thickness for drawing
+        gdImageSetThickness(im, thick);
+
+        // extract the color into RGB values and set the line draw color
+        int blue = color % 256;
+        int green = (color / 256) % 256;
+        int red = (color / 65536) % 256;
+        gdImageSetAntiAliased(im, gdImageColorExactAlpha(im, red, green, blue, 0));
+
+        // draw the path based on a list of node ids
+        for (int i=0; i<path.size()-1; i++) {
+            const knode &a = path[i];
+            const knode &b = path[i+1];
+            gdImageLine(im, scalex(a.getx()), scaley(a.gety()),
+                            scalex(b.getx()), scaley(b.gety()), gdAntiAliased);
+        }
+
+        if (label) {
+            // TODO pick midpoint of 2nd segment calc angle of segment
+            //  and label along it
+        }
+    }
+
+
+
 };
+
 #endif
 /*
 // Example:

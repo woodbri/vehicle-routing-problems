@@ -35,7 +35,7 @@ std::cout<<"************CALL to non evaluating function move\n";
     };
 
     void insert(const knode &n, int at) {
-std::cout<<"************CALL to non evaluating function insert\n";
+std::cout<<"************CALL to non evaluating function insert (could be called by evaluated move)\n";
         path.insert(path.begin() + at, n);
     };
 
@@ -106,6 +106,11 @@ std::cout<<"************CALL to non evaluating function ¿how do we handle this 
             insert(path[fromi], toj);
             remove(fromi + 1, maxcapacity);
         }
+    };
+
+    void resize(unsigned int at,double maxcapacity) { 
+        path.resize(at);
+        //theoricamente funciona sin mas
     };
 
     void swap(int i,int j,double maxcapacity) {

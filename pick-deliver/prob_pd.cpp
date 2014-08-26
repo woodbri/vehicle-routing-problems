@@ -23,7 +23,15 @@ bool sortByOid(Order a, Order b)
     return a.oid < b.oid;
 }
 
+bool sortByOidReverse(Order a, Order b)
+{
+    return a.oid > b.oid;
+}
 
+
+bool NodeByDistReverse(const Dpnode &a, const Dpnode b, Dpnode depot) {
+   return a.distance(depot) > b.distance(depot);
+}
 
 // Class functions
 
@@ -97,6 +105,91 @@ void Prob_pd::dump() {
 }
 
 
+/*compatibility*/
+
+double Prob_pd::ajli(const Dpnode &ni, const Dpnode &nj) {
+    return ni.closes()+ni.getservicetime()+nj.distance(ni);
+}
+
+double Prob_pd::ajei(const Dpnode &ni, const Dpnode &nj) {
+    return ni.opens()+ni.getservicetime()+nj.distance(ni);
+}
+
+
+double Prob_pd::twc_for_ij(const Dpnode &ni, const Dpnode &nj) {
+    double result;
+//std::cout<<" lj="<<nj.closes()<<"\t ajei= "<<ajei(ni,nj);
+//std::cout<<" min ("<<ajli(ni,nj)<<","<<nj.closes()<<")\t max("<<ajei(ni,nj)<<","<<nj.opens()<<")";
+//std::cout<<"\t = "<< std::min (ajli(ni,nj),nj.closes())<<"\t "<<std::max(ajei(ni,nj),nj.opens())<<"";
+//std::cout<<"\t = "<< std::min (ajli(ni,nj),nj.closes())-std::max(ajei(ni,nj),nj.opens())<<"";
+    if ( ( nj.closes() -ajei(ni,nj) ) > 0 )
+        result = std::min ( ajli(ni,nj) , nj.closes() )
+                  - std::max ( ajei(ni,nj) , nj.opens()  ) ;
+    else
+        result= -std::numeric_limits<double>::max();
+//std::cout<<"\t = "<< result<<"\n";
+    return result;
+}
+
+
+
+void Prob_pd::twcij_calculate(){
+    twcij.resize(datanodes.size());
+    for (int i=0;i<datanodes.size();i++)
+        twcij[i].resize(datanodes.size());
+    for (int i=0;i<datanodes.size();i++){
+        for (int j=i; j<datanodes.size();j++) {
+//std::cout<<"\nworking with ("<<i<<","<<j<<")\n";
+           //if (i==j) {
+           //   twcij[i][j]= -std::numeric_limits<double>::max();  //mismo nodo
+           //} else  {
+              twcij[i][j]= twc_for_ij(datanodes[i],datanodes[j]);
+              twcij[j][i]= twc_for_ij(datanodes[j],datanodes[i]);
+              /*if  (datanodes[i].getoid()==datanodes[j].getoid()){  // misma orden
+                 if (datanodes[i].isdelivery())
+                    twcij[i][j]= -std::numeric_limits<double>::max();
+                  else
+                    twcij[j][i]= -std::numeric_limits<double>::max();
+              }*/
+           //}
+        }
+    }
+    twcTot_calculate();
+}
+
+
+void Prob_pd::twcTot_calculate(){
+    twcTot.resize(datanodes.size());
+    for (int i=0;i<datanodes.size();i++){
+        twcTot[i]=0;
+        for (int j=0; j<datanodes.size();j++)
+            if (twcij[i][j]<0) twcTot[i]++;
+std::cout<<"\n TwcTot for node "<< datanodes[i].getnid()<<":"<<twcTot[i];
+     }
+}
+
+
+void Prob_pd::twcijDump() const  {
+    std::cout<<"\n\t";
+    for (int i=0;i<datanodes.size();i++)
+        std::cout<<datanodes[i].getnid()<<"\t";
+    std::cout<<"\n";
+    for (int i=0;i<datanodes.size();i++){
+        std::cout<<datanodes[i].getnid()<<"\t";
+        for (int j=0; j<datanodes.size();j++) {
+           if (twcij[i][j] > 0) std::cout<<twcij[i][j]<<"\t";
+           else std::cout<<"--\t";
+        }
+        std::cout<<"\n";
+    }
+}
+
+
+double Prob_pd::compat(int i,int j) const {
+    return twcij[i][j];
+};
+
+/* depot must be the first node in list... rest can be anywhere*/
 void Prob_pd::loadProblem(char *infile)
 {
     std::ifstream in( infile );
@@ -120,16 +213,59 @@ void Prob_pd::loadProblem(char *infile)
     }
     in.close();
     makeOrders();
+
+    twcij_calculate();
+twcijDump();
+    sortNodeByTWC();
+    twcij_calculate();
+twcijDump();
+
+    makeOrders();
 }
 
+/* sorts */
+void Prob_pd::sortNodeByTWC(){
+    int j;
+    Dpnode tmp;
+    double twc;
+    for (int i=2; i<datanodes.size();i++) {
+      tmp=datanodes[i];
+      twc=twcTot[i];
+      for (j = i; j > 1 and twcTot[j-1] < twc ; j-- ) { 
+        datanodes[j]=datanodes[j-1]; 
+        twcTot[j]=twcTot[j-1];
+      }
+      datanodes[j]=tmp;
+      twcTot[j]=twc;
+    }
+};
+
+void Prob_pd::sortNodeByDistReverse(){
+    int j;
+    Dpnode tmp;
+    for (int i=2; i<datanodes.size();i++) {
+      tmp=datanodes[i];
+      for (j = i; j > 1 and datanodes[j-1].distance(depot) < tmp.distance(depot);j-- ) { 
+        datanodes[j]=datanodes[j-1]; 
+      }
+      datanodes[j]=tmp;
+    }
+};
 void Prob_pd::sortOrdersbyDistReverse(){
     sort(ordersList.begin(), ordersList.end(), sortByDistReverse);
 };
 void Prob_pd::sortOrdersbyId(){
     sort(ordersList.begin(), ordersList.end(), sortByOid);
 };
+
+void Prob_pd::sortOrdersbyIdReverse(){
+    sort(ordersList.begin(), ordersList.end(), sortByOidReverse);
+};
+
 void Prob_pd::sortOrdersbyDist(){
+std::cout<<"going to sort Orders by Dist";
     sort(ordersList.begin(), ordersList.end(), sortByDist);
+std::cout<<"done sort Orders by Dist";
 };
 
 void Prob_pd::makeOrders ()
@@ -139,14 +275,16 @@ void Prob_pd::makeOrders ()
         std::string errmsg = "Problem::makeOrders - Nodes have not be correctly loaded.";
         throw std::runtime_error(errmsg);
     }
-
+    ordersList.resize(0);
     int oid = 0;
     Order order;
     // for each pickup, get its delivery and create an order
     for (int i=0; i<getNodeCount(); i++) {
-        if (datanodes[i].isdepot() or datanodes[i].isdelivery()) continue; 
-              order.fillOrder(datanodes[i],datanodes[datanodes[i].getdid()],oid++,depot);
-              ordersList.push_back(order);
+        if (datanodes[i].isdepot() or datanodes[i].isdelivery()) continue;
+           int j;
+           for (j=0; j<getNodeCount() and datanodes[j].getnid()!=datanodes[i].getdid(); j++) {}
+           order.fillOrder(datanodes[i],datanodes[j],oid++,depot);
+           ordersList.push_back(order);
     }
 }
 

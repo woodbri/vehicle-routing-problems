@@ -7,18 +7,18 @@
 
 class Twnode: public Node {
   protected:
-    int demand;
-    int tw_open;
-    int tw_close;
-    int service;
+    double demand;
+    double tw_open;
+    double tw_close;
+    double service;
 
   public:
     // accessors
-    int opens() const {return tw_open;};
-    int closes() const {return tw_close;};
-    int getdemand() const{ return demand;};
-    int getservicetime() const{  return service;};
-    int windowlength() const { return  tw_close - tw_open; };
+    double opens() const {return tw_open;};
+    double closes() const {return tw_close;};
+    double getdemand() const{ return demand;};
+    double getservicetime() const{  return service;};
+    double windowlength() const { return  tw_close - tw_open; };
     void dump() const;
 
     // state

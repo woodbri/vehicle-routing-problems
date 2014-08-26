@@ -48,14 +48,15 @@ class Vehicle {
  //   int  getoid(int i) const { return path[i].getoid(); };
     int getdpos(const int oid) const;
     int getppos(const int oid) const;
-    std::deque<int> getpath() ;
+    Twpath<Dpnode> getpath() ;
 
     void remove(int at);
+    void removeOrder( const Order &order);
     void removeOrder(int orderid);
     void removePickup(int orderid);
     void removeDelivery(int orderid);
     void swapstops(int i,int j);
-    void swapstops(int i, Vehicle &rhs, int j);
+    void korenamaewaruidesu(Vehicle &rhs, int i, int j);
     void swap(int i,int j);
     void move(int fromi,int toj);
     void push_back(Dpnode pathstop);
@@ -65,14 +66,16 @@ class Vehicle {
     void smalldump();
     bool ispickup(int i) {return path[i].ispickup();}
     bool sameorder(int i,int j){return path[i].getoid()==path[j].getoid();}
-    void clean() {path.resize(0); };
+    void clean() {path.resize(1,maxcapacity); evalLast(); };
 
     /*algorithm spesific */
     void findBetterForward(int &bestI, int &bestJ);
     bool findImprovment(int i);
     void hillClimbOpt();
     int  findForwardImprovment(const int i,double &bestcost) ;
-
+    double costBetterPickupBackward(int &bppos, int &bdpos);
+    double findBestCostBackForw(const int oid,int &bppos,int &bdpos);
+    int    findBetterDeliveryForward(const int ppos,const int dpos,double &bestcost);
 
 
 
