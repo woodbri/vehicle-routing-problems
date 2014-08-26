@@ -106,6 +106,7 @@ public:
     }
 
 
+/*
     void drawPath(const Twpath<knode>& path, int color, int thick, bool label) {
         // make sure drawInit() has been called
         if (!im) {
@@ -136,7 +137,7 @@ public:
             //  and label along it
         }
     }
-
+*/
 
     void drawPath(std::deque<int> ids, int color, int thick, bool label) {
         // make sure drawInit() has been called
@@ -192,6 +193,7 @@ public:
     }
 
 
+/*
     void drawPoints(std::deque<knode> pnts, int color, int size, bool label) {
         // make sure drawInit() has been called
         if (!im) {
@@ -212,7 +214,7 @@ public:
             }
         }
     }
-
+*/
 
     int save() {
         // use the object variable file
