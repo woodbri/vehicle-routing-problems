@@ -11,7 +11,8 @@ const double EPSILON = 0.001;
 
 class Init_pd: public Prob_pd {
   private:
-    std::vector<Vehicle> fleet;
+    std::deque<Vehicle> fleet;
+
 
     double totalDistance;
     double totalCost;
@@ -33,6 +34,8 @@ class Init_pd: public Prob_pd {
     void dumproutes();
     void tau() ;
     void plot(std::string file,std::string title);
+
+
 /* Diferent initial Constructions */
     void insertByOrderSolution();
     void dumbConstruction();

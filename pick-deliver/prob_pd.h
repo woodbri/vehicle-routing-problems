@@ -20,8 +20,10 @@ class Prob_pd {
 
     Twpath<Dpnode> datanodes;
     std::deque<Order> ordersList;   // vector of orders
+    std::deque<std::deque<double> > twcij;
+    std::deque<double>  twcTot;
 
-    std::vector<int> unassigned;
+//    std::vector<int> unassigned;
 
   public:
     int K;      // number of vehicles
@@ -48,10 +50,23 @@ class Prob_pd {
     bool isAsignedOrder(int oid) const;
     Dpnode& getDeliveryNodeFromOrder(int i);
     Dpnode& getPickupNodeFromOrder(int i);
+    void sortNodeByDistReverse();
+    void sortNodeByTWC();
     void sortOrdersbyDist();
     void sortOrdersbyId();
     void sortOrdersbyIdReverse();
     void sortOrdersbyDistReverse();
+
+
+/* compatability issues */
+    void twcij_calculate();
+    void twcTot_calculate();
+    double ajli(const Dpnode &ni, const Dpnode &nj);
+    double ajei(const Dpnode &ni, const Dpnode &nj);
+    double twc_for_ij(const Dpnode &ni, const Dpnode &nj);
+    double compat(int i,int j) const ;
+
+    void twcijDump() const;
 
     Order& getOrder(int i) ;
 

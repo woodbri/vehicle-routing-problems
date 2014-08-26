@@ -215,7 +215,6 @@ public:
         if (label) {
             char str[80];
             sprintf(str, "%d", a.getnid());
-std::cout<<"label:"<<str;
             gdImageStringFT(im, NULL, 0x00000000, (char *)font, 6, 0,
                                 scalex(a.getx()), scaley(a.gety())-5, str);
         }

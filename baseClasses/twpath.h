@@ -108,6 +108,11 @@ std::cout<<"************CALL to non evaluating function ¿how do we handle this 
         }
     };
 
+    void resize(unsigned int at,double maxcapacity) { 
+        path.resize(at);
+        //theoricamente funciona sin mas
+    };
+
     void swap(int i,int j,double maxcapacity) {
         if (i==j) return;
         knode temp = path[i];

@@ -5,8 +5,6 @@
 
 
 
-
-
 void Init_pd::dumbConstruction() {
     Vehicle truck(depot,Q);
     fleet.empty();
@@ -63,17 +61,15 @@ void Init_pd::deliveryBeforePickupConstruction() {
 };
 
 void Init_pd::sequentialConstruction() {
-    std::cout << "Enter Problem::sequentialConstruction\n";
+std::cout << "Enter Problem::sequentialConstruction\n";
     fleet.clear();
     Vehicle truck(depot,Q);
     Order order;
     std::deque<Order> unOrders;
     std::deque<Order> waitOrders;
-    sortOrdersbyDist();
     unOrders=ordersList;
     while (!unOrders.empty()) {
        truck.clean();  
-       //std::cout<<"\n\n*******1 original orders"<<P.O.size()<<" wait orders "<< waitOrders.size()<<" unassigned Orders "<<unOrders.size()<<"\n";
        while (!unOrders.empty()) {
           order=unOrders.front();
           unOrders.pop_front();
@@ -88,7 +84,6 @@ void Init_pd::sequentialConstruction() {
        unOrders=waitOrders;
        waitOrders.clear();
      }
-     dump();
 }
 
 
@@ -98,16 +93,16 @@ void Init_pd::initialByOrderSolution() {
     double actualcost, bestcost;
     fleet.clear();
     Order order;
-    std::deque<Order> unOrders;
+    std::deque<Order> clientBucket;
     std::deque<Order> waitOrders;
     sortOrdersbyDistReverse();
-    unOrders=ordersList;
-    while (!unOrders.empty()) {
-       Vehicle route(depot,Q);
-       while (!unOrders.empty()) {
-         order=unOrders.front();
-          unOrders.pop_front();
-          route.pushOrder(order);
+    clientBucket=ordersList;
+    while (!clientBucket.empty()) {        //are there any unrouted customers
+       Vehicle route(depot,Q);             // initialize tour  
+       while (!clientBucket.empty()) {     //are there any unrouted customers?
+          order=clientBucket.front();          
+          clientBucket.pop_front();
+          route.pushOrder(order);          //initialize tour with seed customer
           ppos=bppos=route.getppos(order.oid);
           dpos=bdpos=route.getdpos(order.oid);
           actualcost=getcost();
@@ -124,7 +119,7 @@ void Init_pd::initialByOrderSolution() {
           } 
        }
        fleet.push_back(route);
-       unOrders=waitOrders;
+       clientBucket=waitOrders;
        waitOrders.clear();
      }
      dump();
@@ -139,12 +134,12 @@ void  Init_pd::initialFeasableSolution() {
     Order order;
     std::deque<Order> unOrders;
     std::deque<Order> waitOrders;
-    sortOrdersbyDistReverse();
+//    sortOrdersbyDistReverse();
     unOrders=ordersList;
     while (!unOrders.empty()) {
        Vehicle route(depot,Q);
        while (!unOrders.empty()) {
-         order=unOrders.front();
+          order=unOrders.front();
           unOrders.pop_front();
           route.pushOrder(order);
           ppos=bppos=route.getppos(order.oid);
@@ -195,30 +190,62 @@ double Init_pd::getDistance() {
 
 void Init_pd::plot(std::string file,std::string title){
 
-    std::deque<int> pickups;
-    std::deque<int> deliverys;
-    std::deque<int> depots;
+/*
+    Twpath<Dpnode> trace=path;
+    trace.push_back(backToDepot);
+
+    // cpp11  the following next 3 lines become std::string carnum=std::to_string(carnumber *
+    std::stringstream convert;
+    convert << carnumber;
+    std::string carnum = convert.str();
+    std::string extra=file+"vehicle"+carnum ;
+*/
+    Plot1<Dpnode> graph( datanodes );
+    graph.setFile( file+".png" );
+    graph.setTitle( title );
+    graph.drawInit();
 
     for (int i=0; i<datanodes.size(); i++){
-        if (datanodes[i].ispickup())
-            pickups.push_back(datanodes[i].getnid());
-        else if (datanodes[i].isdelivery())
-            deliverys.push_back(datanodes[i].getnid());
-        else if (datanodes[i].isdepot())
-            depots.push_back(datanodes[i].getnid());
+        if (datanodes[i].ispickup())  {
+             graph.drawPoint(datanodes[i], 0x0000ff, 9, true);
+        } else if (datanodes[i].isdelivery()) {
+             graph.drawPoint(datanodes[i], 0x00ff00, 5, true);
+        } else  {
+             graph.drawPoint(datanodes[i], 0xff0000, 7, true);
+        }
+    }
+    for (int i=0; i<fleet.size(); i++) {
+        graph.drawPath(fleet[i].getpath(), graph.makeColor(i*10), 1, false);
+    }
+    graph.save();
+
+/* a grpah for individual truck but with all nodes */
+        
+    for (int j=0;j<fleet.size();j++) {
+        Plot1<Dpnode> graph1( datanodes );
+        std::stringstream convert;
+        convert << j;
+        std::string carnum = convert.str();
+
+        graph1.setFile( file+"car"+carnum+".png" );
+        graph1.setTitle( title+" car #"+carnum );
+        graph1.drawInit();
+
+        for (int i=0; i<datanodes.size(); i++){
+            if (datanodes[i].ispickup())  {
+                 graph1.drawPoint(datanodes[i], 0x0000ff, 9, true);
+          } else if (datanodes[i].isdelivery()) {
+                 graph1.drawPoint(datanodes[i], 0x00ff00, 5, true);
+          } else  {
+                 graph1.drawPoint(datanodes[i], 0xff0000, 7, true);
+          }
+        }  
+        graph1.drawPath(fleet[j].getpath(), graph1.makeColor(j*10), 1, false);
+        graph1.save();
     }
 
-    Plot1<Dpnode> plot( datanodes );
-    plot.setFile( file+".png" );
-    plot.setTitle( title );
-    plot.drawInit();
-    for (int i=0; i<fleet.size(); i++) {
-        plot.drawPath(fleet[i].getpath(), plot.makeColor(i*10), 1, false);
-    }
-    plot.drawPoints(pickups, 0x0000ff, 9, true);
-    plot.drawPoints(depots, 0xff0000, 7, true);
-    plot.drawPoints(deliverys, 0x00ff00, 5, true);
-    plot.save();
+    
+
 
 /*     now a graph for each individual trucl */
     for (int i=0;i<fleet.size();i++) {

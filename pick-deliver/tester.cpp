@@ -35,6 +35,18 @@ int main (int argc, char **argv)
         std::cout << "Problem '" << infile << "'loaded\n";
         P.dump();
 
+/*
+        std::cout << "\n\n\n**SOLUTION: Initial feasable Construction\n";
+        Init_pd S5(P);  S5.setweights(1,1,1); 
+        S5.initialFeasableSolution();  S5.dump(); S5.tau(); S5.plot("initialFeasableSolution","Initial Feasable Solution");
+
+*/
+        std::cout << "\n\n\n**SOLUTION: Secuential Construction\n";
+        Init_pd S4(P);  S4.setweights(1,1,1); 
+        S4.sequentialConstruction();  S4.tau(); S4.plot("sequentialConstruction","SequentialConstruction");
+
+/*
+
         std::cout << "\n\n\n**SOLUTION: dumbConstruction\n";
         Init_pd S(P);  S.setweights(1,1,1); 
         S.dumbConstruction(); S.tau(); S.plot("dumbConstruction","Dumb construction");
@@ -47,11 +59,11 @@ int main (int argc, char **argv)
         std::cout << "\n\n\n**SOLUTION: dumbConstruction and bestmove forward\n";
         Init_pd S2(P);  S2.setweights(1,1,1); 
         S2.dumbConstructionAndBestMoveForward();  S2.tau(); S2.plot("dumbConstructionAndBestMoveForward","Dumb construction & best move forward");
-
         std::cout << "\n\n\n**SOLUTION: withSortedOrdersConstruction\n";
         Init_pd S3(P);  S3.setweights(1,1,1); 
         S3.withSortedOrdersConstruction();  S3.tau(); S3.plot("withSortedOrdersConstruction","withSortedOrdersConstruction");
 
+*/
         //S.initialFeasableSolution();
 /*
         std::cout << "\n\n\n******************Y************Solution: initial no hill Construction \n";

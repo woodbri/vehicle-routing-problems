@@ -66,7 +66,7 @@ class Vehicle {
     void smalldump();
     bool ispickup(int i) {return path[i].ispickup();}
     bool sameorder(int i,int j){return path[i].getoid()==path[j].getoid();}
-    void clean() {path.resize(0); };
+    void clean() {path.resize(1,maxcapacity); evalLast(); };
 
     /*algorithm spesific */
     void findBetterForward(int &bestI, int &bestJ);
