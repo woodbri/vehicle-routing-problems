@@ -10,6 +10,7 @@
 #include "vec2d.h"
 #include "trashproblem.h"
 
+
 double TrashProblem::distance(int n1, int n2) const {
     return datanodes[n1].distance(datanodes[n2]);
 }
@@ -307,7 +308,7 @@ void TrashProblem::nearestNeighbor() {
         // remember the last node we inserted
         Trashnode last_node = depot;
 
-        truck.evaluate();
+//        truck.evaluate();
 
         while (truck.getcurcapacity() <= truck.getmaxcapacity()) {
 
@@ -321,7 +322,7 @@ void TrashProblem::nearestNeighbor() {
             // add node to route
             unassigned[nnid] = 0;
             truck.push_back(datanodes[nnid]);
-            truck.evaluate();
+//            truck.evaluate();
             last_node = datanodes[nnid];
         }
         std::cout << "nearestNeighbor: depot: " << i << std::endl;
@@ -338,6 +339,20 @@ void TrashProblem::nearestNeighbor() {
 
 
 
+void TrashProblem::dumbConstruction() {
+
+    clearFleet();
+
+    Trashnode& depot(datanodes[depots[0]]);
+    Vehicle truck(depot);
+    truck.setdumpsite(datanodes[depot.getdumpnid()]);
+
+    for (int i=0; i<pickups.size(); i++) {
+        truck.push_back(datanodes[pickups[i]]);
+    }
+
+    fleet.push_back(truck);
+}
 
 
 void TrashProblem::nearestInsertion() {
@@ -364,7 +379,7 @@ void TrashProblem::assignmentSweep() {
         truck.setdepot(depot);
         // add the closest dump for now, this might change later
         truck.setdumpsite(datanodes[depot.getdumpnid()]);
-        truck.evaluate();
+//        truck.evaluate();
 
         int pos;
         int nid = findNearestNodeTo(truck, UNASSIGNED|PICKUP|CLUSTER1, 0, &pos);
@@ -402,7 +417,7 @@ void TrashProblem::assignmentSweep() {
             else 
                 truck.insert(datanodes[nnid], pos);
 
-            truck.evaluate();
+//            truck.evaluate();
 
             cnt++;
 //            sprintf(buffer, "out/p%02d-%03d.png", i, cnt);
