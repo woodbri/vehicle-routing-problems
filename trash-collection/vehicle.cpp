@@ -107,14 +107,14 @@ void Vehicle::evaluate() {
 void Vehicle::dump() {
     std::cout << "---------- Vehicle ---------------" << std::endl;
     std::cout << "maxcapacity: " << getmaxcapacity() << std::endl;
-    std::cout << "curcapacity: " << curcapacity << std::endl;
-    std::cout << "duration: " << duration << std::endl;
-    std::cout << "cost: " << cost << std::endl;
-    std::cout << "TWV: " << TWV << std::endl;
-    std::cout << "CV: " << CV << std::endl;
-    std::cout << "w1: " << w1 << std::endl;
-    std::cout << "w2: " << w2 << std::endl;
-    std::cout << "w3: " << w3 << std::endl;
+    std::cout << "curcapacity: " << getcurcapacity() << std::endl;
+    std::cout << "duration: " << getduration() << std::endl;
+    std::cout << "cost: " << getcost() << std::endl;
+    std::cout << "TWV: " << getTWV() << std::endl;
+    std::cout << "CV: " << getCV() << std::endl;
+    std::cout << "w1: " << getw1() << std::endl;
+    std::cout << "w2: " << getw2() << std::endl;
+    std::cout << "w3: " << getw3() << std::endl;
     std::cout << "path nodes: -----------------" << std::endl;
     path.dump();
     std::cout << "--------- dumpeval ----------" << std::endl;

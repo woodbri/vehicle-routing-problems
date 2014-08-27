@@ -40,6 +40,8 @@ void Usage() {
 
 int main(int argc, char **argv) {
 
+    std::string font = "/usr/share/fonts/truetype/ttf-dejavu/DejaVuSans.ttf";
+
     if (argc < 2) {
         Usage();
         return 1;
@@ -139,44 +141,21 @@ int main(int argc, char **argv) {
         std::cout << "tp.findNearestNodeTo(2, DUMP|PICKUP) = " << a << std::endl;
         a = tp.findNearestNodeTo(2, PICKUP|LIMITDEMAND, 90);
         std::cout << "tp.findNearestNodeTo(2, PICKUP|LIMITDEMAND,90) = " << a << std::endl;
-*/
 
         std::cout << "\n----------- dumbConstruction -----------------------\n";
         tp.dumbConstruction();
         tp.dump();
-        tp.plot("p0.png", "dumbConstruction");
+        tp.plot("p0.png", "dumbConstruction", font);
 
         std::cout << "\n---------------------------------------------------\n";
 
-/*
-        // untested example of new plot methods
-        // this assumes that 
-        // fleet[0].getpath() returns a Twpath& of of the nodes
-        // the extens of the plot will get set based on the nodes
-        // in the constructor, or you can resize the extents by calling
-        // plot.calcExtents(std::deque<knode>)
-        // if you can think of a better way to do the following I'm all ears
-        // fleet[0].getpickups() is a deque of pickup nodes
-        // fleet[0].getdumps() is a deque of dumps or delivery or other nodes
-        // fleet[0].getdepots() is a deque of depots
-
-        Plot1<Trashnode> plot(fleet[0].getpath() );
-        plot.setFile("pone.png");
-        plot.setTitle("one route path");
-
-        plot.drawPath(fleet[0].getpath(), plot.makeColor(10), 1, false);
-        plot.drawPoints(fleet[0].getpickups(), 0x0000ff, 7, true);
-        plot.drawPoints(fleet[0].getdumps(), 0x0000ff, 7, true);
-        plot.drawPoints(fleet[0].getdepots(), 0x0000ff, 7, true);
-        plot.save();
 */
-
 /*
 
         std::cout << "\n----------- nearestNeighbor -----------------------\n";
         tp.nearestNeighbor();
         tp.dump();
-        tp.plot("p1.png", "nearestNeighbor");
+        tp.plot("p1.png", "nearestNeighbor", font);
 
         tp.dump();
 
@@ -186,12 +165,12 @@ int main(int argc, char **argv) {
 
         //tp.loadproblem( infile );
         //tp.dump();
+*/
 
         std::cout << "\n----------- assignmentSweep -----------------------\n";
         tp.assignmentSweep();
         tp.dump();
-        tp.plot("p2.png", "assignmentSweep");
-*/
+        tp.plot("p2.png", "assignmentSweep", font);
 
     }
     catch (const std::exception &e) {

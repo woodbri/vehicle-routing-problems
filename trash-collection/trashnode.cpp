@@ -69,7 +69,7 @@ void Trashnode::setdumpdist(int _nid, double _dist) {
 }
 
 
-Trashnode::Trashnode(std::string line) {
+Trashnode::Trashnode(std::string line) : Tweval() {
     std::istringstream buffer( line );
     buffer >> nid;
     buffer >> ntype;
