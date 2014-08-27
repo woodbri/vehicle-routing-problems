@@ -284,6 +284,8 @@ std::vector<int>  TrashProblem::solutionAsVector() {
         for (int j=0; j<fleet[i].size(); j++) {
             s.push_back(fleet[i][j].getnid());
         }
+        s.push_back(fleet[i].getdumpsite().getnid());
+        s.push_back(fleet[i].getdepot().getnid());
         s.push_back(-1);
     }
     return s;
@@ -297,18 +299,17 @@ void TrashProblem::nearestNeighbor() {
     clearFleet();
 
     for (int i=0; i<depots.size(); i++) {
-        Vehicle truck;
 
         // add this depot as the vehicles home location
+        // and the associated dump
         Trashnode& depot(datanodes[depots[i]]);
-        truck.setdepot(depot);
-        // add the closest dump for now, this might change later
-        truck.setdumpsite(datanodes[depot.getdumpnid()]);
+        Trashnode& dump(datanodes[depot.getdumpnid()]);
+
+        // create a vehicle and attach the depot and dump to it
+        Vehicle truck(depot, dump);
 
         // remember the last node we inserted
         Trashnode last_node = depot;
-
-//        truck.evaluate();
 
         while (truck.getcurcapacity() <= truck.getmaxcapacity()) {
 
@@ -322,7 +323,6 @@ void TrashProblem::nearestNeighbor() {
             // add node to route
             unassigned[nnid] = 0;
             truck.push_back(datanodes[nnid]);
-//            truck.evaluate();
             last_node = datanodes[nnid];
         }
         std::cout << "nearestNeighbor: depot: " << i << std::endl;
@@ -344,8 +344,11 @@ void TrashProblem::dumbConstruction() {
     clearFleet();
 
     Trashnode& depot(datanodes[depots[0]]);
-    Vehicle truck(depot);
-    truck.setdumpsite(datanodes[depot.getdumpnid()]);
+    int dnid = depot.getdumpnid();
+    Trashnode& dump(datanodes[dnid]);
+
+    Vehicle truck(depot, dump);
+    //truck.setdumpsite(datanodes[depot.getdumpnid()]);
 
     for (int i=0; i<pickups.size(); i++) {
         truck.push_back(datanodes[pickups[i]]);
@@ -372,14 +375,15 @@ void TrashProblem::assignmentSweep() {
     clearFleet();
 
     for (int i=0; i<depots.size(); i++) {
-        Vehicle truck;
 
         // add this depot as the vehicles home location
+        // and the associated dump
         Trashnode& depot(datanodes[depots[i]]);
-        truck.setdepot(depot);
-        // add the closest dump for now, this might change later
-        truck.setdumpsite(datanodes[depot.getdumpnid()]);
-//        truck.evaluate();
+        Trashnode& dump(datanodes[depot.getdumpnid()]);
+
+        // create a vehicle and attach the depot and dump to it
+        Vehicle truck(depot, dump);
+        std::cout << "EMPTY TRUCK: "; truck.dump();
 
         int pos;
         int nid = findNearestNodeTo(truck, UNASSIGNED|PICKUP|CLUSTER1, 0, &pos);
@@ -397,8 +401,8 @@ void TrashProblem::assignmentSweep() {
 //        plot(str, str, truck.getpath());
         while (truck.getcurcapacity() <= truck.getmaxcapacity()) {
 
-            //std::cout << "assignmentSweep[" << i << ',' << cnt << "] ";
-            //truck.dumppath();
+            std::cout << "assignmentSweep[" << i << ',' << cnt << "] ";
+            truck.dumppath();
 
             int nnid = findNearestNodeTo(truck,
                             UNASSIGNED|PICKUP|CLUSTER1|CLUSTER2|LIMITDEMAND,
@@ -417,15 +421,11 @@ void TrashProblem::assignmentSweep() {
             else 
                 truck.insert(datanodes[nnid], pos);
 
-//            truck.evaluate();
-
             cnt++;
 //            sprintf(buffer, "out/p%02d-%03d.png", i, cnt);
 //            std::string str(buffer);
 //            plot(str, str, truck.getpath());
         }
-//        std::cout << "assignmentSweep: depot: " << i << std::endl;
-//        truck.dumppath();
 
         fleet.push_back(truck);
     }
@@ -533,10 +533,11 @@ void TrashProblem::dump() {
 }
 
 
-void TrashProblem::plot( std::string file, std::string title, std::deque<int> highlight ) {
+void TrashProblem::plot( std::string file, std::string title, std::string font, std::deque<int> highlight ) {
     Plot1<Trashnode> plot( datanodes );
     plot.setFile( file );
     plot.setTitle( title );
+    plot.setFont( font );
     plot.drawInit();
 
     plot.drawPath(highlight, 0xffff00, 3, false);
@@ -552,10 +553,11 @@ void TrashProblem::plot( std::string file, std::string title, std::deque<int> hi
 }
 
 
-void TrashProblem::plot( std::string file, std::string title ) {
+void TrashProblem::plot( std::string file, std::string title, std::string font ) {
     Plot1<Trashnode> plot( datanodes );
     plot.setFile( file );
     plot.setTitle( title );
+    plot.setFont( font );
     plot.drawInit();
     for (int i=0; i<fleet.size(); i++) {
         plot.drawPath(fleet[i].getpath(), plot.makeColor(i), 1, false);

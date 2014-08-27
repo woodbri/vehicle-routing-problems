@@ -11,9 +11,6 @@
 #include "twpath.h"
 #include "plot1.h"
 
-static const char *font = (char *)"/usr/share/fonts/truetype/msttcorefonts/Verdana.ttf";
-
-
 template <class knode> class Plot1 {
 private:
 
@@ -29,6 +26,7 @@ private:
     double cy;
     double scale;
     gdImagePtr im;
+    std::string font;
 
 public:
     void calcExtents(const Twpath<knode>& pnts) {
@@ -67,8 +65,11 @@ public:
         height = 800;
         calcExtents(_pts);
         im = NULL;
+        // set the default to Vicky's font location :)
+        font = "/usr/share/fonts/truetype/msttcorefonts/Verdana.ttf";
     }
 
+    void setFont(std::string _font) { font = _font; };
 
     void setPoints(const std::deque<knode> &_pts) {
         pts = _pts;
@@ -186,7 +187,7 @@ public:
             if (label) {
                 char str[80];
                 sprintf(str, "%d", a.getnid());
-                gdImageStringFT(im, NULL, 0x00000000, (char *)font, 6, 0,
+                gdImageStringFT(im, NULL, 0x00000000, (char*) font.c_str(), 6, 0,
                                 scalex(a.getx()), scaley(a.gety())-5, str);
             }
         }
@@ -209,7 +210,7 @@ public:
             if (label) {
                 char str[80];
                 sprintf(str, "%d", a.getnid());
-                gdImageStringFT(im, NULL, 0x00000000, (char *)font, 6, 0,
+                gdImageStringFT(im, NULL, 0x00000000, (char *)font.c_str(), 6, 0,
                                 scalex(a.getx()), scaley(a.gety())-5, str);
             }
         }
@@ -240,7 +241,7 @@ public:
         }
 
         // draw the title
-        gdImageStringFT(im, NULL, 0x00000000, (char *)font, 8, 0, 5, 20, (char *)(title.c_str()));
+        gdImageStringFT(im, NULL, 0x00000000, (char*) font.c_str(), 8, 0, 5, 20, (char *)(title.c_str()));
 
         // save the image and clean up
         gdImagePng(im, fp);
@@ -266,7 +267,7 @@ public:
         if (label) {
             char str[80];
             sprintf(str, "%d", a.getnid());
-            gdImageStringFT(im, NULL, 0x00000000, (char *)font, 6, 0,
+            gdImageStringFT(im, NULL, 0x00000000, (char *)font.c_str(), 6, 0,
                                 scalex(a.getx()), scaley(a.gety())-5, str);
         }
     }
