@@ -99,7 +99,7 @@ void Vehicle::evaluate() {
 void Vehicle::dump() {
     std::cout << "---------- Vehicle ---------------" << std::endl;
     std::cout << "maxcapacity: " << getmaxcapacity() << std::endl;
-    std::cout << "curcapacity: " << getcurcapacity() << std::endl;
+    std::cout << "cargo: " << getcargo() << std::endl;
     std::cout << "duration: " << getduration() << std::endl;
     std::cout << "cost: " << getcost() << std::endl;
     std::cout << "TWV: " << getTWV() << std::endl;
