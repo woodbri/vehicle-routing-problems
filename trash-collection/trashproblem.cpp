@@ -311,11 +311,11 @@ void TrashProblem::nearestNeighbor() {
         // remember the last node we inserted
         Trashnode last_node = depot;
 
-        while (truck.getcurcapacity() <= truck.getmaxcapacity()) {
+        while (truck.getcargo() <= truck.getmaxcapacity()) {
 
             int nnid = findNearestNodeTo(last_node.getnid(),
                             UNASSIGNED|PICKUP|LIMITDEMAND,
-                            truck.getmaxcapacity() - truck.getcurcapacity());
+                            truck.getmaxcapacity() - truck.getcargo());
 
             // if we did not find a node we can break
             if (nnid == -1) break;
@@ -399,14 +399,14 @@ void TrashProblem::assignmentSweep() {
 //        sprintf(buffer, "out/p%02d-%03d.png", i, cnt);
 //        std::string str(buffer);
 //        plot(str, str, truck.getpath());
-        while (truck.getcurcapacity() <= truck.getmaxcapacity()) {
+        while (truck.getcargo() <= truck.getmaxcapacity()) {
 
             std::cout << "assignmentSweep[" << i << ',' << cnt << "] ";
             truck.dumppath();
 
             int nnid = findNearestNodeTo(truck,
                             UNASSIGNED|PICKUP|CLUSTER1|CLUSTER2|LIMITDEMAND,
-                            truck.getmaxcapacity() - truck.getcurcapacity(),
+                            truck.getmaxcapacity() - truck.getcargo(),
                             &pos);
 
             // if we did not find a node we can break

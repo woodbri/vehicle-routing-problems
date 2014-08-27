@@ -6,9 +6,6 @@
 #include "twpath.h"
 #include "trashnode.h"
 
-// TODO: change curcapacity to curload
-//       add getcurload() and change getcurcapacity(0 to return
-//       getmaxcapacity()-curload
 
 class Vehicle {
   private:
@@ -17,7 +14,6 @@ class Vehicle {
     Trashnode dumpsite;
 
     int maxcapacity;
-    int curcapacity;    // current USED capacity of the vehicle
     double cost;        // cost of the route
 
     double w1;          // weight for duration in cost
@@ -30,7 +26,6 @@ class Vehicle {
 
     Vehicle() {
         maxcapacity = 0;
-        curcapacity = 0;
         cost        = 0;
         w1 = w2 = w3 = 1.0;
     };
@@ -42,7 +37,6 @@ class Vehicle {
         backToDepot  = _depot;
         dumpsite = _dump;
         push_back( _depot );
-        curcapacity  = 0;
         cost         = 0;
         w1 = w2 = w3 = 1.0;
     }
@@ -53,7 +47,7 @@ class Vehicle {
     int getmaxcapacity() const { return maxcapacity; };
     int getTWV() const { return backToDepot.gettwvTot(); };
     int getCV() const { return backToDepot.getcvTot(); };
-    int getcurcapacity() const { return curcapacity; };
+    int getcargo() const { return path.back().getcargo(); };
     double getduration() const { return backToDepot.gettotDist(); };
     double getcost() const { return cost; };
     double getw1() const { return w1; };
