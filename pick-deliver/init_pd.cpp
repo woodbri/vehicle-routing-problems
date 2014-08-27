@@ -3,6 +3,81 @@
 #include "vehicle.h"
 #include "init_pd.h"
 
+/* prerequisites 
+ nodes sorted is based on amount of twc
+ orders were made based on TWC 
+
+*/
+void Init_pd::seqConst() {
+std::cout << "Enter Problem::seqConstruction\n";
+    fleet.clear();
+    Vehicle truck(depot,Q);
+    Order order;
+    std::deque<Order> unOrders;   //orders not being used
+    std::deque<Order> waitOrders; //orders didnt fit in current route
+    unOrders=ordersList;          //all orders arent in a route
+    while (!unOrders.empty()) {   
+       truck.clean();                           //create a new truck for a route
+       //findrSeed(unOrders)   			//we are free to find an appropiate seed for the route
+       while (!unOrders.empty()) {  
+          /* asumption 0 n1 n2  are in the route
+              que estan restringidos ya que se esogió como semilla aquel cuya cant de TWCn2 es la mayor
+              por lo que de la cubeta de ordenes necesito buscar para cada orden(i) the tiene pick y deliver
+                como pick esta restringida por deliver aka pick va antes que deliver, tengo que ver primero
+		por deliver.
+		para el deliver de la orden i
+		recorro la ruta: 
+			 0 	n1 	n2   	deli 	compatibleIAJ (n2, deli)     = no     // puede ir despues de n2??? (no creo)
+			 0 	n1 	deli 	n2 	compatibleIAJ (n1, deli, n2) = si     //aka puede ir despues de n1 y antes de n2???
+							compatibleIJ  (0, deli)      = si
+                ahi se queda
+
+		lo mismo se hace para pick pero del 1 al ultimo en la ruta
+			 0 	pick	n1 	deli	n2   	compatibleIAJ (0, pick, n1)     = si  (a fuerzas ya que si no no se podria insertar la orden
+								compatibleIJ (pick, deli)       = si  (a fuerza porque es su pick)
+								compatibleIJ (pick, n2)         = si  ahi se queda
+
+		cuando  compatibleIJ (pick, n2)  como no hay manera de que pick vaya antes que un nodo que esta a su derecha y n2 esta a su derecha esa orden
+		no es posible insertarla y ademas en este ejemplo deli esta antes que n2, entonces no hay manera de insertar esta orden dentro de la ruta.
+
+
+		tambien podria ser que empieze tratando de ver si wdeliver puede entrar en esa ruta
+
+		sea la ruta:   0 n1 n2 n3 ...na p nb .....  nz      
+                para los nodos 0....na  compatibleIJ( ni , p) donde ni va del nodo 0 al na
+                para los nodos nb....nz  compatibleIJ(p , nj)   donde nj va del nodo nb al nodo nz
+
+                lo mismo para deliver
+		sea la ruta:   0 n1 n2 n3 ...na d nb .....  nz      
+                para los nodos 0....na  compatibleIJ( ni , d) donde ni va del nodo 0 al na
+                para los nodos nb....nz  compatibleIJ(d , nj)   donde nj va del nodo nb al nodo nz
+		
+		con un NO y solo con un NO, entonces en esa posicion no se puede
+
+			 0 	n1 	pick	n2   	deli   	aka compatibleIJ (n2, deli)     = si
+			 0 	n1 	n2   	pick	deli   	aka compatibleIJ (n2, deli)     = si
+			 0 	n1 	n2      deli	pick   	aka compatibleIJ (n2, deli)     = si
+		por ejemplo en la primera linea
+													  "cuando no causa problemas" comparo con la mejor ruta hasta el momento para esa orden
+													  y si es mejor entonces la guardo  como la mejor ruta
+	  */
+          order=unOrders.front();
+          unOrders.pop_front();
+          truck.pushOrder(order);
+          truck.hillClimbOpt();
+          if (!truck.feasable()) {
+                truck.removeOrder(order.getoid());
+                waitOrders.push_back(order);
+          }
+       }
+       fleet.push_back(truck);
+       unOrders=waitOrders;
+       waitOrders.clear();
+     }
+}
+
+
+
 
 
 void Init_pd::dumbConstruction() {
@@ -65,6 +140,7 @@ std::cout << "Enter Problem::sequentialConstruction\n";
     fleet.clear();
     Vehicle truck(depot,Q);
     Order order;
+    Order lastOrder;
     std::deque<Order> unOrders;
     std::deque<Order> waitOrders;
     unOrders=ordersList;
@@ -73,11 +149,14 @@ std::cout << "Enter Problem::sequentialConstruction\n";
        while (!unOrders.empty()) {
           order=unOrders.front();
           unOrders.pop_front();
-          truck.pushOrder(order);
+          truck.insertPickup(order,1);
+          truck.pushDelivery(order);
           truck.hillClimbOpt();     
           if (!truck.feasable()) {
                 truck.removeOrder(order.getoid());
                 waitOrders.push_back(order);
+          } else {
+                lastOrder=order;
           }
        }
        fleet.push_back(truck);

@@ -118,15 +118,20 @@ double Prob_pd::ajei(const Dpnode &ni, const Dpnode &nj) {
 
 double Prob_pd::twc_for_ij(const Dpnode &ni, const Dpnode &nj) {
     double result;
-//std::cout<<" lj="<<nj.closes()<<"\t ajei= "<<ajei(ni,nj);
-//std::cout<<" min ("<<ajli(ni,nj)<<","<<nj.closes()<<")\t max("<<ajei(ni,nj)<<","<<nj.opens()<<")";
+//std::cout<<" Quiero llegar a J="<<nj.getnid()<<" que abre a las:"<<nj.opens()<<" y cierra a las:"<<nj.closes()<<
+//"\n \tDesde:"<<ni.getnid()<<" Si llego a "<<ni.getnid()<<" a la hora que abre, entonces a "<<nj.getnid()<<" llego a las= "<<ajei(ni,nj),"\n";
+    if ( ( nj.closes() -ajei(ni,nj) ) > 0 ) {
+//std::cout<<"\n \tDesde:"<<ni.getnid()<<" Si llego a "<<ni.getnid()<<" a la hora que cierra, entonces a "<<nj.getnid()<<" llego a las= "<<ajli(ni,nj),"\n";
+//std::cout<<"\n \t \t min ("<<ajli(ni,nj)<<","<<nj.closes()<<")\t max("<<ajei(ni,nj)<<","<<nj.opens()<<")";
 //std::cout<<"\t = "<< std::min (ajli(ni,nj),nj.closes())<<"\t "<<std::max(ajei(ni,nj),nj.opens())<<"";
 //std::cout<<"\t = "<< std::min (ajli(ni,nj),nj.closes())-std::max(ajei(ni,nj),nj.opens())<<"";
-    if ( ( nj.closes() -ajei(ni,nj) ) > 0 )
         result = std::min ( ajli(ni,nj) , nj.closes() )
                   - std::max ( ajei(ni,nj) , nj.opens()  ) ;
-    else
+        
+    } else {
+//std::cout<<"\t Es imposible llegar a J desde I ya que por mas temprano que salga de I no hay posibilidad de que llegue a tiempo \n";
         result= -std::numeric_limits<double>::max();
+    }
 //std::cout<<"\t = "<< result<<"\n";
     return result;
 }
@@ -134,17 +139,17 @@ double Prob_pd::twc_for_ij(const Dpnode &ni, const Dpnode &nj) {
 
 
 void Prob_pd::twcij_calculate(){
-    twcij.resize(datanodes.size());
-    for (int i=0;i<datanodes.size();i++)
-        twcij[i].resize(datanodes.size());
-    for (int i=0;i<datanodes.size();i++){
-        for (int j=i; j<datanodes.size();j++) {
-//std::cout<<"\nworking with ("<<i<<","<<j<<")\n";
+    twcij.resize(originalnodes.size());
+    for (int i=0;i<originalnodes.size();i++)
+        twcij[i].resize(originalnodes.size());
+    for (int i=0;i<originalnodes.size();i++){
+        for (int j=i; j<originalnodes.size();j++) {
+//std::cout<<"\nworking with ("<<datanodes[i].getnid()<<","<<datanodes[j].getnid()<<")\n";
            //if (i==j) {
            //   twcij[i][j]= -std::numeric_limits<double>::max();  //mismo nodo
            //} else  {
-              twcij[i][j]= twc_for_ij(datanodes[i],datanodes[j]);
-              twcij[j][i]= twc_for_ij(datanodes[j],datanodes[i]);
+              twcij[i][j]= twc_for_ij(originalnodes[i],originalnodes[j]);
+              twcij[j][i]= twc_for_ij(originalnodes[j],originalnodes[i]);
               /*if  (datanodes[i].getoid()==datanodes[j].getoid()){  // misma orden
                  if (datanodes[i].isdelivery())
                     twcij[i][j]= -std::numeric_limits<double>::max();
@@ -157,27 +162,53 @@ void Prob_pd::twcij_calculate(){
     twcTot_calculate();
 }
 
+bool Prob_pd::compatibleIJ(int i, int j){
+    return not (twcij[i][j]  == -std::numeric_limits<double>::max());
+}
+
+bool Prob_pd::compatibleIAJ(int i, int a, int j){
+    return compatibleIJ(i,a) and compatibleIJ(a,j);
+}
+
+
+void Prob_pd::dumpCompatible() {
+    for (int i=0;i<originalnodes.size();i++) {
+      for (int j=0;j<originalnodes.size();j++) {
+        for (int k=0;k<originalnodes.size();k++) {
+          std::cout<<"\t ( "<<originalnodes[i].getnid()<<" , "<<originalnodes[j].getnid()<<" , "<<originalnodes[k].getnid()<<") = "<<(compatibleIAJ(i,j,k)? "COMPATIBLE": "not compatible");
+        }
+        std::cout<<"\n";
+      }
+    }
+}
+
+
+
+
+
+
+
 
 void Prob_pd::twcTot_calculate(){
-    twcTot.resize(datanodes.size());
-    for (int i=0;i<datanodes.size();i++){
+    twcTot.resize(originalnodes.size());
+    for (int i=0;i<originalnodes.size();i++){
         twcTot[i]=0;
-        for (int j=0; j<datanodes.size();j++)
+        for (int j=0; j<originalnodes.size();j++)
             if (twcij[i][j]<0) twcTot[i]++;
-std::cout<<"\n TwcTot for node "<< datanodes[i].getnid()<<":"<<twcTot[i];
+std::cout<<"\n TwcTot for node "<< originalnodes[i].getnid()<<":"<<twcTot[i];
      }
 }
 
 
 void Prob_pd::twcijDump() const  {
     std::cout<<"\n\t";
-    for (int i=0;i<datanodes.size();i++)
-        std::cout<<datanodes[i].getnid()<<"\t";
+    for (int i=0;i<originalnodes.size();i++)
+        std::cout<<originalnodes[i].getnid()<<"\t";
     std::cout<<"\n";
-    for (int i=0;i<datanodes.size();i++){
-        std::cout<<datanodes[i].getnid()<<"\t";
-        for (int j=0; j<datanodes.size();j++) {
-           if (twcij[i][j] > 0) std::cout<<twcij[i][j]<<"\t";
+    for (int i=0;i<originalnodes.size();i++){
+        std::cout<<originalnodes[i].getnid()<<"\t";
+        for (int j=0; j<originalnodes.size();j++) {
+           if (twcij[i][j] !=  -std::numeric_limits<double>::max()) std::cout<<twcij[i][j]<<"\t";
            else std::cout<<"--\t";
         }
         std::cout<<"\n";
@@ -205,6 +236,7 @@ void Prob_pd::loadProblem(char *infile)
     // read the nodes
     while ( getline(in, line) ) {
         Dpnode node(line);  //create node from line on file
+        originalnodes.push_back(node);
         datanodes.push_back(node);
         if (node.isdepot()) {
             depot=node;
@@ -212,15 +244,16 @@ void Prob_pd::loadProblem(char *infile)
         }
     }
     in.close();
-    makeOrders();
+
 
     twcij_calculate();
-twcijDump();
     sortNodeByTWC();
-    twcij_calculate();
-twcijDump();
-
     makeOrders();
+twcijDump();
+dumpCompatible();
+//    twcij_calculate();
+//twcijDump();
+
 }
 
 /* sorts */

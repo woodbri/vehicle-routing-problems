@@ -19,6 +19,7 @@ class Prob_pd {
     double w1,w2,w3;
 
     Twpath<Dpnode> datanodes;
+    Twpath<Dpnode> originalnodes;
     std::deque<Order> ordersList;   // vector of orders
     std::deque<std::deque<double> > twcij;
     std::deque<double>  twcTot;
@@ -65,6 +66,10 @@ class Prob_pd {
     double ajei(const Dpnode &ni, const Dpnode &nj);
     double twc_for_ij(const Dpnode &ni, const Dpnode &nj);
     double compat(int i,int j) const ;
+    bool compatibleIJ(int i, int j);
+    bool compatibleIAJ(int i, int a, int j);
+    void dumpCompatible() ;
+
 
     void twcijDump() const;
 

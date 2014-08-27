@@ -1,7 +1,7 @@
 
 CPP = g++
 UTIL = ../baseClasses
-CPPFLAGS = -g -O0 -MMD -MP  -I$(UTIL)
+CPPFLAGS = -g -O0 -MMD  -MP  -I$(UTIL)
 LDFLAGS = -lgd -I$(UTIL) -L$(UTIL)
 
 
