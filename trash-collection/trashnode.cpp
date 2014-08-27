@@ -37,6 +37,12 @@ void Trashnode::dump() const {
               << ", " << tw_close
               << ", " << service
               << ", " << ntype
+              << ", " << depotnid
+              << ", " << depotdist
+              << ", " << depotnid2
+              << ", " << depotdist2
+              << ", " << dumpnid
+              << ", " << dumpdist
               << std::endl;
 }
 
