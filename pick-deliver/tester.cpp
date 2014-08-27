@@ -39,7 +39,6 @@ int main (int argc, char **argv)
         std::cout << "\n\n\n**SOLUTION: Initial feasable Construction\n";
         Init_pd S5(P);  S5.setweights(1,1,1); 
         S5.initialFeasableSolution();  S5.dump(); S5.tau(); S5.plot("initialFeasableSolution","Initial Feasable Solution");
-
 */
         std::cout << "\n\n\n**SOLUTION: Secuential Construction\n";
         Init_pd S4(P);  S4.setweights(1,1,1); 

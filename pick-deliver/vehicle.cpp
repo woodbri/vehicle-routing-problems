@@ -120,11 +120,15 @@ int Vehicle::findForwardImprovment(const int i,double &bestcost) {
 
 bool Vehicle::findImprovment(int i) {
            double oldcost= getcost();
+           bool oldfeasable= feasable();
            bool improved=false;
-           if (isdepot(i)) return false;
+           if (isdepot(i)) return false; //should never arrive here if order is inserted
            for (int j=i+1; j<path.size() and !(ispickup(i) and isdelivery(j) and sameorder(i,j)); j++) {
-                   swapstops(i,j);
-                   if (getcost()<oldcost)  return true;
+               swapstops(i,j);
+std::cout<<"\n testing  and is "<<(feasable()? "FEASABLE":"unfeasable")<<"---\t";
+tau();
+               if (feasable() and not oldfeasable)    return true;
+               if (getcost()<oldcost and feasable())  return true;
                    else  swap(i,j);
            }
            return false;
@@ -132,13 +136,22 @@ bool Vehicle::findImprovment(int i) {
 
 
 void Vehicle::hillClimbOpt() {
-           double original=getcost();
-           int i=0;
+           int i=1;
+           double bestCost=getcost();
+std::cout<<"\nentering hill, initialy is "<<(feasable()? "FEASABLE":"unfeasable")<<"---\t";
+tau();
            while (i<path.size()-1) {
-              if (!findImprovment(i)) i++;
-              else 
+              if (!findImprovment(i)) {
+                 i++;
+              }
+              else { 
+std::cout<<"\nimprovement found is "<<(feasable()? "FEASABLE":"unfeasable")<<"---\t";
+tau();
                  i=0;
+              }
            }
+std::cout<<"\n\texiting hill, final is "<<(feasable()? "FEASABLE":"unfeasable")<<"---\t";
+tau();
 }
 
 
@@ -321,6 +334,7 @@ void Vehicle::plot(std::string file,std::string title,int carnumber){
 
    void Vehicle::evaluate() {
      path.evaluate(maxcapacity);
+     evalLast();
    };
 
    void Vehicle::evaluate(int from) {
