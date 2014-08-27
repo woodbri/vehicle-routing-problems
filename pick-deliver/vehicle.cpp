@@ -337,15 +337,12 @@ void Vehicle::plot(std::string file,std::string title,int carnumber){
      evalLast();
    };
 
-   void Vehicle::evaluate(int from) {
+   void Vehicle::evalLast() {
       Dpnode last=path[path.size()-1];
       backToDepot.evaluate(last,maxcapacity);
       cost= w1*backToDepot.gettotDist()+ w2*backToDepot.getcvTot() + w3*backToDepot.gettwvTot();
    }
 
-   void Vehicle::evalLast() {
-       evaluate(path.size()-1);
-   }
 
 
 
