@@ -15,6 +15,7 @@ std::deque<int> Vehicle::getpath()  {
       return p;
 }
 
+
 void Vehicle::push_back(Trashnode node) {
     path.push_back(node, getmaxcapacity());
     evalLast();
@@ -24,21 +25,17 @@ void Vehicle::push_back(Trashnode node) {
 void Vehicle::push_front(Trashnode node) {
     // position 0 is the depot we can not put a node before that
     path.insert(node, 1, getmaxcapacity());
+    path.evaluate(1, getmaxcapacity());
     evalLast();
 }
-
 
 
 void Vehicle::insert(Trashnode node, int at) {
     path.insert(node, at, getmaxcapacity());
+    path.evaluate(at, getmaxcapacity());
     evalLast();
 }
 
-/*
-void Vehicle::evaluate() {
-    path.evaluate(getmaxcapacity());
-};
-*/
 
 void Vehicle::evalLast() {
     Trashnode last = path[path.size()-1];
@@ -50,14 +47,9 @@ void Vehicle::evalLast() {
            w3*backToDepot.gettwvTot();
 }
 
-/*
-void Vehicle::evaluate(int from) {
-    evaluate(path.size()-1);
-}
-*/
-
 
 /*
+// this is the old code before we started using Tweval
 void Vehicle::evaluate() {
     curcapacity = 0;
     duration = 0;
