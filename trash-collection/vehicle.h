@@ -103,8 +103,8 @@ class Vehicle {
         w3 = _w3;
     };
 
-    void evaluate();
-    void evaluate(int from);
+    //void evaluate();
+    //void evaluate(int from);
     void evalLast();
 
 };

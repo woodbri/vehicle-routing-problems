@@ -383,6 +383,7 @@ void TrashProblem::assignmentSweep() {
 
         // create a vehicle and attach the depot and dump to it
         Vehicle truck(depot, dump);
+        std::cout << "EMPTY TRUCK: "; truck.dump();
 
         int pos;
         int nid = findNearestNodeTo(truck, UNASSIGNED|PICKUP|CLUSTER1, 0, &pos);
@@ -400,8 +401,8 @@ void TrashProblem::assignmentSweep() {
 //        plot(str, str, truck.getpath());
         while (truck.getcurcapacity() <= truck.getmaxcapacity()) {
 
-            //std::cout << "assignmentSweep[" << i << ',' << cnt << "] ";
-            //truck.dumppath();
+            std::cout << "assignmentSweep[" << i << ',' << cnt << "] ";
+            truck.dumppath();
 
             int nnid = findNearestNodeTo(truck,
                             UNASSIGNED|PICKUP|CLUSTER1|CLUSTER2|LIMITDEMAND,
@@ -425,8 +426,6 @@ void TrashProblem::assignmentSweep() {
 //            std::string str(buffer);
 //            plot(str, str, truck.getpath());
         }
-//        std::cout << "assignmentSweep: depot: " << i << std::endl;
-//        truck.dumppath();
 
         fleet.push_back(truck);
     }

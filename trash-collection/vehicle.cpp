@@ -34,13 +34,13 @@ void Vehicle::insert(Trashnode node, int at) {
     evalLast();
 }
 
-
+/*
 void Vehicle::evaluate() {
     path.evaluate(getmaxcapacity());
 };
+*/
 
-
-void Vehicle::evaluate(int from) {
+void Vehicle::evalLast() {
     Trashnode last = path[path.size()-1];
     dumpsite.setdemand(-last.getcargo());
     dumpsite.evaluate(last, getmaxcapacity());
@@ -50,11 +50,11 @@ void Vehicle::evaluate(int from) {
            w3*backToDepot.gettwvTot();
 }
 
-
-void Vehicle::evalLast() {
+/*
+void Vehicle::evaluate(int from) {
     evaluate(path.size()-1);
 }
-
+*/
 
 
 /*
