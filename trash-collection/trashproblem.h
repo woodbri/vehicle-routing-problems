@@ -75,6 +75,7 @@ class TrashProblem {
     void nearestInsertion();
     void farthestInsertion();
     void assignmentSweep();
+    void assignmentSweep2();
 
     // optimization routines
     void opt_2opt();

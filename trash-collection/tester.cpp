@@ -165,12 +165,17 @@ int main(int argc, char **argv) {
 
         //tp.loadproblem( infile );
         //tp.dump();
-*/
 
         std::cout << "\n----------- assignmentSweep -----------------------\n";
         tp.assignmentSweep();
         tp.dump();
         tp.plot("p2.png", "assignmentSweep", font);
+*/
+
+        std::cout << "\n----------- assignmentSweep2 -----------------------\n";
+        tp.assignmentSweep2();
+        tp.dump();
+        tp.plot("p3.png", "assignmentSweep2", font);
 
     }
     catch (const std::exception &e) {
