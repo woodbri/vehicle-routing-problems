@@ -26,7 +26,8 @@
 .*.swp
 
 # png images
-*.png
+trash-collection/*.png
+pick-deliver/*.png
 
 tester
 collection
