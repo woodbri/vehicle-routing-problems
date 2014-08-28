@@ -18,11 +18,11 @@ The Figures 1-9 were taken from the paper "Vehicle Routing Problem with Time Win
 
 ![Figure 4 - 2-Opt* Exchange](https://raw.githubusercontent.com/woodbri/vehicle-routing-problems/develop/doc/images/2-opt-star-exchange.png "Figure 4 - 2-Opt* Exchange")
 
-![Figure 5 - Relocate Exchange](https://raw.githubusercontent.com/woodbri/vehicle-routing-problems/develop/doc/images/relocate-exchange.png "Figure 5 - Relocate Exchange")
+![Figure 5 - Relocate Opt](https://raw.githubusercontent.com/woodbri/vehicle-routing-problems/develop/doc/images/relocate-opt.png "Figure 5 - Relocate Opt")
 
 ![Figure 6 - Exchange Opt](https://raw.githubusercontent.com/woodbri/vehicle-routing-problems/develop/doc/images/exchange-opt.png "Figure 6 - Exchange Opt")
 
-![Figure 7 - Cross Exchange](https://raw.githubusercontent.com/woodbri/vehicle-routing-problems/develop/doc/images/cross-exchange.png "Figure 7 - Cross Exchange")
+![Figure 7 - Cross Exchangei Opt](https://raw.githubusercontent.com/woodbri/vehicle-routing-problems/develop/doc/images/cross-exchange-opt.png "Figure 7 - Cross Exchange Opt")
 
 ![Figure 8 - GENI Exchange Opt](https://raw.githubusercontent.com/woodbri/vehicle-routing-problems/develop/doc/images/geni-exchange-opt.png "Figure 8 - GENI Exchange Opt")
 
