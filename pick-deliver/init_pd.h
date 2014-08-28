@@ -37,7 +37,7 @@ class Init_pd: public Prob_pd {
 
 
 /* Diferent initial Constructions */
-void seqConst();
+    void seqConst();
     void insertByOrderSolution();
     void dumbConstruction();
     void dumbConstructionAndBestMoveForward();

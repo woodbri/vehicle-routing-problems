@@ -59,8 +59,8 @@ class TrashProblem {
     void dumpPickups() const;
     void dump();                            /// const
 
-    void plot( std::string file, std::string title );
-    void plot( std::string file, std::string title, std::deque<int> highlight );
+    void plot( std::string file, std::string title, std::string font );
+    void plot( std::string file, std::string title, std::string font, std::deque<int> highlight );
 
     // mutators
     void loadproblem(std::string& file);
@@ -75,6 +75,7 @@ class TrashProblem {
     void nearestInsertion();
     void farthestInsertion();
     void assignmentSweep();
+    void assignmentSweep2();
 
     // optimization routines
     void opt_2opt();

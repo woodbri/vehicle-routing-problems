@@ -174,14 +174,12 @@ bool TrashProblem::filterNode(const Trashnode &tn, int i, int selector, int dema
 
         select = true;
         // belongs to cluster1
-        if (selector & CLUSTER1 and (
-                 tn.getdepotnid() == datanodes[i].getdepotnid() or
-                 tn.getdepotnid() == datanodes[i].getdepotnid2() ) )
+        if (selector & CLUSTER1 and
+                 tn.getdepotnid() == datanodes[i].getdepotnid() )
                 select = false;
         // belongs to cluster2
-        else if (selector & CLUSTER2 and (
-                 tn.getdepotnid2() == datanodes[i].getdepotnid() or
-                 tn.getdepotnid2() == datanodes[i].getdepotnid2() ) )
+        else if (selector & CLUSTER2 and 
+                 tn.getdepotnid() == datanodes[i].getdepotnid2() )
                 select = false;
 
         if (select and ((CLUSTER1|CLUSTER2) & selector))
@@ -284,6 +282,8 @@ std::vector<int>  TrashProblem::solutionAsVector() {
         for (int j=0; j<fleet[i].size(); j++) {
             s.push_back(fleet[i][j].getnid());
         }
+        s.push_back(fleet[i].getdumpsite().getnid());
+        s.push_back(fleet[i].getdepot().getnid());
         s.push_back(-1);
     }
     return s;
@@ -297,24 +297,23 @@ void TrashProblem::nearestNeighbor() {
     clearFleet();
 
     for (int i=0; i<depots.size(); i++) {
-        Vehicle truck;
 
         // add this depot as the vehicles home location
+        // and the associated dump
         Trashnode& depot(datanodes[depots[i]]);
-        truck.setdepot(depot);
-        // add the closest dump for now, this might change later
-        truck.setdumpsite(datanodes[depot.getdumpnid()]);
+        Trashnode& dump(datanodes[depot.getdumpnid()]);
+
+        // create a vehicle and attach the depot and dump to it
+        Vehicle truck(depot, dump);
 
         // remember the last node we inserted
         Trashnode last_node = depot;
 
-//        truck.evaluate();
-
-        while (truck.getcurcapacity() <= truck.getmaxcapacity()) {
+        while (truck.getcargo() <= truck.getmaxcapacity()) {
 
             int nnid = findNearestNodeTo(last_node.getnid(),
                             UNASSIGNED|PICKUP|LIMITDEMAND,
-                            truck.getmaxcapacity() - truck.getcurcapacity());
+                            truck.getmaxcapacity() - truck.getcargo());
 
             // if we did not find a node we can break
             if (nnid == -1) break;
@@ -322,7 +321,6 @@ void TrashProblem::nearestNeighbor() {
             // add node to route
             unassigned[nnid] = 0;
             truck.push_back(datanodes[nnid]);
-//            truck.evaluate();
             last_node = datanodes[nnid];
         }
         std::cout << "nearestNeighbor: depot: " << i << std::endl;
@@ -344,8 +342,11 @@ void TrashProblem::dumbConstruction() {
     clearFleet();
 
     Trashnode& depot(datanodes[depots[0]]);
-    Vehicle truck(depot);
-    truck.setdumpsite(datanodes[depot.getdumpnid()]);
+    int dnid = depot.getdumpnid();
+    Trashnode& dump(datanodes[dnid]);
+
+    Vehicle truck(depot, dump);
+    //truck.setdumpsite(datanodes[depot.getdumpnid()]);
 
     for (int i=0; i<pickups.size(); i++) {
         truck.push_back(datanodes[pickups[i]]);
@@ -365,6 +366,16 @@ void TrashProblem::farthestInsertion() {
 }
 
 
+/*
+    TrashProblem::assignmentSweep
+
+    This implements Assignment Sweep construction algorithm with the
+    twist that I cluster first and identify the nearest depot (CLUSTER1)
+    and the second nearest depot (CLUSTER2) to all nodes. When nodes
+    are selected for insertions we pull from both CLUSTER1 and CLUSTER2
+    set of nodes. This might mean that the route can wander into CLUSTER2
+    territory to fill up a vehicle but it is a simple algorithm.
+*/
 void TrashProblem::assignmentSweep() {
     // create a list of all pickup nodes and make them unassigned
     unassigned = std::vector<int>(datanodes.size(), 1);
@@ -372,14 +383,15 @@ void TrashProblem::assignmentSweep() {
     clearFleet();
 
     for (int i=0; i<depots.size(); i++) {
-        Vehicle truck;
 
         // add this depot as the vehicles home location
+        // and the associated dump
         Trashnode& depot(datanodes[depots[i]]);
-        truck.setdepot(depot);
-        // add the closest dump for now, this might change later
-        truck.setdumpsite(datanodes[depot.getdumpnid()]);
-//        truck.evaluate();
+        Trashnode& dump(datanodes[depot.getdumpnid()]);
+
+        // create a vehicle and attach the depot and dump to it
+        Vehicle truck(depot, dump);
+        //std::cout << "EMPTY TRUCK: "; truck.dump();
 
         int pos;
         int nid = findNearestNodeTo(truck, UNASSIGNED|PICKUP|CLUSTER1, 0, &pos);
@@ -395,14 +407,14 @@ void TrashProblem::assignmentSweep() {
 //        sprintf(buffer, "out/p%02d-%03d.png", i, cnt);
 //        std::string str(buffer);
 //        plot(str, str, truck.getpath());
-        while (truck.getcurcapacity() <= truck.getmaxcapacity()) {
+        while (truck.getcargo() <= truck.getmaxcapacity()) {
 
-            //std::cout << "assignmentSweep[" << i << ',' << cnt << "] ";
-            //truck.dumppath();
+            std::cout << "assignmentSweep[" << i << ',' << cnt << "] ";
+            truck.dumppath();
 
             int nnid = findNearestNodeTo(truck,
                             UNASSIGNED|PICKUP|CLUSTER1|CLUSTER2|LIMITDEMAND,
-                            truck.getmaxcapacity() - truck.getcurcapacity(),
+                            truck.getmaxcapacity() - truck.getcargo(),
                             &pos);
 
             // if we did not find a node we can break
@@ -417,20 +429,185 @@ void TrashProblem::assignmentSweep() {
             else 
                 truck.insert(datanodes[nnid], pos);
 
-//            truck.evaluate();
+            cnt++;
+//            sprintf(buffer, "out/p%02d-%03d.png", i, cnt);
+//            std::string str(buffer);
+//            plot(str, str, truck.getpath());
+        }
+
+        fleet.push_back(truck);
+    }
+    // report unassigned nodes
+    std::cout << "-------- Unassigned after TrashProblem::assignmentSweep\n";
+    for (int i=0; i<pickups.size(); i++) {
+        if (unassigned[pickups[i]])
+            std::cout << "    " << pickups[i] << std::endl;
+    }
+}
+
+
+/*
+    TrashProblem::assignmentSweep2
+
+    This implements Assignment Sweep construction algorithm with the
+    twist that I cluster first and identify the nearest depot (CLUSTER1)
+    and the second nearest depot (CLUSTER2) to all nodes. The construction
+    algorithm folloes this pseudo code:
+    1. build routes based on only CLUSTER1 nodes
+    2. add unassigned nodes to vehicles with capacity based on CLUSTER2
+    3. add unassigned nodes to any vehicles with capacity
+*/
+void TrashProblem::assignmentSweep2() {
+    // create a list of all pickup nodes and make them unassigned
+    unassigned = std::vector<int>(datanodes.size(), 1);
+
+    clearFleet();
+
+    for (int i=0; i<depots.size(); i++) {
+
+        // add this depot as the vehicles home location
+        // and the associated dump
+        Trashnode& depot(datanodes[depots[i]]);
+        Trashnode& dump(datanodes[depot.getdumpnid()]);
+
+        // create a vehicle and attach the depot and dump to it
+        Vehicle truck(depot, dump);
+        //std::cout << "EMPTY TRUCK: "; truck.dump();
+
+        int pos;
+        int nid = findNearestNodeTo(truck, UNASSIGNED|PICKUP|CLUSTER1, 0, &pos);
+        if (nid == -1) {
+            std::cout << "TrashProblem::assignmentSweep2 failed to find an initial node for depot: " << depots[i] << std::endl;
+            continue;
+        }
+        truck.push_back(datanodes[nid]);
+        unassigned[nid] = 0;
+
+        int cnt = 1;
+//        char buffer[100];
+//        sprintf(buffer, "out/p%02d-%03d.png", i, cnt);
+//        std::string str(buffer);
+//        plot(str, str, truck.getpath());
+        while (truck.getcargo() <= truck.getmaxcapacity()) {
+
+            std::cout << "assignmentSweep2[" << i << ',' << cnt << "] ";
+            truck.dumppath();
+
+            int pos;
+            int nnid = findNearestNodeTo(truck,
+                            UNASSIGNED|PICKUP|CLUSTER1|LIMITDEMAND,
+                            truck.getmaxcapacity() - truck.getcargo(),
+                            &pos);
+
+            // if we did not find a node we can break
+            if (nnid == -1) break;
+
+            // add node to route
+            unassigned[nnid] = 0;
+            if (pos == 0)
+                truck.push_front(datanodes[nnid]);
+            else if (pos == truck.size())
+                truck.push_back(datanodes[nnid]);
+            else 
+                truck.insert(datanodes[nnid], pos);
 
             cnt++;
 //            sprintf(buffer, "out/p%02d-%03d.png", i, cnt);
 //            std::string str(buffer);
 //            plot(str, str, truck.getpath());
         }
-//        std::cout << "assignmentSweep: depot: " << i << std::endl;
-//        truck.dumppath();
 
         fleet.push_back(truck);
     }
+
+    // check for unassigned nodes
+    int ucnt = 0;
+    for (int i=0; i<pickups.size(); i++)
+        if (unassigned[pickups[i]]) ucnt++;
+    if (ucnt == 0) return; // return if nothing left to do
+
+    std::cout << ucnt << " unassigned orders after CLUSTER1 assignment" << std::endl;
+
+    // allow vehicles to add orders from CLUSTER2
+    for (int i=0; i<fleet.size(); i++) {
+        Vehicle& truck = fleet[i];
+        int cnt = 1;
+
+        while (truck.getcargo() <= truck.getmaxcapacity()) {
+
+            std::cout << "assignmentSweep2[" << i << ',' << cnt << "] ";
+            truck.dumppath();
+
+            int pos;
+            int nnid = findNearestNodeTo(truck,
+                            UNASSIGNED|PICKUP|CLUSTER2|LIMITDEMAND,
+                            truck.getmaxcapacity() - truck.getcargo(),
+                            &pos);
+
+            // if we did not find a node we can break
+            if (nnid == -1) break;
+
+            // add node to route
+            unassigned[nnid] = 0;
+            if (pos == 0)
+                truck.push_front(datanodes[nnid]);
+            else if (pos == truck.size())
+                truck.push_back(datanodes[nnid]);
+            else 
+                truck.insert(datanodes[nnid], pos);
+
+            cnt++;
+//            sprintf(buffer, "out/p%02d-%03d.png", i, cnt);
+//            std::string str(buffer);
+//            plot(str, str, truck.getpath());
+        }
+    }
+
+    // check for unassigned nodes
+    ucnt = 0;
+    for (int i=0; i<pickups.size(); i++)
+        if (unassigned[pickups[i]]) ucnt++;
+    if (ucnt == 0) return; // return if nothing left to do
+
+    std::cout << ucnt << " unassigned orders after CLUSTER2 assignment" << std::endl;
+
+    // allow vehicles to add any unassigned orders
+    for (int i=0; i<fleet.size(); i++) {
+        Vehicle& truck = fleet[i];
+        int cnt = 1;
+
+        while (truck.getcargo() <= truck.getmaxcapacity()) {
+
+            std::cout << "assignmentSweep2[" << i << ',' << cnt << "] ";
+            truck.dumppath();
+
+            int pos;
+            int nnid = findNearestNodeTo(truck,
+                            UNASSIGNED|PICKUP|LIMITDEMAND,
+                            truck.getmaxcapacity() - truck.getcargo(),
+                            &pos);
+
+            // if we did not find a node we can break
+            if (nnid == -1) break;
+
+            // add node to route
+            unassigned[nnid] = 0;
+            if (pos == 0)
+                truck.push_front(datanodes[nnid]);
+            else if (pos == truck.size())
+                truck.push_back(datanodes[nnid]);
+            else 
+                truck.insert(datanodes[nnid], pos);
+
+            cnt++;
+//            sprintf(buffer, "out/p%02d-%03d.png", i, cnt);
+//            std::string str(buffer);
+//            plot(str, str, truck.getpath());
+        }
+    }
+
     // report unassigned nodes
-    std::cout << "-------- Unassigned after TrashProblem::assignmentSweep\n";
+    std::cout << "-------- Unassigned after TrashProblem::assignmentSweep2\n";
     for (int i=0; i<pickups.size(); i++) {
         if (unassigned[pickups[i]])
             std::cout << "    " << pickups[i] << std::endl;
@@ -533,10 +710,11 @@ void TrashProblem::dump() {
 }
 
 
-void TrashProblem::plot( std::string file, std::string title, std::deque<int> highlight ) {
+void TrashProblem::plot( std::string file, std::string title, std::string font, std::deque<int> highlight ) {
     Plot1<Trashnode> plot( datanodes );
     plot.setFile( file );
     plot.setTitle( title );
+    plot.setFont( font );
     plot.drawInit();
 
     plot.drawPath(highlight, 0xffff00, 3, false);
@@ -552,10 +730,11 @@ void TrashProblem::plot( std::string file, std::string title, std::deque<int> hi
 }
 
 
-void TrashProblem::plot( std::string file, std::string title ) {
+void TrashProblem::plot( std::string file, std::string title, std::string font ) {
     Plot1<Trashnode> plot( datanodes );
     plot.setFile( file );
     plot.setTitle( title );
+    plot.setFont( font );
     plot.drawInit();
     for (int i=0; i<fleet.size(); i++) {
         plot.drawPath(fleet[i].getpath(), plot.makeColor(i), 1, false);

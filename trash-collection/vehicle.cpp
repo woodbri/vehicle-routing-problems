@@ -15,6 +15,7 @@ std::deque<int> Vehicle::getpath()  {
       return p;
 }
 
+
 void Vehicle::push_back(Trashnode node) {
     path.push_back(node, getmaxcapacity());
     evalLast();
@@ -24,23 +25,19 @@ void Vehicle::push_back(Trashnode node) {
 void Vehicle::push_front(Trashnode node) {
     // position 0 is the depot we can not put a node before that
     path.insert(node, 1, getmaxcapacity());
+    path.evaluate(1, getmaxcapacity());
     evalLast();
 }
-
 
 
 void Vehicle::insert(Trashnode node, int at) {
     path.insert(node, at, getmaxcapacity());
+    path.evaluate(at, getmaxcapacity());
     evalLast();
 }
 
 
-void Vehicle::evaluate() {
-    path.evaluate(getmaxcapacity());
-};
-
-
-void Vehicle::evaluate(int from) {
+void Vehicle::evalLast() {
     Trashnode last = path[path.size()-1];
     dumpsite.setdemand(-last.getcargo());
     dumpsite.evaluate(last, getmaxcapacity());
@@ -51,13 +48,8 @@ void Vehicle::evaluate(int from) {
 }
 
 
-void Vehicle::evalLast() {
-    evaluate(path.size()-1);
-}
-
-
-
 /*
+// this is the old code before we started using Tweval
 void Vehicle::evaluate() {
     curcapacity = 0;
     duration = 0;
@@ -107,14 +99,14 @@ void Vehicle::evaluate() {
 void Vehicle::dump() {
     std::cout << "---------- Vehicle ---------------" << std::endl;
     std::cout << "maxcapacity: " << getmaxcapacity() << std::endl;
-    std::cout << "curcapacity: " << curcapacity << std::endl;
-    std::cout << "duration: " << duration << std::endl;
-    std::cout << "cost: " << cost << std::endl;
-    std::cout << "TWV: " << TWV << std::endl;
-    std::cout << "CV: " << CV << std::endl;
-    std::cout << "w1: " << w1 << std::endl;
-    std::cout << "w2: " << w2 << std::endl;
-    std::cout << "w3: " << w3 << std::endl;
+    std::cout << "cargo: " << getcargo() << std::endl;
+    std::cout << "duration: " << getduration() << std::endl;
+    std::cout << "cost: " << getcost() << std::endl;
+    std::cout << "TWV: " << getTWV() << std::endl;
+    std::cout << "CV: " << getCV() << std::endl;
+    std::cout << "w1: " << getw1() << std::endl;
+    std::cout << "w2: " << getw2() << std::endl;
+    std::cout << "w3: " << getw3() << std::endl;
     std::cout << "path nodes: -----------------" << std::endl;
     path.dump();
     std::cout << "--------- dumpeval ----------" << std::endl;

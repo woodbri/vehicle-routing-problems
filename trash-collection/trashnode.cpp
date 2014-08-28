@@ -37,6 +37,12 @@ void Trashnode::dump() const {
               << ", " << tw_close
               << ", " << service
               << ", " << ntype
+              << ", " << depotnid
+              << ", " << depotdist
+              << ", " << depotnid2
+              << ", " << depotdist2
+              << ", " << dumpnid
+              << ", " << dumpdist
               << std::endl;
 }
 
@@ -69,7 +75,7 @@ void Trashnode::setdumpdist(int _nid, double _dist) {
 }
 
 
-Trashnode::Trashnode(std::string line) {
+Trashnode::Trashnode(std::string line) : Tweval() {
     std::istringstream buffer( line );
     buffer >> nid;
     buffer >> ntype;

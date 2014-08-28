@@ -87,7 +87,6 @@ class Vehicle {
 
     void evaluate();
     void evalLast();
-    void evaluate(int from);
     int gettwvTot() const { return backToDepot.gettwvTot(); };
     int getcvTot() const { return backToDepot.getcvTot(); };
     int getcurcapacity() const { return curcapacity; };

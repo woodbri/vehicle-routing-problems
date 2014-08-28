@@ -6,9 +6,6 @@
 #include "twpath.h"
 #include "trashnode.h"
 
-// TODO: change curcapacity to curload
-//       add getcurload() and change getcurcapacity(0 to return
-//       getmaxcapacity()-curload
 
 class Vehicle {
   private:
@@ -17,11 +14,7 @@ class Vehicle {
     Trashnode dumpsite;
 
     int maxcapacity;
-    int curcapacity;    // current USED capacity of the vehicle
-    double duration;    // duration of the route
     double cost;        // cost of the route
-    int TWV;            // number of time window violations
-    int CV;             // number of capacity violations
 
     double w1;          // weight for duration in cost
     double w2;          // weight for TWV in cost
@@ -32,21 +25,18 @@ class Vehicle {
     // structors
 
     Vehicle() {
-        //maxcapacity = 0;
-        curcapacity = 0;
-        duration    = 0;
+        maxcapacity = 0;
         cost        = 0;
-        TWV         = 0;
-        CV          = 0;
         w1 = w2 = w3 = 1.0;
     };
 
-    Vehicle( Trashnode& _depot ) {
+    Vehicle( Trashnode& _depot, Trashnode& _dump ) {
         maxcapacity  = _depot.getdemand();
         _depot.setdemand(0);
+        _depot.setservice(0);
         backToDepot  = _depot;
+        dumpsite = _dump;
         push_back( _depot );
-        curcapacity  = 0;
         cost         = 0;
         w1 = w2 = w3 = 1.0;
     }
@@ -55,10 +45,10 @@ class Vehicle {
     std::deque<int> getpath();
     int size() const { return path.size(); };
     int getmaxcapacity() const { return maxcapacity; };
-    int getTWV() const { return TWV; };
-    int getCV() const { return CV; };
-    int getcurcapacity() const { return curcapacity; };
-    double getduration() const { return duration; };
+    int getTWV() const { return backToDepot.gettwvTot(); };
+    int getCV() const { return backToDepot.getcvTot(); };
+    int getcargo() const { return path.back().getcargo(); };
+    double getduration() const { return backToDepot.gettotDist(); };
     double getcost() const { return cost; };
     double getw1() const { return w1; };
     double getw2() const { return w2; };
@@ -95,16 +85,20 @@ class Vehicle {
     void dumppath();
 
     // mutators
-    void setdepot(Trashnode _depot) { backToDepot = _depot; };
-    void setdumpsite(Trashnode _dump) { dumpsite = _dump; };
+
+    // these two do not work with autoeval
+    // instead use Vehicle(depot, dump) constructor
+    //void setdepot(Trashnode _depot) { backToDepot = _depot; };
+    //void setdumpsite(Trashnode _dump) { dumpsite = _dump; };
+
     void setweights(double _w1, double _w2, double _w3) {
         w1 = _w1;
         w2 = _w2;
         w3 = _w3;
     };
 
-    void evaluate();
-    void evaluate(int from);
+    //void evaluate();
+    //void evaluate(int from);
     void evalLast();
 
 };

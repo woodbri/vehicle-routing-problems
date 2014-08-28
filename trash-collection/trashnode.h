@@ -51,8 +51,7 @@ class Trashnode : public Tweval {
         dumpnid = -1;
     };
 */
-    Trashnode() {
-        Twnode();
+    Trashnode() : Tweval() {
         ntype = -1;
         depotdist = 0.0;
         depotnid = -1;
