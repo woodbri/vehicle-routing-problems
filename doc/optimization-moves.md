@@ -22,7 +22,7 @@ The Figures 1-9 were taken from the paper "Vehicle Routing Problem with Time Win
 
 ![Figure 6 - Exchange Opt](https://raw.githubusercontent.com/woodbri/vehicle-routing-problems/develop/doc/images/exchange-opt.png "Figure 6 - Exchange Opt")
 
-![Figure 7 - Cross Exchange](https://raw.githubusercontent.com/woodbri/vehicle-routing-problems/develop/doc/images/savings-heuristic.png "Figure 7 - Cross Exchange")
+![Figure 7 - Cross Exchange](https://raw.githubusercontent.com/woodbri/vehicle-routing-problems/develop/doc/images/cross-exchange.png "Figure 7 - Cross Exchange")
 
 ![Figure 8 - GENI Exchange Opt](https://raw.githubusercontent.com/woodbri/vehicle-routing-problems/develop/doc/images/geni-exchange-opt.png "Figure 8 - GENI Exchange Opt")
 
