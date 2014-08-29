@@ -16,14 +16,12 @@ template <class knode> class Twpath {
 
   public:
     void swap(int i, int j) {
-std::cout<<"************CALL to non evaluating function swap\n";
         knode temp = path[i];
         path[i] = path[j];
         path[j] = temp;
     } 
 
     void move(int fromi, int toj) {
-std::cout<<"************CALL to non evaluating function move\n";
         if (fromi == toj) return;
         if (fromi < toj){
             insert(path[fromi], toj + 1);
@@ -34,34 +32,14 @@ std::cout<<"************CALL to non evaluating function move\n";
         }
     };
 
-    void insert(const knode &n, int at) {
-std::cout<<"************CALL to non evaluating function insert (could be called by evaluated move)\n";
-        path.insert(path.begin() + at, n);
-    };
-
-    void remove (int i) { path.erase(path.begin()+i);
-std::cout<<"************CALL to non evaluating function remove\n";
-    };
-
-    void push_back(const knode& n) { path.push_back(n); 
-std::cout<<"************CALL to non evaluating function push_back\n";
-    };
-    void push_back(knode& n) { path.push_back(n); 
-std::cout<<"************CALL to non evaluating function push_back\n";
-    };
-
-    void push_front(const knode& n) { path.push_front(n); 
-std::cout<<"************CALL to non evaluating function push_front\n";
-    };
-    void push_front(knode& n) { path.push_front(n); 
-std::cout<<"************CALL to non evaluating function push_front\n";
-    };
-    void pop_back() { path.pop_back(); 
-std::cout<<"************CALL to non evaluating function pop_back\n";
-    };
-    void pop_front() { path.pop_front(); 
-std::cout<<"************CALL to non evaluating function pot_front\n";
-    };
+    void insert(const knode &n, int at) { path.insert(path.begin() + at, n); };
+    void remove (int i) { path.erase(path.begin()+i); };
+    void push_back(const knode& n) { path.push_back(n); };
+    void push_back(knode& n) { path.push_back(n); };
+    void push_front(const knode& n) { path.push_front(n); };
+    void push_front(knode& n) { path.push_front(n); };
+    void pop_back() { path.pop_back(); };
+    void pop_front() { path.pop_front(); };
 
 
 
@@ -69,12 +47,8 @@ std::cout<<"************CALL to non evaluating function pot_front\n";
 
 /* how can we hande evaluation if we need the following??? */
 
-    void resize(unsigned int n) { path.resize(n);
-std::cout<<"************CALL to non evaluating function ¿how do we handle this case??\n";
-    };
-    void clear() { path.clear();     //should clear evrythin exept the first node???????
-std::cout<<"************CALL to non evaluating function ¿how do we handle this case??\n";
-    };
+    void resize(unsigned int n) { path.resize(n); };
+    void clear() { path.clear(); };
 
 
     public:   

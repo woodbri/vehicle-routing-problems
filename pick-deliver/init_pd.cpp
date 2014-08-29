@@ -1,6 +1,7 @@
 #include <cmath>
 #include "plot1.h"
 #include "vehicle.h"
+#include "compatible.h"
 #include "init_pd.h"
 
 /* prerequisites 
@@ -8,18 +9,152 @@
  orders were made based on TWC 
 
 */
+
+// hanndling 2 things the nodes position in the original table and the nodes id 
 void Init_pd::seqConst() {
-std::cout << "Enter Problem::seqConstruction\n";
+std::cout << "Enter Problem::seqConst\n";
+/* I already have the twc table ready */
+
+    Vehicle picks,deliver,depts;
+    for (int i=0;i<originalnodes.size();i++) {
+         if (originalnodes.getnode(i).ispickup())  picks.push_back(originalnodes.getnode(i));
+         if (originalnodes.getnode(i).isdelivery()) deliver.push_back(originalnodes.getnode(i));
+         if (originalnodes.getnode(i).isdepot())  depts.push_back(originalnodes.getnode(i));
+    }
+std::cout<<"\n picks= ";
+picks.tau();
+std::cout<<"\n depts= ";
+depts.tau();
+std::cout<<"\n deliver= ";
+deliver.tau();
+    int pickups = twc.setSubset(picks);
+    int deliverys = twc.setSubset(deliver);
+    int depots = twc.setSubset(depts);
+
+}
+
+
+
+/*
     fleet.clear();
     Vehicle truck(depot,Q);
     Order order;
-    std::deque<Order> unOrders;   //orders not being used
-    std::deque<Order> waitOrders; //orders didnt fit in current route
-    unOrders=ordersList;          //all orders arent in a route
-    while (!unOrders.empty()) {   
-       truck.clean();                           //create a new truck for a route
-       //findrSeed(unOrders)   			//we are free to find an appropiate seed for the route
-       while (!unOrders.empty()) {  
+    Dpnode nodeToInsert,node;
+    Vehicle nodes=originalnodes;
+//OK    Vehicle pickups; 
+    std::deque<Dpnode> used;
+    Vehicle pendingDeliveries;   // delivery nodes not inserted yet 
+    int lastNodeId,lastNodePos, bestPos,bestId,actualCompat,deliveryPos,pendingId;
+//OK for (int i=0;i<originalnodes.size();i++) if (originalnodes.getnode(i).ispickup()) pickups.push_back(originalnodes.getnode(i));
+//    while (nodes.hasNodes()) {   
+std::cout<<"\n nodes= ";
+nodes.tau();
+       truck.clean();             //create a new truck for a route (depot has being inserted as first node)
+       lastNodeId=depot.getnid(); 			//from all my depots/car relationship (in this case I only have one I find the best)
+       lastNodePos=originalnodes.getpos(lastNodeId);
+       maskVertical(lastNodePos);  		    //mask based on nodes id instead of position
+       nodes.removeNode(lastNodeId);	            //already being used (before entering the while)
+std::cout<<"\n starting route nodes= ";
+nodes.tau();
+int k=0;
+       while ( nodes.hasNodes()) {   
+           k++;
+           maskVertical(lastNodePos);                //shrink the twc aka.. not considering going back to depot (has already being done????)
+
+           bestPos=getBestPickupCompatible(lastNodePos);      //making sure I get a pickup first (is it a seed????)
+           if (bestPos==0) break;                    //no compatible node, have to leave
+           bestId=originalnodes.getnid(bestPos);     // find the nodes id      
+           nodeToInsert=originalnodes.getnode(bestPos);
+	   actualCompat=compat(lastNodePos,bestPos);
+std::cout<<"\nbestPos= "<<bestPos;
+std::cout<<"\tbestId= "<<bestId;
+std::cout<<"\tactualCompat= "<<actualCompat;
+           if (pendingDeliveries.hasNodes()) {
+std::cout<<"\n\t deliveries pending:"<<pendingDeliveries.size();
+                for (int j=0; j<pendingDeliveries.size();j++) {
+                    deliveryPos=originalnodes.getpos( pendingDeliveries.getnid(j)); 
+std::cout<<"\ndelivery Pos= "<<deliveryPos;
+		    if ( actualCompat<compat(lastNodePos,deliveryPos) ) {
+std::cout<<"better to insert the delivery";
+                        nodeToInsert=pendingDeliveries.getnode(j) ;
+                        bestId=pendingDeliveries.getnid(j);
+                        bestPos=deliveryPos;
+                        break;
+                    };
+                 }
+           }
+           //nodeToInsert=originalnodes.getnode(bestPos);
+nodeToInsert.dump();
+           truck.push_back(nodeToInsert);  //add the node to the truck
+           if (nodeToInsert.ispickup()) {
+std::cout<<"\tgetoId= "<<nodeToInsert.getoid();   //the order to which it belongs
+                 pendingDeliveries.push_back (  ordersList[ nodeToInsert.getoid() ].getDelivery() );
+           } else {
+                 pendingDeliveries.removeNode(bestId);
+           }
+
+std::cout<<"\n pending= ";
+pendingDeliveries.tau();
+
+std::cout<<"\n truck= ";
+truck.tau();
+           nodes.removeNode(bestId);                // remove the node from the nodes list
+std::cout<<"\n nodes= ";
+nodes.tau();
+           maskHorizontal(lastNodePos);              // lastInserted node is not reachable from any other node (aka, its already being used)
+           lastNodeId=bestId;
+           lastNodePos=bestPos;
+           maskVertical(lastNodePos);                //shrink the twc aka.. not considering going back to depot (has already being done????)
+
+	   // delaing with the delivery node  I inserted a pickup now its time to choose between a new pickup or the delivery
+	   
+
+
+
+       }
+std::cout<<"\n deliveries pending remove the corresponing pickups:"<<pendingDeliveries.size();
+//       while (not pendingDeliveries.size()==0) {
+std::cout<<"\n\t removng:";
+	    pendingId =  pendingDeliveries.getnid(0);
+            order = ordersList[ pendingDeliveries.getnode(0).getoid()  ];
+order.debugdump();
+            node= order.getPickup();
+            truck.removeOrder(  order );
+            pendingDeliveries.removeNode ( pendingId );
+            nodes.push_back(node);
+            recreateRowColumn( node.getnid() );
+//       }
+            
+
+std::cout<<"\n pending shoud be clean= ";
+pendingDeliveries.tau();
+       
+
+       fleet.push_back(truck);
+std::cout<<"\n final nodes= ";
+nodes.tau();
+//    }
+*/
+
+
+
+	  /* 
+          order=unOrders.front();
+          unOrders.pop_front();
+          truck.pushOrder(order);
+          truck.hillClimbOpt();
+          if (!truck.feasable()) {
+                truck.removeOrder(order.getoid());
+                waitOrders.push_back(order);
+          }
+       }
+       fleet.push_back(truck);
+       unOrders=waitOrders;
+       waitOrders.clear();
+     }*/
+
+
+
           /* asumption 0 n1 n2  are in the route
               que estan restringidos ya que se esogió como semilla aquel cuya cant de TWCn2 es la mayor
               por lo que de la cubeta de ordenes necesito buscar para cada orden(i) the tiene pick y deliver
@@ -61,21 +196,6 @@ std::cout << "Enter Problem::seqConstruction\n";
 													  "cuando no causa problemas" comparo con la mejor ruta hasta el momento para esa orden
 													  y si es mejor entonces la guardo  como la mejor ruta
 	  */
-          order=unOrders.front();
-          unOrders.pop_front();
-          truck.pushOrder(order);
-          truck.hillClimbOpt();
-          if (!truck.feasable()) {
-                truck.removeOrder(order.getoid());
-                waitOrders.push_back(order);
-          }
-       }
-       fleet.push_back(truck);
-       unOrders=waitOrders;
-       waitOrders.clear();
-     }
-}
-
 
 
 
@@ -146,22 +266,16 @@ std::cout << "Enter Problem::sequentialConstruction\n";
     unOrders=ordersList;
     while (!unOrders.empty()) {
        truck.clean();  
-       order=unOrders.front(); //a seed
-       truck.pushOrder(order);
-       lastOrder=order;
        while (!unOrders.empty()) {
           //here find a best order based on twcof depot of last order
           order=unOrders.front();
           unOrders.pop_front();
-          truck.insertPickup(order,1);
-          truck.pushDelivery(order);
+          truck.pushOrder(order);
           truck.hillClimbOpt();     
           if (!truck.feasable()) {
                 truck.removeOrder(order.getoid());
                 waitOrders.push_back(order);
-          } else {
-                lastOrder=order;
-          }
+          } 
        }
        fleet.push_back(truck);
        unOrders=waitOrders;
@@ -273,16 +387,6 @@ double Init_pd::getDistance() {
 
 void Init_pd::plot(std::string file,std::string title){
 
-/*
-    Twpath<Dpnode> trace=path;
-    trace.push_back(backToDepot);
-
-    // cpp11  the following next 3 lines become std::string carnum=std::to_string(carnumber *
-    std::stringstream convert;
-    convert << carnumber;
-    std::string carnum = convert.str();
-    std::string extra=file+"vehicle"+carnum ;
-*/
     Plot1<Dpnode> graph( datanodes );
     graph.setFile( file+".png" );
     graph.setTitle( title );

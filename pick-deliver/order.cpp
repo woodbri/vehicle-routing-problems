@@ -39,6 +39,5 @@ void Order::dump() const {
     std::cout << "("
               << getpid() << ","
               << getdid() << ") ";
-std::cout              << getdistPickupDepot() <<  ", "
-              << getdistDeliveryDepot() << std::endl;
+    //pickup.dump();delivery.dump();
 }

@@ -139,23 +139,25 @@ double Prob_pd::twc_for_ij(const Dpnode &ni, const Dpnode &nj) {
 
 
 void Prob_pd::twcij_calculate(){
-    twcij.resize(originalnodes.size());
-    for (int i=0;i<originalnodes.size();i++)
-        twcij[i].resize(originalnodes.size());
-    for (int i=0;i<originalnodes.size();i++){
-        for (int j=i; j<originalnodes.size();j++) {
+    twcij.resize(datanodes.size());
+    for (int i=0;i<datanodes.size();i++)
+        twcij[i].resize(datanodes.size());
+    for (int i=0;i<datanodes.size();i++){
+        for (int j=i; j<datanodes.size();j++) {
 //std::cout<<"\nworking with ("<<datanodes[i].getnid()<<","<<datanodes[j].getnid()<<")\n";
            //if (i==j) {
            //   twcij[i][j]= -std::numeric_limits<double>::max();  //mismo nodo
            //} else  {
-              twcij[i][j]= twc_for_ij(originalnodes[i],originalnodes[j]);
-              twcij[j][i]= twc_for_ij(originalnodes[j],originalnodes[i]);
-              /*if  (datanodes[i].getoid()==datanodes[j].getoid()){  // misma orden
-                 if (datanodes[i].isdelivery())
+              twcij[i][j]= twc_for_ij(datanodes[i],datanodes[j]);
+              twcij[j][i]= twc_for_ij(datanodes[j],datanodes[i]);
+              
+              if  (i!=j and datanodes[i].getoid()==datanodes[j].getoid()){  // misma orden
+                 if (datanodes[i].isdelivery() and datanodes[j].ispickup())
                     twcij[i][j]= -std::numeric_limits<double>::max();
-                  else
+                 else
                     twcij[j][i]= -std::numeric_limits<double>::max();
-              }*/
+              }
+              
            //}
         }
     }
@@ -172,42 +174,93 @@ bool Prob_pd::compatibleIAJ(int i, int a, int j){
 
 
 void Prob_pd::dumpCompatible() {
-    for (int i=0;i<originalnodes.size();i++) {
-      for (int j=0;j<originalnodes.size();j++) {
-        for (int k=0;k<originalnodes.size();k++) {
-          std::cout<<"\t ( "<<originalnodes[i].getnid()<<" , "<<originalnodes[j].getnid()<<" , "<<originalnodes[k].getnid()<<") = "<<(compatibleIAJ(i,j,k)? "COMPATIBLE": "not compatible");
+    for (int i=0;i<datanodes.size();i++) {
+      for (int j=0;j<datanodes.size();j++) {
+        for (int k=0;k<datanodes.size();k++) {
+          std::cout<<"\t ( "<<datanodes[i].getnid()<<" , "<<datanodes[j].getnid()<<" , "<<datanodes[k].getnid()<<") = "<<(compatibleIAJ(i,j,k)? "COMP": "not");
         }
         std::cout<<"\n";
       }
     }
 }
 
-
-
-
-
-
-
-
-void Prob_pd::twcTot_calculate(){
-    twcTot.resize(originalnodes.size());
-    for (int i=0;i<originalnodes.size();i++){
-        twcTot[i]=0;
-        for (int j=0; j<originalnodes.size();j++)
-            if (twcij[i][j]<0) twcTot[i]++;
-std::cout<<"\n TwcTot for node "<< originalnodes[i].getnid()<<":"<<twcTot[i];
+void Prob_pd::recreateRowColumn( int nid) {
+     int at = originalnodes.getpos(nid);
+     for (int j=0; j<twcij.size(); j++) {
+         twcij[at][j]= twc_for_ij(datanodes[at],datanodes[j]);
+         twcij[j][at]= twc_for_ij(datanodes[j],datanodes[at]);
      }
+}
+
+
+void Prob_pd::maskHorizontal(int at) {
+     for (int j=0; j<twcij.size(); j++) 
+         twcij[at][j]=  -std::numeric_limits<double>::max();
+}
+
+void Prob_pd::maskVertical(int at) {
+     for (int i=0; i<twcij.size(); i++) 
+         twcij[i][at]=  -std::numeric_limits<double>::max();
+}
+
+int  Prob_pd::getBestCompatible(int from) {
+     int best=0;
+     for (int j=0; j<twcij.size(); j++) 
+         if (twcij[from][j]>twcij[from][best])
+            best=j;
+     return best;
+}
+
+int  Prob_pd::getBestCompatible() {
+     int best=0;
+     for (int j=0; j<twcTot.size(); j++) 
+         if (twcTot[j]>twcTot[best])
+            best=j;
+     return best;
+}
+
+
+int  Prob_pd::getBestPickupCompatible(int from) {
+     int best=0;
+     for (int j=0; j<twcij.size(); j++) 
+         if (twcij[from][j]>twcij[from][best] and datanodes[j].ispickup())
+            best=j;
+     return best;
+}
+
+int  Prob_pd::getBestPickupCompatible() {
+     int best=0;
+     for (int j=0; j<twcTot.size(); j++) 
+         if (twcTot[j]>twcTot[best] and datanodes[j].ispickup())
+            best=j;
+     return best;
+}
+
+
+
+
+
+
+//twcTot has the horizontal line of twcij[0]
+void Prob_pd::twcTot_calculate(){
+    twcTot=twcij[0];
 }
 
 
 void Prob_pd::twcijDump() const  {
     std::cout<<"\n\t";
-    for (int i=0;i<originalnodes.size();i++)
-        std::cout<<originalnodes[i].getnid()<<"\t";
+    for (int i=0;i<twcTot.size();i++)
+        std::cout<<twcTot[i]<<"\t";
+    std::cout<<"\n\t";
+    for (int i=0;i<datanodes.size();i++)
+        std::cout<<"pos "<<i<<"\t";
+    std::cout<<"\n\t";
+    for (int i=0;i<datanodes.size();i++)
+        std::cout<<"id "<<datanodes[i].getnid()<<"\t";
     std::cout<<"\n";
-    for (int i=0;i<originalnodes.size();i++){
-        std::cout<<originalnodes[i].getnid()<<"\t";
-        for (int j=0; j<originalnodes.size();j++) {
+    for (int i=0;i<datanodes.size();i++){
+        std::cout<<datanodes[i].getnid()<<"\t";
+        for (int j=0; j<datanodes.size();j++) {
            if (twcij[i][j] !=  -std::numeric_limits<double>::max()) std::cout<<twcij[i][j]<<"\t";
            else std::cout<<"--\t";
         }
@@ -236,21 +289,22 @@ void Prob_pd::loadProblem(char *infile)
     // read the nodes
     while ( getline(in, line) ) {
         Dpnode node(line);  //create node from line on file
-        originalnodes.push_back(node);
         datanodes.push_back(node);
+        originalnodes.push_back(node);
         if (node.isdepot()) {
             depot=node;
             depot.setoid(-1);
         }
     }
     in.close();
-
-
-    twcij_calculate();
-    sortNodeByTWC();
     makeOrders();
-twcijDump();
-dumpCompatible();
+    for (int i=0;i<datanodes.size();i++)
+    twc.setNodes(originalnodes);
+twc.dump();
+//    twcij_calculate();
+//    sortNodeByTWC();
+//twcijDump();
+//dumpCompatible();
 //    twcij_calculate();
 //twcijDump();
 
@@ -317,6 +371,7 @@ void Prob_pd::makeOrders ()
            int j;
            for (j=0; j<getNodeCount() and datanodes[j].getnid()!=datanodes[i].getdid(); j++) {}
            order.fillOrder(datanodes[i],datanodes[j],oid++,depot);
+order.debugdump();
            ordersList.push_back(order);
     }
 }

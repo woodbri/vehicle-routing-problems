@@ -171,9 +171,17 @@ void Vehicle::findBetterForward(int &bestI, int &bestJ) {
 
 
 
+
+   int Vehicle::getpos(const int nid) const {
+          int at=0;
+          while (at<path.size() and !(getnid(at)==nid))
+            at++; 
+          return at;
+   }
+
    int Vehicle::getdpos(const int oid) const {
           int at=0;
-          while (at<path.size() and !(isdelivery(at) and getnid(at)==oid))
+          while (at<path.size() and !(isdelivery(at) and getoid(at)==oid))
             at++; 
          return at;
     }
@@ -226,6 +234,15 @@ void Vehicle::findBetterForward(int &bestI, int &bestJ) {
            }
     }
 
+/*non evaluating */
+    void Vehicle::removeNode(int nid){
+           for (int at=0;at<path.size();at++) {
+               if (getnid(at)==nid ){
+                   path.remove(at); break; //only 1 node /path
+               }
+           }
+    }
+
  /****** Insertion of nodes to the path  ********/
 
 /****** Direct evaluation *****/    
@@ -233,6 +250,7 @@ void Vehicle::findBetterForward(int &bestI, int &bestJ) {
           path.push_back(pathstop,maxcapacity);
           evalLast();
     }
+
 
     
     void Vehicle::insert(Dpnode pathstop,int at) {
