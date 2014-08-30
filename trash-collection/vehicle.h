@@ -63,28 +63,18 @@ class Vehicle {
 
     Trashnode operator[](int i) const { return path[i]; };
 
-    void push_back(Trashnode node);
-    void push_front(Trashnode node);
-    void insert(Trashnode node, int at);
-
-    // I really hate these shortcuts
-    int getnid(int i) const { return path[i].getnid(); };
-    double getx(const int i) const { path[i].getx(); };
-    double gety(const int i) const { path[i].gety(); };
-    bool hasdemand(int i) const { return path[i].hasdemand(); };
-    bool hassupply(int i) const { return path[i].hassupply(); };
-    bool hasnogoods(int i) const { return path[i].hasnogoods(); };
-    bool earlyarrival(int i, const double D) const { return path[i].earlyarrival(D); };
-    bool latearrival(int i, const double D) const { return path[i].latearrival(D); };
-    bool ontime(int i, const double D) const { return not earlyarrival(i, D) and not latearrival(i, D); };
-    bool isdump(int i) const { return path[i].isdump(); };
-    bool ispickup(int i) const { return path[i].ispickup(); };
-    bool isdepot(int i) const { return path[i].hasnogoods(); };
-
     void dump();
     void dumppath();
 
-    // mutators
+/* evaluation */
+
+    bool feasable() const { return backToDepot.gettwvTot() == 0 and backToDepot.getcvTot() == 0; };
+    bool hascv()const { return backToDepot.getcvTot() != 0; };
+    bool hastwv()const { return backToDepot.gettwvTot() != 0; };
+
+    void evalLast();
+
+/* mutators */
 
     // these two do not work with autoeval
     // instead use Vehicle(depot, dump) constructor
@@ -97,9 +87,32 @@ class Vehicle {
         w3 = _w3;
     };
 
-    //void evaluate();
-    //void evaluate(int from);
-    void evalLast();
+    void push_back(Trashnode node);
+    void push_front(Trashnode node);
+    void insert(Trashnode node, int at);
+
+/* algorithm specific */
+
+    void doTwoOpt(const int& c1, const int& c2, const int& c3, const int& c4);
+    void doThreeOpt(const int& c1, const int& c2, const int& c3, const int& c4, const int& c5, const int& c6);
+    bool pathOptimize();
+    bool pathTwoOpt();
+    bool pathThreeOpt();
+
+/* I really hate these shortcuts */
+
+    int getnid(int i) const { return path[i].getnid(); };
+    double getx(const int i) const { path[i].getx(); };
+    double gety(const int i) const { path[i].gety(); };
+    bool hasdemand(int i) const { return path[i].hasdemand(); };
+    bool hassupply(int i) const { return path[i].hassupply(); };
+    bool hasnogoods(int i) const { return path[i].hasnogoods(); };
+    bool earlyarrival(int i, const double D) const { return path[i].earlyarrival(D); };
+    bool latearrival(int i, const double D) const { return path[i].latearrival(D); };
+    bool ontime(int i, const double D) const { return not earlyarrival(i, D) and not latearrival(i, D); };
+    bool isdump(int i) const { return path[i].isdump(); };
+    bool ispickup(int i) const { return path[i].ispickup(); };
+    bool isdepot(int i) const { return path[i].hasnogoods(); };
 
 };
 

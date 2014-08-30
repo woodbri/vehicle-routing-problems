@@ -8,12 +8,33 @@ problem specific constraints like capacity, time windows or pickup before
 delivery that need to be assessed at the problem level as opossed to the
 path level.
 
-In general, most of the moves can be applied to the same route, ie: an
-intra-route move, or between two different routes, ie: inter-route move.
+The Figures 1-9 were taken from the paper "Vehicle Routing Problem with Time Windows, Part I: Route Construction and Local Search Algorithms" by OLLI BRÄYSY and MICHEL GENDREAU.
+
+![Figure 1 - Savings Heuristic](https://raw.githubusercontent.com/woodbri/vehicle-routing-problems/develop/doc/images/savings-heuristic.png "Figure 1 - Savings Heuristic")
+
+![Figure 2 - 2-Opt Exchange](https://raw.githubusercontent.com/woodbri/vehicle-routing-problems/develop/doc/images/2-opt-exchange.png "Figure 2 - 2-Opt Exchange")
+
+![Figure 3 - Or-Opt Exchange](https://raw.githubusercontent.com/woodbri/vehicle-routing-problems/develop/doc/images/or-opt-exchange.png "Figure 3 - Or-Opt Exchange")
+
+![Figure 4 - 2-Opt* Exchange](https://raw.githubusercontent.com/woodbri/vehicle-routing-problems/develop/doc/images/2-opt-star-exchange.png "Figure 4 - 2-Opt* Exchange")
+
+![Figure 5 - Relocate Opt](https://raw.githubusercontent.com/woodbri/vehicle-routing-problems/develop/doc/images/relocate-opt.png "Figure 5 - Relocate Opt")
+
+![Figure 6 - Exchange Opt](https://raw.githubusercontent.com/woodbri/vehicle-routing-problems/develop/doc/images/exchange-opt.png "Figure 6 - Exchange Opt")
+
+![Figure 7 - Cross Exchangei Opt](https://raw.githubusercontent.com/woodbri/vehicle-routing-problems/develop/doc/images/cross-exchange-opt.png "Figure 7 - Cross Exchange Opt")
+
+![Figure 8 - GENI Exchange Opt](https://raw.githubusercontent.com/woodbri/vehicle-routing-problems/develop/doc/images/geni-exchange-opt.png "Figure 8 - GENI Exchange Opt")
+
+![Figure 9 - Cyclic Exchange Opt](https://raw.githubusercontent.com/woodbri/vehicle-routing-problems/develop/doc/images/cyclic-transfer-opt.png "Figure 9 - Cyclic Exchange Opt")
+
 
 In the following examples, assume the depot is ``0`` and the other numbers
 are customer nodes. The *before* and *after* routes will show how the
 proposed move impacts the ordering of the nodes in the route.
+
+*NOTE: THE DESCRIPTIONS MAY BE WRONG - THE FIGURES ABOVE ARE CORRECT*
+
 
 
 ## 1-opt move
