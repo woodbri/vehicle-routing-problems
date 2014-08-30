@@ -176,6 +176,12 @@ int main(int argc, char **argv) {
         tp.assignmentSweep2();
         tp.dump();
         tp.plot("p3.png", "assignmentSweep2", font);
+        tp.opt_2opt();
+        tp.dump();
+        tp.plot("p4.png", "assignmentSweep2 - after 2opt", font);
+        tp.opt_3opt();
+        tp.dump();
+        tp.plot("p5.png", "assignmentSweep2 - after 3opt", font);
 
     }
     catch (const std::exception &e) {

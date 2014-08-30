@@ -616,8 +616,16 @@ void TrashProblem::assignmentSweep2() {
 
 
 void TrashProblem::opt_2opt() {
-
+    for (int i=0; i<fleet.size(); i++)
+        fleet[i].pathTwoOpt();
 }
+
+
+void TrashProblem::opt_3opt() {
+    for (int i=0; i<fleet.size(); i++)
+        fleet[i].pathThreeOpt();
+}
+
 
 void TrashProblem::dumpDmatrix() const {
     std::cout << "--------- dMatrix ------------" << std::endl;
