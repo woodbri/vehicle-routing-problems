@@ -121,6 +121,38 @@ std::cout<<"************CALL to non evaluating function ¿how do we handle this 
         i < j ? evaluate(i, maxcapacity): evaluate(j, maxcapacity);
     };
 
+
+    // moves a range of nodes (i-j) after k and reverses those nodes
+    void movereverse(int i, int j, int k, double maxcapacity) {
+        if (! (i < j and (k > j or k < i-1))) return;
+        for (int n=i, m=0; n<=j; n++, m++) {
+            knode temp = path[i];
+            path.erase(path.begin()+i);
+            path.insert(path.begin()+k-m, temp);
+        }
+        i < k ? path[i].evaluate(maxcapacity) : path[k].evaluate(maxcapacity);
+    }
+
+
+    void reverse(int i, int j, double maxcapacity) {
+        int m = i;
+        int n = j;
+
+        if (i == j) return;
+        if (i > j) {
+            m = j;
+            n = i;
+        }
+        while (m < n) {
+            knode temp = path[m];
+            path[m] = path[n];
+            path[n] = temp;
+            m++;
+            n--;
+        }
+        i < j ? evaluate(i, maxcapacity): evaluate(j, maxcapacity);
+    };
+
     void insert(const knode &n, int at, double maxcapacity) {
         path.insert(path.begin() + at, n);
         path[at].evaluate(maxcapacity);
