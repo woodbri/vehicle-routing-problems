@@ -51,6 +51,9 @@ class TrashProblem {
     int getTWV();
     int getCV();
 
+    int getVehicleCount() {return fleet.size(); };
+    Vehicle getVehicle(int i) { return fleet[i]; };
+
     void dumpDmatrix() const;
     void dumpFleet();                       //// const
     void dumpdataNodes() const;

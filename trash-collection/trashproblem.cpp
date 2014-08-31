@@ -452,7 +452,7 @@ void TrashProblem::assignmentSweep() {
     This implements Assignment Sweep construction algorithm with the
     twist that I cluster first and identify the nearest depot (CLUSTER1)
     and the second nearest depot (CLUSTER2) to all nodes. The construction
-    algorithm folloes this pseudo code:
+    algorithm follows this pseudo code:
     1. build routes based on only CLUSTER1 nodes
     2. add unassigned nodes to vehicles with capacity based on CLUSTER2
     3. add unassigned nodes to any vehicles with capacity
@@ -490,8 +490,8 @@ void TrashProblem::assignmentSweep2() {
 //        plot(str, str, truck.getpath());
         while (truck.getcargo() <= truck.getmaxcapacity()) {
 
-            std::cout << "assignmentSweep2[" << i << ',' << cnt << "] ";
-            truck.dumppath();
+//            std::cout << "assignmentSweep2[" << i << ',' << cnt << "] ";
+//            truck.dumppath();
 
             int pos;
             int nnid = findNearestNodeTo(truck,
@@ -535,8 +535,8 @@ void TrashProblem::assignmentSweep2() {
 
         while (truck.getcargo() <= truck.getmaxcapacity()) {
 
-            std::cout << "assignmentSweep2[" << i << ',' << cnt << "] ";
-            truck.dumppath();
+//            std::cout << "assignmentSweep2[" << i << ',' << cnt << "] ";
+//            truck.dumppath();
 
             int pos;
             int nnid = findNearestNodeTo(truck,
@@ -578,8 +578,8 @@ void TrashProblem::assignmentSweep2() {
 
         while (truck.getcargo() <= truck.getmaxcapacity()) {
 
-            std::cout << "assignmentSweep2[" << i << ',' << cnt << "] ";
-            truck.dumppath();
+//            std::cout << "assignmentSweep2[" << i << ',' << cnt << "] ";
+//            truck.dumppath();
 
             int pos;
             int nnid = findNearestNodeTo(truck,
@@ -614,6 +614,7 @@ void TrashProblem::assignmentSweep2() {
     }
 }
 
+/************** local route optimization ************************/
 
 void TrashProblem::opt_2opt() {
     for (int i=0; i<fleet.size(); i++)
@@ -626,6 +627,8 @@ void TrashProblem::opt_3opt() {
         fleet[i].pathThreeOpt();
 }
 
+
+/************** dump routines ***********************************/
 
 void TrashProblem::dumpDmatrix() const {
     std::cout << "--------- dMatrix ------------" << std::endl;
