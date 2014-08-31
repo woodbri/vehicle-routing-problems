@@ -33,6 +33,7 @@ class Compatible {
     double ajli(const Dpnode &ni, const Dpnode &nj);
     double ajei(const Dpnode &ni, const Dpnode &nj);
     double twc_for_ij(const Dpnode &ni, const Dpnode &nj);
+    double compat(int i,int j) const ;
 
   public:
     Compatible() {};
@@ -40,6 +41,7 @@ class Compatible {
     int setSubset(Vehicle _subset);
     int setNodes(Vehicle _original);
   
+    Dpnode getNode(int nodeId);
 
     //void setTwcij(const Order& order);
         
@@ -47,9 +49,9 @@ class Compatible {
     void setIncompatible(int fromId, int toId);
     void twcij_calculate();
     void twc_from_depot_calculate();
-    double compat(int i,int j) const ;
-    bool compatibleIJ(int i, int j);
-    bool compatibleIAJ(int i, int a, int j);
+    bool isCompatibleIJ(int fromId, int toId) ;
+    bool isCompatibleIAJ(int fromId, int middleId, int toId) ;
+    double compatibleIJ(int fromId,int toId) ;
     void dumpCompatible() ;
     void maskHorizontal(int at) ;
     void maskVertical(int at) ;

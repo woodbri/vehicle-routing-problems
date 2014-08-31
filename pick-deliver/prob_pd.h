@@ -63,7 +63,7 @@ class Prob_pd {
     void sortOrdersbyDistReverse();
 
 
-/* compatability issues */
+/* compatability issues 
     void twcij_calculate();
     void twcTot_calculate();
     double ajli(const Dpnode &ni, const Dpnode &nj);
@@ -80,7 +80,7 @@ class Prob_pd {
     int  getBestCompatible() ;
     int  getBestPickupCompatible() ;
     void recreateRowColumn( int nodeId );
-
+*/
 
 
 

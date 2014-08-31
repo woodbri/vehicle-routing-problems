@@ -105,7 +105,7 @@ void Prob_pd::dump() {
 }
 
 
-/*compatibility*/
+/*compatibility
 
 double Prob_pd::ajli(const Dpnode &ni, const Dpnode &nj) {
     return ni.closes()+ni.getservicetime()+nj.distance(ni);
@@ -272,7 +272,7 @@ void Prob_pd::twcijDump() const  {
 double Prob_pd::compat(int i,int j) const {
     return twcij[i][j];
 };
-
+*/
 /* depot must be the first node in list... rest can be anywhere*/
 void Prob_pd::loadProblem(char *infile)
 {
@@ -290,7 +290,6 @@ void Prob_pd::loadProblem(char *infile)
     while ( getline(in, line) ) {
         Dpnode node(line);  //create node from line on file
         datanodes.push_back(node);
-        originalnodes.push_back(node);
         if (node.isdepot()) {
             depot=node;
             depot.setoid(-1);
@@ -299,6 +298,7 @@ void Prob_pd::loadProblem(char *infile)
     in.close();
     makeOrders();
     for (int i=0;i<datanodes.size();i++)
+        originalnodes.push_back(datanodes[i]);
     twc.setNodes(originalnodes);
 twc.dump();
 //    twcij_calculate();

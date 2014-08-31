@@ -10,16 +10,51 @@
 
 */
 
+Order Init_pd::getOrderData(int nodeId, int &pick, int &deliver){
+    Order order;
+    Dpnode node=twc.getNode(nodeId);
+    order=  ordersList[ node.getoid() ];
+    pick= order.getPickup().getnid();
+    deliver= order.getDelivery().getnid();
+    return order;
+}
+
+bool Init_pd::inPending(const Vehicle pend, int nodeId) {
+    for (int i=0; i<pend.size();i++) {
+         if (pend[i].getnid()==nodeId ) return true;
+    };
+    return false;
+}
+
+int Init_pd::compatibleWithPending(const Vehicle &pend, int fromId, int toId) {
+    int notwithID = -1;
+std::cout<<"notwithID ENTERING"<<notwithID;
+    for (int i=0; i<pend.size();i++) {
+         if (twc.isCompatibleIJ( toId, pend[i].getnid() )) {}
+         else notwithID = pend[i].getnid();
+std::cout<<"notwithID"<<notwithID;
+    };
+std::cout<<"notwithID EXITING"<<notwithID;
+    return notwithID;
+}
+
+
+
+
 // hanndling 2 things the nodes position in the original table and the nodes id 
 void Init_pd::seqConst() {
 std::cout << "Enter Problem::seqConst\n";
 /* I already have the twc table ready */
 
-    Vehicle picks,deliver,depts;
-    for (int i=0;i<originalnodes.size();i++) {
-         if (originalnodes.getnode(i).ispickup())  picks.push_back(originalnodes.getnode(i));
-         if (originalnodes.getnode(i).isdelivery()) deliver.push_back(originalnodes.getnode(i));
-         if (originalnodes.getnode(i).isdepot())  depts.push_back(originalnodes.getnode(i));
+    Vehicle picks,deliver,depts,nodes;
+    Vehicle pendingDeliveries;   // delivery nodes not inserted yet 
+    Dpnode nodeToInsert;
+    Order order;
+    nodes=originalnodes;
+    for (int i=0;i<nodes.size();i++) {
+         if (nodes.getnode(i).ispickup())  picks.push_back(originalnodes.getnode(i));
+         if (nodes.getnode(i).isdelivery()) deliver.push_back(originalnodes.getnode(i));
+         if (nodes.getnode(i).isdepot())  depts.push_back(originalnodes.getnode(i));
     }
 std::cout<<"\n picks= ";
 picks.tau();
@@ -29,8 +64,149 @@ std::cout<<"\n deliver= ";
 deliver.tau();
     int pickups = twc.setSubset(picks);
     int deliverys = twc.setSubset(deliver);
-    int depots = twc.setSubset(depts);
+    int depots = twc.setSubset(depts); //probably as many depots as the problem has cars
+    Vehicle truck(depot,Q);
+    int lastNodeId,lastNodePos, bestPos,bestId,actualCompat,deliveryId,pendingId,pickId,deliverId,notcompatWith;
 
+    for (int i=0;i<ordersList.size();i++)
+        twc.setIncompatible(ordersList[i].getdid(),ordersList[i].getpid());
+twc.dump();
+int k=0;
+    while (k<20 and  nodes.hasNodes()) {   
+    truck.clean();             //create a new truck for a route (depot has being inserted as first node)
+    lastNodeId=depot.getnid(); 			// I work with nids at this levle
+    nodes.removeNode(lastNodeId);                // remove the node from the nodes list
+    twc.recreateRowColumn( lastNodeId );
+    
+    while ( k< 20 and nodes.hasNodes()) {   
+k++;
+std::cout<<"\n********************CYCLE=****************************** "<<k<<"\n";
+std::cout<<"\nfinding best from lastNodeId= "<<lastNodeId;
+
+        bestId=twc.getBestCompatible(lastNodeId) ;      //making sure I get a pickup?? first if its a depot I insert pickup first???? (is it a seed????)
+
+        if (bestId==-1) { std::cout<<"\nENDING****************************** "<<k<<"\n"; break; };                    //no compatible node, have to leave //what with the other nodes???
+
+std::cout<<"\nbestId= "<<bestId;
+        order =getOrderData(bestId,pickId,deliverId);
+//        if (bestId==deliverId) bestId=pickId;
+        if (inPending(pendingDeliveries,bestId)) {
+std::cout<<"\nInserting a node that was in pending   aka. bestID is delivery";
+            nodeToInsert=twc.getNode(bestId);
+	    //add the node to truck
+            truck.push_back(nodeToInsert);  //add the node to the truck
+            lastNodeId=nodeToInsert.getnid();
+            //delete node from pending
+            pendingDeliveries.removeNode(lastNodeId);
+            nodes.removeNode(lastNodeId);                // remove the node from the nodes list
+            twc.maskVertical(lastNodeId);              // lastInserted node is not reachable from any other node (aka, its already being used)
+            continue;
+        }
+        else
+std::cout<<"\nNot in pending Best Id";
+
+// not in pending
+std::cout<<"\nGOING TO notcompatwith= "<<notcompatWith;
+        notcompatWith=compatibleWithPending(pendingDeliveries, lastNodeId,  bestId);
+std::cout<<"\nnotcompatwith= "<<notcompatWith;
+
+        if (bestId==pickId) {
+              notcompatWith=compatibleWithPending(pendingDeliveries, lastNodeId,  bestId);
+              if (notcompatWith!=-1) { 
+std::cout<<"\nInserting a node that was in pending   aka. bestID is delivery becasue the chosen node was incompatible with this node";
+                   bestId=notcompatWith;
+                   nodeToInsert=twc.getNode(bestId);
+                   //add the node to truck
+                   truck.push_back(nodeToInsert);  //add the node to the truck
+                   lastNodeId=nodeToInsert.getnid();
+                   //delete node from pending
+                   pendingDeliveries.removeNode(lastNodeId);
+                   nodes.removeNode(lastNodeId);                // remove the node from the nodes list
+                   twc.maskVertical(lastNodeId);              // lastInserted node is not reachable from any other node (aka, its already being used)
+                   continue;
+               } else {
+std::cout<<"\nInserting a node that is a pickup that all pending are compatible";
+                   bestId=bestId;
+                   nodeToInsert=twc.getNode(bestId);
+                   //add the node to truck
+                   truck.push_back(nodeToInsert);  //add the node to the truck
+                   lastNodeId=nodeToInsert.getnid();
+                   //delete node from pending
+                   //pendingDeliveries.removeNode(lastNodeId);
+                   nodes.removeNode(lastNodeId);                // remove the node from the nodes list
+                   twc.maskVertical(lastNodeId);              // lastInserted node is not reachable from any other node (aka, its already being used)
+std::cout<<"\n need to update de pending deliveries (becasue was a pickup)";
+                   pendingDeliveries.push_back (  order.getDelivery() );
+                   continue;
+               }
+         } 
+
+
+
+std::cout<<"\nCaso especial, es un pickup y hay que meter su delivery primero falta corregir el codigo";
+        
+	actualCompat=twc.compatibleIJ(lastNodeId,bestId);
+        nodeToInsert=twc.getNode(bestId);
+        if (pendingDeliveries.hasNodes()) {
+                for (int j=0; j<pendingDeliveries.size();j++) {
+                    deliveryId=pendingDeliveries.getnid(j); 
+std::cout<<"\ndeliveryId= "<<deliveryId;
+                    if (deliveryId==bestId) {break;}  // the best is in the delivery list
+		    if ( actualCompat<twc.compatibleIJ(lastNodeId,deliveryId) ) {
+std::cout<<"\nbetter to insert a delivery";
+                        nodeToInsert=pendingDeliveries.getnode(j) ;
+                        bestId=pendingDeliveries.getnid(j);
+                        break;
+                    };
+                 };
+        };
+
+        twc.maskHorizontal(lastNodeId);              // lastInserted node is not reachable from any other node (aka, its already being used)
+
+std::cout<<"\n NodetoInsert= "; nodeToInsert.dump();
+
+        truck.push_back(nodeToInsert);  //add the node to the truck
+        lastNodeId=nodeToInsert.getnid();
+
+std::cout<<"\n truck= "; truck.tau(); std::cout<<"\n";
+
+        if (nodeToInsert.ispickup()) {
+std::cout<<"\norder to where it belongs= "<<nodeToInsert.getoid(); std::cout<<"\n";
+
+                 pendingDeliveries.push_back (  ordersList[ nodeToInsert.getoid() ].getDelivery() );
+        } else {
+std::cout<<"\n removing delivery node = ";
+std::cout<<"\n lastNodeId= "<<lastNodeId;
+std::cout<<"\n pending= "; pendingDeliveries.tau(); std::cout<<"\n";
+                 pendingDeliveries.removeNode(lastNodeId);
+std::cout<<"\n pending= "; pendingDeliveries.tau(); std::cout<<"\n";
+        }
+
+std::cout<<"\n pending= "; pendingDeliveries.tau(); std::cout<<"\n";
+std::cout<<"\n truck= "; truck.tau(); std::cout<<"\n";
+
+
+        nodes.removeNode(lastNodeId);                // remove the node from the nodes list
+std::cout<<"\n nodes= "; nodes.tau(); std::cout<<"\n";
+
+    };
+std::cout<<"\n deliveries pending remove the corresponing pickups:"<<pendingDeliveries.size();
+//       while (not pendingDeliveries.size()==0) {
+std::cout<<"\n\t removng:";
+            pendingId =  pendingDeliveries.getnid(0);
+            Order order = ordersList[ pendingDeliveries.getnode(0).getoid()  ];
+order.debugdump();
+            Dpnode node= order.getPickup();
+            truck.removeOrder(  order );
+            pendingDeliveries.removeNode ( pendingId );
+            nodes.push_back(node);
+            twc.recreateRowColumn( node.getnid() );
+//       }
+
+twc.dump();
+std::cout<<"\n pending= "; pendingDeliveries.tau(); std::cout<<"\n";
+    fleet.push_back(truck);
+};
 }
 
 

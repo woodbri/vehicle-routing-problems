@@ -108,25 +108,39 @@ void Compatible::setIncompatible(int fromNid,int toNid) {
 
 
 
-bool Compatible::compatibleIJ(int fromNid, int toNid){
+bool Compatible::isCompatibleIJ(int fromNid, int toNid) {
     int atFrom = IdPos[fromNid];
     int atTo = IdPos[toNid];
     return not (twcij[atFrom][atTo]  == _MIN());
 }
 
-bool Compatible::compatibleIAJ(int fromNid, int middleNid, int toNid){
+bool Compatible::isCompatibleIAJ(int fromNid, int middleNid, int toNid) {
     int atFrom = IdPos[fromNid];
     int atMiddle = IdPos[middleNid];
     int atTo = IdPos[toNid];
-    return compatibleIJ(atFrom,atMiddle) and compatibleIJ(atMiddle,atTo);
+    return isCompatibleIJ(atFrom,atMiddle) and isCompatibleIJ(atMiddle,atTo);
 }
 
 
 
+double Compatible::compatibleIJ(int fromNid, int toNid) {
+    int atFrom = IdPos[fromNid];
+    int atTo = IdPos[toNid];
+    return twcij[atFrom][atTo];
+}
 
 
 
 /*compatibility hast to be nodeid based not position based*/
+
+Dpnode Compatible::getNode(int nid){
+     int at = IdPos[nid];
+     return nodes[at];
+};
+
+
+
+
 void Compatible::recreateRowColumn( int nid) {
      int at = IdPos[nid];
      for (int j=0; j<twcij.size(); j++) {
@@ -148,13 +162,18 @@ void Compatible::maskVertical(int nid) {
          twcij[i][at]=  -std::numeric_limits<double>::max();
 }
 
+/* asummes the node is already being used therefore it masks vertical (aka.. no longer a node can reach
+the fromNid node */
 int  Compatible::getBestCompatible(int fromNid) {
      int best=0;
      int from = IdPos[fromNid];
+     maskVertical(fromNid);           //mask based on nodes id instead of position
+     original.removeNode(fromNid);
      for (int j=0; j<twcij.size(); j++) 
          if (twcij[from][j]>twcij[from][best])
             best=j;
-     return best;
+     if (compat(from,best)!=_MIN()) return nodes[best].getnid();
+     else return -1;
 }
 
 
@@ -224,7 +243,7 @@ int  Compatible::getBestPickupCompatible(int from) {
      for (int j=0; j<twcij.size(); j++) 
          if (twcij[from][j]>twcij[from][best] and nodes[j].ispickup())
             best=j;
-     return best;
+     return nodes[best].getnid();
 }
 
 int  Compatible::getBestPickupCompatible() {
@@ -268,9 +287,6 @@ void Compatible::dump() const  {
 }
 
 
-double Compatible::compat(int i,int j) const {
-    return twcij[i][j];
-};
 
 
 
@@ -280,9 +296,15 @@ void Compatible::dumpCompatible() {
     for (int i=0;i<nodes.size();i++) {
       for (int j=0;j<nodes.size();j++) {
         for (int k=0;k<nodes.size();k++) {
-          std::cout<<"\t ( "<<nodes[i].getnid()<<" , "<<nodes[j].getnid()<<" , "<<nodes[k].getnid()<<") = "<<(compatibleIAJ(i,j,k)? "COMP": "not");
+          std::cout<<"\t ( "<<nodes[i].getnid()<<" , "<<nodes[j].getnid()<<" , "<<nodes[k].getnid()<<") = "<<(isCompatibleIAJ(i,j,k)? "COMP": "not");
         }
         std::cout<<"\n";
       }
     }
 }
+
+/* private are indexed */
+
+double Compatible::compat(int i,int j) const {
+    return twcij[i][j];
+};
