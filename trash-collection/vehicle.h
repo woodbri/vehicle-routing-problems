@@ -42,7 +42,7 @@ class Vehicle {
     }
 
     // accessors
-    Twpath<Trashnode> getvpath() { return path; };
+    Twpath<Trashnode> getvpath() const { return path; };
     std::deque<int> getpath();
     int size() const { return path.size(); };
     int getmaxcapacity() const { return maxcapacity; };

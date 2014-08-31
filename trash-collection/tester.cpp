@@ -131,6 +131,7 @@ int main(int argc, char **argv) {
         p.move(7,9,3,v.getmaxcapacity());
         p.dump();
 
+        p = v.getvpath();
         std::cout << "\np.movereverse(2,4,7,v.getmaxcapacity())" << std::endl;
         p.dump();
         p.movereverse(2,4,7,v.getmaxcapacity());
