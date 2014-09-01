@@ -3,6 +3,7 @@
 
 #include <deque>
 #include <iostream>
+#include <algorithm>
 
 /*
     Evaluation has to be done
@@ -79,11 +80,15 @@ template <class knode> class Twpath {
     void e_move(int fromi, int toj, double maxcapacity) {
         if (fromi == toj) return;
         if (fromi < toj){
-            insert(path[fromi], toj + 1);
+            if (toj+1 > path.size())
+                path.push_back(path[fromi]);
+            else
+                insert(path[fromi], toj + 1);
             e_remove(fromi, maxcapacity);
         } else {
+            int sz = path.size();
             insert(path[fromi], toj);
-            e_remove(fromi + 1, maxcapacity);
+            e_remove(std::min(sz, fromi + 1), maxcapacity);
         }
     };
 

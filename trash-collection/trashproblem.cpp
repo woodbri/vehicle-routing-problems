@@ -618,7 +618,6 @@ void TrashProblem::assignmentSweep2() {
 
 void TrashProblem::opt_2opt() {
     for (int i=0; i<fleet.size(); i++) {
-        std::cout << "--------------------- vehicle " << i << " ------------\n";
         fleet[i].pathTwoOpt();
     }
 }
@@ -626,14 +625,12 @@ void TrashProblem::opt_2opt() {
 
 void TrashProblem::opt_3opt() {
     for (int i=0; i<fleet.size(); i++) {
-        std::cout << "--------------------- vehicle " << i << " ------------\n";
         fleet[i].pathThreeOpt();
     }
 }
 
 void TrashProblem::opt_or_opt() {
     for (int i=0; i<fleet.size(); i++) {
-        std::cout << "--------------------- vehicle " << i << " ------------\n";
         fleet[i].pathOrOpt();
     }
 }
@@ -641,7 +638,6 @@ void TrashProblem::opt_or_opt() {
 
 void TrashProblem::optimize() {
     for (int i=0; i<fleet.size(); i++) {
-        std::cout << "--------------------- vehicle " << i << " ------------\n";
         fleet[i].pathOptimize();
     }
 }
