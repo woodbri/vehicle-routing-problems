@@ -210,11 +210,14 @@ void Vehicle::doInvertSeq(const int& i, const int& j) {
 
 bool Vehicle::pathOptimize() {
     // repeat each move until the is no improvement then move to the next
+
     // 1. move node forward
     // 2. move node down
     pathOptMoveNodes();
+
     // 3. 2-exchange
     pathOptExchangeNodes();
+
     // 4. sequence invert
     pathOptInvertSequence();
 }
@@ -282,8 +285,8 @@ bool Vehicle::pathOrOpt() {
                 for (int k=2; k>=0; k--) {
                     if (! (j<i-1 or j>i+k+1)) continue;
                     doOrOpt( i, i+k, j );
-std::cout << "pathOrOpt["<<i<<","<<i+k<<","<<j<<"]("<<getcost()<<"): ";
-dumppath();
+//std::cout << "pathOrOpt["<<i<<","<<i+k<<","<<j<<"]("<<getcost()<<"): ";
+//dumppath();
                 }
             }
         }
@@ -304,9 +307,13 @@ bool Vehicle::pathOptMoveNodes() {
     do {
         oldcost = getcost();
 
+//std::cout << "\n---------------------------------------------------------\n";
+//std::cout << "before move forward: "; dumppath();
+
         for (int i=1; i<size; i++) {
             for (int j=i+1; j<size; j++) {
                 doNodeMove(i, j);
+//std::cout << "after doNodeMove("<<i<<","<<j<<"): "; dumppath();
             }
         }
     }
@@ -316,9 +323,13 @@ bool Vehicle::pathOptMoveNodes() {
     do {
         oldcost = getcost();
 
+//std::cout << "\n---------------------------------------------------------\n";
+//std::cout << "before move backward: "; dumppath();
+
         for (int i=size-1; i>0; i--) {
             for (int j=i-1; j>0; j--) {
                 doNodeMove(i, j);
+//std::cout << "after doNodeMove("<<i<<","<<j<<"): "; dumppath();
             }
         }
     }
