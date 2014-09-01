@@ -56,6 +56,8 @@ int getpid() const {return pickup->getnid();}
 int getdid() const {return delivery->getnid();}
 int getoid() const {return oid;};
 int getrid() const {return rid;};
+Dpnode getDelivery() {Dpnode node; node = *delivery; return node; };
+Dpnode getPickup() {Dpnode node; node = *pickup; return node; };
 
 double getdistPickupDepot() const {return dist;};
 double getdistDeliveryDepot() const {return dist2;};

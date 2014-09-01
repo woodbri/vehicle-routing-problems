@@ -46,21 +46,28 @@ class Vehicle {
     int getmaxcapacity() const {return maxcapacity; };
     int size() const  {return path.size();};
  //   int  getoid(int i) const { return path[i].getoid(); };
+    int getpos(const int nodeId) const;
     int getdpos(const int oid) const;
     int getppos(const int oid) const;
     Twpath<Dpnode> getpath() ;
+    Dpnode& operator[](unsigned int n) { return path[n]; };
+    Dpnode  operator[] (unsigned int n) const { return path[n]; };
+
 
     void remove(int at);
     void removeOrder( const Order &order);
     void removeOrder(int orderid);
     void removePickup(int orderid);
     void removeDelivery(int orderid);
+    void removeNode(int nodeid);
     void swapstops(int i,int j);
     void korenamaewaruidesu(Vehicle &rhs, int i, int j);
     void swap(int i,int j);
     void move(int fromi,int toj);
     void push_back(Dpnode pathstop);
     void insert(Dpnode pathstop,int at);
+    int  getnid(int at) {return path[at].getnid();};
+    Dpnode& getnode(int at) {return path[at];};
 
     void dump() ;
     void smalldump();
@@ -76,6 +83,8 @@ class Vehicle {
     double costBetterPickupBackward(int &bppos, int &bdpos);
     double findBestCostBackForw(const int oid,int &bppos,int &bdpos);
     int    findBetterDeliveryForward(const int ppos,const int dpos,double &bestcost);
+    bool hasTrip() {return path.size()>1;};
+    bool hasNodes() {return !path.empty();};
 
 
 

@@ -12,14 +12,18 @@
 #include "node.h"
 #include "order.h"
 #include "vehicle.h"
+#include "compatible.h"
 
 class Prob_pd {
   protected:
     Dpnode depot;
     double w1,w2,w3;
 
+    Compatible twc;
+
     Twpath<Dpnode> datanodes;
-    Twpath<Dpnode> originalnodes;
+//   Twpath<Dpnode> originalnodes;
+    Vehicle originalnodes;
     std::deque<Order> ordersList;   // vector of orders
     std::deque<std::deque<double> > twcij;
     std::deque<double>  twcTot;
@@ -59,7 +63,7 @@ class Prob_pd {
     void sortOrdersbyDistReverse();
 
 
-/* compatability issues */
+/* compatability issues 
     void twcij_calculate();
     void twcTot_calculate();
     double ajli(const Dpnode &ni, const Dpnode &nj);
@@ -69,6 +73,15 @@ class Prob_pd {
     bool compatibleIJ(int i, int j);
     bool compatibleIAJ(int i, int a, int j);
     void dumpCompatible() ;
+    void maskHorizontal(int at) ;
+    void maskVertical(int at) ;
+    int  getBestCompatible(int from) ;
+    int  getBestPickupCompatible(int from) ;
+    int  getBestCompatible() ;
+    int  getBestPickupCompatible() ;
+    void recreateRowColumn( int nodeId );
+*/
+
 
 
     void twcijDump() const;

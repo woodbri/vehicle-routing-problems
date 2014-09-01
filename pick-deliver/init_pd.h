@@ -35,6 +35,10 @@ class Init_pd: public Prob_pd {
     void tau() ;
     void plot(std::string file,std::string title);
 
+Order getOrderData(int nodeId, int &pick, int &deliver);
+bool inPending(const Vehicle pend, int nodeId) ;
+int compatibleWithPending(const Vehicle &pend, int fromId, int toId); 
+
 
 /* Diferent initial Constructions */
     void seqConst();
