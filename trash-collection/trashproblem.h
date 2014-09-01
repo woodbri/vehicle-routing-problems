@@ -83,6 +83,8 @@ class TrashProblem {
     // optimization routines
     void opt_2opt();
     void opt_3opt();
+    void opt_or_opt();
+    void optimize();
 
 };
 

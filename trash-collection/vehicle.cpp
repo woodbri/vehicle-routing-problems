@@ -116,7 +116,7 @@ void Vehicle::doTwoOpt(const int& c1, const int& c2, const int& c3, const int& c
 
 
 void Vehicle::doThreeOpt(const int& c1, const int& c2, const int& c3, const int& c4, const int& c5, const int& c6) {
-    // Feasible exchanges only - TODO not sure what we should eliminate
+    // Feasible exchanges only
     if (! (c2>c1 && c3>c2 && c4>c3 && c5>c4 && c6>c5)) return;
 
     double oldcost = getcost();
@@ -140,8 +140,83 @@ void Vehicle::doThreeOpt(const int& c1, const int& c2, const int& c3, const int&
 }
 
 
-bool Vehicle::pathOptimize() {
+void Vehicle::doOrOpt(const int& c1, const int& c2, const int& c3) {
+    // Feasible exchanges only
+    if (! (c2 >= c1 and (c3 < c1-1 or c3 > c2+2))) return;
+    if (c2 > path.size()-1 or c3 > path.size()-1) return;
 
+    double oldcost = getcost();
+    Twpath<Trashnode> oldpath(path); // save a copy for undo
+
+    path.move(c1, c2, c3, getmaxcapacity());
+    evalLast();
+
+    if (getcost() > oldcost or hastwv()) {
+        //path.move(c3-(c2-c1+1), c3-1, c1, getmaxcapacity());
+        path = oldpath;
+        evalLast();
+    }
+}
+
+
+void Vehicle::doNodeMove(const int& i, const int& j) {
+    if (i == j or i < 1 or j < 1 or i > path.size() or j > path.size())
+        return;
+
+    double oldcost = getcost();
+
+    path.move(i, j, getmaxcapacity());
+    evalLast();
+
+    if (getcost() > oldcost or hastwv()) {
+        if (i > j)
+            path.move(j, i+1, getmaxcapacity());
+        else
+            path.move(j-1, i, getmaxcapacity());
+        evalLast();
+    }
+}
+
+
+void Vehicle::doNodeSwap(const int& i, const int& j) {
+    if (i < 1 or j < 1 or i > path.size() or j > path.size()) return;
+
+    double oldcost = getcost();
+
+    path.swap(i, j, getmaxcapacity());
+    evalLast();
+
+    if (getcost() > oldcost or hastwv()) {
+        path.swap(i, j, getmaxcapacity());
+        evalLast();
+    }
+}
+
+
+void Vehicle::doInvertSeq(const int& i, const int& j) {
+    if (i > path.size() or j > path.size()) return;
+
+    double oldcost = getcost();
+
+    path.reverse(i, j, getmaxcapacity());
+    evalLast();
+
+    if (getcost() > oldcost or hastwv()) {
+        path.reverse(i, j, getmaxcapacity());
+        evalLast();
+    }
+}
+
+
+bool Vehicle::pathOptimize() {
+    // repeat each move until the is no improvement then move to the next
+    // 1. move node forward
+    // 2. move node down
+    pathOptMoveNodes();
+    // 3. 2-exchange
+    pathOptExchangeNodes();
+    // 4. sequence invert
+    pathOptInvertSequence();
 }
 
 
@@ -191,5 +266,110 @@ bool Vehicle::pathThreeOpt() {
 
     return getcost() < origcost;
 }
+
+
+bool Vehicle::pathOrOpt() {
+    int size = this->size();
+
+    double origcost = getcost();
+    double oldcost;
+
+    do {
+        oldcost = getcost();
+
+        for (int i=1; i<size; i++) {
+            for (int j=1; j<size; j++) {
+                for (int k=2; k>=0; k--) {
+                    if (! (j<i-1 or j>i+k+1)) continue;
+                    doOrOpt( i, i+k, j );
+std::cout << "pathOrOpt["<<i<<","<<i+k<<","<<j<<"]("<<getcost()<<"): ";
+dumppath();
+                }
+            }
+        }
+    }
+    while (getcost() < oldcost);
+
+    return getcost() < origcost;
+}
+
+
+bool Vehicle::pathOptMoveNodes() {
+    int size = this->size();
+
+    double origcost = getcost();
+    double oldcost;
+
+    // move the nodes forward looking for improvements
+    do {
+        oldcost = getcost();
+
+        for (int i=1; i<size; i++) {
+            for (int j=i+1; j<size; j++) {
+                doNodeMove(i, j);
+            }
+        }
+    }
+    while (getcost() < oldcost);
+
+    // move the nodes backwards looking for improvements
+    do {
+        oldcost = getcost();
+
+        for (int i=size-1; i>0; i--) {
+            for (int j=i-1; j>0; j--) {
+                doNodeMove(i, j);
+            }
+        }
+    }
+    while (getcost() < oldcost);
+
+    return getcost() < origcost;
+}
+
+
+bool Vehicle::pathOptExchangeNodes() {
+    int size = this->size();
+
+    double origcost = getcost();
+    double oldcost;
+
+    // 2-exchange (swapping) nodes along the path
+    do {
+        oldcost = getcost();
+
+        for (int i=1; i<size; i++) {
+            for (int j=i+1; j<size; j++) {
+                doNodeSwap(i, j);
+            }
+        }
+    }
+    while (getcost() < oldcost);
+
+    return getcost() < origcost;
+}
+
+
+bool Vehicle::pathOptInvertSequence() {
+    int size = this->size();
+
+    double origcost = getcost();
+    double oldcost;
+
+    // invert all possible sequences of nodes
+    do {
+        oldcost = getcost();
+
+        for (int i=1; i<size; i++) {
+            for (int j=i+1; j<size; j++) {
+                doInvertSeq(i, j);
+            }
+        }
+    }
+    while (getcost() < oldcost);
+
+    return getcost() < origcost;
+}
+
 
 

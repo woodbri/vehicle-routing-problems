@@ -105,9 +105,28 @@ int main(int argc, char **argv) {
         tp.assignmentSweep2();
         tp.dump();
 
+
         Vehicle v = tp.getVehicle(0);
         Twpath<Trashnode> p = v.getvpath();
 
+        std::cout << "\nv.pathOptMoveNodes()" << std::endl;
+        v.dumppath();
+        v.pathOptMoveNodes();
+        v.dumppath();
+
+        v = tp.getVehicle(0);
+        std::cout << "\nv.pathOptExchangeNodes()" << std::endl;
+        v.dumppath();
+        v.pathOptExchangeNodes();
+        v.dumppath();
+
+        v = tp.getVehicle(0);
+        std::cout << "\nv.pathOptInvertSequence()" << std::endl;
+        v.dumppath();
+        v.pathOptInvertSequence();
+        v.dumppath();
+
+/*
         std::cout << "\np.move(2,4,7,v.getmaxcapacity())" << std::endl;
         p.dump();
         p.move(2,4,7,v.getmaxcapacity());
@@ -155,17 +174,31 @@ int main(int argc, char **argv) {
         p.movereverse(7,9,3,v.getmaxcapacity());
         p.dump();
 
+*/
+
 /*
         tp.plot("p3.png", "assignmentSweep2", font);
         std::cout << "\n----------- doing 2-opt -----------------------\n";
         tp.opt_2opt();
         tp.dump();
         tp.plot("p4.png", "assignmentSweep2 - after 2opt", font);
+
         std::cout << "\n----------- doing 3-opt -----------------------\n";
         tp.opt_3opt();
         tp.dump();
         tp.plot("p5.png", "assignmentSweep2 - after 3opt", font);
+
+        std::cout << "\n----------- doing or-opt -----------------------\n";
+        tp.opt_or_opt();
+        tp.dump();
+        tp.plot("p6.png", "assignmentSweep2 - after or-opt", font);
+
+        std::cout << "\n----------- doing pathOptimize ---------------------\n";
+        tp.optimize();
+        tp.dump();
+        tp.plot("p7.png", "assignmentSweep2 - after optimize", font);
 */
+
     }
     catch (const std::exception &e) {
         std::cerr << e.what() << std::endl;

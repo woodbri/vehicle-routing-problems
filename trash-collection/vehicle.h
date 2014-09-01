@@ -96,9 +96,18 @@ class Vehicle {
 
     void doTwoOpt(const int& c1, const int& c2, const int& c3, const int& c4);
     void doThreeOpt(const int& c1, const int& c2, const int& c3, const int& c4, const int& c5, const int& c6);
+    void doOrOpt(const int& c1, const int& c2, const int &c3);
+    void doNodeMove(const int& i, const int& j);
+    void doNodeSwap(const int& i, const int& j);
+    void doInvertSeq(const int& i, const int& j);
+
     bool pathOptimize();
     bool pathTwoOpt();
     bool pathThreeOpt();
+    bool pathOrOpt();
+    bool pathOptMoveNodes();
+    bool pathOptExchangeNodes();
+    bool pathOptInvertSequence();
 
 /* I really hate these shortcuts */
 
