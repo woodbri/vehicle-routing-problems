@@ -38,6 +38,54 @@ std::cout<<"notwithID EXITING"<<notwithID;
     return notwithID;
 }
 
+void Init_pd::insert(Vechicle &truck, int nodeId,Bucket &nodes) {
+       Dpnode nodeToInsert=twc.getNode(bestId);
+       truck.push_back(nodeToInsert);  //add the node to the truck
+       nodes.removeNode(nodeId);                // remove the node from the nodes bucket
+       twc.maskVertical(nodeId);              // lastInserted node is not reachable from any other node (aka, its already being used)
+}
+
+void Int::removeIncompatible(int fromId,Bucke &nodes, Bucket &incomatible);
+       int currId;
+       Order =  order;
+       int i = 0;
+       while (i<nodes.size()) {
+           currId=nodes[i].getnid();
+           order =getOrderData(currId,pickId,deliverId);
+           if (isCompatibleIJ(fromId,pickId) and isCompatible(fromId,deliverId) i++;
+           else { // either pick or delivery are incompatible
+                
+       }
+
+
+void Init_pd::paperConst(Vehicle &truck, Bucket &nodes, Bucket &incompatible, Bucket &pending) {
+        int lastNodeId = truck[truck.size()-1].getnid();
+        int insertedId;
+        if (nodes.empty()) return; //no more compatible nodes
+        bestId=twc.getBestCompatible(lastNodeId);
+        if (bestId==-1) { std::cout<<"\nNever should I reach here "; break; };                    //no compatible node, have to leave //what with the other nodes???
+        order =getOrderData(bestId,pickId,deliverId);
+        if (bestId==pickId) {
+            // pick & deliver are compatible to the last node
+                insert(truck,pickId,nodes);
+                pending.push_back(order.getDelivery());
+                insertedId=pickId;
+        } else { // best compatible is delivery
+            if (inPending(pending,bestId)) { // pickup already in the route
+                insert(truck,deliverId,nodes);
+                pendingDeliveries.removeNode(bestId);
+                insertedId=deliverId;
+            } else {   //pickup is not in the route
+                insert(truck,pickId,nodes);
+                pending.push_back(order.getDelivery());
+                insertedId=pickId;
+            }
+        }
+        //move incompatible from nodes bucket
+        
+}    
+
+
 
 
 
