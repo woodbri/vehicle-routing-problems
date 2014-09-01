@@ -20,6 +20,7 @@ void Vehicle::dump() {
     std::cout << "w3: " << getw3() << std::endl;
     std::cout << "path nodes: -----------------" << std::endl;
     path.dump();
+/*
     std::cout << "--------- dumpeval ----------" << std::endl;
     for (int i=0;i<path.size();i++){
         std::cout<<"\npath stop #:"<<i<<"\n";
@@ -30,6 +31,7 @@ void Vehicle::dump() {
     std::cout<<"\nBack to depot:"<<"\n";
     backToDepot.dumpeval();
     std::cout <<"TOTAL COST="<<cost <<"\n";
+*/
 }
 
 
@@ -80,7 +82,7 @@ void Vehicle::evalLast() {
 }
 
 
-// found this algorithm here
+// found 2-opt and 3-opt algorithm here
 // http://www.technical-recipes.com/2012/applying-c-implementations-of-2-opt-to-travelling-salesman-problems/
 // but I do not think either the 2-opt of 3-opt as implemented are correct
 // I have modified the 2-opt to reverse the intervening nodes
@@ -114,156 +116,260 @@ void Vehicle::doTwoOpt(const int& c1, const int& c2, const int& c3, const int& c
 
 
 void Vehicle::doThreeOpt(const int& c1, const int& c2, const int& c3, const int& c4, const int& c5, const int& c6) {
-    // Feasible exchanges only - TODO not sure what we should eliminate
-    if (! (c2>c1 && c3>c2 && c3>c3 && c5>c4 && c6>c5)) return;
+    // Feasible exchanges only
+    if (! (c2>c1 && c3>c2 && c4>c3 && c5>c4 && c6>c5)) return;
 
     double oldcost = getcost();
     Twpath<Trashnode> oldpath(path); // save a copy for undo
 
     // the 3-opt appears to reduce to extracting a sequence of nodes c3-c4
     // and reversing them and inserting them back after c6
-    path.movereverse(c3, c4, c6, getmaxcapacity());
+//std::cout << "doThreeOpt A: "; dumppath();
+    path.movereverse(c2, c3, c6, getmaxcapacity());
     evalLast();
+//std::cout << "doThreeOpt B: "; dumppath();
+
+
+//std::cout << "doThreeOpt: cost: " << getcost() << ", twv: " << hastwv() << std::endl;
 
     if (getcost() > oldcost or hastwv()) {
         path = oldpath;
         evalLast();
     }
 
-/*
-// found this algorithm here
-// http://www.technical-recipes.com/2012/applying-c-implementations-of-2-opt-to-travelling-salesman-problems/
-// but I do not think either the 2-opt of 3-opt as implemented are correct
+}
 
-    // swap 1
-    // c2 -> c4
-    // c4 -> c6
-    // c6 -> c2
-    // before: 1 2 3 4 5 6
-    // after:  1 4 3 6 5 2
-    path.swap(c4, c6, getmaxcapacity());
-    path.swap(c2, c4, getmaxcapacity());
+
+void Vehicle::doOrOpt(const int& c1, const int& c2, const int& c3) {
+    // Feasible exchanges only
+    if (! (c2 >= c1 and (c3 < c1-1 or c3 > c2+2))) return;
+    if (c2 > path.size()-1 or c3 > path.size()-1) return;
+
+    double oldcost = getcost();
+    Twpath<Trashnode> oldpath(path); // save a copy for undo
+
+    path.move(c1, c2, c3, getmaxcapacity());
     evalLast();
 
-    // reset if not an improvement
     if (getcost() > oldcost or hastwv()) {
-        path.swap(c4, c2, getmaxcapacity());
-        path.swap(c6, c4, getmaxcapacity());
+        //path.move(c3-(c2-c1+1), c3-1, c1, getmaxcapacity());
+        path = oldpath;
         evalLast();
     }
-    else {
-        oldcost = getcost();
-    }
+}
 
-    // swap 2
-    // c2 -> c4
-    // c4 -> c5
-    // c5 -> c2
-    // before: 1 2 3 4 5 6
-    // after:  1 5 3 2 4 6
-    path.swap(c4, c5, getmaxcapacity());
-    path.swap(c2, c4, getmaxcapacity());
+
+void Vehicle::doNodeMove(const int& i, const int& j) {
+    if (i == j or i < 1 or j < 1 or i > path.size() or j > path.size())
+        return;
+
+    double oldcost = getcost();
+
+    path.move(i, j, getmaxcapacity());
     evalLast();
 
-    // reset if not an improvement
     if (getcost() > oldcost or hastwv()) {
-        path.swap(c4, c2, getmaxcapacity());
-        path.swap(c5, c4, getmaxcapacity());
+        if (i > j)
+            path.move(j, i+1, getmaxcapacity());
+        else
+            path.move(j-1, i, getmaxcapacity());
         evalLast();
     }
-*/
+}
+
+
+void Vehicle::doNodeSwap(const int& i, const int& j) {
+    if (i < 1 or j < 1 or i > path.size() or j > path.size()) return;
+
+    double oldcost = getcost();
+
+    path.swap(i, j, getmaxcapacity());
+    evalLast();
+
+    if (getcost() > oldcost or hastwv()) {
+        path.swap(i, j, getmaxcapacity());
+        evalLast();
+    }
+}
+
+
+void Vehicle::doInvertSeq(const int& i, const int& j) {
+    if (i > path.size() or j > path.size()) return;
+
+    double oldcost = getcost();
+
+    path.reverse(i, j, getmaxcapacity());
+    evalLast();
+
+    if (getcost() > oldcost or hastwv()) {
+        path.reverse(i, j, getmaxcapacity());
+        evalLast();
+    }
 }
 
 
 bool Vehicle::pathOptimize() {
-
+    // repeat each move until the is no improvement then move to the next
+    // 1. move node forward
+    // 2. move node down
+    pathOptMoveNodes();
+    // 3. 2-exchange
+    pathOptExchangeNodes();
+    // 4. sequence invert
+    pathOptInvertSequence();
 }
 
 
 bool Vehicle::pathTwoOpt() {
     int size = this->size();
 
-    double oldcost = getcost();
+    double origcost = getcost();
+    double oldcost;
 
-    for (int i=0; i<size-3; i++) {
-        for (int j=i+3; j<size-1; j++) {
-            doTwoOpt( i, i+1, j, j+1 );
-            std::cout << "pathTwoOpt["<<i<<","<<i+1<<","<<j<<","<<j+1<<"]("<<getcost()<<"): ";
-            dumppath();
+    do {
+        oldcost = getcost();
+
+        for (int i=0; i<size-3; i++) {
+            for (int j=i+3; j<size-1; j++) {
+                doTwoOpt( i, i+1, j, j+1 );
+//                std::cout << "pathTwoOpt["<<i<<","<<i+1<<","<<j<<","<<j+1<<"]("<<getcost()<<"): ";
+//                dumppath();
+            }
         }
     }
+    while (getcost() < oldcost);
 
-    double newcost = getcost();
-
-    return newcost < oldcost;
+    return getcost() < origcost;
 }
 
 
 bool Vehicle::pathThreeOpt() {
     int size = this->size();
 
-    double oldcost = getcost();
+    double origcost = getcost();
+    double oldcost;
 
-    for (int i=0; i<size-5; i++) {
-        for (int j=i+3; j<size-3; j++) {
-            for (int k=j+3; k<size-1; k++) {
-                doThreeOpt( i, i+1, j, j+1, k, k+1 );
-                std::cout << "pathThreeOpt["<<i<<","<<i+1<<","<<j<<","<<j+1<<","<<k<<","<<k+1<<"]("<<getcost()<<"): ";
-                dumppath();
+    do {
+        oldcost = getcost();
+
+        for (int i=0; i<size-5; i++) {
+            for (int j=i+2; j<size-3; j++) {
+                for (int k=j+2; k<size-1; k++) {
+                    doThreeOpt( i, i+1, j, j+1, k, k+1 );
+//                    std::cout << "pathThreeOpt["<<i<<","<<i+1<<","<<j<<","<<j+1<<","<<k<<","<<k+1<<"]("<<getcost()<<"): ";
+//                    dumppath();
+                }
             }
         }
     }
+    while (getcost() < oldcost);
 
-    double newcost = getcost();
-
-    return newcost < oldcost;
+    return getcost() < origcost;
 }
 
 
-/*
-// this is the old code before we started using Tweval
-void Vehicle::evaluate() {
-    curcapacity = 0;
-    duration = 0;
-    cost = 0;
-    TWV = 0;
-    CV = 0;
+bool Vehicle::pathOrOpt() {
+    int size = this->size();
 
-    if (path.size()) {
-        for (int i=0; i<path.size(); i++) {
-            if (i == 0)
-                duration += distancetodepot(i);
-            else
-                duration += path[i].distance(path[i-1]);
+    double origcost = getcost();
+    double oldcost;
 
-            if (path[i].earlyarrival(duration))
-                duration = path[i].opens();
+    do {
+        oldcost = getcost();
 
-            if (path[i].latearrival(duration)) 
-                TWV++;
-
-            duration += path[i].getservicetime();
-
-            curcapacity += path[i].getdemand();
-            if (curcapacity > getmaxcapacity())
-                CV++;
+        for (int i=1; i<size; i++) {
+            for (int j=1; j<size; j++) {
+                for (int k=2; k>=0; k--) {
+                    if (! (j<i-1 or j>i+k+1)) continue;
+                    doOrOpt( i, i+k, j );
+std::cout << "pathOrOpt["<<i<<","<<i+k<<","<<j<<"]("<<getcost()<<"): ";
+dumppath();
+                }
+            }
         }
-
-        duration += getdumpsite().distance(path.back());
-
-        if (getdumpsite().earlyarrival(duration))
-            duration = getdumpsite().opens();
-
-        if (getdumpsite().latearrival(duration))
-            TWV++;
-
-        duration += getdumpsite().getservicetime();
-
-        duration += getdumpsite().distance(getdepot());
-        if (getdepot().latearrival(duration))
-            TWV++;
-
     }
-    cost = w1*duration + w2*TWV +w3*CV;
+    while (getcost() < oldcost);
+
+    return getcost() < origcost;
 }
-*/
+
+
+bool Vehicle::pathOptMoveNodes() {
+    int size = this->size();
+
+    double origcost = getcost();
+    double oldcost;
+
+    // move the nodes forward looking for improvements
+    do {
+        oldcost = getcost();
+
+        for (int i=1; i<size; i++) {
+            for (int j=i+1; j<size; j++) {
+                doNodeMove(i, j);
+            }
+        }
+    }
+    while (getcost() < oldcost);
+
+    // move the nodes backwards looking for improvements
+    do {
+        oldcost = getcost();
+
+        for (int i=size-1; i>0; i--) {
+            for (int j=i-1; j>0; j--) {
+                doNodeMove(i, j);
+            }
+        }
+    }
+    while (getcost() < oldcost);
+
+    return getcost() < origcost;
+}
+
+
+bool Vehicle::pathOptExchangeNodes() {
+    int size = this->size();
+
+    double origcost = getcost();
+    double oldcost;
+
+    // 2-exchange (swapping) nodes along the path
+    do {
+        oldcost = getcost();
+
+        for (int i=1; i<size; i++) {
+            for (int j=i+1; j<size; j++) {
+                doNodeSwap(i, j);
+            }
+        }
+    }
+    while (getcost() < oldcost);
+
+    return getcost() < origcost;
+}
+
+
+bool Vehicle::pathOptInvertSequence() {
+    int size = this->size();
+
+    double origcost = getcost();
+    double oldcost;
+
+    // invert all possible sequences of nodes
+    do {
+        oldcost = getcost();
+
+        for (int i=1; i<size; i++) {
+            for (int j=i+1; j<size; j++) {
+                doInvertSeq(i, j);
+            }
+        }
+    }
+    while (getcost() < oldcost);
+
+    return getcost() < origcost;
+}
+
+
+

@@ -96,18 +96,69 @@ template <class knode> class Twpath {
     };
 
 
-    // moves a range of nodes (i-j) after k and reverses those nodes
-    void movereverse(int i, int j, int k, double maxcapacity) {
-        if (! (i < j and (k > j or k < i-1))) return;
-        for (int n=i, m=0; n<=j; n++, m++) {
-            knode temp = path[i];
-            path.erase(path.begin()+i);
-            path.insert(path.begin()+k-m, temp);
+    // moves a range of nodes (i-j) to position k without reversing them
+    void move(int i, int j, int k, double maxcapacity) {
+        if (! (i < j and (k > j or k < i))) return;
+        // moving range to right of the range
+        if (k > j) {
+            // if the length of the range is larger than the distance
+            // being moved it is faster to move the intervening nodes in
+            // the opposite direction
+            if (j-i+1 > k-j-1) {
+                move(j+1, k-1, i, maxcapacity);
+                return;
+            }
+            for (int n=i, m=0; n<=j; n++, m++) {
+                knode temp = path[i];
+                path.erase(path.begin()+i);
+                path.insert(path.begin()+k-1, temp);
+            }
         }
-        i < k ? path[i].evaluate(maxcapacity) : path[k].evaluate(maxcapacity);
+        // moving range to left of the range
+        else {
+            // if the length of the range is larger than the distance
+            // being moved it is faster to move the intervening nodes in
+            // the opposite direction
+            if (j-i+1 > i-k) {
+                move(k, i-1, j+1, maxcapacity);
+                return;
+            }
+            for (int n=i, m=0; n<=j; n++, m++) {
+                knode temp = path[i+m];
+                path.erase(path.begin()+i+m);
+                path.insert(path.begin()+k+m, temp);
+            }
+        }
+        //i < k ? path[i].evaluate(maxcapacity) : path[k].evaluate(maxcapacity);
+        evaluate(maxcapacity);
     }
 
 
+    // moves a range of nodes (i-j) to position k and reverses those nodes
+    void movereverse(int i, int j, int k, double maxcapacity) {
+        if (! (i < j and (k > j or k < i))) return;
+        // moving range to right of the range
+        if (k > j) {
+            for (int n=i, m=1; n<=j; n++, m++) {
+                knode temp = path[i];
+                path.erase(path.begin()+i);
+                path.insert(path.begin()+k-m, temp);
+            }
+        }
+        // moving range to left of the range
+        else {
+            for (int n=i; n<=j; n++) {
+                knode temp = path[n];
+                path.erase(path.begin()+n);
+                path.insert(path.begin()+k, temp);
+            }
+        }
+        //i < k ? path[i].evaluate(maxcapacity) : path[k].evaluate(maxcapacity);
+        evaluate(maxcapacity);
+    }
+
+
+    // reverse the nodes from i to j in the path
     void reverse(int i, int j, double maxcapacity) {
         int m = i;
         int n = j;

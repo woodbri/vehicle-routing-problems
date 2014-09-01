@@ -51,77 +51,6 @@ int main(int argc, char **argv) {
 
     try {
 
-/*
-        std::cout << "Testing Vec2d ------------"  << std::endl;
-        TestDistanceFromLineSegmentToPoint();
-        std::cout << "--------------------------" << std::endl << std::endl;
-
-        Node n;
-        std::cout << "Empty Node validity: " << n.isvalid() << std::endl;
-        n.set(1, 10, 20);
-        n.dump();
-        std::cout << "Node validity: " << n.isvalid() << std::endl;
-
-        Node n2(2, 11,21);
-        n2.dump();
-        std::cout << "n[1].isSamePos(n[2]): " << n.isSamePos(n2) << std::endl;
-        std::cout << "n[1].isSamePos(n[2],1.5): " << n.isSamePos(n2, 1.5) << std::endl;
-        std::cout << "n[1].distance(n[2]): " << n.distance(n2) << std::endl;
-
-        Twnode tw;
-        tw.set(2, 20, 30, 40, 120, 600, 5);
-        tw.dump();
-        std::cout << "tw.opens(): " << tw.opens() << std::endl;
-        std::cout << "tw.closes(): " << tw.closes() << std::endl;
-        std::cout << "tw.getdemand(): " << tw.getdemand() << std::endl;
-        std::cout << "tw.getservicetime(): " << tw.getservicetime() << std::endl;
-        std::cout << "tw.windowlength(): " << tw.windowlength() << std::endl;
-        std::cout << "tw.checkintegrity(): " << tw.checkintegrity() << std::endl;
-        std::cout << "tw.hasdemand(): " << tw.hasdemand() << std::endl;
-        std::cout << "tw.hassupply(): " << tw.hassupply() << std::endl;
-        std::cout << "tw.earlyarrival(110): " << tw.earlyarrival(110) << std::endl;
-        std::cout << "tw.earlyarrival(120): " << tw.earlyarrival(120) << std::endl;
-        std::cout << "tw.earlyarrival(620): " << tw.earlyarrival(620) << std::endl;
-        std::cout << "tw.latearrival(110): " << tw.latearrival(110) << std::endl;
-        std::cout << "tw.latearrival(600): " << tw.latearrival(600) << std::endl;
-        std::cout << "tw.latearrival(620): " << tw.latearrival(620) << std::endl;
-
-        Trashnode tn;
-        std::cout << "tn.hasdemand(): " << tn.hasdemand() << std::endl;
-        std::cout << "tn.hassupply(): " << tn.hassupply() << std::endl;
-        std::cout << "tn.hasnogoods(): " << tn.hasnogoods() << std::endl;
-        tn.setvalues(3, 21, 32, 40, 120, 600, 5, 2);
-        tn.dump();
-        std::cout << "tn.isvalid(): " << tn.isvalid() << std::endl;
-        std::cout << "tn.opens(): " << tn.opens() << std::endl;
-        std::cout << "tn.closes(): " << tn.closes() << std::endl;
-        std::cout << "tn.getdemand(): " << tn.getdemand() << std::endl;
-        std::cout << "tn.getservicetime(): " << tn.getservicetime() << std::endl;
-        std::cout << "tn.windowlength(): " << tn.windowlength() << std::endl;
-        std::cout << "tn.checkintegrity(): " << tn.checkintegrity() << std::endl;
-        std::cout << "tn.hasdemand(): " << tn.hasdemand() << std::endl;
-        std::cout << "tn.hassupply(): " << tn.hassupply() << std::endl;
-        std::cout << "tn.isdepot(): " << tn.isdepot() << std::endl;
-        std::cout << "tn.isdump(): " << tn.isdump() << std::endl;
-        std::cout << "tn.ispickup(): " << tn.ispickup() << std::endl;
-        std::cout << "tn.earlyarrival(110): " << tn.earlyarrival(110) << std::endl;
-        std::cout << "tn.earlyarrival(120): " << tn.earlyarrival(120) << std::endl;
-        std::cout << "tn.earlyarrival(620): " << tn.earlyarrival(620) << std::endl;
-        std::cout << "tn.latearrival(110): " << tn.latearrival(110) << std::endl;
-        std::cout << "tn.latearrival(600): " << tn.latearrival(600) << std::endl;
-        std::cout << "tn.latearrival(620): " << tn.latearrival(620) << std::endl;
-
-        Trashnode depot(1, 0, 0, 0, 0, 24*60, 0, 0);
-        Trashnode dumpsite(2, 10, 10, 0, 0, 24*60, 30, 1);
-        Twpath<Trashnode> route;
-        route.setdepot(depot);
-        route.setdumpsite(dumpsite);
-        route.dump();
-        route.push_back(tn);
-        tn = Trashnode(4, 15, 35, 10, 0, 24*60, 15, 2);
-        route.push_front(tn);
-        route.dump();
-*/
         // ----------------------------------------------------------------
 
         TrashProblem tp;
@@ -175,13 +104,100 @@ int main(int argc, char **argv) {
         std::cout << "\n----------- assignmentSweep2 -----------------------\n";
         tp.assignmentSweep2();
         tp.dump();
+
+
+        Vehicle v = tp.getVehicle(0);
+        Twpath<Trashnode> p = v.getvpath();
+
+        std::cout << "\nv.pathOptMoveNodes()" << std::endl;
+        v.dumppath();
+        v.pathOptMoveNodes();
+        v.dumppath();
+
+        v = tp.getVehicle(0);
+        std::cout << "\nv.pathOptExchangeNodes()" << std::endl;
+        v.dumppath();
+        v.pathOptExchangeNodes();
+        v.dumppath();
+
+        v = tp.getVehicle(0);
+        std::cout << "\nv.pathOptInvertSequence()" << std::endl;
+        v.dumppath();
+        v.pathOptInvertSequence();
+        v.dumppath();
+
+/*
+        std::cout << "\np.move(2,4,7,v.getmaxcapacity())" << std::endl;
+        p.dump();
+        p.move(2,4,7,v.getmaxcapacity());
+        p.dump();
+
+        p = v.getvpath();
+        std::cout << "\np.move(2,4,10,v.getmaxcapacity())" << std::endl;
+        p.dump();
+        p.move(2,4,10,v.getmaxcapacity());
+        p.dump();
+
+        p = v.getvpath();
+        std::cout << "\np.move(7,9,5,v.getmaxcapacity())" << std::endl;
+        p.dump();
+        p.move(7,9,5,v.getmaxcapacity());
+        p.dump();
+
+        p = v.getvpath();
+        std::cout << "\np.move(7,9,3,v.getmaxcapacity())" << std::endl;
+        p.dump();
+        p.move(7,9,3,v.getmaxcapacity());
+        p.dump();
+
+        p = v.getvpath();
+        std::cout << "\np.movereverse(2,4,7,v.getmaxcapacity())" << std::endl;
+        p.dump();
+        p.movereverse(2,4,7,v.getmaxcapacity());
+        p.dump();
+
+        p = v.getvpath();
+        std::cout << "\np.movereverse(2,4,10,v.getmaxcapacity())" << std::endl;
+        p.dump();
+        p.movereverse(2,4,10,v.getmaxcapacity());
+        p.dump();
+
+        p = v.getvpath();
+        std::cout << "\np.movereverse(7,9,5,v.getmaxcapacity())" << std::endl;
+        p.dump();
+        p.movereverse(7,9,5,v.getmaxcapacity());
+        p.dump();
+
+        p = v.getvpath();
+        std::cout << "\np.movereverse(7,9,3,v.getmaxcapacity())" << std::endl;
+        p.dump();
+        p.movereverse(7,9,3,v.getmaxcapacity());
+        p.dump();
+
+*/
+
+/*
         tp.plot("p3.png", "assignmentSweep2", font);
+        std::cout << "\n----------- doing 2-opt -----------------------\n";
         tp.opt_2opt();
         tp.dump();
         tp.plot("p4.png", "assignmentSweep2 - after 2opt", font);
+
+        std::cout << "\n----------- doing 3-opt -----------------------\n";
         tp.opt_3opt();
         tp.dump();
         tp.plot("p5.png", "assignmentSweep2 - after 3opt", font);
+
+        std::cout << "\n----------- doing or-opt -----------------------\n";
+        tp.opt_or_opt();
+        tp.dump();
+        tp.plot("p6.png", "assignmentSweep2 - after or-opt", font);
+
+        std::cout << "\n----------- doing pathOptimize ---------------------\n";
+        tp.optimize();
+        tp.dump();
+        tp.plot("p7.png", "assignmentSweep2 - after optimize", font);
+*/
 
     }
     catch (const std::exception &e) {

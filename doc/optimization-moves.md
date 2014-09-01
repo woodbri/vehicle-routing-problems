@@ -28,6 +28,25 @@ The Figures 1-9 were taken from the paper "Vehicle Routing Problem with Time Win
 
 ![Figure 9 - Cyclic Exchange Opt](https://raw.githubusercontent.com/woodbri/vehicle-routing-problems/develop/doc/images/cyclic-transfer-opt.png "Figure 9 - Cyclic Exchange Opt")
 
+## k-opt moves
+
+In order to simplify execution of a feasible k-opt move, the following fact
+may be used: Any k-opt move (k >= 2) is equivalent to a finite sequence of
+2-opt moves [8,26]. In the case of 5-opt moves it can be shown that any
+5-opt move is equivalent to a sequence of at most five 2-opt moves. Any
+3-opt move as well as any 4-opt move is equivalent to a sequence of at most
+three 2-opt moves. In general, any feasible k-opt move may be executed by
+at most k 2-opt moves. For a proof, see [28].
+
+[8] Christofides, N., Eilon, S.: Algorithms for large-scale traveling
+salesman problems. Oper. Res. Quart. 23, 511.518 (1972)
+[26] Mak, K.T., Morton, A.J.: Distances between traveling salesman tours.
+Discret. Appl. Math. 58, 281.291 (1995)
+[28] Mendivil, D., Shonkwiler, R., Spruill, M.C.: An analysis of random
+restart and iterated improvement for global optimization with an application
+to the traveling salesman problem. J. Optim. Theory Appl. 124(4), 407.433 (2005)
+
+## Various Move Operations
 
 In the following examples, assume the depot is ``0`` and the other numbers
 are customer nodes. The *before* and *after* routes will show how the
@@ -35,6 +54,11 @@ proposed move impacts the ordering of the nodes in the route.
 
 *NOTE: THE DESCRIPTIONS MAY BE WRONG - THE FIGURES ABOVE ARE CORRECT*
 
+It should also be noted that many of these simple description in adequately
+describe what needs to happen ont there are nodes between the two nodes
+being operated on. For example in the 2-opt move if there are intervening
+nodes the whole sequence of nodes gets reversed and not just swapping the
+end nodes of a range.
 
 
 ## 1-opt move
