@@ -183,19 +183,19 @@ int Compatible::getSeed(int foo, const Bucket &nodes) {
      int Id;
      int bestCount=0;
      bestEc2= - _MIN();
-std::cout<<"gettingSeed";
+//std::cout<<"gettingSeed";
      for (int i=0; i<nodes.size(); i++) {
          if (i==0) bestId = nodes[0].getnid();
          Id = nodes[i].getnid();
-std::cout<<"\n working with node "<<Id;
+//std::cout<<"\n working with node "<<Id;
          count=0; 
 //         if (ec2(Id) <  bestEc2){
         for (int j=0; j<nodes.size(); j++) 
             if ( i!=j and  isCompatibleIJ( Id , nodes[j].getnid() ) ) count++;
 //std::cout<<" has  "<<ec2(Id)<<"ec2";
-std::cout<<" has  "<<count<<" compatibilities";
+//std::cout<<" has  "<<count<<" compatibilities";
         if (count>bestCount) {
-std::cout<<" oldCount  "<<bestCount<<" newCount "<<count;
+//std::cout<<" oldCount  "<<bestCount<<" newCount "<<count;
             bestCount=count;
             bestId=Id;
          }
@@ -238,24 +238,24 @@ int  Compatible::getBestCompatible(int fromNid,const Bucket &nodes) {
      int from = IdPos[fromNid];
      int toPos,toId;
      //  maskVertical(fromNid); 
-std::cout<<"\n gettingbest from "<<fromNid<<"\t";
-nodes.tau();
+//std::cout<<"\n gettingbest from "<<fromNid<<"\t";
+//nodes.tau();
      if (nodes.isEmpty()) return -1;
      bestId=nodes[0].getnid();
-std::cout<<"\t best one is "<<bestId;
+//std::cout<<"\t best one is "<<bestId;
      best=IdPos[bestId];
-std::cout<<"\t has "<<twcij[from][best];
+//std::cout<<"\t has "<<twcij[from][best];
 
      for (int j=0; j<nodes.size(); j++) {
          toId = nodes[j].getnid(); 
          toPos= IdPos[toId];
-std::cout<<"\n working with node "<<toId;
-std::cout<<"\t has "<<twcij[from][toPos];
+//std::cout<<"\n working with node "<<toId;
+//std::cout<<"\t has "<<twcij[from][toPos];
              if ( twcij[from][toPos]>twcij[from][best]) {
                 best=toPos; bestId=toId;
              }
-std::cout<<"\t best one is "<<bestId;
-std::cout<<"\t has "<<twcij[from][best];
+//std::cout<<"\t best one is "<<bestId;
+//std::cout<<"\t has "<<twcij[from][best];
      }
      if (compat(from,best)!=_MIN()) return bestId;//nodes[best].getnid();
      else return -1;

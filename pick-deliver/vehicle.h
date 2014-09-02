@@ -39,7 +39,7 @@ class Vehicle {
         backToDepot=_depot;
         maxcapacity=_maxcapacity;
         w1 = w2 = w3 = 1.0;
-        push_back(_depot);
+        e_push_back(_depot);
    };
 
     // accessors
@@ -49,7 +49,8 @@ class Vehicle {
     int getpos(const int nodeId) const;
     int getdpos(const int oid) const;
     int getppos(const int oid) const;
-    Twpath<Dpnode> getpath() ;
+    Twpath<Dpnode>&  Path() ;
+    Twpath<Dpnode>  getpath() const ;
     Dpnode& operator[](unsigned int n) { return path[n]; };
     Dpnode  operator[] (unsigned int n) const { return path[n]; };
 
@@ -61,12 +62,32 @@ class Vehicle {
     void removeDelivery(int orderid);
     void removeNode(int nodeid);
     void swapstops(int i,int j);
-    void korenamaewaruidesu(Vehicle &rhs, int i, int j);
     void swap(int i,int j);
     void move(int fromi,int toj);
     void push_back(Dpnode pathstop);
     void insert(Dpnode pathstop,int at);
-    int  getnid(int at) {return path[at].getnid();};
+    void pushOrder(const Order &o);
+    void pushPickup(const Order &o);
+    void pushDelivery(const Order &o);
+    void insertPickup(const Order &o, const int at);
+
+
+
+    void e_remove(int at);
+    void e_removeOrder( const Order &order);
+    void e_removeOrder(int orderid);
+    void e_removePickup(int orderid);
+    void e_removeDelivery(int orderid);
+    void e_swapstops(int i,int j);
+    void e_swap(int i,int j);
+    void e_move(int fromi,int toj);
+    void e_push_back(Dpnode pathstop);
+    void e_insert(Dpnode pathstop,int at);
+    void e_pushOrder(const Order &o);
+    void e_pushPickup(const Order &o);
+    void e_pushDelivery(const Order &o);
+    void e_insertPickup(const Order &o, const int at);
+
     Dpnode& getnode(int at) {return path[at];};
 
     void dump() const ;
@@ -74,7 +95,7 @@ class Vehicle {
     bool ispickup(int i) {return path[i].ispickup();}
     bool sameorder(int i,int j){return path[i].getoid()==path[j].getoid();}
     void erase() {path.resize(0);};
-    void clean() {path.resize(1,maxcapacity); evalLast(); };
+    void clean() {path.e_resize(1,maxcapacity); evalLast(); };
 
     /*algorithm spesific */
     void findBetterForward(int &bestI, int &bestJ);
@@ -125,13 +146,12 @@ bool isEmptyTruck() const;
     void tau() const ;
 
     void plot(std::string file,std::string title,int carnumber);
-    void pushOrder(const Order &o);
-    void pushPickup(const Order &o);
-    void pushDelivery(const Order &o);
-    void insertPickup(const Order &o, const int at);
+
+
 
 
     /* my inline functions */
+    //int  getnid(int at) {return path[at].getnid();};
     inline int getnid(int i) const { return path[i].getnid(); }
     inline int getoid(int i) const { return path[i].getoid(); }
     inline double getx(const int i) const {path[i].getx();}
