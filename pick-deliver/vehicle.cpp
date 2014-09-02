@@ -72,7 +72,7 @@ double Vehicle::findBestCostBackForw(const int oid,int &bppos,int &bdpos){
 
 /***************************** DUMP PRINTS PLOTS   ********/
 
-   void Vehicle::dump()  {
+   void Vehicle::dump() const {
      for (int i=0;i<path.size();i++){
          std::cout<<"\npath stop #:"<<i<<"\n";
           path[i].dumpeval();
@@ -89,13 +89,13 @@ double Vehicle::findBestCostBackForw(const int oid,int &bppos,int &bdpos){
       return p;
    }
 
-   void Vehicle::smalldump() {
+   void Vehicle::smalldump() const {
       backToDepot.dumpeval();
       std::cout << "TOTAL COST="<<cost << ", TAU= ";
       tau(); std::cout<<"\n";
    }
 
-   void Vehicle::tau() {
+   void Vehicle::tau() const {
       for (int i=0; i< path.size(); i++)
          std::cout<<getnid(i)<<" , ";
    }
@@ -242,6 +242,13 @@ void Vehicle::findBetterForward(int &bestI, int &bestJ) {
                }
            }
     }
+
+/* path operations */
+bool Vehicle::isEmpty() const {return path.size()==0;}
+bool Vehicle::isEmptyTruck() const {return path.size()==1;}
+
+
+
 
  /****** Insertion of nodes to the path  ********/
 

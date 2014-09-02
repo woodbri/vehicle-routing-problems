@@ -40,8 +40,15 @@ bool inPending(const Vehicle pend, int nodeId) ;
 int compatibleWithPending(const Vehicle &pend, int fromId, int toId); 
 
 
-/* Diferent initial Constructions */
+/*  paper initial Construction */
+void insert(Vehicle &truck, int nodeId,Bucket &nodes);
+void removeIncompatible(int fromId,Bucket &nodes, Bucket &incomatible);
+void paperConst(Vehicle&, Bucket&, Bucket&, Bucket&);
+bool isCompatibleWithPending(int fromId,const Bucket &pending) ;
+
     void seqConst();
+
+/* Diferent initial Constructions */
     void insertByOrderSolution();
     void dumbConstruction();
     void dumbConstructionAndBestMoveForward();

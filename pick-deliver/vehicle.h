@@ -69,10 +69,11 @@ class Vehicle {
     int  getnid(int at) {return path[at].getnid();};
     Dpnode& getnode(int at) {return path[at];};
 
-    void dump() ;
-    void smalldump();
+    void dump() const ;
+    void smalldump()const ;
     bool ispickup(int i) {return path[i].ispickup();}
     bool sameorder(int i,int j){return path[i].getoid()==path[j].getoid();}
+    void erase() {path.resize(0);};
     void clean() {path.resize(1,maxcapacity); evalLast(); };
 
     /*algorithm spesific */
@@ -86,6 +87,8 @@ class Vehicle {
     bool hasTrip() {return path.size()>1;};
     bool hasNodes() {return !path.empty();};
 
+bool isEmpty() const;
+bool isEmptyTruck() const;
 
 
 
@@ -119,7 +122,7 @@ class Vehicle {
         w3 = _w3;
     };
 
-    void tau() ;
+    void tau() const ;
 
     void plot(std::string file,std::string title,int carnumber);
     void pushOrder(const Order &o);
@@ -145,4 +148,5 @@ class Vehicle {
 
 };
 
+typedef Vehicle Bucket;
 #endif
