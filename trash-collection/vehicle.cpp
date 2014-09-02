@@ -51,21 +51,21 @@ std::deque<int> Vehicle::getpath()  {
 
 
 void Vehicle::push_back(Trashnode node) {
-    path.push_back(node, getmaxcapacity());
+    path.e_push_back(node, getmaxcapacity());
     evalLast();
 }
 
 
 void Vehicle::push_front(Trashnode node) {
     // position 0 is the depot we can not put a node before that
-    path.insert(node, 1, getmaxcapacity());
+    path.e_insert(node, 1, getmaxcapacity());
     path.evaluate(1, getmaxcapacity());
     evalLast();
 }
 
 
 void Vehicle::insert(Trashnode node, int at) {
-    path.insert(node, at, getmaxcapacity());
+    path.e_insert(node, at, getmaxcapacity());
     path.evaluate(at, getmaxcapacity());
     evalLast();
 }
@@ -100,15 +100,15 @@ void Vehicle::doTwoOpt(const int& c1, const int& c2, const int& c3, const int& c
     // c3 -> c2
     // c2 -> c3
     // reverse any nodes between c2 and c3
-    path.swap(c2, c3, getmaxcapacity());
-    path.reverse(c2+1, c3-1, getmaxcapacity());
+    path.e_swap(c2, c3, getmaxcapacity());
+    path.e_reverse(c2+1, c3-1, getmaxcapacity());
     evalLast();
 
     // if the change does NOT improve the cost or generates TW violations
     // undo the change
     if (getcost() > oldcost or hastwv()) {
-        path.swap(c2, c3, getmaxcapacity());
-        path.reverse(c2+1, c3-1, getmaxcapacity());
+        path.e_swap(c2, c3, getmaxcapacity());
+        path.e_reverse(c2+1, c3-1, getmaxcapacity());
         evalLast();
     }
 
@@ -125,7 +125,7 @@ void Vehicle::doThreeOpt(const int& c1, const int& c2, const int& c3, const int&
     // the 3-opt appears to reduce to extracting a sequence of nodes c3-c4
     // and reversing them and inserting them back after c6
 //std::cout << "doThreeOpt A: "; dumppath();
-    path.movereverse(c2, c3, c6, getmaxcapacity());
+    path.e_movereverse(c2, c3, c6, getmaxcapacity());
     evalLast();
 //std::cout << "doThreeOpt B: "; dumppath();
 
@@ -148,11 +148,11 @@ void Vehicle::doOrOpt(const int& c1, const int& c2, const int& c3) {
     double oldcost = getcost();
     Twpath<Trashnode> oldpath(path); // save a copy for undo
 
-    path.move(c1, c2, c3, getmaxcapacity());
+    path.e_move(c1, c2, c3, getmaxcapacity());
     evalLast();
 
     if (getcost() > oldcost or hastwv()) {
-        //path.move(c3-(c2-c1+1), c3-1, c1, getmaxcapacity());
+        //path.e_move(c3-(c2-c1+1), c3-1, c1, getmaxcapacity());
         path = oldpath;
         evalLast();
     }
@@ -165,14 +165,14 @@ void Vehicle::doNodeMove(const int& i, const int& j) {
 
     double oldcost = getcost();
 
-    path.move(i, j, getmaxcapacity());
+    path.e_move(i, j, getmaxcapacity());
     evalLast();
 
     if (getcost() > oldcost or hastwv()) {
         if (i > j)
-            path.move(j, i+1, getmaxcapacity());
+            path.e_move(j, i+1, getmaxcapacity());
         else
-            path.move(j-1, i, getmaxcapacity());
+            path.e_move(j-1, i, getmaxcapacity());
         evalLast();
     }
 }
@@ -183,11 +183,11 @@ void Vehicle::doNodeSwap(const int& i, const int& j) {
 
     double oldcost = getcost();
 
-    path.swap(i, j, getmaxcapacity());
+    path.e_swap(i, j, getmaxcapacity());
     evalLast();
 
     if (getcost() > oldcost or hastwv()) {
-        path.swap(i, j, getmaxcapacity());
+        path.e_swap(i, j, getmaxcapacity());
         evalLast();
     }
 }
@@ -198,11 +198,11 @@ void Vehicle::doInvertSeq(const int& i, const int& j) {
 
     double oldcost = getcost();
 
-    path.reverse(i, j, getmaxcapacity());
+    path.e_reverse(i, j, getmaxcapacity());
     evalLast();
 
     if (getcost() > oldcost or hastwv()) {
-        path.reverse(i, j, getmaxcapacity());
+        path.e_reverse(i, j, getmaxcapacity());
         evalLast();
     }
 }
@@ -210,11 +210,14 @@ void Vehicle::doInvertSeq(const int& i, const int& j) {
 
 bool Vehicle::pathOptimize() {
     // repeat each move until the is no improvement then move to the next
+
     // 1. move node forward
     // 2. move node down
     pathOptMoveNodes();
+
     // 3. 2-exchange
     pathOptExchangeNodes();
+
     // 4. sequence invert
     pathOptInvertSequence();
 }
@@ -282,8 +285,8 @@ bool Vehicle::pathOrOpt() {
                 for (int k=2; k>=0; k--) {
                     if (! (j<i-1 or j>i+k+1)) continue;
                     doOrOpt( i, i+k, j );
-std::cout << "pathOrOpt["<<i<<","<<i+k<<","<<j<<"]("<<getcost()<<"): ";
-dumppath();
+//std::cout << "pathOrOpt["<<i<<","<<i+k<<","<<j<<"]("<<getcost()<<"): ";
+//dumppath();
                 }
             }
         }
@@ -304,9 +307,13 @@ bool Vehicle::pathOptMoveNodes() {
     do {
         oldcost = getcost();
 
+//std::cout << "\n---------------------------------------------------------\n";
+//std::cout << "before move forward: "; dumppath();
+
         for (int i=1; i<size; i++) {
             for (int j=i+1; j<size; j++) {
                 doNodeMove(i, j);
+//std::cout << "after doNodeMove("<<i<<","<<j<<"): "; dumppath();
             }
         }
     }
@@ -316,9 +323,13 @@ bool Vehicle::pathOptMoveNodes() {
     do {
         oldcost = getcost();
 
+//std::cout << "\n---------------------------------------------------------\n";
+//std::cout << "before move backward: "; dumppath();
+
         for (int i=size-1; i>0; i--) {
             for (int j=i-1; j>0; j--) {
                 doNodeMove(i, j);
+//std::cout << "after doNodeMove("<<i<<","<<j<<"): "; dumppath();
             }
         }
     }

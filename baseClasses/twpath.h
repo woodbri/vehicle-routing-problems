@@ -3,6 +3,7 @@
 
 #include <deque>
 #include <iostream>
+#include <algorithm>
 
 /*
     Evaluation has to be done
@@ -13,6 +14,11 @@ template <class knode> class Twpath {
   protected:
     std::deque<knode> path;
 
+
+    // ------------------------------------------------------------------
+    // These methods are NON-EVALUATING
+    // and mirror those functions in std::deque
+    // ------------------------------------------------------------------
 
   public:
     void swap(int i, int j) {
@@ -41,26 +47,26 @@ template <class knode> class Twpath {
     void pop_back() { path.pop_back(); };
     void pop_front() { path.pop_front(); };
 
-
-
-
-
-/* how can we hande evaluation if we need the following??? */
+    // how can we hande evaluation if we need the following???
+    // clear() can be handled with:
+    //      temp = path[0]; path.clear(); path.push_back(temp); ...
 
     void resize(unsigned int n) { path.resize(n); };
     void clear() { path.clear(); };
 
-
-    public:   
     // Capacity
     unsigned int max_size() const { return path.max_size(); };
     unsigned int size() const { return path.size(); };
     bool empty() const { return path.empty(); };
 
+    // ------------------------------------------------------------------
+    // These methods are AUTO-EVALUATING
+    // ------------------------------------------------------------------
+
 
 
     /* nodes handling within two  paths */
-    void swap(int i, double maxcap, Twpath<knode> &rhs, int j, double rhs_maxcap) {
+    void e_swap(int i, double maxcap, Twpath<knode> &rhs, int j, double rhs_maxcap) {
         knode temp = path[i];
         path[i] = rhs.path[j];
         rhs.path[j] = temp;
@@ -71,23 +77,27 @@ template <class knode> class Twpath {
 
 
     /* nodes handling within the same path */
-    void move(int fromi, int toj, double maxcapacity) {
+    void e_move(int fromi, int toj, double maxcapacity) {
         if (fromi == toj) return;
         if (fromi < toj){
-            insert(path[fromi], toj + 1);
-            remove(fromi, maxcapacity);
+            if (toj+1 > path.size())
+                path.push_back(path[fromi]);
+            else
+                insert(path[fromi], toj + 1);
+            e_remove(fromi, maxcapacity);
         } else {
+            int sz = path.size();
             insert(path[fromi], toj);
-            remove(fromi + 1, maxcapacity);
+            e_remove(std::min(sz, fromi + 1), maxcapacity);
         }
     };
 
-    void resize(unsigned int at,double maxcapacity) { 
+    void e_resize(unsigned int at,double maxcapacity) { 
         path.resize(at);
         //theoricamente funciona sin mas
     };
 
-    void swap(int i,int j,double maxcapacity) {
+    void e_swap(int i,int j,double maxcapacity) {
         if (i==j) return;
         knode temp = path[i];
         path[i] = path[j];
@@ -97,7 +107,7 @@ template <class knode> class Twpath {
 
 
     // moves a range of nodes (i-j) to position k without reversing them
-    void move(int i, int j, int k, double maxcapacity) {
+    void e_move(int i, int j, int k, double maxcapacity) {
         if (! (i < j and (k > j or k < i))) return;
         // moving range to right of the range
         if (k > j) {
@@ -105,7 +115,7 @@ template <class knode> class Twpath {
             // being moved it is faster to move the intervening nodes in
             // the opposite direction
             if (j-i+1 > k-j-1) {
-                move(j+1, k-1, i, maxcapacity);
+                e_move(j+1, k-1, i, maxcapacity);
                 return;
             }
             for (int n=i, m=0; n<=j; n++, m++) {
@@ -120,7 +130,7 @@ template <class knode> class Twpath {
             // being moved it is faster to move the intervening nodes in
             // the opposite direction
             if (j-i+1 > i-k) {
-                move(k, i-1, j+1, maxcapacity);
+                e_move(k, i-1, j+1, maxcapacity);
                 return;
             }
             for (int n=i, m=0; n<=j; n++, m++) {
@@ -135,7 +145,7 @@ template <class knode> class Twpath {
 
 
     // moves a range of nodes (i-j) to position k and reverses those nodes
-    void movereverse(int i, int j, int k, double maxcapacity) {
+    void e_movereverse(int i, int j, int k, double maxcapacity) {
         if (! (i < j and (k > j or k < i))) return;
         // moving range to right of the range
         if (k > j) {
@@ -159,7 +169,7 @@ template <class knode> class Twpath {
 
 
     // reverse the nodes from i to j in the path
-    void reverse(int i, int j, double maxcapacity) {
+    void e_reverse(int i, int j, double maxcapacity) {
         int m = i;
         int n = j;
 
@@ -178,22 +188,22 @@ template <class knode> class Twpath {
         i < j ? evaluate(i, maxcapacity): evaluate(j, maxcapacity);
     };
 
-    void insert(const knode &n, int at, double maxcapacity) {
+    void e_insert(const knode &n, int at, double maxcapacity) {
         path.insert(path.begin() + at, n);
         path[at].evaluate(maxcapacity);
     };
 
-    void push_back(const knode& n, double maxcapacity) {
+    void e_push_back(const knode& n, double maxcapacity) {
         path.push_back(n);
         evalLast(maxcapacity);
     };
 
-    void push_back(knode& n, double maxcapacity) {
+    void e_push_back(knode& n, double maxcapacity) {
         path.push_back(n);
         evalLast(maxcapacity);
     };
 
-    void remove (int i, double maxcapacity) {
+    void e_remove (int i, double maxcapacity) {
         path.erase(path.begin() + i);
         evaluate(i, maxcapacity);
     };
