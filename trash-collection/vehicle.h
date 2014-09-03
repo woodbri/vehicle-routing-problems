@@ -22,6 +22,10 @@ class Vehicle {
 
   protected:
 
+    // this is used when we save a copy of the path so we can make
+    // changes and to restore the original path if the changes
+    // do not improve the path.
+    // There is a hidden assumption that path[0] == backToDepot node.
     void setvpath(Twpath<Trashnode> p) { path = p; };
 
   public:

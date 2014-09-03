@@ -20,7 +20,6 @@ void Vehicle::dump() {
     std::cout << "w3: " << getw3() << std::endl;
     std::cout << "path nodes: -----------------" << std::endl;
     path.dump();
-/*
     std::cout << "--------- dumpeval ----------" << std::endl;
     for (int i=0;i<path.size();i++){
         std::cout<<"\npath stop #:"<<i<<"\n";
@@ -31,6 +30,7 @@ void Vehicle::dump() {
     std::cout<<"\nBack to depot:"<<"\n";
     backToDepot.dumpeval();
     std::cout <<"TOTAL COST="<<cost <<"\n";
+/*
 */
 }
 
@@ -464,25 +464,22 @@ bool Vehicle::swap3(Vehicle& v2, Vehicle& v3, const int& i1, const int& i2, cons
     path[i1..j1] <--> v2.path[i2..j2]
 */
 bool Vehicle::exchangeSeq(Vehicle& v2, const int& i1, const int& j1, const int& i2, const int& j2) {
-std::cout << "exchangeSeq\n";
     if ( j1 < i1 or j2 < i2 or i1 < 0 or i2 < 0 or
          j1 > this->size()-1 or j2 > v2.size()-1 ) return false;
 
-    Twpath<Trashnode> p1 = getvpath();      // get a copy
-    Twpath<Trashnode> p2 = v2.getvpath();   // get a copy
+    const Twpath<Trashnode> p1 = getvpath();      // get a copy
+    const Twpath<Trashnode> p2 = v2.getvpath();   // get a copy
 
     Twpath<Trashnode>& v2p = v2.getvpath(); // get a reference to manipulate
 
     double oldcost1 = getcost();
     double oldcost2 = v2.getcost();
 
-    int d1 = j1-i1;
-    int d2 = j2-i2;
-
-std::cout << "oldcost1, oldcost2, d1, d2 = "<<oldcost1<<","<<oldcost2<<","<<d1<<","<<d2<<"\n";
+    int d1 = j1-i1+1;
+    int d2 = j2-i2+1;
 
     // first swap the nodes in the min length of the seq length
-    for (int n=0; n<std::min(d1, d2)+1; n++) {
+    for (int n=0; n<std::min(d1, d2); n++) {
         path.e_swap(i1+n, getmaxcapacity(),
             v2p, i2+n, v2.getmaxcapacity());
     }
@@ -490,13 +487,19 @@ std::cout << "oldcost1, oldcost2, d1, d2 = "<<oldcost1<<","<<oldcost2<<","<<d1<<
     // now if the seqs were different lengths move the remainder
     if (d1 > d2) {
         for (int n=0; n<d1-d2; n++) {
-            v2p.e_insert(path[i1+d2], i2+d2+n, v2.getmaxcapacity());
+            if (i2+d2+n >= v2.size())
+                v2p.e_push_back(path[i1+d2], v2.getmaxcapacity());
+            else
+                v2p.e_insert(path[i1+d2], i2+d2+n, v2.getmaxcapacity());
             path.e_remove(i1+d2, getmaxcapacity());
         }
     }
     else if (d2 > d1) {
         for (int n=0; n<d2-d1; n++) {
-            path.e_insert(v2p[i2+d1], i1+d1+n, getmaxcapacity());
+            if (i1+d1+n >= this->size())
+                path.e_push_back(v2p[i2+d1], getmaxcapacity());
+            else
+                path.e_insert(v2p[i2+d1], i1+d1+n, getmaxcapacity());
             v2p.e_remove(i2+d1, v2.getmaxcapacity());
         }
     }
@@ -506,8 +509,6 @@ std::cout << "oldcost1, oldcost2, d1, d2 = "<<oldcost1<<","<<oldcost2<<","<<d1<<
 
     double newcost1 = getcost();
     double newcost2 = v2.getcost();
-
-std::cout << "newcost1, newcost2, feasable1, feasable2 = "<<newcost1<<","<<newcost2<<","<<feasable()<<","<<v2.feasable()<<"\n";
 
     if ( newcost1 + newcost2 > oldcost1 + oldcost2 or
              !feasable() or !v2.feasable() ) {
@@ -530,7 +531,6 @@ std::cout << "newcost1, newcost2, feasable1, feasable2 = "<<newcost1<<","<<newco
     exchange v1[i1...n1] <--> v2[i2..n2]
 */
 bool Vehicle::exchangeTails(Vehicle& v2, const int& i1, const int& i2) {
-std::cout << "exchangeTails\n";
     if ( i1 < 0 or i1 > this->size()-1 or
          i2 < 0 or i2 > v2.size()-1 ) return false;
 
@@ -638,18 +638,21 @@ bool Vehicle::relocateBest(Vehicle& v2, const int& i1) {
     double bestcost;
 
     // first we insert v1[i1] into the start of v2
+    // ie: pos: 1 after the depot at pos: 0
     v2p.e_insert(path[i1], 1, v2.getmaxcapacity());
     v2.evalLast();
+v2.dump();
 
     if (v2.feasable()) {
         bestpos = 1;
         bestcost = v2.getcost();
     }
 
-    // now we move it down the path checking for better costs
+    // now we walk it down the path checking for better costs
     for (int i=2; i<v2.size(); i++) {
         v2p.e_swap(i-1, i, v2.getmaxcapacity());
         v2.evalLast();
+v2.dump();
         if (v2.getcost() < bestcost and v2.feasable()) {
             bestpos = i;
             bestcost = v2.getcost();
@@ -675,6 +678,7 @@ bool Vehicle::relocateBest(Vehicle& v2, const int& i1) {
             v2p.e_move(v2.size()-1, bestpos, v2.getmaxcapacity());
             v2.evalLast();
         }
+v2.dump();
     }
     // else restore everything and return false
     else {
