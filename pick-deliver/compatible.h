@@ -56,6 +56,8 @@ class Compatible {
     void maskHorizontal(int at) ;
     void maskVertical(int at) ;
     int  getBestCompatible(int from) ;
+    int  getSeed(int fromNid, const Bucket &nodes);
+    int  getBestCompatible(int fromNid,const Bucket &nodes);
     int  getBestPickupCompatible(int from) ;
     int  getBestCompatible() ;
     int  getBestPickupCompatible() ;

@@ -72,7 +72,7 @@ double Vehicle::findBestCostBackForw(const int oid,int &bppos,int &bdpos){
 
 /***************************** DUMP PRINTS PLOTS   ********/
 
-   void Vehicle::dump()  {
+   void Vehicle::dump() const {
      for (int i=0;i<path.size();i++){
          std::cout<<"\npath stop #:"<<i<<"\n";
           path[i].dumpeval();
@@ -82,20 +82,26 @@ double Vehicle::findBestCostBackForw(const int oid,int &bppos,int &bdpos){
      std::cout <<"TOTAL COST="<<cost <<"\n";
    }
 
-   Twpath<Dpnode> Vehicle::getpath()  {
+   Twpath<Dpnode>& Vehicle::Path() {
+      return path;
+   }
+
+   Twpath<Dpnode> Vehicle::getpath() const  {
       Twpath<Dpnode> p;
       p=path;
       p.push_back(backToDepot);
       return p;
    }
 
-   void Vehicle::smalldump() {
+
+
+   void Vehicle::smalldump() const {
       backToDepot.dumpeval();
       std::cout << "TOTAL COST="<<cost << ", TAU= ";
       tau(); std::cout<<"\n";
    }
 
-   void Vehicle::tau() {
+   void Vehicle::tau() const {
       for (int i=0; i< path.size(); i++)
          std::cout<<getnid(i)<<" , ";
    }
@@ -124,12 +130,12 @@ bool Vehicle::findImprovment(int i) {
            bool improved=false;
            if (isdepot(i)) return false; //should never arrive here if order is inserted
            for (int j=i+1; j<path.size() and !(ispickup(i) and isdelivery(j) and sameorder(i,j)); j++) {
-               swapstops(i,j);
+               e_swapstops(i,j);
 std::cout<<"\n testing  and is "<<(feasable()? "FEASABLE":"unfeasable")<<"---\t";
 tau();
                if (feasable() and not oldfeasable)    return true;
                if (getcost()<oldcost and feasable())  return true;
-                   else  swap(i,j);
+                   else  e_swap(i,j);
            }
            return false;
 }
@@ -192,49 +198,10 @@ void Vehicle::findBetterForward(int &bestI, int &bestJ) {
          return at;
     }
 
-/********* MOVEMENT OF PATHSTOPS WITHIN PATH  *****/
-
-/****** removal of nodes from the path  ********/
-
-/***  direct evaluation **/
-   void Vehicle::remove(int at){
-          if (!path.empty()) {
-              path.remove(at,maxcapacity);
-              evalLast();  
-          }
-    }
-
-/****** Indirect evaluation *****/    
-
-    void Vehicle::removeOrder(const Order &order){
-         removeOrder(order.getoid());
-    }
     
-    void Vehicle::removeOrder(const int oid){
-         removePickup(oid);
-         removeDelivery(oid);
-    }
 
-/* O(n) */
-    void Vehicle::removePickup(int oid){
-          for (int at=0;at<path.size();at++) {
-               if (ispickup(at) and getoid(at)==oid ){
-                   remove(at); break; 
-               }
-
-         }
-   }
-
-/* O(n) */
-    void Vehicle::removeDelivery(int oid){
-           for (int at=0;at<path.size();at++) {
-               if (isdelivery(at) and getoid(at)==oid ){
-                   remove(at); break; //only 1 delivery per order
-               }
-           }
-    }
-
-/*non evaluating */
+/*************** path operations aka to use Vehicke as a bucket ******************/
+    bool Vehicle::isEmpty() const {return path.size()==0;}
     void Vehicle::removeNode(int nid){
            for (int at=0;at<path.size();at++) {
                if (getnid(at)==nid ){
@@ -243,79 +210,203 @@ void Vehicle::findBetterForward(int &bestI, int &bestJ) {
            }
     }
 
- /****** Insertion of nodes to the path  ********/
+    void Vehicle::push_back(Dpnode pathstop) { path.push_back(pathstop); }
+    void Vehicle::insert(Dpnode pathstop,int at) { path.insert(pathstop,at); }
+    void Vehicle::insertPickup(const Order &o, const int at) { insert(*o.pickup,at); }
 
-/****** Direct evaluation *****/    
-    void Vehicle::push_back(Dpnode pathstop) {
-          path.push_back(pathstop,maxcapacity);
-          evalLast();
-    }
-
-
-    
-    void Vehicle::insert(Dpnode pathstop,int at) {
-         path.insert(pathstop,at,maxcapacity);
-         evalLast();
-    }
-
-
-/****** Indirect evaluation *****/    
-    void  Vehicle::insertPickup(const Order &o, const int at) {
-        Dpnode pickup(*o.pickup);
-        insert(pickup,at);
-    }
-
-    
-    void  Vehicle::pushPickup(const Order &o) {
-        Dpnode  pickup(*o.pickup);
-        push_back(pickup);
-    }
-
-    
-    void Vehicle::pushDelivery(const Order &o) {
-       Dpnode delivery(*o.delivery);
-       push_back(delivery);
-    }
-
-    
+    void Vehicle::pushPickup(const Order &o) { push_back(*o.pickup); }
+    void Vehicle::pushDelivery(const Order &o) { push_back(*o.delivery); }
     void Vehicle::pushOrder( const Order &o) {
         pushPickup(o);
         pushDelivery(o);
     }
+    void Vehicle::removePickup(int oid){
+          for (int at=0;at<path.size();at++) {
+               if (ispickup(at) and getoid(at)==oid ){
+                   path.remove(at); break;
+               }
+         }
+    }
 
-    
-/****** moves between pathstops  ********/
+    void Vehicle::removeDelivery(int oid){
+           for (int at=0;at<path.size();at++) {
+               if (isdelivery(at) and getoid(at)==oid ){
+                   path.remove(at); break; //only 1 delivery per order
+               }
+           }
+    }
+    void Vehicle::removeOrder(const Order &order){ removeOrder(order.getoid()); }
+    void Vehicle::removeOrder(const int oid) {
+         removePickup(oid);
+         removeDelivery(oid);
+    }
+
     void Vehicle::move(int fromi,int toj) {
           if (fromi==toj) return; //nothing to move
-          path.move(fromi,toj,maxcapacity);
-          evalLast();
+          path.move(fromi,toj);
     }
 
        
     void Vehicle::swap(int i,int j){	
           if (i==j) return; //nothing to swap
-          path.swap(i,j,maxcapacity);
+          path.swap(i,j);
+    }
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+/********* MOVEMENT OF PATHSTOPS WITHIN PATH  *****/
+
+/****** removal of nodes from the path  ********/
+
+/***  direct evaluation **/
+   void Vehicle::e_remove(int at){
+          if (!path.empty()) {
+              path.e_remove(at,maxcapacity);
+              evalLast();  
+          }
+    }
+
+/****** Indirect evaluation *****/    
+
+    void Vehicle::e_removeOrder(const Order &order){
+         removeOrder(order.getoid());
+    }
+    
+    void Vehicle::e_removeOrder(const int oid){
+         removePickup(oid);
+         removeDelivery(oid);
+    }
+
+/* O(n) */
+    void Vehicle::e_removePickup(int oid){
+          for (int at=0;at<path.size();at++) {
+               if (ispickup(at) and getoid(at)==oid ){
+                   e_remove(at); break; 
+               }
+
+         }
+   }
+
+/* O(n) */
+    void Vehicle::e_removeDelivery(int oid){
+           for (int at=0;at<path.size();at++) {
+               if (isdelivery(at) and getoid(at)==oid ){
+                   e_remove(at); break; //only 1 delivery per order
+               }
+           }
+    }
+
+
+
+
+
+
+bool Vehicle::isEmptyTruck() const {return path.size()==1;}
+
+
+
+
+ /****** Insertion of nodes to the path  ********/
+
+/****** Direct evaluation *****/    
+    void Vehicle::e_push_back(Dpnode pathstop) {
+          path.e_push_back(pathstop,maxcapacity);
+          evalLast();
+    }
+
+
+    
+    void Vehicle::e_insert(Dpnode pathstop,int at) {
+         path.e_insert(pathstop,at,maxcapacity);
+         evalLast();
+    }
+
+
+/****** Indirect evaluation *****/    
+    void  Vehicle::e_insertPickup(const Order &o, const int at) {
+        Dpnode pickup(*o.pickup);
+        e_insert(pickup,at);
+    }
+
+    
+    void  Vehicle::e_pushPickup(const Order &o) {
+        Dpnode  pickup(*o.pickup);
+        e_push_back(pickup);
+    }
+
+    
+    void Vehicle::e_pushDelivery(const Order &o) {
+       Dpnode delivery(*o.delivery);
+       e_push_back(delivery);
+    }
+
+    
+    void Vehicle::e_pushOrder( const Order &o) {
+        e_pushPickup(o);
+        e_pushDelivery(o);
+    }
+
+    
+/****** moves between pathstops  ********/
+    void Vehicle::e_move(int fromi,int toj) {
+          if (fromi==toj) return; //nothing to move
+          path.e_move(fromi,toj,maxcapacity);
+          evalLast();
+    }
+
+       
+    void Vehicle::e_swap(int i,int j){	
+          if (i==j) return; //nothing to swap
+          path.e_swap(i,j,maxcapacity);
           evalLast();
     }
 
 /*indirect*/
-    void Vehicle::swapstops(int i,int j){
+    void Vehicle::e_swapstops(int i,int j){
           if(i>j)  std::cout<<"This is a restrictive swap, requierment: i<j\n";  
           if ( ispickup(i) and isdelivery(j) and sameorder(i,j) ) {
                std::cout<<"This is a restrictive swap, requierment: cant swap from the same order\n";
                return;
           }
-          swap(i,j);
+          e_swap(i,j);
      }
 
-    void Vehicle::korenamaewaruidesu( Vehicle &rhs, int i, int j){
-          path.swap(i, maxcapacity, rhs.path, j, rhs.maxcapacity);
-          evalLast();
-          rhs.evalLast();
-     }
+     
+
+/***********************   EVALUATION **************************/
 
 
-/***PLOT***/
+   void Vehicle::evaluate() {
+     path.evaluate(maxcapacity);
+     evalLast();
+   };
+
+   void Vehicle::evalLast() {
+      Dpnode last=path[path.size()-1];
+      backToDepot.evaluate(last,maxcapacity);
+      cost= w1*backToDepot.gettotDist()+ w2*backToDepot.getcvTot() + w3*backToDepot.gettwvTot();
+   }
+
+
+
+
+
+
+/**************************************PLOT************************************/
 void Vehicle::plot(std::string file,std::string title,int carnumber){
     Twpath<Dpnode> trace=path;
     trace.push_back(backToDepot);
@@ -343,24 +434,6 @@ void Vehicle::plot(std::string file,std::string title,int carnumber){
     graph.drawPath(trace,graph.makeColor(carnumber*10), 1, true);
     graph.save();
 }
-
-
-
-
-/***********************   EVALUATION **************************/
-
-
-   void Vehicle::evaluate() {
-     path.evaluate(maxcapacity);
-     evalLast();
-   };
-
-   void Vehicle::evalLast() {
-      Dpnode last=path[path.size()-1];
-      backToDepot.evaluate(last,maxcapacity);
-      cost= w1*backToDepot.gettotDist()+ w2*backToDepot.getcvTot() + w3*backToDepot.gettwvTot();
-   }
-
 
 
 
