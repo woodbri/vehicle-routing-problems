@@ -79,7 +79,6 @@ int main(int argc, char **argv) {
         std::cout << "\n---------------------------------------------------\n";
 
 */
-/*
 
         std::cout << "\n----------- nearestNeighbor -----------------------\n";
         tp.nearestNeighbor();
@@ -92,6 +91,7 @@ int main(int argc, char **argv) {
         std::cout << "\n---------------------------------------------------\n";
         std::cout << "\n---------------------------------------------------\n";
 
+/*
         //tp.loadproblem( infile );
         //tp.dump();
 
@@ -99,12 +99,12 @@ int main(int argc, char **argv) {
         tp.assignmentSweep();
         tp.dump();
         tp.plot("p2.png", "assignmentSweep", font);
-*/
 
         std::cout << "\n----------- assignmentSweep2 -----------------------\n";
         tp.assignmentSweep2();
         tp.dump();
 
+*/
 /*
 
         Vehicle v = tp.getVehicle(0);
@@ -191,9 +191,11 @@ bool relocateBest(Vehicle& v2, const int& i1);
         Vehicle v2 = tp.getVehicle(1);
 
         std::cout << "\nv1.swap(v2, 12, 14)" << std::endl;
+        std::cout << "oldcost: " << v1.getcost() + v2.getcost() << "\n";
         v1.dumppath();
         v2.dumppath();
         v1.swap(v2, 12, 14);
+        std::cout << "newcost: " << v1.getcost() + v2.getcost() << "\n";
         v1.dumppath();
         v2.dumppath();
     } while (false);
@@ -203,23 +205,38 @@ bool relocateBest(Vehicle& v2, const int& i1);
         Vehicle v2 = tp.getVehicle(1);
 
         std::cout << "\nv1.exchangeTails(v2, 12, 14)" << std::endl;
+        std::cout << "oldcost: " << v1.getcost() + v2.getcost() << "\n";
         v1.dumppath();
         v2.dumppath();
         v1.exchangeTails(v2, 12, 14);
+        std::cout << "newcost: " << v1.getcost() + v2.getcost() << "\n";
         v1.dumppath();
         v2.dumppath();
     } while (false);
 
     do {
+        Vehicle v0 = tp.getVehicle(1);
         Vehicle v1 = tp.getVehicle(2);
         Vehicle v2 = tp.getVehicle(3);
 
-        std::cout << "\nv1.exchangeTails(v2, 9, 10)" << std::endl;
+        // validated move by commenting out improvement test in vehicle.cpp
+        std::cout << "\nv1.exchangeTails(v2, 3, 1)" << std::endl;
+        std::cout << "oldcost: " << v1.getcost() + v2.getcost() << "\n";
         v1.dumppath();
         v2.dumppath();
-        v1.exchangeTails(v2, 9, 10);
+        v1.exchangeTails(v2, 3, 1);
+        std::cout << "newcost: " << v1.getcost() + v2.getcost() << "\n";
         v1.dumppath();
         v2.dumppath();
+
+        std::cout << "\nv0.relocateBest(v1, 9)" << std::endl;
+        std::cout << "oldcost: " << v1.getcost() + v0.getcost() << "\n";
+        v0.dumppath();
+        v1.dumppath();
+        v0.relocateBest(v1, 9);
+        std::cout << "newcost: " << v1.getcost() + v0.getcost() << "\n";
+        v0.dumppath();
+        v1.dumppath();
     } while (false);
 
 /*

@@ -90,6 +90,7 @@ template <class knode> class Twpath {
             insert(path[fromi], toj);
             e_remove(std::min(sz, fromi + 1), maxcapacity);
         }
+        fromi < toj ? evaluate(fromi, maxcapacity) : evaluate(toj, maxcapacity);
     };
 
     void e_resize(unsigned int at,double maxcapacity) { 
@@ -190,7 +191,7 @@ template <class knode> class Twpath {
 
     void e_insert(const knode &n, int at, double maxcapacity) {
         path.insert(path.begin() + at, n);
-        path[at].evaluate(maxcapacity);
+        evaluate(at, maxcapacity);
     };
 
     void e_push_back(const knode& n, double maxcapacity) {
