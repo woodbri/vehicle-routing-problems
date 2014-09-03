@@ -20,6 +20,10 @@ class Vehicle {
     double w2;          // weight for TWV in cost
     double w3;          // weight for CV in cost
 
+  protected:
+
+    void setvpath(Twpath<Trashnode> p) { path = p; };
+
   public:
 
     // structors
@@ -43,6 +47,7 @@ class Vehicle {
 
     // accessors
     Twpath<Trashnode> getvpath() const { return path; };
+    Twpath<Trashnode>& getvpath() { return path; };
     std::deque<int> getpath();
     int size() const { return path.size(); };
     int getmaxcapacity() const { return maxcapacity; };
@@ -92,7 +97,7 @@ class Vehicle {
     void push_front(Trashnode node);
     void insert(Trashnode node, int at);
 
-/* algorithm specific */
+/* algorithm specific - intra-route manipulations */
 
     void doTwoOpt(const int& c1, const int& c2, const int& c3, const int& c4);
     void doThreeOpt(const int& c1, const int& c2, const int& c3, const int& c4, const int& c5, const int& c6);
@@ -108,6 +113,16 @@ class Vehicle {
     bool pathOptMoveNodes();
     bool pathOptExchangeNodes();
     bool pathOptInvertSequence();
+
+/* algorithm specific - inter-route manipulations */
+
+    bool swap(Vehicle& v2, const int& i1, const int& i2);
+    bool swap3(Vehicle& v2, Vehicle& v3, const int& i1, const int& i2, const int& i3);
+    bool exchangeSeq(Vehicle& v2, const int& i1, const int& j1, const int& i2, const int& j2);
+    bool exchangeTails(Vehicle& v2, const int& i1, const int& i2);
+    bool exchange3(Vehicle& v2, Vehicle& v3, const int& cnt, const int& i1, const int& i2, const int& i3);
+    bool relocate(Vehicle& v2, const int& i1, const int& i2);
+    bool relocateBest(Vehicle& v2, const int& i1);
 
 /* I really hate these shortcuts */
 

@@ -177,7 +177,52 @@ int main(int argc, char **argv) {
 */
 
 /*
+tests for:
+bool swap(Vehicle& v2, const int& i1, const int& i2);
+bool swap3(Vehicle& v2, Vehicle& v3, const int& i1, const int& i2, const int& i3);
+bool exchangeSeq(Vehicle& v2, const int& i1, const int& j1, const int& i2, const int& j2);
+bool exchangeTails(Vehicle& v2, const int& i1, const int& i2);
+bool exchange3(Vehicle& v2, Vehicle& v3, const int& cnt, const int& i1, const int& i2, const int& i3);
+bool relocate(Vehicle& v2, const int& i1, const int& i2);
+bool relocateBest(Vehicle& v2, const int& i1);
 */
+    do {
+        Vehicle v1 = tp.getVehicle(0);
+        Vehicle v2 = tp.getVehicle(1);
+
+        std::cout << "\nv1.swap(v2, 12, 14)" << std::endl;
+        v1.dumppath();
+        v2.dumppath();
+        v1.swap(v2, 12, 14);
+        v1.dumppath();
+        v2.dumppath();
+    } while (false);
+
+    do {
+        Vehicle v1 = tp.getVehicle(0);
+        Vehicle v2 = tp.getVehicle(1);
+
+        std::cout << "\nv1.exchangeTails(v2, 12, 14)" << std::endl;
+        v1.dumppath();
+        v2.dumppath();
+        v1.exchangeTails(v2, 12, 14);
+        v1.dumppath();
+        v2.dumppath();
+    } while (false);
+
+    do {
+        Vehicle v1 = tp.getVehicle(2);
+        Vehicle v2 = tp.getVehicle(3);
+
+        std::cout << "\nv1.exchangeTails(v2, 9, 10)" << std::endl;
+        v1.dumppath();
+        v2.dumppath();
+        v1.exchangeTails(v2, 9, 10);
+        v1.dumppath();
+        v2.dumppath();
+    } while (false);
+
+/*
         tp.plot("p3.png", "assignmentSweep2", font);
 
         std::cout << "\n----------- doing 3-opt -----------------------\n";
@@ -195,6 +240,7 @@ int main(int argc, char **argv) {
         tp.dump();
         tp.plot("p6.png", "assignmentSweep2 - after or-opt", font);
 
+*/
 /*
         std::cout << "\n----------- doing pathOptimize ---------------------\n";
         tp.optimize();
