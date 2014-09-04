@@ -3,6 +3,7 @@
 #include <stdexcept>
 #include <string>
 #include <iostream>
+#include <algorithm>
 #include <sstream>
 #include <fstream>
 
@@ -290,6 +291,71 @@ std::vector<int>  TrashProblem::solutionAsVector() {
 }
 
 
+bool TrashProblem::buildFleetFromSolution(std::vector<int> solution) {
+    unassigned = std::vector<int>(datanodes.size(), 1);
+
+    std::vector<int>::iterator it;
+    std::vector<int>::iterator it2;
+    std::vector<int>::iterator start = solution.begin();
+
+    clearFleet();
+
+    int vid = 0;
+    while ((it = std::find(start, solution.end(), -1)) != solution.end()) {
+        if (*start != *(it-1) or !datanodes[*start].isdepot()) {
+            // error first and last nodes must be the same depot
+            std::cout << "ERROR: truck[" << vid
+                      << "]: first and last nodes must be the same depot!"
+                      << std::endl;
+            return false;
+        }
+        if (!datanodes[*(it-2)].isdump()) {
+            // error path[size-2] must be a dumpsite
+            std::cout << "ERROR: truck[" << vid
+                      << "]: path[size-2] must be a dumpsite node!"
+                      << std::endl;
+            return false;
+        }
+
+        Trashnode& depot(datanodes[*start]);
+        Trashnode& dump(datanodes[*(it-2)]);
+        unassigned[dump.getnid()] = 0;
+
+        Vehicle truck(depot, dump);
+        for (it2=start+1; it2<it-2; it2++) {
+            if (*it2 < 0 or *it2 > datanodes.size()) {
+                std::cout << "ERROR: truck[" << vid << "]: node: " << *it2
+                          << " is NOT in range of the input problem nodes!"
+                          << std::endl;
+                return false;
+            }
+            if (datanodes[*it2].ispickup()) {
+                if (unassigned[*it2] == 0) {
+                    std::cout << "ERROR: truck[" << vid << "]: node: " << *it2
+                              << " has already been assigned to another Truck!"
+                              << std::endl;
+                    return false;
+                }
+                unassigned[*it2] = 0;
+                truck.push_back(datanodes[*it2]);
+            }
+            else {
+                std::cout << "ERROR: truck[" << vid << "]: node: " << *it2
+                          << " is not a pickup node!" << std::endl;
+                return false;
+            }
+        }
+
+        truck.dump();
+        fleet.push_back(truck);
+
+        start = it+1;
+        vid++;
+    }
+    return true;
+}
+
+
 void TrashProblem::nearestNeighbor() {
     // create a list of all pickup nodes and make them unassigned
     unassigned = std::vector<int>(datanodes.size(), 1);
@@ -346,7 +412,6 @@ void TrashProblem::dumbConstruction() {
     Trashnode& dump(datanodes[dnid]);
 
     Vehicle truck(depot, dump);
-    //truck.setdumpsite(datanodes[depot.getdumpnid()]);
 
     for (int i=0; i<pickups.size(); i++) {
         truck.push_back(datanodes[pickups[i]]);

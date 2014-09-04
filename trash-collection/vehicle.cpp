@@ -20,6 +20,7 @@ void Vehicle::dump() {
     std::cout << "w3: " << getw3() << std::endl;
     std::cout << "path nodes: -----------------" << std::endl;
     path.dump();
+/*
     std::cout << "--------- dumpeval ----------" << std::endl;
     for (int i=0;i<path.size();i++){
         std::cout<<"\npath stop #:"<<i<<"\n";
@@ -30,7 +31,6 @@ void Vehicle::dump() {
     std::cout<<"\nBack to depot:"<<"\n";
     backToDepot.dumpeval();
     std::cout <<"TOTAL COST="<<cost <<"\n";
-/*
 */
 }
 
@@ -553,6 +553,9 @@ bool Vehicle::exchange3(Vehicle& v2, Vehicle& v3, const int& cnt, const int& i1,
     double oldcost2 = v2.getcost();
     double oldcost3 = v3.getcost();
 
+std::cout << "oldcost: "<<oldcost1<<"+"<<oldcost2<<"+"<<oldcost3<<"="
+          << oldcost1 + oldcost2 + oldcost3 << std::endl; 
+
     for (int i=0; i<cnt; i++) {
         path.e_swap(i1+i, getmaxcapacity(),
             v2.getvpath(), i2+i, v2.getmaxcapacity());
@@ -566,6 +569,9 @@ bool Vehicle::exchange3(Vehicle& v2, Vehicle& v3, const int& cnt, const int& i1,
     double newcost1 = getcost();
     double newcost2 = v2.getcost();
     double newcost3 = v3.getcost();
+
+std::cout << "newcost: "<<newcost1<<"+"<<newcost2<<"+"<<newcost3<<"="
+          << newcost1 + newcost2 + newcost3 << std::endl; 
 
     if ( newcost1 + newcost2 + newcost3 > oldcost1 + oldcost2 + oldcost3 or
          !feasable() or !v2.feasable() or !v3.feasable() ) {
@@ -641,7 +647,6 @@ bool Vehicle::relocateBest(Vehicle& v2, const int& i1) {
     // ie: pos: 1 after the depot at pos: 0
     v2p.e_insert(path[i1], 1, v2.getmaxcapacity());
     v2.evalLast();
-v2.dump();
 
     if (v2.feasable()) {
         bestpos = 1;
@@ -652,7 +657,6 @@ v2.dump();
     for (int i=2; i<v2.size(); i++) {
         v2p.e_swap(i-1, i, v2.getmaxcapacity());
         v2.evalLast();
-v2.dump();
         if (v2.getcost() < bestcost and v2.feasable()) {
             bestpos = i;
             bestcost = v2.getcost();
@@ -678,7 +682,6 @@ v2.dump();
             v2p.e_move(v2.size()-1, bestpos, v2.getmaxcapacity());
             v2.evalLast();
         }
-v2.dump();
     }
     // else restore everything and return false
     else {
