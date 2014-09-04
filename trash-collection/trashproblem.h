@@ -73,6 +73,7 @@ class TrashProblem {
 
     // methods to build initial solution
     void clearFleet() { fleet.clear(); };
+    bool buildFleetFromSolution(std::vector<int> solution);
     void dumbConstruction();
     void nearestNeighbor();
     void nearestInsertion();
