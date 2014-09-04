@@ -7,7 +7,7 @@
 #include "vehicle.h"
 
 
-void Vehicle::dump() {
+void Vehicle::dump() const {
     std::cout << "---------- Vehicle ---------------" << std::endl;
     std::cout << "maxcapacity: " << getmaxcapacity() << std::endl;
     std::cout << "cargo: " << getcargo() << std::endl;
@@ -35,12 +35,12 @@ void Vehicle::dump() {
 }
 
 
-void Vehicle::dumppath() {
+void Vehicle::dumppath() const {
     path.dump();
 }
 
 
-std::deque<int> Vehicle::getpath()  {
+std::deque<int> Vehicle::getpath() const {
       std::deque<int> p;
       p = path.getpath();
       p.push_front(getdepot().getnid());
@@ -85,10 +85,10 @@ void Vehicle::evalLast() {
 // intra-route optimiziation
 //--------------------------------------------------------------------------
 
-void Vehicle::doTwoOpt(const int& c1, const int& c2, const int& c3, const int& c4) {
+bool Vehicle::doTwoOpt(const int& c1, const int& c2, const int& c3, const int& c4) {
     // Feasible exchanges only
     if ( c3 == c1 || c3 == c2 || c4 == c1 || c4 == c2 || c2 < 1 || c3 < 2 )
-        return;
+        return false;
 
     double oldcost = getcost();
 
@@ -107,14 +107,16 @@ void Vehicle::doTwoOpt(const int& c1, const int& c2, const int& c3, const int& c
         path.e_swap(c2, c3, getmaxcapacity());
         path.e_reverse(c2+1, c3-1, getmaxcapacity());
         evalLast();
+        return false;
     }
 
+    return true;
 }
 
 
-void Vehicle::doThreeOpt(const int& c1, const int& c2, const int& c3, const int& c4, const int& c5, const int& c6) {
+bool Vehicle::doThreeOpt(const int& c1, const int& c2, const int& c3, const int& c4, const int& c5, const int& c6) {
     // Feasible exchanges only
-    if (! (c2>c1 && c3>c2 && c4>c3 && c5>c4 && c6>c5)) return;
+    if (! (c2>c1 && c3>c2 && c4>c3 && c5>c4 && c6>c5)) return false;
 
     double oldcost = getcost();
     Twpath<Trashnode> oldpath(path); // save a copy for undo
@@ -132,15 +134,17 @@ void Vehicle::doThreeOpt(const int& c1, const int& c2, const int& c3, const int&
     if (getcost() > oldcost or hastwv()) {
         path = oldpath;
         evalLast();
+        return false;
     }
 
+    return true;
 }
 
 
-void Vehicle::doOrOpt(const int& c1, const int& c2, const int& c3) {
+bool Vehicle::doOrOpt(const int& c1, const int& c2, const int& c3) {
     // Feasible exchanges only
-    if (! (c2 >= c1 and (c3 < c1-1 or c3 > c2+2))) return;
-    if (c2 > path.size()-1 or c3 > path.size()-1) return;
+    if (! (c2 >= c1 and (c3 < c1-1 or c3 > c2+2))) return false;
+    if (c2 > path.size()-1 or c3 > path.size()-1) return false;
 
     double oldcost = getcost();
     Twpath<Trashnode> oldpath(path); // save a copy for undo
@@ -152,13 +156,16 @@ void Vehicle::doOrOpt(const int& c1, const int& c2, const int& c3) {
         //path.e_move(c3-(c2-c1+1), c3-1, c1, getmaxcapacity());
         path = oldpath;
         evalLast();
+        return false;
     }
+
+    return true;
 }
 
 
-void Vehicle::doNodeMove(const int& i, const int& j) {
+bool Vehicle::doNodeMove(const int& i, const int& j) {
     if (i == j or i < 1 or j < 1 or i > path.size()-1 or j > path.size()-1)
-        return;
+        return false;
 
     double oldcost = getcost();
 
@@ -171,12 +178,16 @@ void Vehicle::doNodeMove(const int& i, const int& j) {
         else
             path.e_move(j-1, i, getmaxcapacity());
         evalLast();
+        return false;
     }
+
+    return true;
 }
 
 
-void Vehicle::doNodeSwap(const int& i, const int& j) {
-    if (i < 1 or j < 1 or i > path.size()-1 or j > path.size()-1) return;
+bool Vehicle::doNodeSwap(const int& i, const int& j) {
+    if (i < 1 or j < 1 or i > path.size()-1 or j > path.size()-1)
+        return false;
 
     double oldcost = getcost();
 
@@ -186,12 +197,16 @@ void Vehicle::doNodeSwap(const int& i, const int& j) {
     if (getcost() > oldcost or hastwv()) {
         path.e_swap(i, j, getmaxcapacity());
         evalLast();
+        return false;
     }
+
+    return true;
 }
 
 
-void Vehicle::doInvertSeq(const int& i, const int& j) {
-    if (i > path.size() or j > path.size()-1) return;
+bool Vehicle::doInvertSeq(const int& i, const int& j) {
+    if (i > path.size() or j > path.size()-1)
+        return false;
 
     double oldcost = getcost();
 
@@ -201,7 +216,10 @@ void Vehicle::doInvertSeq(const int& i, const int& j) {
     if (getcost() > oldcost or hastwv()) {
         path.e_reverse(i, j, getmaxcapacity());
         evalLast();
+        return false;
     }
+
+    return true;
 }
 
 

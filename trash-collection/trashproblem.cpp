@@ -12,10 +12,35 @@
 #include "trashproblem.h"
 
 
+// compute the distance between two nodes
+// this currently computes Euclidean distances
+// but this could be changes to call OSRM
+// and/or save and fetch the distance from a matrix
+
 double TrashProblem::distance(int n1, int n2) const {
     return datanodes[n1].distance(datanodes[n2]);
 }
 
+
+// routine to cycle through all the nodes and compute there
+// respective Eculidean distances and put them into a matrix
+
+void TrashProblem::buildDistanceMatrix() {
+    dMatrix.clear();
+    dMatrix.resize(datanodes.size());
+    for (int i=0; i<datanodes.size(); i++) {
+        dMatrix[i].clear();
+        dMatrix[i].resize(datanodes.size());
+        for (int j=0; j<datanodes.size(); j++) {
+            dMatrix[i][j] = datanodes[i].distance(datanodes[j]);
+        }
+    }
+}
+
+
+// this loads the probelm definition from a text file
+// this could easily be replaced to load the problem
+// from say a database query or some other format.
 
 void TrashProblem::loadproblem(std::string& file) {
     std::ifstream in( file.c_str() );
@@ -56,6 +81,9 @@ void TrashProblem::loadproblem(std::string& file) {
         setNodeDistances(datanodes[i]);
 }
 
+
+// for the input node, we find and set the nid and distance for
+// the two closest depots and the nearest dump site.
 
 void TrashProblem::setNodeDistances(Trashnode& n) {
     double dist = -1.0;
@@ -110,18 +138,8 @@ void TrashProblem::setNodeDistances(Trashnode& n) {
 }
 
 
-void TrashProblem::buildDistanceMatrix() {
-    dMatrix.clear();
-    dMatrix.resize(datanodes.size());
-    for (int i=0; i<datanodes.size(); i++) {
-        dMatrix[i].clear();
-        dMatrix[i].resize(datanodes.size());
-        for (int j=0; j<datanodes.size(); j++) {
-            dMatrix[i][j] = datanodes[i].distance(datanodes[j]);
-        }
-    }
-}
-
+// utility frunction to convert a selector bit array to
+// human readable text for debug output
 
 std::string selectorAsTxt(int s) {
     std::string str = "";
@@ -139,8 +157,8 @@ std::string selectorAsTxt(int s) {
 
 // search for node methods
 
-// selector is a bit mask (TODO: make these an enum)
-// selector: 0 - anyi                       ANY
+// selector is a bit mask
+// selector: 0 - any                        ANY
 //           1 - must be unassigned         UNASSIGNED
 //           2 - in nid's cluster1          CLUSTER1
 //           4 - in nid's cluster2          CLUSTER2
@@ -196,8 +214,8 @@ bool TrashProblem::filterNode(const Trashnode &tn, int i, int selector, int dema
 
 int TrashProblem::findNearestNodeTo(int nid, int selector, int demandLimit) {
     Trashnode &tn(datanodes[nid]);
-    int nn = -1;    // init to not found
-    double dist = -1;    // dist to nn
+    int nn = -1;        // init to not found
+    double dist = -1;   // dist to nn
 
     for (int i=0; i<datanodes.size(); i++) {
 
@@ -234,7 +252,7 @@ int TrashProblem::findNearestNodeTo(Vehicle &v, int selector, int demandLimit, i
 
         double d;
 
-        // DONOT make this a pointer or it will mess things up
+        // DO NOT make this a pointer or it will mess things up
         Trashnode last = depot;
 
         for (int j=0; j<v.size(); j++) {
@@ -265,9 +283,13 @@ int TrashProblem::findNearestNodeTo(Vehicle &v, int selector, int demandLimit, i
 }
 
 
-std::string TrashProblem::solutionAsText() {
+// create a CSV string that represents the solution
+// this is a list of the node ids representing a vehicle route and 
+// each vehicle is separated with a -1
+
+std::string TrashProblem::solutionAsText() const {
     std::stringstream ss;;
-    std::vector<int> s = solutionAsVector();
+    const std::vector<int> s = solutionAsVector();
     for (int i=0; i<s.size(); i++) {
         if (i) ss << ",";
         ss << s[i];
@@ -276,7 +298,12 @@ std::string TrashProblem::solutionAsText() {
 }
 
 
-std::vector<int>  TrashProblem::solutionAsVector() {
+// create a vector of node ids representing a solution
+// this can be used to save a compute solution while other changes
+// are being tried on that solution and can be used with
+// buildFleetFromSolution() to reconstruct the solution
+
+std::vector<int>  TrashProblem::solutionAsVector() const {
     std::vector<int> s;
     for (int i=0; i<fleet.size(); i++) {
         if (fleet[i].size() == 0) continue;
@@ -290,6 +317,12 @@ std::vector<int>  TrashProblem::solutionAsVector() {
     return s;
 }
 
+
+// reconstruct the fleet from a solution vector obtained from
+// solutionAsVector(). This does some minimal checking that depot, dump
+// and pickup nodes are in the correct positions
+// this can also be used to construct specific solutions for testing
+// algorithms
 
 bool TrashProblem::buildFleetFromSolution(std::vector<int> solution) {
     unassigned = std::vector<int>(datanodes.size(), 1);
@@ -356,6 +389,10 @@ bool TrashProblem::buildFleetFromSolution(std::vector<int> solution) {
 }
 
 
+// Initial construction of a problem solution based on nearestNeighbor
+// algorithm. For each vehicle(depot) find the nearest neighbor path until
+// the vehicle reaches capacity.
+
 void TrashProblem::nearestNeighbor() {
     // create a list of all pickup nodes and make them unassigned
     unassigned = std::vector<int>(datanodes.size(), 1);
@@ -402,6 +439,8 @@ void TrashProblem::nearestNeighbor() {
 }
 
 
+// Add all nodes to a single vehicle. Don't check for TWV or CV
+// This was for testing only, not useful in real world applications
 
 void TrashProblem::dumbConstruction() {
 
@@ -421,14 +460,16 @@ void TrashProblem::dumbConstruction() {
 }
 
 
-void TrashProblem::nearestInsertion() {
+// Another potential construction algorithm
+// assignmentSweep and assignmentSweep2 give better results
 
-}
+// void TrashProblem::nearestInsertion() { }
 
 
-void TrashProblem::farthestInsertion() {
+// Another potential construction algorithm
+// assignmentSweep and assignmentSweep2 give better results
 
-}
+// void TrashProblem::farthestInsertion() { }
 
 
 /*
@@ -681,6 +722,12 @@ void TrashProblem::assignmentSweep2() {
 
 /************** local route optimization ************************/
 
+// Perform local (intra-route) optimizations on each vehicle in the fleet
+// opt2opt appears to perform the best
+
+
+// repeat 2-opt modifications until there is no more improvement
+
 void TrashProblem::opt_2opt() {
     for (int i=0; i<fleet.size(); i++) {
         fleet[i].pathTwoOpt();
@@ -688,11 +735,16 @@ void TrashProblem::opt_2opt() {
 }
 
 
+// repeat 3-opt modifications until there is no more improvement
+
 void TrashProblem::opt_3opt() {
     for (int i=0; i<fleet.size(); i++) {
         fleet[i].pathThreeOpt();
     }
 }
+
+
+// repeat Or-opt modifications until there is no more improvements
 
 void TrashProblem::opt_or_opt() {
     for (int i=0; i<fleet.size(); i++) {
@@ -700,6 +752,12 @@ void TrashProblem::opt_or_opt() {
     }
 }
 
+
+// repeats various path manipulations trying to optimize the path
+// 1. move nodes forward
+// 2. move nodes backwards
+// 3. exchange nodes
+// 4. invert seq
 
 void TrashProblem::optimize() {
     for (int i=0; i<fleet.size(); i++) {
@@ -709,6 +767,10 @@ void TrashProblem::optimize() {
 
 
 /************** dump routines ***********************************/
+
+
+// print out the distance matrix as tab separated lines like:
+// irow jcol cost
 
 void TrashProblem::dumpDmatrix() const {
     std::cout << "--------- dMatrix ------------" << std::endl;
@@ -720,12 +782,17 @@ void TrashProblem::dumpDmatrix() const {
 }
 
 
-void TrashProblem::dumpFleet() {
+// print each vehicle in the fleet.
+// This includes its stats and its path.
+
+void TrashProblem::dumpFleet() const {
     std::cout << "--------- Fleet ------------" << std::endl;
     for (int i=0; i<fleet.size(); i++)
         fleet[i].dump();
 }
 
+
+// print all the datanodes that were loaded into the problem
 
 void TrashProblem::dumpdataNodes() const {
     std::cout << "--------- Nodes ------------" << std::endl;
@@ -734,12 +801,16 @@ void TrashProblem::dumpdataNodes() const {
 }
 
 
+// print all the depot nodes
+
 void TrashProblem::dumpDepots() const {
     std::cout << "--------- Depots ------------" << std::endl;
     for (int i=0; i<depots.size(); i++)
         datanodes[depots[i]].dump();
 }
 
+
+// print all the dumpsite nodes
 
 void TrashProblem::dumpDumps() const {
     std::cout << "--------- Dumps ------------" << std::endl;
@@ -748,6 +819,8 @@ void TrashProblem::dumpDumps() const {
 }
 
 
+// print all the pickup nodes
+
 void TrashProblem::dumpPickups() const {
     std::cout << "--------- Pickups ------------" << std::endl;
     for (int i=0; i<pickups.size(); i++)
@@ -755,7 +828,10 @@ void TrashProblem::dumpPickups() const {
 }
 
 
-double TrashProblem::getduration() {
+// get the total duration of the solution, this includes wait time
+// if early arrivel at a node
+
+double TrashProblem::getduration() const {
     double d = 0;
     for (int i=0; i<fleet.size(); i++)
         d += fleet[i].getduration();
@@ -763,7 +839,10 @@ double TrashProblem::getduration() {
 }
 
 
-double TrashProblem::getcost() {
+// get the total cost of the solution
+// cost = w1 * getduration() + w2 * getTWV() + w3 * getCV()
+
+double TrashProblem::getcost() const {
     double d = 0;
     for (int i=0; i<fleet.size(); i++)
         d += fleet[i].getcost();
@@ -771,7 +850,9 @@ double TrashProblem::getcost() {
 }
 
 
-int TrashProblem::getTWV() {
+// get the total number of TWV in the dolution
+
+int TrashProblem::getTWV() const {
     int d = 0;
     for (int i=0; i<fleet.size(); i++)
         d += fleet[i].getTWV();
@@ -779,7 +860,9 @@ int TrashProblem::getTWV() {
 }
 
 
-int TrashProblem::getCV() {
+// get the total number of CV in the solution
+
+int TrashProblem::getCV() const {
     int d = 0;
     for (int i=0; i<fleet.size(); i++)
         d += fleet[i].getCV();
@@ -787,7 +870,9 @@ int TrashProblem::getCV() {
 }
 
 
-void TrashProblem::dump() {
+// dump the problem and the solution
+
+void TrashProblem::dump() const {
     dumpDepots();
     dumpDumps();
     dumpPickups();
@@ -801,6 +886,9 @@ void TrashProblem::dump() {
 }
 
 
+// create a png image of the solution and save it in "file"
+// also highlight a path given as nids in vector highlight
+
 void TrashProblem::plot( std::string file, std::string title, std::string font, std::deque<int> highlight ) {
     Plot1<Trashnode> plot( datanodes );
     plot.setFile( file );
@@ -808,18 +896,20 @@ void TrashProblem::plot( std::string file, std::string title, std::string font, 
     plot.setFont( font );
     plot.drawInit();
 
-    plot.drawPath(highlight, 0xffff00, 3, false);
+    plot.drawPath(highlight, 0xffff00, 5, false);
 
     for (int i=0; i<fleet.size(); i++) {
-        plot.drawPath(fleet[i].getpath(), plot.makeColor(i), 1, false);
+        plot.drawPath(fleet[i].getpath(), plot.makeColor(i*5), 1, false);
         // printf("COLOR: %3d - 0x%06x\n", i, plot.makeColor(i));
     }
-    plot.drawPoints(pickups, 0x0000ff, 7, true);
-    plot.drawPoints(depots, 0xff0000, 7, true);
+    plot.drawPoints(depots, 0xff0000, 9, true);
     plot.drawPoints(dumps, 0x00ff00, 7, true);
+    plot.drawPoints(pickups, 0x0000ff, 5, true);
     plot.save();
 }
 
+
+// create a png image of the solution and save it in "file"
 
 void TrashProblem::plot( std::string file, std::string title, std::string font ) {
     Plot1<Trashnode> plot( datanodes );
@@ -828,11 +918,11 @@ void TrashProblem::plot( std::string file, std::string title, std::string font )
     plot.setFont( font );
     plot.drawInit();
     for (int i=0; i<fleet.size(); i++) {
-        plot.drawPath(fleet[i].getpath(), plot.makeColor(i), 1, false);
+        plot.drawPath(fleet[i].getpath(), plot.makeColor(i*5), 1, false);
         // printf("COLOR: %3d - 0x%06x\n", i, plot.makeColor(i));
     }
-    plot.drawPoints(pickups, 0x0000ff, 7, true);
-    plot.drawPoints(depots, 0xff0000, 7, true);
+    plot.drawPoints(depots, 0xff0000, 9, true);
     plot.drawPoints(dumps, 0x00ff00, 7, true);
+    plot.drawPoints(pickups, 0x0000ff, 5, true);
     plot.save();
 }

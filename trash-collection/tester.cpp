@@ -51,7 +51,7 @@ int main(int argc, char **argv) {
 
     try {
 
-#define TESTSWAP
+//#define TESTSWAP
 #ifdef TESTSWAP
 
         infile = "p52.txt";
@@ -89,7 +89,7 @@ int main(int argc, char **argv) {
         } while (false);
 
         do {
-            tp.loadproblem( infile );
+            //tp.loadproblem( infile );
 
             int sol2[] = {0,7,10,11,14,17,20,4,0,-1,
                           1,5,8,12,15,18,21,4,1,-1,
@@ -149,6 +149,7 @@ int main(int argc, char **argv) {
 
 */
 
+/*
         std::cout << "\n----------- nearestNeighbor -----------------------\n";
         tp.nearestNeighbor();
         tp.dump();
@@ -160,7 +161,6 @@ int main(int argc, char **argv) {
         std::cout << "\n---------------------------------------------------\n";
         std::cout << "\n---------------------------------------------------\n";
 
-/*
         //tp.loadproblem( infile );
         //tp.dump();
 
@@ -168,12 +168,8 @@ int main(int argc, char **argv) {
         tp.assignmentSweep();
         tp.dump();
         tp.plot("p2.png", "assignmentSweep", font);
-
-        std::cout << "\n----------- assignmentSweep2 -----------------------\n";
-        tp.assignmentSweep2();
-        tp.dump();
-
 */
+
 /*
 
         Vehicle v = tp.getVehicle(0);
@@ -255,6 +251,7 @@ bool exchange3(Vehicle& v2, Vehicle& v3, const int& cnt, const int& i1, const in
 bool relocate(Vehicle& v2, const int& i1, const int& i2);
 bool relocateBest(Vehicle& v2, const int& i1);
 */
+/*
     do {
         Vehicle v1 = tp.getVehicle(0);
         Vehicle v2 = tp.getVehicle(1);
@@ -308,7 +305,11 @@ bool relocateBest(Vehicle& v2, const int& i1);
         v1.dumppath();
     } while (false);
 
-/*
+*/
+        std::cout << "\n----------- assignmentSweep2 -----------------------\n";
+        tp.assignmentSweep2();
+        tp.dump();
+
         tp.plot("p3.png", "assignmentSweep2", font);
 
         std::cout << "\n----------- doing 3-opt -----------------------\n";
@@ -326,7 +327,6 @@ bool relocateBest(Vehicle& v2, const int& i1);
         tp.dump();
         tp.plot("p6.png", "assignmentSweep2 - after or-opt", font);
 
-*/
 /*
         std::cout << "\n----------- doing pathOptimize ---------------------\n";
         tp.optimize();
