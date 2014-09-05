@@ -43,44 +43,45 @@ class TrashProblem {
     int findNearestNodeTo(Vehicle &v, int selector, int demandLimit, int *pos);
 
     // get solution
-    std::string solutionAsText();           //// const
-    std::vector<int> solutionAsVector();    //// const
+    std::string solutionAsText() const;
+    std::vector<int> solutionAsVector() const;
 
-    double getduration();
-    double getcost();
-    int getTWV();
-    int getCV();
+    double getduration() const;
+    double getcost() const;
+    int getTWV() const;
+    int getCV() const;
 
-    int getVehicleCount() {return fleet.size(); };
-    Vehicle getVehicle(int i) { return fleet[i]; };
+    int getVehicleCount() const {return fleet.size(); };
+    Vehicle getVehicle(int i) const { return fleet[i]; };
 
     void dumpDmatrix() const;
-    void dumpFleet();                       //// const
+    void dumpFleet() const;
     void dumpdataNodes() const;
     void dumpDepots() const;
     void dumpDumps() const;
     void dumpPickups() const;
-    void dump();                            /// const
+    void dump() const;
 
     void plot( std::string file, std::string title, std::string font );
     void plot( std::string file, std::string title, std::string font, std::deque<int> highlight );
 
     // mutators
+    void clearFleet() { fleet.clear(); };
     void loadproblem(std::string& file);
     void setNodeDistances(Trashnode& n);
 
     void buildDistanceMatrix();
 
     // methods to build initial solution
-    void clearFleet() { fleet.clear(); };
+    bool buildFleetFromSolution(std::vector<int> solution);
     void dumbConstruction();
     void nearestNeighbor();
-    void nearestInsertion();
-    void farthestInsertion();
+    // void nearestInsertion();
+    // void farthestInsertion();
     void assignmentSweep();
     void assignmentSweep2();
 
-    // optimization routines
+    // intra-route optimization routines
     void opt_2opt();
     void opt_3opt();
     void opt_or_opt();

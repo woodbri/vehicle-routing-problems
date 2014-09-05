@@ -51,6 +51,75 @@ int main(int argc, char **argv) {
 
     try {
 
+//#define TESTSWAP
+#ifdef TESTSWAP
+
+        infile = "p52.txt";
+
+        TrashProblem tp;
+        tp.loadproblem( infile );
+        tp.dumpdataNodes();
+
+        do {
+            int sol[] = {0,7,8,11,14,17,20,4,0,-1,
+                         1,5,9,12,15,18,21,4,1,-1,
+                         2,6,10,13,16,19,22,4,2,-1};
+            std::vector<int> solution(sol, sol+sizeof(sol)/sizeof(int));
+
+            if (!tp.buildFleetFromSolution(solution)) {
+                std::cout << "Problem failed to load!" << std::endl;
+                return 1;
+            }
+            tp.dump();
+
+            Vehicle v0 = tp.getVehicle(0);
+            Vehicle v1 = tp.getVehicle(1);
+            Vehicle v2 = tp.getVehicle(2);
+
+            std::cout << "\nv0.swap3(v1, v2, 1, 1, 1)" << std::endl;
+            std::cout << "oldcost: " << v1.getcost() + v2.getcost() << "\n";
+            v0.dumppath();
+            v1.dumppath();
+            v2.dumppath();
+            v0.swap3(v1, v2, 1, 1, 1);
+            std::cout << "newcost: " << v1.getcost() + v2.getcost() << "\n";
+            v0.dumppath();
+            v1.dumppath();
+            v2.dumppath();
+        } while (false);
+
+        do {
+            //tp.loadproblem( infile );
+
+            int sol2[] = {0,7,10,11,14,17,20,4,0,-1,
+                          1,5,8,12,15,18,21,4,1,-1,
+                          2,6,9,13,16,19,22,4,2,-1};
+            std::vector<int> solution2(sol2, sol2+sizeof(sol2)/sizeof(int));
+
+            if (!tp.buildFleetFromSolution(solution2)) {
+                std::cout << "Problem failed to load!" << std::endl;
+                return 1;
+            }
+            tp.dump();
+
+            Vehicle v0 = tp.getVehicle(0);
+            Vehicle v1 = tp.getVehicle(1);
+            Vehicle v2 = tp.getVehicle(2);
+
+            std::cout << "\nv0.exchange3(v1, v2, 2, 1, 1, 1)" << std::endl;
+            std::cout << "oldcost: " << v1.getcost() + v2.getcost() << "\n";
+            v0.dumppath();
+            v1.dumppath();
+            v2.dumppath();
+            v0.exchange3(v1, v2, 2, 1, 1, 1);
+            std::cout << "newcost: " << v1.getcost() + v2.getcost() << "\n";
+            v0.dumppath();
+            v1.dumppath();
+            v2.dumppath();
+        } while (false);
+
+#else
+
         // ----------------------------------------------------------------
 
         TrashProblem tp;
@@ -79,8 +148,8 @@ int main(int argc, char **argv) {
         std::cout << "\n---------------------------------------------------\n";
 
 */
-/*
 
+/*
         std::cout << "\n----------- nearestNeighbor -----------------------\n";
         tp.nearestNeighbor();
         tp.dump();
@@ -100,10 +169,6 @@ int main(int argc, char **argv) {
         tp.dump();
         tp.plot("p2.png", "assignmentSweep", font);
 */
-
-        std::cout << "\n----------- assignmentSweep2 -----------------------\n";
-        tp.assignmentSweep2();
-        tp.dump();
 
 /*
 
@@ -186,14 +251,17 @@ bool exchange3(Vehicle& v2, Vehicle& v3, const int& cnt, const int& i1, const in
 bool relocate(Vehicle& v2, const int& i1, const int& i2);
 bool relocateBest(Vehicle& v2, const int& i1);
 */
+/*
     do {
         Vehicle v1 = tp.getVehicle(0);
         Vehicle v2 = tp.getVehicle(1);
 
         std::cout << "\nv1.swap(v2, 12, 14)" << std::endl;
+        std::cout << "oldcost: " << v1.getcost() + v2.getcost() << "\n";
         v1.dumppath();
         v2.dumppath();
         v1.swap(v2, 12, 14);
+        std::cout << "newcost: " << v1.getcost() + v2.getcost() << "\n";
         v1.dumppath();
         v2.dumppath();
     } while (false);
@@ -203,26 +271,45 @@ bool relocateBest(Vehicle& v2, const int& i1);
         Vehicle v2 = tp.getVehicle(1);
 
         std::cout << "\nv1.exchangeTails(v2, 12, 14)" << std::endl;
+        std::cout << "oldcost: " << v1.getcost() + v2.getcost() << "\n";
         v1.dumppath();
         v2.dumppath();
         v1.exchangeTails(v2, 12, 14);
+        std::cout << "newcost: " << v1.getcost() + v2.getcost() << "\n";
         v1.dumppath();
         v2.dumppath();
     } while (false);
 
     do {
+        Vehicle v0 = tp.getVehicle(1);
         Vehicle v1 = tp.getVehicle(2);
         Vehicle v2 = tp.getVehicle(3);
 
-        std::cout << "\nv1.exchangeTails(v2, 9, 10)" << std::endl;
+        // validated move by commenting out improvement test in vehicle.cpp
+        std::cout << "\nv1.exchangeTails(v2, 3, 1)" << std::endl;
+        std::cout << "oldcost: " << v1.getcost() + v2.getcost() << "\n";
         v1.dumppath();
         v2.dumppath();
-        v1.exchangeTails(v2, 9, 10);
+        v1.exchangeTails(v2, 3, 1);
+        std::cout << "newcost: " << v1.getcost() + v2.getcost() << "\n";
         v1.dumppath();
         v2.dumppath();
+
+        std::cout << "\nv0.relocateBest(v1, 9)" << std::endl;
+        std::cout << "oldcost: " << v1.getcost() + v0.getcost() << "\n";
+        v0.dumppath();
+        v1.dumppath();
+        v0.relocateBest(v1, 9);
+        std::cout << "newcost: " << v1.getcost() + v0.getcost() << "\n";
+        v0.dumppath();
+        v1.dumppath();
     } while (false);
 
-/*
+*/
+        std::cout << "\n----------- assignmentSweep2 -----------------------\n";
+        tp.assignmentSweep2();
+        tp.dump();
+
         tp.plot("p3.png", "assignmentSweep2", font);
 
         std::cout << "\n----------- doing 3-opt -----------------------\n";
@@ -240,14 +327,13 @@ bool relocateBest(Vehicle& v2, const int& i1);
         tp.dump();
         tp.plot("p6.png", "assignmentSweep2 - after or-opt", font);
 
-*/
 /*
         std::cout << "\n----------- doing pathOptimize ---------------------\n";
         tp.optimize();
         tp.dump();
         tp.plot("p7.png", "assignmentSweep2 - after optimize", font);
 */
-
+#endif
     }
     catch (const std::exception &e) {
         std::cerr << e.what() << std::endl;

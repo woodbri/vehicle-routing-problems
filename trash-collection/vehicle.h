@@ -22,6 +22,10 @@ class Vehicle {
 
   protected:
 
+    // this is used when we save a copy of the path so we can make
+    // changes and to restore the original path if the changes
+    // do not improve the path.
+    // There is a hidden assumption that path[0] == backToDepot node.
     void setvpath(Twpath<Trashnode> p) { path = p; };
 
   public:
@@ -34,7 +38,7 @@ class Vehicle {
         w1 = w2 = w3 = 1.0;
     };
 
-    Vehicle( Trashnode& _depot, Trashnode& _dump ) {
+    Vehicle( Trashnode _depot, Trashnode _dump ) {
         maxcapacity  = _depot.getdemand();
         _depot.setdemand(0);
         _depot.setservice(0);
@@ -48,7 +52,7 @@ class Vehicle {
     // accessors
     Twpath<Trashnode> getvpath() const { return path; };
     Twpath<Trashnode>& getvpath() { return path; };
-    std::deque<int> getpath();
+    std::deque<int> getpath() const;
     int size() const { return path.size(); };
     int getmaxcapacity() const { return maxcapacity; };
     int getTWV() const { return backToDepot.gettwvTot(); };
@@ -69,8 +73,8 @@ class Vehicle {
 
     Trashnode operator[](int i) const { return path[i]; };
 
-    void dump();
-    void dumppath();
+    void dump() const;
+    void dumppath() const;
 
 /* evaluation */
 
@@ -99,12 +103,12 @@ class Vehicle {
 
 /* algorithm specific - intra-route manipulations */
 
-    void doTwoOpt(const int& c1, const int& c2, const int& c3, const int& c4);
-    void doThreeOpt(const int& c1, const int& c2, const int& c3, const int& c4, const int& c5, const int& c6);
-    void doOrOpt(const int& c1, const int& c2, const int &c3);
-    void doNodeMove(const int& i, const int& j);
-    void doNodeSwap(const int& i, const int& j);
-    void doInvertSeq(const int& i, const int& j);
+    bool doTwoOpt(const int& c1, const int& c2, const int& c3, const int& c4);
+    bool doThreeOpt(const int& c1, const int& c2, const int& c3, const int& c4, const int& c5, const int& c6);
+    bool doOrOpt(const int& c1, const int& c2, const int &c3);
+    bool doNodeMove(const int& i, const int& j);
+    bool doNodeSwap(const int& i, const int& j);
+    bool doInvertSeq(const int& i, const int& j);
 
     bool pathOptimize();
     bool pathTwoOpt();
