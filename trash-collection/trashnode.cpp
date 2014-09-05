@@ -43,6 +43,7 @@ void Trashnode::dump() const {
               << ", " << depotdist2
               << ", " << dumpnid
               << ", " << dumpdist
+              << ", " << (depotdist<depotdist2 ? depotdist/depotdist2 : depotdist2/depotdist)
               << std::endl;
 }
 
