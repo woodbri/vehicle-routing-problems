@@ -1,4 +1,5 @@
 #include <cmath>
+#include <deque>
 #include "plot1.h"
 #include "vehicle.h"
 #include "compatible.h"
@@ -10,6 +11,273 @@
 
 */
 
+
+bool Init_pd::incompatible(int fromId, int toId) const   { return not twc.isCompatibleIJ(fromId,toId); }
+/* examle for 2nd condition 
+distanceTime between Py and Dx is 500
+
+Py opens at 900 , closes at 1000 service time is 100 
+
+Dx opens at 900 , closes at 1000 service time is 100 
+
+so, 
+
+if I arrive to Py at 900, I will arrive at Dx at 900+100+500=1500  which is way over the closing time of Dx
+
+Therefore going from Py -> Dx is impossible
+
+likewise, if I arrive to Dx at 900, I will arrive at Py at 900+100+500=1500  which is way over the closing time of Py
+
+herefore going from Dx -> Py is impossible
+
+*/
+bool Init_pd::isIncompatibleOrder(const Order &orderx, const Order &ordery) const {
+    int Px,Dx;
+    int Py,Dy;
+    Px= orderx.getpid();
+    Dx= orderx.getdid();
+    Py= ordery.getpid();
+    Dy= ordery.getdid();
+    if (  incompatible(Px,Py)  or incompatible(Px,Dy) ) return true;
+    if (  incompatible(Py,Dx) and incompatible(Dx,Py) ) return true;
+    if (  incompatible(Dy,Dx) and incompatible(Dx,Dy) ) return true;
+    return false;
+}
+
+bool Init_pd::isIncompatibleOrder(int oidx,int oidy ) const  {
+    Order orderx=ordersList[ oidx ];
+    Order ordery=ordersList[ oidy ];
+    return isIncompatibleOrder(orderx,ordery);
+}
+
+bool Init_pd::isCompatibleOrder(int oidx,int oidy) const { 
+     return not isIncompatibleOrder(oidx,oidy); 
+}
+
+bool Init_pd::isCompatibleOrder(const Order &from, const Order &to) const  {
+    return not isIncompatibleOrder(from.getoid(),to.getoid());
+}
+
+double Init_pd::compatibleIJ(int fromNid, int toNid) const {
+      double value=twc.compatibleIJ(fromNid,toNid);
+      return value== -std::numeric_limits<double>::max()? 0:value;
+}
+
+double Init_pd::compatOrdersMeasure(const Order &orderx, const Order &ordery) const {
+    int Px,Dx;
+    int Py,Dy;
+    double total;
+    Px= orderx.getpid();
+    Dx= orderx.getdid();
+    Py= ordery.getpid();
+    Dy= ordery.getdid();
+    if (isIncompatibleOrder(orderx,ordery)) return  -std::numeric_limits<double>::max();
+std::cout<<"\ncompat  =\n";
+orderx.dump();
+ordery.dump();
+std::cout<<"\ncompat Px->Dx ="<<twc.compatibleIJ(Px,Dx);
+std::cout<<"\ncompat Px->Py ="<<twc.compatibleIJ(Px,Py);
+std::cout<<"\ncompat Px->Dy ="<<twc.compatibleIJ(Px,Dy);
+
+std::cout<<"\ncompat Dx->Py ="<<twc.compatibleIJ(Py,Dx);
+std::cout<<"\ncompat Dx->Dy ="<<twc.compatibleIJ(Py,Dy);
+
+std::cout<<"\ncompat Py->Dx ="<<twc.compatibleIJ(Py,Dx);
+std::cout<<"\ncompat Py->Dy ="<<twc.compatibleIJ(Py,Dy);
+
+std::cout<<"\ncompat Dy->Dx ="<<twc.compatibleIJ(Py,Dx);
+total= compatibleIJ(Px,Dx)+compatibleIJ(Px,Py)+compatibleIJ(Px,Dy)+
+       compatibleIJ(Py,Dx)+compatibleIJ(Py,Dy)+
+       compatibleIJ(Py,Dx)+compatibleIJ(Py,Dy)+
+       compatibleIJ(Py,Dx);
+std::cout<<"\nTotal ="<<total<<"\n";
+
+
+
+//      for (j = i; j > 1 and datanodes[j-1].distance(depot) < tmp.distance(depot);j-- ) { 
+//        datanodes[j]=datanodes[j-1]; 
+}
+
+
+void Init_pd::sortOrdersByIncompat(std::deque<Order> orders) {
+    int j;
+    Order tmp;
+    for (int i=1; i<orders.size();i++) {
+      tmp=orders[i];
+ordersdump(orders);
+std::cout<<"orders sort 1---"<<i<<"\n";
+      //for (j = i; j > 0 and compatOrdersMeasure(orders[j-1],orders[j])> compatOrdersMeasure(orders[j],orders[j-1]);j-- ){
+      for (j = i; j > 0;j-- ){
+std::cout<<"orders sort 2---"<<compatOrdersMeasure(orders[j-1],orders[j])<<" vs " <<compatOrdersMeasure(orders[j],orders[j-1]);
+         if ( compatOrdersMeasure(orders[j-1],orders[j])> compatOrdersMeasure(orders[j],orders[j-1])){
+std::cout<<"orders sort 1----("<<i<<","<<j<<")\n";
+         orders[j]=orders[j-1];
+         } else break;
+ordersdump(orders);
+      }
+      orders[j]=tmp;
+    }
+};
+
+
+
+
+
+int Init_pd::countCompatibleOrders(const Order &from, const std::deque<Order> &to) const{
+    if (to.empty()) return 0;
+    int count=0;
+    for (int i=0;i<to.size();i++) {
+        if (from.getoid()==to[i].getoid()) continue;  //ignoring the same order
+        if (isCompatibleOrder(from,to[i])) count++;
+    }
+    return count;
+}
+
+int Init_pd::getMostCompatibleOrder(const std::deque<Order> &orders) { 
+    int bestAt=0;
+    int bestCount=0;
+    int currCount;
+    if (orders.size()==0) return -1;
+    for (int i=0;i<orders.size();i++) {
+        currCount=countCompatibleOrders(orders[i],orders);
+        if (currCount>bestCount) {
+           bestAt=i;
+           bestCount=currCount;
+        };
+    };
+    return bestAt;
+};
+
+void Init_pd::removeIncompatibleOrders(const Order &from,  std::deque<Order> &orders, std::deque<Order> &incompatible) {
+    for (int i=0;i<orders.size();i++) {
+        if (isIncompatibleOrder(from,orders[i])) {
+              incompatible.push_back(orders[i]);
+              orders.erase(orders.begin()+i);
+              i--;
+        };
+    }
+}
+
+void Init_pd::insertInTruck(Vehicle &truck,const Order &order){
+    int deliverPosLR=0;
+    int pickPosLR=0;
+    int deliverPosRL=truck.size()-1;
+    int pickPosRL=truck.size()-1;
+    int Px= order.getpid();
+    int Dx= order.getdid();
+
+    for  (int i=0; i<truck.size();i++) {
+        pickPosLR=i;
+        if ( twc.isCompatibleIJ(truck[i].getnid(),Px) ) continue;
+        else {break; };
+    };
+
+    for (int i=truck.size()-1; i>=0;i--) {
+        pickPosRL=i;
+        if ( twc.isCompatibleIJ(Px,truck[i].getnid()) ) continue;
+        else {break; };
+    };
+    if (pickPosRL>pickPosLR) std::cout<<" SOMETHING WENT WRONG 1 \n";
+    truck.e_insert(order.getPickup(),pickPosRL+1);
+
+std::cout<<"\npick Pos LR="<<pickPosLR<<"\tpick Pos RL="<<deliverPosRL<<"\n";
+truck.tau(); std::cout<<"\n";
+    for  (int i=0; i<truck.size();i++) {
+        deliverPosLR=i;
+        if ( twc.isCompatibleIJ(truck[i].getnid(),Dx) ) continue;
+        else {break;};
+    };
+    for (int i=truck.size()-1; i>=0;i--) {
+        deliverPosRL=i;
+        if ( twc.isCompatibleIJ(Dx,truck[i].getnid()) ) continue;
+        else {break; };
+    };
+    // teoricamente Rl<LR
+    if (deliverPosLR<deliverPosRL) std::cout<<" SOMETHING WENT WRONG 2";
+    truck.e_insert(order.getDelivery(),deliverPosRL+1);
+std::cout<<"\n deliver Pos LR="<<deliverPosLR<<"\tdeliver Pos RL="<<deliverPosRL<<"\n";
+truck.tau(); std::cout<<"\n";
+
+
+};
+
+
+
+
+void Init_pd::makeRoute(Vehicle &truck, std::deque<Order> &orders, std::deque<Order> &incompatible) {
+std::cout << "Enter Problem::orderConstraintConstruction\n";
+    if (orders.empty()) return; //no more compatible orders
+std::cout << "orderConstraintConstruction---->2\n";
+    int bestAt= getMostCompatibleOrder(orders);
+std::cout << "orderConstraintConstruction---->3\n";
+    Order bestOrder=orders[bestAt];
+std::cout << "orderConstraintConstruction---->4\n";
+bestOrder.dump();
+    insertInTruck(truck,bestOrder);                     // has to be out of vehicle becase of use of twc  ...  unless its a parameter???
+std::cout << "orderConstraintConstruction---->5\n";
+truck.tau();
+    orders.erase(orders.begin()+bestAt);                           //Order has being used... so we can forget about it
+std::cout << "orderConstraintConstruction---->6\n";
+    removeIncompatibleOrders(bestOrder,orders,incompatible);
+std::cout << "orderConstraintConstruction---->7\n";
+std::cout<<"\n********************Recursion=RESULTS****************************** \n";
+std::cout<<"\n truck= "; truck.tau(); std::cout<<"\n";
+std::cout<<" orders= "; ordersdump(orders); std::cout<<"\n";
+std::cout<<" incompatible= "; ordersdump(incompatible); std::cout<<"\n";
+std::cout<<"\n********************recursion= END RESULTS****************************** \n";
+    makeRoute(truck,orders,incompatible);
+std::cout << "orderConstraintConstruction---->8\n";
+}
+
+    
+void Init_pd::orderConstraintConstruction() {
+std::cout << "Enter Problem::orderConstraintConstruction\n";
+/* I already have the twc table ready */
+
+    //Bucket nodes;
+    //Bucket pendingDeliveries, incompatible;   // delivery nodes not inserted yet 
+    std::deque<Order> orders=ordersList;
+    std::deque<Order> incompatible;
+    //nodes=originalnodes;
+    //int lastNodeId;
+
+    sortOrdersByIncompat(orders);
+    ordersdump(orders);
+    Vehicle truck(depot,Q);
+
+    for (int i=0;i<ordersList.size();i++)
+        twc.setIncompatible(ordersList[i].getdid(),ordersList[i].getpid());
+    
+twc.dump();
+int k=0;
+    while (k<K and  not orders.empty()) {
+std::cout<<"\n********************CYCLE=DATA****************************** "<<k<<"\n";
+        truck.clean();             //create a new truck for a route (depot has being inserted as first node)
+        //lastNodeId=depot.getnid();                      // I work with nids at this levle
+        //nodes.removeNode(lastNodeId);                // remove the node from the nodes list
+        //twc.recreateRowColumn( lastNodeId );
+std::cout<<" orders= "; ordersdump(orders); std::cout<<"\n";
+std::cout<<" incompatible= "; ordersdump(incompatible); std::cout<<"should be empty\n";
+//std::cout<<" pending= "; pendingDeliveries.tau(); std::cout<<"should be empty\n";
+std::cout<<"\n********************CYCLE=ENDATA****************************** "<<k<<"\n";
+        makeRoute(truck,orders,incompatible);
+std::cout<<"\n********************CYCLE=RESULTS****************************** "<<k<<"\n";
+std::cout<<"\n truck= "; truck.tau(); std::cout<<"\n";
+std::cout<<" orders= "; ordersdump(orders); std::cout<<"\n";
+std::cout<<" incompatible= "; ordersdump(incompatible); std::cout<<"should be empty\n";
+std::cout<<"\n********************CYCLE= END RESULTS****************************** "<<k<<"\n";
+        orders=incompatible;
+        incompatible.clear();
+        fleet.push_back(truck);
+        k++;
+     }
+}
+
+
+
+
+
+/*        another solution                                      */
 Order Init_pd::getOrderData(int nodeId, int &pick, int &deliver){
     Order order;
     Dpnode node=twc.getNode(nodeId);

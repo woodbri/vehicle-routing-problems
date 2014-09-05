@@ -211,7 +211,7 @@ void Vehicle::findBetterForward(int &bestI, int &bestJ) {
     }
 
     void Vehicle::push_back(Dpnode pathstop) { path.push_back(pathstop); }
-    void Vehicle::insert(Dpnode pathstop,int at) { path.insert(pathstop,at); }
+    void Vehicle::insert(const Dpnode &pathstop,int at) { path.insert(pathstop,at); }
     void Vehicle::insertPickup(const Order &o, const int at) { insert(*o.pickup,at); }
 
     void Vehicle::pushPickup(const Order &o) { push_back(*o.pickup); }
@@ -330,7 +330,7 @@ bool Vehicle::isEmptyTruck() const {return path.size()==1;}
 
 
     
-    void Vehicle::e_insert(Dpnode pathstop,int at) {
+    void Vehicle::e_insert(const Dpnode &pathstop,int at) {
          path.e_insert(pathstop,at,maxcapacity);
          evalLast();
     }
