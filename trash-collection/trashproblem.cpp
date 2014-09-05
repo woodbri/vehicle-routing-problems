@@ -86,9 +86,9 @@ void TrashProblem::loadproblem(std::string& file) {
 // the two closest depots and the nearest dump site.
 
 void TrashProblem::setNodeDistances(Trashnode& n) {
-    double dist = -1.0;
+    double dist = std::numeric_limits<double>::max();
     int nid = -1;
-    double dist2 = -1.0;
+    double dist2 = std::numeric_limits<double>::max();
     int nid2 = -1;
 
     if (n.isdepot()) {
@@ -124,13 +124,21 @@ void TrashProblem::setNodeDistances(Trashnode& n) {
         n.setdumpdist(nid, dist);
 
         nid = -1;
+        dist = std::numeric_limits<double>::max();
+        dist2 = std::numeric_limits<double>::max();
         for (int i=0; i<depots.size(); i++) {
             double d = dMatrix[n.getnid()][depots[i]];
-            if (nid == -1 or d < dist) {
-                dist2 = dist;
-                nid2 = nid;
+            if (d < dist) {
+                if (i and dist < dist2) {
+                    dist2 = dist;
+                    nid2 = nid;
+                }
                 dist = d;
                 nid = depots[i];
+            }
+            else if (i and  nid2 != nid and d < dist2) {
+                dist2 = d;
+                nid2 = depots[i];
             }
         }
         n.setdepotdist(nid, dist, nid2, dist2);
