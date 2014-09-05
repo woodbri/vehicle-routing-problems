@@ -96,6 +96,7 @@ std::cout<<"\nTotal ="<<total<<"\n";
 
 //      for (j = i; j > 1 and datanodes[j-1].distance(depot) < tmp.distance(depot);j-- ) { 
 //        datanodes[j]=datanodes[j-1]; 
+     return total;
 }
 
 
