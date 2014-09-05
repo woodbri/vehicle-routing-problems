@@ -51,7 +51,7 @@ class Vehicle {
     int getppos(const int oid) const;
     Twpath<Dpnode>&  Path() ;
     Twpath<Dpnode>  getpath() const ;
-    Dpnode& operator[](unsigned int n) { return path[n]; };
+    Dpnode& operator[] (unsigned int n) { return path[n]; };
     Dpnode  operator[] (unsigned int n) const { return path[n]; };
 
 
@@ -65,7 +65,7 @@ class Vehicle {
     void swap(int i,int j);
     void move(int fromi,int toj);
     void push_back(Dpnode pathstop);
-    void insert(Dpnode pathstop,int at);
+    void insert(const Dpnode &pathstop,int at);
     void pushOrder(const Order &o);
     void pushPickup(const Order &o);
     void pushDelivery(const Order &o);
@@ -82,7 +82,7 @@ class Vehicle {
     void e_swap(int i,int j);
     void e_move(int fromi,int toj);
     void e_push_back(Dpnode pathstop);
-    void e_insert(Dpnode pathstop,int at);
+    void e_insert(const Dpnode &pathstop,int at);
     void e_pushOrder(const Order &o);
     void e_pushPickup(const Order &o);
     void e_pushDelivery(const Order &o);

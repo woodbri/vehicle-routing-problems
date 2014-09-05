@@ -49,9 +49,9 @@ class Compatible {
     void setIncompatible(int fromId, int toId);
     void twcij_calculate();
     void twc_from_depot_calculate();
-    bool isCompatibleIJ(int fromId, int toId) ;
+    bool isCompatibleIJ(int fromId, int toId) const ;
     bool isCompatibleIAJ(int fromId, int middleId, int toId) ;
-    double compatibleIJ(int fromId,int toId) ;
+    double compatibleIJ(int fromId,int toId) const ;
     void dumpCompatible() ;
     void maskHorizontal(int at) ;
     void maskVertical(int at) ;

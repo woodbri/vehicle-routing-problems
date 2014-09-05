@@ -1,7 +1,7 @@
 #ifndef INIT_PD_H
 #define INIT_PD_H
 
-#include <vector>
+#include <deque>
 #include <cmath>
 
 #include "prob_pd.h"
@@ -38,6 +38,23 @@ class Init_pd: public Prob_pd {
 Order getOrderData(int nodeId, int &pick, int &deliver);
 bool inPending(const Vehicle pend, int nodeId) ;
 int compatibleWithPending(const Vehicle &pend, int fromId, int toId); 
+
+/* OrderIncompatibility initial Solution */
+double compatibleIJ(int fromNid, int toNid)const; 
+void sortOrdersByIncompat(std::deque<Order> orders);
+bool incompatible(int fromId, int toId) const ;
+bool isIncompatibleOrder(const Order &orderx, const Order &ordery) const; 
+bool isIncompatibleOrder(int oidx,int oidy ) const ;
+bool isCompatibleOrder(const Order &from, const Order &to) const ;
+bool isCompatibleOrder(int oidx,int oidy) const ;
+double compatOrdersMeasure(const Order &orderx, const Order &ordery) const;
+int countCompatibleOrders(const Order &from, const std::deque<Order> &to) const;
+int getMostCompatibleOrder(const std::deque<Order> &orders) ;
+void removeIncompatibleOrders(const Order &from,  std::deque<Order> &orders, std::deque<Order> &incompatible) ;
+void insertInTruck(Vehicle &truck,const Order &order);
+void makeRoute(Vehicle &truck, std::deque<Order> &orders, std::deque<Order> &incompatible);
+    void orderConstraintConstruction();
+
 
 
 /*  paper initial Construction */

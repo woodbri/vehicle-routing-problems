@@ -91,8 +91,8 @@ class Prob_pd {
     void makeOrders();
 
     void nodesdump();
-    void ordersdump();
-    void dump();
+    void ordersdump( const std::deque<Order> orders ) const;
+   void dump();
 
     //void calcAvgTWLen();
 };
