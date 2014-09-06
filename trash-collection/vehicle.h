@@ -118,6 +118,8 @@ class Vehicle {
     bool pathOptExchangeNodes();
     bool pathOptInvertSequence();
 
+    bool findBestFit(Trashnode& tn, int* tpos, double* deltacost);
+
 /* algorithm specific - inter-route manipulations */
 
     bool swap(Vehicle& v2, const int& i1, const int& i2);

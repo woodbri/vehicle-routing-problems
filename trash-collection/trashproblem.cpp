@@ -159,6 +159,7 @@ std::string selectorAsTxt(int s) {
     if (s & PICKUP)      str += (str.length()?"|":"") + std::string("PICKUP");
     if (s & DEPOT)       str += (str.length()?"|":"") + std::string("DEPOT");
     if (s & DUMP)        str += (str.length()?"|":"") + std::string("DUMP");
+    if (s & RATIO)       str += (str.length()?"|":"") + std::string("RATIO");
     return str;
 }
 
@@ -174,12 +175,22 @@ std::string selectorAsTxt(int s) {
 //          16 - must be pickup nodes       PICKUP
 //          32 - must be depot nodes        DEPOT
 //          64 - must be dump nodes         DUMP
+//         128 - must have RATIO<ratio      RATIO
+//
+// return true to exclude the node
+//
+// tn - a depot node
+// i - a datanodes index being filtered or not
+// selector - see above
+// demandLimit - capacity left available on the vehicle
+//
 
 bool TrashProblem::filterNode(const Trashnode &tn, int i, int selector, int demandLimit) {
+        Trashnode& tn2 = datanodes[i];
         bool select = true;
 
         // filter out nodes where the demand > demandLimit
-        if (selector & LIMITDEMAND and datanodes[i].getdemand() > demandLimit)
+        if (selector & LIMITDEMAND and tn2.getdemand() > demandLimit)
             return true;
 
         // if select any
@@ -187,13 +198,13 @@ bool TrashProblem::filterNode(const Trashnode &tn, int i, int selector, int dema
             return false;
 
         // is pickup node
-        if (selector & PICKUP and datanodes[i].ispickup())
+        if (selector & PICKUP and tn2.ispickup())
             select = false;
         // is depot node
-        else if (selector & DEPOT and datanodes[i].isdepot())
+        else if (selector & DEPOT and tn2.isdepot())
             select = false;
         // is dump node
-        else if (selector & DUMP and datanodes[i].isdump())
+        else if (selector & DUMP and tn2.isdump())
             select = false;
 
         if (select and ((PICKUP|DEPOT|DUMP) & selector))
@@ -202,14 +213,38 @@ bool TrashProblem::filterNode(const Trashnode &tn, int i, int selector, int dema
         select = true;
         // belongs to cluster1
         if (selector & CLUSTER1 and
-                 tn.getdepotnid() == datanodes[i].getdepotnid() )
-                select = false;
+                tn.getdepotnid() == tn2.getdepotnid() ) {
+            // select the node, it is in CLUSTER1
+            select = false;
+            double r = tn2.getdepotdist()<tn2.getdepotdist2() ?
+                tn2.getdepotdist()/tn2.getdepotdist2() :
+                tn2.getdepotdist2()/tn2.getdepotdist();
+            // unselect it if r > ratio
+            if (selector & RATIO and r > ratio)
+                select = true;
+        }
         // belongs to cluster2
         else if (selector & CLUSTER2 and 
-                 tn.getdepotnid() == datanodes[i].getdepotnid2() )
+                tn.getdepotnid() == tn2.getdepotnid2() ) {
+            // select the node, it is in CLUSTER2
+            select = false;
+            double r = tn2.getdepotdist()<tn2.getdepotdist2() ?
+                tn2.getdepotdist()/tn2.getdepotdist2() :
+                tn2.getdepotdist2()/tn2.getdepotdist();
+            // unselect it if r > ratio
+            if (selector & RATIO and r > ratio)
+                select = true;
+        }
+        // only checking RATIO
+        else if (!(selector & (CLUSTER1|CLUSTER2)) and (selector & RATIO)) {
+            double r = tn2.getdepotdist()<tn2.getdepotdist2() ?
+                tn2.getdepotdist()/tn2.getdepotdist2() :
+                tn2.getdepotdist2()/tn2.getdepotdist();
+            if (r <= ratio)
                 select = false;
+        }
 
-        if (select and ((CLUSTER1|CLUSTER2) & selector))
+        if (select and ((CLUSTER1|CLUSTER2|RATIO) & selector))
             return true;
 
         // is unassigned node
@@ -394,6 +429,42 @@ bool TrashProblem::buildFleetFromSolution(std::vector<int> solution) {
         vid++;
     }
     return true;
+}
+
+
+
+bool TrashProblem::findVehicleBestFit(int nid, int* vid, int* pos) {
+
+    // track the best result found
+    int vbest = -1;
+    int vpos;
+    double vcost;
+
+    for (int i=0; i<fleet.size(); i++) {
+        if ( fleet[i].getcargo() + datanodes[nid].getdemand() 
+             > fleet[i].getmaxcapacity() ) continue;
+
+        int tpos;
+        double cost;
+        Trashnode tn = datanodes[nid];
+
+        if (fleet[i].findBestFit(tn, &tpos, &cost)) {
+std::cout << "findVehicleBestFit: nid: "<<nid<<", i: "<<i<<", tpos: "<<tpos<<", cost: "<<cost<<std::endl;
+            if (vbest == -1 or cost < vcost) {
+                vbest = i;
+                vpos = tpos;
+                vcost = cost;
+            }
+        }
+    }
+
+    if (vbest > -1) {
+        *vid = vbest;
+        *pos = vpos;
+        return true;
+    }
+
+    return false;
 }
 
 
@@ -728,6 +799,130 @@ void TrashProblem::assignmentSweep2() {
     }
 }
 
+
+/*
+    TrashProblem::assignmentSweep3
+
+    This implements Assignment Sweep construction algorithm with the
+    twist that I cluster first and identify the nearest depot (CLUSTER1)
+    and the second nearest depot (CLUSTER2) to all nodes. The construction
+    algorithm follows this pseudo code:
+    1. build routes based on only CLUSTER1 nodes within RATIO
+    2. add unassigned nodes based on the lowest cost to insert them
+*/
+void TrashProblem::assignmentSweep3() {
+    // create a list of all pickup nodes and make them unassigned
+    unassigned = std::vector<int>(datanodes.size(), 1);
+
+    clearFleet();
+
+    for (int i=0; i<depots.size(); i++) {
+
+        // add this depot as the vehicles home location
+        // and the associated dump
+        Trashnode& depot(datanodes[depots[i]]);
+        Trashnode& dump(datanodes[depot.getdumpnid()]);
+
+        // create a vehicle and attach the depot and dump to it
+        Vehicle truck(depot, dump);
+        //std::cout << "EMPTY TRUCK: "; truck.dump();
+
+        int pos;
+        int nid = findNearestNodeTo(truck,
+                UNASSIGNED|PICKUP|CLUSTER1|RATIO, 0, &pos);
+        if (nid == -1) {
+            std::cout << "TrashProblem::assignmentSweep3 failed to find an initial node for depot: " << depots[i] << std::endl;
+            continue;
+        }
+        truck.push_back(datanodes[nid]);
+        unassigned[nid] = 0;
+
+        int cnt = 1;
+//        char buffer[100];
+//        sprintf(buffer, "out/p%02d-%03d.png", i, cnt);
+//        std::string str(buffer);
+//        plot(str, str, truck.getpath());
+        while (truck.getcargo() <= truck.getmaxcapacity()) {
+
+//            std::cout << "assignmentSweep2[" << i << ',' << cnt << "] ";
+//            truck.dumppath();
+
+            int pos;
+            int nnid = findNearestNodeTo(truck,
+                            UNASSIGNED|PICKUP|CLUSTER1|LIMITDEMAND|RATIO,
+                            truck.getmaxcapacity() - truck.getcargo(),
+                            &pos);
+
+            // if we did not find a node we can break
+            if (nnid == -1) break;
+
+            // add node to route
+            unassigned[nnid] = 0;
+            if (pos == 0)
+                truck.push_front(datanodes[nnid]);
+            else if (pos == truck.size())
+                truck.push_back(datanodes[nnid]);
+            else 
+                truck.insert(datanodes[nnid], pos);
+
+            cnt++;
+//            sprintf(buffer, "out/p%02d-%03d.png", i, cnt);
+//            std::string str(buffer);
+//            plot(str, str, truck.getpath());
+        }
+
+        fleet.push_back(truck);
+    }
+
+std::cout << "------ checking unassigned nodes ----------\n";
+
+    // check for unassigned nodes
+    int ucnt = 0;
+    for (int i=0; i<pickups.size(); i++)
+        if (unassigned[pickups[i]]) {
+            ucnt++;
+            datanodes[pickups[i]].dump();
+        }
+    if (ucnt == 0) return; // return if nothing left to do
+
+    std::cout << ucnt << " unassigned orders after CLUSTER1|RATIO assignment" << std::endl;
+
+    // assign remaining order based on lowest cost to insert
+    for (int i=0; i<pickups.size(); i++) {
+        if (! unassigned[pickups[i]]) continue;
+
+        int vid;
+        int pos;
+        if (! findVehicleBestFit(pickups[i], &vid, &pos)) {
+            // could not find a valid insertion point
+            std::cout << "assignmentSweep3: could not find a valid insertion point for node: " << pickups[i] << std::endl;
+            continue;
+        }
+
+        unassigned[pickups[i]] = 0;
+
+        Vehicle& truck = fleet[vid];
+
+        if (pos == 0)
+            truck.push_front(datanodes[pickups[i]]);
+        else if (pos == truck.size())
+            truck.push_back(datanodes[pickups[i]]);
+        else 
+            truck.insert(datanodes[pickups[i]], pos);
+
+    }
+
+    // check for unassigned nodes
+    ucnt = 0;
+    for (int i=0; i<pickups.size(); i++)
+        if (unassigned[pickups[i]]) ucnt++;
+    if (ucnt == 0) return; // return if nothing left to do
+
+    std::cout << ucnt << " unassigned orders after best fit assignment" << std::endl;
+
+}
+
+
 /************** local route optimization ************************/
 
 // Perform local (intra-route) optimizations on each vehicle in the fleet
@@ -885,6 +1080,18 @@ void TrashProblem::dump() const {
     dumpDumps();
     dumpPickups();
     dumpFleet();
+    std::cout << "--------- Solution ------------" << std::endl;
+    std::cout << "Total path length: " << getduration() << std::endl;
+    std::cout << "Total path cost: " << getcost() << std::endl;
+    std::cout << "Total count of TWV: " << getTWV() << std::endl;
+    std::cout << "Total count of CV: " << getCV() << std::endl;
+    std::cout << "Solution: " << solutionAsText() << std::endl;
+}
+
+
+// dump summary of the solution
+
+void TrashProblem::dumpSummary() const {
     std::cout << "--------- Solution ------------" << std::endl;
     std::cout << "Total path length: " << getduration() << std::endl;
     std::cout << "Total path cost: " << getcost() << std::endl;

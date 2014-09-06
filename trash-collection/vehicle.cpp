@@ -98,14 +98,16 @@ bool Vehicle::doTwoOpt(const int& c1, const int& c2, const int& c3, const int& c
     // c2 -> c3
     // reverse any nodes between c2 and c3
     path.e_swap(c2, c3, getmaxcapacity());
-    path.e_reverse(c2+1, c3-1, getmaxcapacity());
+    if (c3-c2 > 1)
+        path.e_reverse(c2+1, c3-1, getmaxcapacity());
     evalLast();
 
     // if the change does NOT improve the cost or generates TW violations
     // undo the change
     if (getcost() > oldcost or hastwv()) {
         path.e_swap(c2, c3, getmaxcapacity());
-        path.e_reverse(c2+1, c3-1, getmaxcapacity());
+        if (c3-c2 > 1)
+            path.e_reverse(c2+1, c3-1, getmaxcapacity());
         evalLast();
         return false;
     }
@@ -248,10 +250,9 @@ bool Vehicle::pathTwoOpt() {
         oldcost = getcost();
 
         for (int i=0; i<size-3; i++) {
-            for (int j=i+3; j<size-1; j++) {
+            for (int j=i+2; j<size-1; j++) {
                 doTwoOpt( i, i+1, j, j+1 );
-//                std::cout << "pathTwoOpt["<<i<<","<<i+1<<","<<j<<","<<j+1<<"]("<<getcost()<<"): ";
-//                dumppath();
+std::cout << "pathTwoOpt["<<i<<","<<i+1<<","<<j<<","<<j+1<<"]("<<getcost()<<"): "; dumppath();
             }
         }
     }
@@ -710,6 +711,49 @@ bool Vehicle::relocateBest(Vehicle& v2, const int& i1) {
         return false;
     }
 
+    return true;
+}
+
+
+// find the best place to add tn into this route based on minimizing
+// the increase in cost of the route to add it
+bool Vehicle::findBestFit(Trashnode& tn, int* tpos, double* deltacost) {
+    int bestpos = -1;
+    double bestdelta;
+
+    double origcost = getcost();
+
+    // first we insert nid into the start of vp
+    // ie: pos: 1 after the depot at pos: 0
+    insert(tn, 1);
+    evalLast();
+
+    if (feasable()) {
+        bestpos = 1;
+        bestdelta = getcost() - origcost;
+    }
+
+    // now we walk it down the path checking for better costs
+    for (int i=2; i<this->size(); i++) {
+        path.e_swap(i-1, i, getmaxcapacity());
+        evalLast();
+        if (getcost() - origcost < bestdelta and feasable()) {
+            bestpos = i;
+            bestdelta = getcost() - origcost;
+        }
+    }
+
+    // this is only a test so remove the node
+    path.e_remove(this->size()-1, getmaxcapacity());
+    evalLast();
+
+    // if we found NO feasable place to insert it
+    if (bestpos == -1) {
+        return false;
+    }
+
+    *tpos = bestpos;
+    *deltacost = bestdelta;
     return true;
 }
 
