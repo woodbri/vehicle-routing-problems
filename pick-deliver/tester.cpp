@@ -42,7 +42,8 @@ int main (int argc, char **argv)
 */
         std::cout << "\n\n\n**SOLUTION: Secuential Construction\n";
         Init_pd S4(P);  S4.setweights(1,1,1); 
-        S4.orderConstraintConstruction();  S4.tau();/* S4.dump();*/  S4.plot("seqConst","SequentialConstruction");
+        S4.seqConst();  S4.tau();/* S4.dump();*/  S4.plot("seqConst","SequentialConstruction");
+        //S4.orderConstraintConstruction();  S4.tau();/* S4.dump();*/  S4.plot("seqConst","SequentialConstruction");
 
 /*
 

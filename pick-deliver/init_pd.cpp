@@ -63,6 +63,14 @@ double Init_pd::compatibleIJ(int fromNid, int toNid) const {
       return value== -std::numeric_limits<double>::max()? 0:value;
 }
 
+double Init_pd::compatibleIJ(const Order &order ) const {
+    int Px,Dx;
+    Px= order.getpid();
+    Dx= order.getdid();
+    return compatibleIJ(Px,Dx);
+}
+
+
 double Init_pd::compatOrdersMeasure(const Order &orderx, const Order &ordery) const {
     int Px,Dx;
     int Py,Dy;
@@ -72,31 +80,34 @@ double Init_pd::compatOrdersMeasure(const Order &orderx, const Order &ordery) co
     Py= ordery.getpid();
     Dy= ordery.getdid();
     if (isIncompatibleOrder(orderx,ordery)) return  -std::numeric_limits<double>::max();
-std::cout<<"\ncompat  =\n";
+/*
+std::cout<<"\ncompat  =";
 orderx.dump();
 ordery.dump();
 std::cout<<"\ncompat Px->Dx ="<<twc.compatibleIJ(Px,Dx);
 std::cout<<"\ncompat Px->Py ="<<twc.compatibleIJ(Px,Py);
 std::cout<<"\ncompat Px->Dy ="<<twc.compatibleIJ(Px,Dy);
 
-std::cout<<"\ncompat Dx->Py ="<<twc.compatibleIJ(Py,Dx);
-std::cout<<"\ncompat Dx->Dy ="<<twc.compatibleIJ(Py,Dy);
+std::cout<<"\ncompat Dx->Py ="<<twc.compatibleIJ(Dx,Py);
+std::cout<<"\ncompat Dx->Dy ="<<twc.compatibleIJ(Dx,Dy);
 
 std::cout<<"\ncompat Py->Dx ="<<twc.compatibleIJ(Py,Dx);
 std::cout<<"\ncompat Py->Dy ="<<twc.compatibleIJ(Py,Dy);
 
-std::cout<<"\ncompat Dy->Dx ="<<twc.compatibleIJ(Py,Dx);
-total= compatibleIJ(Px,Dx)+compatibleIJ(Px,Py)+compatibleIJ(Px,Dy)+
-       compatibleIJ(Py,Dx)+compatibleIJ(Py,Dy)+
-       compatibleIJ(Py,Dx)+compatibleIJ(Py,Dy)+
-       compatibleIJ(Py,Dx);
-std::cout<<"\nTotal ="<<total<<"\n";
+std::cout<<"\ncompat Dy->Dx ="<<twc.compatibleIJ(Dy,Dx);
+*/
+total=   compatibleIJ(Px,Dx)+compatibleIJ(Px,Py)+compatibleIJ(Px,Dy)+
+         compatibleIJ(Dx,Py)+compatibleIJ(Dx,Dy)+
+         compatibleIJ(Py,Dx)+compatibleIJ(Py,Dy)+
+         compatibleIJ(Dy,Dx);
+//std::cout<<"\nTotal ="<<total<<"\n";
 
-
-
-//      for (j = i; j > 1 and datanodes[j-1].distance(depot) < tmp.distance(depot);j-- ) { 
-//        datanodes[j]=datanodes[j-1]; 
+     return total;
 }
+
+
+
+
 
 
 void Init_pd::sortOrdersByIncompat(std::deque<Order> orders) {
@@ -104,19 +115,25 @@ void Init_pd::sortOrdersByIncompat(std::deque<Order> orders) {
     Order tmp;
     for (int i=1; i<orders.size();i++) {
       tmp=orders[i];
-ordersdump(orders);
-std::cout<<"orders sort 1---"<<i<<"\n";
+//ordersdump(orders);
+//std::cout<<"orders sort 1---"<<i<<"\n";
       //for (j = i; j > 0 and compatOrdersMeasure(orders[j-1],orders[j])> compatOrdersMeasure(orders[j],orders[j-1]);j-- ){
       for (j = i; j > 0;j-- ){
-std::cout<<"orders sort 2---"<<compatOrdersMeasure(orders[j-1],orders[j])<<" vs " <<compatOrdersMeasure(orders[j],orders[j-1]);
-         if ( compatOrdersMeasure(orders[j-1],orders[j])> compatOrdersMeasure(orders[j],orders[j-1])){
-std::cout<<"orders sort 1----("<<i<<","<<j<<")\n";
+//std::cout<<"J="<<j<<"\n";
+//std::cout<<"orders sort 2---   "<<compatOrdersMeasure(orders[j-1],tmp)<<" vs " <<compatOrdersMeasure(tmp,orders[j-1])<<" si ir de J-1 a j es mejor que ir de j a j-1 hace el cambio\n";
+//ordersdump(orders);
+//std::cout<<"orders are compatible???"<<isCompatibleOrder(orders[j-1],tmp);
+//std::cout<<"reverse orders are compatible???"<<isCompatibleOrder(tmp,orders[j-1]);
+         if ( compatOrdersMeasure(orders[j-1],tmp)<= compatOrdersMeasure(tmp,orders[j-1])){
          orders[j]=orders[j-1];
+//std::cout<<"SWAPING orders sort 1----("<<i<<","<<j<<")\n";
+//ordersdump(orders);
          } else break;
-ordersdump(orders);
+//ordersdump(orders);
       }
       orders[j]=tmp;
     }
+//ordersdump(orders);
 };
 
 
@@ -197,36 +214,69 @@ truck.tau(); std::cout<<"\n";
     truck.e_insert(order.getDelivery(),deliverPosRL+1);
 std::cout<<"\n deliver Pos LR="<<deliverPosLR<<"\tdeliver Pos RL="<<deliverPosRL<<"\n";
 truck.tau(); std::cout<<"\n";
-
-
 };
 
+int Init_pd::getBestOrder(Vehicle &truck,const std::deque<Order> &orders)const {
+    double bestCost= std::numeric_limits<double>::max();
+    int bestAt=-1;
+    Order bestOrder;
+    for (int i=0;i<orders.size();i++) {
+        if (truck.e_insertOrderAfterLastPickup(orders[i],twc)) {//was feasable also
+             if (truck.getcost() < bestCost) {
+                  bestAt=i;
+                  bestOrder=orders[i];
+             }
+        }  //else was not feasable 
+        truck.removeOrder(orders[i]); //remove to try next
+    }
+    return bestAt;
+}
+        
 
 
 
 void Init_pd::makeRoute(Vehicle &truck, std::deque<Order> &orders, std::deque<Order> &incompatible) {
 std::cout << "Enter Problem::orderConstraintConstruction\n";
+std::cout<<"\n********************Recursion=DATA\n";
+std::cout<<"\n truck= "; truck.tau(); std::cout<<"\n";
+std::cout<<" orders= "; ordersdump(orders); std::cout<<"\n";
+std::cout<<" incompatible= "; ordersdump(incompatible); std::cout<<"\n";
+std::cout<<"\n********************recursion= END RESULTS****************************** \n";
     if (orders.empty()) return; //no more compatible orders
-std::cout << "orderConstraintConstruction---->2\n";
-    int bestAt= getMostCompatibleOrder(orders);
-std::cout << "orderConstraintConstruction---->3\n";
-    Order bestOrder=orders[bestAt];
-std::cout << "orderConstraintConstruction---->4\n";
-bestOrder.dump();
-    insertInTruck(truck,bestOrder);                     // has to be out of vehicle becase of use of twc  ...  unless its a parameter???
-std::cout << "orderConstraintConstruction---->5\n";
+    int bestAt;
+    int lastPickInserted;
+    Order order;
+    if (truck.isEmptyTruck())  { 
+          order= orders[0];
+          truck.e_pushOrder(order);
+          orders.erase(orders.begin());
+          removeIncompatibleOrders(order,orders,incompatible);
+    } else {
+          bestAt=getBestOrder(truck,orders);
+          if (bestAt==-1) return;  //no feasable best order
+          order=orders[bestAt];
+                  
+ordersdump(orders);
+std::cout<<"\nbestSt"<<bestAt<<" \n ";
+ordersdump(orders);
 truck.tau();
-    orders.erase(orders.begin()+bestAt);                           //Order has being used... so we can forget about it
-std::cout << "orderConstraintConstruction---->6\n";
-    removeIncompatibleOrders(bestOrder,orders,incompatible);
-std::cout << "orderConstraintConstruction---->7\n";
-std::cout<<"\n********************Recursion=RESULTS****************************** \n";
+          truck.e_insertOrderAfterLastPickup(order,twc);
+std::cout<<"\nbestSt"<<bestAt<<" \n ";
+ordersdump(orders);
+truck.tau();
+std::cout<<"\ngoing to rease\n ";
+          orders.erase(orders.begin()+bestAt);
+std::cout<<"\nafter erase\n ";
+std::cout<<"\ngoing to remove\n ";
+          removeIncompatibleOrders(order,orders,incompatible);
+std::cout<<"\nafter remove\n ";
+    }
+std::cout<<"\n********************Recursion=RESULT\n";
 std::cout<<"\n truck= "; truck.tau(); std::cout<<"\n";
 std::cout<<" orders= "; ordersdump(orders); std::cout<<"\n";
 std::cout<<" incompatible= "; ordersdump(incompatible); std::cout<<"\n";
 std::cout<<"\n********************recursion= END RESULTS****************************** \n";
     makeRoute(truck,orders,incompatible);
-std::cout << "orderConstraintConstruction---->8\n";
 }
 
     
@@ -266,7 +316,7 @@ std::cout<<"\n truck= "; truck.tau(); std::cout<<"\n";
 std::cout<<" orders= "; ordersdump(orders); std::cout<<"\n";
 std::cout<<" incompatible= "; ordersdump(incompatible); std::cout<<"should be empty\n";
 std::cout<<"\n********************CYCLE= END RESULTS****************************** "<<k<<"\n";
-        orders=incompatible;
+        orders.insert (orders.end(),incompatible.begin(),incompatible.end());
         incompatible.clear();
         fleet.push_back(truck);
         k++;

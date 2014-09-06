@@ -41,6 +41,7 @@ int compatibleWithPending(const Vehicle &pend, int fromId, int toId);
 
 /* OrderIncompatibility initial Solution */
 double compatibleIJ(int fromNid, int toNid)const; 
+double compatibleIJ(const Order &order) const ;
 void sortOrdersByIncompat(std::deque<Order> orders);
 bool incompatible(int fromId, int toId) const ;
 bool isIncompatibleOrder(const Order &orderx, const Order &ordery) const; 
@@ -52,6 +53,7 @@ int countCompatibleOrders(const Order &from, const std::deque<Order> &to) const;
 int getMostCompatibleOrder(const std::deque<Order> &orders) ;
 void removeIncompatibleOrders(const Order &from,  std::deque<Order> &orders, std::deque<Order> &incompatible) ;
 void insertInTruck(Vehicle &truck,const Order &order);
+int getBestOrder(Vehicle &truck,const std::deque<Order> &orders) const;
 void makeRoute(Vehicle &truck, std::deque<Order> &orders, std::deque<Order> &incompatible);
     void orderConstraintConstruction();
 
