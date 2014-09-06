@@ -5,10 +5,78 @@
 #include "order.h"
 #include "twpath.h"
 #include "vehicle.h"
+#include "compatible.h"
 #include "plot1.h"
 
 #include <sstream>
 
+bool Vehicle::e_insertOrderAfterLastPickup(const Order &order,const Compatible &twc){
+    int i;
+    for (i=size()-1; i>=0 and not ispickup(i); i--) {};
+    int lastPickPos=i+1;
+
+    int deliverPosLR=0;
+    int pickPosLR=0;
+    int deliverPosRL=size()-1;
+    int pickPosRL=size()-1;
+    int Px= order.getpid();
+    int Dx= order.getdid();
+    for  (int i=0; i<size(); i++) {
+        pickPosLR=i;
+        if ( twc.isCompatibleIJ(getnid(i),Px) ) continue;
+        else {break; };
+    };
+
+    for (int i=size()-1; i>=0;i--) {
+        pickPosRL=i;
+        if ( twc.isCompatibleIJ(Px,getnid(i)) ) continue;
+        else {break; };
+    };
+
+    if (pickPosRL>pickPosLR) std::cout<<" SOMETHING WENT WRONG 1 \n";
+    else std::cout<<"\nCan place the picup from pick Pos RL="<<++pickPosRL<<"\t up to pick Pos LR="<<pickPosLR<<"\n";
+
+    for  (int i=0; i<size();i++) {
+        deliverPosLR=i;
+        if ( twc.isCompatibleIJ(getnid(i),Dx) ) continue;
+        else {break;};
+    };
+    for (int i=size()-1; i>=0;i--) {
+        deliverPosRL=i;
+        if ( twc.isCompatibleIJ(Dx,getnid(i)) ) continue;
+        else {break; };
+    };
+    // teoricamente Rl<LR
+    if (deliverPosLR<deliverPosRL) std::cout<<" SOMETHING WENT WRONG 2";
+std::cout<<"\n can place the deliver from Pos RL="<<++deliverPosRL<<"\t up to deliver Pos LR="<<deliverPosLR<<"\n";
+    double bestCost= std::numeric_limits<double>::max();
+    int bestI,bestJ;
+    for (int i=pickPosRL; i<=pickPosLR+1;i++) {
+std::cout<<"CYCLE"<<i<<"\n";
+        e_insert(order.getPickup(),i);
+        e_insert(order.getDelivery(),i+1);
+        for (int j=i+1; j<=deliverPosLR+2;j++) {
+std::cout<<"        CYCLE"<<j<<"\n";
+tau(); std::cout<<"\n";
+            if (getcost()<bestCost) {
+                bestCost=getcost();
+                bestI=i; bestJ=j;
+            }
+            e_swap(j,j+1);
+        };
+tau(); std::cout<<"\n";
+        e_remove(size()-1);
+        e_remove(i);
+tau(); std::cout<<"\n";
+    }
+           
+tau(); std::cout<<"\n";
+    e_insert(order.getPickup(),bestI);
+tau(); std::cout<<"\n";
+    e_insert(order.getDelivery(),bestJ);
+dump(); std::cout<<"<---- salgo con\n"<<(feasable()? "FEASABLE":"NOT FEASABLE");
+    return feasable();
+}
 
 
 

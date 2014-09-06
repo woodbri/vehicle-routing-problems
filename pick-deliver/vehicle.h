@@ -7,6 +7,8 @@
 #include "order.h"
 #include "dpnode.h"
 
+class Compatible;
+
 
 class Vehicle {
   private:
@@ -82,11 +84,12 @@ class Vehicle {
     void e_swap(int i,int j);
     void e_move(int fromi,int toj);
     void e_push_back(Dpnode pathstop);
+    bool e_insertOrderAfterLastPickup(const Order &order, const Compatible &twc);
     void e_insert(const Dpnode &pathstop,int at);
-    void e_pushOrder(const Order &o);
-    void e_pushPickup(const Order &o);
-    void e_pushDelivery(const Order &o);
-    void e_insertPickup(const Order &o, const int at);
+    void e_pushOrder(const Order &order);
+    void e_pushPickup(const Order &order);
+    void e_pushDelivery(const Order &order);
+    void e_insertPickup(const Order &order, const int at);
 
     Dpnode& getnode(int at) {return path[at];};
 
