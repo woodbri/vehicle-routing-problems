@@ -51,6 +51,7 @@ int main(int argc, char **argv) {
 
     try {
 
+#define TEST2OPT
 //#define TESTSWAP
 #ifdef TESTSWAP
 
@@ -116,6 +117,40 @@ int main(int argc, char **argv) {
             v0.dumppath();
             v1.dumppath();
             v2.dumppath();
+        } while (false);
+
+#else
+#ifdef TEST2OPT
+
+
+        infile = "p50.txt";
+
+        TrashProblem tp;
+        tp.loadproblem( infile );
+        tp.dumpdataNodes();
+
+        do {
+            int sol[] = { 0,25,24,23,32,22,14,15,7,8,16,9,17,5,0,-1,
+                          1,10,11,12,13,21,40,41,31,20,30,29,19,18,5,1,-1,
+                          2,34,33,42,50,51,44,43,45,46,27,28,26,35,6,2,-1,
+                          3,52,53,54,47,55,56,49,48,39,38,37,36,6,3,-1 };
+            std::vector<int> solution(sol, sol+sizeof(sol)/sizeof(int));
+
+            if (!tp.buildFleetFromSolution(solution)) {
+                std::cout << "Problem failed to load!" << std::endl;
+                return 1;
+            }
+            tp.dump();
+
+            Vehicle v1 = tp.getVehicle(1);
+            Vehicle v2 = tp.getVehicle(2);
+
+            std::cout << "\nv1.pathTwoOpt()" << std::endl;
+            std::cout << "oldcost: " << v1.getcost() << "\n";
+            v1.dumppath();
+            v1.pathTwoOpt();
+            std::cout << "newcost: " << v1.getcost() << "\n";
+            v1.dumppath();
         } while (false);
 
 #else
@@ -306,26 +341,32 @@ bool relocateBest(Vehicle& v2, const int& i1);
     } while (false);
 
 */
-        std::cout << "\n----------- assignmentSweep2 -----------------------\n";
-        tp.assignmentSweep2();
+        std::cout << "\n----------- assignmentSweep3 -----------------------\n";
+        tp.setRatio(0.9);
+        tp.assignmentSweep3();
         tp.dump();
 
-        tp.plot("p3.png", "assignmentSweep2", font);
+        tp.plot("p3.png", "assignmentSweep3", font);
 
         std::cout << "\n----------- doing 3-opt -----------------------\n";
         tp.opt_3opt();
-        tp.dump();
-        tp.plot("p5.png", "assignmentSweep2 - after 3opt", font);
+        tp.dumpSummary();
+        tp.plot("p5.png", "assignmentSweep3 - after 3opt", font);
 
         std::cout << "\n----------- doing 2-opt -----------------------\n";
         tp.opt_2opt();
-        tp.dump();
-        tp.plot("p4.png", "assignmentSweep2 - after 2opt", font);
+        tp.dumpSummary();
+        tp.plot("p4.png", "assignmentSweep3 - after 2opt", font);
 
         std::cout << "\n----------- doing or-opt -----------------------\n";
         tp.opt_or_opt();
-        tp.dump();
-        tp.plot("p6.png", "assignmentSweep2 - after or-opt", font);
+        tp.dumpSummary();
+        tp.plot("p6.png", "assignmentSweep3 - after or-opt", font);
+
+        std::cout << "\n----------- doing 2-opt again -----------------\n";
+        tp.opt_2opt();
+        tp.dumpSummary();
+        tp.plot("p7.png", "assignmentSweep3 - after 2opt again", font);
 
 /*
         std::cout << "\n----------- doing pathOptimize ---------------------\n";
@@ -333,6 +374,7 @@ bool relocateBest(Vehicle& v2, const int& i1);
         tp.dump();
         tp.plot("p7.png", "assignmentSweep2 - after optimize", font);
 */
+#endif
 #endif
     }
     catch (const std::exception &e) {

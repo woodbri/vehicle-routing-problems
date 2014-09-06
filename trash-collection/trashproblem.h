@@ -16,7 +16,8 @@ enum Selector {
     LIMITDEMAND =8,     // with demand < demandLimit
     PICKUP      =16,    // must be pickup nodes
     DEPOT       =32,    // must be depot nodes
-    DUMP        =64     // must be dump nodes
+    DUMP        =64,    // must be dump nodes
+    RATIO       =128    // only select nodes with RATIO<ratio
 };
 
 
@@ -32,7 +33,13 @@ class TrashProblem {
 
     std::vector< std::vector<double> > dMatrix;
 
+    double ratio; // ratio for select boarder nodes in assignmentSweep3
+
   public:
+    // structors
+
+    TrashProblem() { ratio = 0.85; };
+
     // accessors
     double distance(int nq, int n2) const;
 
@@ -50,6 +57,7 @@ class TrashProblem {
     double getcost() const;
     int getTWV() const;
     int getCV() const;
+    double getRatio() const { return ratio; };
 
     int getVehicleCount() const {return fleet.size(); };
     Vehicle getVehicle(int i) const { return fleet[i]; };
@@ -61,6 +69,7 @@ class TrashProblem {
     void dumpDumps() const;
     void dumpPickups() const;
     void dump() const;
+    void dumpSummary() const;
 
     void plot( std::string file, std::string title, std::string font );
     void plot( std::string file, std::string title, std::string font, std::deque<int> highlight );
@@ -69,17 +78,20 @@ class TrashProblem {
     void clearFleet() { fleet.clear(); };
     void loadproblem(std::string& file);
     void setNodeDistances(Trashnode& n);
+    void setRatio(double r) { ratio = r; };
 
     void buildDistanceMatrix();
 
     // methods to build initial solution
     bool buildFleetFromSolution(std::vector<int> solution);
+    bool findVehicleBestFit(int nid, int* vid, int* pos);
     void dumbConstruction();
     void nearestNeighbor();
     // void nearestInsertion();
     // void farthestInsertion();
     void assignmentSweep();
     void assignmentSweep2();
+    void assignmentSweep3();
 
     // intra-route optimization routines
     void opt_2opt();
