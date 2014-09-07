@@ -41,6 +41,8 @@ class BucketN {
     Twpath<Dpnode>  getpath() const ;
     Dpnode& operator[] (unsigned int n) { return path[n]; };
     Dpnode  operator[] (unsigned int n) const { return path[n]; };
+    Dpnode  front() const {return path.front();}
+    Dpnode& front() {return path.front();}
 
 
     void remove(int at);
