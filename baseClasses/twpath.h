@@ -31,33 +31,31 @@ template <class knode> class Twpath {
         if (fromi == toj) return;
         if (fromi < toj){
             insert(path[fromi], toj + 1);
-            remove(fromi);
+            erase(fromi);
         } else {
             insert(path[fromi], toj);
-            remove(fromi + 1);
+            erase(fromi + 1);
         }
     };
 
-    void insert(const knode &n, int at) { path.insert(path.begin() + at, n); };
-    void remove (int i) { path.erase(path.begin()+i); };
+    void insert(const knode &n, int atPos) { path.insert(path.begin() + atPos, n); };
+    void erase (int atPos) { path.erase(path.begin()+atPos); };
     void push_back(const knode& n) { path.push_back(n); };
-    void push_back(knode& n) { path.push_back(n); };
     void push_front(const knode& n) { path.push_front(n); };
-    void push_front(knode& n) { path.push_front(n); };
     void pop_back() { path.pop_back(); };
     void pop_front() { path.pop_front(); };
+    void resize(unsigned int n) { path.resize(n); };
+    void clear() { path.clear(); };
+    unsigned int max_size() const { return path.max_size(); };
+    unsigned int size() const { return path.size(); };
+    bool empty() const { return path.empty(); };
 
     // how can we hande evaluation if we need the following???
     // clear() can be handled with:
     //      temp = path[0]; path.clear(); path.push_back(temp); ...
 
-    void resize(unsigned int n) { path.resize(n); };
-    void clear() { path.clear(); };
 
     // Capacity
-    unsigned int max_size() const { return path.max_size(); };
-    unsigned int size() const { return path.size(); };
-    bool empty() const { return path.empty(); };
 
     // ------------------------------------------------------------------
     // These methods are AUTO-EVALUATING

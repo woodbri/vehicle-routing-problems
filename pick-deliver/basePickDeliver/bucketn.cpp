@@ -76,7 +76,7 @@
     void BucketN::removeNode(int nid){
            for (int at=0;at<path.size();at++) {
                if (getnid(at)==nid ){
-                   path.remove(at); break; //only 1 node /path
+                   path.erase(at); break; //only 1 node /path
                }
            }
     }
@@ -94,7 +94,7 @@
     void BucketN::removePickup(int oid){
           for (int at=0;at<path.size();at++) {
                if (ispickup(at) and getoid(at)==oid ){
-                   path.remove(at); break;
+                   path.erase(at); break;
                }
          }
     }
@@ -102,7 +102,7 @@
     void BucketN::removeDelivery(int oid){
            for (int at=0;at<path.size();at++) {
                if (isdelivery(at) and getoid(at)==oid ){
-                   path.remove(at); break; //only 1 delivery per order
+                   path.erase(at); break; //only 1 delivery per order
                }
            }
     }
