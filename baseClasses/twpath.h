@@ -43,8 +43,8 @@ template <class knode> class Twpath {
     void erase (int atPos) { path.erase(path.begin()+atPos); };
     void erase (int fromPos, int toPos) { 
          if (fromPos==toPos) path.erase(fromPos);
-         else if (fromPos<toPos) path.erase(path.begin()+fromPos,path.begin()+toPos); };
-         else  path.erase(path.begin()+toPos,path.begin()+fromPos); };
+         else if (fromPos<toPos) path.erase(path.begin()+fromPos,path.begin()+toPos); 
+         else  path.erase(path.begin()+toPos,path.begin()+fromPos); 
     };
     void push_back(const knode& n) { path.push_back(n); };
     void push_front(const knode& n) { path.push_front(n); };
