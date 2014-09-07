@@ -449,7 +449,7 @@ bool TrashProblem::findVehicleBestFit(int nid, int* vid, int* pos) {
         Trashnode tn = datanodes[nid];
 
         if (fleet[i].findBestFit(tn, &tpos, &cost)) {
-std::cout << "findVehicleBestFit: nid: "<<nid<<", i: "<<i<<", tpos: "<<tpos<<", cost: "<<cost<<std::endl;
+//std::cout << "findVehicleBestFit: nid: "<<nid<<", i: "<<i<<", tpos: "<<tpos<<", cost: "<<cost<<std::endl;
             if (vbest == -1 or cost < vcost) {
                 vbest = i;
                 vpos = tpos;
