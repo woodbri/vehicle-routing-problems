@@ -36,3 +36,5 @@ collection
 *.pdf
 *.ods
 *.ggb
+
+callgrind-*
