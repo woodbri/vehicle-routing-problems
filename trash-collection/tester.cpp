@@ -51,7 +51,7 @@ int main(int argc, char **argv) {
 
     try {
 
-#define TEST2OPT
+//#define TEST2OPT
 //#define TESTSWAP
 #ifdef TESTSWAP
 
@@ -348,10 +348,12 @@ bool relocateBest(Vehicle& v2, const int& i1);
 
         tp.plot("p3.png", "assignmentSweep3", font);
 
+/*
         std::cout << "\n----------- doing 3-opt -----------------------\n";
         tp.opt_3opt();
         tp.dumpSummary();
         tp.plot("p5.png", "assignmentSweep3 - after 3opt", font);
+*/
 
         std::cout << "\n----------- doing 2-opt -----------------------\n";
         tp.opt_2opt();

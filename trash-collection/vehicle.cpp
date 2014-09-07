@@ -250,9 +250,9 @@ bool Vehicle::pathTwoOpt() {
         oldcost = getcost();
 
         for (int i=0; i<size-3; i++) {
-            for (int j=i+2; j<size-1; j++) {
+            for (int j=i+2; j<size; j++) {
                 doTwoOpt( i, i+1, j, j+1 );
-std::cout << "pathTwoOpt["<<i<<","<<i+1<<","<<j<<","<<j+1<<"]("<<getcost()<<"): "; dumppath();
+//std::cout << "pathTwoOpt["<<i<<","<<i+1<<","<<j<<","<<j+1<<"]("<<getcost()<<"): "; dumppath();
             }
         }
     }
