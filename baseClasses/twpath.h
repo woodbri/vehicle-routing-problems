@@ -22,6 +22,7 @@ template <class knode> class Twpath {
 
   public:
     void swap(int i, int j) {
+        if (i == j) return;
         knode temp = path[i];
         path[i] = path[j];
         path[j] = temp;
@@ -40,6 +41,11 @@ template <class knode> class Twpath {
 
     void insert(const knode &n, int atPos) { path.insert(path.begin() + atPos, n); };
     void erase (int atPos) { path.erase(path.begin()+atPos); };
+    void erase (int fromPos, int toPos) { 
+         if (fromPos==toPos) path.erase(fromPos);
+         else if (fromPos<toPos) path.erase(path.begin()+fromPos,path.begin()+toPos); };
+         else  path.erase(path.begin()+toPos,path.begin()+fromPos); };
+    };
     void push_back(const knode& n) { path.push_back(n); };
     void push_front(const knode& n) { path.push_front(n); };
     void pop_back() { path.pop_back(); };
