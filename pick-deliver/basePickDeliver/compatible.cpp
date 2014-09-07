@@ -51,7 +51,7 @@ std::cout<<"\t = "<< result<<"\n";
 
 
 /*  CONSTRUCTORS */
-Compatible::Compatible(Vehicle _original) {
+Compatible::Compatible(BucketN _original) {
     original=_original;
     for (int i=0; i<original.size();i++){
         nodes.push_back(original[i]);
@@ -60,12 +60,12 @@ Compatible::Compatible(Vehicle _original) {
     twcij_calculate();
 }
 
-int Compatible::setSubset(Vehicle _subset) {
+int Compatible::setSubset(BucketN _subset) {
     subset.push_back(_subset);
     return subset.size()-1;    
 }
 
-int Compatible::setNodes(Vehicle _original) {
+int Compatible::setNodes(BucketN _original) {
     original=_original;
     nodes.resize(0);
     for (int i=0; i<original.size();i++){
@@ -178,7 +178,7 @@ int  Compatible::getBestCompatible(int fromNid) {
 }
 
 
-int Compatible::getSeed(int foo, const Bucket &nodes) {
+int Compatible::getSeed(int foo, const BucketN &nodes) {
      int bestId,count;
      double bestEc2;
      int Id;
@@ -205,7 +205,7 @@ int Compatible::getSeed(int foo, const Bucket &nodes) {
 }
 
 /* el que tenga mas compatibilidades
-int  Compatible::getSeed(int fromNid,const Bucket &nodes) {
+int  Compatible::getSeed(int fromNid,const BucketN &nodes) {
      int best=0,bestId;
      int from = IdPos[fromNid];
      int toPos,toId;
@@ -234,14 +234,14 @@ std::cout<<"\t best one is "<<bestId;
 
 */
 
-int  Compatible::getBestCompatible(int fromNid,const Bucket &nodes) {
+int  Compatible::getBestCompatible(int fromNid,const BucketN &nodes) {
      int best,bestId;
      int from = IdPos[fromNid];
      int toPos,toId;
      //  maskVertical(fromNid); 
 //std::cout<<"\n gettingbest from "<<fromNid<<"\t";
 //nodes.tau();
-     if (nodes.isEmpty()) return -1;
+     if (nodes.empty()) return -1;
      bestId=nodes[0].getnid();
 //std::cout<<"\t best one is "<<bestId;
      best=IdPos[bestId];

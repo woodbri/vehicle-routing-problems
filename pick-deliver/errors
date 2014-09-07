@@ -1,1 +1,0 @@
-g++ -g -O0 -MMD -MP -c path.cpp -o path.o

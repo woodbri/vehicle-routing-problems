@@ -6,14 +6,16 @@
 #include "twpath.h"
 #include "order.h"
 #include "dpnode.h"
+#include "bucketn.h"
+
 
 class Compatible;
 
 
-class Vehicle {
+class Vehicle:public BucketN {
   private:
     int  maxcapacity;   
-    Twpath<Dpnode> path;
+//    Twpath<Dpnode> path;
     Dpnode backToDepot;
     double cost;     
     //deque<Order> orders;
@@ -41,61 +43,33 @@ class Vehicle {
         backToDepot=_depot;
         maxcapacity=_maxcapacity;
         w1 = w2 = w3 = 1.0;
-        e_push_back(_depot);
+        push_back(_depot);
    };
 
     // accessors
     int getmaxcapacity() const {return maxcapacity; };
-    int size() const  {return path.size();};
- //   int  getoid(int i) const { return path[i].getoid(); };
-    int getpos(const int nodeId) const;
-    int getdpos(const int oid) const;
-    int getppos(const int oid) const;
-    Twpath<Dpnode>&  Path() ;
-    Twpath<Dpnode>  getpath() const ;
-    Dpnode& operator[] (unsigned int n) { return path[n]; };
-    Dpnode  operator[] (unsigned int n) const { return path[n]; };
 
-
+    void push_back(const Dpnode &pathstop);
+    void insert(const Dpnode &pathstop,int at);
     void remove(int at);
     void removeOrder( const Order &order);
     void removeOrder(int orderid);
     void removePickup(int orderid);
     void removeDelivery(int orderid);
-    void removeNode(int nodeid);
     void swapstops(int i,int j);
     void swap(int i,int j);
     void move(int fromi,int toj);
-    void push_back(Dpnode pathstop);
-    void insert(const Dpnode &pathstop,int at);
-    void pushOrder(const Order &o);
-    void pushPickup(const Order &o);
-    void pushDelivery(const Order &o);
-    void insertPickup(const Order &o, const int at);
-
-
-
-    void e_remove(int at);
-    void e_removeOrder( const Order &order);
-    void e_removeOrder(int orderid);
-    void e_removePickup(int orderid);
-    void e_removeDelivery(int orderid);
-    void e_swapstops(int i,int j);
-    void e_swap(int i,int j);
-    void e_move(int fromi,int toj);
-    void e_push_back(Dpnode pathstop);
-    bool e_insertOrderAfterLastPickup(const Order &order, const Compatible &twc);
-    void e_insert(const Dpnode &pathstop,int at);
-    void e_pushOrder(const Order &order);
-    void e_pushPickup(const Order &order);
-    void e_pushDelivery(const Order &order);
-    void e_insertPickup(const Order &order, const int at);
+    bool insertOrderAfterLastPickup(const Order &order, const Compatible &twc);
+    void pushOrder(const Order &order);
+    void pushPickup(const Order &order);
+    void pushDelivery(const Order &order);
+    void insertPickup(const Order &order, const int at);
+    void insertDelivery(const Order &order, const int at);
 
     Dpnode& getnode(int at) {return path[at];};
 
     void dump() const ;
     void smalldump()const ;
-    bool ispickup(int i) {return path[i].ispickup();}
     bool sameorder(int i,int j){return path[i].getoid()==path[j].getoid();}
     void erase() {path.resize(0);};
     void clean() {path.e_resize(1,maxcapacity); evalLast(); };
@@ -150,26 +124,6 @@ bool isEmptyTruck() const;
 
     void plot(std::string file,std::string title,int carnumber);
 
-
-
-
-    /* my inline functions */
-    //int  getnid(int at) {return path[at].getnid();};
-    inline int getnid(int i) const { return path[i].getnid(); }
-    inline int getoid(int i) const { return path[i].getoid(); }
-    inline double getx(const int i) const {path[i].getx();}
-    inline double gety(const int i) const {path[i].gety();}
-    inline bool hasdemand(int i) const { return path[i].hasdemand(); };
-    inline bool hassupply(int i) const { return path[i].hassupply(); };
-    inline bool hasnogoods(int i) const { return path[i].hasnogoods(); };
-    inline bool earlyarrival(int i,const double D) const { return path[i].earlyarrival(D); };
-    inline bool latearrival(int i,const double D) const { return path[i].latearrival(D); };
-    inline bool ontime(int i, const double D) const {return not earlyarrival(i,D) and not latearrival(i,D);};
-    inline bool isdelivery(int i) const { return path[i].isdelivery(); };
-    inline bool ispickup(int i) const { return path[i].ispickup(); };
-    inline bool isdepot(int i) const { return path[i].hasnogoods(); };
-
 };
 
-typedef Vehicle Bucket;
 #endif

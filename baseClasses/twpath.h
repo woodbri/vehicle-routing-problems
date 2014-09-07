@@ -64,7 +64,6 @@ template <class knode> class Twpath {
     // ------------------------------------------------------------------
 
 
-
     /* nodes handling within two  paths */
     void e_swap(int i, double maxcap, Twpath<knode> &rhs, int j, double rhs_maxcap) {
         knode temp = path[i];

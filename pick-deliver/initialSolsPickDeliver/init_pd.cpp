@@ -195,7 +195,7 @@ void Init_pd::insertInTruck(Vehicle &truck,const Order &order){
         else {break; };
     };
     if (pickPosRL>pickPosLR) std::cout<<" SOMETHING WENT WRONG 1 \n";
-    truck.e_insert(order.getPickup(),pickPosRL+1);
+    truck.insert(order.getPickup(),pickPosRL+1);
 
 std::cout<<"\npick Pos LR="<<pickPosLR<<"\tpick Pos RL="<<deliverPosRL<<"\n";
 truck.tau(); std::cout<<"\n";
@@ -211,7 +211,7 @@ truck.tau(); std::cout<<"\n";
     };
     // teoricamente Rl<LR
     if (deliverPosLR<deliverPosRL) std::cout<<" SOMETHING WENT WRONG 2";
-    truck.e_insert(order.getDelivery(),deliverPosRL+1);
+    truck.insert(order.getDelivery(),deliverPosRL+1);
 std::cout<<"\n deliver Pos LR="<<deliverPosLR<<"\tdeliver Pos RL="<<deliverPosRL<<"\n";
 truck.tau(); std::cout<<"\n";
 };
@@ -221,7 +221,7 @@ int Init_pd::getBestOrder(Vehicle &truck,const std::deque<Order> &orders)const {
     int bestAt=-1;
     Order bestOrder;
     for (int i=0;i<orders.size();i++) {
-        if (truck.e_insertOrderAfterLastPickup(orders[i],twc)) {//was feasable also
+        if (truck.insertOrderAfterLastPickup(orders[i],twc)) {//was feasable also
              if (truck.getcost() < bestCost) {
                   bestAt=i;
                   bestOrder=orders[i];
@@ -248,7 +248,7 @@ std::cout<<"\n********************recursion= END RESULTS************************
     Order order;
     if (truck.isEmptyTruck())  { 
           order= orders[0];
-          truck.e_pushOrder(order);
+          truck.pushOrder(order);
           orders.erase(orders.begin());
           removeIncompatibleOrders(order,orders,incompatible);
     } else {
@@ -260,7 +260,7 @@ ordersdump(orders);
 std::cout<<"\nbestSt"<<bestAt<<" \n ";
 ordersdump(orders);
 truck.tau();
-          truck.e_insertOrderAfterLastPickup(order,twc);
+          truck.insertOrderAfterLastPickup(order,twc);
 std::cout<<"\nbestSt"<<bestAt<<" \n ";
 ordersdump(orders);
 truck.tau();
@@ -284,8 +284,8 @@ void Init_pd::orderConstraintConstruction() {
 std::cout << "Enter Problem::orderConstraintConstruction\n";
 /* I already have the twc table ready */
 
-    //Bucket nodes;
-    //Bucket pendingDeliveries, incompatible;   // delivery nodes not inserted yet 
+    //BucketN nodes;
+    //BucketN pendingDeliveries, incompatible;   // delivery nodes not inserted yet 
     std::deque<Order> orders=ordersList;
     std::deque<Order> incompatible;
     //nodes=originalnodes;
@@ -337,7 +337,7 @@ Order Init_pd::getOrderData(int nodeId, int &pick, int &deliver){
     return order;
 }
 
-bool Init_pd::inPending(const Vehicle pend, int nodeId) {
+bool Init_pd::inPending(const BucketN &pend, int nodeId) {
     for (int i=0; i<pend.size();i++) {
          if (pend[i].getnid()==nodeId ) return true;
     };
@@ -356,14 +356,14 @@ std::cout<<"notwithID EXITING"<<notwithID;
     return notwithID;
 }
 
-void Init_pd::insert(Vehicle &truck, int nodeId,Bucket &nodes) {
+void Init_pd::insert(Vehicle &truck, int nodeId,BucketN &nodes) {
        Dpnode nodeToInsert=twc.getNode(nodeId);
        truck.push_back(nodeToInsert);  //add the node to the truck
        nodes.removeNode(nodeId);                // remove the node from the nodes bucket
        twc.maskVertical(nodeId);              // lastInserted node is not reachable from any other node (aka, its already being used)
 }
 
-bool Init_pd::isCompatibleWithPending(int fromId,const Bucket &pending) {
+bool Init_pd::isCompatibleWithPending(int fromId,const BucketN &pending) {
        int currId;
        for (int i=0; i<pending.size(); i++) {
            currId=pending[i].getnid();
@@ -375,7 +375,7 @@ std::cout<<"compt "<<fromId<<" to "<< currId<<": "<<twc.compatibleIJ(fromId,curr
 }
 
 
-void Init_pd::removeIncompatible(int fromId,Bucket &nodes, Bucket &incompatible){
+void Init_pd::removeIncompatible(int fromId,BucketN &nodes, BucketN &incompatible){
        int currId,pickId,deliverId;
        Order order;
        int i = 0;
@@ -395,7 +395,7 @@ void Init_pd::removeIncompatible(int fromId,Bucket &nodes, Bucket &incompatible)
        }
 }
 
-void Init_pd::paperConst(Vehicle &truck, Bucket &nodes, Bucket &incompatible, Bucket &pending) {
+void Init_pd::paperConst(Vehicle &truck, BucketN &nodes, BucketN &incompatible, BucketN &pending) {
         int lastNodeId;
         int insertedId,bestId,pickId,deliverId,pendingBestId;
 std::cout<<"\n**RECURSION DATA******************************* \n";
@@ -404,7 +404,7 @@ std::cout<<" truck= "; truck.tau(); std::cout<<"\n";
 std::cout<<" incompatible= "; incompatible.tau(); std::cout<<"\n";
 std::cout<<" pending= "; pending.tau(); std::cout<<"\n";
 std::cout<<"\n********************************* \n";
-        if (nodes.isEmpty()) return; //no more compatible nodes
+        if (nodes.empty()) return; //no more compatible nodes
         lastNodeId = truck[truck.size()-1].getnid(); //last node in route
 
         if (truck.isEmptyTruck() ) bestId=twc.getSeed(lastNodeId,nodes);   //either its seed or its best
@@ -512,8 +512,8 @@ void Init_pd::seqConst() {
 std::cout << "Enter Problem::seqConst\n";
 /* I already have the twc table ready */
 
-    Bucket nodes;
-    Bucket pendingDeliveries, incompatible;   // delivery nodes not inserted yet 
+    BucketN nodes;
+    BucketN pendingDeliveries, incompatible;   // delivery nodes not inserted yet 
     nodes=originalnodes;
     int lastNodeId;
 
@@ -639,15 +639,15 @@ void Init_pd::initialByOrderSolution() {
     double actualcost, bestcost;
     fleet.clear();
     Order order;
-    std::deque<Order> clientBucket;
+    std::deque<Order> clientBucketN;
     std::deque<Order> waitOrders;
     sortOrdersbyDistReverse();
-    clientBucket=ordersList;
-    while (!clientBucket.empty()) {        //are there any unrouted customers
+    clientBucketN=ordersList;
+    while (!clientBucketN.empty()) {        //are there any unrouted customers
        Vehicle route(depot,Q);             // initialize tour  
-       while (!clientBucket.empty()) {     //are there any unrouted customers?
-          order=clientBucket.front();          
-          clientBucket.pop_front();
+       while (!clientBucketN.empty()) {     //are there any unrouted customers?
+          order=clientBucketN.front();          
+          clientBucketN.pop_front();
           route.pushOrder(order);          //initialize tour with seed customer
           ppos=bppos=route.getppos(order.oid);
           dpos=bdpos=route.getdpos(order.oid);
@@ -665,7 +665,7 @@ void Init_pd::initialByOrderSolution() {
           } 
        }
        fleet.push_back(route);
-       clientBucket=waitOrders;
+       clientBucketN=waitOrders;
        waitOrders.clear();
      }
      dump();
@@ -713,122 +713,3 @@ void  Init_pd::initialFeasableSolution() {
 }
 
 
-
-void Init_pd::computeCosts() {
-    totalCost = 0.0;
-    totalDistance = 0.0;
-    for (int i=0; i<fleet.size(); i++) {
-        totalCost += fleet[i].getcost();
-        totalDistance += fleet[i].getduration();
-    }
-}
-
-double Init_pd::getcost() {
-    computeCosts();    // somewhere in the code the getcost returns 0 because the cost hant been computed
-    return totalCost;
-}
-
-double Init_pd::getDistance() {
-    computeCosts();
-    return totalDistance;
-}
-
-
-void Init_pd::plot(std::string file,std::string title){
-
-    Plot1<Dpnode> graph( datanodes );
-    graph.setFile( file+".png" );
-    graph.setTitle( title );
-    graph.drawInit();
-
-    for (int i=0; i<datanodes.size(); i++){
-        if (datanodes[i].ispickup())  {
-             graph.drawPoint(datanodes[i], 0x0000ff, 9, true);
-        } else if (datanodes[i].isdelivery()) {
-             graph.drawPoint(datanodes[i], 0x00ff00, 5, true);
-        } else  {
-             graph.drawPoint(datanodes[i], 0xff0000, 7, true);
-        }
-    }
-    for (int i=0; i<fleet.size(); i++) {
-        graph.drawPath(fleet[i].getpath(), graph.makeColor(i*10), 1, false);
-    }
-    graph.save();
-
-/* a grpah for individual truck but with all nodes */
-        
-    for (int j=0;j<fleet.size();j++) {
-        Plot1<Dpnode> graph1( datanodes );
-        std::stringstream convert;
-        convert << j;
-        std::string carnum = convert.str();
-
-        graph1.setFile( file+"car"+carnum+".png" );
-        graph1.setTitle( title+" car #"+carnum );
-        graph1.drawInit();
-
-        for (int i=0; i<datanodes.size(); i++){
-            if (datanodes[i].ispickup())  {
-                 graph1.drawPoint(datanodes[i], 0x0000ff, 9, true);
-          } else if (datanodes[i].isdelivery()) {
-                 graph1.drawPoint(datanodes[i], 0x00ff00, 5, true);
-          } else  {
-                 graph1.drawPoint(datanodes[i], 0xff0000, 7, true);
-          }
-        }  
-        graph1.drawPath(fleet[j].getpath(), graph1.makeColor(j*10), 1, false);
-        graph1.save();
-    }
-
-    
-
-
-/*     now a graph for each individual trucl */
-    for (int i=0;i<fleet.size();i++) {
-        fleet[i].plot(file,title,i);
-    }
-}
-
-
-void Init_pd::tau() {
-    std::cout<< "\nTau:" << std::endl;
-    for (int i=0; i<fleet.size(); i++) {
-        fleet[i].tau();
-    };
-    std::cout<<"0\n";
-}
-
-void Init_pd::dumproutes()  {
-    std::cout<< "\nVehicle:" << std::endl;
-    for (int i=0; i<fleet.size(); i++) {
-        std::cout<<"\n -----> Vehicle#"<<i<<"\n";
-        fleet[i].dump();
-    }
-    tau();
-}
-
-
-void Init_pd::dump() {
-    computeCosts();
-    std::cout << "Solution: totalDistance: " << totalDistance
-              << ", totalCost: " << totalCost
-              << std::endl;
-    tau();
-    for (int i=0; i<fleet.size(); i++) {
-        fleet[i].dump();
-    }
-}
-
-
-double Init_pd::getAverageRouteDurationLength() {
-    double len = 0.0;
-    int n = 0;
-    for (int i=0; i<fleet.size(); i++) {
-      if (fleet[i].size()>0) {
-        len += fleet[i].getduration();
-        n++;
-      }
-    }
-    if (n == 0) return 0;
-    return len/n;
-}

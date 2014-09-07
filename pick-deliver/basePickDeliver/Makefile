@@ -1,6 +1,6 @@
 
 CPP = g++
-UTIL = ../baseClasses
+UTIL = ../../baseClasses
 CPPFLAGS = -g -O0 -MMD  -MP  -I$(UTIL)
 LDFLAGS = -lgd -I$(UTIL) -L$(UTIL)
 
@@ -12,7 +12,7 @@ UTILOBJS = $(UTILSRCS:.cpp=.o)
 DEPS = $(SRCS:.cpp=.d)
 
 
-all: tester
+all: $(OBJS)
 
 $(UTIL)/%.o: $(UTIL)/%.cpp
 	$(MAKE) -C $(UTIL)
@@ -36,3 +36,4 @@ clean:
 	$(MAKE) -C $(UTIL) clean
 
 -include $(DEPS)
+

@@ -31,3 +31,8 @@ pick-deliver/*.png
 
 tester
 collection
+
+#other types papers, excel, geogebra
+*.pdf
+*.ods
+*.ggb

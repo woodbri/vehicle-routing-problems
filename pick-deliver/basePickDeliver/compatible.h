@@ -12,15 +12,15 @@
 
 #include "node.h"
 #include "order.h"
-#include "vehicle.h"
+#include "bucketn.h"
 
 class Compatible {
   protected:
 
     Twpath<Dpnode> nodes;
-    Vehicle original;
+    BucketN original;
 
-    std::deque<Vehicle> subset;
+    std::deque<BucketN> subset;
 
     std::map<int,int> IdPos;
     std::deque<std::deque<double> > twcij;
@@ -37,9 +37,9 @@ class Compatible {
 
   public:
     Compatible() {};
-    Compatible(Vehicle _original);
-    int setSubset(Vehicle _subset);
-    int setNodes(Vehicle _original);
+    Compatible(BucketN _original);
+    int setSubset(BucketN _subset);
+    int setNodes(BucketN _original);
   
     Dpnode getNode(int nodeId);
 
@@ -56,8 +56,8 @@ class Compatible {
     void maskHorizontal(int at) ;
     void maskVertical(int at) ;
     int  getBestCompatible(int from) ;
-    int  getSeed(int fromNid, const Bucket &nodes);
-    int  getBestCompatible(int fromNid,const Bucket &nodes);
+    int  getSeed(int fromNid, const BucketN &nodes);
+    int  getBestCompatible(int fromNid,const BucketN &nodes);
     int  getBestPickupCompatible(int from) ;
     int  getBestCompatible() ;
     int  getBestPickupCompatible() ;
