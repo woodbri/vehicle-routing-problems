@@ -17,7 +17,7 @@ my $xmax    = shift @ARGV ||  100;
 my $ymax    = shift @ARGV ||  100;
 
 # DEPOT/VEHICLE OPTIONS
-my $capacity = 5000;
+my $capacity = 10000;
 my $v_open = 0;
 my $v_close = 1440;
 
