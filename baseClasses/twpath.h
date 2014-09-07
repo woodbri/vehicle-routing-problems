@@ -16,6 +16,7 @@ template <class knode> class Twpath {
 
     typedef typename std::deque<knode> Path;
     typedef typename std::deque<knode>::iterator iterator;
+    typedef typename std::deque<knode>::reverse_iterator reverse_iterator;
     typedef typename std::deque<knode>::const_iterator const_iterator;
 
     // ------------------------------------------------------------------
@@ -152,9 +153,27 @@ template <class knode> class Twpath {
 
 
     // moves a range of nodes (i-j) to position k and reverses those nodes
-    void e_movereverse(int i, int j, int k, double maxcapacity) {
-        if (! (i < j and (k > j or k < i))) return;
-        // moving range to right of the range
+    void e_movereverse(int fromPos, int upToPos, int intoPos, double maxcapacity) {
+        if (! (fromPos < upToPos and (intoPos > upToPos or intoPos < fromPos))) return;
+        reverse_iterator itFromPos (path.begin()+upToPos);
+        reverse_iterator itDownToPos (path.begin()+fromPos);
+        iterator itIntoPos = path.begin()+intoPos;
+
+        path.insert(itIntoPos, itFromPos, itDownToPos);
+        if (intoPos > upToPos) { // moving range to right of the range
+            path.erase(path.begin()+fromPos, path.begin()+upToPos);
+            evaluate(fromPos,maxcapacity);
+        } else {     // moving range to left of the range 
+            path.erase(path.begin()+fromPos+intoPos, path.begin()+upToPos+intoPos);
+            evaluate(intoPos,maxcapacity);
+        }
+        //i < k ? path[i].evaluate(maxcapacity) : path[k].evaluate(maxcapacity);
+        //evaluate(maxcapacity);
+       // i < j ? evaluate(i, maxcapacity): evaluate(j, maxcapacity);
+
+
+
+/*
         if (k > j) {
             for (int n=i, m=1; n<=j; n++, m++) {
                 knode temp = path[i];
@@ -172,6 +191,7 @@ template <class knode> class Twpath {
         }
         //i < k ? path[i].evaluate(maxcapacity) : path[k].evaluate(maxcapacity);
         evaluate(maxcapacity);
+*/
     }
 
 
@@ -185,6 +205,17 @@ template <class knode> class Twpath {
             m = j;
             n = i;
         }
+        iterator itM = path.begin()+m;
+        iterator itN = path.begin()+n;
+
+        while (itM < itN){
+            knode tmp=(*itM);
+            (*itM)=(*itN);
+            (*itN)=tmp;
+            itM++;
+            itN--;
+        }
+/*
         while (m < n) {
             knode temp = path[m];
             path[m] = path[n];
@@ -192,6 +223,7 @@ template <class knode> class Twpath {
             m++;
             n--;
         }
+*/
         i < j ? evaluate(i, maxcapacity): evaluate(j, maxcapacity);
     };
 
