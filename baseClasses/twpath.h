@@ -14,6 +14,9 @@ template <class knode> class Twpath {
   protected:
     std::deque<knode> path;
 
+    typedef typename std::deque<knode> Path;
+    typedef typename std::deque<knode>::iterator iterator;
+    typedef typename std::deque<knode>::const_iterator const_iterator;
 
     // ------------------------------------------------------------------
     // These methods are NON-EVALUATING
@@ -87,11 +90,11 @@ template <class knode> class Twpath {
                 path.push_back(path[fromi]);
             else
                 insert(path[fromi], toj + 1);
-            e_remove(fromi, maxcapacity);
+            erase(fromi);
         } else {
             int sz = path.size();
             insert(path[fromi], toj);
-            e_remove(std::min(sz, fromi + 1), maxcapacity);
+            erase(std::min(sz, fromi + 1));
         }
         fromi < toj ? evaluate(fromi, maxcapacity) : evaluate(toj, maxcapacity);
     };
@@ -216,10 +219,13 @@ template <class knode> class Twpath {
     void evaluate(int from,double maxcapacity) {
 
         if (from < 0 or from > path.size()) from = 0;
-        for (int i=from; i<path.size(); i++) {
-            if (i == 0) path[0].evaluate(maxcapacity);
-            else path[i].evaluate(path[i-1], maxcapacity);
-        };
+        iterator it = path.begin()+from;
+
+        while (it != path.end()){
+            if (it==path.begin()) it->evaluate(maxcapacity);
+            else it->evaluate(*(it-1),maxcapacity);
+            it++;
+        }
     };
 
     void evalLast(double maxcapacity) {
