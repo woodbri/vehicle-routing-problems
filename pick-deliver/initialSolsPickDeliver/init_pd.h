@@ -14,13 +14,13 @@
 class Init_pd: public Solution {
 
   public:
-    Init_pd() {
+/*    Init_pd() {
         totalDistance = 0;
         //P=p;
         totalCost = 0;
         fleet.clear();
     };
-
+*/
     Init_pd(const Solution& P):Solution(P){}; 
 
 

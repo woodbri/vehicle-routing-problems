@@ -1,13 +1,13 @@
-#include <limits>
-#include <stdexcept>
-#include <algorithm>
-#include <math.h>
+//#include <limits>
+//#include <stdexcept>
+//#include <algorithm>
+//#include <math.h>
 
-#include "order.h"
+//#include "order.h"
 #include "compatible.h"
 
 
-inline double _MIN() { return -std::numeric_limits<double>::max();};
+//inline double _MIN() { return -std::numeric_limits<double>::max();};
 
 
 /*protected functions are position based*/
@@ -395,3 +395,4 @@ void Compatible::dumpCompatible() {
 double Compatible::compat(int i,int j) const {
     return twcij[i][j];
 };
+

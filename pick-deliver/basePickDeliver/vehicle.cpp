@@ -363,9 +363,9 @@ bool Vehicle::isEmptyTruck() const {return path.size()==1;}
 
 
 
-
 /**************************************PLOT************************************/
 void Vehicle::plot(std::string file,std::string title,int carnumber){
+std::cout<<"USING VEHICLE PLOT\n";
     Twpath<Dpnode> trace=path;
     trace.push_back(backToDepot);
     
@@ -396,3 +396,8 @@ void Vehicle::plot(std::string file,std::string title,int carnumber){
 
 
 
+Twpath<Dpnode> Vehicle::getpath() const {
+    Twpath<Dpnode> p=path;
+    p.push_back(backToDepot);
+    return p;
+}

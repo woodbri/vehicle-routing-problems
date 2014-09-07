@@ -9,6 +9,7 @@
 #include <deque>
 #include <map>
 #include <math.h>
+#include <limits>
 
 #include "node.h"
 #include "order.h"
@@ -34,6 +35,9 @@ class Compatible {
     double ajei(const Dpnode &ni, const Dpnode &nj);
     double twc_for_ij(const Dpnode &ni, const Dpnode &nj);
     double compat(int i,int j) const ;
+    inline double _MIN() const { return -std::numeric_limits<double>::max();};
+    void setIncompatible(int pickId, int deliverId);
+
 
   public:
     Compatible() {};
@@ -46,13 +50,13 @@ class Compatible {
     //void setTwcij(const Order& order);
         
     void setIncompatible(const Order& order);
-    void setIncompatible(int fromId, int toId);
     void twcij_calculate();
     void twc_from_depot_calculate();
-    bool isCompatibleIJ(int fromId, int toId) const ;
-    bool isCompatibleIAJ(int fromId, int middleId, int toId) ;
-    double compatibleIJ(int fromId,int toId) const ;
-    void dumpCompatible() ;
+/* compatibility based on id not on position */
+    bool isCompatibleIJ(int iId, int jId) const ;
+    bool isCompatibleIAJ(int iId, int aId, int jId) ;
+    double compatibleIJ(int iId,int jId) const ;
+    void dumpCompatible();
     void maskHorizontal(int at) ;
     void maskVertical(int at) ;
     int  getBestCompatible(int from) ;
