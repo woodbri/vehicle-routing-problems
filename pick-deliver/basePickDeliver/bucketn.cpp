@@ -24,38 +24,35 @@
      }
    }
 
-   Twpath<Dpnode>& BucketN::Path() {
-      return path;
-   }
-
-   Twpath<Dpnode> BucketN::getpath() const  {
-      return path;
-   }
+   Twpath<Dpnode>& BucketN::Path() { return path; }
+   Twpath<Dpnode> BucketN::getpath() const  { return path; }
 
 
 
-   void BucketN::smalldump() const {
-      tau(); std::cout<<"\n";
-   }
+   void BucketN::smalldump() const { tau(); std::cout<<"\n"; }
 
    void BucketN::tau() const {
       for (int i=0; i< path.size(); i++)
          std::cout<<getnid(i)<<" , ";
    }
 
-
-
-
-
-
-
-
-   int BucketN::getpos(const int nid) const {
-          int at=0;
-          while (at<path.size() and !(getnid(at)==nid))
-            at++; 
-          return at;
+/* functions to find position */
+   bool BucketN::in(int nid) const {
+       for (int i=0; i< path.size(); i++)
+           if (nid==getnid(i)) return true;
+       return false;
    }
+
+ 
+   int BucketN::pos(int nid) const {
+       for (int i=0; i< path.size(); i++)
+           if (nid==getnid(i)) return i;
+       return -1;
+   }
+
+   bool BucketN::in(const Dpnode &node) const { return in(node.getnid()); }
+   bool BucketN::in(const Order &o) const { return in( o.getdid());}
+   int BucketN::pos(const Dpnode &node) const { return pos(node.getnid()); }
 
    int BucketN::getdpos(const int oid) const {
           int at=0;
@@ -63,13 +60,15 @@
             at++; 
          return at;
     }
+
    int BucketN::getppos(const int oid) const {
           int at=0;
           while (at<path.size() and !(ispickup(at) and getoid(at)==oid))
             at++; 
          return at;
     }
-
+   int BucketN::getppos(const Order &o) const { return pos( o.getpid());}
+   int BucketN::getdpos(const Order &o) const { return pos( o.getdid());}
     
 
 /*************** path operations aka to use Vehicke as a bucket ******************/
@@ -125,29 +124,9 @@
     }
 
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-
-
-
-
-
-
-
 void BucketN::plot(std::string file,std::string title,int carnumber){
     Twpath<Dpnode> trace=path;
-    
+std::cout<<"USING BUCKET PLOT\n"; 
     /** cpp11  the following next 3 lines become std::string carnum=std::to_string(carnumber */
     std::stringstream convert; 
     convert << carnumber;

@@ -30,10 +30,6 @@ class BucketN {
  
 
     // accessors
-    int size() const  {return path.size();};
-    int getpos(const int nodeId) const;
-    int getdpos(const int oid) const;
-    int getppos(const int oid) const;
 
 
     Twpath<Dpnode>&  Path() ;
@@ -42,13 +38,19 @@ class BucketN {
     Dpnode& operator[] (unsigned int n) { return path[n]; };
     Dpnode  operator[] (unsigned int n) const { return path[n]; };
 
+    int size() const  {return path.size();};
+    void resize(int s) {return path.resize(s);};
+    Dpnode  front() const {return path.front();}
+    Dpnode& front() {return path.front();}
+    
+
 
     void remove(int at);
     void removeOrder( const Order &order);
-    void removeOrder(int orderid);
-    void removePickup(int orderid);
-    void removeDelivery(int orderid);
-    void removeNode(int nodeid);
+    void removeOrder(int oid);
+    void removePickup(int oid);
+    void removeDelivery(int oid);
+    void removeNode(int nid);
     void swapstops(int i,int j);
     void swap(int i,int j);
     void move(int fromi,int toj);
@@ -70,7 +72,6 @@ class BucketN {
 
     /*algorithm spesific */
     bool hasNodes() {return !path.empty();};
-
     bool empty() const;
 
 
@@ -81,21 +82,30 @@ class BucketN {
 
     /* my inline functions */
     //int  getnid(int at) {return path[at].getnid();};
-    bool in(int nid);
-    int  pos(int nid);
-    inline int getnid(int i) const { return path[i].getnid(); }
-    inline int getoid(int i) const { return path[i].getoid(); }
-    inline double getx(const int i) const {path[i].getx();}
-    inline double gety(const int i) const {path[i].gety();}
-    inline bool hasdemand(int i) const { return path[i].hasdemand(); };
-    inline bool hassupply(int i) const { return path[i].hassupply(); };
-    inline bool hasnogoods(int i) const { return path[i].hasnogoods(); };
-    inline bool earlyarrival(int i,const double D) const { return path[i].earlyarrival(D); };
-    inline bool latearrival(int i,const double D) const { return path[i].latearrival(D); };
-    inline bool ontime(int i, const double D) const {return not earlyarrival(i,D) and not latearrival(i,D);};
-    inline bool isdelivery(int i) const { return path[i].isdelivery(); };
-    inline bool ispickup(int i) const { return path[i].ispickup(); };
-    inline bool isdepot(int i) const { return path[i].hasnogoods(); };
+    bool in(int nid) const;
+    bool in(const Dpnode &node) const;
+    bool in(const Order &o) const;
+    int  pos(int nid) const;
+    int  pos(const Dpnode &node) const;
+    int  getdpos(int oid) const;
+    int  getppos(int oid) const;
+    int  getdpos(const Order &o) const;
+    int  getppos(const Order &o) const;
+
+   /* based on position*/ 
+    inline int getnid(int pos) const { return path[pos].getnid(); }
+    inline int getoid(int pos) const { return path[pos].getoid(); }
+    inline double getx(const int pos) const {path[pos].getx();}
+    inline double gety(const int pos) const {path[pos].gety();}
+    inline bool hasdemand(int pos) const { return path[pos].hasdemand(); };
+    inline bool hassupply(int pos) const { return path[pos].hassupply(); };
+    inline bool hasnogoods(int pos) const { return path[pos].hasnogoods(); };
+    inline bool earlyarrival(int pos,const double D) const { return path[pos].earlyarrival(D); };
+    inline bool latearrival(int pos,const double D) const { return path[pos].latearrival(D); };
+    inline bool ontime(int pos, const double D) const {return not earlyarrival(pos,D) and not latearrival(pos,D);};
+    inline bool isdelivery(int pos) const { return path[pos].isdelivery(); };
+    inline bool ispickup(int pos) const { return path[pos].ispickup(); };
+    inline bool isdepot(int pos) const { return path[pos].hasnogoods(); };
 
 
 double distanceToPrev(int pathstop) {

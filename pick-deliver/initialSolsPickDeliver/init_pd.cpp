@@ -296,7 +296,7 @@ std::cout << "Enter Problem::orderConstraintConstruction\n";
     Vehicle truck(depot,Q);
 
     for (int i=0;i<ordersList.size();i++)
-        twc.setIncompatible(ordersList[i].getdid(),ordersList[i].getpid());
+        twc.setIncompatible(ordersList[i]);
     
 twc.dump();
 int k=0;
@@ -520,7 +520,7 @@ std::cout << "Enter Problem::seqConst\n";
     Vehicle truck(depot,Q);
 
     for (int i=0;i<ordersList.size();i++)
-        twc.setIncompatible(ordersList[i].getdid(),ordersList[i].getpid());
+        twc.setIncompatible(ordersList[i]);
 twc.dump();
 int k=0;
     while (k<K and  nodes.hasNodes()) {   

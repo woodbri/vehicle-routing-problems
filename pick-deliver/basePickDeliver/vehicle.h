@@ -45,6 +45,8 @@ class Vehicle:public BucketN {
         w1 = w2 = w3 = 1.0;
         push_back(_depot);
    };
+   Twpath<Dpnode> getpath() const;
+
 
     // accessors
     int getmaxcapacity() const {return maxcapacity; };
@@ -71,7 +73,7 @@ class Vehicle:public BucketN {
     void dump() const ;
     void smalldump()const ;
     bool sameorder(int i,int j){return path[i].getoid()==path[j].getoid();}
-    void erase() {path.resize(0);};
+    void erase() {path.resize(1);};
     void clean() {path.e_resize(1,maxcapacity); evalLast(); };
 
     /*algorithm spesific */

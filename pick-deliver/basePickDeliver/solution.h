@@ -20,12 +20,12 @@ class Solution: public Prob_pd {
     double w1,w2,w3;
 
   public:
-    Solution() {
+/*    Solution() {
         totalDistance = 0;
         totalCost = 0;
         fleet.clear();
     };
-
+*/
     Solution(const Prob_pd& P):Prob_pd(P){}; 
 
 
