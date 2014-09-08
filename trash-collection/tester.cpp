@@ -199,17 +199,17 @@ int main(int argc, char **argv) {
         //tp.loadproblem( infile );
         //tp.dump();
 
-*/
         std::cout << "\n----------- assignmentSweep -----------------------\n";
         tp.assignmentSweep();
         tp.dump();
         tp.plot("p2.png", "assignmentSweep", font);
+*/
 
+/*
 
         Vehicle v = tp.getVehicle(0);
         Twpath<Trashnode> p = v.getvpath();
 
-/*
         std::cout << "\nv.pathOptMoveNodes()" << std::endl;
         v.dumppath();
         v.pathOptMoveNodes();
@@ -228,13 +228,13 @@ int main(int argc, char **argv) {
         v.dumppath();
 
 */
+/*
         int sz = p.size();
         std::cout << "\np.move(2,"<<sz-2<<","<<sz<<",v.getmaxcapacity())" << std::endl;
         p.dump();
         p.e_move(2,p.size()-2,p.size(),v.getmaxcapacity());
         p.dump();
 
-/*
         p = v.getvpath();
         std::cout << "\np.move(2,4,10,v.getmaxcapacity())" << std::endl;
         p.dump();
@@ -344,7 +344,6 @@ bool relocateBest(Vehicle& v2, const int& i1);
     } while (false);
 
 */
-/*
         std::cout << "\n----------- assignmentSweep3 -----------------------\n";
         tp.setRatio(0.9);
         tp.assignmentSweep3();
@@ -352,12 +351,12 @@ bool relocateBest(Vehicle& v2, const int& i1);
 
         tp.plot("p3.png", "assignmentSweep3", font);
 
+/*
         std::cout << "\n----------- doing 3-opt -----------------------\n";
         tp.opt_3opt();
         tp.dumpSummary();
         tp.plot("p5.png", "assignmentSweep3 - after 3opt", font);
 */
-/*
 
         std::cout << "\n----------- doing 2-opt -----------------------\n";
         tp.opt_2opt();
@@ -374,6 +373,7 @@ bool relocateBest(Vehicle& v2, const int& i1);
         tp.dumpSummary();
         tp.plot("p7.png", "assignmentSweep3 - after 2opt again", font);
 
+/*
         std::cout << "\n----------- doing pathOptimize ---------------------\n";
         tp.optimize();
         tp.dump();
