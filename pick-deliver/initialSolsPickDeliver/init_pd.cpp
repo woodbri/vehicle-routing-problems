@@ -543,6 +543,12 @@ std::cout<<"\n********************CYCLE= END RESULTS****************************
         nodes=incompatible;
         incompatible.erase();
         fleet.push_back(truck);
+truck.Path().e_movereverse(4,5,2,100);
+        fleet.push_back(truck);
+truck.Path().e_movereverse(0,4,3,100);
+        fleet.push_back(truck);
+truck.Path().e_movereverse(1,3,5,100);
+        fleet.push_back(truck);
         k++;
      }
 }
