@@ -140,7 +140,8 @@ template <class knode> class Twpath {
 */
     // moves a range of nodes (i-j) to position k without reversing them
     void e_move(int i, int j, int k, double maxcapacity) {
-        if (! (i < j and (k > j or k < i))) return;
+        if (! (i <= j and (k > j or k < i))) return;
+        if (j>size()-1 or k>size()) return;
         // moving range to right of the range
         if (k > j) {
             // if the length of the range is larger than the distance
