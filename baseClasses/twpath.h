@@ -16,6 +16,7 @@ template <class knode> class Twpath {
 
     typedef typename std::deque<knode> Path;
     typedef typename std::deque<knode>::iterator iterator;
+    typedef typename std::deque<knode>::reverse_iterator reverse_iterator;
     typedef typename std::deque<knode>::const_iterator const_iterator;
 
     // ------------------------------------------------------------------
@@ -24,13 +25,15 @@ template <class knode> class Twpath {
     // ------------------------------------------------------------------
 
   public:
-    void swap(int i, int j) {
+    inline void swap(int i, int j) { std::iter_swap(path.begin()+i,path.begin()+j);}
+
+/*    void swap(int i, int j) {
         if (i == j) return;
         knode temp = path[i];
         path[i] = path[j];
         path[j] = temp;
     } 
-
+*/
     void move(int fromi, int toj) {
         if (fromi == toj) return;
         if (fromi < toj){
@@ -73,10 +76,12 @@ template <class knode> class Twpath {
 
     /* nodes handling within two  paths */
     void e_swap(int i, double maxcap, Twpath<knode> &rhs, int j, double rhs_maxcap) {
+        std::iter_swap(path.begin()+i,rhs.path.begin()+j);
+/*
         knode temp = path[i];
         path[i] = rhs.path[j];
         rhs.path[j] = temp;
-        evaluate(i, maxcap);
+*/        evaluate(i, maxcap);
         rhs.evaluate(j, rhs_maxcap);
     }
 
@@ -105,14 +110,34 @@ template <class knode> class Twpath {
     };
 
     void e_swap(int i,int j,double maxcapacity) {
+        swap(i,j);
+/*
         if (i==j) return;
         knode temp = path[i];
         path[i] = path[j];
         path[j] = temp;
-        i < j ? evaluate(i, maxcapacity): evaluate(j, maxcapacity);
+*/        i < j ? evaluate(i, maxcapacity): evaluate(j, maxcapacity);
     };
 
+/*
+    // moves a range of nodes (i-j) to position k without reversing them
+    void e_move(int fromPos, int upToPos, int intoPos, double maxcapacity) {
+        if (! (fromPos < upToPos and (intoPos > upToPos or intoPos < fromPos))) return;
+        iterator itFromPos (path.begin()+fromPos);
+        iterator itUpToPos (path.begin()+upToPos+1);
+        iterator itIntoPos = path.begin()+intoPos;
 
+        path.insert(itIntoPos, itFromPos, itUpToPos);
+        if (intoPos > upToPos) { // moving range to right of the range
+            path.erase(path.begin()+fromPos, path.begin()+upToPos);
+            evaluate(fromPos,maxcapacity);
+        } else {     // moving range to left of the range
+            path.erase(path.begin()+fromPos+intoPos, path.begin()+upToPos+intoPos);
+            evaluate(intoPos,maxcapacity);
+        }
+    };
+
+*/
     // moves a range of nodes (i-j) to position k without reversing them
     void e_move(int i, int j, int k, double maxcapacity) {
         if (! (i < j and (k > j or k < i))) return;
@@ -151,6 +176,25 @@ template <class knode> class Twpath {
     }
 
 
+
+    // moves a range of nodes (i-j) to position k and reverses those nodes
+    void e_movereverse(int fromPos, int upToPos, int intoPos, double maxcapacity) {
+        if (! (fromPos < upToPos and (intoPos > upToPos or intoPos < fromPos))) return;
+        reverse_iterator itFromPos (path.begin()+upToPos);
+        reverse_iterator itDownToPos (path.begin()+fromPos);
+        iterator itIntoPos = path.begin()+intoPos;
+
+        path.insert(itIntoPos, itFromPos, itDownToPos);
+        if (intoPos > upToPos) { // moving range to right of the range
+            path.erase(path.begin()+fromPos, path.begin()+upToPos);
+            evaluate(fromPos,maxcapacity);
+        } else {     // moving range to left of the range
+            path.erase(path.begin()+fromPos+intoPos, path.begin()+upToPos+intoPos);
+            evaluate(intoPos,maxcapacity);
+        }
+    }
+
+/*
     // moves a range of nodes (i-j) to position k and reverses those nodes
     void e_movereverse(int i, int j, int k, double maxcapacity) {
         if (! (i < j and (k > j or k < i))) return;
@@ -173,7 +217,7 @@ template <class knode> class Twpath {
         //i < k ? path[i].evaluate(maxcapacity) : path[k].evaluate(maxcapacity);
         evaluate(maxcapacity);
     }
-
+*/
 
     // reverse the nodes from i to j in the path
     void e_reverse(int i, int j, double maxcapacity) {
@@ -219,6 +263,12 @@ template <class knode> class Twpath {
     void evaluate(int from,double maxcapacity) {
 
         if (from < 0 or from > path.size()) from = 0;
+/*
+        for (int i=from; i<path.size(); i++) {
+           if (i == 0) path[0].evaluate(maxcapacity);
+           else path[i].evaluate(path[i-1], maxcapacity);
+        };
+*/
         iterator it = path.begin()+from;
 
         while (it != path.end()){
@@ -301,4 +351,5 @@ template <class knode> class Twpath {
 
 
 #endif
+
 
