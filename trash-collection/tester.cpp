@@ -227,9 +227,12 @@ int main(int argc, char **argv) {
         v.pathOptInvertSequence();
         v.dumppath();
 
-        std::cout << "\np.move(2,4,7,v.getmaxcapacity())" << std::endl;
+*/
+/*
+        int sz = p.size();
+        std::cout << "\np.move(2,"<<sz-2<<","<<sz<<",v.getmaxcapacity())" << std::endl;
         p.dump();
-        p.move(2,4,7,v.getmaxcapacity());
+        p.e_move(2,p.size()-2,p.size(),v.getmaxcapacity());
         p.dump();
 
         p = v.getvpath();
