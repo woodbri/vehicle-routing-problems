@@ -15,135 +15,7 @@
 #include "twnode.h"
 #include "twpath.h"
 #include "tweval.h"
-
-/*
-# paths
-# -------------------------------
-# path_id nid1 nid2 nid3 ...
-0 0 1 2 3 4 5 6 7 8 9
-1 10 11 12 13 14 15 16 17 18 19
--1
-*/
-
-class Testnode : public Tweval {
-  public:
-    Testnode( std::string& line ) : Tweval() {
-        std::istringstream buffer( line );
-        buffer >> nid;
-        buffer >> x;
-        buffer >> y;
-        buffer >> demand;
-        buffer >> tw_open;
-        buffer >> tw_close;
-        buffer >> service;
-    };
-};
-
-
-class Vehicle {
-  public:
-    Twpath<Testnode> path;
-    int maxcapacity;
-    double cost;        // cost of the route
-    double w1;          // weight for duration in cost
-    double w2;          // weight for TWV in cost
-    double w3;          // weight for CV in cost
-
-  public:
-    Vehicle( const Twpath<Testnode>& datanodes, std::string& line ) {
-        int id;
-        int nid;
-        maxcapacity = 0;
-        cost        = 0;
-        w1 = w2 = w3 = 1.0;
-        std::istringstream buffer( line );
-        buffer >> id;
-        while ( ! buffer.eof() ) {
-            buffer >> nid;
-            path.push_back( datanodes[nid] );
-        }
-    };
-
-    double getcost() const { return cost; };
-    int getTWV() const { return 0; /* TODO */ };
-    int getCV() const { return 0; /* TODO */ };
-
-    // return true on error
-    bool compareNid( std::vector<int> nids ) const {
-        if (path.size() != nids.size())
-            return true;
-        for (int i=0; i<path.size(); i++)
-            if (path[i].getnid() != nids[i]) return true;
-        return false;
-    }
-
-    void dumpnids() const {
-        for (int i=0; i<path.size(); i++)
-            std::cout << path[i].getnid() << ", ";
-        std::cout << std::endl;
-    }
-
-};
-
-class Test {
-  public:
-    int test_id;
-    int path_id;
-    std::string test_name;
-    std::vector<double> args;
-    std::vector<int> path_result;
-    double cost;
-    int twv;
-    int cv;
-    bool checkCosts;
-    bool isTestValid;
-    bool isEof;
-
-  public:
-    Test() {
-        test_id = -1;
-        path_id = -1;
-        test_name = "NONE";
-        args.clear();
-        path_result.clear();
-        cost = -1;
-        twv = -1;
-        cv = -1;
-        checkCosts = false;
-        isTestValid = false;
-        isEof = false;
-    };
-
-    bool eof() const { return isEof; };
-    bool isValid() const { return isTestValid; };
-    int getid() const { return test_id; };
-
-    void dumpnids() const {
-        for (int i=0; i<path_result.size(); i++)
-            std::cout << path_result[i] << ", ";
-
-        std::cout << std::endl;
-    };
-
-    void dump() const {
-        std::cout << "--- Test Case ----" << std::endl
-                  << "test_id: " << test_id << std::endl
-                  << "path_id: " << path_id << std::endl
-                  << "test_name: " << test_name << std::endl
-                  << "args: ";
-        for (int i=0; i<args.size(); i++)
-            std::cout << args[i] << ", ";
-        std::cout << std::endl;
-        std::cout << "path_result: "; dumpnids();
-        std::cout << "cost: " << cost << std::endl
-                  << "twv: " << twv << std::endl
-                  << "cv: " << cv << std::endl
-                  << "checkCosts: " << checkCosts << std::endl
-                  << "isValid: " << isTestValid << std::endl
-                  << "isEof: " << isEof << std::endl;
-    };
-
-};
+#include "otherClasses.h"
 
 class TestProblem {
   public:
@@ -156,6 +28,10 @@ class TestProblem {
     int numFail;
 
   public:
+    
+    bool test_e_push_back(const Test&);
+    bool check_costs(const Test&, const Vehicle&) ;
+    bool check_path(const Test&, const Vehicle&) ;
 
     // status: 0=OK, 1=EOF, 2=End Of Section
     std::string getNextLine( std::ifstream& in, int *status ) {
@@ -182,26 +58,7 @@ class TestProblem {
             return false;
         }
         if (t.test_name.compare("e_push_back") == 0) {
-            Vehicle v = fleet[t.path_id];
-            v.path.e_push_back(datanodes[t.args[0]], t.args[1]);
-            if (t.path_result.size() and v.compareNid(t.path_result)) {
-                std::cout << "ERROR: test: " << t.test_id
-                    << " path results do not match!" << std::endl;
-                std::cout << "  expected: "; v.dumpnids();
-                std::cout << "       got: "; t.dumpnids();
-                return false;
-            }
-            if (t.checkCosts and
-                (t.cost != v.getcost() or t.twv != v.getTWV() or
-                    t.cv != v.getCV())) {
-                std::cout << "ERROR: test: " << t.test_id
-                    << " cost and violations do not match!" << std::endl;
-                std::cout << "  expected: " << t.cost << ", " << t.twv
-                    <<", " << t.cv <<std::endl;
-                std::cout << "       got: " << v.getcost() << ", " << v.getTWV()
-                    <<", " << v.getCV() <<std::endl;
-                return false;
-            }
+            return test_e_push_back(t);
         } else 
         if (t.test_name.compare("e_move3") == 0) {
             Vehicle v = fleet[t.path_id];
@@ -312,10 +169,7 @@ class TestProblem {
 
 
     int getnumtests() const { return numTests; };
-
-
     int getnumpass() const { return numPass; };
-
 
     TestProblem(std::string& file) {
         std::ifstream in( file.c_str() );
@@ -383,6 +237,49 @@ class TestProblem {
         std::cout << "Number Invalid: " << numInValid << std::endl;
     };
 };
+
+
+    bool TestProblem::check_path(const Test &t, const Vehicle &v) {
+        if (t.path_result.size() and v.compareNid(t.path_result)) {
+             std::cout << "ERROR: test: " << t.test_id
+                << " path results do not match!" << std::endl;
+                std::cout << "  expected: "; v.dumpnids();
+                std::cout << "       got: "; t.dumpnids();
+                return false;
+        };
+        return true;
+    }
+    bool TestProblem::check_costs(const Test &t, const Vehicle &v) {
+            if (t.checkCosts and
+               (t.cost != v.getcost() or t.twv != v.getTWV() or
+                    t.cv != v.getCV())) {
+                std::cout << "ERROR: test: " << t.test_id
+                    << " cost and violations do not match!" << std::endl;
+                std::cout << "  expected: " << t.cost << ", " << t.twv
+                    <<", " << t.cv <<std::endl;
+                std::cout << "       got: " << v.getcost() << ", " << v.getTWV()
+                    <<", " << v.getCV() <<std::endl;
+                return false;
+        }
+    }
+
+
+    bool TestProblem::test_e_push_back(const Test &t){
+        std::cout<<"\n\n************* E_PUSH_BACK TEST ***********";
+        std::cout<<"\n Expected starting truck: <empty>";
+        std::cout<<"\n Real starting truck: ";
+        Vehicle v;
+        v.dumpnids();
+        for (int i=0; i<10; i++)
+            v.path.e_push_back(datanodes[i],1000);
+        std::cout<<"\n Expected Ending truck: 0 1 2 3 4 5 6 7 8 9";
+        std::cout<<"\n Real Ending truck: ";
+        v.dumpnids();
+        bool result= (not check_path(t,v) or not check_costs(t,v));
+        std::cout<<"\nE_PUSH_BACK END TEST ***********\n\n\n";
+        return result;
+    }
+
 
 void Usage() {
     std::cout << "Usage: tester in.txt\n";
