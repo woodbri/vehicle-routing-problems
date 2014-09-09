@@ -206,6 +206,19 @@ class TestProblem {
         }
         else if (t.test_name.compare("e_move4") == 0) {
         }
+        else if (t.test_name.compare("e_push_back") ==0){
+             Vehicle v = fleet[t.path_id];
+             testNode foo=
+             v.path.e_push_back(t.args[0],t.args[1]);
+             if (t.path_result.size() and v.compareNid(t.path_result)) {
+                std::cout << "ERROR: test: " << t.test_id
+                    << " path results do not match!" << std::endl;
+                std::cout << "  expected: "; v.dumpnids();
+                std::cout << "       got: "; t.dumpnids();
+                return false;
+            }
+            return true;
+        }
         else {
             std::cout << "ERROR: test: " << t.test_id << " requested test ("
                       << t.test_name << ") which is unknown!" << std::endl;
