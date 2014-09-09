@@ -10,11 +10,12 @@
 
 #include "init_pd.h"
 #include "prob_pd.h"
+#include "dumbsolution.h"
 
 
 void Usage()
 {
-    std::cout << "Usage: vrpdptw in.txt\n";
+    std::cout << "Usage: tester in.txt\n";
 }
 
 
@@ -33,37 +34,10 @@ int main (int argc, char **argv)
         std::string title;
         P.loadProblem(infile); //load problem
         std::cout << "Problem '" << infile << "'loaded\n";
-//        P.dump();
-
-/*
-        std::cout << "\n\n\n**SOLUTION: Initial feasable Construction\n";
-        Init_pd S5(P);  S5.setweights(1,1,1); 
-        S5.initialFeasableSolution();  S5.dump(); S5.tau(); S5.plot("initialFeasableSolution","Initial Feasable Solution");
-*/
-        std::cout << "\n\n\n**SOLUTION: Secuential Construction\n";
-        Init_pd S4(P);  S4.setweights(1,1,1); 
-        S4.seqConst();  S4.tau();/* S4.dump();*/  S4.plot("seqConst","SequentialConstruction");
-        //S4.orderConstraintConstruction();  S4.tau();/* S4.dump();*/  S4.plot("seqConst","SequentialConstruction");
-
-/*
-
-        std::cout << "\n\n\n**SOLUTION: dumbConstruction\n";
-        Init_pd S(P);  S.setweights(1,1,1); 
-        S.dumbConstruction(); S.tau(); S.plot("dumbConstruction","Dumb construction");
-
-        std::cout << "\n\n\n**SOLUTION: deliveryBeforePickupConstruction\n";
-        Init_pd S1(P);  S1.setweights(1,1,1); 
-        S1.deliveryBeforePickupConstruction(); S1.tau(); S1.plot("DeliverybeforePickup","ideliveryBeforePickup");
-
-
-        std::cout << "\n\n\n**SOLUTION: dumbConstruction and bestmove forward\n";
-        Init_pd S2(P);  S2.setweights(1,1,1); 
-        S2.dumbConstructionAndBestMoveForward();  S2.tau(); S2.plot("dumbConstructionAndBestMoveForward","Dumb construction & best move forward");
-        std::cout << "\n\n\n**SOLUTION: withSortedOrdersConstruction\n";
-        Init_pd S3(P);  S3.setweights(1,1,1); 
-        S3.withSortedOrdersConstruction();  S3.tau(); S3.plot("withSortedOrdersConstruction","withSortedOrdersConstruction");
-
-*/
+        DumbSolution sols(P);
+        sols.insertDumbInitialSolutions();
+        sols.dump();
+        
         //S.initialFeasableSolution();
 /*
         std::cout << "\n\n\n******************Y************Solution: initial no hill Construction \n";

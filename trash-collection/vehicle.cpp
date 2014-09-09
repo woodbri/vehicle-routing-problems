@@ -70,6 +70,12 @@ void Vehicle::insert(Trashnode node, int at) {
     evalLast();
 }
 
+void Vehicle::remove(int at) {
+    path.e_remove(at, getmaxcapacity());  //e_remove does an evaluation from at to end of path 
+    evalLast();
+}
+
+
 
 void Vehicle::evalLast() {
     Trashnode last = path[path.size()-1];
@@ -616,6 +622,31 @@ std::cout << "newcost: "<<newcost1<<"+"<<newcost2<<"+"<<newcost3<<"="
     move node v1[i1] to another path v2[i2]
     returns false if it fails to relocate the node to v2
 */
+
+bool Vehicle::relocate(Vehicle& v2, const int& i1, const int& i2) {
+    if ( i1 < 0 or i1 > this->size()-1 or
+         i2 < 0 or i2 > v2.size()-1 ) return false;
+
+
+    double oldcost1 = getcost();
+    double oldcost2 = v2.getcost();
+
+    v2.insert(path[i1], i2);
+    remove(i1);
+
+    double newcost1 = getcost();
+    double newcost2 = v2.getcost();
+
+    if ( newcost1 + newcost2 > oldcost1 + oldcost2 or
+         !feasable() or !v2.feasable() ) {
+        insert(v2.path[i2], i1);
+        v2.remove(i2);
+        return false;
+    }
+    return true;
+}
+
+/*
 bool Vehicle::relocate(Vehicle& v2, const int& i1, const int& i2) {
     if ( i1 < 0 or i1 > this->size()-1 or
          i2 < 0 or i2 > v2.size()-1 ) return false;
@@ -626,6 +657,7 @@ bool Vehicle::relocate(Vehicle& v2, const int& i1, const int& i2) {
     double oldcost2 = v2.getcost();
 
     v2p.e_insert(path[i1], i2, v2.getmaxcapacity());
+
     path.e_remove(i1, getmaxcapacity());
 
     evalLast();
@@ -644,7 +676,7 @@ bool Vehicle::relocate(Vehicle& v2, const int& i1, const int& i2) {
     }
     return true;
 }
-
+*/
 
 /*
     relocateBest

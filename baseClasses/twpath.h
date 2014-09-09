@@ -283,12 +283,12 @@ template <class knode> class Twpath {
     void evaluate(int from,double maxcapacity) {
 
         if (from < 0 or from > path.size()) from = 0;
-
+/*
         for (int i=from; i<path.size(); i++) {
            if (i == 0) path[0].evaluate(maxcapacity);
            else path[i].evaluate(path[i-1], maxcapacity);
         };
-/*
+*/
         iterator it = path.begin()+from;
 
         while (it != path.end()){
@@ -296,7 +296,7 @@ template <class knode> class Twpath {
             else it->evaluate(*(it-1),maxcapacity);
             it++;
         }
-*/
+
     };
 
     void evalLast(double maxcapacity) {

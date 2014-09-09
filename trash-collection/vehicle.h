@@ -100,6 +100,7 @@ class Vehicle {
     void push_back(Trashnode node);
     void push_front(Trashnode node);
     void insert(Trashnode node, int at);
+    void remove( int at);
 
 /* algorithm specific - intra-route manipulations */
 
