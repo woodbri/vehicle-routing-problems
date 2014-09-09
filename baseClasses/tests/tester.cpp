@@ -27,7 +27,16 @@
 
 class Testnode : public Tweval {
   public:
-    Testnode( std::string& line ) : Twnode( line ) {};
+    Testnode( std::string& line ) : Tweval() {
+        std::istringstream buffer( line );
+        buffer >> nid;
+        buffer >> x;
+        buffer >> y;
+        buffer >> demand;
+        buffer >> tw_open;
+        buffer >> tw_close;
+        buffer >> service;
+    };
 };
 
 
@@ -59,12 +68,13 @@ class Vehicle {
     int getTWV() const { return 0; /* TODO */ };
     int getCV() const { return 0; /* TODO */ };
 
+    // return true on error
     bool compareNid( std::vector<int> nids ) const {
         if (path.size() != nids.size())
-            return false;
+            return true;
         for (int i=0; i<path.size(); i++)
-            if (path[i].getnid() != nids[i]) return false;
-        return true;
+            if (path[i].getnid() != nids[i]) return true;
+        return false;
     }
 
     void dumpnids() const {
