@@ -653,7 +653,7 @@ void Init_pd::initialByOrderSolution() {
           route.pushOrder(order);          //initialize tour with seed customer
           ppos=bppos=route.getppos(order.oid);
           dpos=bdpos=route.getdpos(order.oid);
-          actualcost=getcost();
+          actualcost=route.getcost();
           bestcost=route.findBestCostBackForw(order.oid,bppos,bdpos); //can it come back with already tested for feasability
           if (bestcost<actualcost) {     //found a better place
              if (bppos<bdpos) {
@@ -692,7 +692,7 @@ void  Init_pd::initialFeasableSolution() {
           route.pushOrder(order);
           ppos=bppos=route.getppos(order.oid);
           dpos=bdpos=route.getdpos(order.oid);
-          actualcost=getcost();
+          actualcost=route.getcost();
           bestcost=route.findBestCostBackForw(order.oid,bppos,bdpos); //can it come back with already tested for feasability
           if (bestcost<actualcost) {     //found a better place
              if (bppos<bdpos) {          

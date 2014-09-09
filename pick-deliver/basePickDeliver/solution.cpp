@@ -16,7 +16,7 @@ void Solution::computeCosts() {
     }
 }
 
-double Solution::getcost() {
+double Solution::getCost() {
     computeCosts();    // somewhere in the code the getcost returns 0 because the cost hant been computed
     return totalCost;
 }
@@ -103,12 +103,12 @@ void Solution::dumproutes()  {
 
 void Solution::dump() {
     computeCosts();
-    std::cout << "Solution: totalDistance: " << totalDistance
-              << ", totalCost: " << totalCost
-              << std::endl;
     tau();
+    std::cout <<   " Total Distance: " << totalDistance
+              << "\n     Total Cost: " << totalCost
+              << std::endl;
     for (int i=0; i<fleet.size(); i++) {
-        fleet[i].dump();
+        fleet[i].getBackToDepot().dumpeval();
     }
 }
 

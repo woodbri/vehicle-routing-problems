@@ -32,9 +32,9 @@ public:
       };
       void dump() {
           for (int i=0;i<taus.size();i++) {
-              std::cout<<"***** SOLUTION #"<<i<<"********\n";
-              taus[i].tau();
-              std::cout<<"\n--------------------------------\n\n\n";
+              std::cout<<"\n***** SOLUTION #"<<i<<"********\n";
+              taus[i].dump();
+              std::cout<<"\n--------------------------------";
           }
       };
 };
