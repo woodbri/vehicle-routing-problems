@@ -181,7 +181,28 @@ class TestProblem {
                       << t.path_id << ") which is unknown!" << std::endl;
             return false;
         }
-
+        if (t.test_name.compare("e_push_back") == 0) {
+            Vehicle v = fleet[t.path_id];
+            v.path.e_push_back(datanodes[t.args[0]], t.args[1]);
+            if (t.path_result.size() and v.compareNid(t.path_result)) {
+                std::cout << "ERROR: test: " << t.test_id
+                    << " path results do not match!" << std::endl;
+                std::cout << "  expected: "; v.dumpnids();
+                std::cout << "       got: "; t.dumpnids();
+                return false;
+            }
+            if (t.checkCosts and
+                (t.cost != v.getcost() or t.twv != v.getTWV() or
+                    t.cv != v.getCV())) {
+                std::cout << "ERROR: test: " << t.test_id
+                    << " cost and violations do not match!" << std::endl;
+                std::cout << "  expected: " << t.cost << ", " << t.twv
+                    <<", " << t.cv <<std::endl;
+                std::cout << "       got: " << v.getcost() << ", " << v.getTWV()
+                    <<", " << v.getCV() <<std::endl;
+                return false;
+            }
+        } else 
         if (t.test_name.compare("e_move3") == 0) {
             Vehicle v = fleet[t.path_id];
             v.path.e_move(t.args[0], t.args[1], t.args[2]);
