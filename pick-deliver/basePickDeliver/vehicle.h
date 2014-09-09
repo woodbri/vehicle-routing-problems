@@ -15,7 +15,6 @@ class Compatible;
 class Vehicle:public BucketN {
   private:
     int  maxcapacity;   
-//    Twpath<Dpnode> path;
     Dpnode backToDepot;
     double cost;     
     //deque<Order> orders;
@@ -50,6 +49,7 @@ class Vehicle:public BucketN {
 
     // accessors
     int getmaxcapacity() const {return maxcapacity; };
+    const Dpnode& getBackToDepot() const {return backToDepot;}
 
     void push_back(const Dpnode &pathstop);
     void insert(const Dpnode &pathstop,int at);

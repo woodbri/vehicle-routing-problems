@@ -36,7 +36,7 @@ class Solution: public Prob_pd {
     void plot(std::string file,std::string title);
 
     void computeCosts();
-    double getcost();
+    double getCost();
     double getDistance();
     double getAverageRouteDurationLength();
 
