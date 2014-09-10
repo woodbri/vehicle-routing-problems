@@ -76,6 +76,17 @@ void Vehicle::remove(int at) {
 }
 
 
+void Vehicle::movereverse( int rangefrom, int rangeto, int destbefore ) {
+    path.e_movereverse(rangefrom, rangeto, destbefore, getmaxcapacity());
+    evalLast();
+}
+
+
+void Vehicle::moverange( int rangefrom, int rangeto, int destbefore ) {
+    path.e_move(rangefrom, rangeto, destbefore, getmaxcapacity());
+    evalLast();
+}
+
 
 void Vehicle::evalLast() {
     Trashnode last = path[path.size()-1];
@@ -86,6 +97,13 @@ void Vehicle::evalLast() {
            w2*backToDepot.getcvTot() +
            w3*backToDepot.gettwvTot();
 }
+
+
+void Vehicle::restorePath(Twpath<Trashnode> oldpath) {
+    path = oldpath;
+    evalLast();
+}
+
 
 //--------------------------------------------------------------------------
 // intra-route optimiziation
@@ -131,17 +149,18 @@ bool Vehicle::doThreeOpt(const int& c1, const int& c2, const int& c3, const int&
 
     // the 3-opt appears to reduce to extracting a sequence of nodes c3-c4
     // and reversing them and inserting them back after c6
-//std::cout << "doThreeOpt A: "; dumppath();
-    path.e_movereverse(c2, c3, c6, getmaxcapacity());
-    evalLast();
-//std::cout << "doThreeOpt B: "; dumppath();
-
-
-//std::cout << "doThreeOpt: cost: " << getcost() << ", twv: " << hastwv() << std::endl;
+//std::cout << "movereverse("<<c2<<","<<c3<<","<<c5<<") ("<<oldpath.size()<<")";
+    movereverse(c2, c3, c6);
+    //path.e_movereverse(c2, c3, c6, getmaxcapacity());
+    //evalLast();
+//std::cout << "...Done.\n";
 
     if (getcost() > oldcost or hastwv()) {
-        path = oldpath;
-        evalLast();
+//std::cout << "restorePath(oldpath)";
+        restorePath(oldpath);
+        //path = oldpath;
+        //evalLast();
+//std::cout << "...Done.\n";
         return false;
     }
 
@@ -157,13 +176,12 @@ bool Vehicle::doOrOpt(const int& c1, const int& c2, const int& c3) {
     double oldcost = getcost();
     Twpath<Trashnode> oldpath(path); // save a copy for undo
 
-    path.e_move(c1, c2, c3, getmaxcapacity());
-    evalLast();
+    moverange(c1, c2, c3);
+    //path.e_move(c1, c2, c3, getmaxcapacity());
+    //evalLast();
 
     if (getcost() > oldcost or hastwv()) {
-        //path.e_move(c3-(c2-c1+1), c3-1, c1, getmaxcapacity());
-        path = oldpath;
-        evalLast();
+        restorePath(oldpath);
         return false;
     }
 

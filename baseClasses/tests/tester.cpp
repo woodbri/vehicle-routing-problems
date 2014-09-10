@@ -82,6 +82,7 @@ class TestProblem {
         else if (t.test_name.compare("e_insert") == 0)  return test_e_insert(t);
         else if (t.test_name.compare("e_remove") == 0)  return test_e_remove(t);
         else if (t.test_name.compare("e_swap") == 0)  return test_e_swap(t);
+        else if (t.test_name.compare("e_movereverse") == 0)  return test_e_movereverse(t);
         else {
             std::cout << "ERROR: test: " << t.test_id << " requested test ("
                       << t.test_name << ") which is unknown!" << std::endl;
@@ -240,6 +241,7 @@ class TestProblem {
     bool test_e_insert(const Test&);
     bool test_e_swap(const Test&);
     bool test_e_remove(const Test&);
+    bool test_e_movereverse(const Test&);
     bool check_costs(const Test&, const Vehicle&) ;
     bool check_path(const Test&, const Vehicle&) ;
 };
@@ -269,14 +271,40 @@ class TestProblem {
         }
     }
 
+    bool TestProblem::test_e_movereverse(const Test &t) {
+        Vehicle v,vw;
+        bool flag;
+        for (int i=0; i<10; i++)
+            v.path.e_push_back(datanodes[i],1000);
+        std::cout<<"\n\n************* E_MOVEREVERSE TEST ***********";
+        std::cout<<"\n Starting truck for all e_movereverse test: "; v.dumpnids();
+        for (int i=0; i<12; i++) {
+            for (int j=0; j<12; j++) {
+                for (int k=0; k<12; k++) {
+                    vw=v;
+                    flag = vw.path.e_movereverse(i, j, k, 1000);
+                    std::cout<<"e_movereverse("<<i<<","<<j<<","<<k<<"):\t"<<(flag? " moved\t":"NOT moved\t"); vw.dumpnids();
+                }
+            }
+        }
+        std::cout<<"\n e_movereverse("<<t.args[0]<<","<<t.args[1]<<","<<t.args[2]<<")\n";
+        Vehicle vp = fleet[t.path_id];
+        std::cout<<"Path before: "; vp.dumpnids();
+        vp.path.e_movereverse(t.args[0], t.args[1], t.args[2], t.args[3]);
+        std::cout<<"Path  after: "; vp.dumpnids();
+        bool result = (not check_path(t,vp) or not check_costs(t,vp));
+        std::cout<<"\nE_MOVEREVERSE END TEST --------------------\n\n\n";
+        return result;
+    }
+
     bool TestProblem::test_e_remove(const Test &t){
         Vehicle v,vw;
         bool flag;
         for (int i=0; i<10; i++)
             v.path.e_push_back(datanodes[i],1000);
-        std::cout<<"\n\n************* E_SWAP TEST ***********";
-        std::cout<<"\n Starting truck for all e_swap test: "; v.dumpnids();
-        std::cout<<"\n cwremoving position 5 10 times\n";
+        std::cout<<"\n\n************* E_REMOVE TEST ***********";
+        std::cout<<"\n Starting truck for all e_remove test: "; v.dumpnids();
+        std::cout<<"\n removing position 5 10 times\n";
         vw=v;
         for (int i=0; i<10; i++){
             flag=vw.path.e_remove(5,1000);
@@ -287,7 +315,7 @@ class TestProblem {
         v.path.e_remove(t.args[0],1000);
         std::cout<<"\n Ending truck:\n "; v.dumpnids();
         bool result= (not check_path(t,v) or not check_costs(t,v));
-        std::cout<<"\nE_SWAP END TEST --------------------\n\n\n";
+        std::cout<<"\nE_REMOVE END TEST --------------------\n\n\n";
         return result;
     }
 

@@ -356,8 +356,8 @@ bool relocateBest(Vehicle& v2, const int& i1);
         tp.opt_3opt();
         tp.dumpSummary();
         tp.plot("p5.png", "assignmentSweep3 - after 3opt", font);
-*/
 
+*/
         std::cout << "\n----------- doing 2-opt -----------------------\n";
         tp.opt_2opt();
         tp.dumpSummary();

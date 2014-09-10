@@ -1,3 +1,5 @@
+g++ -g -O0 -MMD -MP -I../baseClasses -c tester.cpp -o tester.o
+g++ ../baseClasses/node.o ../baseClasses/tweval.o ../baseClasses/twnode.o ../baseClasses/vec2d.o tester.o trashnode.o trashproblem.o vehicle.o -o tester -lgd -I../baseClasses -L../baseClasses
 ./tester p50.txt
 --------- Nodes ------------
 0, -30, 20, 2000, 300, 900, 0, 0, 0, 0, -1, -1, 5, 25.4951, -inf
@@ -208,7 +210,7 @@ w1: 1
 w2: 1
 w3: 1
 path nodes: -----------------
-Twpath: , 0, 23, 32, 22, 14, 15, 7, 8, 16, 24, 25, 9, 17
+Twpath:  0 23 32 22 14 15 7 8 16 24 25 9 17
 ---------- Vehicle ---------------
 maxcapacity: 1500
 cargo: 1410
@@ -220,7 +222,7 @@ w1: 1
 w2: 1
 w3: 1
 path nodes: -----------------
-Twpath: , 1, 21, 11, 13, 12, 10, 31, 41, 40, 20, 30, 29, 19, 18
+Twpath:  1 21 11 13 12 10 31 41 40 20 30 29 19 18
 ---------- Vehicle ---------------
 maxcapacity: 1500
 cargo: 1430
@@ -232,7 +234,7 @@ w1: 1
 w2: 1
 w3: 1
 path nodes: -----------------
-Twpath: , 2, 34, 33, 42, 50, 51, 44, 43, 45, 46, 27, 28, 26, 35
+Twpath:  2 34 33 42 50 51 44 43 45 46 27 28 26 35
 ---------- Vehicle ---------------
 maxcapacity: 2000
 cargo: 1320
@@ -244,7 +246,7 @@ w1: 1
 w2: 1
 w3: 1
 path nodes: -----------------
-Twpath: , 3, 54, 47, 49, 56, 55, 48, 39, 38, 37, 36, 52, 53
+Twpath:  3 54 47 49 56 55 48 39 38 37 36 52 53
 --------- Solution ------------
 Total path length: 1823.05
 Total path cost: 1823.05
