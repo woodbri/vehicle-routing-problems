@@ -83,6 +83,7 @@ class TestProblem {
         else if (t.test_name.compare("e_remove") == 0)  return test_e_remove(t);
         else if (t.test_name.compare("e_swap") == 0)  return test_e_swap(t);
         else if (t.test_name.compare("e_movereverse") == 0)  return test_e_movereverse(t);
+        else if (t.test_name.compare("pos") == 0)  return test_pos(t);
         else {
             std::cout << "ERROR: test: " << t.test_id << " requested test ("
                       << t.test_name << ") which is unknown!" << std::endl;
@@ -241,10 +242,34 @@ class TestProblem {
     bool test_e_insert(const Test&);
     bool test_e_swap(const Test&);
     bool test_e_remove(const Test&);
+    bool test_pos(const Test &t);
     bool test_e_movereverse(const Test&);
     bool check_costs(const Test&, const Vehicle&) ;
     bool check_path(const Test&, const Vehicle&) ;
 };
+
+
+    bool TestProblem::test_pos(const Test &t){
+        Vehicle v,vw;
+        bool flag;
+        for (int i=0; i<10; i++)
+            v.path.e_push_back(datanodes[i],1000);
+        vw.path.e_push_back(datanodes[0],1000);
+        for (int i=1; i<10000;i++)
+            vw.path.e_push_back(datanodes[3],1000);
+        vw.path.e_push_back(datanodes[20],1000);
+        std::cout<<"\n\n************* POS TEST ***********";
+        std::cout<<"\n Starting truck for all e_swap test: 0 3 .... 3 20 ";
+        std::cout<<"\n finding 20\n";
+        int pos= vw.path.pos(20);
+        std::cout<<"\n 20 is at position "<<pos<<" of:\n ";
+        v.path.pos(t.args[0]);
+        std::cout<<"\n Ending truck:\n "; v.dumpnids();
+        bool result= (not check_path(t,v) or not check_costs(t,v));
+        std::cout<<"\nPOS END TEST --------------------\n\n\n";
+        return result;
+    }
+
 
 
     bool TestProblem::check_path(const Test &t, const Vehicle &v) {
