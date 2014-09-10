@@ -15,9 +15,9 @@ template <class knode> class Twpath {
     std::deque<knode> path;
 
     typedef unsigned int UID;
-    typedef typename std::deque<knode> Path;
     typedef typename std::deque<knode>::iterator iterator;
     typedef typename std::deque<knode>::reverse_iterator reverse_iterator;
+    typedef typename std::deque<knode>::const_reverse_iterator const_reverse_iterator;
     typedef typename std::deque<knode>::const_iterator const_iterator;
 
 
@@ -321,6 +321,15 @@ template <class knode> class Twpath {
         for (const_iterator it = path.begin(); it != path.end();it++)
               p.push_back(it->getnid());
         return p;
+    };
+
+    int pos(int nid) const {
+        const_reverse_iterator rit=path.rbegin();
+        for (const_iterator it = path.begin(); it!=path.end() ;it++,++rit) {
+              if(it->getnid()==nid) return int(it-path.begin());
+              if(rit->getnid()==nid) return int(path.rbegin()-rit);
+        }
+        return -1;
     };
 
     void dump() const {

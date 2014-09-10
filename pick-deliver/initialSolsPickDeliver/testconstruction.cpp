@@ -11,9 +11,13 @@
 void TestConstruction::dumbConstruction() {
     Vehicle truck(depot,Q);
     fleet.clear();
-        for (int i=0; i<ordersList.size(); i++) {
+    for (int j=1;j<100000;j++)
+        for (int i=0; i<ordersList.size()-1; i++) {
            truck.pushOrder(getOrder(i));
         }
+   truck.pushOrder(getOrder(getOrderCount()-1));
+//   truck.tau();
+   for (int i=0; i<9; i++) std::cout<<"(fist) Pos of "<<i<<" is "<< truck.pos(i)<<"\n";
    fleet.push_back(truck);
 }
 

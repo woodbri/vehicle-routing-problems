@@ -22,8 +22,8 @@ tester: $(UTILOBJS) $(OBJS)
 %.o: %.cpp
 	$(CPP) $(CPPFLAGS) -c $< -o $@
 
-test: tester test-data.txt
-	./tester test-data.txt
+test: tester test-data.txt 
+	./tester test-data.txt >result.out
 
 valgrind: tester test-data.txt
 	valgrind -v --track-origins=yes --leak-check=full ./tester test-data.txt

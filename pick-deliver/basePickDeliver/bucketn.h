@@ -33,7 +33,7 @@ class BucketN {
 
 
     Twpath<Dpnode>&  Path() ;
-    Twpath<Dpnode>  Path() const ;
+    const Twpath<Dpnode>&  Path() const ;
     Twpath<Dpnode>  getpath() const ;
     Dpnode& operator[] (unsigned int n) { return path[n]; };
     Dpnode  operator[] (unsigned int n) const { return path[n]; };

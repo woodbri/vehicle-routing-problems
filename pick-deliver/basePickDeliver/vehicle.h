@@ -52,7 +52,9 @@ class Vehicle:public BucketN {
     const Dpnode& getBackToDepot() const {return backToDepot;}
     
 
-
+    int pos(int nid) const ;
+    bool  in(int nid) const;
+    
     void push_back(const Dpnode &pathstop);
     void insert(const Dpnode &pathstop,int at);
     void remove(int at);
