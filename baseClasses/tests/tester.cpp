@@ -53,9 +53,6 @@ class TestProblem {
                       << t.path_id << ") which is unknown!" << std::endl;
             return false;
         }
-        if (t.test_name.compare("e_push_back") == 0)  return test_e_push_back(t);
-        else if (t.test_name.compare("e_move") == 0)  return test_e_move(t);
-        else  
         if (t.test_name.compare("e_move3") == 0) {
             Vehicle v = fleet[t.path_id];
             v.path.e_move(t.args[0], t.args[1], t.args[2]);
@@ -80,6 +77,9 @@ class TestProblem {
         }
         else if (t.test_name.compare("e_move4") == 0) {
         }
+        else if (t.test_name.compare("e_push_back") == 0)  return test_e_push_back(t);
+        else if (t.test_name.compare("e_move") == 0)  return test_e_move(t);
+        else if (t.test_name.compare("e_insert") == 0)  return test_e_insert(t);
         else {
             std::cout << "ERROR: test: " << t.test_id << " requested test ("
                       << t.test_name << ") which is unknown!" << std::endl;
@@ -235,6 +235,7 @@ class TestProblem {
 
     bool test_e_push_back(const Test&);
     bool test_e_move(const Test&);
+    bool test_e_insert(const Test&);
     bool check_costs(const Test&, const Vehicle&) ;
     bool check_path(const Test&, const Vehicle&) ;
 };
@@ -265,16 +266,66 @@ class TestProblem {
     }
 
 
+
+    bool TestProblem::test_e_insert(const Test &t){
+        Vehicle v,vw;
+        bool flag;
+        for (int i=0; i<10; i++)
+            v.path.e_push_back(datanodes[i],1000);
+        std::cout<<"\n\n************* E_INSERT TEST ***********";
+        std::cout<<"\n Starting truck for all e_move test: "; v.dumpnids();
+        std::cout<<"\n Inserting nodes 20 to 25 in position 3 \n";
+        vw=v;
+        for (int i=0; i<6; i++){
+            flag=vw.path.e_insert(datanodes[i+20],3,1000);
+            std::cout<<"Node "<<i+20<<": \t"<<(flag? "inserted\t":"Not inserted\t");
+            vw.dumpnids();
+        }
+        vw=v;
+        std::cout<<"\n Inserting nodes 20 to 25 in position 3 leaving them in order\n";
+        for (int i=0; i<6; i++){
+            flag=vw.path.e_insert(datanodes[i+20],3+i,1000);
+            std::cout<<"Node "<<i+20<<"\t Position:"<<3+i<<"\t"<<(flag? "inserted\t":"Not inserted\t");
+            vw.dumpnids();
+        }
+        std::cout<<"\n Inserting node 20 at all positions\n";
+        for (int i=0; i<13; i++){
+            vw=v;flag=vw.path.e_insert(datanodes[20],i,1000);
+            std::cout<<"Position:"<<i<<"\t"<<(flag? "inserted\t":"Not inserted\t");
+            vw.dumpnids();
+        }
+        std::cout<<"\n Inserting node 20 after all positions\n";
+        for (int i=0; i<13; i++){
+            vw=v;flag=vw.path.e_insert(datanodes[20],i+1,1000);
+            std::cout<<"After position:"<<i<<"\t"<<(flag? "inserted\t":"Not inserted\t");
+            vw.dumpnids();
+        }
+        std::cout<<"\n Inserting node 20 before all positions\n";
+        for (int i=0; i<13; i++){
+            vw=v;flag=vw.path.e_insert(datanodes[20],i-1,1000);
+            std::cout<<"Before position:"<<i<<"\t"<<(flag? "inserted\t":"Not inserted\t");
+            vw.dumpnids();
+        }
+        std::cout<<"\n Inserting "<<datanodes[t.args[0]].getnid()<<"in position "<< t.args[1] <<"of:\n "; v.dumpnids();
+        v.path.e_insert(datanodes[t.args[0]],t.args[1],1000);
+        std::cout<<"\n Ending truck:\n "; v.dumpnids();
+        bool result= (not check_path(t,v) or not check_costs(t,v));
+        std::cout<<"\nE_INSERT END TEST --------------------\n\n\n";
+        return result;
+    }
+
     bool TestProblem::test_e_push_back(const Test &t){
+        bool flag;
         std::cout<<"\n\n************* E_PUSH_BACK TEST ***********";
         std::cout<<"\n Expected starting truck: <empty>";
         std::cout<<"\n Real starting truck: ";
         Vehicle v;
         v.dumpnids();
-        for (int i=0; i<10; i++)
-            v.path.e_push_back(datanodes[i],1000);
-        std::cout<<"\n Expected Ending truck: 0 1 2 3 4 5 6 7 8 9";
-        std::cout<<"\n Real Ending truck: "; v.dumpnids();
+        for (int i=0; i<10; i++) {
+            flag=v.path.e_push_back(datanodes[i],1000);
+            std::cout<<"Node:"<<i<<"\t"<<(flag? "pushed\t":"Not pushed\t");
+            v.dumpnids();
+        }
         bool result= (not check_path(t,v) or not check_costs(t,v));
         std::cout<<"\nE_PUSH_BACK END TEST ***********\n\n\n";
         return result;

@@ -259,19 +259,23 @@ template <class knode> class Twpath {
         i < j ? evaluate(i, maxcapacity): evaluate(j, maxcapacity);
     };
 
-    void e_insert(const knode &n, int at, double maxcapacity) {
+    bool e_insert(const knode &n, UID at, double maxcapacity) {
+        if (at > size()) return false;
         path.insert(path.begin() + at, n);
         evaluate(at, maxcapacity);
+        return true;
     };
 
-    void e_push_back(const knode& n, double maxcapacity) {
+    bool e_push_back(const knode& n, double maxcapacity) {
         path.push_back(n);
         evalLast(maxcapacity);
+        return true;
     };
 
-    void e_push_back(knode& n, double maxcapacity) {
+    bool e_push_back(knode& n, double maxcapacity) {
         path.push_back(n);
         evalLast(maxcapacity);
+        return true;
     };
 
     void e_remove (int i, double maxcapacity) {
