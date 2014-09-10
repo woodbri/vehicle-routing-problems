@@ -149,18 +149,18 @@ bool Vehicle::doThreeOpt(const int& c1, const int& c2, const int& c3, const int&
 
     // the 3-opt appears to reduce to extracting a sequence of nodes c3-c4
     // and reversing them and inserting them back after c6
-std::cout << "movereverse("<<c2<<","<<c3<<","<<c5<<") ("<<oldpath.size()<<")";
-    //movereverse(c2, c3, c6);
-    path.e_movereverse(c2, c3, c6, getmaxcapacity());
-    evalLast();
-std::cout << "...Done.\n";
+//std::cout << "movereverse("<<c2<<","<<c3<<","<<c5<<") ("<<oldpath.size()<<")";
+    movereverse(c2, c3, c6);
+    //path.e_movereverse(c2, c3, c6, getmaxcapacity());
+    //evalLast();
+//std::cout << "...Done.\n";
 
     if (getcost() > oldcost or hastwv()) {
-std::cout << "restorePath(oldpath)";
-        //restorePath(oldpath);
-        path = oldpath;
-        evalLast();
-std::cout << "...Done.\n";
+//std::cout << "restorePath(oldpath)";
+        restorePath(oldpath);
+        //path = oldpath;
+        //evalLast();
+//std::cout << "...Done.\n";
         return false;
     }
 
