@@ -278,21 +278,17 @@ template <class knode> class Twpath {
         return true;
     };
 
-    void e_remove (int i, double maxcapacity) {
+    bool e_remove (int i, double maxcapacity) {
+//        if (i>size()-1) return false;
         path.erase(path.begin() + i);
         evaluate(i, maxcapacity);
+        return true;
     };
 
     /*****   EVALUATION   ****/
     void evaluate(int from,double maxcapacity) {
 
         if (from < 0 or from > path.size()) from = 0;
-/*
-        for (int i=from; i<path.size(); i++) {
-           if (i == 0) path[0].evaluate(maxcapacity);
-           else path[i].evaluate(path[i-1], maxcapacity);
-        };
-*/
         iterator it = path.begin()+from;
 
         while (it != path.end()){

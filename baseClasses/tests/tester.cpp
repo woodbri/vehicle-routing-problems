@@ -80,6 +80,7 @@ class TestProblem {
         else if (t.test_name.compare("e_push_back") == 0)  return test_e_push_back(t);
         else if (t.test_name.compare("e_move") == 0)  return test_e_move(t);
         else if (t.test_name.compare("e_insert") == 0)  return test_e_insert(t);
+        else if (t.test_name.compare("e_remove") == 0)  return test_e_remove(t);
         else if (t.test_name.compare("e_swap") == 0)  return test_e_swap(t);
         else {
             std::cout << "ERROR: test: " << t.test_id << " requested test ("
@@ -238,6 +239,7 @@ class TestProblem {
     bool test_e_move(const Test&);
     bool test_e_insert(const Test&);
     bool test_e_swap(const Test&);
+    bool test_e_remove(const Test&);
     bool check_costs(const Test&, const Vehicle&) ;
     bool check_path(const Test&, const Vehicle&) ;
 };
@@ -265,6 +267,28 @@ class TestProblem {
                     <<", " << v.getCV() <<std::endl;
                 return false;
         }
+    }
+
+    bool TestProblem::test_e_remove(const Test &t){
+        Vehicle v,vw;
+        bool flag;
+        for (int i=0; i<10; i++)
+            v.path.e_push_back(datanodes[i],1000);
+        std::cout<<"\n\n************* E_SWAP TEST ***********";
+        std::cout<<"\n Starting truck for all e_swap test: "; v.dumpnids();
+        std::cout<<"\n cwremoving position 5 10 times\n";
+        vw=v;
+        for (int i=0; i<10; i++){
+            flag=vw.path.e_remove(5,1000);
+            std::cout<<"Removing Position "<<5<<": \t"<<(flag? " removed\t":"Not removed\t");
+            vw.dumpnids();
+        }
+        std::cout<<"\n Removing Position "<<t.args[0] <<" of:\n "; v.dumpnids();
+        v.path.e_remove(t.args[0],1000);
+        std::cout<<"\n Ending truck:\n "; v.dumpnids();
+        bool result= (not check_path(t,v) or not check_costs(t,v));
+        std::cout<<"\nE_SWAP END TEST --------------------\n\n\n";
+        return result;
     }
 
 
