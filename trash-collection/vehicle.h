@@ -101,6 +101,10 @@ class Vehicle {
     void push_front(Trashnode node);
     void insert(Trashnode node, int at);
     void remove( int at);
+    void movereverse( int rangefrom, int rangeto, int destbefore );
+    void moverange( int rangefrom, int rangeto, int destbefore );
+
+    void restorePath(Twpath<Trashnode> oldpath);
 
 /* algorithm specific - intra-route manipulations */
 
