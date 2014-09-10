@@ -20,7 +20,7 @@ $(UTIL)/%.o: $(UTIL)/%.cpp
 tester: $(UTILOBJS) $(OBJS)
 	$(CPP) $^ -o $@ $(LDFLAGS)
 
-%.o: %.cpp
+%.o: %.cpp ../../baseClasses/twpath.h
 	$(CPP) $(CPPFLAGS) -c $< -o $@
 
 test: tester lc008.txt

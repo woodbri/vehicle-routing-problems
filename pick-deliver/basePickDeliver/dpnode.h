@@ -10,42 +10,20 @@ private:
     int oid;
     int did;
     int pid;
-    //to evaluate the vehicle at node level
-/*    bool twv;
-    bool cv;
-    int twvTot;
-    int cvTot;
-    double cargo;
-    double waitTime;
-    double distPrev;
-    double totDist;;
-
-    void copyvalues (const Dpnode &other);
-*/
 public:
     bool ispickup() const {return demand>0;}
     bool isdelivery() const {return demand<0;}
     bool isdepot() const {return  hasnogoods();}
-/*    bool hastwv() const {return twv;}
-    bool hascv() const {return cv;}
-*/
+
     void dumpeval() const;
     void dump() const ;
 /*accessors*/
-/*    int  gettwvTot() const {return twvTot;}
-    int  getcvTot() const {return cvTot;}
-    double getcargo() const {return cargo;}
-    double getdistPrev() const {return distPrev;};
-    double gettotDist() const {return totDist;};
-*/    int getdid() const {return  did;};
+    int getdid() const {return  did;};
     int getpid() const {return  pid;};
     int getoid() const {return oid;};
 /* mutators */        
     void setoid(int _oid)  {oid=_oid;};
-/*    void evaluate (double cargoLimit) ;
-    void evaluate (const Dpnode &pred,double cargoLimit);  
-*/
-/* constructors &destructors */
+    bool operator== (const Dpnode& other) const{ return getnid()==other.getnid();};
 
    Dpnode(std::string line);
 

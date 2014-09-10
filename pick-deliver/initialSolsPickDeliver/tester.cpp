@@ -36,7 +36,7 @@ int main (int argc, char **argv)
         std::cout << "Problem '" << infile << "'loaded\n";
         DumbSolution sols(P);
         sols.insertDumbInitialSolutions();
-        sols.dump();
+//        sols.dump(0);
         
         //S.initialFeasableSolution();
 /*

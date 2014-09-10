@@ -260,7 +260,27 @@ void Vehicle::findBetterForward(int &bestI, int &bestJ) {
          removeDelivery(oid);
     }
 
-
+    int Vehicle::pos(int nid) const{return path.pos(nid);}
+/*std::deque<Dpnode>::const_iterator it;
+//         Twpath<Dpnode>::iterator it;
+//         auto it=path.begin();
+         for (it=path.Path().cbegin();it!=path.Path().cend();it++) {
+             if (it->getnid()==nid) return int(it-path.Path().cbegin());
+//             it++;
+         }
+         return -1;
+ brute force find
+         for (int at=0;at<path.size();at++) {
+             if (path[at].getnid()==nid) return at;
+         }
+         return -1;
+*/
+//    }
+             
+    bool Vehicle::in(int nid) const{
+         return ( (pos(nid)!=-1) ? true:false );
+    }
+             
 
 /* O(n) */
     void Vehicle::removePickup(int oid){
@@ -268,7 +288,6 @@ void Vehicle::findBetterForward(int &bestI, int &bestJ) {
                if (ispickup(at) and getoid(at)==oid ){
                    remove(at); break; 
                }
-
          }
    }
 

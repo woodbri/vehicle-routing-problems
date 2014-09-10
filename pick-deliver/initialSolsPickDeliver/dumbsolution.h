@@ -30,12 +30,17 @@ public:
           test.deliveryBeforePickupConstruction();
           taus.push_back(test);
       };
-      void dump() {
-          for (int i=0;i<taus.size();i++) {
+      void dump(int i) {
               std::cout<<"\n***** SOLUTION #"<<i<<"********\n";
               taus[i].dump();
               std::cout<<"\n--------------------------------";
+      };
+      void dump() {
+          for (int i=0;i<taus.size();i++) {
+              dump(i);
           }
       };
+
+
 };
 #endif      
