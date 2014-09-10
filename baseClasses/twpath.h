@@ -160,8 +160,19 @@ template <class knode> class Twpath {
 
     // moves a range of nodes (i-j) to position k and reverses those nodes
     bool e_movereverse(UID rangeFrom, UID rangeTo, UID destBeforePos, double maxcapacity) {
-        if (! (rangeFrom < rangeTo and (destBeforePos > rangeTo or destBeforePos <= rangeFrom))) return false;
-        if (rangeTo>size()-1 or destBeforePos>size()) return false; //avoiding wierd behaiviour
+        // path: 0 1 2 [3 4 5] 6 7 8 9
+        // invalid moves are:
+        //      rangeFrom > size-1 or rangeTo > size-1 or dest > size
+        //      dest < 0 or to < 0 or from < 0 or to < from
+        //      dest >= from and dest <= to+1
+        if ( rangeFrom > path.size()-1 or rangeTo > path.size()-1 or
+             destBeforePos > path.size() ) return false;
+        if ( rangeFrom < 0 or rangeTo < 0 or destBeforePos < 0
+                or rangeTo < rangeFrom ) return false;
+        if ( destBeforePos >= rangeFrom and
+             destBeforePos <= rangeTo+1 ) return false;
+        //if (! (rangeFrom < rangeTo and (destBeforePos > rangeTo or destBeforePos <= rangeFrom))) return false;
+        //if (rangeTo>size()-1 or destBeforePos>size()) return false; //avoiding wierd behaiviour
         
         if (destBeforePos > rangeTo) { // moving range to right of the range
             reverse_iterator itFromPos (path.begin()+rangeTo+1);
@@ -188,7 +199,16 @@ template <class knode> class Twpath {
 /*
     // moves a range of nodes (i-j) to position k and reverses those nodes
     bool e_movereverse(int i, int j, int k, double maxcapacity) {
-        if (! (i < j and (k > j or k < i))) return false;
+        // path: 0 1 2 [3 4 5] 6 7 8 9
+        // invalid moves are:
+        //      dest > size  or dest < 0 or from < 0 or to < from
+        //      dest >= from and dest <= to+1
+        if ( i > path.size()-1 or j > path.size()-1  or
+             k > path.size() ) return false;
+        if ( i < 0 or j < 0 or k < 0 or j < i ) return false;
+        if ( k >= i and
+             k <= j+1 ) return false;
+        //if (! (i < j and (k > j or k < i))) return false;
         // moving range to right of the range
         if (k > j) {
             for (int n=i, m=1; n<=j; n++, m++) {
