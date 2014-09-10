@@ -103,6 +103,7 @@ class Vehicle {
     void remove( int at);
     void movereverse( int rangefrom, int rangeto, int destbefore );
     void moverange( int rangefrom, int rangeto, int destbefore );
+    void move( int fromi, int toj );
 
     void restorePath(Twpath<Trashnode> oldpath);
 

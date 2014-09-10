@@ -88,6 +88,12 @@ void Vehicle::moverange( int rangefrom, int rangeto, int destbefore ) {
 }
 
 
+void Vehicle::move( int fromi, int toj ) {
+    path.e_move(fromi, toj, getmaxcapacity());
+    evalLast();
+}
+
+
 void Vehicle::evalLast() {
     Trashnode last = path[path.size()-1];
     dumpsite.setdemand(-last.getcargo());
@@ -195,15 +201,17 @@ bool Vehicle::doNodeMove(const int& i, const int& j) {
 
     double oldcost = getcost();
 
-    path.e_move(i, j, getmaxcapacity());
-    evalLast();
+    move(i, j);
+//    path.e_move(i, j, getmaxcapacity());
+//    evalLast();
 
     if (getcost() > oldcost or hastwv()) {
-        if (i > j)
-            path.e_move(j, i+1, getmaxcapacity());
-        else
-            path.e_move(j-1, i, getmaxcapacity());
-        evalLast();
+        move(j, i);
+//        if (i > j)
+//            path.e_move(j, i+1, getmaxcapacity());
+//        else
+//            path.e_move(j-1, i, getmaxcapacity());
+//        evalLast();
         return false;
     }
 
