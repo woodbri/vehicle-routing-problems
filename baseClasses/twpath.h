@@ -158,7 +158,6 @@ template <class knode> class Twpath {
 
 
 
-/*
     // moves a range of nodes (i-j) to position k and reverses those nodes
     bool e_movereverse(UID rangeFrom, UID rangeTo, UID destBeforePos, double maxcapacity) {
         if (! (rangeFrom < rangeTo and (destBeforePos > rangeTo or destBeforePos <= rangeFrom))) return false;
@@ -186,7 +185,7 @@ template <class knode> class Twpath {
         return true;
     }
 
-*/
+/*
     // moves a range of nodes (i-j) to position k and reverses those nodes
     bool e_movereverse(int i, int j, int k, double maxcapacity) {
         if (! (i < j and (k > j or k < i))) return false;
@@ -210,6 +209,7 @@ template <class knode> class Twpath {
         evaluate(maxcapacity);
         return true;
     }
+*/
 
     // reverse the nodes from i to j in the path
     void e_reverse(int i, int j, double maxcapacity) {
