@@ -260,6 +260,8 @@ void Vehicle::findBetterForward(int &bestI, int &bestJ) {
          removeDelivery(oid);
     }
 
+
+
 /* O(n) */
     void Vehicle::removePickup(int oid){
           for (int at=0;at<path.size();at++) {

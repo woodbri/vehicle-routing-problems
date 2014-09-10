@@ -20,12 +20,11 @@ template <class knode> class Twpath {
     typedef typename std::deque<knode>::reverse_iterator reverse_iterator;
     typedef typename std::deque<knode>::const_iterator const_iterator;
 
-    // ------------------------------------------------------------------
-    // These methods are NON-EVALUATING
-    // and mirror those functions in std::deque
-    // ------------------------------------------------------------------
 
   public:
+    // ------------------------------------------------------------------
+    // These methods are NON-EVALUATING
+    // ------------------------------------------------------------------
     inline void swap(UID i, UID j) { std::iter_swap(path.begin()+i,path.begin()+j);}
 
     void move(int fromi, int toj) {
@@ -39,12 +38,16 @@ template <class knode> class Twpath {
         }
     };
 
+    // ------------------------------------------------------------------
+    // These methods are NON-EVALUATING
+    // and mirror those functions in std::deque
+    // ------------------------------------------------------------------
     void insert(const knode &n, int atPos) { path.insert(path.begin() + atPos, n); };
     void erase (int atPos) { path.erase(path.begin()+atPos); };
     void erase (int fromPos, int toPos) { 
-         if (fromPos==toPos) path.erase(fromPos);
-         else if (fromPos<toPos) path.erase(path.begin()+fromPos,path.begin()+toPos); 
-         else  path.erase(path.begin()+toPos,path.begin()+fromPos); 
+         if (fromPos==toPos) path.erase(fromPos); //[fromPos]
+         else if (fromPos<toPos) path.erase(path.begin()+fromPos,path.begin()+toPos); //[fromPos,toPos)
+         else  path.erase(path.begin()+toPos,path.begin()+fromPos); //[toPos,fromPos)
     };
     void push_back(const knode& n) { path.push_back(n); };
     void push_front(const knode& n) { path.push_front(n); };
@@ -114,25 +117,6 @@ template <class knode> class Twpath {
         return true;
     };
 
-/*
-    // moves a range of nodes (i-j) to position k without reversing them
-    void e_move(int fromPos, int upToPos, int intoPos, double maxcapacity) {
-        if (! (fromPos < upToPos and (intoPos > upToPos or intoPos < fromPos))) return;
-        iterator itFromPos (path.begin()+fromPos);
-        iterator itUpToPos (path.begin()+upToPos+1);
-        iterator itIntoPos = path.begin()+intoPos;
-
-        path.insert(itIntoPos, itFromPos, itUpToPos);
-        if (intoPos > upToPos) { // moving range to right of the range
-            path.erase(path.begin()+fromPos, path.begin()+upToPos);
-            evaluate(fromPos,maxcapacity);
-        } else {     // moving range to left of the range
-            path.erase(path.begin()+fromPos+intoPos, path.begin()+upToPos+intoPos);
-            evaluate(intoPos,maxcapacity);
-        }
-    };
-
-*/
 
 
     // moves a range of nodes (i-j) to position k without reversing them
@@ -228,6 +212,7 @@ template <class knode> class Twpath {
 
     // reverse the nodes from i to j in the path
     void e_reverse(int i, int j, double maxcapacity) {
+//conditions missing
         int m = i;
         int n = j;
 
@@ -271,13 +256,13 @@ template <class knode> class Twpath {
         evalLast(maxcapacity);
         return true;
     };
-
+/*
     bool e_push_back(knode& n, double maxcapacity) {
         path.push_back(n);
         evalLast(maxcapacity);
         return true;
     };
-
+*/
     bool e_remove (int i, double maxcapacity) {
         if (i>size()-1) return false;
         path.erase(path.begin() + i);
@@ -311,27 +296,28 @@ template <class knode> class Twpath {
 
     std::deque<int> getpath() const {
         std::deque<int> p;
-        for (int i=0; i<path.size(); i++){
-              p.push_back(path[i].getnid());}
+        for (const_iterator it = path.begin(); it != path.end();it++)
+              p.push_back(it->getnid());
         return p;
     };
 
     void dump() const {
         std::cout << "Twpath: "; // << home.getnid();
-        for (int i=0; i<path.size(); i++)
-            std::cout << ", " << path[i].getnid();
+        const_iterator it = path.begin();
+        for (const_iterator it = path.begin(); it != path.end();it++)
+            std::cout << " " << it->getnid();
         std::cout << std::endl;
     };
 
     // element access
     knode& operator[](unsigned int n) { return path[n]; };
-    knode  operator[] (unsigned int n) const { return path[n]; };
+    const knode&  operator[] (unsigned int n) const { return path[n]; };
     knode& at(int n) { return path.at(n); };
-    knode at(int n) const  { return path.at(n); };
+    const knode& at(int n) const  { return path.at(n); };
     knode& front() { return path.front(); };
-    knode front() const { return path.front(); };
+    const knode& front() const { return path.front(); };
     knode& back() { return path.back(); };
-    knode back() const { return path.back(); };
+    const knode& back() const { return path.back(); };
 
 
 /*
