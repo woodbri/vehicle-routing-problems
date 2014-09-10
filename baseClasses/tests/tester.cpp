@@ -29,10 +29,6 @@ class TestProblem {
 
   public:
     
-    bool test_e_push_back(const Test&);
-    bool check_costs(const Test&, const Vehicle&) ;
-    bool check_path(const Test&, const Vehicle&) ;
-
     // status: 0=OK, 1=EOF, 2=End Of Section
     std::string getNextLine( std::ifstream& in, int *status ) {
         std::string line;
@@ -57,9 +53,9 @@ class TestProblem {
                       << t.path_id << ") which is unknown!" << std::endl;
             return false;
         }
-        if (t.test_name.compare("e_push_back") == 0) {
-            return test_e_push_back(t);
-        } else 
+        if (t.test_name.compare("e_push_back") == 0)  return test_e_push_back(t);
+        else if (t.test_name.compare("e_move") == 0)  return test_e_move(t);
+        else  
         if (t.test_name.compare("e_move3") == 0) {
             Vehicle v = fleet[t.path_id];
             v.path.e_move(t.args[0], t.args[1], t.args[2]);
@@ -236,6 +232,11 @@ class TestProblem {
         std::cout << "Number Fail: " << numFail << std::endl;
         std::cout << "Number Invalid: " << numInValid << std::endl;
     };
+
+    bool test_e_push_back(const Test&);
+    bool test_e_move(const Test&);
+    bool check_costs(const Test&, const Vehicle&) ;
+    bool check_path(const Test&, const Vehicle&) ;
 };
 
 
@@ -273,10 +274,45 @@ class TestProblem {
         for (int i=0; i<10; i++)
             v.path.e_push_back(datanodes[i],1000);
         std::cout<<"\n Expected Ending truck: 0 1 2 3 4 5 6 7 8 9";
-        std::cout<<"\n Real Ending truck: ";
-        v.dumpnids();
+        std::cout<<"\n Real Ending truck: "; v.dumpnids();
         bool result= (not check_path(t,v) or not check_costs(t,v));
         std::cout<<"\nE_PUSH_BACK END TEST ***********\n\n\n";
+        return result;
+    }
+
+    bool TestProblem::test_e_move(const Test &t){
+        Vehicle v,vw;
+        bool flag;
+        for (int i=0; i<10; i++)
+            v.path.e_push_back(datanodes[i],1000);
+        std::cout<<"\n\n************* E_MOVE ***********";
+        std::cout<<"\n Starting truck for all e_move test: "; v.dumpnids();
+        std::cout<<"\n Moving node 5 to all positions (0 to 13)\n";
+        for (int i=0; i<13; i++){
+            vw=v;flag=vw.path.e_move(5,i,1000);
+            std::cout<<"Position "<<i<<": \t"<<(flag? "    Moved\t":"Not Moved\t");
+            vw.dumpnids();
+        }
+        std::cout<<"\n Moving node 0 to all positions (0 to 13)\n";
+        for (int i=0; i<13; i++){
+            vw=v;flag=vw.path.e_move(0,i,1000);
+            std::cout<<"Position "<<i<<": \t"<<(flag? "    Moved\t":"Not Moved\t");
+            vw.dumpnids();
+        }
+        std::cout<<"\n Moving node 9 to all positions (0 to 13)\n";
+        for (int i=0; i<13; i++){
+            vw=v;flag=vw.path.e_move(0,i,1000);
+            std::cout<<"Position "<<i<<": \t"<<(flag? "    Moved\t":"Not Moved\t");
+            vw.dumpnids();
+        }
+        std::cout<<"\n Moving node 15 (unexistant) to position 4\n";
+        vw=v;flag=vw.path.e_move(15,4,1000);
+        std::cout<<"Position "<<15<<": \t"<<(flag? "    Moved\t":"Not Moved\t");
+        v.path.e_move(5,t.args[0],1000);
+        std::cout<<"\n Expected Ending truck: ";t.dumpnids();
+        std::cout<<"\n Real Ending truck: "; v.dumpnids();
+        bool result= (not check_path(t,v) or not check_costs(t,v));
+        std::cout<<"\nE_MOVE ---- END TEST -------\n\n\n";
         return result;
     }
 
