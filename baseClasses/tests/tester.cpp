@@ -80,6 +80,7 @@ class TestProblem {
         else if (t.test_name.compare("e_push_back") == 0)  return test_e_push_back(t);
         else if (t.test_name.compare("e_move") == 0)  return test_e_move(t);
         else if (t.test_name.compare("e_insert") == 0)  return test_e_insert(t);
+        else if (t.test_name.compare("e_swap") == 0)  return test_e_swap(t);
         else {
             std::cout << "ERROR: test: " << t.test_id << " requested test ("
                       << t.test_name << ") which is unknown!" << std::endl;
@@ -236,6 +237,7 @@ class TestProblem {
     bool test_e_push_back(const Test&);
     bool test_e_move(const Test&);
     bool test_e_insert(const Test&);
+    bool test_e_swap(const Test&);
     bool check_costs(const Test&, const Vehicle&) ;
     bool check_path(const Test&, const Vehicle&) ;
 };
@@ -266,6 +268,28 @@ class TestProblem {
     }
 
 
+    bool TestProblem::test_e_swap(const Test &t){
+        Vehicle v,vw;
+        bool flag;
+        for (int i=0; i<10; i++)
+            v.path.e_push_back(datanodes[i],1000);
+        std::cout<<"\n\n************* E_SWAP TEST ***********";
+        std::cout<<"\n Starting truck for all e_swap test: "; v.dumpnids();
+        std::cout<<"\n swapin(i, 13-i)\n";
+        vw=v;
+        for (int i=0; i<14; i++){
+            flag=vw.path.e_swap(i,13-i,1000);
+            std::cout<<"Node "<<i<<" with "<< 13-i<<": \t"<<(flag? " swaped\t":"Not swaped\t");
+            vw.dumpnids();
+        }
+        std::cout<<"\n swaping "<<t.args[0]<<" with "<< t.args[1] <<" of:\n "; v.dumpnids();
+        v.path.e_swap(t.args[0],t.args[1],1000);
+        std::cout<<"\n Ending truck:\n "; v.dumpnids();
+        bool result= (not check_path(t,v) or not check_costs(t,v));
+        std::cout<<"\nE_SWAP END TEST --------------------\n\n\n";
+        return result;
+}
+
 
     bool TestProblem::test_e_insert(const Test &t){
         Vehicle v,vw;
@@ -273,7 +297,7 @@ class TestProblem {
         for (int i=0; i<10; i++)
             v.path.e_push_back(datanodes[i],1000);
         std::cout<<"\n\n************* E_INSERT TEST ***********";
-        std::cout<<"\n Starting truck for all e_move test: "; v.dumpnids();
+        std::cout<<"\n Starting truck for all e_insert test: "; v.dumpnids();
         std::cout<<"\n Inserting nodes 20 to 25 in position 3 \n";
         vw=v;
         for (int i=0; i<6; i++){
