@@ -1,5 +1,3 @@
-g++ -g -O0 -MMD -MP -I../baseClasses -c tester.cpp -o tester.o
-g++ ../baseClasses/node.o ../baseClasses/tweval.o ../baseClasses/twnode.o ../baseClasses/vec2d.o tester.o trashnode.o trashproblem.o vehicle.o -o tester -lgd -I../baseClasses -L../baseClasses
 ./tester p50.txt
 --------- Nodes ------------
 0, -30, 20, 2000, 300, 900, 0, 0, 0, 0, -1, -1, 5, 25.4951, -inf
