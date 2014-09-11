@@ -6,7 +6,7 @@
 #include "twpath.h"
 #include "vehicle.h"
 #include "compatible.h"
-#include "plot1.h"
+#include "plot.h"
 
 #include <sstream>
 
@@ -378,7 +378,7 @@ std::cout<<"USING VEHICLE PLOT\n";
     std::string carnum = convert.str();
     std::string extra=file+"vehicle"+carnum ;
 
-    Plot1<Dpnode> graph( trace ); 
+    Plot<Dpnode> graph( trace ); 
     graph.setFile( file+extra+".png" );
     graph.setTitle( title+extra );
     graph.drawInit();

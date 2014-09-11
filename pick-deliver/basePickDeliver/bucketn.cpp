@@ -1,16 +1,5 @@
-#include <iostream>
-#include <deque>
 
-
-#include "order.h"
-#include "twpath.h"
-#include "vehicle.h"
 #include "bucketn.h"
-#include "compatible.h"
-#include "plot1.h"
-
-#include <sstream>
-
 
 
 
@@ -134,7 +123,7 @@ std::cout<<"USING BUCKET PLOT\n";
     std::string carnum = convert.str();
     std::string extra=file+"vehicle"+carnum ;
 
-    Plot1<Dpnode> graph( trace ); 
+    Plot<Dpnode> graph( trace ); 
     graph.setFile( file+extra+".png" );
     graph.setTitle( title+extra );
     graph.drawInit();

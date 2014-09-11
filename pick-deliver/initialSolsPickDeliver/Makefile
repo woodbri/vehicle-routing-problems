@@ -60,7 +60,11 @@ clean:
 
 
 cleanAll: clean
-	rm /bin/pickDelivery
+	$(MAKE) -C ../$(UTILP) clean
+	$(MAKE) -C ../../$(UTIL) clean
+	$(MAKE) -C ../../$(UTIL)/tests clean
+	$(MAKE) -C ../../trash-collection clean
+	rm ./bin/pickDelivery
         
 -include $(DEPS)
 

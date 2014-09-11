@@ -1,11 +1,14 @@
 #ifndef BUCKETN_H
 #define BUCKETN_H
 
+#include <iostream>
+#include <sstream>
 #include <deque> 
-#include <vector>
 #include "twpath.h"
 #include "order.h"
 #include "dpnode.h"
+#include "plot.h"
+
 
 
 class BucketN {

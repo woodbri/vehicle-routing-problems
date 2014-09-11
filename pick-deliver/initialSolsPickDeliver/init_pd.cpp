@@ -1,14 +1,7 @@
-#include <cmath>
-#include <deque>
-#include "plot1.h"
-#include "vehicle.h"
-#include "compatible.h"
 #include "init_pd.h"
-
 /* prerequisites 
  nodes sorted is based on amount of twc
  orders were made based on TWC 
-
 */
 
 
