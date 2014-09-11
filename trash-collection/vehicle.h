@@ -30,7 +30,9 @@ class Vehicle {
 
   public:
 
+    //--------------------------------------------------------------------
     // structors
+    //--------------------------------------------------------------------
 
     Vehicle() {
         maxcapacity = 0;
@@ -49,7 +51,10 @@ class Vehicle {
         w1 = w2 = w3 = 1.0;
     }
 
+    //--------------------------------------------------------------------
     // accessors
+    //--------------------------------------------------------------------
+
     Twpath<Trashnode> getvpath() const { return path; };
     Twpath<Trashnode>& getvpath() { return path; };
     std::deque<int> getpath() const;
@@ -76,7 +81,9 @@ class Vehicle {
     void dump() const;
     void dumppath() const;
 
-/* evaluation */
+    //--------------------------------------------------------------------
+    // evaluation
+    //--------------------------------------------------------------------
 
     bool feasable() const { return backToDepot.gettwvTot() == 0 and backToDepot.getcvTot() == 0; };
     bool hascv()const { return backToDepot.getcvTot() != 0; };
@@ -84,7 +91,9 @@ class Vehicle {
 
     void evalLast();
 
-/* mutators */
+    //--------------------------------------------------------------------
+    // mutators 
+    //--------------------------------------------------------------------
 
     // these two do not work with autoeval
     // instead use Vehicle(depot, dump) constructor
@@ -97,6 +106,12 @@ class Vehicle {
         w3 = _w3;
     };
 
+    //--------------------------------------------------------------------
+    // wrappers to twpath code to 
+    //--------------------------------------------------------------------
+
+    // single path manipulators
+
     void push_back(Trashnode node);
     void push_front(Trashnode node);
     void insert(Trashnode node, int at);
@@ -107,9 +122,17 @@ class Vehicle {
     void move( int fromi, int toj );
     void swap( const int& i, const int& j );
 
+    // multiple path manipulators
+
+    void swap(Vehicle& v2, const int& i1, const int& i2);
+
+    // restore a saved path to undo an operation
+
     void restorePath(Twpath<Trashnode> oldpath);
 
-/* algorithm specific - intra-route manipulations */
+    //--------------------------------------------------------------------
+    // algorithm specific - intra-route manipulations
+    //--------------------------------------------------------------------
 
     bool doTwoOpt(const int& c1, const int& c2, const int& c3, const int& c4);
     bool doThreeOpt(const int& c1, const int& c2, const int& c3, const int& c4, const int& c5, const int& c6);
@@ -128,9 +151,11 @@ class Vehicle {
 
     bool findBestFit(Trashnode& tn, int* tpos, double* deltacost);
 
-/* algorithm specific - inter-route manipulations */
+    //--------------------------------------------------------------------
+    // algorithm specific - inter-route manipulations
+    //--------------------------------------------------------------------
 
-    bool swap(Vehicle& v2, const int& i1, const int& i2);
+    bool swap2(Vehicle& v2, const int& i1, const int& i2);
     bool swap3(Vehicle& v2, Vehicle& v3, const int& i1, const int& i2, const int& i3);
     bool exchangeSeq(Vehicle& v2, const int& i1, const int& j1, const int& i2, const int& j2);
     bool exchangeTails(Vehicle& v2, const int& i1, const int& i2);
@@ -138,7 +163,9 @@ class Vehicle {
     bool relocate(Vehicle& v2, const int& i1, const int& i2);
     bool relocateBest(Vehicle& v2, const int& i1);
 
-/* I really hate these shortcuts */
+    //----------------------------------------------------------------
+    // I really hate these shortcuts
+    //----------------------------------------------------------------
 
     int getnid(int i) const { return path[i].getnid(); };
     double getx(const int i) const { path[i].getx(); };

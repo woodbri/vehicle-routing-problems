@@ -16,6 +16,7 @@
 #include "twpath.h"
 #include "tweval.h"
 #include "otherClasses.h"
+#include "md5.h"
 
 class TestProblem {
   public:
@@ -504,6 +505,19 @@ class TestProblem {
         return result;
     }
 
+    bool test_md5() {
+
+        std::string in_string = "HELLO THERE I AM MD5!";
+        std::string md5_out = md5( in_string );
+        std::string md5_expected = "7f46e34f077fe20a8a4c3190f0bddbf0";
+        if (md5_out != md5_expected) {
+            std::cout << "ERROR: md5.digestString test does not match!\n";
+            std::cout << "     GOT: "<< md5_out <<"\n";
+            std::cout << "EXPECTED: "<< md5_expected <<"\n";
+            return false;
+        }
+        return true;
+    }
 
 void Usage() {
     std::cout << "Usage: tester in.txt\n";
@@ -519,6 +533,8 @@ int main(int argc, char **argv) {
     std::string infile = argv[1];
 
     try {
+
+        test_md5();
 
         TestProblem tp( infile );
         if (tp.getnumtests() != tp.getnumpass())

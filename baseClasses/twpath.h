@@ -73,7 +73,7 @@ template <class knode> class Twpath {
 
     /* nodes handling within two  paths */
     bool e_swap(UID i, double maxcap, Twpath<knode> &rhs,UID j, double rhs_maxcap) {
-        if (i>size()-1 or j>rhs.size()-1) return false;
+        if (i<0 or j<0 or i>size()-1 or j>rhs.size()-1) return false;
         std::iter_swap(path.begin()+i,rhs.path.begin()+j);
         evaluate(i, maxcap);
         rhs.evaluate(j, rhs_maxcap);

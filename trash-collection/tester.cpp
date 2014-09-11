@@ -35,127 +35,176 @@ void TestDistanceFromLineSegmentToPoint() {
 }
 
 void Usage() {
-    std::cout << "Usage: tester in.txt\n";
+    std::cout << "Usage: tester <option> in.txt\n";
+    std::cout << "  <option>:\n";
+    std::cout << "      trash        - run the trash collection problem\n";
+    std::cout << "      swap         - test swap nodes between routes\n";
+    std::cout << "      2opt         - test 2-opt optimization of a route\n";
+    std::cout << "      movesbetween - test moves between multiple routes\n";
+    std::cout << "      moveswithin  - test moves within a route via e_*\n";
+    std::cout << "      moveswithinnew  - test moves within a route via vehicle\n";
+    std::cout << "      dumb         - test dump construction\n";
+    std::cout << "      nearestnode  - test findNearestNode\n";
+    std::cout << "      optmoves     - test various optimization moves\n";
 }
+
+void test_swap(std::string infile);
+void test_2opt(std::string infile);
+void test_trash(std::string infile);
+void test_movesbetween(std::string infile);
+void test_moveswithin(std::string infile);
+void test_moveswithinnew(std::string infile);
+void test_findNearestNodeTo(std::string infile);
+void test_dumbcons(std::string infile);
+void test_optmoves(std::string infile);
+
+static std::string font = "/usr/share/fonts/truetype/ttf-dejavu/DejaVuSans.ttf";
 
 int main(int argc, char **argv) {
 
-    std::string font = "/usr/share/fonts/truetype/ttf-dejavu/DejaVuSans.ttf";
-
-    if (argc < 2) {
+    if (argc < 3) {
         Usage();
         return 1;
     }
 
-    std::string infile = argv[1];
+    std::string option = argv[1];
+    std::string infile = argv[2];
+    
 
     try {
 
-//#define TEST2OPT
-//#define TESTSWAP
-#ifdef TESTSWAP
+        if      (option == "trash")        test_trash(infile);
+        else if (option == "swap")         test_swap("p52.txt");
+        else if (option == "2opt")         test_2opt("p50.txt");
+        else if (option == "movesbetween") test_movesbetween("p50.txt");
+        else if (option == "moveswithin")  test_moveswithin("p50.txt");
+        else if (option == "moveswithinnew")  test_moveswithinnew("p50.txt");
+        else if (option == "dumb")         test_dumbcons("p10.txt");
+        else if (option == "nearestnode")  test_findNearestNodeTo("p50.txt");
+        else if (option == "optmoves")     test_optmoves("p50.txt");
+        else {
+            Usage();
+            return 1;
+        }
 
-        infile = "p52.txt";
+    }
+    catch (const std::exception &e) {
+        std::cerr << e.what() << std::endl;
+        return 1;
+    }
 
-        TrashProblem tp;
-        tp.loadproblem( infile );
-        tp.dumpdataNodes();
-
-        do {
-            int sol[] = {0,7,8,11,14,17,20,4,0,-1,
-                         1,5,9,12,15,18,21,4,1,-1,
-                         2,6,10,13,16,19,22,4,2,-1};
-            std::vector<int> solution(sol, sol+sizeof(sol)/sizeof(int));
-
-            if (!tp.buildFleetFromSolution(solution)) {
-                std::cout << "Problem failed to load!" << std::endl;
-                return 1;
-            }
-            tp.dump();
-
-            Vehicle v0 = tp.getVehicle(0);
-            Vehicle v1 = tp.getVehicle(1);
-            Vehicle v2 = tp.getVehicle(2);
-
-            std::cout << "\nv0.swap3(v1, v2, 1, 1, 1)" << std::endl;
-            std::cout << "oldcost: " << v1.getcost() + v2.getcost() << "\n";
-            v0.dumppath();
-            v1.dumppath();
-            v2.dumppath();
-            v0.swap3(v1, v2, 1, 1, 1);
-            std::cout << "newcost: " << v1.getcost() + v2.getcost() << "\n";
-            v0.dumppath();
-            v1.dumppath();
-            v2.dumppath();
-        } while (false);
-
-        do {
-            //tp.loadproblem( infile );
-
-            int sol2[] = {0,7,10,11,14,17,20,4,0,-1,
-                          1,5,8,12,15,18,21,4,1,-1,
-                          2,6,9,13,16,19,22,4,2,-1};
-            std::vector<int> solution2(sol2, sol2+sizeof(sol2)/sizeof(int));
-
-            if (!tp.buildFleetFromSolution(solution2)) {
-                std::cout << "Problem failed to load!" << std::endl;
-                return 1;
-            }
-            tp.dump();
-
-            Vehicle v0 = tp.getVehicle(0);
-            Vehicle v1 = tp.getVehicle(1);
-            Vehicle v2 = tp.getVehicle(2);
-
-            std::cout << "\nv0.exchange3(v1, v2, 2, 1, 1, 1)" << std::endl;
-            std::cout << "oldcost: " << v1.getcost() + v2.getcost() << "\n";
-            v0.dumppath();
-            v1.dumppath();
-            v2.dumppath();
-            v0.exchange3(v1, v2, 2, 1, 1, 1);
-            std::cout << "newcost: " << v1.getcost() + v2.getcost() << "\n";
-            v0.dumppath();
-            v1.dumppath();
-            v2.dumppath();
-        } while (false);
-
-#else
-#ifdef TEST2OPT
+    return 0;
+}
 
 
-        infile = "p50.txt";
+//-------------------------------------------------------------
+// do swap and exchange tests
+//-------------------------------------------------------------
+void test_swap(std::string infile) {
 
-        TrashProblem tp;
-        tp.loadproblem( infile );
-        tp.dumpdataNodes();
+    TrashProblem tp;
+    tp.loadproblem( infile );
+    //tp.dumpdataNodes();
 
-        do {
-            int sol[] = { 0,25,24,23,32,22,14,15,7,8,16,9,17,5,0,-1,
-                          1,10,11,12,13,21,40,41,31,20,30,29,19,18,5,1,-1,
-                          2,34,33,42,50,51,44,43,45,46,27,28,26,35,6,2,-1,
-                          3,52,53,54,47,55,56,49,48,39,38,37,36,6,3,-1 };
-            std::vector<int> solution(sol, sol+sizeof(sol)/sizeof(int));
+    do {
+        int sol[] = {0,7,8,11,14,17,20,4,0,-1,
+                     1,5,9,12,15,18,21,4,1,-1,
+                     2,6,10,13,16,19,22,4,2,-1};
+        std::vector<int> solution(sol, sol+sizeof(sol)/sizeof(int));
 
-            if (!tp.buildFleetFromSolution(solution)) {
-                std::cout << "Problem failed to load!" << std::endl;
-                return 1;
-            }
-            tp.dump();
+        if (!tp.buildFleetFromSolution(solution)) {
+            std::cout << "Problem failed to load!" << std::endl;
+        }
+        //tp.dumpFleet();
 
-            Vehicle v1 = tp.getVehicle(1);
-            Vehicle v2 = tp.getVehicle(2);
+        Vehicle v0 = tp.getVehicle(0);
+        Vehicle v1 = tp.getVehicle(1);
+        Vehicle v2 = tp.getVehicle(2);
 
-            std::cout << "\nv1.pathTwoOpt()" << std::endl;
-            std::cout << "oldcost: " << v1.getcost() << "\n";
-            v1.dumppath();
-            v1.pathTwoOpt();
-            std::cout << "newcost: " << v1.getcost() << "\n";
-            v1.dumppath();
-        } while (false);
+        std::cout << "\nv0.swap3(v1, v2, 1, 1, 1)" << std::endl;
+        std::cout << "oldcost: " << v1.getcost() + v2.getcost() << "\n";
+        v0.dumppath();
+        v1.dumppath();
+        v2.dumppath();
+        v0.swap3(v1, v2, 1, 1, 1);
+        std::cout << "newcost: " << v1.getcost() + v2.getcost() << "\n";
+        v0.dumppath();
+        v1.dumppath();
+        v2.dumppath();
+    } while (false);
 
-#else
+    do {
+        //tp.loadproblem( infile );
 
-        // ----------------------------------------------------------------
+        int sol2[] = {0,7,10,11,14,17,20,4,0,-1,
+                      1,5,8,12,15,18,21,4,1,-1,
+                      2,6,9,13,16,19,22,4,2,-1};
+        std::vector<int> solution2(sol2, sol2+sizeof(sol2)/sizeof(int));
+
+        if (!tp.buildFleetFromSolution(solution2)) {
+            std::cout << "Problem failed to load!" << std::endl;
+        }
+        //tp.dump();
+
+        Vehicle v0 = tp.getVehicle(0);
+        Vehicle v1 = tp.getVehicle(1);
+        Vehicle v2 = tp.getVehicle(2);
+
+        std::cout << "\nv0.exchange3(v1, v2, 2, 1, 1, 1)" << std::endl;
+        std::cout << "oldcost: " << v1.getcost() + v2.getcost() << "\n";
+        v0.dumppath();
+        v1.dumppath();
+        v2.dumppath();
+        v0.exchange3(v1, v2, 2, 1, 1, 1);
+        std::cout << "newcost: " << v1.getcost() + v2.getcost() << "\n";
+        v0.dumppath();
+        v1.dumppath();
+        v2.dumppath();
+    } while (false);
+
+}
+
+
+
+//----------------------------------------------------------------
+// do 2opt tests
+//----------------------------------------------------------------
+void test_2opt(std::string infile) {
+
+    TrashProblem tp;
+    tp.loadproblem( infile );
+    //tp.dumpdataNodes();
+
+    do {
+        int sol[] = { 0,25,24,23,32,22,14,15,7,8,16,9,17,5,0,-1,
+                      1,10,11,12,13,21,40,41,31,20,30,29,19,18,5,1,-1,
+                      2,34,33,42,50,51,44,43,45,46,27,28,26,35,6,2,-1,
+                      3,52,53,54,47,55,56,49,48,39,38,37,36,6,3,-1 };
+        std::vector<int> solution(sol, sol+sizeof(sol)/sizeof(int));
+
+        if (!tp.buildFleetFromSolution(solution)) {
+            std::cout << "Problem failed to load!" << std::endl;
+        }
+        //tp.dump();
+
+        Vehicle v1 = tp.getVehicle(1);
+        Vehicle v2 = tp.getVehicle(2);
+
+        std::cout << "\nv1.pathTwoOpt()" << std::endl;
+        std::cout << "oldcost: " << v1.getcost() << "\n";
+        v1.dumppath();
+        v1.pathTwoOpt();
+        std::cout << "newcost: " << v1.getcost() << "\n";
+        v1.dumppath();
+    } while (false);
+
+}
+
+
+//---------------------------------------------------------------
+// run trash collection problem
+//---------------------------------------------------------------
+void test_trash(std::string infile) {
 
         TrashProblem tp;
 
@@ -165,119 +214,47 @@ int main(int argc, char **argv) {
         //tp.dumpDmatrix();
         tp.dump();
 
-/*
-        int a = tp.findNearestNodeTo(2, PICKUP, 0);
-        std::cout << "tp.findNearestNodeTo(2, PICKUP) = " << a << std::endl;
-        a = tp.findNearestNodeTo(2, DUMP, 0);
-        std::cout << "tp.findNearestNodeTo(2, DUMP) = " << a << std::endl;
-        a = tp.findNearestNodeTo(2, DUMP|PICKUP, 0);
-        std::cout << "tp.findNearestNodeTo(2, DUMP|PICKUP) = " << a << std::endl;
-        a = tp.findNearestNodeTo(2, PICKUP|LIMITDEMAND, 90);
-        std::cout << "tp.findNearestNodeTo(2, PICKUP|LIMITDEMAND,90) = " << a << std::endl;
-
-        std::cout << "\n----------- dumbConstruction -----------------------\n";
-        tp.dumbConstruction();
-        tp.dump();
-        tp.plot("p0.png", "dumbConstruction", font);
-
-        std::cout << "\n---------------------------------------------------\n";
-
-*/
-
-/*
-        std::cout << "\n----------- nearestNeighbor -----------------------\n";
-        tp.nearestNeighbor();
-        tp.dump();
-        tp.plot("p1.png", "nearestNeighbor", font);
-
+        std::cout << "\n----------- assignmentSweep3 -----------------------\n";
+        tp.setRatio(0.9);
+        tp.assignmentSweep3();
         tp.dump();
 
-        std::cout << "\n---------------------------------------------------\n";
-        std::cout << "\n---------------------------------------------------\n";
-        std::cout << "\n---------------------------------------------------\n";
+        tp.plot("p3.png", "assignmentSweep3", font);
 
-        //tp.loadproblem( infile );
-        //tp.dump();
+/*
+        std::cout << "\n----------- doing 3-opt -----------------------\n";
+        tp.opt_3opt();
+        tp.dumpSummary();
+        tp.plot("p5.png", "assignmentSweep3 - after 3opt", font);
 
-        std::cout << "\n----------- assignmentSweep -----------------------\n";
-        tp.assignmentSweep();
+*/
+        std::cout << "\n----------- doing 2-opt -----------------------\n";
+        tp.opt_2opt();
+        tp.dumpSummary();
+        tp.plot("p4.png", "assignmentSweep3 - after 2opt", font);
+
+        std::cout << "\n----------- doing or-opt -----------------------\n";
+        tp.opt_or_opt();
+        tp.dumpSummary();
+        tp.plot("p6.png", "assignmentSweep3 - after or-opt", font);
+
+        std::cout << "\n----------- doing 2-opt again -----------------\n";
+        tp.opt_2opt();
+        tp.dumpSummary();
+        tp.plot("p7.png", "assignmentSweep3 - after 2opt again", font);
+
+/*
+        std::cout << "\n----------- doing pathOptimize ---------------------\n";
+        tp.optimize();
         tp.dump();
-        tp.plot("p2.png", "assignmentSweep", font);
+        tp.plot("p7.png", "assignmentSweep2 - after optimize", font);
 */
 
-/*
+}
 
-        Vehicle v = tp.getVehicle(0);
-        Twpath<Trashnode> p = v.getvpath();
-
-        std::cout << "\nv.pathOptMoveNodes()" << std::endl;
-        v.dumppath();
-        v.pathOptMoveNodes();
-        v.dumppath();
-
-        v = tp.getVehicle(0);
-        std::cout << "\nv.pathOptExchangeNodes()" << std::endl;
-        v.dumppath();
-        v.pathOptExchangeNodes();
-        v.dumppath();
-
-        v = tp.getVehicle(0);
-        std::cout << "\nv.pathOptInvertSequence()" << std::endl;
-        v.dumppath();
-        v.pathOptInvertSequence();
-        v.dumppath();
-
-*/
-/*
-        int sz = p.size();
-        std::cout << "\np.move(2,"<<sz-2<<","<<sz<<",v.getmaxcapacity())" << std::endl;
-        p.dump();
-        p.e_move(2,p.size()-2,p.size(),v.getmaxcapacity());
-        p.dump();
-
-        p = v.getvpath();
-        std::cout << "\np.move(2,4,10,v.getmaxcapacity())" << std::endl;
-        p.dump();
-        p.move(2,4,10,v.getmaxcapacity());
-        p.dump();
-
-        p = v.getvpath();
-        std::cout << "\np.move(7,9,5,v.getmaxcapacity())" << std::endl;
-        p.dump();
-        p.move(7,9,5,v.getmaxcapacity());
-        p.dump();
-
-        p = v.getvpath();
-        std::cout << "\np.move(7,9,3,v.getmaxcapacity())" << std::endl;
-        p.dump();
-        p.move(7,9,3,v.getmaxcapacity());
-        p.dump();
-
-        p = v.getvpath();
-        std::cout << "\np.movereverse(2,4,7,v.getmaxcapacity())" << std::endl;
-        p.dump();
-        p.movereverse(2,4,7,v.getmaxcapacity());
-        p.dump();
-
-        p = v.getvpath();
-        std::cout << "\np.movereverse(2,4,10,v.getmaxcapacity())" << std::endl;
-        p.dump();
-        p.movereverse(2,4,10,v.getmaxcapacity());
-        p.dump();
-
-        p = v.getvpath();
-        std::cout << "\np.movereverse(7,9,5,v.getmaxcapacity())" << std::endl;
-        p.dump();
-        p.movereverse(7,9,5,v.getmaxcapacity());
-        p.dump();
-
-        p = v.getvpath();
-        std::cout << "\np.movereverse(7,9,3,v.getmaxcapacity())" << std::endl;
-        p.dump();
-        p.movereverse(7,9,3,v.getmaxcapacity());
-        p.dump();
-
-*/
+//----------------------------------------------------------------------
+// test moves
+//----------------------------------------------------------------------
 
 /*
 tests for:
@@ -289,7 +266,17 @@ bool exchange3(Vehicle& v2, Vehicle& v3, const int& cnt, const int& i1, const in
 bool relocate(Vehicle& v2, const int& i1, const int& i2);
 bool relocateBest(Vehicle& v2, const int& i1);
 */
-/*
+
+void test_movesbetween(std::string infile) {
+
+    TrashProblem tp;
+
+    tp.loadproblem( infile );
+
+    //tp.dumpdataNodes();
+    //tp.dumpDmatrix();
+    //tp.dump();
+
     do {
         Vehicle v1 = tp.getVehicle(0);
         Vehicle v2 = tp.getVehicle(1);
@@ -343,49 +330,233 @@ bool relocateBest(Vehicle& v2, const int& i1);
         v1.dumppath();
     } while (false);
 
-*/
-        std::cout << "\n----------- assignmentSweep3 -----------------------\n";
-        tp.setRatio(0.9);
-        tp.assignmentSweep3();
-        tp.dump();
-
-        tp.plot("p3.png", "assignmentSweep3", font);
-
-/*
-        std::cout << "\n----------- doing 3-opt -----------------------\n";
-        tp.opt_3opt();
-        tp.dumpSummary();
-        tp.plot("p5.png", "assignmentSweep3 - after 3opt", font);
-
-*/
-        std::cout << "\n----------- doing 2-opt -----------------------\n";
-        tp.opt_2opt();
-        tp.dumpSummary();
-        tp.plot("p4.png", "assignmentSweep3 - after 2opt", font);
-
-        std::cout << "\n----------- doing or-opt -----------------------\n";
-        tp.opt_or_opt();
-        tp.dumpSummary();
-        tp.plot("p6.png", "assignmentSweep3 - after or-opt", font);
-
-        std::cout << "\n----------- doing 2-opt again -----------------\n";
-        tp.opt_2opt();
-        tp.dumpSummary();
-        tp.plot("p7.png", "assignmentSweep3 - after 2opt again", font);
-
-/*
-        std::cout << "\n----------- doing pathOptimize ---------------------\n";
-        tp.optimize();
-        tp.dump();
-        tp.plot("p7.png", "assignmentSweep2 - after optimize", font);
-*/
-#endif
-#endif
-    }
-    catch (const std::exception &e) {
-        std::cerr << e.what() << std::endl;
-        return 1;
-    }
-
-    return 0;
 }
+
+void test_findNearestNodeTo(std::string infile) {
+    TrashProblem tp;
+
+    tp.loadproblem( infile );
+
+    tp.dumpdataNodes();
+    //tp.dump();
+
+    int a = tp.findNearestNodeTo(2, PICKUP, 0);
+    std::cout << "tp.findNearestNodeTo(2, PICKUP) = " << a << std::endl;
+    a = tp.findNearestNodeTo(2, DUMP, 0);
+    std::cout << "tp.findNearestNodeTo(2, DUMP) = " << a << std::endl;
+    a = tp.findNearestNodeTo(2, DUMP|PICKUP, 0);
+    std::cout << "tp.findNearestNodeTo(2, DUMP|PICKUP) = " << a << std::endl;
+    a = tp.findNearestNodeTo(2, PICKUP|LIMITDEMAND, 90);
+    std::cout << "tp.findNearestNodeTo(2, PICKUP|LIMITDEMAND,90) = " << a << std::endl;
+
+}
+
+
+//----------------------------------------------------------------------
+// test construction
+//----------------------------------------------------------------------
+
+void test_dumbcons(std::string infile) {
+    TrashProblem tp;
+
+    tp.loadproblem( infile );
+
+    tp.dumpdataNodes();
+    //tp.dump();
+
+    std::cout << "\n----------- dumbConstruction -----------------------\n";
+    tp.dumbConstruction();
+    tp.dump();
+    tp.plot("p0.png", "dumbConstruction", font);
+
+    std::cout << "\n---------------------------------------------------\n";
+
+}
+
+void test_optmoves(std::string infile) {
+    double oldcost, newcost;
+
+    TrashProblem tp;
+    tp.loadproblem( infile );
+
+    //tp.dumpdataNodes();
+    //tp.dumpDmatrix();
+    //tp.dump();
+
+    //std::cout << "\n----------- assignmentSweep -----------------------\n";
+    tp.assignmentSweep();
+    //tp.dump();
+    //tp.plot("p2.png", "assignmentSweep", font);
+
+    Vehicle v = tp.getVehicle(0);
+
+    std::cout << "\nv.pathOptMoveNodes()" << std::endl;
+    oldcost = v.getcost();
+    std::cout << "oldcost: " << oldcost << " : ";
+    v.dumppath();
+    v.pathOptMoveNodes();
+    newcost = v.getcost();
+    std::cout << "newcost: " << newcost << " : ";
+    v.dumppath();
+
+    v = tp.getVehicle(0);
+    std::cout << "\nv.pathOptExchangeNodes()" << std::endl;
+    oldcost = v.getcost();
+    std::cout << "oldcost: " << oldcost << " : ";
+    v.dumppath();
+    v.pathOptExchangeNodes();
+    newcost = v.getcost();
+    std::cout << "newcost: " << newcost << " : ";
+    v.dumppath();
+
+    v = tp.getVehicle(0);
+    std::cout << "\nv.pathOptInvertSequence()" << std::endl;
+    oldcost = v.getcost();
+    std::cout << "oldcost: " << oldcost << " : ";
+    v.dumppath();
+    v.pathOptInvertSequence();
+    newcost = v.getcost();
+    std::cout << "newcost: " << newcost << " : ";
+    v.dumppath();
+
+}
+
+
+void test_moveswithin(std::string infile) {
+
+    TrashProblem tp;
+
+    tp.loadproblem( infile );
+
+    //tp.dumpdataNodes();
+    //tp.dumpDmatrix();
+    //tp.dump();
+
+    //std::cout << "\n----------- assignmentSweep -----------------------\n";
+    tp.assignmentSweep();
+    //tp.dump();
+    //tp.plot("p2.png", "assignmentSweep", font);
+
+    Vehicle v = tp.getVehicle(0);
+    Twpath<Trashnode> p = v.getvpath();
+    int sz = p.size();
+
+    p = v.getvpath();
+    std::cout << "\np.e_move(2,"<<sz-2<<","<<sz<<",v.getmaxcapacity())" << std::endl;
+    p.dump();
+    p.e_move(2,p.size()-2,p.size(),v.getmaxcapacity());
+    p.dump();
+
+    p = v.getvpath();
+    std::cout << "\np.e_move(2,4,10,v.getmaxcapacity())" << std::endl;
+    p.dump();
+    p.e_move(2,4,10,v.getmaxcapacity());
+    p.dump();
+
+    p = v.getvpath();
+    std::cout << "\np.e_move(7,9,5,v.getmaxcapacity())" << std::endl;
+    p.dump();
+    p.e_move(7,9,5,v.getmaxcapacity());
+    p.dump();
+
+    p = v.getvpath();
+    std::cout << "\np.e_move(7,9,3,v.getmaxcapacity())" << std::endl;
+    p.dump();
+    p.e_move(7,9,3,v.getmaxcapacity());
+    p.dump();
+
+    p = v.getvpath();
+    std::cout << "\np.e_movereverse(2,4,7,v.getmaxcapacity())" << std::endl;
+    p.dump();
+    p.e_movereverse(2,4,7,v.getmaxcapacity());
+    p.dump();
+
+    p = v.getvpath();
+    std::cout << "\np.e_movereverse(2,4,10,v.getmaxcapacity())" << std::endl;
+    p.dump();
+    p.e_movereverse(2,4,10,v.getmaxcapacity());
+    p.dump();
+
+    p = v.getvpath();
+    std::cout << "\np.e_movereverse(7,9,5,v.getmaxcapacity())" << std::endl;
+    p.dump();
+    p.e_movereverse(7,9,5,v.getmaxcapacity());
+    p.dump();
+
+    p = v.getvpath();
+    std::cout << "\np.e_movereverse(7,9,3,v.getmaxcapacity())" << std::endl;
+    p.dump();
+    p.e_movereverse(7,9,3,v.getmaxcapacity());
+    p.dump();
+
+}
+
+
+
+void test_moveswithinnew(std::string infile) {
+
+    TrashProblem tp;
+
+    tp.loadproblem( infile );
+
+    //tp.dumpdataNodes();
+    //tp.dumpDmatrix();
+    //tp.dump();
+
+    //std::cout << "\n----------- assignmentSweep -----------------------\n";
+    tp.assignmentSweep();
+    //tp.dump();
+    //tp.plot("p2.png", "assignmentSweep", font);
+
+    Vehicle v = tp.getVehicle(0);
+    int sz = v.size();
+
+    std::cout << "\nv.moverange(2,"<<sz-2<<","<<sz<<")" << std::endl;
+    v.dumppath();
+    v.moverange(2,v.size()-2,v.size());
+    v.dumppath();
+
+    v = tp.getVehicle(0);
+    std::cout << "\nv.moverange(2,4,10)" << std::endl;
+    v.dumppath();
+    v.moverange(2,4,10);
+    v.dumppath();
+
+    v = tp.getVehicle(0);
+    std::cout << "\nv.moverange(7,9,5)" << std::endl;
+    v.dumppath();
+    v.moverange(7,9,5);
+    v.dumppath();
+
+    v = tp.getVehicle(0);
+    std::cout << "\nv.moverange(7,9,3)" << std::endl;
+    v.dumppath();
+    v.moverange(7,9,3);
+    v.dumppath();
+
+    v = tp.getVehicle(0);
+    std::cout << "\nv.movereverse(2,4,7)" << std::endl;
+    v.dumppath();
+    v.movereverse(2,4,7);
+    v.dumppath();
+
+    v = tp.getVehicle(0);
+    std::cout << "\nv.movereverse(2,4,10)" << std::endl;
+    v.dumppath();
+    v.movereverse(2,4,10);
+    v.dumppath();
+
+    v = tp.getVehicle(0);
+    std::cout << "\nv.movereverse(7,9,5)" << std::endl;
+    v.dumppath();
+    v.movereverse(7,9,5);
+    v.dumppath();
+
+    v = tp.getVehicle(0);
+    std::cout << "\nv.movereverse(7,9,3)" << std::endl;
+    v.dumppath();
+    v.movereverse(7,9,3);
+    v.dumppath();
+
+}
+

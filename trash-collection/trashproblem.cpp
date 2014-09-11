@@ -422,7 +422,7 @@ bool TrashProblem::buildFleetFromSolution(std::vector<int> solution) {
             }
         }
 
-        truck.dump();
+        //truck.dump();
         fleet.push_back(truck);
 
         start = it+1;
@@ -594,8 +594,8 @@ void TrashProblem::assignmentSweep() {
 //        plot(str, str, truck.getpath());
         while (truck.getcargo() <= truck.getmaxcapacity()) {
 
-            std::cout << "assignmentSweep[" << i << ',' << cnt << "] ";
-            truck.dumppath();
+//std::cout << "assignmentSweep[" << i << ',' << cnt << "] ";
+//truck.dumppath();
 
             int nnid = findNearestNodeTo(truck,
                             UNASSIGNED|PICKUP|CLUSTER1|CLUSTER2|LIMITDEMAND,
