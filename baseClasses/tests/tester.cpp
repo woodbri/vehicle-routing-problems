@@ -77,13 +77,22 @@ class TestProblem {
         }
         else if (t.test_name.compare("e_move4") == 0) {
         }
-        else if (t.test_name.compare("e_push_back") == 0)  return test_e_push_back(t);
-        else if (t.test_name.compare("e_move") == 0)  return test_e_move(t);
-        else if (t.test_name.compare("e_insert") == 0)  return test_e_insert(t);
-        else if (t.test_name.compare("e_remove") == 0)  return test_e_remove(t);
-        else if (t.test_name.compare("e_swap") == 0)  return test_e_swap(t);
-        else if (t.test_name.compare("e_movereverse") == 0)  return test_e_movereverse(t);
-        else if (t.test_name.compare("pos") == 0)  return test_pos(t);
+        else if (t.test_name.compare("e_push_back") == 0)
+            return test_e_push_back(t);
+        else if (t.test_name.compare("e_move") == 0)
+            return test_e_move(t);
+        else if (t.test_name.compare("e_insert") == 0)
+            return test_e_insert(t);
+        else if (t.test_name.compare("e_remove") == 0)
+            return test_e_remove(t);
+        else if (t.test_name.compare("e_swap") == 0)
+            return test_e_swap(t);
+        else if (t.test_name.compare("e_movereverse") == 0)
+            return test_e_movereverse(t);
+        else if (t.test_name.compare("e_reverse") == 0)
+            return test_e_reverse(t);
+        else if (t.test_name.compare("pos") == 0)
+            return test_pos(t);
         else {
             std::cout << "ERROR: test: " << t.test_id << " requested test ("
                       << t.test_name << ") which is unknown!" << std::endl;
@@ -244,6 +253,7 @@ class TestProblem {
     bool test_e_remove(const Test&);
     bool test_pos(const Test &t);
     bool test_e_movereverse(const Test&);
+    bool test_e_reverse(const Test &t);
     bool check_costs(const Test&, const Vehicle&) ;
     bool check_path(const Test&, const Vehicle&) ;
 };
@@ -265,7 +275,7 @@ class TestProblem {
         std::cout<<"\n 20 is at position "<<pos<<" of:\n ";
         v.path.pos(t.args[0]);
         std::cout<<"\n Ending truck:\n "; v.dumpnids();
-        bool result= (not check_path(t,v) or not check_costs(t,v));
+        bool result= (check_path(t,v) and check_costs(t,v));
         std::cout<<"\nPOS END TEST --------------------\n\n\n";
         return result;
     }
@@ -276,8 +286,8 @@ class TestProblem {
         if (t.path_result.size() and v.compareNid(t.path_result)) {
              std::cout << "ERROR: test: " << t.test_id
                 << " path results do not match!" << std::endl;
-                std::cout << "  expected: "; v.dumpnids();
-                std::cout << "       got: "; t.dumpnids();
+                std::cout << "  expected: "; t.dumpnids();
+                std::cout << "       got: "; v.dumpnids();
                 return false;
         };
         return true;
@@ -294,7 +304,33 @@ class TestProblem {
                     <<", " << v.getCV() <<std::endl;
                 return false;
         }
+        return true;
     }
+
+    bool TestProblem::test_e_reverse(const Test &t) {
+        Vehicle v,vw;
+        bool flag;
+        for (int i=0; i<10; i++)
+            v.path.e_push_back(datanodes[i],1000);
+        std::cout<<"\n\n************* E_REVERSE TEST ***********";
+        std::cout<<"\n Starting truck for all e_reverse test: "; v.dumpnids();
+        for (int i=0; i<4; i++) {
+            for (int j=0; j<12; j++) {
+                vw=v;
+                flag = vw.path.e_reverse(j, j+i, 1000);
+                std::cout<<"e_reverse("<<j<<","<<j+i<<"):\t"<<(flag? " reversed\t":"NOT reversed\t"); vw.dumpnids();
+            }
+        }
+        std::cout<<"\n e_reverse("<<t.args[0]<<","<<t.args[1]<<")\n";
+        Vehicle vp = fleet[t.path_id];
+        std::cout<<"Path before: "; vp.dumpnids();
+        vp.path.e_reverse(t.args[0], t.args[1], t.args[2]);
+        std::cout<<"Path  after: "; vp.dumpnids();
+        bool result = (check_path(t,vp) and check_costs(t,vp));
+        std::cout<<"\nE_REVERSE END TEST --------------------\n\n\n";
+        return result;
+    }
+
 
     bool TestProblem::test_e_movereverse(const Test &t) {
         Vehicle v,vw;
@@ -317,7 +353,7 @@ class TestProblem {
         std::cout<<"Path before: "; vp.dumpnids();
         vp.path.e_movereverse(t.args[0], t.args[1], t.args[2], t.args[3]);
         std::cout<<"Path  after: "; vp.dumpnids();
-        bool result = (not check_path(t,vp) or not check_costs(t,vp));
+        bool result = (check_path(t,vp) and check_costs(t,vp));
         std::cout<<"\nE_MOVEREVERSE END TEST --------------------\n\n\n";
         return result;
     }
@@ -339,7 +375,7 @@ class TestProblem {
         std::cout<<"\n Removing Position "<<t.args[0] <<" of:\n "; v.dumpnids();
         v.path.e_remove(t.args[0],1000);
         std::cout<<"\n Ending truck:\n "; v.dumpnids();
-        bool result= (not check_path(t,v) or not check_costs(t,v));
+        bool result= (check_path(t,v) and check_costs(t,v));
         std::cout<<"\nE_REMOVE END TEST --------------------\n\n\n";
         return result;
     }
@@ -362,7 +398,7 @@ class TestProblem {
         std::cout<<"\n swaping "<<t.args[0]<<" with "<< t.args[1] <<" of:\n "; v.dumpnids();
         v.path.e_swap(t.args[0],t.args[1],1000);
         std::cout<<"\n Ending truck:\n "; v.dumpnids();
-        bool result= (not check_path(t,v) or not check_costs(t,v));
+        bool result= (check_path(t,v) and check_costs(t,v));
         std::cout<<"\nE_SWAP END TEST --------------------\n\n\n";
         return result;
 }
@@ -410,7 +446,7 @@ class TestProblem {
         std::cout<<"\n Inserting "<<datanodes[t.args[0]].getnid()<<"in position "<< t.args[1] <<"of:\n "; v.dumpnids();
         v.path.e_insert(datanodes[t.args[0]],t.args[1],1000);
         std::cout<<"\n Ending truck:\n "; v.dumpnids();
-        bool result= (not check_path(t,v) or not check_costs(t,v));
+        bool result= (check_path(t,v) and check_costs(t,v));
         std::cout<<"\nE_INSERT END TEST --------------------\n\n\n";
         return result;
     }
@@ -427,7 +463,7 @@ class TestProblem {
             std::cout<<"Node:"<<i<<"\t"<<(flag? "pushed\t":"Not pushed\t");
             v.dumpnids();
         }
-        bool result= (not check_path(t,v) or not check_costs(t,v));
+        bool result= (check_path(t,v) and check_costs(t,v));
         std::cout<<"\nE_PUSH_BACK END TEST ***********\n\n\n";
         return result;
     }
@@ -463,7 +499,7 @@ class TestProblem {
         v.path.e_move(5,t.args[0],1000);
         std::cout<<"\n Expected Ending truck: ";t.dumpnids();
         std::cout<<"\n Real Ending truck: "; v.dumpnids();
-        bool result= (not check_path(t,v) or not check_costs(t,v));
+        bool result= (check_path(t,v) and check_costs(t,v));
         std::cout<<"\nE_MOVE ---- END TEST -------\n\n\n";
         return result;
     }

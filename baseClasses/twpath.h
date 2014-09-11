@@ -233,12 +233,12 @@ template <class knode> class Twpath {
     }
 
     // reverse the nodes from i to j in the path
-    void e_reverse(int i, int j, double maxcapacity) {
-//conditions missing
+    bool e_reverse(int i, int j, double maxcapacity) {
+        if (i<0 or j<0 or i>=path.size() or j>=path.size()) return false;
         int m = i;
         int n = j;
 
-        if (i == j) return;
+        if (i == j) return true;
         if (i > j) {
             m = j;
             n = i;
@@ -264,6 +264,7 @@ template <class knode> class Twpath {
         }
 */
         i < j ? evaluate(i, maxcapacity): evaluate(j, maxcapacity);
+        return true;
     };
 
     bool e_insert(const knode &n, UID at, double maxcapacity) {

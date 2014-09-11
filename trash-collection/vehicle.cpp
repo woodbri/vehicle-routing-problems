@@ -76,20 +76,32 @@ void Vehicle::remove(int at) {
 }
 
 
-void Vehicle::movereverse( int rangefrom, int rangeto, int destbefore ) {
-    path.e_movereverse(rangefrom, rangeto, destbefore, getmaxcapacity());
-    evalLast();
-}
-
-
 void Vehicle::moverange( int rangefrom, int rangeto, int destbefore ) {
     path.e_move(rangefrom, rangeto, destbefore, getmaxcapacity());
     evalLast();
 }
 
 
+void Vehicle::movereverse( int rangefrom, int rangeto, int destbefore ) {
+    path.e_movereverse(rangefrom, rangeto, destbefore, getmaxcapacity());
+    evalLast();
+}
+
+
+void Vehicle::reverse( int rangefrom, int rangeto ) {
+    path.e_reverse(rangefrom, rangeto, getmaxcapacity());
+    evalLast();
+}
+
+
 void Vehicle::move( int fromi, int toj ) {
     path.e_move(fromi, toj, getmaxcapacity());
+    evalLast();
+}
+
+
+void Vehicle::swap( const int& i, const int& j ) {
+    path.e_swap(i, j, getmaxcapacity());
     evalLast();
 }
 
@@ -127,18 +139,21 @@ bool Vehicle::doTwoOpt(const int& c1, const int& c2, const int& c3, const int& c
     // c3 -> c2
     // c2 -> c3
     // reverse any nodes between c2 and c3
-    path.e_swap(c2, c3, getmaxcapacity());
-    if (c3-c2 > 1)
-        path.e_reverse(c2+1, c3-1, getmaxcapacity());
-    evalLast();
+    // this reduces to just a simple reverse(c2, c3)
+    reverse(c2, c3);
+//    path.e_swap(c2, c3, getmaxcapacity());
+//    if (c3-c2 > 1)
+//        path.e_reverse(c2+1, c3-1, getmaxcapacity());
+//    evalLast();
 
     // if the change does NOT improve the cost or generates TW violations
     // undo the change
     if (getcost() > oldcost or hastwv()) {
-        path.e_swap(c2, c3, getmaxcapacity());
-        if (c3-c2 > 1)
-            path.e_reverse(c2+1, c3-1, getmaxcapacity());
-        evalLast();
+        reverse(c2, c3);
+//        path.e_swap(c2, c3, getmaxcapacity());
+//        if (c3-c2 > 1)
+//            path.e_reverse(c2+1, c3-1, getmaxcapacity());
+//        evalLast();
         return false;
     }
 
@@ -225,12 +240,14 @@ bool Vehicle::doNodeSwap(const int& i, const int& j) {
 
     double oldcost = getcost();
 
-    path.e_swap(i, j, getmaxcapacity());
-    evalLast();
+    swap(i, j);
+//    path.e_swap(i, j, getmaxcapacity());
+//    evalLast();
 
     if (getcost() > oldcost or hastwv()) {
-        path.e_swap(i, j, getmaxcapacity());
-        evalLast();
+        swap(i, j);
+//        path.e_swap(i, j, getmaxcapacity());
+//        evalLast();
         return false;
     }
 
@@ -244,12 +261,14 @@ bool Vehicle::doInvertSeq(const int& i, const int& j) {
 
     double oldcost = getcost();
 
-    path.e_reverse(i, j, getmaxcapacity());
-    evalLast();
+    reverse(i, j);
+//    path.e_reverse(i, j, getmaxcapacity());
+//    evalLast();
 
     if (getcost() > oldcost or hastwv()) {
-        path.e_reverse(i, j, getmaxcapacity());
-        evalLast();
+        reverse(i, j);
+//        path.e_reverse(i, j, getmaxcapacity());
+//        evalLast();
         return false;
     }
 
