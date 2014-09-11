@@ -26,7 +26,7 @@
 
    Twpath<Dpnode>& BucketN::Path() { return path; }
    const Twpath<Dpnode>& BucketN::Path() const  { return path; }
-   Twpath<Dpnode> BucketN::getpath() const  { return path; }
+   const Twpath<Dpnode>& BucketN::getpath() const  { return path; }
 
 
 

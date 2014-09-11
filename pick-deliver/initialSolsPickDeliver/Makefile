@@ -1,36 +1,52 @@
 
 CPP = g++
-UTILP = ../basePickDeliver
-UTIL = ../../baseClasses
-CPPFLAGS = -g -O0 -MMD  -MP  -I$(UTIL) -I$(UTILP)
-LDFLAGS = -lgd -I$(UTIL) -I$(UTILP) -L$(UTIL) -L$(UTILP)
+UTILP = basePickDeliver
+UTIL = baseClasses
+BUILD_DIR = ./build
+BIN_DIR = ./bin 
+INCLUDES = -I../../$(UTIL) -I../$(UTILP)
+CPPFLAGS = -g -O0 -MMD  -MP  
+LDFLAGS = -lgd $(INCLUDES) -L$(UTIL) -L$(UTILP)
 
+SRCS = init_pd.cpp testconstruction.cpp dumbsolution.cpp pickDelivery.cpp
+OBJS = $(addprefix $(BUILD_DIR)/,$(SRCS:.cpp=.o))
+HEADS = $(SRCS:.cpp=.h)
 
-SRCS = $(wildcard *.cpp) 
-OBJS = $(SRCS:.cpp=.o)
-UTIL_SRCS = $(wildcard $(UTIL)/*.cpp)
-UTIL_OBJS = $(UTIL_SRCS:.cpp=.o)
-UTILP_SRCS = $(wildcard $(UTILP)/*.cpp)
-UTILP_OBJS = $(UTILP_SRCS:.cpp=.o)
+UTILP_SRCS = $(wildcard ../$(UTILP)/*.cpp)
+UTILP_HDS = $(UTILP_SRCS:.cpp=.h)
+UTILP_OBJS = $(addprefix $(BUILD_DIR)/$(UTILP)/,$(notdir $(UTILP_SRCS:.cpp=.o)))
+UTILP_HEADS = $(UTILP_HDS)
+
+UTIL_SRCS = $(wildcard ../../$(UTIL)/*.cpp)
+UTIL_HDS = $(UTIL_SRCS:.cpp=.h)
+UTIL_OBJS = $(addprefix $(BUILD_DIR)/$(UTIL)/,$(notdir $(UTIL_SRCS:.cpp=.o)))
+UTIL_HEADS = $(wildcard ../../$(UTIL)/*=.h)
+
 DEPS = $(SRCS:.cpp=.d)
 
 
-all: tester
+all: $(OBJS) $(UTIL_OBJS) $(UTILP_OBJS) build/pickDelivery.o ./bin/pickDelivery 
 
-$(UTILP)/%.o: $(UTILP)/%.cpp
-	$(MAKE) -C $(UTILP)
 
-$(UTIL)/%.o: $(UTIL)/%.cpp
-	$(MAKE) -C $(UTIL)
-
-tester: $(UTIL_OBJS) $(OBJS) $(UTILP_OBJS)
+bin/pickDelivery: $(OBJS) $(UTIL_OBJS) $(UTILP_OBJS) $(UTILP_HEADS) $(UTIL_HEADS) 
 	$(CPP) $^ -o $@ $(LDFLAGS)
 
-%.o: %.cpp
-	$(CPP) $(CPPFLAGS) -c $< -o $@
 
-test: tester lc008.txt
-	./tester lc008.txt
+build/basePickDeliver/%.o: ../$(UTILP)/%.cpp ../$(UTILP)/%.h $(UTIL_HEADS) $(UTILP_HEADS)
+	$(CPP) $(CPPFLAGS) $(INCLUDES) -c $< -o $@
+
+build/baseClasses/%.o: ../../$(UTIL)/%.cpp ../../$(UTIL)/%.h $(UTIL_HEADS)
+	$(CPP) $(CPPFLAGS) $(INCLUDES) -c $< -o $@
+
+$(BUILD_DIR)/%.o: %.cpp %.h
+	$(CPP) $(CPPFLAGS) $(INCLUDES) -c $< -o $@
+
+
+$(BUILD_DIR)/pickDelivery.o: pickDelivery.cpp 
+	$(CPP) $(CPPFLAGS) $(INCLUDES) -c $< -o $@
+
+test: ./bin/pickDelivery ./data/lc008.txt
+	./bin/pickDelivery ./data/lc008.txt >./data/small.out
 
 valgrind: tester lc008.txt 
 	valgrind -v --track-origins=yes --leak-check=full ./tester p50.txt
@@ -38,9 +54,13 @@ valgrind: tester lc008.txt
 .PHONY: clean
 
 clean:
-	rm -f tester $(SRCS:.cpp=.o) $(DEPS) out/*.png ./*.png
-	$(MAKE) -C $(UTIL) clean
-	$(MAKE) -C $(UTILP) clean
+	rm -f tester $(OBJS) $(UTIL_OBJS) $(UTILP_OBJS)  
+	find . -name "*.d" -type f -delete
+	find . -name "*.png" -type f -delete
 
+
+cleanAll: clean
+	rm /bin/pickDelivery
+        
 -include $(DEPS)
 

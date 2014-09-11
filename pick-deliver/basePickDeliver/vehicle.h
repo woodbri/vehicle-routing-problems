@@ -55,16 +55,17 @@ class Vehicle:public BucketN {
     int pos(int nid) const ;
     bool  in(int nid) const;
     
-    void push_back(const Dpnode &pathstop);
-    void insert(const Dpnode &pathstop,int at);
-    void remove(int at);
+    void e_push_back(const Dpnode &pathstop);
+    void e_insert(const Dpnode &pathstop,int at);
+    void e_erase(int at);
+    void e_swap(int i,int j);
+    void e_move(int fromi,int toj);
+
     void removeOrder( const Order &order);
     void removeOrder(int orderid);
     void removePickup(int orderid);
     void removeDelivery(int orderid);
     void swapstops(int i,int j);
-    void swap(int i,int j);
-    void move(int fromi,int toj);
     bool insertOrderAfterLastPickup(const Order &order, const Compatible &twc);
     void pushOrder(const Order &order);
     void pushPickup(const Order &order);

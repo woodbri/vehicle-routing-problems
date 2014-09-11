@@ -31,7 +31,7 @@ void TestConstruction::dumbConstructionAndBestMoveForward() {
            truck.pushOrder(getOrder(i));
         }
     truck.findBetterForward(bestI, bestJ);
-    truck.move(bestI,bestJ);
+    truck.e_move(bestI,bestJ);
     fleet.push_back(truck);
 };
 
