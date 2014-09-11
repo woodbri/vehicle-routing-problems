@@ -6,7 +6,7 @@
 
 #include "prob_pd.h"
 #include "vehicle.h"
-//#include "bucketn.h"
+#include "plot.h"
 
 const double EPSILON = 0.001;
 
@@ -20,12 +20,7 @@ class Solution: public Prob_pd {
     double w1,w2,w3;
 
   public:
-/*    Solution() {
-        totalDistance = 0;
-        totalCost = 0;
-        fleet.clear();
-    };
-*/
+
     Solution(const Prob_pd& P):Prob_pd(P){}; 
 
 

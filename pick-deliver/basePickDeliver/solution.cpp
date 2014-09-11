@@ -1,8 +1,3 @@
-#include <cmath>
-#include <deque>
-#include "plot1.h"
-#include "vehicle.h"
-//#include "compatible.h"
 #include "solution.h"
 
 
@@ -29,7 +24,7 @@ double Solution::getDistance() {
 
 void Solution::plot(std::string file,std::string title){
 
-    Plot1<Dpnode> graph( datanodes );
+    Plot<Dpnode> graph( datanodes );
     graph.setFile( file+".png" );
     graph.setTitle( title );
     graph.drawInit();
@@ -51,7 +46,7 @@ void Solution::plot(std::string file,std::string title){
 /* a grpah for individual truck but with all nodes */
         
     for (int j=0;j<fleet.size();j++) {
-        Plot1<Dpnode> graph1( datanodes );
+        Plot<Dpnode> graph1( datanodes );
         std::stringstream convert;
         convert << j;
         std::string carnum = convert.str();

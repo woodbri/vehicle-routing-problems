@@ -4,10 +4,12 @@
 #include <deque>
 #include <cmath>
 
+#include "order.h"
 #include "prob_pd.h"
 #include "solution.h"
 #include "vehicle.h"
 #include "bucketn.h"
+#include "plot.h"
 
 //const double EPSILON = 0.001;
 

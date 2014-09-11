@@ -1,11 +1,14 @@
 #ifndef BUCKETN_H
 #define BUCKETN_H
 
+#include <iostream>
+#include <sstream>
 #include <deque> 
-#include <vector>
 #include "twpath.h"
 #include "order.h"
 #include "dpnode.h"
+#include "plot.h"
+
 
 
 class BucketN {
@@ -34,9 +37,10 @@ class BucketN {
 
     Twpath<Dpnode>&  Path() ;
     const Twpath<Dpnode>&  Path() const ;
-    Twpath<Dpnode>  getpath() const ;
+    const Twpath<Dpnode>&  getpath() const ;
+
     Dpnode& operator[] (unsigned int n) { return path[n]; };
-    Dpnode  operator[] (unsigned int n) const { return path[n]; };
+    const Dpnode&  operator[] (unsigned int n) const { return path[n]; };
 
     int size() const  {return path.size();};
     void resize(int s) {return path.resize(s);};
@@ -92,7 +96,7 @@ class BucketN {
     int  getdpos(const Order &o) const;
     int  getppos(const Order &o) const;
 
-   /* based on position*/ 
+   /* based on position in the path*/ 
     inline int getnid(int pos) const { return path[pos].getnid(); }
     inline int getoid(int pos) const { return path[pos].getoid(); }
     inline double getx(const int pos) const {path[pos].getx();}

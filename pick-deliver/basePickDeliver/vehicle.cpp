@@ -6,7 +6,7 @@
 #include "twpath.h"
 #include "vehicle.h"
 #include "compatible.h"
-#include "plot1.h"
+#include "plot.h"
 
 #include <sstream>
 
@@ -65,8 +65,8 @@ tau(); std::cout<<"\n";
             swap(j,j+1);
         };
 tau(); std::cout<<"\n";
-        remove(size()-1);
-        remove(i);
+        e_erase(size()-1);
+        e_erase(i);
 tau(); std::cout<<"\n";
     }
            
@@ -242,13 +242,6 @@ void Vehicle::findBetterForward(int &bestI, int &bestJ) {
 /****** removal of nodes from the path  ********/
 
 /***  direct evaluation **/
-   void Vehicle::remove(int at){
-          if (!path.empty()) {
-              path.e_remove(at,maxcapacity);
-              evalLast();  
-          }
-    }
-
 /****** Indirect evaluation *****/    
 
     void Vehicle::removeOrder(const Order &order){
@@ -261,32 +254,17 @@ void Vehicle::findBetterForward(int &bestI, int &bestJ) {
     }
 
     int Vehicle::pos(int nid) const{return path.pos(nid);}
-/*std::deque<Dpnode>::const_iterator it;
-//         Twpath<Dpnode>::iterator it;
-//         auto it=path.begin();
-         for (it=path.Path().cbegin();it!=path.Path().cend();it++) {
-             if (it->getnid()==nid) return int(it-path.Path().cbegin());
-//             it++;
-         }
-         return -1;
- brute force find
-         for (int at=0;at<path.size();at++) {
-             if (path[at].getnid()==nid) return at;
-         }
-         return -1;
-*/
-//    }
              
     bool Vehicle::in(int nid) const{
-         return ( (pos(nid)!=-1) ? true:false );
+         return ( (path.pos(nid)!=-1) ? true:false );
     }
-             
+              
 
 /* O(n) */
     void Vehicle::removePickup(int oid){
           for (int at=0;at<path.size();at++) {
                if (ispickup(at) and getoid(at)==oid ){
-                   remove(at); break; 
+                   e_erase(at); break; 
                }
          }
    }
@@ -295,7 +273,7 @@ void Vehicle::findBetterForward(int &bestI, int &bestJ) {
     void Vehicle::removeDelivery(int oid){
            for (int at=0;at<path.size();at++) {
                if (isdelivery(at) and getoid(at)==oid ){
-                   remove(at); break; //only 1 delivery per order
+                   e_erase(at); break; //only 1 delivery per order
                }
            }
     }
@@ -310,21 +288,37 @@ bool Vehicle::isEmptyTruck() const {return path.size()==1;}
 
 
 
- /****** Insertion of nodes to the path  ********/
 
 /****** Direct evaluation *****/    
-    void Vehicle::push_back(const Dpnode &pathstop) {
+    void Vehicle::e_push_back(const Dpnode &pathstop) {
           path.e_push_back(pathstop,maxcapacity);
           evalLast();
     }
 
+   void Vehicle::e_erase(int at){
+          if (!path.empty()) {
+              path.e_remove(at,maxcapacity);
+              evalLast();  
+          }
+    }
 
-    
-    void Vehicle::insert(const Dpnode &pathstop,int at) {
+    void Vehicle::e_insert(const Dpnode &pathstop,int at) {
          path.e_insert(pathstop,at,maxcapacity);
          evalLast();
     }
 
+    void Vehicle::e_move(int fromi,int toj) {
+          if (fromi==toj) return; //nothing to move
+          path.e_move(fromi,toj,maxcapacity);
+          evalLast();
+    }
+
+       
+    void Vehicle::e_swap(int i,int j){	
+          if (i==j) return; //nothing to swap
+          path.e_swap(i,j,maxcapacity);
+          evalLast();
+    }
 
 /****** Indirect evaluation *****/    
     void  Vehicle::insertPickup   (const Order &o, const int at)  { insert(*o.pickup,at); }
@@ -342,18 +336,6 @@ bool Vehicle::isEmptyTruck() const {return path.size()==1;}
 
     
 /****** moves between pathstops  ********/
-    void Vehicle::move(int fromi,int toj) {
-          if (fromi==toj) return; //nothing to move
-          path.e_move(fromi,toj,maxcapacity);
-          evalLast();
-    }
-
-       
-    void Vehicle::swap(int i,int j){	
-          if (i==j) return; //nothing to swap
-          path.e_swap(i,j,maxcapacity);
-          evalLast();
-    }
 
     void Vehicle::swapstops(int i,int j){
           if(i>j)  std::cout<<"This is a restrictive swap, requierment: i<j\n";  
@@ -396,7 +378,7 @@ std::cout<<"USING VEHICLE PLOT\n";
     std::string carnum = convert.str();
     std::string extra=file+"vehicle"+carnum ;
 
-    Plot1<Dpnode> graph( trace ); 
+    Plot<Dpnode> graph( trace ); 
     graph.setFile( file+extra+".png" );
     graph.setTitle( title+extra );
     graph.drawInit();

@@ -1,14 +1,7 @@
-#include <cmath>
-#include <deque>
-#include "plot1.h"
-#include "vehicle.h"
-#include "compatible.h"
 #include "init_pd.h"
-
 /* prerequisites 
  nodes sorted is based on amount of twc
  orders were made based on TWC 
-
 */
 
 
@@ -575,7 +568,7 @@ void Init_pd::dumbConstructionAndBestMoveForward() {
            truck.pushOrder(getOrder(i));
         }
     truck.findBetterForward(bestI, bestJ);
-    truck.move(bestI,bestJ);
+    truck.e_move(bestI,bestJ);
     fleet.push_back(truck);
 };
      
@@ -657,8 +650,8 @@ void Init_pd::initialByOrderSolution() {
           bestcost=route.findBestCostBackForw(order.oid,bppos,bdpos); //can it come back with already tested for feasability
           if (bestcost<actualcost) {     //found a better place
              if (bppos<bdpos) {
-                 route.move(ppos,bppos);
-                 route.move(dpos,bdpos);
+                 route.e_move(ppos,bppos);
+                 route.e_move(dpos,bdpos);
              }
           }
           if (!route.feasable() ) {
