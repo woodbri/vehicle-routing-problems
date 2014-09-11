@@ -106,6 +106,15 @@ void Vehicle::swap( const int& i, const int& j ) {
 }
 
 
+void Vehicle::swap(Vehicle& v2, const int& i1, const int& i2) {
+    Twpath<Trashnode>& v2p = v2.getvpath();
+
+    path.e_swap(i1, getmaxcapacity(), v2p, i2, v2.getmaxcapacity());
+    evalLast();
+    v2.evalLast();
+}
+
+
 void Vehicle::evalLast() {
     Trashnode last = path[path.size()-1];
     dumpsite.setdemand(-last.getcargo());
@@ -457,27 +466,30 @@ bool Vehicle::pathOptInvertSequence() {
 /*
     2-exchange - swap path[i1] with v2[i2]
 */
-bool Vehicle::swap(Vehicle& v2, const int& i1, const int& i2) {
+bool Vehicle::swap2(Vehicle& v2, const int& i1, const int& i2) {
     if (i1 < 0 or i1 > this->size()-1 or i2 < 0 or i2 > v2.size()-1)
         return false;
 
     double oldcost1 = getcost();
     double oldcost2 = v2.getcost();
 
-    Twpath<Trashnode>& v2p = v2.getvpath();
+    swap(v2, i1, i2);
 
-    path.e_swap(i1, getmaxcapacity(), v2p, i2, v2.getmaxcapacity());
-    evalLast();
-    v2.evalLast();
+//    Twpath<Trashnode>& v2p = v2.getvpath();
+//
+//    path.e_swap(i1, getmaxcapacity(), v2p, i2, v2.getmaxcapacity());
+//    evalLast();
+//    v2.evalLast();
 
     double newcost1 = getcost();
     double newcost2 = v2.getcost();
 
     if ( newcost1 + newcost2 > oldcost1 + oldcost2 or
          hastwv() or hascv() or v2.hastwv() or v2.hascv() ) {
-        path.e_swap(i1, getmaxcapacity(), v2p, i2, v2.getmaxcapacity());
-        evalLast();
-        v2.evalLast();
+        swap(v2, i1, i2);
+//        path.e_swap(i1, getmaxcapacity(), v2p, i2, v2.getmaxcapacity());
+//        evalLast();
+//        v2.evalLast();
 
         return false;
     }
@@ -499,13 +511,16 @@ bool Vehicle::swap3(Vehicle& v2, Vehicle& v3, const int& i1, const int& i2, cons
     double oldcost2 = v2.getcost();
     double oldcost3 = v3.getcost();
 
-    path.e_swap(i1, getmaxcapacity(),
-        v2.getvpath(), i2, v2.getmaxcapacity());
-    v2.getvpath().e_swap(i2, v2.getmaxcapacity(),
-        v3.getvpath(), i3, v3.getmaxcapacity());
-    evalLast();
-    v2.evalLast();
-    v3.evalLast();
+    swap(v2, i1, i2);
+    v2.swap(v3, i2, i3);
+
+//    path.e_swap(i1, getmaxcapacity(),
+//        v2.getvpath(), i2, v2.getmaxcapacity());
+//    v2.getvpath().e_swap(i2, v2.getmaxcapacity(),
+//        v3.getvpath(), i3, v3.getmaxcapacity());
+//    evalLast();
+//    v2.evalLast();
+//    v3.evalLast();
 
     double newcost1 = getcost();
     double newcost2 = v2.getcost();
@@ -513,13 +528,16 @@ bool Vehicle::swap3(Vehicle& v2, Vehicle& v3, const int& i1, const int& i2, cons
 
     if ( newcost1 + newcost2 + newcost3 > oldcost1 + oldcost2 + oldcost3 or
          !feasable() or !v2.feasable() or !v3.feasable() ) {
-        v2.getvpath().e_swap(i2, v2.getmaxcapacity(),
-            v3.getvpath(), i3, v3.getmaxcapacity());
-        path.e_swap(i1, getmaxcapacity(),
-            v2.getvpath(), i2, v2.getmaxcapacity());
-        evalLast();
-        v2.evalLast();
-        v3.evalLast();
+        v2.swap(v3, i2, i3);
+        swap(v2, i1, i2);
+
+//        v2.getvpath().e_swap(i2, v2.getmaxcapacity(),
+//            v3.getvpath(), i3, v3.getmaxcapacity());
+//        path.e_swap(i1, getmaxcapacity(),
+//            v2.getvpath(), i2, v2.getmaxcapacity());
+//        evalLast();
+//        v2.evalLast();
+//        v3.evalLast();
 
         return false;
     }
@@ -741,8 +759,9 @@ bool Vehicle::relocateBest(Vehicle& v2, const int& i1) {
 
     // first we insert v1[i1] into the start of v2
     // ie: pos: 1 after the depot at pos: 0
-    v2p.e_insert(path[i1], 1, v2.getmaxcapacity());
-    v2.evalLast();
+    v2.insert(path[i1], 1);
+//    v2p.e_insert(path[i1], 1, v2.getmaxcapacity());
+//    v2.evalLast();
 
     if (v2.feasable()) {
         bestpos = 1;
@@ -751,8 +770,9 @@ bool Vehicle::relocateBest(Vehicle& v2, const int& i1) {
 
     // now we walk it down the path checking for better costs
     for (int i=2; i<v2.size(); i++) {
-        v2p.e_swap(i-1, i, v2.getmaxcapacity());
-        v2.evalLast();
+        v2.swap(i-1, 1);
+//        v2p.e_swap(i-1, i, v2.getmaxcapacity());
+//        v2.evalLast();
         if (v2.getcost() < bestcost and v2.feasable()) {
             bestpos = i;
             bestcost = v2.getcost();
@@ -762,29 +782,35 @@ bool Vehicle::relocateBest(Vehicle& v2, const int& i1) {
     // if we found NO feasable place to insert it
     // restore v2 and return
     if (bestpos == -1) {
-        v2p.e_remove(v2.size()-1, v2.getmaxcapacity());
-        v2.evalLast();
+        v2.remove(v2.size()-1);
+//        v2p.e_remove(v2.size()-1, v2.getmaxcapacity());
+//        v2.evalLast();
         return false;
     }
 
     // otherwise remove i1
-    path.e_remove(i1, getmaxcapacity());
-    evalLast();
+    remove(i1);
+//    path.e_remove(i1, getmaxcapacity());
+//    evalLast();
 
     // check that we have a better overall cost
     // and reposition i1 to bestpos
     if (getcost() + bestcost < oldcost1 + oldcost2) {
         if (bestpos != v2.size()-1) {
-            v2p.e_move(v2.size()-1, bestpos, v2.getmaxcapacity());
-            v2.evalLast();
+            v2.move(v2.size()-1, bestpos);
+//            v2p.e_move(v2.size()-1, bestpos, v2.getmaxcapacity());
+//            v2.evalLast();
         }
     }
     // else restore everything and return false
     else {
-        path.e_insert(v2p[v2.size()-1], i1, getmaxcapacity());
-        evalLast();
-        v2p.e_remove(v2.size()-1, v2.getmaxcapacity());
-        v2.evalLast();
+        insert(v2[v2.size()-1], i1);
+        v2.remove(v2.size()-1);
+
+//        path.e_insert(v2p[v2.size()-1], i1, getmaxcapacity());
+//        evalLast();
+//        v2p.e_remove(v2.size()-1, v2.getmaxcapacity());
+//        v2.evalLast();
         return false;
     }
 
@@ -803,7 +829,7 @@ bool Vehicle::findBestFit(Trashnode& tn, int* tpos, double* deltacost) {
     // first we insert nid into the start of vp
     // ie: pos: 1 after the depot at pos: 0
     insert(tn, 1);
-    evalLast();
+//    evalLast();
 
     if (feasable()) {
         bestpos = 1;
@@ -812,8 +838,9 @@ bool Vehicle::findBestFit(Trashnode& tn, int* tpos, double* deltacost) {
 
     // now we walk it down the path checking for better costs
     for (int i=2; i<this->size(); i++) {
-        path.e_swap(i-1, i, getmaxcapacity());
-        evalLast();
+        swap(i-1, i);
+//        path.e_swap(i-1, i, getmaxcapacity());
+//        evalLast();
         if (getcost() - origcost < bestdelta and feasable()) {
             bestpos = i;
             bestdelta = getcost() - origcost;
@@ -821,8 +848,9 @@ bool Vehicle::findBestFit(Trashnode& tn, int* tpos, double* deltacost) {
     }
 
     // this is only a test so remove the node
-    path.e_remove(this->size()-1, getmaxcapacity());
-    evalLast();
+    remove(this->size()-1);
+//    path.e_remove(this->size()-1, getmaxcapacity());
+//    evalLast();
 
     // if we found NO feasable place to insert it
     if (bestpos == -1) {
