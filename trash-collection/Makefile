@@ -22,11 +22,17 @@ tester: $(UTILOBJS) $(OBJS)
 %.o: %.cpp
 	$(CPP) $(CPPFLAGS) -c $< -o $@
 
+small: tester p10.txt
+	./tester trash p10.txt
+
 test: tester p50.txt
 	./tester trash p50.txt
 
-small: tester p10.txt
-	./tester trash p10.txt
+medium: tester p1001.txt
+	./tester trash p1001.txt
+
+large: tester p5001.txt
+	./tester trash p5001.txt
 
 valgrind: tester p50.txt
 	valgrind -v --track-origins=yes --leak-check=full ./tester trash p50.txt
