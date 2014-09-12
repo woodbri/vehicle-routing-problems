@@ -451,7 +451,7 @@
       <data key="d10">
         <y:QuadCurveEdge straightness="0.1">
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0"/>
-          <y:LineStyle color="#0000FF" type="dashed" width="2.0"/>
+          <y:LineStyle color="#3366FF" type="line" width="3.0"/>
           <y:Arrows source="none" target="standard"/>
         </y:QuadCurveEdge>
       </data>
@@ -637,7 +637,7 @@
       <data key="d10">
         <y:QuadCurveEdge straightness="0.1">
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0"/>
-          <y:LineStyle color="#3366FF" type="dashed" width="2.0"/>
+          <y:LineStyle color="#3366FF" type="line" width="3.0"/>
           <y:Arrows source="none" target="standard"/>
         </y:QuadCurveEdge>
       </data>
