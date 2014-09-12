@@ -78,22 +78,14 @@ class TestProblem {
         }
         else if (t.test_name.compare("e_move4") == 0) {
         }
-        else if (t.test_name.compare("e_push_back") == 0)
-            return test_e_push_back(t);
-        else if (t.test_name.compare("e_move") == 0)
-            return test_e_move(t);
-        else if (t.test_name.compare("e_insert") == 0)
-            return test_e_insert(t);
-        else if (t.test_name.compare("e_remove") == 0)
-            return test_e_remove(t);
-        else if (t.test_name.compare("e_swap") == 0)
-            return test_e_swap(t);
-        else if (t.test_name.compare("e_movereverse") == 0)
-            return test_e_movereverse(t);
-        else if (t.test_name.compare("e_reverse") == 0)
-            return test_e_reverse(t);
-        else if (t.test_name.compare("pos") == 0)
-            return test_pos(t);
+        else if (t.test_name.compare("e_push_back") == 0) return test_e_push_back(t);
+        else if (t.test_name.compare("e_move") == 0) return test_e_move(t);
+        else if (t.test_name.compare("e_insert") == 0) return test_e_insert(t);
+        else if (t.test_name.compare("e_remove") == 0) return test_e_remove(t);
+        else if (t.test_name.compare("e_swap") == 0) return test_e_swap(t);
+        else if (t.test_name.compare("e_movereverse") == 0) return test_e_movereverse(t);
+        else if (t.test_name.compare("e_reverse") == 0) return test_e_reverse(t);
+        else if (t.test_name.compare("pos") == 0) return test_pos(t);
         else {
             std::cout << "ERROR: test: " << t.test_id << " requested test ("
                       << t.test_name << ") which is unknown!" << std::endl;
