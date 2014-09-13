@@ -85,7 +85,10 @@ template <class knode> class Twpath {
     // nodes handling within the same path 
     //  path with size 10:  (0......9) retsriction   0 <= i,j <= size-1
     bool e_move(UID fromi, UID toDest, double maxcapacity) {
-        if (fromi>size()-1 or toDest>size()-1) return false; //i.e. if the path has 10 nodes:  can't move from position 5000 OR can't move to position 5000  
+        // i.e. if the path has 10 nodes we can't move from
+        // position 5000 OR can't move to position 5000  
+        if (fromi<0 or toDest<0 or fromi>size()-1 or toDest>size()-1)
+            return false;
         if (fromi == toDest) return true;  
         if (fromi < toDest){
             if (toDest+1 > path.size())
@@ -102,7 +105,7 @@ template <class knode> class Twpath {
     };
 
     bool e_resize(UID numb,double maxcapacity) { 
-        if (numb>size()) return false;
+        if (numb<0 or numb>size()) return false;
         path.resize(numb);
         //its reduced so the last node's value its not affected so no need of
         evalLast(maxcapacity); //????
@@ -111,7 +114,7 @@ template <class knode> class Twpath {
 
     bool e_swap(UID i,UID j,double maxcapacity) {
         if (i==j) return true;
-        if (i>size()-1 or j>size()-1) return false;
+        if (i<0 or j<0 or i>size()-1 or j>size()-1) return false;
         swap(i,j);
         i < j ? evaluate(i, maxcapacity): evaluate(j, maxcapacity);
         return true;
@@ -268,7 +271,7 @@ template <class knode> class Twpath {
     };
 
     bool e_insert(const knode &n, UID at, double maxcapacity) {
-        if (at > size()) return false;
+        if (at < 0 or at > size()) return false;
         path.insert(path.begin() + at, n);
         evaluate(at, maxcapacity);
         return true;
@@ -287,7 +290,7 @@ template <class knode> class Twpath {
     };
 */
     bool e_remove (int i, double maxcapacity) {
-        if (i>size()-1) return false;
+        if (i<0 or i>size()-1) return false;
         path.erase(path.begin() + i);
         evaluate(i, maxcapacity);
         return true;
