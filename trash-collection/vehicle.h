@@ -112,19 +112,19 @@ class Vehicle {
 
     // single path manipulators
 
-    void push_back(Trashnode node);
-    void push_front(Trashnode node);
-    void insert(Trashnode node, int at);
-    void remove( int at);
-    void moverange( int rangefrom, int rangeto, int destbefore );
-    void movereverse( int rangefrom, int rangeto, int destbefore );
-    void reverse( int rangefrom, int rangeto );
-    void move( int fromi, int toj );
-    void swap( const int& i, const int& j );
+    bool push_back(Trashnode node);
+    bool push_front(Trashnode node);
+    bool insert(Trashnode node, int at);
+    bool remove( int at);
+    bool moverange( int rangefrom, int rangeto, int destbefore );
+    bool movereverse( int rangefrom, int rangeto, int destbefore );
+    bool reverse( int rangefrom, int rangeto );
+    bool move( int fromi, int toj );
+    bool swap( const int& i, const int& j );
 
     // multiple path manipulators
 
-    void swap(Vehicle& v2, const int& i1, const int& i2);
+    bool swap(Vehicle& v2, const int& i1, const int& i2);
 
     // restore a saved path to undo an operation
 
@@ -155,12 +155,12 @@ class Vehicle {
     // algorithm specific - inter-route manipulations
     //--------------------------------------------------------------------
 
-    bool swap2(Vehicle& v2, const int& i1, const int& i2);
-    bool swap3(Vehicle& v2, Vehicle& v3, const int& i1, const int& i2, const int& i3);
-    bool exchangeSeq(Vehicle& v2, const int& i1, const int& j1, const int& i2, const int& j2);
-    bool exchangeTails(Vehicle& v2, const int& i1, const int& i2);
-    bool exchange3(Vehicle& v2, Vehicle& v3, const int& cnt, const int& i1, const int& i2, const int& i3);
-    bool relocate(Vehicle& v2, const int& i1, const int& i2);
+    bool swap2(Vehicle& v2, const int& i1, const int& i2, bool force);
+    bool swap3(Vehicle& v2, Vehicle& v3, const int& i1, const int& i2, const int& i3, bool force);
+    bool exchangeSeq(Vehicle& v2, const int& i1, const int& j1, const int& i2, const int& j2, bool force);
+    bool exchangeTails(Vehicle& v2, const int& i1, const int& i2, bool force);
+    bool exchange3(Vehicle& v2, Vehicle& v3, const int& cnt, const int& i1, const int& i2, const int& i3, bool force);
+    bool relocate(Vehicle& v2, const int& i1, const int& i2, bool force);
     bool relocateBest(Vehicle& v2, const int& i1);
 
     //----------------------------------------------------------------

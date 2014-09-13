@@ -126,7 +126,7 @@ void test_swap(std::string infile) {
         v0.dumppath();
         v1.dumppath();
         v2.dumppath();
-        v0.swap3(v1, v2, 1, 1, 1);
+        v0.swap3(v1, v2, 1, 1, 1, false);
         std::cout << "newcost: " << v1.getcost() + v2.getcost() << "\n";
         v0.dumppath();
         v1.dumppath();
@@ -155,7 +155,7 @@ void test_swap(std::string infile) {
         v0.dumppath();
         v1.dumppath();
         v2.dumppath();
-        v0.exchange3(v1, v2, 2, 1, 1, 1);
+        v0.exchange3(v1, v2, 2, 1, 1, 1, false);
         std::cout << "newcost: " << v1.getcost() + v2.getcost() << "\n";
         v0.dumppath();
         v1.dumppath();
@@ -272,6 +272,7 @@ void test_movesbetween(std::string infile) {
     TrashProblem tp;
 
     tp.loadproblem( infile );
+    tp.assignmentSweep();
 
     //tp.dumpdataNodes();
     //tp.dumpDmatrix();
@@ -281,11 +282,11 @@ void test_movesbetween(std::string infile) {
         Vehicle v1 = tp.getVehicle(0);
         Vehicle v2 = tp.getVehicle(1);
 
-        std::cout << "\nv1.swap(v2, 12, 14)" << std::endl;
+        std::cout << "\nv1.swap2(v2, 12, 13, false)" << std::endl;
         std::cout << "oldcost: " << v1.getcost() + v2.getcost() << "\n";
         v1.dumppath();
         v2.dumppath();
-        v1.swap(v2, 12, 14);
+        v1.swap2(v2, 12, 13, false);
         std::cout << "newcost: " << v1.getcost() + v2.getcost() << "\n";
         v1.dumppath();
         v2.dumppath();
@@ -295,11 +296,11 @@ void test_movesbetween(std::string infile) {
         Vehicle v1 = tp.getVehicle(0);
         Vehicle v2 = tp.getVehicle(1);
 
-        std::cout << "\nv1.exchangeTails(v2, 12, 14)" << std::endl;
+        std::cout << "\nv1.exchangeTails(v2, 12, 13, false)" << std::endl;
         std::cout << "oldcost: " << v1.getcost() + v2.getcost() << "\n";
         v1.dumppath();
         v2.dumppath();
-        v1.exchangeTails(v2, 12, 14);
+        v1.exchangeTails(v2, 12, 13, false);
         std::cout << "newcost: " << v1.getcost() + v2.getcost() << "\n";
         v1.dumppath();
         v2.dumppath();
@@ -311,11 +312,11 @@ void test_movesbetween(std::string infile) {
         Vehicle v2 = tp.getVehicle(3);
 
         // validated move by commenting out improvement test in vehicle.cpp
-        std::cout << "\nv1.exchangeTails(v2, 3, 1)" << std::endl;
+        std::cout << "\nv1.exchangeTails(v2, 3, 1, false)" << std::endl;
         std::cout << "oldcost: " << v1.getcost() + v2.getcost() << "\n";
         v1.dumppath();
         v2.dumppath();
-        v1.exchangeTails(v2, 3, 1);
+        v1.exchangeTails(v2, 3, 1, false);
         std::cout << "newcost: " << v1.getcost() + v2.getcost() << "\n";
         v1.dumppath();
         v2.dumppath();
@@ -328,6 +329,51 @@ void test_movesbetween(std::string infile) {
         std::cout << "newcost: " << v1.getcost() + v0.getcost() << "\n";
         v0.dumppath();
         v1.dumppath();
+    } while (false);
+
+    do {
+        Vehicle v1 = tp.getVehicle(0);
+        Vehicle v2 = tp.getVehicle(1);
+
+        std::cout << "\nv1.swap2(v2, 12, 13, true)" << std::endl;
+        std::cout << "oldcost: " << v1.getcost() + v2.getcost() << "\n";
+        v1.dumppath();
+        v2.dumppath();
+        v1.swap2(v2, 12, 13, true);
+        std::cout << "newcost: " << v1.getcost() + v2.getcost() << "\n";
+        v1.dumppath();
+        v2.dumppath();
+    } while (false);
+
+    do {
+        Vehicle v1 = tp.getVehicle(0);
+        Vehicle v2 = tp.getVehicle(1);
+
+        std::cout << "\nv1.exchangeTails(v2, 12, 13, true)" << std::endl;
+        std::cout << "oldcost: " << v1.getcost() + v2.getcost() << "\n";
+        v1.dumppath();
+        v2.dumppath();
+        v1.exchangeTails(v2, 12, 13, true);
+        std::cout << "newcost: " << v1.getcost() + v2.getcost() << "\n";
+        v1.dumppath();
+        v2.dumppath();
+    } while (false);
+
+    do {
+        Vehicle v0 = tp.getVehicle(1);
+        Vehicle v1 = tp.getVehicle(2);
+        Vehicle v2 = tp.getVehicle(3);
+
+        // validated move by commenting out improvement test in vehicle.cpp
+        std::cout << "\nv1.exchangeTails(v2, 3, 1, true)" << std::endl;
+        std::cout << "oldcost: " << v1.getcost() + v2.getcost() << "\n";
+        v1.dumppath();
+        v2.dumppath();
+        v1.exchangeTails(v2, 3, 1, true);
+        std::cout << "newcost: " << v1.getcost() + v2.getcost() << "\n";
+        v1.dumppath();
+        v2.dumppath();
+
     } while (false);
 
 }
