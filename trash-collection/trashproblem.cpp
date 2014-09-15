@@ -7,7 +7,7 @@
 #include <sstream>
 #include <fstream>
 
-#include "plot1.h"
+#include "plot.h"
 #include "vec2d.h"
 #include "trashproblem.h"
 
@@ -1105,7 +1105,7 @@ void TrashProblem::dumpSummary() const {
 // also highlight a path given as nids in vector highlight
 
 void TrashProblem::plot( std::string file, std::string title, std::string font, std::deque<int> highlight ) {
-    Plot1<Trashnode> plot( datanodes );
+    Plot<Trashnode> plot( datanodes );
     plot.setFile( file );
     plot.setTitle( title );
     plot.setFont( font );
@@ -1127,7 +1127,7 @@ void TrashProblem::plot( std::string file, std::string title, std::string font, 
 // create a png image of the solution and save it in "file"
 
 void TrashProblem::plot( std::string file, std::string title, std::string font ) {
-    Plot1<Trashnode> plot( datanodes );
+    Plot<Trashnode> plot( datanodes );
     plot.setFile( file );
     plot.setTitle( title );
     plot.setFont( font );

@@ -1,11 +1,12 @@
-#ifndef PLOT1_H
-#define PLOT1_H
+#ifndef PLOT_H
+#define PLOT_H
 
 #include <gd.h>
 #include <limits>
 #include <string>
 #include <deque>
 #include <cmath>
+
 #include "twpath.h"
 
 template <class knode> class Plot {
@@ -56,7 +57,7 @@ public:
 
 
     Plot(const Twpath<knode> &_pts) : pts(_pts) {
-        file = "plot1.png";
+        file = "plot.png";
         title = file;
         width = 800;
         height = 800;
@@ -108,7 +109,7 @@ public:
     void drawPath(const Twpath<knode>& path, int color, int thick, bool label) {
         // make sure drawInit() has been called
         if (!im) {
-            fprintf(stderr, "Plot1::drawInit() has not been called!\n");
+            fprintf(stderr, "Plot::drawInit() has not been called!\n");
             return;
         }
 
@@ -140,7 +141,7 @@ public:
     void drawPath(std::deque<int> ids, int color, int thick, bool label) {
         // make sure drawInit() has been called
         if (!im) {
-            fprintf(stderr, "Plot1::drawInit() has not been called!\n");
+            fprintf(stderr, "Plot::drawInit() has not been called!\n");
             return;
         }
 
@@ -172,7 +173,7 @@ public:
     void drawPoints(std::deque<int> ids, int color, int size, bool label) {
         // make sure drawInit() has been called
         if (!im) {
-            fprintf(stderr, "Plot1::drawInit() has not been called!\n");
+            fprintf(stderr, "Plot::drawInit() has not been called!\n");
             return;
         }
 
@@ -195,7 +196,7 @@ public:
     void drawPoints(std::deque<knode> pnts, int color, int size, bool label) {
         // make sure drawInit() has been called
         if (!im) {
-            fprintf(stderr, "Plot1::drawInit() has not been called!\n");
+            fprintf(stderr, "Plot::drawInit() has not been called!\n");
             return;
         }
 
@@ -225,7 +226,7 @@ public:
 
         // make sure we have been initiallized correctly
         if (!im) {
-            fprintf(stderr, "Plot1::drawInit() has not been called!\n");
+            fprintf(stderr, "Plot::drawInit() has not been called!\n");
             return 1;
         }
 
@@ -255,7 +256,7 @@ public:
     void drawPoint(const knode &a, int color, int size, bool label) {
         // make sure drawInit() has been called
         if (!im) {
-            fprintf(stderr, "Plot1::drawInit() has not been called!\n");
+            fprintf(stderr, "Plot::drawInit() has not been called!\n");
             return;
         }
 
@@ -273,7 +274,7 @@ public:
     void drawPath( Twpath<knode> path, int color, int thick, bool label) {
         // make sure drawInit() has been called
         if (!im) {
-            fprintf(stderr, "Plot1::drawInit() has not been called!\n");
+            fprintf(stderr, "Plot::drawInit() has not been called!\n");
             return;
         }
 
@@ -307,7 +308,7 @@ public:
 #endif
 /*
 // Example:
-Plot1<Trashnode>  plot(datanodes);
+Plot<Trashnode>  plot(datanodes);
 plot.setFile("p1.png");
 plot.setTitle("initial Solution");
 plot.drawInit();
