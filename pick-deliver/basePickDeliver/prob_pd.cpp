@@ -84,11 +84,6 @@ bool Prob_pd::checkIntegrity() const {
    }
 }
 
-void Prob_pd::ordersdump( const std::deque<Order> orders) const{
-    std::cout << "---- Orders --------------\n";
-    for (int i=0; i<orders.size(); i++)
-        orders[i].dump();
-}
 
 void Prob_pd::nodesdump() {
     std::cout << "---- Nodes  --------------\n";
@@ -99,16 +94,23 @@ void Prob_pd::dump() {
     std::cout << "---- Problem -------------\n";
     std::cout << "K: " << K << std::endl;
     std::cout << "Q: " << Q << std::endl;
-    ordersdump(ordersList);
+    std::cout << "---- Orders --------------\n";
+    ordersList.dump();
     std::cout << "\n";
     nodesdump();
 }
 
+Prob_pd::Prob_pd(char *infile)
+     {
+std::cout << "---- Constructor --------------\n";
+         loadProblem(infile);
+     } 
 
 
 /* depot must be the first node in list... rest can be anywhere*/
 void Prob_pd::loadProblem(char *infile)
 {
+std::cout << "---- Load --------------\n";
     std::ifstream in( infile );
     std::string line;
 
@@ -129,17 +131,16 @@ void Prob_pd::loadProblem(char *infile)
         }
     }
     in.close();
-    makeOrders();
-    for (int i=0;i<datanodes.size();i++)
-        originalnodes.push_back(datanodes[i]);
-    twc.setNodes(originalnodes);
+std::cout << "---- MakeOrders --------------\n";
+    ordersList.makeOrders(datanodes,depot);
+std::cout << "---- setNodes --------------\n";
+    twc.setNodes(datanodes);
+std::cout << "---- CompatOrders --------------\n";
+    ordersList.setCompatibility(twc);
+std::cout << "---- DumpCompatOrders --------------\n";
+ordersList.dumpCompat();
+std::cout << "\n---- Dumps--------------\n";
 twc.dump();
-//    twcij_calculate();
-//    sortNodeByTWC();
-//twcijDump();
-//dumpCompatible();
-//    twcij_calculate();
-//twcijDump();
 
 }
 
@@ -148,6 +149,9 @@ void Prob_pd::sortNodeByTWC(){
     int j;
     Dpnode tmp;
     double twc;
+std::cout<<"CALL TO SORTNODEBYTWC NOT WEORKING\n";
+return;
+/*
     for (int i=2; i<datanodes.size();i++) {
       tmp=datanodes[i];
       twc=twcTot[i];
@@ -158,6 +162,7 @@ void Prob_pd::sortNodeByTWC(){
       datanodes[j]=tmp;
       twcTot[j]=twc;
     }
+*/
 };
 
 void Prob_pd::sortNodeByDistReverse(){
@@ -171,6 +176,8 @@ void Prob_pd::sortNodeByDistReverse(){
       datanodes[j]=tmp;
     }
 };
+
+
 void Prob_pd::sortOrdersbyDistReverse(){
     sort(ordersList.begin(), ordersList.end(), sortByDistReverse);
 };
@@ -182,32 +189,13 @@ void Prob_pd::sortOrdersbyIdReverse(){
     sort(ordersList.begin(), ordersList.end(), sortByOidReverse);
 };
 
+
 void Prob_pd::sortOrdersbyDist(){
 std::cout<<"going to sort Orders by Dist";
     sort(ordersList.begin(), ordersList.end(), sortByDist);
 std::cout<<"done sort Orders by Dist";
 };
 
-void Prob_pd::makeOrders ()
-{
-
-    if (getNodeCount() == 0 || ((getNodeCount()-1)%2 != 0)) {
-        std::string errmsg = "Problem::makeOrders - Nodes have not be correctly loaded.";
-        throw std::runtime_error(errmsg);
-    }
-    ordersList.resize(0);
-    int oid = 0;
-    Order order;
-    // for each pickup, get its delivery and create an order
-    for (int i=0; i<getNodeCount(); i++) {
-        if (datanodes[i].isdepot() or datanodes[i].isdelivery()) continue;
-           int j;
-           for (j=0; j<getNodeCount() and datanodes[j].getnid()!=datanodes[i].getdid(); j++) {}
-           order.fillOrder(datanodes[i],datanodes[j],oid++,depot);
-order.debugdump();
-           ordersList.push_back(order);
-    }
-}
 
 /*
 void Problem::calcAvgTWLen() {

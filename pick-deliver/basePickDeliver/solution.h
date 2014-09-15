@@ -7,6 +7,7 @@
 #include "prob_pd.h"
 #include "vehicle.h"
 #include "plot.h"
+#include "orders.h"
 
 const double EPSILON = 0.001;
 

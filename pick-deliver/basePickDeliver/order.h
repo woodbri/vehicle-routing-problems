@@ -22,7 +22,7 @@ Order(Dpnode &p,Dpnode &d , int i_oid, const Dpnode depot){
       fillOrder(p,d,i_oid,depot);
 }
 
-void fillOrder(Dpnode &p, Dpnode &d , int i_oid, const Dpnode depot){ 
+void fillOrder(Dpnode &p, Dpnode &d , int i_oid, const Dpnode &depot){ 
       oid=i_oid;
       pickup=&p;
       delivery=&d;

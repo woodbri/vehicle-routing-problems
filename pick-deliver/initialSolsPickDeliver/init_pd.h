@@ -5,6 +5,7 @@
 #include <cmath>
 
 #include "order.h"
+#include "orders.h"
 #include "prob_pd.h"
 #include "solution.h"
 #include "vehicle.h"
@@ -34,19 +35,19 @@ int compatibleWithPending(const Vehicle &pend, int fromId, int toId);
 /* OrderIncompatibility initial Solution */
 double compatibleIJ(int fromNid, int toNid)const; 
 double compatibleIJ(const Order &order) const ;
-void sortOrdersByIncompat(std::deque<Order> orders);
+void sortOrdersByIncompat(Orders orders);
 bool incompatible(int fromId, int toId) const ;
 bool isIncompatibleOrder(const Order &orderx, const Order &ordery) const; 
 bool isIncompatibleOrder(int oidx,int oidy ) const ;
 bool isCompatibleOrder(const Order &from, const Order &to) const ;
 bool isCompatibleOrder(int oidx,int oidy) const ;
 double compatOrdersMeasure(const Order &orderx, const Order &ordery) const;
-int countCompatibleOrders(const Order &from, const std::deque<Order> &to) const;
-int getMostCompatibleOrder(const std::deque<Order> &orders) ;
-void removeIncompatibleOrders(const Order &from,  std::deque<Order> &orders, std::deque<Order> &incompatible) ;
+int countCompatibleOrders(const Order &from, const Orders &to) const;
+int getMostCompatibleOrder(const Orders &orders) ;
+void removeIncompatibleOrders(const Order &from,  Orders &orders, Orders &incompatible) ;
 void insertInTruck(Vehicle &truck,const Order &order);
-int getBestOrder(Vehicle &truck,const std::deque<Order> &orders) const;
-void makeRoute(Vehicle &truck, std::deque<Order> &orders, std::deque<Order> &incompatible);
+int getBestOrder(Vehicle &truck,const Orders &orders) const;
+void makeRoute(Vehicle &truck, Orders &orders, Orders &incompatible);
     void orderConstraintConstruction();
 
 
@@ -61,12 +62,12 @@ bool isCompatibleWithPending(int fromId,const BucketN &pending) ;
 
 /* Diferent initial Constructions */
     void insertByOrderSolution();
-    void dumbConstruction();
-    void dumbConstructionAndBestMoveForward();
-    void withSortedOrdersConstruction();
+//    void dumbConstruction();
+//    void dumbConstructionAndBestMoveForward();
+//    void withSortedOrdersConstruction();
     void initialByOrderSolution();
-    void dumbAndHillConstruction();
-    void deliveryBeforePickupConstruction();
+//    void dumbAndHillConstruction();
+//    void deliveryBeforePickupConstruction();
     void sequentialConstruction();
     void initialNoHillConstruction();
     void initialFeasableSolution();
