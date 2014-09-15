@@ -632,7 +632,7 @@ FULL-COMPATIBLE-IJ(O1,O2)  AND FULL-COMPATIBLE-IJ(O2,O1)<y:LabelModel>
           <y:Geometry height="65.0" width="230.0" x="967.0006518904825" y="540.75"/>
           <y:Fill color="#FF9900" transparent="false"/>
           <y:BorderStyle hasColor="false" type="line" width="1.0"/>
-          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="16" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="22.625" modelName="custom" textColor="#000000" visible="true" width="226.546875" x="1.7265625" y="21.1875">DIRECT PUSH_BACK(O1,O2)<y:LabelModel>
+          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="16" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="22.625" modelName="custom" textColor="#000000" visible="true" width="162.25" x="33.875" y="21.1875">PUSH_BACK(O1,O2)<y:LabelModel>
               <y:SmartNodeLabelModel distance="4.0"/>
             </y:LabelModel>
             <y:ModelParameter>
@@ -648,7 +648,7 @@ FULL-COMPATIBLE-IJ(O1,O2)  AND FULL-COMPATIBLE-IJ(O2,O1)<y:LabelModel>
           <y:Geometry height="65.0" width="230.0" x="967.0006518904825" y="238.25"/>
           <y:Fill color="#FF9900" transparent="false"/>
           <y:BorderStyle hasColor="false" type="line" width="1.0"/>
-          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="16" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="22.625" modelName="custom" textColor="#000000" visible="true" width="163.359375" x="33.3203125" y="21.1875">PICKS FIRST(O1,O2)<y:LabelModel>
+          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="16" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="22.625" modelName="custom" textColor="#000000" visible="true" width="102.8359375" x="63.58203125" y="21.1875">FIFO(O1,O2)<y:LabelModel>
               <y:SmartNodeLabelModel distance="4.0"/>
             </y:LabelModel>
             <y:ModelParameter>
@@ -664,7 +664,7 @@ FULL-COMPATIBLE-IJ(O1,O2)  AND FULL-COMPATIBLE-IJ(O2,O1)<y:LabelModel>
           <y:Geometry height="57.5" width="230.0" x="967.0006518904825" y="398.25"/>
           <y:Fill color="#FF9900" transparent="false"/>
           <y:BorderStyle hasColor="false" type="line" width="1.0"/>
-          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="16" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="22.625" modelName="custom" textColor="#000000" visible="true" width="224.484375" x="2.7578125" y="17.4375">SECOND IN MIDDLE(O1,O2)<y:LabelModel>
+          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="16" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="22.625" modelName="custom" textColor="#000000" visible="true" width="102.546875" x="63.7265625" y="17.4375">LIFO(O1,O2)<y:LabelModel>
               <y:SmartNodeLabelModel distance="4.0"/>
             </y:LabelModel>
             <y:ModelParameter>
@@ -696,7 +696,7 @@ FULL-COMPATIBLE-IJ(O1,O2)  AND FULL-COMPATIBLE-IJ(O2,O1)<y:LabelModel>
           <y:Geometry height="65.0" width="230.0" x="967.0006518904825" y="998.5"/>
           <y:Fill color="#FF9900" transparent="false"/>
           <y:BorderStyle hasColor="false" type="line" width="1.0"/>
-          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="16" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="22.625" modelName="custom" textColor="#000000" visible="true" width="226.546875" x="1.7265625" y="21.1875">DIRECT PUSH_BACK(O2,O1)<y:LabelModel>
+          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="16" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="22.625" modelName="custom" textColor="#000000" visible="true" width="162.25" x="33.875" y="21.1875">PUSH_BACK(O2,O1)<y:LabelModel>
               <y:SmartNodeLabelModel distance="4.0"/>
             </y:LabelModel>
             <y:ModelParameter>
@@ -712,7 +712,7 @@ FULL-COMPATIBLE-IJ(O1,O2)  AND FULL-COMPATIBLE-IJ(O2,O1)<y:LabelModel>
           <y:Geometry height="65.0" width="230.0" x="967.0006518904825" y="703.5"/>
           <y:Fill color="#FF9900" transparent="false"/>
           <y:BorderStyle hasColor="false" type="line" width="1.0"/>
-          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="16" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="22.625" modelName="custom" textColor="#000000" visible="true" width="163.359375" x="33.3203125" y="21.1875">PICKS FIRST(O2,O1)<y:LabelModel>
+          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="16" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="22.625" modelName="custom" textColor="#000000" visible="true" width="102.8359375" x="63.58203125" y="21.1875">FIFO(O2,O1)<y:LabelModel>
               <y:SmartNodeLabelModel distance="4.0"/>
             </y:LabelModel>
             <y:ModelParameter>
@@ -728,7 +728,7 @@ FULL-COMPATIBLE-IJ(O1,O2)  AND FULL-COMPATIBLE-IJ(O2,O1)<y:LabelModel>
           <y:Geometry height="57.5" width="230.0" x="967.0006518904825" y="859.75"/>
           <y:Fill color="#FF9900" transparent="false"/>
           <y:BorderStyle hasColor="false" type="line" width="1.0"/>
-          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="16" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="22.625" modelName="custom" textColor="#000000" visible="true" width="224.484375" x="2.7578125" y="17.4375">SECOND IN MIDDLE(O2,O1)<y:LabelModel>
+          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="16" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="22.625" modelName="custom" textColor="#000000" visible="true" width="102.546875" x="63.7265625" y="17.4375">LIFO(O2,O1)<y:LabelModel>
               <y:SmartNodeLabelModel distance="4.0"/>
             </y:LabelModel>
             <y:ModelParameter>

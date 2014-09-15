@@ -258,14 +258,15 @@ class TestProblem {
         for (int i=0; i<10; i++)
             v.path.e_push_back(datanodes[i],1000);
         vw.path.e_push_back(datanodes[0],1000);
-        for (int i=1; i<10000;i++)
+        for (int i=0; i<10000;i++)
             vw.path.e_push_back(datanodes[3],1000);
         vw.path.e_push_back(datanodes[20],1000);
         std::cout<<"\n\n************* POS TEST ***********";
-        std::cout<<"\n Starting truck for all e_swap test: 0 3 .... 3 20 ";
-        std::cout<<"\n finding 20\n";
+        std::cout<<"\n Starting truck for all e_swap test: 0 3 .... 3 20  size="<<vw.path.size();
         int pos= vw.path.pos(20);
-        std::cout<<"\n 20 is at position "<<pos<<" of:\n ";
+        std::cout<<"\n 20 is at position "<<pos<<"\n ";
+        pos= vw.path.pos(21);
+        std::cout<<"\n 21 is at position "<<pos<<" (aka not found)\n ";
         v.path.pos(t.args[0]);
         std::cout<<"\n Ending truck:\n "; v.dumpnids();
         bool result= (check_path(t,v) and check_costs(t,v));
