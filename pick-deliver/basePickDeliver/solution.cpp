@@ -24,7 +24,7 @@ double Solution::getDistance() {
 
 void Solution::plot(std::string file,std::string title){
 
-    Plot<Dpnode> graph( datanodes );
+    Plot<Dpnode> graph( datanodes.Path() );
     graph.setFile( file+".png" );
     graph.setTitle( title );
     graph.drawInit();
@@ -46,7 +46,7 @@ void Solution::plot(std::string file,std::string title){
 /* a grpah for individual truck but with all nodes */
         
     for (int j=0;j<fleet.size();j++) {
-        Plot<Dpnode> graph1( datanodes );
+        Plot<Dpnode> graph1( datanodes.Path() );
         std::stringstream convert;
         convert << j;
         std::string carnum = convert.str();

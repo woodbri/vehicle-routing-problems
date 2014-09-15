@@ -3,6 +3,7 @@
 
 
 #include "solution.h"
+#include "orders.h"
 
 //const double EPSILON = 0.001;
 

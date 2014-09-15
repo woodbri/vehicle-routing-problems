@@ -9,31 +9,26 @@
 #include <deque>
 #include <math.h>
 
-#include "node.h"
 #include "order.h"
-#include "vehicle.h"
+#include "orders.h"
+#include "bucketn.h"
 #include "compatible.h"
 
 class Prob_pd {
   protected:
     Dpnode depot;
-    double w1,w2,w3;
 
     Compatible twc;
 
-    Twpath<Dpnode> datanodes;
-//   Twpath<Dpnode> originalnodes;
-    Vehicle originalnodes;
-    std::deque<Order> ordersList;   // vector of orders
-    std::deque<std::deque<double> > twcij;
-    std::deque<double>  twcTot;
+    BucketN datanodes;
+    Orders ordersList;
 
-//    std::vector<int> unassigned;
 
   public:
     int K;      // number of vehicles
     int Q;      // capacity
 
+    Prob_pd(char *infile);
     Dpnode getdepot() const { return depot;};
     void loadProblem(char *infile);
 

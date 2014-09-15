@@ -111,7 +111,7 @@ void Compatible::setIncompatible(int fromNid,int toNid) {
 bool Compatible::isCompatibleIJ(int fromNid, int toNid) const {
     int atFrom = IdPos.find(fromNid)->second;
     int atTo = IdPos.find(toNid)->second;
-std::cout<<"Comparing "<<fromNid<<" with " <<toNid<<" gives "<< twcij[atFrom][atTo]<<"\n";
+//std::cout<<"Comparing "<<fromNid<<" with " <<toNid<<" gives "<< twcij[atFrom][atTo]<<"\n";
     return not (twcij[atFrom][atTo]  == _MIN());
 }
 

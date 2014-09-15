@@ -103,7 +103,7 @@ total=   compatibleIJ(Px,Dx)+compatibleIJ(Px,Py)+compatibleIJ(Px,Dy)+
 
 
 
-void Init_pd::sortOrdersByIncompat(std::deque<Order> orders) {
+void Init_pd::sortOrdersByIncompat(Orders orders) {
     int j;
     Order tmp;
     for (int i=1; i<orders.size();i++) {
@@ -133,7 +133,7 @@ void Init_pd::sortOrdersByIncompat(std::deque<Order> orders) {
 
 
 
-int Init_pd::countCompatibleOrders(const Order &from, const std::deque<Order> &to) const{
+int Init_pd::countCompatibleOrders(const Order &from, const Orders &to) const{
     if (to.empty()) return 0;
     int count=0;
     for (int i=0;i<to.size();i++) {
@@ -143,7 +143,7 @@ int Init_pd::countCompatibleOrders(const Order &from, const std::deque<Order> &t
     return count;
 }
 
-int Init_pd::getMostCompatibleOrder(const std::deque<Order> &orders) { 
+int Init_pd::getMostCompatibleOrder(const Orders &orders) { 
     int bestAt=0;
     int bestCount=0;
     int currCount;
@@ -158,11 +158,11 @@ int Init_pd::getMostCompatibleOrder(const std::deque<Order> &orders) {
     return bestAt;
 };
 
-void Init_pd::removeIncompatibleOrders(const Order &from,  std::deque<Order> &orders, std::deque<Order> &incompatible) {
+void Init_pd::removeIncompatibleOrders(const Order &from,  Orders &orders, Orders &incompatible) {
     for (int i=0;i<orders.size();i++) {
         if (isIncompatibleOrder(from,orders[i])) {
               incompatible.push_back(orders[i]);
-              orders.erase(orders.begin()+i);
+              orders.erase(i);
               i--;
         };
     }
@@ -209,7 +209,7 @@ std::cout<<"\n deliver Pos LR="<<deliverPosLR<<"\tdeliver Pos RL="<<deliverPosRL
 truck.tau(); std::cout<<"\n";
 };
 
-int Init_pd::getBestOrder(Vehicle &truck,const std::deque<Order> &orders)const {
+int Init_pd::getBestOrder(Vehicle &truck,const Orders &orders)const {
     double bestCost= std::numeric_limits<double>::max();
     int bestAt=-1;
     Order bestOrder;
@@ -228,12 +228,12 @@ int Init_pd::getBestOrder(Vehicle &truck,const std::deque<Order> &orders)const {
 
 
 
-void Init_pd::makeRoute(Vehicle &truck, std::deque<Order> &orders, std::deque<Order> &incompatible) {
+void Init_pd::makeRoute(Vehicle &truck, Orders &orders, Orders &incompatible) {
 std::cout << "Enter Problem::orderConstraintConstruction\n";
 std::cout<<"\n********************Recursion=DATA\n";
 std::cout<<"\n truck= "; truck.tau(); std::cout<<"\n";
-std::cout<<" orders= "; ordersdump(orders); std::cout<<"\n";
-std::cout<<" incompatible= "; ordersdump(incompatible); std::cout<<"\n";
+std::cout<<" orders= "; orders.dump(); std::cout<<"\n";
+std::cout<<" incompatible= "; incompatible.dump(); std::cout<<"\n";
 std::cout<<"\n********************recursion= END RESULTS****************************** \n";
     if (orders.empty()) return; //no more compatible orders
     int bestAt;
@@ -242,23 +242,23 @@ std::cout<<"\n********************recursion= END RESULTS************************
     if (truck.isEmptyTruck())  { 
           order= orders[0];
           truck.pushOrder(order);
-          orders.erase(orders.begin());
+          orders.erase(0);
           removeIncompatibleOrders(order,orders,incompatible);
     } else {
           bestAt=getBestOrder(truck,orders);
           if (bestAt==-1) return;  //no feasable best order
           order=orders[bestAt];
                   
-ordersdump(orders);
+orders.dump();
 std::cout<<"\nbestSt"<<bestAt<<" \n ";
-ordersdump(orders);
+orders.dump();
 truck.tau();
           truck.insertOrderAfterLastPickup(order,twc);
 std::cout<<"\nbestSt"<<bestAt<<" \n ";
-ordersdump(orders);
+orders.dump();
 truck.tau();
 std::cout<<"\ngoing to rease\n ";
-          orders.erase(orders.begin()+bestAt);
+          orders.erase(bestAt);
 std::cout<<"\nafter erase\n ";
 std::cout<<"\ngoing to remove\n ";
           removeIncompatibleOrders(order,orders,incompatible);
@@ -266,8 +266,8 @@ std::cout<<"\nafter remove\n ";
     }
 std::cout<<"\n********************Recursion=RESULT\n";
 std::cout<<"\n truck= "; truck.tau(); std::cout<<"\n";
-std::cout<<" orders= "; ordersdump(orders); std::cout<<"\n";
-std::cout<<" incompatible= "; ordersdump(incompatible); std::cout<<"\n";
+std::cout<<" orders= "; orders.dump(); std::cout<<"\n";
+std::cout<<" incompatible= "; incompatible.dump(); std::cout<<"\n";
 std::cout<<"\n********************recursion= END RESULTS****************************** \n";
     makeRoute(truck,orders,incompatible);
 }
@@ -279,17 +279,17 @@ std::cout << "Enter Problem::orderConstraintConstruction\n";
 
     //BucketN nodes;
     //BucketN pendingDeliveries, incompatible;   // delivery nodes not inserted yet 
-    std::deque<Order> orders=ordersList;
-    std::deque<Order> incompatible;
+    Orders orders=ordersList;
+    Orders incompatible;
     //nodes=originalnodes;
     //int lastNodeId;
 
     sortOrdersByIncompat(orders);
-    ordersdump(orders);
+    orders.dump();
     Vehicle truck(depot,Q);
 
-    for (int i=0;i<ordersList.size();i++)
-        twc.setIncompatible(ordersList[i]);
+    for (int i=0;i<orders.size();i++)
+        twc.setIncompatible(orders[i]);
     
 twc.dump();
 int k=0;
@@ -299,17 +299,17 @@ std::cout<<"\n********************CYCLE=DATA****************************** "<<k<
         //lastNodeId=depot.getnid();                      // I work with nids at this levle
         //nodes.removeNode(lastNodeId);                // remove the node from the nodes list
         //twc.recreateRowColumn( lastNodeId );
-std::cout<<" orders= "; ordersdump(orders); std::cout<<"\n";
-std::cout<<" incompatible= "; ordersdump(incompatible); std::cout<<"should be empty\n";
+std::cout<<" orders= "; orders.dump(); std::cout<<"\n";
+std::cout<<" incompatible= "; incompatible.dump(); std::cout<<"should be empty\n";
 //std::cout<<" pending= "; pendingDeliveries.tau(); std::cout<<"should be empty\n";
 std::cout<<"\n********************CYCLE=ENDATA****************************** "<<k<<"\n";
         makeRoute(truck,orders,incompatible);
 std::cout<<"\n********************CYCLE=RESULTS****************************** "<<k<<"\n";
 std::cout<<"\n truck= "; truck.tau(); std::cout<<"\n";
-std::cout<<" orders= "; ordersdump(orders); std::cout<<"\n";
-std::cout<<" incompatible= "; ordersdump(incompatible); std::cout<<"should be empty\n";
+std::cout<<" orders= "; orders.dump(); std::cout<<"\n";
+std::cout<<" incompatible= "; incompatible.dump(); std::cout<<"should be empty\n";
 std::cout<<"\n********************CYCLE= END RESULTS****************************** "<<k<<"\n";
-        orders.insert (orders.end(),incompatible.begin(),incompatible.end());
+        orders.join(incompatible);
         incompatible.clear();
         fleet.push_back(truck);
         k++;
@@ -507,13 +507,14 @@ std::cout << "Enter Problem::seqConst\n";
 
     BucketN nodes;
     BucketN pendingDeliveries, incompatible;   // delivery nodes not inserted yet 
-    nodes=originalnodes;
+    Orders orders=ordersList;
+    nodes=datanodes;
     int lastNodeId;
 
     Vehicle truck(depot,Q);
 
-    for (int i=0;i<ordersList.size();i++)
-        twc.setIncompatible(ordersList[i]);
+    for (int i=0;i<orders.size();i++)
+        twc.setIncompatible(orders[i]);
 twc.dump();
 int k=0;
     while (k<K and  nodes.hasNodes()) {   
@@ -548,11 +549,11 @@ truck.Path().e_move(0,2,7,100);
 }
 
 
-
+/*
 void Init_pd::dumbConstruction() {
     Vehicle truck(depot,Q);
     fleet.empty();
-        for (int i=0; i<ordersList.size(); i++) {
+        for (int i=0; i<orders.size(); i++) {
            truck.pushOrder(getOrder(i));
         }
    fleet.push_back(truck);
@@ -598,6 +599,7 @@ void Init_pd::deliveryBeforePickupConstruction() {
         }
     fleet.push_back(truck);
 };
+*/
 
 void Init_pd::sequentialConstruction() {
 std::cout << "Enter Problem::sequentialConstruction\n";
@@ -605,8 +607,8 @@ std::cout << "Enter Problem::sequentialConstruction\n";
     Vehicle truck(depot,Q);
     Order order;
     Order lastOrder;
-    std::deque<Order> unOrders;
-    std::deque<Order> waitOrders;
+    Orders unOrders;
+    Orders waitOrders;
     unOrders=ordersList;
     while (!unOrders.empty()) {
        truck.clean();  
@@ -634,8 +636,8 @@ void Init_pd::initialByOrderSolution() {
     double actualcost, bestcost;
     fleet.clear();
     Order order;
-    std::deque<Order> clientBucketN;
-    std::deque<Order> waitOrders;
+    Orders clientBucketN;
+    Orders waitOrders;
     sortOrdersbyDistReverse();
     clientBucketN=ordersList;
     while (!clientBucketN.empty()) {        //are there any unrouted customers
@@ -673,8 +675,8 @@ void  Init_pd::initialFeasableSolution() {
     double actualcost, bestcost;
     fleet.clear();
     Order order;
-    std::deque<Order> unOrders;
-    std::deque<Order> waitOrders;
+    Orders unOrders;
+    Orders waitOrders;
 //    sortOrdersbyDistReverse();
     unOrders=ordersList;
     while (!unOrders.empty()) {
