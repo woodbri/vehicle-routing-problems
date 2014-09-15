@@ -11,7 +11,7 @@
 void TestConstruction::dumbConstruction() {
     Vehicle truck(depot,Q);
     fleet.clear();
-    for (int j=1;j<100000;j++)
+    for (int j=1;j<1000;j++)
         for (int i=0; i<ordersList.size()-1; i++) {
            truck.pushOrder(getOrder(i));
         }
