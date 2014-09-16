@@ -2,6 +2,7 @@
 #define DUMBSOLUTION_H
 #include <deque>
 #include "prob_pd.h" 
+#include "init_pd.h" 
 #include "solution.h" 
 #include "testconstruction.h" 
 
@@ -16,6 +17,18 @@ public:
       void push_back(const Solution solution) {
             taus.push_back(solution);
       };
+
+      
+      void insertConstruction() {
+std::cout<<"Enter insertConstruction\n";
+          Init_pd test(problem);
+std::cout<<"Enter insertConstruction 1\n";
+          taus.push_back(test);
+std::cout<<"Enter insertConstruction 2\n";
+dump();
+      }
+
+
       void insertDumbInitialSolutions() {
           TestConstruction test(problem);
           taus.push_back(test);

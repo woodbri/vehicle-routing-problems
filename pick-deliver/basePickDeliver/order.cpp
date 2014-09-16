@@ -2,16 +2,6 @@
 #include "order.h"
 
 
-
-
-//int Order::getoid() const{ return oid;}
-//int Order::getpid() const {return pid;}
-//int Order::getRoute(){return routeId;}
-//int Order::getdid() const {return did;}
-//double Order::getDistFromPickup(){return dist;}
-//double Order::getDistFromDelivery(){return dist2;}
-void  Order::moveOrder(const int toRoute) {rid=toRoute;}
-
 bool Order::checkIntegrity(const int ordersCant) const {
      bool flag=true;
      if (oid<0 or oid>ordersCant) {
@@ -36,8 +26,6 @@ std::cout              << getdistPickupDepot() <<  ", "
 
 
 void Order::dump() const {
-    std::cout << "("
-              << getpid() << ","
-              << getdid() << ") ";
-    //pickup.dump();delivery.dump();
+    if (oid!=-1) std::cout << "(" << getpid() << "," << getdid() << ") "; 
+    else  std::cout << "(-1,-1)";
 }

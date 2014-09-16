@@ -45,7 +45,6 @@ Dpnode& Prob_pd::getPickupNodeFromOrder(int oid){ return datanodes[ordersList[oi
 double Prob_pd::nodeDemand(int i) const { return datanodes[i].getdemand(); }
 bool Prob_pd::lateArrival(int nid,double D) const { return datanodes[nid].latearrival(D); }
 bool Prob_pd::earlyArrival(int nid,double D) const { return datanodes[nid].earlyarrival(D); }
-bool Prob_pd::isAsignedOrder(int oid) const { return ordersList[oid].isAsigned(); }
 double Prob_pd::nodeServiceTime(int nid) const { return datanodes[nid].getservicetime(); }
 Order& Prob_pd::getOrder(int oid) { return ordersList[oid]; } 
 
@@ -131,17 +130,10 @@ std::cout << "---- Load --------------\n";
         }
     }
     in.close();
-std::cout << "---- MakeOrders --------------\n";
     ordersList.makeOrders(datanodes,depot);
-std::cout << "---- setNodes --------------\n";
     twc.setNodes(datanodes);
-std::cout << "---- CompatOrders --------------\n";
+    for (int i=0;i<ordersList.size();i++) twc.setIncompatible(ordersList[i]);
     ordersList.setCompatibility(twc);
-std::cout << "---- DumpCompatOrders --------------\n";
-ordersList.dumpCompat();
-std::cout << "\n---- Dumps--------------\n";
-twc.dump();
-
 }
 
 /* sorts */
