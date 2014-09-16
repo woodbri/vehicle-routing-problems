@@ -5,6 +5,7 @@
 #include <vector>
 #include "twpath.h"
 #include "order.h"
+#include "orders.h"
 #include "dpnode.h"
 #include "bucketn.h"
 
@@ -16,6 +17,8 @@ class Vehicle:public BucketN {
   private:
     int  maxcapacity;   
     Dpnode backToDepot;
+    int lastPickup;
+    int lastDelivery;
     double cost;     
     //deque<Order> orders;
 
@@ -35,12 +38,14 @@ class Vehicle:public BucketN {
         maxcapacity = 0;
         curcapacity = 0;
         cost        = 0;
+        lastPickup=lastDelivery=0;
         w1 = w2 = w3 = 1.0;
     };
 
    Vehicle(const Dpnode &_depot,double _maxcapacity) {
         backToDepot=_depot;
         maxcapacity=_maxcapacity;
+        lastPickup=lastDelivery=0;
         w1 = w2 = w3 = 1.0;
         push_back(_depot);
    };
@@ -52,6 +57,13 @@ class Vehicle:public BucketN {
     const Dpnode& getBackToDepot() const {return backToDepot;}
     
 
+
+    // return cost: infinity
+    // orders are not inserted
+    double testInsertPUSH(const Order& order, const Orders &orders, int &pickPos,int &delPos,const Compatible &twc);
+
+//*******
+
     int pos(int nid) const ;
     bool  in(int nid) const;
     
@@ -60,6 +72,7 @@ class Vehicle:public BucketN {
     void e_erase(int at);
     void e_swap(int i,int j);
     void e_move(int fromi,int toj);
+    void e_clean();
 
     void removeOrder( const Order &order);
     void removeOrder(int orderid);

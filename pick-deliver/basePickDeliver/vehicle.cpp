@@ -3,6 +3,7 @@
 
 
 #include "order.h"
+#include "orders.h"
 #include "twpath.h"
 #include "vehicle.h"
 #include "compatible.h"
@@ -10,6 +11,52 @@
 
 #include <sstream>
 
+
+double Vehicle::testInsertPUSH(const Order &order, const Orders &orders, int &pickPos, int &delPos,const Compatible &twc) {
+       //lastDelivery 
+       //lastPickup
+       //check if its D's -> O
+       int oid=order.getoid();
+       int route_oid;
+       bool flag=true;
+std::cout<<"lastPick "<<lastPickup<<"\t lastDelivery "<<lastDelivery<<"\n";
+       if (lastPickup==lastDelivery) {
+std::cout<<"test Insert 1\n";
+           pickPos=1;delPos=2;
+           return true;
+       }
+       for (int i=lastPickup;i<lastDelivery;i++) {  //deliveries intermedios -> orden
+           route_oid=getoid(i);
+std::cout<<"test Insert 2---"<<route_oid<<" vs "<<oid<<"\n";
+std::cout<<"compat "<<(orders.isPUSHcompat(route_oid,oid)?"yes":"no")<<"\n";
+
+
+           flag=flag and orders.isPUSHcompat(route_oid,oid);
+       }
+       if (flag==false) { pickPos=-1;delPos=-1; return std::numeric_limits<double>::max(); };
+std::cout<<"test Insert 3---\n";
+       int pLR,pRL,dLR,dRL;
+       Dpnode pickup=order.getPickup();
+       Dpnode delivery=order.getDelivery();
+
+       for (pLR=lastDelivery;pLR<size() and twc.isCompatibleIJ( pickup.getnid(),path[pLR].getnid());pLR++) {};
+       for (pRL=size()-1;pRL>lastDelivery and twc.isCompatibleIJ(path[pLR].getnid() , pickup.getnid() );pLR++) {};
+std::cout<<"pLR"<<pLR<<"\t";
+std::cout<<"pRL"<<pRL<<"\n";
+
+       for (dLR=lastDelivery;dLR<size() and twc.isCompatibleIJ(delivery.getnid(),path[dLR].getnid());dLR++) {};
+       for (dRL=size()-1;dRL>lastDelivery and twc.isCompatibleIJ(path[dRL].getnid(),delivery.getnid());dLR++) {};
+std::cout<<"dLR"<<dLR<<"\t";
+std::cout<<"dRL"<<dRL<<"\n";
+
+           
+       return flag;
+}
+           
+ 
+
+
+// *******
 bool Vehicle::insertOrderAfterLastPickup(const Order &order,const Compatible &twc){
     int i;
     for (i=size()-1; i>=0 and not ispickup(i); i--) {};
@@ -313,6 +360,11 @@ bool Vehicle::isEmptyTruck() const {return path.size()==1;}
           evalLast();
     }
 
+    void Vehicle::e_clean() {
+          path.resize(1);
+          evalLast();
+    }
+
        
     void Vehicle::e_swap(int i,int j){	
           if (i==j) return; //nothing to swap
@@ -321,17 +373,19 @@ bool Vehicle::isEmptyTruck() const {return path.size()==1;}
     }
 
 /****** Indirect evaluation *****/    
-    void  Vehicle::insertPickup   (const Order &o, const int at)  { insert(*o.pickup,at); }
-    void  Vehicle::insertDelivery (const Order &o, const int at) { insert(*o.delivery,at); }
+    void  Vehicle::insertPickup   (const Order &o, const int at)  { e_insert(*o.pickup,at); }
+    void  Vehicle::insertDelivery (const Order &o, const int at) { e_insert(*o.delivery,at); }
 
     
-    void  Vehicle::pushPickup(const Order &o)  { push_back(*o.pickup); }
-    void Vehicle::pushDelivery(const Order &o) { push_back(*o.delivery); }
+    void  Vehicle::pushPickup(const Order &o)  { e_push_back(*o.pickup); }
+    void Vehicle::pushDelivery(const Order &o) { e_push_back(*o.delivery); }
 
     
     void Vehicle::pushOrder( const Order &o) {
         pushPickup(o);
         pushDelivery(o);
+        lastPickup=size()-2;
+        lastDelivery=size()-1;
     }
 
     
@@ -343,7 +397,7 @@ bool Vehicle::isEmptyTruck() const {return path.size()==1;}
                std::cout<<"This is a restrictive swap, requierment: cant swap from the same order\n";
                return;
           }
-          swap(i,j);
+          e_swap(i,j);
      }
 
      

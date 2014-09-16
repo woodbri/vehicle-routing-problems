@@ -32,11 +32,11 @@ int main (int argc, char **argv)
 
         Prob_pd P(infile);   //setting a new problem
         std::string title;
-        //P.loadProblem(infile); //load problem
         std::cout << "Problem '" << infile << "'loaded\n";
-//        DumbSolution sols(P);
-//        sols.insertDumbInitialSolutions();
-//        sols.dump(0);
+        DumbSolution sols(P);
+        sols.insertConstruction();
+        std::cout << "ENDING\n";
+        //sols.dump(0);
         
     }
     catch (const std::exception &e) {

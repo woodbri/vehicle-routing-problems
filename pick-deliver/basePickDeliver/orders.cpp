@@ -16,6 +16,59 @@
        makeOrders(nodes,depot);
     };
 
+// manipulation
+   void Orders::removeIncompatible(const Order &from, Orders &incompat) {
+          for (int i=0;i<orders.size();i++) {
+              if (isINCOMPAT(from,orders[i])) {
+                  incompat.push_back(orders[i]);
+                  orders.erase(orders.begin()+i);
+                  i--;
+              };
+          }
+   }
+
+
+   int Orders::leastReachable() const { //retruns position
+std::cout << "Enter Least Reachable\n";
+         int bestCount=size()+1;
+         int count;
+         int leastPos=-1;
+         for (int j=0;j<orders.size();j++) {
+           count=0;
+orders[j].dump();
+//std::cout << "Enter Least Reachable 1--------> "<<j<<" \t" <<count<<" \t" <<bestCount<<" \n";
+           for (int i=0;i<orders.size();i++) {
+//orders[i].dump();
+//std::cout << "Enter Least Reachable 1.1--------> "<<i<<" \t" <<count<<"\t"<<(isCOMPAT(orders[i],orders[j])?"YES":"no")<<" \n";
+              count+=isCOMPAT(orders[i],orders[j])?1:0;
+std::cout << "Enter Least Reachable 1.2--------> "<<i<<" \t" <<count<<" \n";
+           }
+           if (count<bestCount) {
+std::cout << "Enter Least Reachable 2---->"<<j<<" \n";
+              bestCount=count; leastPos=j;
+           }
+std::cout << "Enter Least Reachable 3--------> "<<leastPos<<" \n";
+          }
+std::cout << "EXIT Least Reachable 3--------> "<<leastPos<<" \n";
+orders[leastPos].dump();
+         return leastPos;
+   }
+
+   int Orders::reachesMost() const {
+         int bestCount=-1;
+         int count;
+         int mostPos=-1;
+         for (int i=0;i<orders.size();i++) {
+           count=0;
+           for (int j=0;j<orders.size();j++)
+              count=isINCOMPAT(orders[i],orders[j])?count++:count;
+           if (count>bestCount) {
+              bestCount=count; mostPos=i;
+           }
+          }
+         return mostPos;
+   }
+
 
     void Orders::makeOrders (BucketN &nodes,const Dpnode &depot)
     {
@@ -38,10 +91,44 @@ void Orders::join(const Orders &other){
 };
 
 
-bool Orders::isIncompatibleOrder(const Order &orderx, const Order &ordery) const {
+bool Orders::isPUSHcompat(int oidx, int oidy) const { return  push[oidx][oidy]; }
+bool Orders::isFIFOcompat(int oidx, int oidy) const { return  fifo[oidx][oidy]; }
+bool Orders::isLIFOcompat(int oidx, int oidy) const { return  lifo[oidx][oidy]; }
+bool Orders::isCOMPAT(int oidx, int oidy) const { return not compat[oidx][oidy]; }
+bool Orders::isINCOMPAT(int oidx, int oidy) const { return not compat[oidx][oidy]; }
+
+bool Orders::isPUSHcompat(const Order &orderx, const Order &ordery) const {
     int oidx,oidy;
     oidx= orderx.getoid();
-    oidy= orderx.getoid();
+    oidy= ordery.getoid();
+    return  push[oidx][oidy];
+}
+
+bool Orders::isFIFOcompat(const Order &orderx, const Order &ordery) const {
+    int oidx,oidy;
+    oidx= orderx.getoid();
+    oidy= ordery.getoid();
+    return  fifo[oidx][oidy];
+}
+
+bool Orders::isLIFOcompat(const Order &orderx, const Order &ordery) const {
+    int oidx,oidy;
+    oidx= orderx.getoid();
+    oidy= ordery.getoid();
+    return  lifo[oidx][oidy];
+}
+
+bool Orders::isCOMPAT(const Order &orderx, const Order &ordery) const {
+    int oidx,oidy;
+    oidx= orderx.getoid();
+    oidy= ordery.getoid();
+    return  compat[oidx][oidy];
+}
+
+bool Orders::isINCOMPAT(const Order &orderx, const Order &ordery) const {
+    int oidx,oidy;
+    oidx= orderx.getoid();
+    oidy= ordery.getoid();
     return not compat[oidx][oidy];
 }
 
