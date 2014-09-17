@@ -50,6 +50,7 @@ class Prob_pd {
     bool isAsignedOrder(int oid) const;
     Dpnode& getDeliveryNodeFromOrder(int i);
     Dpnode& getPickupNodeFromOrder(int i);
+    void sortNodeById();
     void sortNodeByDistReverse();
     void sortNodeByTWC();
     void sortOrdersbyDist();

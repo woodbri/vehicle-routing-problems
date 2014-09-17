@@ -5,9 +5,9 @@
 #include "order.h"
 #include "orders.h"
 #include "twpath.h"
-#include "vehicle.h"
 #include "compatible.h"
 #include "plot.h"
+#include "vehicle.h"
 
 #include <sstream>
 
@@ -168,17 +168,17 @@ std::cout<<"from "<<getnid(i-1)<<" to "<<pickId<<" Compat="<<( twc.isCompatibleI
             path.evaluate(i-1,maxcapacity);
 
             for (j=lastDelivery+1 ; j<size()  ;j++) {
-std::cout<<"\t\tdeliver en "<<j<<"\n";
-std::cout<<"from "<<delId<<" to "<<getnid(j)<<" Compat="<<( twc.isCompatibleIJ(delId,getnid(j)) ?"YES\n":"no\n");
-                if (not twc.isCompatibleIJ(delId,getnid(j))) break;
-                path.insert(order.getDelivery(),j);
-                path.evaluate(j-1,maxcapacity);
+std::cout<<"\t\tdeliver en "<<j+1<<"\n";
+std::cout<<"from "<<delId<<" to "<<getnid(j)<<" Compat="<<( twc.isCompatibleIJ(getnid(j),delId) ?"YES\n":"no\n");
+                if (not twc.isCompatibleIJ(getnid(j-1),delId)) break;
+                path.insert(order.getDelivery(),j+1);
+                path.evaluate(j,maxcapacity);
                 evalLast();
 dump();
                 if (feasable()) {
                      bestCost = getcost();
                      pickPos=i;
-                     delPos=j;
+                     delPos=j+1;
                      e_erase(pickPos,delPos);                      // are trying go back to normal
                      return bestCost;
                 }
@@ -255,44 +255,42 @@ std::cout<<"***************PUSH********************\n";
        //check if its D's -> O
        int oid=order.getoid();
        int route_oid;
-       double bestCost;
-       bool flag=true;
-std::cout<<"lastPick "<<lastPickup<<"\t lastDelivery "<<lastDelivery<<"\n";
-       if (lastPickup==lastDelivery) {
-std::cout<<"test Insert PUSH empty truck\n";
-           pickPos=1;delPos=2;
-           bestCost=tryInsertPOS(order,pickPos,delPos);
-           return bestCost;
-       }
-       for (int i=lastPickup;i<lastDelivery;i++) {  //deliveries intermedios -> orden
-           route_oid=getoid(i);
-std::cout<<"test Insert 2---"<<route_oid<<" vs "<<oid<<"\n";
-std::cout<<"compat "<<(orders.isPUSHcompat(route_oid,oid)?"yes":"no")<<"\n";
-           flag=flag and orders.isPUSHcompat(route_oid,oid);
-       }
-
-       if (flag==false) { pickPos=-1;delPos=-1; return std::numeric_limits<double>::max(); };
-std::cout<<"test Insert 3---\n";
+       double bestCost=std::numeric_limits<double>::max();
        int pLR,pRL,dLR,dRL;
-       Dpnode pickup=order.getPickup();
-       Dpnode delivery=order.getDelivery();
+       int pickId=order.getpid();
+       int delId=order.getdid();
+       int i,j;
 
-       for (pLR=lastDelivery;pLR<size() and twc.isCompatibleIJ( pickup.getnid(),path[pLR].getnid());pLR++) {};
-       for (pRL=size()-1;pRL>lastDelivery and twc.isCompatibleIJ(path[pLR].getnid() , pickup.getnid() );pLR++) {};
-std::cout<<"pLR"<<pLR<<"\t";
-std::cout<<"pRL"<<pRL<<"\n";
+       for (i=lastDelivery+1;i<=size()  ;i++) {
+std::cout<<"pick en"<<i<<"\n";
+std::cout<<"from "<<getnid(i-1)<<" to "<<pickId<<" Compat="<<( twc.isCompatibleIJ(getnid(i-1),pickId) ?"YES\n":"no\n");
+            if (not twc.isCompatibleIJ(getnid(i-1),pickId) ) break;
+            path.insert(order.getPickup(),i);
+            path.evaluate(i-1,maxcapacity);
 
-       for (dLR=lastDelivery;dLR<size() and twc.isCompatibleIJ(delivery.getnid(),path[dLR].getnid());dLR++) {};
-       for (dRL=size()-1;dRL>lastDelivery and twc.isCompatibleIJ(path[dRL].getnid(),delivery.getnid());dLR++) {};
-std::cout<<"dLR"<<dLR<<"\t";
-std::cout<<"dRL"<<dRL<<"\n";
-
-       if (pLR==pRL and dLR==dRL) {pickPos=pRL+1; delPos=pickPos+1;};
-std::cout<<"pickPos"<<pickPos<<"\t";
-std::cout<<"delPos"<<delPos<<"\n";
-       int lP=lastPickup;
-       int lD=lastDelivery;
-       bestCost=tryInsertPOS(order,pickPos,delPos);
+            for (j=i+1 ; j<=size()  ;j++) {
+std::cout<<"\t\tdeliver en "<<j<<"\n";
+std::cout<<"from "<<delId<<" to "<<getnid(j-1)<<" Compat="<<( twc.isCompatibleIJ(getnid(j-1),delId) ?"YES\n":"no\n");
+                if (not twc.isCompatibleIJ(getnid(j-1),delId)) break;
+                path.insert(order.getDelivery(),j);
+                path.evaluate(j-1,maxcapacity);
+                evalLast();
+dump();
+                if (feasable()) {
+                     bestCost = getcost();
+                     pickPos=i;
+                     delPos=j;
+                     e_erase(pickPos,delPos);                      // are trying go back to normal
+                     return bestCost;
+                }
+                path.erase(j);
+            }
+            path.erase(i);
+       }
+       path.evaluate(lastPickup,maxcapacity);
+       evalLast();
+       delPos=pickPos=-1;
+std::cout<<"***************PUSH********************\n";
        return bestCost;
 }
 
@@ -332,6 +330,17 @@ double Vehicle::e_erase(int pickPos, int delPos) {
        return getcost();
 }
 
+bool Vehicle::e_feasable4(const Dpnode& n1, const Dpnode& n2,const Dpnode& n3,const Dpnode& n4) {
+       path.resize(1);
+       path.insert(n1,1);
+       path.insert(n2,2);
+       path.insert(n3,3);
+       path.insert(n4,4);
+       path.evaluate(1,maxcapacity);
+       evalLast();
+tau();std::cout<<(feasable()?"YES":"no")<<"\n";
+       return feasable();
+}
 
 
 

@@ -5,10 +5,10 @@
 #include <vector>
 #include "twpath.h"
 #include "order.h"
-#include "orders.h"
 #include "dpnode.h"
 #include "bucketn.h"
 
+class Orders;
 
 class Compatible;
 
@@ -68,6 +68,7 @@ class Vehicle:public BucketN {
     double tryInsertPOS(const Order &order, int pickPos, int delPos);
     double insertPOS(const Order &order, int pickPos, int delPos);
     double e_erase(int pickPos, int delPos);
+    bool   e_feasable4(const Dpnode &n1,const Dpnode &n2,const Dpnode &n3,const Dpnode &n4);
 
 //*******
 

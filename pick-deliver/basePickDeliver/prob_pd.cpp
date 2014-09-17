@@ -130,10 +130,12 @@ std::cout << "---- Load --------------\n";
         }
     }
     in.close();
+    sortNodeById();
     ordersList.makeOrders(datanodes,depot);
     twc.setNodes(datanodes);
     for (int i=0;i<ordersList.size();i++) twc.setIncompatible(ordersList[i]);
-    ordersList.setCompatibility(twc);
+    Vehicle v(depot,Q);
+    ordersList.setCompatibility(twc,v);
 }
 
 /* sorts */
@@ -155,6 +157,18 @@ return;
       twcTot[j]=twc;
     }
 */
+};
+
+void Prob_pd::sortNodeById() {
+    int j;
+    Dpnode tmp;
+    for (int i=2; i<datanodes.size();i++) {
+      tmp=datanodes[i];
+      for (j = i; j > 1 and datanodes[j-1].getnid() > tmp.getnid();j-- ) {
+        datanodes[j]=datanodes[j-1];
+      }
+      datanodes[j]=tmp;
+    }
 };
 
 void Prob_pd::sortNodeByDistReverse(){

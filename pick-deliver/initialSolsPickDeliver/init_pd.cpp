@@ -42,12 +42,23 @@ std::cout<<"LIFO Cost "<<lifoCost<<"\t pickPos "<<pickPosLIFO<<"\tdelpos "<<delP
                    makeRoute(truck,orders,incompatible,lastOrder);
                    return;
                };
-          } 
-          if (orders.isFIFOcompat(lastOrder,order)) {
+          }  else std::cout<<"Not LIFO\n";
+          if(orders.isFIFOcompat(lastOrder,order)) {
                fifoCost=truck.testInsertFIFO(order, orders, pickPosFIFO, delPosFIFO, twc);
                if (fifoCost<std::numeric_limits<double>::max()) {
 std::cout<<"FIFO Cost "<<fifoCost<<"\t pickPos "<<pickPosFIFO<<"\tdelpos "<<delPosFIFO<<"\n";
-                   truck.insertPOS(order,pickPosLIFO,delPosLIFO);
+                   truck.insertPOS(order,pickPosFIFO,delPosFIFO);
+                   orders.removeIncompatible(order,incompatible);
+                   lastOrder=order;
+                   makeRoute(truck,orders,incompatible,lastOrder);
+                   return;
+               }
+          }  else std::cout<<"Not FIFO\n";
+          if (orders.isPUSHcompat(lastOrder,order)) {
+               pushCost=truck.testInsertPUSH(order, orders, pickPosPUSH, delPosPUSH, twc);
+               if (pushCost<std::numeric_limits<double>::max()) {
+std::cout<<"PUSH Cost "<<pushCost<<"\t pickPos "<<pickPosPUSH<<"\tdelpos "<<delPosPUSH<<"\n";
+                   truck.insertPOS(order,pickPosPUSH,delPosPUSH);
                    orders.removeIncompatible(order,incompatible);
                    lastOrder=order;
                    makeRoute(truck,orders,incompatible,lastOrder);
@@ -93,6 +104,7 @@ std::cout<<"\n********************CYCLE= END RESULTS****************************
         k++;
     }
 std::cout<<"after 3\n";
+    plot("InitialSolution","Initial Solution");
 }
 
 

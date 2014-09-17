@@ -73,7 +73,7 @@ class Compatible {
 
 
 
-
+    const Dpnode& node(int i) const;
     void dump() const;
 
 };
