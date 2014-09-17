@@ -72,7 +72,7 @@
     }
 
     void BucketN::push_back(Dpnode pathstop) { path.push_back(pathstop); }
-    void BucketN::insert(const Dpnode &pathstop,int at) { path.insert(pathstop,at); }
+    void BucketN::insert(const Dpnode &pathstop,int at) { std::cout<<"INSERTING"<<at<<"\n";path.insert(pathstop,at); }
     void BucketN::insertPickup(const Order &o, const int at) { insert(*o.pickup,at); }
 
     void BucketN::pushPickup(const Order &o) { push_back(*o.pickup); }

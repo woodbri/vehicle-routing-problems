@@ -5,6 +5,7 @@
 #include <iostream>
 #include <algorithm>
 #include "bucketn.h"
+#include "vehicle.h"
 #include "compatible.h"
 #include "order.h"
 
@@ -42,7 +43,7 @@ class Orders {
     bool isCOMPAT(const Order &orderx, const Order &ordery) const;
     bool isINCOMPAT(const Order &orderx, const Order &ordery) const;
 
-    void setCompatibility( const Compatible &twc);
+    void setCompatibility( const Compatible &twc,Vehicle &v);
 
 
 // manipulation
@@ -67,7 +68,7 @@ class Orders {
     // mirror of deques functions
     void insert(const Order &o, int atPos) { orders.insert(orders.begin() + atPos, o); };
     void erase (int atPos) { orders.erase(orders.begin()+atPos); };
-    void push_back(const Order& o) { std::cout<<"PUSSGIIIING\n";orders.push_back(o); };
+    void push_back(const Order& o) { orders.push_back(o); };
     void push_front(const Order& o) { orders.push_front(o); };
     void pop_back() { orders.pop_back(); };
     void pop_front() { orders.pop_front(); };

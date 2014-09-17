@@ -29,27 +29,27 @@
 
 
    int Orders::leastReachable() const { //retruns position
-std::cout << "Enter Least Reachable\n";
+//std::cout << "Enter Least Reachable\n";
          int bestCount=size()+1;
          int count;
          int leastPos=-1;
          for (int j=0;j<orders.size();j++) {
            count=0;
-orders[j].dump();
+//orders[j].dump();
 //std::cout << "Enter Least Reachable 1--------> "<<j<<" \t" <<count<<" \t" <<bestCount<<" \n";
            for (int i=0;i<orders.size();i++) {
 //orders[i].dump();
 //std::cout << "Enter Least Reachable 1.1--------> "<<i<<" \t" <<count<<"\t"<<(isCOMPAT(orders[i],orders[j])?"YES":"no")<<" \n";
               count+=isCOMPAT(orders[i],orders[j])?1:0;
-std::cout << "Enter Least Reachable 1.2--------> "<<i<<" \t" <<count<<" \n";
+//std::cout << "Enter Least Reachable 1.2--------> "<<i<<" \t" <<count<<" \n";
            }
            if (count<bestCount) {
-std::cout << "Enter Least Reachable 2---->"<<j<<" \n";
+//std::cout << "Enter Least Reachable 2---->"<<j<<" \n";
               bestCount=count; leastPos=j;
            }
-std::cout << "Enter Least Reachable 3--------> "<<leastPos<<" \n";
+//std::cout << "Enter Least Reachable 3--------> "<<leastPos<<" \n";
           }
-std::cout << "EXIT Least Reachable 3--------> "<<leastPos<<" \n";
+//std::cout << "EXIT Least Reachable 3--------> "<<leastPos<<" \n";
 orders[leastPos].dump();
          return leastPos;
    }
@@ -87,7 +87,11 @@ orders[leastPos].dump();
 
 
 void Orders::join(const Orders &other){
-     orders.insert(orders.end(),other.orders.begin(),other.orders.end());
+     Order order;
+     for (int i=0;i<other.size();i++) {
+         order=other.orders[i];
+         orders.push_back(order);
+     }
 };
 
 
@@ -132,7 +136,8 @@ bool Orders::isINCOMPAT(const Order &orderx, const Order &ordery) const {
     return not compat[oidx][oidy];
 }
 
-void Orders::setCompatibility( const Compatible &twc)  {
+void Orders::setCompatibility( const Compatible &twc, Vehicle &v)  {
+ 
     int Px,Dx,Py,Dy;
 std::cout<<"set Compatibility \n";
     compat.resize(size());
@@ -151,20 +156,32 @@ std::cout<<"set Compatibility \n";
             Dx= orders[x].getdid();
             Py= orders[y].getpid();
             Dy= orders[y].getdid();
+std::cout<<"("<<Px<<","<<Dx<<") ("<<Py<<","<<Dy<<")";
+std::cout<<"("<<twc.node(Px).getnid()<<","<<twc.node(Dx).getnid()<<") ("<<twc.node(Py).getnid()<<","<<twc.node(Dy).getnid()<<")\n";
             if (x==y) { //check Pi -> Di
                 compat[x][x] = (twc.isCompatibleIJ(Px,Dx))?true:false;
                 push[x][x]=lifo[x][x]=fifo[x][x]=false;
-            } else if (twc.isCompatibleIJ(Px,Dx) and twc.isCompatibleIJ(Py,Dy) ) {  //blue lines
-                fifo[x][y]= twc.isCompatibleIJ(Px,Py) and twc.isCompatibleIJ(Py,Dx) and twc.isCompatibleIJ(Dx,Dy); 
-                lifo[x][y]= twc.isCompatibleIJ(Px,Py) and twc.isCompatibleIJ(Py,Dx) and twc.isCompatibleIJ(Dy,Dx); 
-                push[x][y]= twc.isCompatibleIJ(Px,Py) and twc.isCompatibleIJ(Dx,Py) and twc.isCompatibleIJ(Dx,Dy); 
-                compat[x][y]=lifo[x][y] or fifo[x][y] or push[x][y];
+            } else if (twc.isCompatibleIJ(Px,Dx) and twc.isCompatibleIJ(Py,Dy) ) {  //azul
+                if (twc.isCompatibleIJ(Px,Py) and twc.isCompatibleIJ(Px,Dy)) {      //verde y violeta
+                   fifo[x][y]= twc.isCompatibleIJ(Py,Dx) and twc.isCompatibleIJ(Dx,Dy) and v.e_feasable4(twc.node(Px),twc.node(Py),twc.node(Dx),twc.node(Dy)); 
+                   lifo[x][y]= twc.isCompatibleIJ(Py,Dx) and twc.isCompatibleIJ(Dy,Dx) and v.e_feasable4(twc.node(Px),twc.node(Py),twc.node(Dy),twc.node(Dx));
+                   push[x][y]= twc.isCompatibleIJ(Dx,Py) and twc.isCompatibleIJ(Dx,Dy) and v.e_feasable4(twc.node(Px),twc.node(Dx),twc.node(Py),twc.node(Dy)); 
+                   compat[x][y]=lifo[x][y] or fifo[x][y] or push[x][y];
+                } else compat[x][y]=lifo[x][y] = fifo[x][y] = push[x][y] = false;
 
-                fifo[y][x]= twc.isCompatibleIJ(Py,Px) and twc.isCompatibleIJ(Px,Dy) and twc.isCompatibleIJ(Dy,Dx); 
-                lifo[y][x]= twc.isCompatibleIJ(Py,Px) and twc.isCompatibleIJ(Px,Dy) and twc.isCompatibleIJ(Dx,Dy); 
-                push[y][x]= twc.isCompatibleIJ(Py,Px) and twc.isCompatibleIJ(Dy,Px) and twc.isCompatibleIJ(Dy,Dx); 
-                compat[y][x]=lifo[y][x] or fifo[y][x] or push[y][x];
+                if (twc.isCompatibleIJ(Py,Px) and twc.isCompatibleIJ(Py,Dx)) {      //verde y violeta
+                   fifo[y][x]= twc.isCompatibleIJ(Px,Dy) and twc.isCompatibleIJ(Dy,Dx) and v.e_feasable4(twc.node(Py),twc.node(Px),twc.node(Dy),twc.node(Dx)); 
+                   lifo[y][x]= twc.isCompatibleIJ(Px,Py) and twc.isCompatibleIJ(Dx,Dy) and v.e_feasable4(twc.node(Py),twc.node(Px),twc.node(Dx),twc.node(Dy)); 
+                   push[y][x]= twc.isCompatibleIJ(Dy,Px) and twc.isCompatibleIJ(Dy,Dx) and v.e_feasable4(twc.node(Py),twc.node(Dy),twc.node(Px),twc.node(Dx)); 
+                   compat[y][x]=lifo[y][x] or fifo[y][x] or push[y][x];
+                } else   compat[y][x]=lifo[y][x] = fifo[y][x] = push[y][x]=false;
             } else  compat[x][y]=lifo[x][y] = fifo[x][y] = push[x][y] = compat[y][x]=lifo[y][x] = fifo[y][x] = push[y][x] =false;
+std::cout<<"fifo (X,Y) "<<(fifo[x][y]?"YES":"no")<<"\n";
+std::cout<<"lifo (X,Y) "<<(lifo[x][y]?"YES":"no")<<"\n";
+std::cout<<"push (X,Y) "<<(push[x][y]?"YES":"no")<<"\n";
+std::cout<<"fifo (Y,X) "<<(fifo[y][x]?"YES":"no")<<"\n";
+std::cout<<"lifo (Y,X) "<<(lifo[y][x]?"YES":"no")<<"\n";
+std::cout<<"push (Y,X) "<<(push[y][x]?"YES":"no")<<"\n";
          }
      }
 }

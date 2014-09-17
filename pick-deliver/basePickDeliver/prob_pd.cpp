@@ -109,7 +109,10 @@ std::cout << "---- Constructor --------------\n";
 /* depot must be the first node in list... rest can be anywhere*/
 void Prob_pd::loadProblem(char *infile)
 {
-std::cout << "---- Load --------------\n";
+    datafile=std::string(infile);
+std::cout << "---- Load --------------";
+std::cout << datafile<< " ---- Load --------------\n";
+
     std::ifstream in( infile );
     std::string line;
 
@@ -130,10 +133,12 @@ std::cout << "---- Load --------------\n";
         }
     }
     in.close();
+    sortNodeById();
     ordersList.makeOrders(datanodes,depot);
     twc.setNodes(datanodes);
     for (int i=0;i<ordersList.size();i++) twc.setIncompatible(ordersList[i]);
-    ordersList.setCompatibility(twc);
+    Vehicle v(depot,Q);
+    ordersList.setCompatibility(twc,v);
 }
 
 /* sorts */
@@ -155,6 +160,18 @@ return;
       twcTot[j]=twc;
     }
 */
+};
+
+void Prob_pd::sortNodeById() {
+    int j;
+    Dpnode tmp;
+    for (int i=2; i<datanodes.size();i++) {
+      tmp=datanodes[i];
+      for (j = i; j > 1 and datanodes[j-1].getnid() > tmp.getnid();j-- ) {
+        datanodes[j]=datanodes[j-1];
+      }
+      datanodes[j]=tmp;
+    }
 };
 
 void Prob_pd::sortNodeByDistReverse(){

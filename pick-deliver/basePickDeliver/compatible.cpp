@@ -396,3 +396,7 @@ double Compatible::compat(int i,int j) const {
     return twcij[i][j];
 };
 
+const Dpnode& Compatible::node(int i) const {
+    return original[i];
+};
+
