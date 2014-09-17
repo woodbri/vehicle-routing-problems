@@ -87,7 +87,11 @@ orders[leastPos].dump();
 
 
 void Orders::join(const Orders &other){
-     orders.insert(orders.end(),other.orders.begin(),other.orders.end());
+     Order order;
+     for (int i=0;i<other.size();i++) {
+         order=other.orders[i];
+         orders.push_back(order);
+     }
 };
 
 

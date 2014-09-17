@@ -50,6 +50,7 @@ class BucketN {
 
 
     void remove(int at);
+    void erase(int at) {remove(at);};
     void removeOrder( const Order &order);
     void removeOrder(int oid);
     void removePickup(int oid);

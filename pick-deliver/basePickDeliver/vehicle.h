@@ -60,7 +60,14 @@ class Vehicle:public BucketN {
 
     // return cost: infinity
     // orders are not inserted
+    int   getPosLowLimit(int nid ,int from, const Compatible &twc ) const;
+    int   getPosHighLimit(int nid ,int from, int to, const Compatible &twc) const;
     double testInsertPUSH(const Order& order, const Orders &orders, int &pickPos,int &delPos,const Compatible &twc);
+    double testInsertFIFO(const Order& order, const Orders &orders, int &pickPos,int &delPos,const Compatible &twc);
+    double testInsertLIFO(const Order& order, const Orders &orders, int &pickPos,int &delPos,const Compatible &twc);
+    double tryInsertPOS(const Order &order, int pickPos, int delPos);
+    double insertPOS(const Order &order, int pickPos, int delPos);
+    double e_erase(int pickPos, int delPos);
 
 //*******
 
