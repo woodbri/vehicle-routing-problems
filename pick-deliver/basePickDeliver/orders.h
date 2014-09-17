@@ -4,14 +4,17 @@
 #include <deque>
 #include <iostream>
 #include <algorithm>
-#include "bucketn.h"
+//#include "bucketn.h"
 #include "vehicle.h"
-#include "compatible.h"
+#include "twpath.h"
+#include "twc.h"
 #include "order.h"
 
 
 class Orders {
   private:
+typedef Twpath<Dpnode> Bucket;
+
     std::deque<Order> orders;
     std::deque< std::deque <bool> > compat;
     std::deque< std::deque <bool> > fifo;
@@ -27,8 +30,8 @@ class Orders {
   public:
     // Constructors
     Orders();   //to be used as a deque (aka. orders in vehicle)
-    Orders(BucketN &nodes,const Dpnode &depot) ; //to be used as a deque with compatibility (aka. original orders)
-    void makeOrders (BucketN &nodes,const Dpnode &depot);
+    Orders(Bucket &nodes,const Dpnode &depot) ; //to be used as a deque with compatibility (aka. original orders)
+    void makeOrders (Bucket &nodes,const Dpnode &depot);
 
     // compatibility
     bool isPUSHcompat(int oidx, int oidy) const;
@@ -43,7 +46,7 @@ class Orders {
     bool isCOMPAT(const Order &orderx, const Order &ordery) const;
     bool isINCOMPAT(const Order &orderx, const Order &ordery) const;
 
-    void setCompatibility( const Compatible &twc,Vehicle &v);
+    void setCompatibility( const TWC<Dpnode> &twc,Vehicle &v);
 
 
 // manipulation

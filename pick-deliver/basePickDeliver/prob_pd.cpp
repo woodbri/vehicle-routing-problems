@@ -136,7 +136,7 @@ std::cout << datafile<< " ---- Load --------------\n";
     sortNodeById();
     ordersList.makeOrders(datanodes,depot);
     twc.setNodes(datanodes);
-    for (int i=0;i<ordersList.size();i++) twc.setIncompatible(ordersList[i]);
+    for (int i=0;i<ordersList.size();i++) twc.setIncompatible(ordersList[i].getdid(), ordersList[i].getpid());
     Vehicle v(depot,Q);
     ordersList.setCompatibility(twc,v);
 }

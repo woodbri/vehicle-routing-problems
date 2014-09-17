@@ -8,7 +8,7 @@
     };
 
 
-    Orders::Orders(BucketN &nodes,const Dpnode &depot) {
+    Orders::Orders(Bucket &nodes,const Dpnode &depot) {
        orders.clear();
        fifo.clear();
        lifo.clear();
@@ -70,7 +70,7 @@ orders[leastPos].dump();
    }
 
 
-    void Orders::makeOrders (BucketN &nodes,const Dpnode &depot)
+    void Orders::makeOrders (Bucket &nodes,const Dpnode &depot)
     {
       orders.clear();
       int oid = 0;
@@ -136,7 +136,7 @@ bool Orders::isINCOMPAT(const Order &orderx, const Order &ordery) const {
     return not compat[oidx][oidy];
 }
 
-void Orders::setCompatibility( const Compatible &twc, Vehicle &v)  {
+void Orders::setCompatibility( const TWC<Dpnode> &twc, Vehicle &v)  {
  
     int Px,Dx,Py,Dy;
 std::cout<<"set Compatibility \n";

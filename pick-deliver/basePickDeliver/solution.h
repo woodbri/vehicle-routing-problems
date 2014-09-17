@@ -5,6 +5,7 @@
 #include <cmath>
 
 #include "prob_pd.h"
+#include "twpath.h"
 #include "vehicle.h"
 #include "plot.h"
 #include "orders.h"
@@ -13,6 +14,8 @@ const double EPSILON = 0.001;
 
 class Solution: public Prob_pd {
   protected:
+typedef  Twpath<Dpnode> Bucket;
+
     std::deque<Vehicle> fleet;
 
 
