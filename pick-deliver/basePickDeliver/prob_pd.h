@@ -22,6 +22,7 @@ class Prob_pd {
 
     BucketN datanodes;
     Orders ordersList;
+    std::string datafile;
 
 
   public:
@@ -57,27 +58,6 @@ class Prob_pd {
     void sortOrdersbyId();
     void sortOrdersbyIdReverse();
     void sortOrdersbyDistReverse();
-
-
-/* compatability issues 
-    void twcij_calculate();
-    void twcTot_calculate();
-    double ajli(const Dpnode &ni, const Dpnode &nj);
-    double ajei(const Dpnode &ni, const Dpnode &nj);
-    double twc_for_ij(const Dpnode &ni, const Dpnode &nj);
-    double compat(int i,int j) const ;
-    bool compatibleIJ(int i, int j);
-    bool compatibleIAJ(int i, int a, int j);
-    void dumpCompatible() ;
-    void maskHorizontal(int at) ;
-    void maskVertical(int at) ;
-    int  getBestCompatible(int from) ;
-    int  getBestPickupCompatible(int from) ;
-    int  getBestCompatible() ;
-    int  getBestPickupCompatible() ;
-    void recreateRowColumn( int nodeId );
-*/
-
 
 
     void twcijDump() const;

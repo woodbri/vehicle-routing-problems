@@ -26,7 +26,7 @@ void Solution::plot(std::string file,std::string title){
 
     Plot<Dpnode> graph( datanodes.Path() );
     graph.setFile( file+".png" );
-    graph.setTitle( title );
+    graph.setTitle( datafile+": "+title );
     graph.drawInit();
 
     for (int i=0; i<datanodes.size(); i++){
@@ -52,7 +52,7 @@ void Solution::plot(std::string file,std::string title){
         std::string carnum = convert.str();
 
         graph1.setFile( file+"car"+carnum+".png" );
-        graph1.setTitle( title+" car #"+carnum );
+        graph1.setTitle( datafile+": "+title+" car #"+carnum );
         graph1.drawInit();
 
         for (int i=0; i<datanodes.size(); i++){
@@ -73,7 +73,7 @@ void Solution::plot(std::string file,std::string title){
 
 /*     now a graph for each individual trucl */
     for (int i=0;i<fleet.size();i++) {
-        fleet[i].plot(file,title,i);
+        fleet[i].plot(file,datafile+": "+title,i);
     }
 }
 

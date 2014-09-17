@@ -109,7 +109,10 @@ std::cout << "---- Constructor --------------\n";
 /* depot must be the first node in list... rest can be anywhere*/
 void Prob_pd::loadProblem(char *infile)
 {
-std::cout << "---- Load --------------\n";
+    datafile=std::string(infile);
+std::cout << "---- Load --------------";
+std::cout << datafile<< " ---- Load --------------\n";
+
     std::ifstream in( infile );
     std::string line;
 

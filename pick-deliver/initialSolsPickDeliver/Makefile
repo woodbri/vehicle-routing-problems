@@ -48,8 +48,13 @@ $(BUILD_DIR)/pickDelivery.o: pickDelivery.cpp
 test: ./bin/pickDelivery ./data/lc008.txt
 	./bin/pickDelivery ./data/lc008.txt >./data/small.out
 
-valgrind: tester lc008.txt 
-	valgrind -v --track-origins=yes --leak-check=full ./tester p50.txt
+valgrind: ./bin/pickDelivery ./data/lc008.txt
+	valgrind -v --track-origins=yes --leak-check=full ./bin/pickDelivery data/lc008.txt
+
+callgrind-8: ./bin/pickDelivery ./data/lc008.txt
+	valgrind --tool=callgrind --callgrind-out-file=callgrind-008.out ./bin/pickDelivery data/lc008.txt
+	callgrind_annotate callgrind-8.out | tee callgrind-8.txt
+
 
 .PHONY: clean
 
