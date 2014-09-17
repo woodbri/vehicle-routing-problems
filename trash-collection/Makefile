@@ -29,10 +29,14 @@ test: tester p50.txt
 	./tester trash p50.txt
 
 medium: tester p1001.txt
-	./tester trash p1001.txt
+	./tester trash p1001.txt > tests/a
+	diff tests/a tests/p1001-test.txt
+	rm -f tests/a
 
 large: tester p5001.txt
-	./tester trash p5001.txt
+	./tester trash p5001.txt > tests/a
+	diff tests/a tests/p5001-test.txt
+	rm -f tests/a
 
 #      trash        - run the trash collection problem
 #      swap         - test swap nodes between routes
@@ -55,7 +59,7 @@ test-all: tester p50.txt
 	./tester nearestnode jj >> tests/a
 	./tester optmoves jj >> tests/a
 	diff tests/a tests/tests-all.txt
-	rm tests/a
+	rm -f tests/a
 
 
 valgrind: tester p50.txt
@@ -76,8 +80,11 @@ help:
 	@echo "  all - builds tester"
 	@echo "  help - this message"
 	@echo "  tester - builds tester"
-	@echo "  test - runs: ./tester trash p50.txt"
 	@echo "  small - runs: ./tester trash p10.txt"
+	@echo "  test - runs: ./tester trash p50.txt"
+	@echo "  medium - runs: ./tester trash p1001.txt"
+	@echo "  large - runs: ./tester trash p5001.txt"
+	@echo "  test-all - runs a collection of test and report the diff"
 	@echo "  valgrind - runs valgrind using p50.txt"
 	@echo "  callgrind-50 - runs callgrind using p50.txt"
 	@echo "  callgrind-1000 - runs callgrind using p1002.txt"

@@ -18,6 +18,9 @@
 #include "otherClasses.h"
 #include "md5.h"
 
+// TODO: all Twpath::e_*() functions return E_Ret = OK|NO_CHANGE|INVALID
+//       the test should probably add tests for the return codes
+
 class TestProblem {
   public:
     std::vector<Vehicle> fleet;

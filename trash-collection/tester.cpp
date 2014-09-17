@@ -486,54 +486,63 @@ void test_moveswithin(std::string infile) {
     Vehicle v = tp.getVehicle(0);
     Twpath<Trashnode> p = v.getvpath();
     int sz = p.size();
+    E_Ret ret;
 
     p = v.getvpath();
     std::cout << "\np.e_move(2,"<<sz-2<<","<<sz<<",v.getmaxcapacity())" << std::endl;
     p.dump();
-    p.e_move(2,p.size()-2,p.size(),v.getmaxcapacity());
-    p.dump();
+    ret = p.e_move(2,p.size()-2,p.size(),v.getmaxcapacity());
+    if (ret == OK) p.dump();
+    else std::cout << "RETURNED: " << (ret==INVALID)?"INVALID\n":"NO_CHANGE\n";
 
     p = v.getvpath();
     std::cout << "\np.e_move(2,4,10,v.getmaxcapacity())" << std::endl;
     p.dump();
-    p.e_move(2,4,10,v.getmaxcapacity());
-    p.dump();
+    ret = p.e_move(2,4,10,v.getmaxcapacity());
+    if (ret == OK) p.dump();
+    else std::cout << "RETURNED: " << (ret==INVALID)?"INVALID\n":"NO_CHANGE\n";
 
     p = v.getvpath();
     std::cout << "\np.e_move(7,9,5,v.getmaxcapacity())" << std::endl;
     p.dump();
-    p.e_move(7,9,5,v.getmaxcapacity());
-    p.dump();
+    ret = p.e_move(7,9,5,v.getmaxcapacity());
+    if (ret == OK) p.dump();
+    else std::cout << "RETURNED: " << (ret==INVALID)?"INVALID\n":"NO_CHANGE\n";
 
     p = v.getvpath();
     std::cout << "\np.e_move(7,9,3,v.getmaxcapacity())" << std::endl;
     p.dump();
-    p.e_move(7,9,3,v.getmaxcapacity());
-    p.dump();
+    ret = p.e_move(7,9,3,v.getmaxcapacity());
+    if (ret == OK) p.dump();
+    else std::cout << "RETURNED: " << (ret==INVALID)?"INVALID\n":"NO_CHANGE\n";
 
     p = v.getvpath();
     std::cout << "\np.e_movereverse(2,4,7,v.getmaxcapacity())" << std::endl;
     p.dump();
-    p.e_movereverse(2,4,7,v.getmaxcapacity());
-    p.dump();
+    ret = p.e_movereverse(2,4,7,v.getmaxcapacity());
+    if (ret == OK) p.dump();
+    else std::cout << "RETURNED: " << (ret==INVALID)?"INVALID\n":"NO_CHANGE\n";
 
     p = v.getvpath();
     std::cout << "\np.e_movereverse(2,4,10,v.getmaxcapacity())" << std::endl;
     p.dump();
-    p.e_movereverse(2,4,10,v.getmaxcapacity());
-    p.dump();
+    ret = p.e_movereverse(2,4,10,v.getmaxcapacity());
+    if (ret == OK) p.dump();
+    else std::cout << "RETURNED: " << (ret==INVALID)?"INVALID\n":"NO_CHANGE\n";
 
     p = v.getvpath();
     std::cout << "\np.e_movereverse(7,9,5,v.getmaxcapacity())" << std::endl;
     p.dump();
-    p.e_movereverse(7,9,5,v.getmaxcapacity());
-    p.dump();
+    ret = p.e_movereverse(7,9,5,v.getmaxcapacity());
+    if (ret == OK) p.dump();
+    else std::cout << "RETURNED: " << (ret==INVALID)?"INVALID\n":"NO_CHANGE\n";
 
     p = v.getvpath();
     std::cout << "\np.e_movereverse(7,9,3,v.getmaxcapacity())" << std::endl;
     p.dump();
-    p.e_movereverse(7,9,3,v.getmaxcapacity());
-    p.dump();
+    ret = p.e_movereverse(7,9,3,v.getmaxcapacity());
+    if (ret == OK) p.dump();
+    else std::cout << "RETURNED: " << (ret==INVALID)?"INVALID\n":"NO_CHANGE\n";
 
 }
 

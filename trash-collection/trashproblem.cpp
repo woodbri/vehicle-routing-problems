@@ -11,6 +11,8 @@
 #include "vec2d.h"
 #include "trashproblem.h"
 
+// TODO: sweepAssignment and initial construction routine
+//       need to deal with TW violations and DONT YET
 
 // compute the distance between two nodes
 // this currently computes Euclidean distances
@@ -295,7 +297,7 @@ int TrashProblem::findNearestNodeTo(Vehicle &v, int selector, int demandLimit, i
 
         double d;
 
-        // DO NOT make this a pointer or it will mess things up
+        // DO NOT make this a reference|pointer or it will mess things up
         Trashnode last = depot;
 
         for (int j=0; j<v.size(); j++) {
@@ -433,6 +435,9 @@ bool TrashProblem::buildFleetFromSolution(std::vector<int> solution) {
 
 
 
+// NOTE: findBestFit() does check for feasibility so time windows
+//       and capacity are not violated.
+
 bool TrashProblem::findVehicleBestFit(int nid, int* vid, int* pos) {
 
     // track the best result found
@@ -467,6 +472,7 @@ bool TrashProblem::findVehicleBestFit(int nid, int* vid, int* pos) {
     return false;
 }
 
+// WARNING: this does NOT check for Time Window Feasibility !!!!!!!!!
 
 // Initial construction of a problem solution based on nearestNeighbor
 // algorithm. For each vehicle(depot) find the nearest neighbor path until
@@ -539,28 +545,18 @@ void TrashProblem::dumbConstruction() {
 }
 
 
-// Another potential construction algorithm
-// assignmentSweep and assignmentSweep2 give better results
 
-// void TrashProblem::nearestInsertion() { }
+// WARNING: this does NOT check for Time Window Feasibility !!!!!!!!!
 
+//    TrashProblem::assignmentSweep
+//
+//    This implements Assignment Sweep construction algorithm with the
+//    twist that I cluster first and identify the nearest depot (CLUSTER1)
+//    and the second nearest depot (CLUSTER2) to all nodes. When nodes
+//    are selected for insertions we pull from both CLUSTER1 and CLUSTER2
+//    set of nodes. This might mean that the route can wander into CLUSTER2
+//    territory to fill up a vehicle but it is a simple algorithm.
 
-// Another potential construction algorithm
-// assignmentSweep and assignmentSweep2 give better results
-
-// void TrashProblem::farthestInsertion() { }
-
-
-/*
-    TrashProblem::assignmentSweep
-
-    This implements Assignment Sweep construction algorithm with the
-    twist that I cluster first and identify the nearest depot (CLUSTER1)
-    and the second nearest depot (CLUSTER2) to all nodes. When nodes
-    are selected for insertions we pull from both CLUSTER1 and CLUSTER2
-    set of nodes. This might mean that the route can wander into CLUSTER2
-    territory to fill up a vehicle but it is a simple algorithm.
-*/
 void TrashProblem::assignmentSweep() {
     // create a list of all pickup nodes and make them unassigned
     unassigned = std::vector<int>(datanodes.size(), 1);
@@ -631,17 +627,18 @@ void TrashProblem::assignmentSweep() {
 }
 
 
-/*
-    TrashProblem::assignmentSweep2
+// WARNING: this does NOT check for Time Window Feasibility !!!!!!!!!
 
-    This implements Assignment Sweep construction algorithm with the
-    twist that I cluster first and identify the nearest depot (CLUSTER1)
-    and the second nearest depot (CLUSTER2) to all nodes. The construction
-    algorithm follows this pseudo code:
-    1. build routes based on only CLUSTER1 nodes
-    2. add unassigned nodes to vehicles with capacity based on CLUSTER2
-    3. add unassigned nodes to any vehicles with capacity
-*/
+//    TrashProblem::assignmentSweep2
+//
+//    This implements Assignment Sweep construction algorithm with the
+//    twist that I cluster first and identify the nearest depot (CLUSTER1)
+//    and the second nearest depot (CLUSTER2) to all nodes. The construction
+//    algorithm follows this pseudo code:
+//    1. build routes based on only CLUSTER1 nodes
+//    2. add unassigned nodes to vehicles with capacity based on CLUSTER2
+//    3. add unassigned nodes to any vehicles with capacity
+
 void TrashProblem::assignmentSweep2() {
     // create a list of all pickup nodes and make them unassigned
     unassigned = std::vector<int>(datanodes.size(), 1);
@@ -800,16 +797,18 @@ void TrashProblem::assignmentSweep2() {
 }
 
 
-/*
-    TrashProblem::assignmentSweep3
 
-    This implements Assignment Sweep construction algorithm with the
-    twist that I cluster first and identify the nearest depot (CLUSTER1)
-    and the second nearest depot (CLUSTER2) to all nodes. The construction
-    algorithm follows this pseudo code:
-    1. build routes based on only CLUSTER1 nodes within RATIO
-    2. add unassigned nodes based on the lowest cost to insert them
-*/
+// WARNING: this does NOT check for Time Window Feasibility !!!!!!!!!
+
+//    TrashProblem::assignmentSweep3
+//
+//    This implements Assignment Sweep construction algorithm with the
+//    twist that I cluster first and identify the nearest depot (CLUSTER1)
+//    and the second nearest depot (CLUSTER2) to all nodes. The construction
+//    algorithm follows this pseudo code:
+//    1. build routes based on only CLUSTER1 nodes within RATIO
+//    2. add unassigned nodes based on the lowest cost to insert them
+
 void TrashProblem::assignmentSweep3() {
     // create a list of all pickup nodes and make them unassigned
     unassigned = std::vector<int>(datanodes.size(), 1);
@@ -856,6 +855,9 @@ void TrashProblem::assignmentSweep3() {
             // if we did not find a node we can break
             if (nnid == -1) break;
 
+            // TODO we need to check tw feasibility and mark the node as such
+            // so findNearestNodeTo() above does not return it again
+
             // add node to route
             unassigned[nnid] = 0;
             if (pos == 0)
@@ -888,6 +890,7 @@ std::cout << "------ checking unassigned nodes ----------\n";
     std::cout << ucnt << " unassigned orders after CLUSTER1|RATIO assignment" << std::endl;
 
     // assign remaining order based on lowest cost to insert
+    // findVehicleBestFit() checks feasible()
     for (int i=0; i<pickups.size(); i++) {
         if (! unassigned[pickups[i]]) continue;
 
