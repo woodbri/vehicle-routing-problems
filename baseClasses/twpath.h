@@ -7,8 +7,14 @@
 
 /*
     Evaluation has to be done
-
 */
+
+enum E_Ret {
+    OK        = 0,
+    NO_CHANGE = 1,
+    INVALID   = 2
+};
+
 
 template <class knode> class Twpath {
   protected:
@@ -72,24 +78,24 @@ template <class knode> class Twpath {
 
 
     /* nodes handling within two  paths */
-    bool e_swap(UID i, double maxcap, Twpath<knode> &rhs,UID j, double rhs_maxcap) {
-        if (i<0 or j<0 or i>size()-1 or j>rhs.size()-1) return false;
+    E_Ret e_swap(UID i, double maxcap, Twpath<knode> &rhs,UID j, double rhs_maxcap) {
+        if (i<0 or j<0 or i>size()-1 or j>rhs.size()-1) return INVALID;
         std::iter_swap(path.begin()+i,rhs.path.begin()+j);
         evaluate(i, maxcap);
         rhs.evaluate(j, rhs_maxcap);
-        return true;
+        return OK;
     }
 
 
 
     // nodes handling within the same path 
     //  path with size 10:  (0......9) retsriction   0 <= i,j <= size-1
-    bool e_move(UID fromi, UID toDest, double maxcapacity) {
+    E_Ret e_move(UID fromi, UID toDest, double maxcapacity) {
         // i.e. if the path has 10 nodes we can't move from
         // position 5000 OR can't move to position 5000  
         if (fromi<0 or toDest<0 or fromi>size()-1 or toDest>size()-1)
-            return false;
-        if (fromi == toDest) return true;  
+            return INVALID;
+        if (fromi == toDest) return NO_CHANGE;  
         if (fromi < toDest){
             if (toDest+1 > path.size())
                 path.push_back(path[fromi]);  //I think this will never be executed
@@ -101,31 +107,31 @@ template <class knode> class Twpath {
             erase(fromi + 1);
         }
         fromi < toDest ? evaluate(fromi, maxcapacity) : evaluate(toDest, maxcapacity);
-        return true;
+        return OK;
     };
 
-    bool e_resize(UID numb,double maxcapacity) { 
-        if (numb<0 or numb>size()) return false;
+    E_Ret e_resize(UID numb,double maxcapacity) { 
+        if (numb<0 or numb>size()) return INVALID;
         path.resize(numb);
         //its reduced so the last node's value its not affected so no need of
         evalLast(maxcapacity); //????
-        return true;
+        return OK;
     };
 
-    bool e_swap(UID i,UID j,double maxcapacity) {
-        if (i==j) return true;
-        if (i<0 or j<0 or i>size()-1 or j>size()-1) return false;
+    E_Ret e_swap(UID i,UID j,double maxcapacity) {
+        if (i==j) return NO_CHANGE;
+        if (i<0 or j<0 or i>size()-1 or j>size()-1) return INVALID;
         swap(i,j);
         i < j ? evaluate(i, maxcapacity): evaluate(j, maxcapacity);
-        return true;
+        return OK;
     };
 
 
 
     // moves a range of nodes (i-j) to position k without reversing them
-    bool e_move(int i, int j, int k, double maxcapacity) {
-        if (! (i <= j and (k > j or k < i))) return false;
-        if (j>size()-1 or k>size()) return false;
+    E_Ret e_move(int i, int j, int k, double maxcapacity) {
+        if (! (i <= j and (k > j or k < i))) return INVALID;
+        if (j>size()-1 or k>size()) return INVALID;
         // moving range to right of the range
         if (k > j) {
             // if the length of the range is larger than the distance
@@ -156,27 +162,27 @@ template <class knode> class Twpath {
         }
         //i < k ? path[i].evaluate(maxcapacity) : path[k].evaluate(maxcapacity);
         evaluate(maxcapacity);
-        return true;
+        return OK;
     }
 
 
 /*
 
     // moves a range of nodes (i-j) to position k and reverses those nodes
-    bool e_movereverse(UID rangeFrom, UID rangeTo, UID destBeforePos, double maxcapacity) {
+    E_Ret e_movereverse(UID rangeFrom, UID rangeTo, UID destBeforePos, double maxcapacity) {
         // path: 0 1 2 [3 4 5] 6 7 8 9
         // invalid moves are:
         //      rangeFrom > size-1 or rangeTo > size-1 or dest > size
         //      dest < 0 or to < 0 or from < 0 or to < from
         //      dest >= from and dest <= to+1
         if ( rangeFrom > path.size()-1 or rangeTo > path.size()-1 or
-             destBeforePos > path.size() ) return false;
+             destBeforePos > path.size() ) return INVALID;
         if ( rangeFrom < 0 or rangeTo < 0 or destBeforePos < 0
-                or rangeTo < rangeFrom ) return false;
+                or rangeTo < rangeFrom ) return INVALID;
         if ( destBeforePos >= rangeFrom and
-             destBeforePos <= rangeTo+1 ) return false;
-        //if (! (rangeFrom < rangeTo and (destBeforePos > rangeTo or destBeforePos <= rangeFrom))) return false;
-        //if (rangeTo>size()-1 or destBeforePos>size()) return false; //avoiding wierd behaiviour
+             destBeforePos <= rangeTo+1 ) return INVALID;
+        //if (! (rangeFrom < rangeTo and (destBeforePos > rangeTo or destBeforePos <= rangeFrom))) return INVALID;
+        //if (rangeTo>size()-1 or destBeforePos>size()) return INVALID; //avoiding wierd behaiviour
         
         if (destBeforePos > rangeTo) { // moving range to right of the range
             reverse_iterator itFromPos (path.begin()+rangeTo+1);
@@ -197,23 +203,23 @@ template <class knode> class Twpath {
             }
             evaluate(destBeforePos,maxcapacity);
         }
-        return true;
+        return OK;
     }
 
 */
 
 
     // moves a range of nodes (i-j) to position k and reverses those nodes
-    bool e_movereverse(int i, int j, int k, double maxcapacity) {
+    E_Ret e_movereverse(int i, int j, int k, double maxcapacity) {
         // path: 0 1 2 [3 4 5] 6 7 8 9
         // invalid moves are:
         //      rangeFrom > size-1 or rangeTo > size-1 or dest > size
         //      dest < 0 or to < 0 or from < 0 or to < from
         //      dest >= from and dest <= to+1
         if ( i > path.size()-1 or j > path.size()-1  or
-             k > path.size() ) return false;
-        if ( i < 0 or j < 0 or k < 0 or j < i ) return false;
-        if ( k >= i and k <= j+1 ) return false;
+             k > path.size() ) return INVALID;
+        if ( i < 0 or j < 0 or k < 0 or j < i ) return INVALID;
+        if ( k >= i and k <= j+1 ) return INVALID;
 
         // moving range to right of the range
         if (k > j) {
@@ -232,16 +238,16 @@ template <class knode> class Twpath {
             }
         }
         evaluate(maxcapacity);
-        return true;
+        return OK;
     }
 
     // reverse the nodes from i to j in the path
-    bool e_reverse(int i, int j, double maxcapacity) {
-        if (i<0 or j<0 or i>=path.size() or j>=path.size()) return false;
+    E_Ret e_reverse(int i, int j, double maxcapacity) {
+        if (i<0 or j<0 or i>=path.size() or j>=path.size()) return INVALID;
         int m = i;
         int n = j;
 
-        if (i == j) return true;
+        if (i == j) return NO_CHANGE;
         if (i > j) {
             m = j;
             n = i;
@@ -267,33 +273,33 @@ template <class knode> class Twpath {
         }
 */
         i < j ? evaluate(i, maxcapacity): evaluate(j, maxcapacity);
-        return true;
+        return OK;
     };
 
-    bool e_insert(const knode &n, UID at, double maxcapacity) {
-        if (at < 0 or at > size()) return false;
+    E_Ret e_insert(const knode &n, UID at, double maxcapacity) {
+        if (at < 0 or at > size()) return INVALID;
         path.insert(path.begin() + at, n);
         evaluate(at, maxcapacity);
-        return true;
+        return OK;
     };
 
-    bool e_push_back(const knode& n, double maxcapacity) {
+    E_Ret e_push_back(const knode& n, double maxcapacity) {
         path.push_back(n);
         evalLast(maxcapacity);
-        return true;
+        return OK;
     };
 /*
-    bool e_push_back(knode& n, double maxcapacity) {
+    E_Ret e_push_back(knode& n, double maxcapacity) {
         path.push_back(n);
         evalLast(maxcapacity);
-        return true;
+        return OK;
     };
 */
-    bool e_remove (int i, double maxcapacity) {
-        if (i<0 or i>size()-1) return false;
+    E_Ret e_remove (int i, double maxcapacity) {
+        if (i<0 or i>size()-1) return INVALID;
         path.erase(path.begin() + i);
         evaluate(i, maxcapacity);
-        return true;
+        return OK;
     };
 
     /*****   EVALUATION   ****/

@@ -51,8 +51,9 @@ std::deque<int> Vehicle::getpath() const {
 
 
 bool Vehicle::push_back(Trashnode node) {
-    path.e_push_back(node, getmaxcapacity());
-    evalLast();
+    E_Ret ret = path.e_push_back(node, getmaxcapacity());
+    if (ret == OK) evalLast();
+    else if (ret == INVALID) return false;
     return true;
 }
 
@@ -64,76 +65,72 @@ bool Vehicle::push_front(Trashnode node) {
 
 
 bool Vehicle::insert(Trashnode node, int at) {
-    if (path.e_insert(node, at, getmaxcapacity())) {
+    E_Ret ret = path.e_insert(node, at, getmaxcapacity());
+    if (ret == OK) {
         path.evaluate(at, getmaxcapacity());
         evalLast();
-        return true;
     }
-    return false;
+    else if (ret == INVALID) return false;
+    return true;
 }
 
 bool Vehicle::remove(int at) {
-    if (path.e_remove(at, getmaxcapacity())) {
-        evalLast();
-        return true;
-    }
-    return false;
+    E_Ret ret = path.e_remove(at, getmaxcapacity());
+    if (ret == OK) evalLast();
+    else if (ret == INVALID) return false;
+    return true;
 }
 
 
 bool Vehicle::moverange( int rangefrom, int rangeto, int destbefore ) {
-    if (path.e_move(rangefrom, rangeto, destbefore, getmaxcapacity())) {
-        evalLast();
-        return true;
-    }
-    return false;
+    E_Ret ret = path.e_move(rangefrom, rangeto, destbefore, getmaxcapacity());
+    if (ret == OK) evalLast();
+    else if (ret == INVALID) return false;
+    return true;
 }
 
 
 bool Vehicle::movereverse( int rangefrom, int rangeto, int destbefore ) {
-    if (path.e_movereverse(rangefrom, rangeto, destbefore, getmaxcapacity())) {
-        evalLast();
-        return true;
-    }
-    return false;
+    E_Ret ret = path.e_movereverse(rangefrom, rangeto, destbefore, getmaxcapacity());
+    if (ret == OK) evalLast();
+    else if (ret == INVALID) return false;
+    return true;
 }
 
 
 bool Vehicle::reverse( int rangefrom, int rangeto ) {
-    if (path.e_reverse(rangefrom, rangeto, getmaxcapacity())) {
-        evalLast();
-        return true;
-    }
-    return false;
+    E_Ret ret = path.e_reverse(rangefrom, rangeto, getmaxcapacity());
+    if (ret == OK) evalLast();
+    else if (ret == INVALID) return false;
+    return true;
 }
 
 
 bool Vehicle::move( int fromi, int toj ) {
-    if (path.e_move(fromi, toj, getmaxcapacity())) {
-        evalLast();
-        return true;
-    }
-    return false;
+    E_Ret ret = path.e_move(fromi, toj, getmaxcapacity());
+    if (ret == OK) evalLast();
+    else if (ret == INVALID) return false;
+    return true;
 }
 
 
 bool Vehicle::swap( const int& i, const int& j ) {
-    if (path.e_swap(i, j, getmaxcapacity())) {
-        evalLast();
-        return true;
-    }
-    return false;
+    E_Ret ret = path.e_swap(i, j, getmaxcapacity());
+    if (ret == OK) evalLast();
+    else if (ret == INVALID) return false;
+    return true;
 }
 
 
 bool Vehicle::swap(Vehicle& v2, const int& i1, const int& i2) {
-    if (path.e_swap(i1, getmaxcapacity(),
-                    v2.getvpath(), i2, v2.getmaxcapacity())) {
+    E_Ret ret = path.e_swap(i1, getmaxcapacity(),
+                    v2.getvpath(), i2, v2.getmaxcapacity());
+    if (ret == OK) {
         evalLast();
         v2.evalLast();
-        return true;
     }
-    return false;
+    else if (ret == INVALID) return false;
+    return true;
 }
 
 
