@@ -124,13 +124,16 @@ std::cout << datafile<< " ---- Load --------------\n";
 
 
     // read the nodes
+    int nid=0;
     while ( getline(in, line) ) {
         Dpnode node(line);  //create node from line on file
+        node.setnid(nid);
         datanodes.push_back(node);
         if (node.isdepot()) {
             depot=node;
             depot.setoid(-1);
         }
+        nid++;
     }
     in.close();
     sortNodeById();
