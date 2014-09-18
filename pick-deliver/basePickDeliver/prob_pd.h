@@ -12,15 +12,18 @@
 #include "order.h"
 #include "orders.h"
 #include "bucketn.h"
-#include "compatible.h"
+#include "twpath.h"
+#include "twc.h"
 
 class Prob_pd {
   protected:
+typedef  Twpath<Dpnode> Bucket;
+
     Dpnode depot;
 
-    Compatible twc;
+    TWC<Dpnode> twc;
+    Bucket datanodes;
 
-    BucketN datanodes;
     Orders ordersList;
     std::string datafile;
 

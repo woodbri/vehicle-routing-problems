@@ -76,6 +76,9 @@ void TrashProblem::loadproblem(std::string& file) {
     }
 
     in.close();
+    twc.setNodes(datanodes);
+twc.dump();
+
 
     buildDistanceMatrix();
 

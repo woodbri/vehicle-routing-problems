@@ -6,11 +6,11 @@
 #include "twpath.h"
 #include "order.h"
 #include "dpnode.h"
+#include "twc.h"
 #include "bucketn.h"
 
 class Orders;
 
-class Compatible;
 
 
 class Vehicle:public BucketN {
@@ -60,11 +60,11 @@ class Vehicle:public BucketN {
 
     // return cost: infinity
     // orders are not inserted
-    int   getPosLowLimit(int nid ,int from, const Compatible &twc ) const;
-    int   getPosHighLimit(int nid ,int from, int to, const Compatible &twc) const;
-    double testInsertPUSH(const Order& order, const Orders &orders, int &pickPos,int &delPos,const Compatible &twc);
-    double testInsertFIFO(const Order& order, const Orders &orders, int &pickPos,int &delPos,const Compatible &twc);
-    double testInsertLIFO(const Order& order, const Orders &orders, int &pickPos,int &delPos,const Compatible &twc);
+    int   getPosLowLimit(int nid ,int from, const TWC<Dpnode> &twc ) const;
+    int   getPosHighLimit(int nid ,int from, int to, const TWC<Dpnode> &twc) const;
+    double testInsertPUSH(const Order& order, const Orders &orders, int &pickPos,int &delPos,const TWC<Dpnode> &twc);
+    double testInsertFIFO(const Order& order, const Orders &orders, int &pickPos,int &delPos,const TWC<Dpnode> &twc);
+    double testInsertLIFO(const Order& order, const Orders &orders, int &pickPos,int &delPos,const TWC<Dpnode> &twc);
     double tryInsertPOS(const Order &order, int pickPos, int delPos);
     double insertPOS(const Order &order, int pickPos, int delPos);
     double e_erase(int pickPos, int delPos);
@@ -87,7 +87,7 @@ class Vehicle:public BucketN {
     void removePickup(int orderid);
     void removeDelivery(int orderid);
     void swapstops(int i,int j);
-    bool insertOrderAfterLastPickup(const Order &order, const Compatible &twc);
+    bool insertOrderAfterLastPickup(const Order &order, const TWC<Dpnode> &twc);
     void pushOrder(const Order &order);
     void pushPickup(const Order &order);
     void pushDelivery(const Order &order);

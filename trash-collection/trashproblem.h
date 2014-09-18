@@ -5,6 +5,7 @@
 #include <iostream>
 #include <vector>
 
+#include "twc.h"
 #include "trashnode.h"
 #include "vehicle.h"
 
@@ -25,6 +26,7 @@ class TrashProblem {
   private:
     std::vector<Vehicle> fleet;
     Twpath<Trashnode> datanodes;
+    TWC<Trashnode> twc;
     std::deque<int> depots;
     std::deque<int> dumps;
     std::deque<int> pickups;

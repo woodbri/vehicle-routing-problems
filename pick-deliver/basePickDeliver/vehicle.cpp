@@ -5,7 +5,7 @@
 #include "order.h"
 #include "orders.h"
 #include "twpath.h"
-#include "compatible.h"
+#include "twc.h"
 #include "plot.h"
 #include "vehicle.h"
 
@@ -13,14 +13,14 @@
 
 
 //antes del from no lo voy a poner
-int   Vehicle::getPosLowLimit(int nid ,int from ,const Compatible &twc )const {
+int   Vehicle::getPosLowLimit(int nid ,int from ,const TWC<Dpnode> &twc )const {
        int RL;
        for (RL=size(); RL>from  and twc.isCompatibleIJ( nid , path[RL-1].getnid() );RL--) {};
 std::cout<<"RL"<<RL<<"\t";
        return RL;
 }
 
-int   Vehicle::getPosHighLimit(int nid ,int from, int to, const Compatible &twc) const {
+int   Vehicle::getPosHighLimit(int nid ,int from, int to, const TWC<Dpnode> &twc) const {
 //despues del to no lo voy a poner
        int LR;
        for (LR=from ; LR<to and twc.isCompatibleIJ( path[LR].getnid(), nid ) ; LR++) {};
@@ -29,7 +29,7 @@ std::cout<<"LR"<<LR<<"\n";
 }
        
 
-double Vehicle::testInsertLIFO(const Order &order, const Orders &orders, int &pickPos, int &delPos,const Compatible &twc) {
+double Vehicle::testInsertLIFO(const Order &order, const Orders &orders, int &pickPos, int &delPos,const TWC<Dpnode> &twc) {
 std::cout<<"***************LIFO********************\n";
        //lastDelivery 
        //lastPickup
@@ -146,7 +146,7 @@ tau();std::cout<<"\n";
 
 
 
-double Vehicle::testInsertFIFO(const Order &order, const Orders &orders, int &pickPos, int &delPos,const Compatible &twc) {
+double Vehicle::testInsertFIFO(const Order &order, const Orders &orders, int &pickPos, int &delPos,const TWC<Dpnode> &twc) {
 std::cout<<"***************FIFO********************\n";
        //lastDelivery 
        //lastPickup
@@ -248,7 +248,7 @@ tau();std::cout<<"\n";
 
 
 
-double Vehicle::testInsertPUSH(const Order &order, const Orders &orders, int &pickPos, int &delPos,const Compatible &twc) {
+double Vehicle::testInsertPUSH(const Order &order, const Orders &orders, int &pickPos, int &delPos,const TWC<Dpnode> &twc) {
 std::cout<<"***************PUSH********************\n";
        //lastDelivery 
        //lastPickup
@@ -345,7 +345,7 @@ tau();std::cout<<(feasable()?"YES":"no")<<"\n";
 
 
 // *******
-bool Vehicle::insertOrderAfterLastPickup(const Order &order,const Compatible &twc){
+bool Vehicle::insertOrderAfterLastPickup(const Order &order,const TWC<Dpnode> &twc){
     int i;
     for (i=size()-1; i>=0 and not ispickup(i); i--) {};
     int lastPickPos=i+1;

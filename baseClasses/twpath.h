@@ -64,6 +64,9 @@ template <class knode> class Twpath {
     unsigned int max_size() const { return path.max_size(); };
     unsigned int size() const { return path.size(); };
     bool empty() const { return path.empty(); };
+    std::deque<knode>& Path() { return path; }
+    const std::deque<knode>& Path() const  { return path; }
+
 
     // how can we hande evaluation if we need the following???
     // clear() can be handled with:
@@ -401,7 +404,14 @@ template <class knode> class Twpath {
 */
 
 
+    typedef Twpath<knode> Bucket;
 };
+
+//template <class knode>
+//typedef Twpath<knode> Bucket;
+//template <typename knode>
+//class Bucket : public Twpath<knode> {};
+
 
 
 #endif
