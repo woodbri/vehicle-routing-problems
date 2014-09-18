@@ -55,12 +55,14 @@ void TrashProblem::loadproblem(std::string& file) {
 
     // read the nodes
     int cnt = 0;
+    int nid = 0;
     while ( std::getline(in, line) ) {
         cnt++;
         // skip comment lines
         if (line[0] == '#') continue;
 
         Trashnode node( line );
+        node.setnid(nid);   // renumber nodes sequentially for internal use
         if (!node.isvalid())
             std::cout << "ERROR: line: " << cnt << ": " << line << std::endl;
 
@@ -72,12 +74,14 @@ void TrashProblem::loadproblem(std::string& file) {
             depots.push_back(node.getnid());
         else if (node.isdump())
             dumps.push_back(node.getnid());
+
+        nid++;
     }
 
     in.close();
+
     twc.setNodes(datanodes);
 twc.dump();
-
 
     buildDistanceMatrix();
 
