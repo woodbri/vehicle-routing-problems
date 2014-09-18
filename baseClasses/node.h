@@ -13,30 +13,19 @@ class Node {
   public:
     // accessors
     int getnid() const { return nid; };
-    int getx() const { return x; };
-    int gety() const { return y; };
+    double getx() const { return x; };
+    double gety() const { return y; };
 
-    double distance(const Node &n) const {
-        double dx = n.x - x;
-        double dy = n.y - y;
-        return sqrt( dx*dx + dy*dy );
-    };
+    double distance(const Node &n) const ;
 
-    void dump() const;
 
     // state
     bool isvalid() const { return nid > -1; };
-
     bool isSamePos(const Node &n) const { return distance(n) == 0; };
     bool isSamePos(const Node &n, double tol) const { return distance(n) < tol; };
 
     // mutators
-    void set(int _nid, double _x, double _y) {
-        nid = _nid;
-        x = _x;
-        y = _y;
-    };
-
+    void set(int _nid, double _x, double _y); 
     void setnid(int _nid) { nid = _nid; };
     void setx(double _x) { x = _x; };
     void sety(double _y) {y = _y; };
@@ -47,23 +36,33 @@ class Node {
     bool operator!=(const Node &n) const { return ! (*this == n); };
     bool operator>(const Node &n) const { return nid > n.nid; };
 
-    // structors
+    // vector operators
+    Node operator+( const Node &v ) const;
+    Node operator-( const Node &v ) const;
+    Node operator*( double f ) const;
+    double dotProduct( const Node &p ) const ;
+    double length( const Node &p ) const ;
+    double distanceTo( const Node &p ) const ;
+    double distanceToSquared( const Node &p ) const ;
+    Node unit( const Node &p ) const ;
+    double distanceToSegment( const Node &v, const Node &w, Node &q );
+    double distanceToSegment( double, double, double, double, double&, double&);
 
-    Node() {
-        nid = -1;
-        x = 0.0;
-        y = 0.0;
-    };
+    // dump
+    void dump() const;
 
-    Node(int _nid, double _x, double _y) {
-        nid = _nid;
-        x = _x;
-        y = _y;
-    };
+    // constructors
 
+    Node() ;
+    Node(int _nid, double _x, double _y) ;
+    Node(double _x, double _y) ;
     Node(const std::string line);
 
     ~Node() {};
+
+
+
+
 
 };
 

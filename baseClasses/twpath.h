@@ -4,6 +4,7 @@
 #include <deque>
 #include <iostream>
 #include <algorithm>
+#include "node.h"
 
 /*
     Evaluation has to be done
@@ -43,6 +44,10 @@ template <class knode> class Twpath {
             erase(fromi + 1);
         }
     };
+
+    double segmentDistanceToPoint(UID i, const knode& n, Node &point) const {
+        return n.distanceToSegment(path[i],path[i+1],point);
+    }
 
     // ------------------------------------------------------------------
     // These methods are NON-EVALUATING
