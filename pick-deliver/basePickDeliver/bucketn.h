@@ -99,6 +99,7 @@ class BucketN {
 
    /* based on position in the path*/ 
     inline int getnid(int pos) const { return path[pos].getnid(); }
+    inline int getid(int pos) const { return path[pos].getid(); }
     inline int getoid(int pos) const { return path[pos].getoid(); }
     inline double getx(const int pos) const {path[pos].getx();}
     inline double gety(const int pos) const {path[pos].gety();}

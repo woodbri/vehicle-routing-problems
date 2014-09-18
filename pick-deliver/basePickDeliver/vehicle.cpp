@@ -495,6 +495,10 @@ double Vehicle::findBestCostBackForw(const int oid,int &bppos,int &bdpos){
    void Vehicle::tau() const {
       for (int i=0; i< path.size(); i++)
          std::cout<<getnid(i)<<" , ";
+      std::cout<<" (";
+      for (int i=0; i< path.size(); i++)
+         std::cout<<getid(i)<<" , ";
+      std::cout<<" )";
    }
 
 

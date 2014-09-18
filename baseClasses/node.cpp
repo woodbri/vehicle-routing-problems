@@ -15,7 +15,7 @@ double Node::distance(const Node &n) const {
 
 
 void Node::set(int _nid, double _x, double _y) {
-        nid = _nid;
+        id = nid = _nid;
         x = _x;
         y = _y;
 };
@@ -108,18 +108,26 @@ double Node::distanceToSegment( double segmentX1, double segmentY1, double segme
 
 // Constructors
 Node::Node() {
-        nid = -1;
+        id=nid = -1;
         x = 0.0;
         y = 0.0;
 };
 
 Node:: Node(double _x, double _y) {
-        nid = -1;
+        id=nid = -1;
         x = _x;
         y = _y;
 };
 
 Node:: Node(int _nid, double _x, double _y) {
+        id= -1;
+        nid = _nid;
+        x = _x;
+        y = _y;
+};
+
+Node:: Node(int _nid, int _id , double _x, double _y) {
+        id= _id;
         nid = _nid;
         x = _x;
         y = _y;
@@ -130,4 +138,5 @@ Node::Node(std::string line) {
     buffer >> nid;
     buffer >> x;
     buffer >> y;
+    id=nid;
 }

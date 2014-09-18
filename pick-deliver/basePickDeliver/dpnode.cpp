@@ -32,5 +32,6 @@ Dpnode::Dpnode(std::string line):Tweval() {
     buffer >> service;
     buffer >> pid;
     buffer >> did;
+    id=nid;
 }
 

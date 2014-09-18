@@ -388,15 +388,18 @@ void twc_from_depot_calculate(){
 
 
 void dump() const  {
-    std::cout<<"\n\t";
-//    for (int i=0;i<twc0.size();i++)
-//        std::cout<<twc0[i]<<"\t";
-//    std::cout<<"\n\t";
+    std::cout<<"DUMPINGGGGG \n\t";
     for (int i=0;i<nodes.size();i++)
         std::cout<<"pos "<<i<<"\t";
+
     std::cout<<"\n\t";
     for (int i=0;i<nodes.size();i++)
-        std::cout<<"id "<<nodes[i].getnid()<<"\t";
+        std::cout<<"nid "<<nodes[i].getnid()<<"\t";
+
+    std::cout<<"\n\t";
+    for (int i=0;i<nodes.size();i++)
+        std::cout<<"id "<<nodes[i].getid()<<"\t";
+
     std::cout<<"\n";
     for (int i=0;i<nodes.size();i++){
         std::cout<<nodes[i].getnid()<<"\t";
