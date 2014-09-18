@@ -28,6 +28,8 @@
 # png images
 trash-collection/*.png
 pick-deliver/*.png
+pick-deliver/initialSolsPickDeliver/*.png
+pick-deliver/initialSolsPickDeliver/bin
 
 tester
 collection
