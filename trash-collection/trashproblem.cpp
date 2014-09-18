@@ -8,7 +8,6 @@
 #include <fstream>
 
 #include "plot.h"
-#include "vec2d.h"
 #include "trashproblem.h"
 
 // TODO: sweepAssignment and initial construction routine
@@ -304,9 +303,10 @@ int TrashProblem::findNearestNodeTo(Vehicle &v, int selector, int demandLimit, i
         Trashnode last = depot;
 
         for (int j=0; j<v.size(); j++) {
-            d = distanceFromLineSegmentToPoint(
-                last.getx(), last.gety(), v[j].getx(), v[j].gety(),
-                datanodes[i].getx(), datanodes[i].gety(), &qx, &qy);
+//            d = distanceFromLineSegmentToPoint(
+//                last.getx(), last.gety(), v[j].getx(), v[j].gety(),
+//                datanodes[i].getx(), datanodes[i].gety(), &qx, &qy);
+            d = datanodes[i].distanceToSegment(last,v[j]);
             if (nn == -1 or d < dist) {
                 dist = d;
                 loc = j;
@@ -314,9 +314,10 @@ int TrashProblem::findNearestNodeTo(Vehicle &v, int selector, int demandLimit, i
             }
             last = v[j];
         }
-        d = distanceFromLineSegmentToPoint(
-            last.getx(), last.gety(), dump.getx(), dump.gety(),
-            datanodes[i].getx(), datanodes[i].gety(), &qx, &qy);
+//        d = distanceFromLineSegmentToPoint(
+//            last.getx(), last.gety(), dump.getx(), dump.gety(),
+//            datanodes[i].getx(), datanodes[i].gety(), &qx, &qy);
+        d = datanodes[i].distanceToSegment(last,dump);
         if (nn == -1 or d < dist) {
             dist = d;
             loc = v.size();

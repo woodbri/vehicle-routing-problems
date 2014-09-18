@@ -8,7 +8,6 @@
 #include <vector>
 #include <math.h>
 
-#include "vec2d.h"
 #include <stdio.h>
 
 #include "node.h"
@@ -18,11 +17,12 @@
 #include "trashproblem.h"
 
 void TestDistanceFromLineSegmentToPoint( double segmentX1, double segmentY1, double segmentX2, double segmentY2, double pX, double pY ) {
-    double qX;
-    double qY;
-    double d = distanceFromLineSegmentToPoint( segmentX1, segmentY1, segmentX2, segmentY2, pX, pY, &qX, &qY );
-    printf( "line segment = ( ( %f, %f ), ( %f, %f ) ), p = ( %f, %f ), distance = %f, q = ( %f, %f )\n",
-            segmentX1, segmentY1, segmentX2, segmentY2, pX, pY, d, qX, qY );
+    Node s1(1, segmentX1, segmentY1);
+    Node s2(2, segmentX2, segmentY2);
+    Node p1(3, pX, pY);
+    double d = p1.distanceToSegment( s1, s2 );
+    printf( "line segment = ( ( %f, %f ), ( %f, %f ) ), p = ( %f, %f ), distance = %f\n",
+            segmentX1, segmentY1, segmentX2, segmentY2, pX, pY, d );
 }
 
 void TestDistanceFromLineSegmentToPoint() {
@@ -83,6 +83,7 @@ int main(int argc, char **argv) {
         else if (option == "nearestnode")  test_findNearestNodeTo("p50.txt");
         else if (option == "optmoves")     test_optmoves("p50.txt");
         else {
+            TestDistanceFromLineSegmentToPoint();
             Usage();
             return 1;
         }
