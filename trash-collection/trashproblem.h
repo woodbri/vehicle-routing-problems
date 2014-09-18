@@ -49,7 +49,7 @@ class TrashProblem {
 
     //// these should be const
     int findNearestNodeTo(int nid, int selector, int demandLimit);
-    int findNearestNodeTo(Vehicle &v, int selector, int demandLimit, int *pos);
+    int findNearestNodeTo(Vehicle &v, int selector, int demandLimit, int &pos);
 
     // get solution
     std::string solutionAsText() const;
@@ -86,7 +86,7 @@ class TrashProblem {
 
     // methods to build initial solution
     bool buildFleetFromSolution(std::vector<int> solution);
-    bool findVehicleBestFit(int nid, int* vid, int* pos);
+    bool findVehicleBestFit(int nid, int& vid, int& pos);
     void dumbConstruction();
     void nearestNeighbor();
     // void nearestInsertion();

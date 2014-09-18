@@ -280,7 +280,7 @@ int TrashProblem::findNearestNodeTo(int nid, int selector, int demandLimit) {
 }
 
 
-int TrashProblem::findNearestNodeTo(Vehicle &v, int selector, int demandLimit, int *pos) {
+int TrashProblem::findNearestNodeTo(Vehicle &v, int selector, int demandLimit, int& pos) {
     Trashnode depot(v.getdepot());
     Trashnode dump(v.getdumpsite());
     int nn = -1;        // init to not found
@@ -328,7 +328,7 @@ int TrashProblem::findNearestNodeTo(Vehicle &v, int selector, int demandLimit, i
 
     //std::cout << "TrashProblem::findNearestNodeTo(V" << depot.getnid() << ", " << selector << ") = " << nn << " at dist = " << dist << " at pos = " << loc << std::endl;
 
-    *pos = loc;
+    pos = loc;
     return nn;
 }
 
@@ -443,7 +443,7 @@ bool TrashProblem::buildFleetFromSolution(std::vector<int> solution) {
 // NOTE: findBestFit() does check for feasibility so time windows
 //       and capacity are not violated.
 
-bool TrashProblem::findVehicleBestFit(int nid, int* vid, int* pos) {
+bool TrashProblem::findVehicleBestFit(int nid, int& vid, int& pos) {
 
     // track the best result found
     int vbest = -1;
@@ -469,8 +469,8 @@ bool TrashProblem::findVehicleBestFit(int nid, int* vid, int* pos) {
     }
 
     if (vbest > -1) {
-        *vid = vbest;
-        *pos = vpos;
+        vid = vbest;
+        pos = vpos;
         return true;
     }
 
@@ -580,7 +580,7 @@ void TrashProblem::assignmentSweep() {
         //std::cout << "EMPTY TRUCK: "; truck.dump();
 
         int pos;
-        int nid = findNearestNodeTo(truck, UNASSIGNED|PICKUP|CLUSTER1, 0, &pos);
+        int nid = findNearestNodeTo(truck, UNASSIGNED|PICKUP|CLUSTER1, 0, pos);
         if (nid == -1) {
             std::cout << "TrashProblem::assignmentSweep failed to find an initial node for depot: " << depots[i] << std::endl;
             continue;
@@ -601,7 +601,7 @@ void TrashProblem::assignmentSweep() {
             int nnid = findNearestNodeTo(truck,
                             UNASSIGNED|PICKUP|CLUSTER1|CLUSTER2|LIMITDEMAND,
                             truck.getmaxcapacity() - truck.getcargo(),
-                            &pos);
+                            pos);
 
             // if we did not find a node we can break
             if (nnid == -1) break;
@@ -662,7 +662,7 @@ void TrashProblem::assignmentSweep2() {
         //std::cout << "EMPTY TRUCK: "; truck.dump();
 
         int pos;
-        int nid = findNearestNodeTo(truck, UNASSIGNED|PICKUP|CLUSTER1, 0, &pos);
+        int nid = findNearestNodeTo(truck, UNASSIGNED|PICKUP|CLUSTER1, 0, pos);
         if (nid == -1) {
             std::cout << "TrashProblem::assignmentSweep2 failed to find an initial node for depot: " << depots[i] << std::endl;
             continue;
@@ -684,7 +684,7 @@ void TrashProblem::assignmentSweep2() {
             int nnid = findNearestNodeTo(truck,
                             UNASSIGNED|PICKUP|CLUSTER1|LIMITDEMAND,
                             truck.getmaxcapacity() - truck.getcargo(),
-                            &pos);
+                            pos);
 
             // if we did not find a node we can break
             if (nnid == -1) break;
@@ -729,7 +729,7 @@ void TrashProblem::assignmentSweep2() {
             int nnid = findNearestNodeTo(truck,
                             UNASSIGNED|PICKUP|CLUSTER2|LIMITDEMAND,
                             truck.getmaxcapacity() - truck.getcargo(),
-                            &pos);
+                            pos);
 
             // if we did not find a node we can break
             if (nnid == -1) break;
@@ -772,7 +772,7 @@ void TrashProblem::assignmentSweep2() {
             int nnid = findNearestNodeTo(truck,
                             UNASSIGNED|PICKUP|LIMITDEMAND,
                             truck.getmaxcapacity() - truck.getcargo(),
-                            &pos);
+                            pos);
 
             // if we did not find a node we can break
             if (nnid == -1) break;
@@ -833,7 +833,7 @@ void TrashProblem::assignmentSweep3() {
 
         int pos;
         int nid = findNearestNodeTo(truck,
-                UNASSIGNED|PICKUP|CLUSTER1|RATIO, 0, &pos);
+                UNASSIGNED|PICKUP|CLUSTER1|RATIO, 0, pos);
         if (nid == -1) {
             std::cout << "TrashProblem::assignmentSweep3 failed to find an initial node for depot: " << depots[i] << std::endl;
             continue;
@@ -855,7 +855,7 @@ void TrashProblem::assignmentSweep3() {
             int nnid = findNearestNodeTo(truck,
                             UNASSIGNED|PICKUP|CLUSTER1|LIMITDEMAND|RATIO,
                             truck.getmaxcapacity() - truck.getcargo(),
-                            &pos);
+                            pos);
 
             // if we did not find a node we can break
             if (nnid == -1) break;
@@ -901,7 +901,7 @@ std::cout << "------ checking unassigned nodes ----------\n";
 
         int vid;
         int pos;
-        if (! findVehicleBestFit(pickups[i], &vid, &pos)) {
+        if (! findVehicleBestFit(pickups[i], vid, pos)) {
             // could not find a valid insertion point
             std::cout << "assignmentSweep3: could not find a valid insertion point for node: " << pickups[i] << std::endl;
             continue;
