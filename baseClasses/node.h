@@ -7,12 +7,14 @@
 class Node {
   protected:
     int nid;
+    int id;
     double x;
     double y;
 
   public:
     // accessors
     int getnid() const { return nid; };
+    int getid() const { return id; };
     double getx() const { return x; };
     double gety() const { return y; };
 
@@ -27,6 +29,7 @@ class Node {
     // mutators
     void set(int _nid, double _x, double _y); 
     void setnid(int _nid) { nid = _nid; };
+    void setid(int _id) { id = _id; };
     void setx(double _x) { x = _x; };
     void sety(double _y) {y = _y; };
 
@@ -56,6 +59,7 @@ class Node {
 
     Node() ;
     Node(int _nid, double _x, double _y) ;
+    Node(int _nid, int id, double _x, double _y) ;
     Node(double _x, double _y) ;
     Node(const std::string line);
 

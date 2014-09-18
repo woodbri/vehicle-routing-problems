@@ -30,7 +30,7 @@ class Twnode: public Node {
     bool latearrival(const double D) const { return D > tw_close; };
 
     // mutators
-    void set(int _nid, double _x, double _y, int _demand,
+    void set(int _nid, int _id, double _x, double _y, int _demand,
              int _tw_open, int _tw_close, int _service);
     void setdemand(int _demand) { demand = _demand; };
     void settwopen(int _tw_open) { tw_open = _tw_open; };
@@ -68,7 +68,7 @@ class Twnode: public Node {
         service = 0;
     };
 
-    Twnode(int nid, double x, double y, int _demand, int _tw_open, int _tw_close, int _service) : Node(nid,x,y) {
+    Twnode(int nid, int id, double x, double y, int _demand, int _tw_open, int _tw_close, int _service) : Node(nid,id,x,y) {
         demand = _demand;
         tw_open = _tw_open;
         tw_close = _tw_close;
