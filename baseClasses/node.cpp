@@ -51,7 +51,13 @@ Node Node::unit( const Node &p ) const {
         return p * scale;
 };
 
-double Node::distanceToSegment( const Node &v, const Node &w, Node &q ){
+double Node::distanceToSegment( const Node &v, const Node &w) const{
+      Node q;
+      return distanceToSegment(v,w,q);
+};
+
+
+double Node::distanceToSegment( const Node &v, const Node &w, Node &q ) const{
 
     // i.e. |w-v|^2 ... avoid a sqrt
     double distSq = v.distanceToSquared( w );
@@ -84,7 +90,7 @@ double Node::distanceToSegment( const Node &v, const Node &w, Node &q ){
     return distanceTo( projection );
 }
 
-double Node::distanceToSegment( double segmentX1, double segmentY1, double segmentX2, double segmentY2, double &qX, double &qY ) {
+double Node::distanceToSegment( double segmentX1, double segmentY1, double segmentX2, double segmentY2, double &qX, double &qY ) const{
     Node q;
 
     double distance = distanceToSegment( Node( segmentX1, segmentY1 ), Node( segmentX2, segmentY2 ), q );

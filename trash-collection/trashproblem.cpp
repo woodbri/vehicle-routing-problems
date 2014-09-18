@@ -307,6 +307,7 @@ int TrashProblem::findNearestNodeTo(Vehicle &v, int selector, int demandLimit, i
             d = distanceFromLineSegmentToPoint(
                 last.getx(), last.gety(), v[j].getx(), v[j].gety(),
                 datanodes[i].getx(), datanodes[i].gety(), &qx, &qy);
+//            d = datanodes[i].distanceToSegment(last,v[j]);
             if (nn == -1 or d < dist) {
                 dist = d;
                 loc = j;
@@ -317,6 +318,7 @@ int TrashProblem::findNearestNodeTo(Vehicle &v, int selector, int demandLimit, i
         d = distanceFromLineSegmentToPoint(
             last.getx(), last.gety(), dump.getx(), dump.gety(),
             datanodes[i].getx(), datanodes[i].gety(), &qx, &qy);
+//            d = datanodes[i].distanceToSegment(last,dump);
         if (nn == -1 or d < dist) {
             dist = d;
             loc = v.size();

@@ -45,8 +45,9 @@ class Node {
     double distanceTo( const Node &p ) const ;
     double distanceToSquared( const Node &p ) const ;
     Node unit( const Node &p ) const ;
-    double distanceToSegment( const Node &v, const Node &w, Node &q );
-    double distanceToSegment( double, double, double, double, double&, double&);
+    double distanceToSegment( const Node &v, const Node &w) const ;
+    double distanceToSegment( const Node &v, const Node &w, Node &q ) const;
+    double distanceToSegment( double, double, double, double, double&, double&) const;
 
     // dump
     void dump() const;
