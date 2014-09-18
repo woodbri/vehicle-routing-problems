@@ -19,12 +19,11 @@ class Init_pd: public Solution {
   
   public:
     Init_pd(const Solution& P):Solution(P){
-std::cout<<"STARTINGNNNNNGGGG 2\n";
          initialConstruction();
-std::cout<<"FINISHINNNNNGGGG 2\n";
     }
     void makeRoute(Vehicle &truck, Orders &orders, Orders &incompat,Order lastOrder);
     void initialConstruction();
+    void e_performInsertion(Vehicle &truck,const Order &order,int pickPos,int delPos,Orders &orders,Orders &incompat);
 
 };
 #endif

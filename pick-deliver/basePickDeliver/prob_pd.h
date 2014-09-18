@@ -73,6 +73,10 @@ typedef  Twpath<Dpnode> Bucket;
     void ordersdump( const std::deque<Order> orders ) const;
    void dump();
 
+
+   inline double _MAX() { (std::numeric_limits<double>::max()); };
+   inline double _MIN() { ( - std::numeric_limits<double>::max() ); };
+
     //void calcAvgTWLen();
 };
 

@@ -13,63 +13,51 @@ std::cout << "********************\n";
           int pickPosFIFO,delPosFIFO;
           int pickPosLIFO,delPosLIFO;
           int pickPosPUSH,delPosPUSH;
-          double pushCost,fifoCost,lifoCost=std::numeric_limits<double>::max();
+          int pickPos,delPos;
+          double pushCost,fifoCost,lifoCost;
+          pickPosFIFO=delPosFIFO= pickPosLIFO=delPosLIFO= pickPosPUSH=delPosPUSH= pickPos=delPos=-1;
+          pushCost=fifoCost=lifoCost=_MAX();
           Order order;
           if (truck.isEmptyTruck()) {
                bestAt=orders.leastReachable();
                order= orders[bestAt];
-               lastOrder=order;
-               truck.pushOrder(order);
                orders.erase(bestAt);
                orders.removeIncompatible(order,incompatible);
+               truck.pushOrder(order);
                lastOrder=order;
                makeRoute(truck,orders,incompatible,lastOrder);
                return;
           }
-          bestAt=orders.reachesMost();
+          //bestAt=orders.reachesMost();
+          bestAt=orders.leastReachable();
           if (bestAt==-1) return; //no feasable best order
           order=orders[bestAt];
           orders.erase(bestAt);
 order.dump();
 std::cout<<"Retreiving costs \n";
-          if (orders.isLIFOcompat(lastOrder,order)) {//lifo comes first
-               lifoCost=truck.testInsertLIFO(order, orders, pickPosLIFO, delPosLIFO, twc);
+          if (orders.isLIFOcompat(lastOrder,order)) lifoCost=truck.testInsertLIFO(order, orders, pickPosLIFO, delPosLIFO, twc);
+          if(orders.isFIFOcompat(lastOrder,order)) fifoCost=truck.testInsertFIFO(order, orders, pickPosFIFO, delPosFIFO, twc);
+          if (orders.isPUSHcompat(lastOrder,order)) pushCost=truck.testInsertPUSH(order, orders, pickPosPUSH, delPosPUSH, twc);
 std::cout<<"LIFO Cost "<<lifoCost<<"\t pickPos "<<pickPosLIFO<<"\tdelpos "<<delPosLIFO<<"\n";
-               if (lifoCost<std::numeric_limits<double>::max()) {
-                   truck.insertPOS(order,pickPosLIFO,delPosLIFO);
-                   orders.removeIncompatible(order,incompatible);
-                   lastOrder=order;
-                   makeRoute(truck,orders,incompatible,lastOrder);
-                   return;
-               };
-          }  else std::cout<<"Not LIFO\n";
-          if(orders.isFIFOcompat(lastOrder,order)) {
-               fifoCost=truck.testInsertFIFO(order, orders, pickPosFIFO, delPosFIFO, twc);
-               if (fifoCost<std::numeric_limits<double>::max()) {
 std::cout<<"FIFO Cost "<<fifoCost<<"\t pickPos "<<pickPosFIFO<<"\tdelpos "<<delPosFIFO<<"\n";
-                   truck.insertPOS(order,pickPosFIFO,delPosFIFO);
-                   orders.removeIncompatible(order,incompatible);
-                   lastOrder=order;
-                   makeRoute(truck,orders,incompatible,lastOrder);
-                   return;
-               }
-          }  else std::cout<<"Not FIFO\n";
-          if (orders.isPUSHcompat(lastOrder,order)) {
-               pushCost=truck.testInsertPUSH(order, orders, pickPosPUSH, delPosPUSH, twc);
-               if (pushCost<std::numeric_limits<double>::max()) {
 std::cout<<"PUSH Cost "<<pushCost<<"\t pickPos "<<pickPosPUSH<<"\tdelpos "<<delPosPUSH<<"\n";
-                   truck.insertPOS(order,pickPosPUSH,delPosPUSH);
-                   orders.removeIncompatible(order,incompatible);
-                   lastOrder=order;
-                   makeRoute(truck,orders,incompatible,lastOrder);
-                   return;
-               }
+          if      (lifoCost<_MAX() and lifoCost<=fifoCost and lifoCost<=pushCost) { pickPos=pickPosLIFO;delPos= delPosLIFO;}
+          else if (fifoCost<_MAX() and fifoCost< lifoCost and fifoCost<=pushCost) { pickPos=pickPosFIFO;delPos= delPosFIFO;}
+          else if (pushCost<_MAX() and pushCost< fifoCost and pushCost< lifoCost) { pickPos=pickPosPUSH;delPos= delPosPUSH;}
+          else incompatible.push_back(order);
+
+          if ( not (pickPos==-1 or delPos==-1) ) {
+             truck.insertPOS(order,pickPos,delPos);
+             orders.removeIncompatible(order,incompatible);
+             lastOrder=order;
           }
 
-std::cout<<"unfeasable so its incompatible \n";
-         incompatible.push_back(order);
-         makeRoute(truck,orders,incompatible,lastOrder);
+          makeRoute(truck,orders,incompatible,lastOrder);
 }
+
+
+
+
 
 
 
