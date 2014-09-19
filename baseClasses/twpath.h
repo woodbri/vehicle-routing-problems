@@ -45,62 +45,11 @@ class Twpath : public TwBucket<knode> {
     using TwBucket<knode>::erase;
     using TwBucket<knode>::size;
     using TwBucket<knode>::path;
-/*    void swap(UID i, UID j) { std::iter_swap(path.begin()+i,path.begin()+j);}
-
-    void move(int fromi, int toj) {
-        if (fromi == toj) return;
-        if (fromi < toj){
-            insert(path[fromi], toj + 1);
-            erase(fromi);
-        } else {
-            insert(path[fromi], toj);
-            erase(fromi + 1);
-        }
-    };
-*/
-    double segmentDistanceToPoint(UID i, const knode& n, Node &point) const {
-        return n.distanceToSegment(path[i],path[i+1],point);
-    }
-
-    // ------------------------------------------------------------------
-    // These methods are NON-EVALUATING
-    // and mirror those functions in std::deque
-    // ------------------------------------------------------------------
-//    void insert(const knode &n, int atPos) { path.insert(path.begin() + atPos, n); };
-//void erase (int atPos) { path.erase(path.begin()+atPos); };
-/*    void erase (int fromPos, int toPos) { 
-         if (fromPos==toPos) path.erase(fromPos); //[fromPos]
-         else if (fromPos<toPos) path.erase(path.begin()+fromPos,path.begin()+toPos); //[fromPos,toPos)
-         else  path.erase(path.begin()+toPos,path.begin()+fromPos); //[toPos,fromPos)
-    };
-*/
-    //void push_back(const knode& n) { path.push_back(n); };
-    //void push_front(const knode& n) { path.push_front(n); };
-    //void pop_back() { path.pop_back(); };
-    //void pop_front() { path.pop_front(); };
-    //void resize(unsigned int n) { path.resize(n); };
-    //void clear() { path.clear(); };
-    //unsigned int max_size() const { return path.max_size(); };
-    //unsigned int size() const { return path.size(); };
-    //bool empty() const { return path.empty(); };
-    //std::deque<knode>& Path() { return path; }
-    //const std::deque<knode>& Path() const  { return path; }
 
 
-    // how can we hande evaluation if we need the following???
-    // clear() can be handled with:
-    //      temp = path[0]; path.clear(); path.push_back(temp); ...
-
-
-    // Capacity
-
-    // ------------------------------------------------------------------
-    // These methods are AUTO-EVALUATING
-    // ------------------------------------------------------------------
-
-
-    /* nodes handling within two  paths */
+    /* operations within two  paths */
     E_Ret e_swap(UID i, double maxcap, Twpath<knode> &rhs,UID j, double rhs_maxcap) {
+        assert ( i<size() and j<rhs.size() );
         if (i<0 or j<0 or i>size()-1 or j>rhs.size()-1) return INVALID;
         std::iter_swap(path.begin()+i,rhs.path.begin()+j);
         evaluate(i, maxcap);
@@ -111,10 +60,12 @@ class Twpath : public TwBucket<knode> {
 
 
     // nodes handling within the same path 
+
     //  path with size 10:  (0......9) retsriction   0 <= i,j <= size-1
+    // i.e. if the path has 10 nodes we can't move from
+    // position 5000 OR can't move to position 5000  
     E_Ret e_move(UID fromi, UID toDest, double maxcapacity) {
-        // i.e. if the path has 10 nodes we can't move from
-        // position 5000 OR can't move to position 5000  
+        assert ( fromi<size() and toDest<size() );
         if (fromi<0 or toDest<0 or fromi>size()-1 or toDest>size()-1)
             return INVALID;
         if (fromi == toDest) return NO_CHANGE;  
@@ -133,16 +84,17 @@ class Twpath : public TwBucket<knode> {
     };
 
     E_Ret e_resize(UID numb,double maxcapacity) { 
+        assert ( numb<=size() );
         if (numb<0 or numb>size()) return INVALID;
         path.resize(numb);
         //its reduced so the last node's value its not affected so no need of
-        evalLast(maxcapacity); //????
+        evalLast(maxcapacity); //<--- can this one be avoided????
         return OK;
     };
 
     E_Ret e_swap(UID i,UID j,double maxcapacity) {
         if (i==j) return NO_CHANGE;
-        if (i<0 or j<0 or i>size()-1 or j>size()-1) return INVALID;
+        //if (i<0 or j<0 or i>size()-1 or j>size()-1) return INVALID;
         swap(i,j);
         i < j ? evaluate(i, maxcapacity): evaluate(j, maxcapacity);
         return OK;
@@ -151,7 +103,9 @@ class Twpath : public TwBucket<knode> {
 
 
     // moves a range of nodes (i-j) to position k without reversing them
-    E_Ret e_move(int i, int j, int k, double maxcapacity) {
+    // probably more efficient with iterators....
+    // but this works
+    E_Ret e_move(UID i, UID j, UID k, double maxcapacity) {
         if (! (i <= j and (k > j or k < i))) return INVALID;
         if (j>size()-1 or k>size()) return INVALID;
         // moving range to right of the range
@@ -188,51 +142,9 @@ class Twpath : public TwBucket<knode> {
     }
 
 
-/*
 
     // moves a range of nodes (i-j) to position k and reverses those nodes
-    E_Ret e_movereverse(UID rangeFrom, UID rangeTo, UID destBeforePos, double maxcapacity) {
-        // path: 0 1 2 [3 4 5] 6 7 8 9
-        // invalid moves are:
-        //      rangeFrom > size-1 or rangeTo > size-1 or dest > size
-        //      dest < 0 or to < 0 or from < 0 or to < from
-        //      dest >= from and dest <= to+1
-        if ( rangeFrom > path.size()-1 or rangeTo > path.size()-1 or
-             destBeforePos > path.size() ) return INVALID;
-        if ( rangeFrom < 0 or rangeTo < 0 or destBeforePos < 0
-                or rangeTo < rangeFrom ) return INVALID;
-        if ( destBeforePos >= rangeFrom and
-             destBeforePos <= rangeTo+1 ) return INVALID;
-        //if (! (rangeFrom < rangeTo and (destBeforePos > rangeTo or destBeforePos <= rangeFrom))) return INVALID;
-        //if (rangeTo>size()-1 or destBeforePos>size()) return INVALID; //avoiding wierd behaiviour
-        
-        if (destBeforePos > rangeTo) { // moving range to right of the range
-            reverse_iterator itFromPos (path.begin()+rangeTo+1);
-            reverse_iterator itDownToPos (path.begin()+rangeFrom);
-            iterator itIntoPos = path.begin()+destBeforePos;
-            path.insert(itIntoPos, itFromPos, itDownToPos);
-            path.erase(path.begin()+rangeFrom, path.begin()+rangeTo+1);
-            evaluate(rangeFrom,maxcapacity);
-        } else {     // moving range to left of the range
-            iterator itn(path.begin()+rangeFrom);
-            iterator itj(path.begin()+rangeTo);
-            iterator itk(path.begin()+destBeforePos);
-            for (int n=rangeFrom; n<=rangeTo; n++) {
-                knode temp = *itn;
-                path.erase(itn);
-                path.insert(itk, temp);
-                itk--;
-            }
-            evaluate(destBeforePos,maxcapacity);
-        }
-        return OK;
-    }
-
-*/
-
-
-    // moves a range of nodes (i-j) to position k and reverses those nodes
-    E_Ret e_movereverse(int i, int j, int k, double maxcapacity) {
+    E_Ret e_movereverse(UID i, UID j, int k, double maxcapacity) {
         // path: 0 1 2 [3 4 5] 6 7 8 9
         // invalid moves are:
         //      rangeFrom > size-1 or rangeTo > size-1 or dest > size
@@ -264,7 +176,8 @@ class Twpath : public TwBucket<knode> {
     }
 
     // reverse the nodes from i to j in the path
-    E_Ret e_reverse(int i, int j, double maxcapacity) {
+    E_Ret e_reverse(UID i, UID j, double maxcapacity) {
+        assert (i<size() and j<size());
         if (i<0 or j<0 or i>=path.size() or j>=path.size()) return INVALID;
         int m = i;
         int n = j;
@@ -279,26 +192,16 @@ class Twpath : public TwBucket<knode> {
 
         while (itM < itN){
             std::iter_swap(itM,itN);
-          //  knode tmp=*itM;
-          //  *itM=*itN;
-          //  *itN=tmp;
             itM++;
             itN--;
         }
-/*
-        while (m < n) {
-            knode temp = path[m];
-            path[m] = path[n];
-            path[n] = temp;
-            m++;
-            n--;
-        }
-*/
+
         i < j ? evaluate(i, maxcapacity): evaluate(j, maxcapacity);
         return OK;
     };
 
     E_Ret e_insert(const knode &n, UID at, double maxcapacity) {
+        assert ( at <= size());
         if (at < 0 or at > size()) return INVALID;
         path.insert(path.begin() + at, n);
         evaluate(at, maxcapacity);
@@ -310,14 +213,9 @@ class Twpath : public TwBucket<knode> {
         evalLast(maxcapacity);
         return OK;
     };
-/*
-    E_Ret e_push_back(knode& n, double maxcapacity) {
-        path.push_back(n);
-        evalLast(maxcapacity);
-        return OK;
-    };
-*/
-    E_Ret e_remove (int i, double maxcapacity) {
+
+    E_Ret e_remove (UID i, double maxcapacity) {
+        assert (i<size());
         if (i<0 or i>size()-1) return INVALID;
         path.erase(path.begin() + i);
         evaluate(i, maxcapacity);
@@ -325,9 +223,10 @@ class Twpath : public TwBucket<knode> {
     };
 
     /*****   EVALUATION   ****/
-    void evaluate(int from,double maxcapacity) {
+    void evaluate(UID from,double maxcapacity) {
+        assert (from<=size()); //the equal just in case the last operation was erase
 
-        if (from < 0 or from > path.size()) from = 0;
+        if (from >= path.size()) from = size()-1;
         iterator it = path.begin()+from;
 
         while (it != path.end()){
@@ -339,98 +238,16 @@ class Twpath : public TwBucket<knode> {
     };
 
     void evalLast(double maxcapacity) {
+        assert (size()>0);
         evaluate(path.size()-1, maxcapacity);
     };
 
     void evaluate(double maxcapacity){
+        assert (size()>0);
         evaluate(0,maxcapacity);
     };
     
-    /*** ACCESSORS ***/
-/*
-    std::deque<int> getpath() const {
-        std::deque<int> p;
-        for (const_iterator it = path.begin(); it != path.end();it++)
-              p.push_back(it->getnid());
-        return p;
-    };
-
-    UID pos(UID nid) const {
-        const_reverse_iterator rit = path.rbegin(); 
-        for (const_iterator it = path.begin(); it!=path.end() ;it++,++rit) {
-              if(it->getnid()==nid) return int(it-path.begin());
-              if(rit->getnid()==nid) return path.size()-int(path.rbegin()-rit)-1;
-        }
-        return -1;
-    };
-
-    bool in(UID nid) const {
-        const_reverse_iterator rit = path.rbegin();
-        for (const_iterator it = path.begin(); it!=path.end() ;it++,++rit) {
-              if(it->getnid()==nid) return true;
-              if(rit->getnid()==nid) return true;
-        }
-        return false;
-    };
-
-    
-
-    void dump() const {
-        std::cout << "Twpath: "; // << home.getnid();
-        const_iterator it = path.begin();
-        for (const_iterator it = path.begin(); it != path.end();it++)
-            std::cout << " " << it->getnid();
-        std::cout << std::endl;
-    };
-
-    // element access
-    knode& operator[](unsigned int n) { return path[n]; };
-    const knode&  operator[] (unsigned int n) const { return path[n]; };
-    knode& at(int n) { return path.at(n); };
-    const knode& at(int n) const  { return path.at(n); };
-    knode& front() { return path.front(); };
-    const knode& front() const { return path.front(); };
-    knode& back() { return path.back(); };
-    const knode& back() const { return path.back(); };
-*/
-
-/*
-    //  PATH specific operations
-
-
-    // iterators
-//    iterator begin() { return path.begin(); };
-//    iterator end() { return path.end(); };
-//    iterator rbegin() { return path.rbegin(); };
-    //iterator rend() { return path.rend(); };
-    //const_iterator cbegin() { return path.cbegin(); };
-    //const_iterator cend() { return path.cend(); };
-    //const_iterator crbegin() { return path.crbegin(); };
-    //const_iterator crend() { return path.crend(); };
-
-
-//iterator insert(iterator it, const knode& n) { return path.insert(it, n); };
-
-    //void shrink_to_fit() { path.shrink_to_fit(); };
-
-    // modifiers
-    //iterator insert(iterator it, Trashnode& n) { return path.insert(it, n); };
-    //iterator erase(iterator it) { return path.erase(it); };
-    //iterator erase(iterator first, iterator last) { return path.erase(first, last); };
-    //iterator emplace(const_iterator it, const Trashnode& n) { return path.emplace(it, n); };
-    //iterator emplace_front(const Trashnode& n) { return path.emplace_front(n); };
-    //iterator emplace_back(const Trashnode& n) { return path.emplace_back(n); };
-*/
-
-
-//    typedef Twpath<knode> Bucket;
 };
-
-//template <class knode>
-//typedef Twpath<knode> Bucket;
-//template <typename knode>
-//class Bucket : public Twpath<knode> {};
-
 
 
 #endif
