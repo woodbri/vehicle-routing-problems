@@ -934,6 +934,47 @@ std::cout << "------ checking unassigned nodes ----------\n";
 }
 
 
+/*
+
+
+void TrashProblem::initialConstruction() {
+    Bucket orders;
+    Bucket incompatible;
+    Trashnode lastOrder;
+
+    for (int i=0; i<depots.size(); i++) {
+        // get the depot and dump for this depots vehicle
+        Trashnode& depot(datanodes[depot[i]]);
+        Trashnode& dump(datanodes[depot.getdumpnid()]);
+
+        // add nodes clustered around this depot into orders
+        for (int j=0; j<pickups.size(); j++)
+            if (datanodes[pickups[j]].getdepotnid() == depot.getnid())
+                orders.push_back(datanodes[pickups[j]]);
+
+        // create the truck and add the nodes to it
+        Vehicle truck(depot, dump);
+        makeRoute(truck, orders, incompatible, lastOrder);
+
+        // we may not have assigned all the orders
+        // and we may have incompatible orders from this truck
+        // so we join these back into the orders bucket
+        // so they can be applied to new trucks
+        orders.join(incompatible);
+        incompatible.clear();
+        fleet.push_back(truck);
+
+        truck.dump();
+    }
+
+    // now report all orders that were not assigned to any truck
+    std::cout << "\n##------------- UNASSIGNED ORDERS -----------------##\n";
+    orders.dump();
+}
+
+*/
+
+
 /************** local route optimization ************************/
 
 // Perform local (intra-route) optimizations on each vehicle in the fleet
