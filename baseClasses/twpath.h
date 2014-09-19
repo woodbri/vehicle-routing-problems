@@ -58,10 +58,10 @@ class Twpath : public TwBucket<knode> {
         }
     };
 */
-    double segmentDistanceToPoint(UID i, const knode& n, Node &point) const {
+/*    double segmentDistanceToPoint(UID i, const knode& n, Node &point) const {
         return n.distanceToSegment(path[i],path[i+1],point);
     }
-
+ */
     // ------------------------------------------------------------------
     // These methods are NON-EVALUATING
     // and mirror those functions in std::deque

@@ -728,14 +728,13 @@ std::cout<<"USING VEHICLE PLOT\n";
     graph.setFile( file+extra+".png" );
     graph.setTitle( title+extra );
     graph.drawInit();
-
-    for (int i=0; i<trace.size(); i++){
+    for (int i=0; i<size(); i++){
         if (ispickup(i))  { 
-             graph.drawPoint(trace[i], 0x0000ff, 9, true);
+             graph.drawPoint(path[i], 0x0000ff, 9, true);
         } else if (isdelivery(i)) {
-             graph.drawPoint(trace[i], 0x00ff00, 5, true);
+             graph.drawPoint(path[i], 0x00ff00, 5, true);
         } else  {
-             graph.drawPoint(trace[i], 0xff0000, 7, true);
+             graph.drawPoint(path[i], 0xff0000, 7, true);
         }
     }
     graph.drawPath(trace,graph.makeColor(carnumber*10), 1, true);
