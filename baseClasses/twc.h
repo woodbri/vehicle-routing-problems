@@ -83,70 +83,14 @@ typedef Twpath<knode> Bucket;
 
 
 
-/*
-double TWC::ajli(const knode &ni, const knode &nj) {
-    return ni.closes()+ni.getservicetime()+nj.distance(ni);
-}
 
-double TWC::ajei(const knode &ni, const knode &nj) {
-    return ni.opens()+ni.getservicetime()+nj.distance(ni);
-}
-
-
-double TWC::twc_for_ij(const knode &ni, const knode &nj) {
-    double result;
-#ifdef DEBUG
-std::cout<<" Quiero llegar a J="<<nj.getnid()<<" que abre a las:"<<nj.opens()<<" y cierra a las:"<<nj.closes()<<
-"\n \tDesde:"<<ni.getnid()<<" Si llego a "<<ni.getnid()<<" a la hora que abre, entonces a "<<nj.getnid()<<" llego a las= "<<ajei(ni,nj),"\n";
-#endif
-    if ( ( nj.closes() -ajei(ni,nj) ) > 0 ) {
-#ifdef DEBUG
-std::cout<<"\n \tDesde:"<<ni.getnid()<<" Si llego a "<<ni.getnid()<<" a la hora que cierra, entonces a "<<nj.getnid()<<" llego a las= "<<ajli(ni,nj),"\n";
-std::cout<<"\n \t \t min ("<<ajli(ni,nj)<<","<<nj.closes()<<")\t max("<<ajei(ni,nj)<<","<<nj.opens()<<")";
-std::cout<<"\t = "<< std::min (ajli(ni,nj),nj.closes())<<"\t "<<std::max(ajei(ni,nj),nj.opens())<<"";
-std::cout<<"\t = "<< std::min (ajli(ni,nj),nj.closes())-std::max(ajei(ni,nj),nj.opens())<<"";
-#endif
-        result = std::min ( ajli(ni,nj) , nj.closes() )
-                  - std::max ( ajei(ni,nj) , nj.opens()  ) ;
-
-    } else {
-#ifdef DEBUG
-std::cout<<"\t Es imposible llegar a J desde I ya que por mas temprano que salga de I no hay posibilidad de que llegue a tiempo \n";
-#endif
-        result= _MIN();
-    }
-#ifdef DEBUG
-std::cout<<"\t = "<< result<<"\n";
-#endif
-    return result;
-}
-*/
-
-/*  CONSTRUCTORS */
 public:
-TWC() {};
-TWC(Bucket _original)  : original(_original) {
-//    original=_original;
-    for (int i=0; i<original.size();i++){
-        nodes.push_back(original[i]);
-//        IdPos[original.getnid(i)]=i;
-    }
-    twcij_calculate();
-}
-
-/*
-int setSubset(Bucket _subset) {
-    subset.push_back(_subset);
-    return subset.size()-1;
-}
-*/
 
 int setNodes(Bucket _original) {
     original=_original;
     nodes.resize(0);
     for (int i=0; i<original.size();i++){
         nodes.push_back(original[i]);
-//        IdPos[nodes[i].getnid()]=i;
     }
     twcij_calculate();
 }
@@ -154,31 +98,6 @@ int setNodes(Bucket _original) {
 
 
 
-/* public functions That are id based */
-void twcij_calculate(){
-
-    twcij.resize(nodes.size());
-
-    for (int i=0;i<nodes.size();i++) twcij[i].resize(nodes.size());
-
-    for (int i=0;i<nodes.size();i++){
-        for (int j=i; j<nodes.size();j++) {
-
-#ifdef DEBUG
-std::cout<<"\nworking with ("<<nodes[i].getnid()<<","<<nodes[j].getnid()<<")\n";
-#endif
-              twcij[i][j]= twc_for_ij(nodes[i],nodes[j]);
-              twcij[j][i]= twc_for_ij(nodes[j],nodes[i]);
-        }
-    }
-    //twc_from_depot_calculate();
-}
-
-/* public functions are id based */
-/* general */
-void setIncompatible(int fromNid,int toNid) {
-    twcij[fromNid][toNid]= _MIN();
-}
 
 
 bool isCompatibleIJ(int fromNid, int toNid) const {
@@ -422,6 +341,22 @@ const knode& node(int i) const {
     return original[i];
 };
 
+// Functions to adjust compatability depending on problem 
+
+void setIncompatible(int fromNid,int toNid) {
+    twcij[fromNid][toNid]= _MIN();
+}
+
+
+// constructors
+TWC() {};
+TWC(Bucket _original)  : original(_original) {
+    for (int i=0; i<original.size();i++){
+        nodes.push_back(original[i]);
+    }
+    twcij_calculate();
+}
+
 /* private are indexed */
 private:
 double compat(int i,int j) const {
@@ -464,6 +399,30 @@ std::cout<<"\t = "<< result<<"\n";
 #endif
     return result;
 }
+
+
+
+/* public functions That are id based */
+void twcij_calculate(){
+
+    twcij.resize(nodes.size());
+
+    for (int i=0;i<nodes.size();i++) twcij[i].resize(nodes.size());
+
+    for (int i=0;i<nodes.size();i++){
+        for (int j=i; j<nodes.size();j++) {
+
+#ifdef DEBUG
+std::cout<<"\nworking with ("<<nodes[i].getnid()<<","<<nodes[j].getnid()<<")\n";
+#endif
+              twcij[i][j]= twc_for_ij(nodes[i],nodes[j]);
+              twcij[j][i]= twc_for_ij(nodes[j],nodes[i]);
+        }
+    }
+    //twc_from_depot_calculate();
+}
+
+
 
 
 };

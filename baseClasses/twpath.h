@@ -5,6 +5,7 @@
 #include <iostream>
 #include <algorithm>
 #include "node.h"
+#include "twbucket.h"
 
 /*
     Evaluation has to be done
@@ -17,9 +18,15 @@ enum E_Ret {
 };
 
 
-template <class knode> class Twpath {
-  protected:
-    std::deque<knode> path;
+template <class knode> 
+class Twpath : public TwBucket<knode> {
+    // ------------------------------------------------------------------
+    // TwBucket has the non evaluating methods
+    // Twpath has the evaluating methods &
+    //      inherits the all the non evaluating methods
+    // ------------------------------------------------------------------
+
+  private:
 
     typedef unsigned long UID;
     typedef typename std::deque<knode>::iterator iterator;
@@ -27,12 +34,18 @@ template <class knode> class Twpath {
     typedef typename std::deque<knode>::const_reverse_iterator const_reverse_iterator;
     typedef typename std::deque<knode>::const_iterator const_iterator;
 
-
   public:
     // ------------------------------------------------------------------
-    // These methods are NON-EVALUATING
+    // methods from TwBcuket class used in the evaluating functions
+    // If a new evaluationg funtion uses a method of Twbucket not listed here
+    //     add a new line with the correspondig name
     // ------------------------------------------------------------------
-    inline void swap(UID i, UID j) { std::iter_swap(path.begin()+i,path.begin()+j);}
+    using TwBucket<knode>::swap;
+    using TwBucket<knode>::insert;
+    using TwBucket<knode>::erase;
+    using TwBucket<knode>::size;
+    using TwBucket<knode>::path;
+/*    void swap(UID i, UID j) { std::iter_swap(path.begin()+i,path.begin()+j);}
 
     void move(int fromi, int toj) {
         if (fromi == toj) return;
@@ -44,7 +57,7 @@ template <class knode> class Twpath {
             erase(fromi + 1);
         }
     };
-
+*/
     double segmentDistanceToPoint(UID i, const knode& n, Node &point) const {
         return n.distanceToSegment(path[i],path[i+1],point);
     }
@@ -53,24 +66,25 @@ template <class knode> class Twpath {
     // These methods are NON-EVALUATING
     // and mirror those functions in std::deque
     // ------------------------------------------------------------------
-    void insert(const knode &n, int atPos) { path.insert(path.begin() + atPos, n); };
-    void erase (int atPos) { path.erase(path.begin()+atPos); };
-    void erase (int fromPos, int toPos) { 
+//    void insert(const knode &n, int atPos) { path.insert(path.begin() + atPos, n); };
+//void erase (int atPos) { path.erase(path.begin()+atPos); };
+/*    void erase (int fromPos, int toPos) { 
          if (fromPos==toPos) path.erase(fromPos); //[fromPos]
          else if (fromPos<toPos) path.erase(path.begin()+fromPos,path.begin()+toPos); //[fromPos,toPos)
          else  path.erase(path.begin()+toPos,path.begin()+fromPos); //[toPos,fromPos)
     };
-    void push_back(const knode& n) { path.push_back(n); };
-    void push_front(const knode& n) { path.push_front(n); };
-    void pop_back() { path.pop_back(); };
-    void pop_front() { path.pop_front(); };
-    void resize(unsigned int n) { path.resize(n); };
-    void clear() { path.clear(); };
-    unsigned int max_size() const { return path.max_size(); };
-    unsigned int size() const { return path.size(); };
-    bool empty() const { return path.empty(); };
-    std::deque<knode>& Path() { return path; }
-    const std::deque<knode>& Path() const  { return path; }
+*/
+    //void push_back(const knode& n) { path.push_back(n); };
+    //void push_front(const knode& n) { path.push_front(n); };
+    //void pop_back() { path.pop_back(); };
+    //void pop_front() { path.pop_front(); };
+    //void resize(unsigned int n) { path.resize(n); };
+    //void clear() { path.clear(); };
+    //unsigned int max_size() const { return path.max_size(); };
+    //unsigned int size() const { return path.size(); };
+    //bool empty() const { return path.empty(); };
+    //std::deque<knode>& Path() { return path; }
+    //const std::deque<knode>& Path() const  { return path; }
 
 
     // how can we hande evaluation if we need the following???
@@ -333,7 +347,7 @@ template <class knode> class Twpath {
     };
     
     /*** ACCESSORS ***/
-
+/*
     std::deque<int> getpath() const {
         std::deque<int> p;
         for (const_iterator it = path.begin(); it != path.end();it++)
@@ -378,7 +392,7 @@ template <class knode> class Twpath {
     const knode& front() const { return path.front(); };
     knode& back() { return path.back(); };
     const knode& back() const { return path.back(); };
-
+*/
 
 /*
     //  PATH specific operations
@@ -409,7 +423,7 @@ template <class knode> class Twpath {
 */
 
 
-    typedef Twpath<knode> Bucket;
+//    typedef Twpath<knode> Bucket;
 };
 
 //template <class knode>
