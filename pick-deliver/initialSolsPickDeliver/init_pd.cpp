@@ -10,12 +10,12 @@ std::cout<<" lastOrder ";lastOrder.dump(); std::cout<<"\n";
 std::cout << "********************\n";
           TwBucket<Dpnode> B=truck.Path();
 B.dump();
-          B=datanodes-B;
+          B=datanodes-B; //this is ok
 B.dump();
 std::cout << "********************\n";
           TwBucket<Dpnode> A=truck.Path();
 datanodes.dump();
-          datanodes-=A;
+           datanodes-=A;  //at the moment datanodes is a twpath
 datanodes.dump();
 
 std::cout << "********************\n";
