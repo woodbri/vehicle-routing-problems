@@ -24,6 +24,7 @@ public:
 /* mutators */        
     void setoid(int _oid)  {oid=_oid;};
     bool operator== (const Dpnode& other) const{ return getnid()==other.getnid();};
+    bool operator< (const Dpnode& other) const{ return getnid()< other.getnid();};
 
    Dpnode(std::string line);
 

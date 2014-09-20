@@ -247,6 +247,16 @@ class Twpath : public TwBucket<knode> {
         evaluate(0,maxcapacity);
     };
     
+
+    Twpath<knode>& operator -=(const TwBucket<knode> &other){
+       assert("Set operation not allowed on derived class of Twpath, Overload -= if this is required"=="");
+    }
+    Twpath<knode>& operator *=(const TwBucket<knode> &other){
+       assert("Set operation not allowed on derived class of Twpath, Overload *= if this is required"=="");
+    }
+    Twpath<knode>& operator +=(const TwBucket<knode> &other){
+       assert("Set operation not allowed on derived class of Twpath, Overload += if this is required"=="");
+    }
 };
 
 

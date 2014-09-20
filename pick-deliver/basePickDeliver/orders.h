@@ -13,7 +13,7 @@
 
 class Orders {
   private:
-typedef Twpath<Dpnode> Bucket;
+typedef TwBucket<Dpnode> Bucket;
 
     std::deque<Order> orders;
     std::deque< std::deque <bool> > compat;

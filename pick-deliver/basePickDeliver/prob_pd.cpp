@@ -99,6 +99,18 @@ void Prob_pd::dump() {
     nodesdump();
 }
 
+void Prob_pd::plot(Plot<Dpnode> &graph) {
+    for (int i=0; i<datanodes.size(); i++){
+        if (datanodes[i].ispickup())  {
+             graph.drawPoint(datanodes[i], 0x0000ff, 9, true);
+        } else if (datanodes[i].isdelivery()) {
+             graph.drawPoint(datanodes[i], 0x00ff00, 5, true);
+        } else  {
+             graph.drawPoint(datanodes[i], 0xff0000, 7, true);
+        }
+    }
+};
+
 Prob_pd::Prob_pd(char *infile)
      {
 std::cout << "---- Constructor --------------\n";

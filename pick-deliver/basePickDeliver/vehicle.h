@@ -49,7 +49,7 @@ class Vehicle:public BucketN {
         w1 = w2 = w3 = 1.0;
         push_back(_depot);
    };
-   Twpath<Dpnode> getpath() const;
+   std::deque<int> getpath() const;
 
 
     // accessors
@@ -151,6 +151,7 @@ bool isEmptyTruck() const;
     void tau() const ;
 
     void plot(std::string file,std::string title,int carnumber);
+    void plot(Plot<Dpnode> graph,int carnumber);
 
 };
 

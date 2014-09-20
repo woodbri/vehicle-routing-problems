@@ -20,7 +20,7 @@ UTILP_HEADS = $(UTILP_HDS)
 UTIL_SRCS = $(wildcard ../../$(UTIL)/*.cpp)
 UTIL_HDS = $(UTIL_SRCS:.cpp=.h)
 UTIL_OBJS = $(addprefix $(BUILD_DIR)/$(UTIL)/,$(notdir $(UTIL_SRCS:.cpp=.o)))
-UTIL_HEADS = ../../$(UTIL)/twpath.h ../../$(UTIL)/twc.h ../../$(UTIL)/twbucket.h
+UTIL_HEADS = ../../$(UTIL)/twpath.h ../../$(UTIL)/twc.h ../../$(UTIL)/twbucket.h ../../$(UTIL)/plot.h
 
 
 DEPS = $(SRCS:.cpp=.d)

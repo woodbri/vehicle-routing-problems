@@ -2,10 +2,12 @@
 #define BUCKET_H
 
 #include <deque>
+#include <set>
 #include <iostream>
 #include <algorithm>
 #include <cassert>
 #include "node.h"
+//#include "plot.h"
 
 /*
 Can be used as:
@@ -35,6 +37,14 @@ class TwBucket {
 
   protected:
     std::deque<knode> path;
+
+class compNode{
+   public:
+   bool operator()(const knode &n1, const knode &n2) const {
+     return (n1.getnid() < n2.getnid() );
+   }
+};
+
 
   private:
     typedef unsigned long UID;
@@ -82,6 +92,80 @@ class TwBucket {
         return false;
     };
 
+    // set doesnt mind order of nodes
+    // UNION
+    TwBucket<knode> operator +(const TwBucket<knode> &other) const  {
+       std::set<knode,compNode> a;
+       a.insert(path.begin(),path.end());
+       a.insert(other.path.begin(),other.path.end());
+       TwBucket<knode> b;
+       b.path.insert(b.path.begin(),a.begin(),a.end());
+       return b;
+    }
+
+    TwBucket<knode>& operator +=(const TwBucket<knode> &other)  {
+       std::set<knode,compNode> a;
+       a.insert(path.begin(),path.end());
+       a.insert(other.path.begin(),other.path.end());
+       path.clear();
+       path.insert(path.begin(),a.begin(),a.end());
+       return *this;
+    }
+
+    // INTERSECTION
+    TwBucket<knode> operator *(const TwBucket<knode> &other) const  {
+       std::set<knode,compNode> s1;
+       std::set<knode,compNode> s2;
+       std::set<knode,compNode> intersect;
+       s1.insert(path.begin(),path.end());
+       s2.insert(other.path.begin(),other.path.end());
+       std::set_intersection( s1.begin(), s1.end(), s2.begin(), s2.end(),
+              std::inserter( intersect, intersect.begin() ) );
+       TwBucket<knode> b;
+       b.path.insert(b.path.begin(),intersect.begin(),intersect.end());
+       return b;
+    }
+
+    TwBucket<knode>& operator *=(const TwBucket<knode> &other)  {
+       std::set<knode,compNode> s1;
+       std::set<knode,compNode> s2;
+       std::set<knode,compNode> intersect;
+       s1.insert(path.begin(),path.end());
+       s2.insert(other.path.begin(),other.path.end());
+       std::set_intersection( s1.begin(), s1.end(), s2.begin(), s2.end(),
+              std::inserter( intersect, intersect.begin() ) );
+       path.clear();
+       path.insert(path.begin(),intersect.begin(),intersect.end());
+       return *this;
+    }
+
+    // DIFERENCE
+    TwBucket<knode> operator -(const TwBucket<knode> &other) const  {
+       std::set<knode,compNode> s1;
+       std::set<knode,compNode> s2;
+       std::set<knode,compNode> diff;
+       s1.insert(path.begin(),path.end());
+       s2.insert(other.path.begin(),other.path.end());
+       std::set_difference( s1.begin(), s1.end(), s2.begin(), s2.end(),
+             std::inserter( diff, diff.begin() ) );
+       TwBucket<knode> b;
+       b.path.insert(b.path.begin(),diff.begin(),diff.end());
+       return b;
+    }
+
+    TwBucket<knode>& operator -=(const TwBucket<knode> &other)  {
+       std::set<knode,compNode> s1;
+       std::set<knode,compNode> s2;
+       std::set<knode,compNode> diff;
+       s1.insert(path.begin(),path.end());
+       s2.insert(other.path.begin(),other.path.end());
+       std::set_difference( s1.begin(), s1.end(), s2.begin(), s2.end(),
+             std::inserter( diff, diff.begin() ) );
+       path.clear();
+       path.insert(path.begin(),diff.begin(),diff.end());
+       return *this;
+    }
+
 
 
 //  NID based tools
@@ -104,6 +188,7 @@ class TwBucket {
     
 
 // deque like functions   POSITION based functions
+
     void insert(const knode &n, UID atPos) { 
         assert(atPos<=path.size());
         path.insert(path.begin() + atPos, n); 
