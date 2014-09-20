@@ -8,17 +8,6 @@ std::cout<<" orders "; orders.dump();
 std::cout<<" incompatible "; incompatible.dump(); 
 std::cout<<" lastOrder ";lastOrder.dump(); std::cout<<"\n";
 std::cout << "********************\n";
-          TwBucket<Dpnode> B=truck.Path();
-B.dump();
-          B=datanodes-B; //this is ok
-B.dump();
-std::cout << "********************\n";
-          TwBucket<Dpnode> A=truck.Path();
-datanodes.dump();
-           datanodes-=A;  //at the moment datanodes is a twpath
-datanodes.dump();
-
-std::cout << "********************\n";
           if (orders.empty()) return; //no more compatible orders
           int bestAt;
           int pickPosFIFO,delPosFIFO;

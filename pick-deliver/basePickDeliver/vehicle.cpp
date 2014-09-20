@@ -714,7 +714,7 @@ bool Vehicle::isEmptyTruck() const {return path.size()==1;}
 
 /**************************************PLOT************************************/
 void Vehicle::plot(std::string file,std::string title,int carnumber){
-std::cout<<"USING VEHICLE PLOT\n";
+//std::cout<<"USING VEHICLE PLOT\n";
     Twpath<Dpnode> trace=path;
     trace.push_back(backToDepot);
     
@@ -737,15 +737,22 @@ std::cout<<"USING VEHICLE PLOT\n";
              graph.drawPoint(path[i], 0xff0000, 7, true);
         }
     }
-    graph.drawPath(trace,graph.makeColor(carnumber*10), 1, true);
+    plot(graph,carnumber);
     graph.save();
 }
 
+void Vehicle::plot(Plot<Dpnode> graph, int carnumber){
+//std::cout<<"USING VEHICLE PLOT  1\n";
+    Twpath<Dpnode> trace=path;
+    trace.push_back(backToDepot);
+    graph.drawPath(trace,graph.makeColor(carnumber*10), 1, true);
+}
 
 
 
-Twpath<Dpnode> Vehicle::getpath() const {
-    Twpath<Dpnode> p=path;
-    p.push_back(backToDepot);
+std::deque<int> Vehicle::getpath() const {
+    std::deque<int> p=path.getpath();
+    p.push_back(backToDepot.getnid());
     return p;
 }
+

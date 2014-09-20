@@ -28,22 +28,13 @@ void Solution::plot(std::string file,std::string title){
     graph.setFile( file+".png" );
     graph.setTitle( datafile+": "+title );
     graph.drawInit();
-
-    for (int i=0; i<datanodes.size(); i++){
-        if (datanodes[i].ispickup())  {
-             graph.drawPoint(datanodes[i], 0x0000ff, 9, true);
-        } else if (datanodes[i].isdelivery()) {
-             graph.drawPoint(datanodes[i], 0x00ff00, 5, true);
-        } else  {
-             graph.drawPoint(datanodes[i], 0xff0000, 7, true);
-        }
-    }
+    Prob_pd::plot(graph);
     for (int i=0; i<fleet.size(); i++) {
-        graph.drawPath(fleet[i].getpath(), graph.makeColor(i*10), 1, false);
+          fleet[i].plot(graph,i);
     }
     graph.save();
 
-/* a grpah for individual truck but with all nodes */
+// a grpah for individual truck but with all nodes 
         
     for (int j=0;j<fleet.size();j++) {
         Plot<Dpnode> graph1( datanodes );
@@ -54,27 +45,17 @@ void Solution::plot(std::string file,std::string title){
         graph1.setFile( file+"car"+carnum+".png" );
         graph1.setTitle( datafile+": "+title+" car #"+carnum );
         graph1.drawInit();
-
-        for (int i=0; i<datanodes.size(); i++){
-            if (datanodes[i].ispickup())  {
-                 graph1.drawPoint(datanodes[i], 0x0000ff, 9, true);
-          } else if (datanodes[i].isdelivery()) {
-                 graph1.drawPoint(datanodes[i], 0x00ff00, 5, true);
-          } else  {
-                 graph1.drawPoint(datanodes[i], 0xff0000, 7, true);
-          }
-        }  
-        graph1.drawPath(fleet[j].getpath(), graph1.makeColor(j*10), 1, false);
+        Prob_pd::plot(graph1);
+        fleet[j].plot(graph1,j);
+        //graph1.drawPath(fleet[j].getpath(), graph1.makeColor(j*10), 1, false);
         graph1.save();
     }
 
-    
-
-
-/*     now a graph for each individual trucl */
+//     now a graph for each individual truck 
     for (int i=0;i<fleet.size();i++) {
         fleet[i].plot(file,datafile+": "+title,i);
     }
+
 }
 
 

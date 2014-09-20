@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <cassert>
 #include "node.h"
+//#include "plot.h"
 
 /*
 Can be used as:
@@ -187,6 +188,7 @@ class compNode{
     
 
 // deque like functions   POSITION based functions
+
     void insert(const knode &n, UID atPos) { 
         assert(atPos<=path.size());
         path.insert(path.begin() + atPos, n); 

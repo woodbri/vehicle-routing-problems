@@ -20,7 +20,7 @@
 
 template <class knode> class TWC {
   protected:
-typedef Twpath<knode> Bucket;
+typedef TwBucket<knode> Bucket;
 
 
     Twpath<knode> nodes;

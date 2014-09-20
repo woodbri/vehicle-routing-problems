@@ -17,7 +17,7 @@
 
 class Prob_pd {
   protected:
-typedef  Twpath<Dpnode> Bucket;
+typedef  TwBucket<Dpnode> Bucket;
 
     Dpnode depot;
 
@@ -70,6 +70,7 @@ typedef  Twpath<Dpnode> Bucket;
     void makeOrders();
 
     void nodesdump();
+    void plot(Plot<Dpnode> &graph);
     void ordersdump( const std::deque<Order> orders ) const;
    void dump();
 
