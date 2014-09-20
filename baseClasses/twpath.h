@@ -249,13 +249,13 @@ class Twpath : public TwBucket<knode> {
     
 
     Twpath<knode>& operator -=(const TwBucket<knode> &other){
-       assert("Set oeration not allowed on derived class of Twpath, Overload -= if this is required"=="");
+       assert("Set operation not allowed on derived class of Twpath, Overload -= if this is required"=="");
     }
     Twpath<knode>& operator *=(const TwBucket<knode> &other){
-       assert("Set oeration not allowed on derived class of Twpath, Overload *= if this is required"=="");
+       assert("Set operation not allowed on derived class of Twpath, Overload *= if this is required"=="");
     }
     Twpath<knode>& operator +=(const TwBucket<knode> &other){
-       assert("Set oeration not allowed on derived class of Twpath, Overload += if this is required"=="");
+       assert("Set operation not allowed on derived class of Twpath, Overload += if this is required"=="");
     }
 };
 
