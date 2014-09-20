@@ -22,7 +22,8 @@ typedef  TwBucket<Dpnode> Bucket;
     Dpnode depot;
 
     TWC<Dpnode> twc;
-    Bucket datanodes;
+    //Bucket datanodes;
+    Twpath<Dpnode> datanodes;
 
     Orders ordersList;
     std::string datafile;
