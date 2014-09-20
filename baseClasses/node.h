@@ -4,6 +4,8 @@
 #include <cmath>
 #include <string>
 
+
+
 class Node {
   protected:
     int nid;
@@ -65,10 +67,8 @@ class Node {
 
     ~Node() {};
 
-
-
-
-
 };
+
+
 
 #endif
