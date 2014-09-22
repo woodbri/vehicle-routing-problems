@@ -19,18 +19,13 @@
 
 
 template <class knode> class TWC {
-  protected:
+private:
 typedef TwBucket<knode> Bucket;
 typedef unsigned long int UID;
 
 
     Bucket original;
-    TwBucket<knode> nodescitos;
-
-
     std::deque<std::deque<double> > twcij;
-
-
 
     inline double _MIN() const { return -std::numeric_limits<double>::max();};
 
@@ -153,10 +148,10 @@ int  getBestCompatible(UID fromNid, const Bucket &nodes) const {
 
 
 
-double ec2(int at) {
+double ec2(UID at, const Bucket &nodes) {
+     assert(at<original.size() );
      double ec2_tot=0;
-//     int at = IdPos[nid];
-     for (int j=0; j<twcij.size(); j++) {
+     for (int j=0; j<nodes.size(); j++) {
          if ( not (twcij[at][j]  == _MIN()) ) ec2_tot+=twcij[at][j];
          if ( not (twcij[j][at]  == _MIN()) ) ec2_tot+=twcij[j][at];
      };
@@ -164,17 +159,18 @@ double ec2(int at) {
      return ec2_tot;
 }
 
-int countIncompatibleFrom(int at) {
+int countIncompatibleFrom(int at, const Bucket &nodes) {
+     assert(at<original.size() );
      int count=0;
-     for (int j=0; j<twcij.size(); j++) {
+     for (int j=0; j<nodes.size(); j++) {
          if ( twcij[at][j]  == _MIN() ) count++;
      }
      return count;
 }
 
-int countIncompatibleTo(int at) {
+int countIncompatibleTo(int at, const Bucket &nodes) {
      int count=0;
-     for (int j=0; j<twcij.size(); j++) {
+     for (int j=0; j<nodes.size(); j++) {
          if ( twcij[j][at]  == _MIN() ) count++;
      }
      return count;
@@ -182,15 +178,15 @@ int countIncompatibleTo(int at) {
 
 
 
-
-
 /*    DUMPS   */
 void dump() const  {
+    assert( original.size() );
     dump(original);
 } 
 
 
 void dump(const Bucket &nodes) const  {
+    assert( nodes.size() );
     std::cout<<"DUMPINGGGGG \n\t";
     for (int i=0;i<nodes.size();i++)
         std::cout<<"pos "<<i<<"\t";
@@ -214,11 +210,18 @@ void dump(const Bucket &nodes) const  {
     }
 }
 
-void dumpCompatible() {
-    for (int i=0;i<original.size();i++) {
-      for (int j=0;j<original.size();j++) {
-        for (int k=0;k<original.size();k++) {
-          std::cout<<"\t ( "<<original[i].getnid()<<" , "<<original[j].getnid()<<" , "<<original[k].getnid()<<") = "<<(isCompatibleIAJ(i,j,k)? "COMP": "not");
+
+void dumpCompatible() const  {
+    assert( original.size() );
+    dumpCompatible(original);
+} 
+
+void dumpCompatible(const Bucket &nodes) const {
+    assert( nodes.size() );
+    for (int i=0;i<nodes.size();i++) {
+      for (int j=0;j<nodes.size();j++) {
+        for (int k=0;k<nodes.size();k++) {
+          std::cout<<"\t ( "<<nodes[i].getnid()<<" , "<<nodes[j].getnid()<<" , "<<nodes[k].getnid()<<") = "<<(isCompatibleIAJ(i,j,k)? "COMP": "not");
         }
         std::cout<<"\n";
       }
@@ -226,13 +229,15 @@ void dumpCompatible() {
 }
 
 
-const knode& node(int i) const {
+const knode& node(UID i) const {
+    assert(i<original.size() );
     return original[i];
 };
 
 // Functions to adjust compatability depending on problem 
 
-void setIncompatible(int fromNid,int toNid) {
+void setIncompatible(UID fromNid,UID toNid) {
+    assert(fromNid<original.size() and toNid<original.size());
     twcij[fromNid][toNid]= _MIN();
 }
 
@@ -248,6 +253,7 @@ TWC(Bucket _original)  : original(_original) {
 /* private are indexed */
 private:
 double compat(int i,int j) const {
+    assert(i<original.size() and j<original.size());
     return twcij[i][j];
 };
 
