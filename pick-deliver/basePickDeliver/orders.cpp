@@ -28,6 +28,23 @@
    }
 
 
+   void Orders::removeOrder(int oid) {
+          for (int i=0;i<orders.size();i++) {
+              if (orders[i].getoid()==oid) {
+                  orders.erase(orders.begin()+i);
+                  break;
+              };
+          }
+   }
+
+
+
+   void Orders::removeOrder(const Order &order) {
+       removeOrder(order.getoid());
+   }
+
+
+
    int Orders::leastReachable() const { //retruns position
 //std::cout << "Enter Least Reachable\n";
          int bestCount=size()+1;

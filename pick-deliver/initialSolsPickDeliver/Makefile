@@ -4,7 +4,7 @@ UTILP = basePickDeliver
 UTIL = baseClasses
 BUILD_DIR = ./build
 BIN_DIR = ./bin 
-INCLUDES = -I../../$(UTIL) -I../$(UTILP)
+INCLUDES = -I../../$(UTIL) -I../$(UTILP) -I.
 CPPFLAGS = -g -O0 -MMD  -MP  
 LDFLAGS = -lgd $(INCLUDES) -L$(UTIL) -L$(UTILP)
 
@@ -23,7 +23,9 @@ UTIL_OBJS = $(addprefix $(BUILD_DIR)/$(UTIL)/,$(notdir $(UTIL_SRCS:.cpp=.o)))
 UTIL_HEADS = ../../$(UTIL)/twpath.h ../../$(UTIL)/twc.h ../../$(UTIL)/twbucket.h ../../$(UTIL)/plot.h
 
 
-DEPS = $(SRCS:.cpp=.d)
+DEPS = $(addprefix $(BUILD_DIR)/,$(SRCS:.cpp=.d))
+
+
 
 
 all: $(OBJS) $(UTIL_OBJS) $(UTILP_OBJS) build/pickDelivery.o ./bin/pickDelivery 
@@ -36,10 +38,10 @@ bin/pickDelivery: $(OBJS) $(UTIL_OBJS) $(UTILP_OBJS) $(UTILP_HEADS) $(UTIL_HEADS
 build/basePickDeliver/%.o: ../$(UTILP)/%.cpp ../$(UTILP)/%.h $(UTIL_HEADS) $(UTILP_HEADS)
 	$(CPP) $(CPPFLAGS) $(INCLUDES) -c $< -o $@
 
-build/baseClasses/%.o: ../../$(UTIL)/%.cpp ../../$(UTIL)/%.h $(UTIL_HEADS)
+build/baseClasses/%.o: ../../$(UTIL)/%.cpp ../../$(UTIL)/%.h 
 	$(CPP) $(CPPFLAGS) $(INCLUDES) -c $< -o $@
 
-$(BUILD_DIR)/%.o: %.cpp %.h
+$(BUILD_DIR)/%.o: %.cpp %.h  
 	$(CPP) $(CPPFLAGS) $(INCLUDES) -c $< -o $@
 
 

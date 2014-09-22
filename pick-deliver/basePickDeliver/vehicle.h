@@ -88,8 +88,8 @@ class Vehicle:public BucketN {
     void removeDelivery(int orderid);
     void swapstops(int i,int j);
     bool insertOrderAfterLastPickup(const Order &order, const TWC<Dpnode> &twc);
-    void pushOrder(const Order &order);
-    void pushPickup(const Order &order);
+    bool pushOrder(const Order &order);
+    bool pushPickup(const Order &order);
     void pushDelivery(const Order &order);
     void insertPickup(const Order &order, const int at);
     void insertDelivery(const Order &order, const int at);
@@ -123,7 +123,7 @@ bool isEmptyTruck() const;
     bool hascv()const { return backToDepot.getcvTot() != 0;}
     bool hastwv()const { return backToDepot.gettwvTot() != 0;}
 
-    void evaluate();
+    void evaluate(int from);
     void evalLast();
     int gettwvTot() const { return backToDepot.gettwvTot(); };
     int getcvTot() const { return backToDepot.getcvTot(); };

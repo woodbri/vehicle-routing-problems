@@ -6,35 +6,9 @@
 #include "order.h"
 #include "prob_pd.h"
 
-// NON class functions for sorting
-
-bool sortByDist(Order a, Order b)
-{
-    return a.getdistPickupDepot() < b.getdistPickupDepot();
-}
-
-bool sortByDistReverse(Order a, Order b)
-{
-    return a.getdistPickupDepot() > b.getdistPickupDepot();
-}
-
-bool sortByOid(Order a, Order b)
-{
-    return a.oid < b.oid;
-}
-
-bool sortByOidReverse(Order a, Order b)
-{
-    return a.oid > b.oid;
-}
-
-
-bool NodeByDistReverse(const Dpnode &a, const Dpnode b, Dpnode depot) {
-   return a.distance(depot) > b.distance(depot);
-}
-
 // Class functions
 
+/*
 unsigned int Prob_pd::getNodeCount() const { return (unsigned int) datanodes.size(); } 
 unsigned int Prob_pd::getOrderCount() const { return (unsigned int) ordersList.size(); }
 int Prob_pd::getOrderOid(int i) const{ ordersList[i].getoid();};
@@ -57,7 +31,7 @@ double Prob_pd::DepotToPickup(int n1) const {
 }
 
 double Prob_pd::distance(int n1,int n2) const { return datanodes[n1].distance(datanodes[n2]); }
-
+*/
 bool Prob_pd::checkIntegrity() const {
    bool flag=true;
    int nodesCant=datanodes.size();
@@ -148,85 +122,14 @@ std::cout << datafile<< " ---- Load --------------\n";
         nid++;
     }
     in.close();
-    sortNodeById();
     ordersList.makeOrders(datanodes,depot);
     twc.setNodes(datanodes);
-    for (int i=0;i<ordersList.size();i++) twc.setIncompatible(ordersList[i].getdid(), ordersList[i].getpid());
+    for (int i=0;i<ordersList.size();i++) {
+          twc.setIncompatible(ordersList[i].getdid(), ordersList[i].getpid());
+          twc.setUnreachable(ordersList[i].getdid(), ordersList[i].getpid());
+    }
     Vehicle v(depot,Q);
     ordersList.setCompatibility(twc,v);
 }
 
-/* sorts */
-void Prob_pd::sortNodeByTWC(){
-    int j;
-    Dpnode tmp;
-    double twc;
-std::cout<<"CALL TO SORTNODEBYTWC NOT WEORKING\n";
-return;
-/*
-    for (int i=2; i<datanodes.size();i++) {
-      tmp=datanodes[i];
-      twc=twcTot[i];
-      for (j = i; j > 1 and twcTot[j-1] < twc ; j-- ) { 
-        datanodes[j]=datanodes[j-1]; 
-        twcTot[j]=twcTot[j-1];
-      }
-      datanodes[j]=tmp;
-      twcTot[j]=twc;
-    }
-*/
-};
 
-void Prob_pd::sortNodeById() {
-    int j;
-    Dpnode tmp;
-    for (int i=2; i<datanodes.size();i++) {
-      tmp=datanodes[i];
-      for (j = i; j > 1 and datanodes[j-1].getnid() > tmp.getnid();j-- ) {
-        datanodes[j]=datanodes[j-1];
-      }
-      datanodes[j]=tmp;
-    }
-};
-
-void Prob_pd::sortNodeByDistReverse(){
-    int j;
-    Dpnode tmp;
-    for (int i=2; i<datanodes.size();i++) {
-      tmp=datanodes[i];
-      for (j = i; j > 1 and datanodes[j-1].distance(depot) < tmp.distance(depot);j-- ) { 
-        datanodes[j]=datanodes[j-1]; 
-      }
-      datanodes[j]=tmp;
-    }
-};
-
-
-void Prob_pd::sortOrdersbyDistReverse(){
-    sort(ordersList.begin(), ordersList.end(), sortByDistReverse);
-};
-void Prob_pd::sortOrdersbyId(){
-    sort(ordersList.begin(), ordersList.end(), sortByOid);
-};
-
-void Prob_pd::sortOrdersbyIdReverse(){
-    sort(ordersList.begin(), ordersList.end(), sortByOidReverse);
-};
-
-
-void Prob_pd::sortOrdersbyDist(){
-std::cout<<"going to sort Orders by Dist";
-    sort(ordersList.begin(), ordersList.end(), sortByDist);
-std::cout<<"done sort Orders by Dist";
-};
-
-
-/*
-void Problem::calcAvgTWLen() {
-     get the average time window length
-    atwl = 0;
-    for (int i=0; i<N.size(); i++)
-        atwl += N[i].windowLength();
-    atwl /= N.size();
-};
-*/
