@@ -7,8 +7,6 @@
 #include <string>
 #include <vector>
 #include <math.h>
-
-#include "vec2d.h"
 #include <stdio.h>
 
 #include "node.h"
