@@ -1,7 +1,7 @@
 
 CPP = g++
 UTIL = ..
-CPPFLAGS = -g -O0 -MMD -MP -I$(UTIL)
+CPPFLAGS = -g -O0 -MMD -MP -I$(UTIL) -DNDEBUG
 LDFLAGS = -lgd -I$(UTIL) -L$(UTIL)
 
 SRCS = $(wildcard *.cpp)
