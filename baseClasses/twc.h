@@ -21,10 +21,11 @@
 template <class knode> class TWC {
   protected:
 typedef TwBucket<knode> Bucket;
+typedef unsigned long int UID;
 
 
-    TwBucket<knode> nodescitos;
     Bucket original;
+    TwBucket<knode> nodescitos;
 
 
     std::deque<std::deque<double> > twcij;
@@ -38,27 +39,38 @@ typedef TwBucket<knode> Bucket;
 
 public:
 
+bool check_integrity() {
+    assert (original.size()==twcij.size());
+    for (int i=0; i<original.size();i++) {
+        assert (twcij[i].size()==original.size());
+    }
+    return true;
+}
+
 int setNodes(Bucket _original) {
+    original.clear();
     original=_original;
     twcij_calculate();
+    assert (original==_original);
+    assert (check_integrity());
 }
 
 
 
-
-
-
-bool isCompatibleIJ(int fromNid, int toNid) const {
+bool isCompatibleIJ(UID fromNid, UID toNid) const {
+    assert(fromNid<original.size() and toNid<original.size() );
     return not (twcij[fromNid][toNid]  == _MIN());
 }
 
-bool isCompatibleIAJ(int fromNid, int middleNid, int toNid) {
+bool isCompatibleIAJ(UID fromNid, UID middleNid, UID toNid) {
+    assert(fromNid<original.size() and middleNid<original.size()  and toNid<original.size() );
     return isCompatibleIJ(fromNid,middleNid) and isCompatibleIJ(middleNid,toNid);
 }
 
 
 
-double compatibleIJ(int fromNid, int toNid) const {
+double compatibleIJ(UID fromNid, UID toNid) const {
+    assert(fromNid<original.size() and toNid<original.size() );
     return  twcij[fromNid][toNid] ;
 }
 
@@ -66,14 +78,14 @@ double compatibleIJ(int fromNid, int toNid) const {
 
 /*compatibility hast to be nodeid based not position based*/
 
-const knode& getNode(int at) const {
-     return original[at];
+const knode& getNode(UID at) const {
+    assert(at<original.size() );
+    return original[at];
 };
 
 
-
-
 void recreateRowColumn( int at) {
+     assert(at<original.size() );
      for (int j=0; j<twcij.size(); j++) {
          twcij[at][j]= twc_for_ij(original[at],original[j]);
          twcij[j][at]= twc_for_ij(original[j],original[at]);
@@ -82,6 +94,7 @@ void recreateRowColumn( int at) {
 
 
 void maskHorizontal(int at) {
+     assert(at<original.size() );
      for (int j=0; j<twcij.size(); j++)
          twcij[at][j]=  -std::numeric_limits<double>::max();
 }
@@ -120,7 +133,8 @@ int getSeed(int foo, const Bucket &nodes) {
 
 
 //  only in current nodes 
-int  getBestCompatible(int fromNid, const Bucket &nodes) {
+int  getBestCompatible(UID fromNid, const Bucket &nodes) const {
+     assert(fromNid<original.size() );
      int bestId;
      int toId;
 
@@ -226,11 +240,9 @@ void setIncompatible(int fromNid,int toNid) {
 // constructors
 TWC() {};
 TWC(Bucket _original)  : original(_original) {
-/*    for (int i=0; i<original.size();i++){
-        nodes.push_back(original[i]);
-    }
-*/
     twcij_calculate();
+    assert (original==_original);
+    assert (check_integrity());
 }
 
 /* private are indexed */
