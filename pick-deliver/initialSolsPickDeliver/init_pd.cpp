@@ -63,6 +63,7 @@ std::cout<<"PUSH Cost "<<pushCost<<"\t pickPos "<<pickPosPUSH<<"\tdelpos "<<delP
 
 void Init_pd::initialConstruction() {
     std::cout << "Enter Problem::initialConstruction\n";
+//assert(ordersList.size());
     Orders orders=ordersList;
     Orders incompatible;
 orders.dump();

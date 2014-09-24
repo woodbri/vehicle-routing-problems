@@ -51,6 +51,8 @@ typedef TwBucket<Dpnode> Bucket;
 
 // manipulation
    void removeIncompatible(const Order &from, Orders &incompat) ;
+   void removeOrder(int oid) ;
+   void removeOrder(const Order &order) ;
    int leastReachable() const; //retruns position
    int reachesMost() const; //retruns position
 

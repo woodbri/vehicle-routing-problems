@@ -35,8 +35,9 @@ int main (int argc, char **argv)
         std::cout << "Problem '" << infile << "'loaded\n";
         DumbSolution sols(P);
         sols.insertConstruction();
+        sols.insertDumbInitialSolutions();
         std::cout << "ENDING\n";
-        //sols.dump(0);
+        sols.dump();
         
     }
     catch (const std::exception &e) {

@@ -83,7 +83,7 @@ class compNode{
     };
 
 //  set operations tools
-    bool in(UID nid) const {
+    bool has(UID nid) const {
         const_reverse_iterator rit = path.rbegin();
         for (const_iterator it = path.begin(); it!=path.end() ;it++,++rit) {
               if(it->getnid()==nid) return true;
@@ -91,6 +91,16 @@ class compNode{
         }
         return false;
     };
+
+    bool operator ==(const TwBucket<knode> &other) const  {
+       if (size()!= other.size()) return false;
+       if (size()==other.size()==0) return true;
+       if ( ((*this)-other).size()!= 0) return false;
+       if ( (other-(*this)).size()!= 0) return false;
+       return true;
+   }
+
+       
 
     // set doesnt mind order of nodes
     // UNION

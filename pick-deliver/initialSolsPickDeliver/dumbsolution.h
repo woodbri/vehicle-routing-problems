@@ -31,10 +31,9 @@ dump();
 
       void insertDumbInitialSolutions() {
           TestConstruction test(problem);
-          taus.push_back(test);
           test.dumbConstruction();
           taus.push_back(test);
-          test.dumbConstructionAndBestMoveForward();
+/*          test.dumbConstructionAndBestMoveForward();
           taus.push_back(test);
           test.withSortedOrdersConstruction();
           taus.push_back(test);
@@ -42,6 +41,7 @@ dump();
           taus.push_back(test);
           test.deliveryBeforePickupConstruction();
           taus.push_back(test);
+*/
       };
       void dump(int i) {
               std::cout<<"\n***** SOLUTION #"<<i<<"********\n";

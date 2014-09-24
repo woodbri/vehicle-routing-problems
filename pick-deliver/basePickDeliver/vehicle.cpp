@@ -669,15 +669,29 @@ bool Vehicle::isEmptyTruck() const {return path.size()==1;}
     void  Vehicle::insertDelivery (const Order &o, const int at) { e_insert(*o.delivery,at); }
 
     
-    void  Vehicle::pushPickup(const Order &o)  { e_push_back(*o.pickup); }
+    bool  Vehicle::pushPickup(const Order &o)  { 
+          push_back(*o.pickup); 
+          evalLast();
+          if (not feasable()) {
+              e_erase(size()-1);
+              return false;
+          }
+          return true;
+    }
+
     void Vehicle::pushDelivery(const Order &o) { e_push_back(*o.delivery); }
 
     
-    void Vehicle::pushOrder( const Order &o) {
-        pushPickup(o);
-        pushDelivery(o);
-        lastPickup=size()-2;
-        lastDelivery=size()-1;
+    bool Vehicle::pushOrder( const Order &o) {
+          push_back(*o.pickup); 
+          push_back(*o.delivery); 
+          evaluate(size()-2);
+          if (not feasable()) {
+              e_erase(size()-1);
+              e_erase(size()-1);
+              return false;
+          }
+          return true;
     }
 
     
@@ -697,8 +711,9 @@ bool Vehicle::isEmptyTruck() const {return path.size()==1;}
 /***********************   EVALUATION **************************/
 
 
-   void Vehicle::evaluate() {
-     path.evaluate(maxcapacity);
+   void Vehicle::evaluate(int from) {
+     assert(from < size());
+     path.evaluate(from, maxcapacity);
      evalLast();
    };
 

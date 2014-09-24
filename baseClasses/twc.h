@@ -13,161 +13,58 @@
 
 #include "node.h"
 #include "twpath.h"
-//#include "order.h"
-//#include "bucketn.h"
-
 
 
 template <class knode> class TWC {
-  protected:
+private:
 typedef TwBucket<knode> Bucket;
+typedef unsigned long int UID;
 
 
-    Twpath<knode> nodes;
     Bucket original;
-
-
-    //std::map<int,int> IdPos;
-    std::deque<std::deque<double> > twcij;
-
-
-    //std::deque<double>  twc0;
+    std::vector<std::vector<double> > twcij;
+    std::vector<std::vector<double> > distance;
 
     inline double _MIN() const { return -std::numeric_limits<double>::max();};
-/* CLASS SUMMARY
-
-
-    double ajli(const knode &ni, const knode &nj);
-    double ajei(const knode &ni, const knode &nj);
-    double twc_for_ij(const knode &ni, const knode &nj);
-    double compat(int i,int j) const ;
-
-
-  public:
-    TWC() {};
-    TWC(Bucket _original);
-    int setSubset(Bucket _subset);
-    int setNodes(Bucket _original);
-  
-    knode getNode(int nodeId);
-
-        
-    void setIncompatible(int fromId, int toId);
-    void twcij_calculate();
-    void twc_from_depot_calculate();
-// compatibility based on id not on position 
-    bool isCompatibleIJ(int iId, int jId) const ;
-    bool isCompatibleIAJ(int iId, int aId, int jId) ;
-    double compatibleIJ(int iId,int jId) const ;
-    void dumpTWC();
-    void maskHorizontal(int at) ;
-    void maskVertical(int at) ;
-
-//The following needs a lot of work
-    int  getBestCompatible(int from) ;
-    int  getSeed(int fromNid, const Bucket &nodes);
-    int  getBestCompatible(int fromNid,const Bucket &nodes);
-    int  getBestCompatible() ;
-    void recreateRowColumn( int nodeId );
-    double ec2(int nodeId);
-    int countIncompatibleFrom(int nodeId);
-    int countIncompatibleTo(int nodeId);
-    int getIdOfWorseCount(int subsetId) ;
-
-
-
-    const knode& node(int i) const;
-    void dump() const;
-
-*/
+    inline double _MAX() const { return std::numeric_limits<double>::max();};
 
 
 
 
 public:
 
-int setNodes(Bucket _original) {
-    original=_original;
-    nodes.resize(0);
-    for (int i=0; i<original.size();i++){
-        nodes.push_back(original[i]);
-    }
-    twcij_calculate();
-}
 
-
-
-
-
-
-bool isCompatibleIJ(int fromNid, int toNid) const {
-//    int atFrom = IdPos.find(fromNid)->second;
-//    int atTo = IdPos.find(toNid)->second;
-//std::cout<<"Comparing "<<fromNid<<" with " <<toNid<<" gives "<< twcij[atFrom][atTo]<<"\n";
+bool isCompatibleIJ(UID fromNid, UID toNid) const {
+    assert(fromNid<original.size() and toNid<original.size() );
     return not (twcij[fromNid][toNid]  == _MIN());
 }
 
-bool isCompatibleIAJ(int fromNid, int middleNid, int toNid) {
-   // int atFrom = IdPos[fromNid];
-    //int atMiddle = IdPos[middleNid];
-    //int atTo = IdPos[toNid];
+bool isCompatibleIAJ(UID fromNid, UID middleNid, UID toNid) const {
+    assert(fromNid<original.size() and middleNid<original.size()  and toNid<original.size() );
     return isCompatibleIJ(fromNid,middleNid) and isCompatibleIJ(middleNid,toNid);
 }
 
 
 
-double compatibleIJ(int fromNid, int toNid) const {
-    //int atFrom = IdPos.find(fromNid)->second;
-    //int atTo = IdPos.find(toNid)->second;
+double compatibleIJ(UID fromNid, UID toNid) const {
+    assert(fromNid<original.size() and toNid<original.size() );
     return  twcij[fromNid][toNid] ;
 }
 
 
 
 /*compatibility hast to be nodeid based not position based*/
+const knode& node(UID i) const {
+    assert(i<original.size() );
+    return original[i];
+};
 
-const knode& getNode(int at) const {
-     return original[at];
+const knode& getNode(UID at) const {
+    assert(at<original.size() );
+    return original[at];
 };
 
 
-
-
-void recreateRowColumn( int at) {
-  //   int at = IdPos[nid];
-     for (int j=0; j<twcij.size(); j++) {
-         twcij[at][j]= twc_for_ij(original[at],original[j]);
-         twcij[j][at]= twc_for_ij(original[j],original[at]);
-     }
-}
-
-
-void maskHorizontal(int at) {
-//     int at = IdPos[nid];
-     for (int j=0; j<twcij.size(); j++)
-         twcij[at][j]=  -std::numeric_limits<double>::max();
-}
-
-void maskVertical(int at) {
-//     int at = IdPos[nid];
-     for (int i=0; i<twcij.size(); i++)
-         twcij[i][at]=  -std::numeric_limits<double>::max();
-}
-
-/* asummes the node is already being used therefore it masks vertical (aka.. no longer a node can reach
-the fromNid node 
-int  getBestCompatible(int fromNid) {
-     int best=0;
-     int from = IdPos[fromNid];
-     maskVertical(fromNid);           //mask based on nodes id instead of position
-     original.removeNode(fromNid);
-     for (int j=0; j<twcij.size(); j++)
-         if (twcij[from][j]>twcij[from][best])
-            best=j;
-     if (compat(from,best)!=_MIN()) return nodes[best].getnid();
-     else return -1;
-}
-*/
 
 int getSeed(int foo, const Bucket &nodes) {
      int bestId,count;
@@ -181,7 +78,6 @@ int getSeed(int foo, const Bucket &nodes) {
          Id = nodes[i].getnid();
 //std::cout<<"\n working with node "<<Id;
          count=0;
-//         if (ec2(Id) <  bestEc2){
         for (int j=0; j<nodes.size(); j++)
             if ( i!=j and  isCompatibleIJ( Id , nodes[j].getnid() ) ) count++;
 //std::cout<<" has  "<<ec2(Id)<<"ec2";
@@ -195,39 +91,11 @@ int getSeed(int foo, const Bucket &nodes) {
      return bestId;
 }
 
-/* el que tenga mas compatibilidades
-int  getSeed(int fromNid,const Bucket &nodes) {
-     int best=0,bestId;
-     int from = IdPos[fromNid];
-     int toPos,toId;
-     maskVertical(fromNid);           //mask based on nodes id instead of position
-     bestId=nodes[0].getnid();
-     best=IdPos[bestId];
-std::cout<<"gettingseed from"<<from;
-dump();
-std::cout<<"\n Best twcij="<<twcij[from][best];
-     for (int j=0; j<nodes.size(); j++) {
-         toId = nodes[j].getnid();
-         toPos= IdPos[toId];
-std::cout<<"\n working with node "<<toId<<" twcij="<<twcij[from][toPos];
-std::cout<<"\t < twcij="<<twcij[from][best];
-             if ( compat(from,toPos) and twcij[from][toPos]<twcij[from][best]) {
-                best=toPos; bestId=toId;
-std::cout<<"\t  twcij="<<twcij[from][best];
-
-             }
-std::cout<<"\t best one is "<<bestId;
-     }
-     return bestId;
-//     if (compat(from,best)!=_MIN()) return bestId;//nodes[best].getnid();
-//     else return -1;
-}
-
-*/
 
 
 //  only in current nodes 
-int  getBestCompatible(int fromNid) {
+int  getBestCompatible(UID fromNid, const Bucket &nodes) const {
+     assert(fromNid<original.size() );
      int bestId;
      int toId;
 
@@ -246,10 +114,10 @@ int  getBestCompatible(int fromNid) {
 
 
 
-double ec2(int at) {
+double ec2(UID at, const Bucket &nodes) {
+     assert(at<original.size() );
      double ec2_tot=0;
-//     int at = IdPos[nid];
-     for (int j=0; j<twcij.size(); j++) {
+     for (int j=0; j<nodes.size(); j++) {
          if ( not (twcij[at][j]  == _MIN()) ) ec2_tot+=twcij[at][j];
          if ( not (twcij[j][at]  == _MIN()) ) ec2_tot+=twcij[j][at];
      };
@@ -257,46 +125,34 @@ double ec2(int at) {
      return ec2_tot;
 }
 
-int countIncompatibleFrom(int at) {
+int countIncompatibleFrom(int at, const Bucket &nodes) {
+     assert(at<original.size() );
      int count=0;
-//     int at = IdPos[nid];
-     for (int j=0; j<twcij.size(); j++) {
+     for (int j=0; j<nodes.size(); j++) {
          if ( twcij[at][j]  == _MIN() ) count++;
      }
      return count;
 }
 
-int countIncompatibleTo(int at) {
+int countIncompatibleTo(int at, const Bucket &nodes) {
      int count=0;
-//     int at = IdPos[nid];
-     for (int j=0; j<twcij.size(); j++) {
+     for (int j=0; j<nodes.size(); j++) {
          if ( twcij[j][at]  == _MIN() ) count++;
      }
      return count;
 }
 
 
-/*probably unnesesary
-int  getBestCompatible() {
-     int best=0;
-     for (int j=0; j<twc0.size(); j++)
-         if (twc0[j]>twc0[best])
-            best=j;
-     return best;
-}
-*/
-/* specific */
 
-
-
-
-//twc0 has the horizttntal line of twcij[0]
-/*void twc_from_depot_calculate(){
-    twc0=twcij[0];
-}
-*/
-
+/*    DUMPS   */
 void dump() const  {
+    assert( original.size() );
+    dump(original);
+} 
+
+
+void dump(const Bucket &nodes) const  {
+    assert( nodes.size() );
     std::cout<<"DUMPINGGGGG \n\t";
     for (int i=0;i<nodes.size();i++)
         std::cout<<"pos "<<i<<"\t";
@@ -321,11 +177,13 @@ void dump() const  {
 }
 
 
+void dumpCompatible() const  {
+    assert( original.size() );
+    dumpCompatible(original);
+} 
 
-
-
-/*    DUMPS   */
-void dumpCompatible() {
+void dumpCompatible(const Bucket &nodes) const {
+    assert( nodes.size() );
     for (int i=0;i<nodes.size();i++) {
       for (int j=0;j<nodes.size();j++) {
         for (int k=0;k<nodes.size();k++) {
@@ -337,29 +195,91 @@ void dumpCompatible() {
 }
 
 
-const knode& node(int i) const {
-    return original[i];
-};
 
 // Functions to adjust compatability depending on problem 
 
-void setIncompatible(int fromNid,int toNid) {
+//go back to CALCULATED state
+void recreateCompatible( UID nid) {
+     assert(nid<original.size() );
+     for (int j=0; j<twcij.size(); j++) {
+         twcij[nid][j]= twc_for_ij(original[nid],original[j]);
+         twcij[j][nid]= twc_for_ij(original[j],original[nid]);
+     }
+}
+
+void recreateiDistance( UID nid) {
+     assert(nid<original.size() );
+     for (int j=0; j<twcij.size(); j++) {
+         distance[nid][j]=  distance[j][nid]= original[j].distnace(original[nid]);
+     }
+}
+
+
+void setIncompatible(UID fromNid,UID toNid) {
+    assert(fromNid<original.size() and toNid<original.size());
     twcij[fromNid][toNid]= _MIN();
 }
+
+
+
+
+void setIncompatible(UID nid, const Bucket &nodes) {
+     assert(nid<original.size() );
+     for (int j=0; j<nodes.size(); j++)
+         twcij[nid][nodes[j].getnid()]=  _MIN();
+}
+
+
+void setIncompatible(const Bucket &nodes, UID &nid ) {
+     assert(nid<original.size() );
+     for (int i=0; i<nodes.size(); i++)
+         twcij[nodes[i].getnid()][nid]=  _MIN();
+}
+
+void setUnreachable(UID fromNid,UID toNid) {
+    assert(fromNid<original.size() and toNid<original.size());
+    distance[fromNid][toNid]= _MAX();
+}
+
+void setUnreachable(UID nid, const Bucket &nodes) {
+     assert(nid<original.size() );
+     for (int j=0; j<nodes.size(); j++)
+         distance[nid][nodes[j].getnid()]=  _MAX();
+}
+
+void setUnreachable(const Bucket &nodes, UID &nid ) {
+     assert(nid<original.size() );
+     for (int i=0; i<nodes.size(); i++)
+         distance[nodes[i].getnid()][nid]=  _MAX();
+}
+
+
+
+
+
+
+int setNodes(Bucket _original) {
+    original.clear();
+    original=_original;
+    twcij_calculate();
+    assert (original==_original);
+    assert (check_integrity());
+}
+
 
 
 // constructors
 TWC() {};
 TWC(Bucket _original)  : original(_original) {
-    for (int i=0; i<original.size();i++){
-        nodes.push_back(original[i]);
-    }
     twcij_calculate();
+    assert (original==_original);
+    assert (check_integrity());
 }
 
 /* private are indexed */
 private:
 double compat(int i,int j) const {
+    assert(i<original.size() and j<original.size());
     return twcij[i][j];
 };
 
@@ -374,29 +294,10 @@ double ajei(const knode &ni, const knode &nj) {
 
 double twc_for_ij(const knode &ni, const knode &nj) {
     double result;
-#ifdef DEBUG
-std::cout<<" Quiero llegar a J="<<nj.getnid()<<" que abre a las:"<<nj.opens()<<" y cierra a las:"<<nj.closes()<<
-"\n \tDesde:"<<ni.getnid()<<" Si llego a "<<ni.getnid()<<" a la hora que abre, entonces a "<<nj.getnid()<<" llego a las= "<<ajei(ni,nj),"\n";
-#endif
     if ( ( nj.closes() -ajei(ni,nj) ) > 0 ) {
-#ifdef DEBUG
-std::cout<<"\n \tDesde:"<<ni.getnid()<<" Si llego a "<<ni.getnid()<<" a la hora que cierra, entonces a "<<nj.getnid()<<" llego a las= "<<ajli(ni,nj),"\n";
-std::cout<<"\n \t \t min ("<<ajli(ni,nj)<<","<<nj.closes()<<")\t max("<<ajei(ni,nj)<<","<<nj.opens()<<")";
-std::cout<<"\t = "<< std::min (ajli(ni,nj),nj.closes())<<"\t "<<std::max(ajei(ni,nj),nj.opens())<<"";
-std::cout<<"\t = "<< std::min (ajli(ni,nj),nj.closes())-std::max(ajei(ni,nj),nj.opens())<<"";
-#endif
         result = std::min ( ajli(ni,nj) , nj.closes() )
                   - std::max ( ajei(ni,nj) , nj.opens()  ) ;
-
-    } else {
-#ifdef DEBUG
-std::cout<<"\t Es imposible llegar a J desde I ya que por mas temprano que salga de I no hay posibilidad de que llegue a tiempo \n";
-#endif
-        result= _MIN();
-    }
-#ifdef DEBUG
-std::cout<<"\t = "<< result<<"\n";
-#endif
+    } else result= _MIN();
     return result;
 }
 
@@ -404,24 +305,31 @@ std::cout<<"\t = "<< result<<"\n";
 
 /* public functions That are id based */
 void twcij_calculate(){
+    assert (original.size());
+    twcij.resize(original.size());
+    distance.resize(original.size());
 
-    twcij.resize(nodes.size());
+    for (int i=0;i<original.size();i++) {
+        twcij[i].resize(original.size());
+        distance[i].resize(original.size());
+    }
 
-    for (int i=0;i<nodes.size();i++) twcij[i].resize(nodes.size());
-
-    for (int i=0;i<nodes.size();i++){
-        for (int j=i; j<nodes.size();j++) {
-
-#ifdef DEBUG
-std::cout<<"\nworking with ("<<nodes[i].getnid()<<","<<nodes[j].getnid()<<")\n";
-#endif
-              twcij[i][j]= twc_for_ij(nodes[i],nodes[j]);
-              twcij[j][i]= twc_for_ij(nodes[j],nodes[i]);
+    for (int i=0;i<original.size();i++){
+        for (int j=i; j<original.size();j++) {
+              distance[i][j]= distance[j][i]= original[j].distance(original[i]);
+              twcij[i][j]= twc_for_ij(original[i],original[j]);
+              twcij[j][i]= twc_for_ij(original[j],original[i]);
         }
     }
-    //twc_from_depot_calculate();
 }
 
+bool check_integrity() const {
+    assert (original.size()==twcij.size());
+    for (int i=0; i<original.size();i++) {
+        assert (twcij[i].size()==original.size());
+    }
+    return true;
+}
 
 
 

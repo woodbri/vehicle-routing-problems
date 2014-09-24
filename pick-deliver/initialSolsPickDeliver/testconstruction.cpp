@@ -8,21 +8,33 @@
 #include "testconstruction.h"
 
 
+
+//I want all this tests to generate valid solutions
+
+
+
+// PUSH order construction
 void TestConstruction::dumbConstruction() {
-    Vehicle truck(depot,Q);
+    Orders orders=ordersList;
+    Orders unassigned;
+    Order order;
     fleet.clear();
-    for (int j=1;j<1000;j++)
-        for (int i=0; i<ordersList.size()-1; i++) {
-           truck.pushOrder(getOrder(i));
-        }
-   truck.pushOrder(getOrder(getOrderCount()-1));
-//   truck.tau();
-   for (int i=0; i<9; i++) std::cout<<"(fist) Pos of "<<i<<" is "<< truck.pos(i)<<"\n";
-   fleet.push_back(truck);
+    while (not orders.empty()) {
+       Vehicle truck(depot,Q);
+       while (not orders.empty()) {
+          order=orders[0];
+          orders.erase(0);
+          if (truck.pushOrder(order) )  continue ;
+          else  unassigned.push_back(order);
+       }
+       orders.join(unassigned);
+       unassigned.clear();
+       fleet.push_back(truck);
+    }
 }
 
 void TestConstruction::dumbConstructionAndBestMoveForward() {
-    Vehicle truck(depot,Q);
+/*    Vehicle truck(depot,Q);
     fleet.clear();
     sortOrdersbyDistReverse();
     int bestI;
@@ -33,16 +45,18 @@ void TestConstruction::dumbConstructionAndBestMoveForward() {
     truck.findBetterForward(bestI, bestJ);
     truck.e_move(bestI,bestJ);
     fleet.push_back(truck);
+*/
 };
 
 void TestConstruction::withSortedOrdersConstruction() {
-    sortOrdersbyIdReverse();
+/*    sortOrdersbyIdReverse();
     dumbConstruction();
     //sortOrdersbyDist();
+*/
 };
 
 void TestConstruction::dumbAndHillConstruction() {
-    Vehicle truck(depot,Q);
+/*    Vehicle truck(depot,Q);
     fleet.clear();
     sortOrdersbyDistReverse();
         for (int i=0; i<getOrderCount(); i++) {
@@ -50,16 +64,18 @@ void TestConstruction::dumbAndHillConstruction() {
         }
     truck.hillClimbOpt();
     fleet.push_back(truck);
+*/
 };
 
 void TestConstruction::deliveryBeforePickupConstruction() {
-    Vehicle truck(depot,Q);
+/*    Vehicle truck(depot,Q);
     fleet.clear();
         for (int i=0; i<getOrderCount(); i++) {
            truck.pushDelivery(getOrder(i));
            truck.pushPickup(getOrder(i));
         }
     fleet.push_back(truck);
+*/
 };
 
 
