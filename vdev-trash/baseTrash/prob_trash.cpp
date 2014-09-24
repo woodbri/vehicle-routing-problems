@@ -29,7 +29,7 @@ bool Prob_pd::checkIntegrity() const {
    else std::cout << "Found expected # of Orders\n";
 */
    for (int i=1;i<nodesCant-1;i++) {
-     flag= flag and datanodes[i].checkintegrity();
+     flag= flag and datanodes[i].isvalid();
    }
 }
 
@@ -39,16 +39,21 @@ void Prob_pd::nodesdump() {
     for (int i=0; i<datanodes.size(); i++)
         datanodes[i].dump();
 }
+
+
+void Prob_pd::nodesdumpeval() {
+    std::cout << "---- Nodes  Evaluation--------------\n";
+    for (int i=0; i<datanodes.size(); i++)
+        datanodes[i].dumpeval();
+}
+
+
 void Prob_pd::dump() {
-/*
     std::cout << "---- Problem -------------\n";
-    std::cout << "K: " << K << std::endl;
-    std::cout << "Q: " << Q << std::endl;
-    std::cout << "---- Orders --------------\n";
-//    ordersList.dump();
-    std::cout << "\n";
-*/
     nodesdump();
+    std::cout << "INITIAL EVALUATION\n";
+    nodesdumpeval();
+
 }
 
 void Prob_pd::plot(Plot<Trashnode> &graph) {
@@ -89,16 +94,21 @@ std::cout << datafile<< " ---- Load --------------\n";
 */
 
     // read the nodes
+    int cnt=0;
     int nid=0;
     while ( getline(in, line) ) {
+        cnt++;
         // skip comment lines
         if (line[0] == '#') continue;
         Trashnode node(line);  //create node from line on file
         node.setnid(nid);
-        datanodes.push_back(node);
-        if (node.isdepot()) {
-            depot=node;
-//            depot.setoid(-1);
+        if ( not node.isvalid()) {
+             std::cout << "ERROR: line: " << cnt << ": " << line << std::endl;
+             //store the nodes in a problem bucket
+        } else {
+           datanodes.push_back(node);
+             //store the nodes in a depot, dump, container buckets
+             //create trucks with corresponding depot/dumps
         }
         nid++;
     }

@@ -22,7 +22,7 @@ class Twnode: public Node {
     void dump() const;
 
     // state
-    bool checkintegrity() const;
+    bool isvalid() const;
     bool hasdemand() const { return getdemand()>0; };
     bool hassupply() const { return getdemand()<0; };
     bool hasnogoods() const { return getdemand()==0; };

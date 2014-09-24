@@ -71,6 +71,7 @@ typedef  TwBucket<Trashnode> Bucket;
 //    void makeOrders();
 
     void nodesdump();
+    void nodesdumpeval();
     void plot(Plot<Trashnode> &graph);
 //    void ordersdump( const std::deque<Order> orders ) const;
    void dump();

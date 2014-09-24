@@ -14,7 +14,7 @@
 #
 # For dump facilities:
 #   demand - NA
-#   x,y - location of the dump
+#   x,y - location of the dump 
 #   tw_open - time dump opens
 #   tw_close - time dump closes
 #   service - time to service the dump
@@ -26,6 +26,18 @@
 #   tw_close - latest pickup time
 #   service - time to service the pickup
 #
+#---------- Vehicle ---------------
+# maxcapacity: 2000
+#cargo: 1320
+#duration: 696.802
+#cost: 696.802
+#TWV: 0
+#CV: 0
+#w1: 1
+#w2: 1
+#w3: 1
+#path nodes: -----------------
+#Twpath:  0 7 8 4 3 2 6 5 9 10 11 12 13
 # Times are in minutes from 0 hour (mid-night)
 #
 #nid	type	x	y	demand	tw_open	tw_close	service
