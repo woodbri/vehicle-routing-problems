@@ -44,6 +44,7 @@ void Usage() {
     std::cout << "      moveswithin  - test moves within a route via e_*\n";
     std::cout << "      moveswithinnew  - test moves within a route via vehicle\n";
     std::cout << "      dumb         - test dump construction\n";
+    std::cout << "      p10a         - test p10a route\n";
     std::cout << "      nearestnode  - test findNearestNode\n";
     std::cout << "      optmoves     - test various optimization moves\n";
 }
@@ -56,6 +57,7 @@ void test_moveswithin(std::string infile);
 void test_moveswithinnew(std::string infile);
 void test_findNearestNodeTo(std::string infile);
 void test_dumbcons(std::string infile);
+void test_p10a(std::string infile);
 void test_optmoves(std::string infile);
 
 static std::string font = "/usr/share/fonts/truetype/ttf-dejavu/DejaVuSans.ttf";
@@ -80,6 +82,7 @@ int main(int argc, char **argv) {
         else if (option == "moveswithin")  test_moveswithin("p50.txt");
         else if (option == "moveswithinnew")  test_moveswithinnew("p50.txt");
         else if (option == "dumb")         test_dumbcons("p10.txt");
+        else if (option == "p10a")         test_p10a("p10a.txt");
         else if (option == "nearestnode")  test_findNearestNodeTo("p50.txt");
         else if (option == "optmoves")     test_optmoves("p50.txt");
         else {
@@ -198,6 +201,33 @@ void test_2opt(std::string infile) {
         std::cout << "newcost: " << v1.getcost() << "\n";
         v1.dumppath();
     } while (false);
+
+}
+
+
+//---------------------------------------------------------------
+// run trash collection problem
+//---------------------------------------------------------------
+void test_p10a(std::string infile) {
+    TrashProblem tp;
+    tp.loadproblem( infile );
+    tp.dumpdataNodes();
+
+
+    do {
+        int sol[] = { 0,7,8,4,3,2,6,5,9,10,11,12,13,1,0,-1 };
+        std::vector<int> solution(sol, sol+sizeof(sol)/sizeof(int));
+
+        if (!tp.buildFleetFromSolution(solution)) {
+            std::cout << "Problem failed to load!" << std::endl;
+        }
+
+        //Vehicle v = tp.getVehicle(0);
+        //v.dump();
+
+        tp.dump();
+
+    } while(false);
 
 }
 
