@@ -9,11 +9,11 @@
 class DumbSolution {
 
 private:
-      Prob_pd problem;
+      Prob_trash problem;
       std::deque<Solution> taus;
 public:
 
-      DumbSolution(const Prob_pd &P):problem(P){};
+      DumbSolution(const Prob_trash &P):problem(P){};
       void push_back(const Solution solution) {
             taus.push_back(solution);
       };

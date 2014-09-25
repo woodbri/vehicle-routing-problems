@@ -30,7 +30,7 @@ int main (int argc, char **argv)
     
     try {   //ALL THESE ARE TESTS DONT NEED TO BE REAL SOLUTIONS
 
-        Prob_pd P(infile);   //setting a new problem
+        Prob_trash P(infile);   //setting a new problem
 //P.dump();
         std::string title;
         std::cout << "Problem '" << infile << "'loaded\n";

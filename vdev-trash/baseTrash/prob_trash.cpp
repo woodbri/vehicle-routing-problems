@@ -8,7 +8,7 @@
 
 // Class functions
 
-bool Prob_pd::checkIntegrity() const {
+bool Prob_trash::checkIntegrity() const {
    bool flag=true;
    int nodesCant=datanodes.size();
 //   int ordersCant=ordersList.size();
@@ -18,37 +18,27 @@ bool Prob_pd::checkIntegrity() const {
         flag=false; }
    else std::cout << "# of Nodes:"<<nodesCant<<"\n";
 
-/*
-   if (ordersList.empty()) {
-        std::cout << "Orders is empty\n";
-        flag=false;}
-   else std::cout << "# of Orders:"<<ordersCant<<"\n";
-   if (ordersCant != (nodesCant-1)/2) {
-        std::cout << "Expected "<<(nodesCant-1)/2<<" Orders. Found "<<ordersCant<<" Orders\n";
-        flag=false;}
-   else std::cout << "Found expected # of Orders\n";
-*/
    for (int i=1;i<nodesCant-1;i++) {
      flag= flag and datanodes[i].isvalid();
    }
 }
 
 
-void Prob_pd::nodesdump() {
+void Prob_trash::nodesdump() {
     std::cout << "---- Nodes  --------------\n";
     for (int i=0; i<datanodes.size(); i++)
         datanodes[i].dump();
 }
 
 
-void Prob_pd::nodesdumpeval() {
+void Prob_trash::nodesdumpeval() {
     std::cout << "---- Nodes  Evaluation--------------\n";
     for (int i=0; i<datanodes.size(); i++)
         datanodes[i].dumpeval();
 }
 
 
-void Prob_pd::dump() {
+void Prob_trash::dump() {
     std::cout << "---- Problem -------------\n";
     nodesdump();
     std::cout << "INITIAL EVALUATION\n";
@@ -56,7 +46,7 @@ void Prob_pd::dump() {
 
 }
 
-void Prob_pd::plot(Plot<Trashnode> &graph) {
+void Prob_trash::plot(Plot<Trashnode> &graph) {
     for (int i=0; i<datanodes.size(); i++){
         if (datanodes[i].ispickup())  {
              graph.drawPoint(datanodes[i], 0x0000ff, 9, true);
@@ -68,7 +58,7 @@ void Prob_pd::plot(Plot<Trashnode> &graph) {
     }
 };
 
-Prob_pd::Prob_pd(char *infile)
+Prob_trash::Prob_trash(char *infile)
      {
 std::cout << "---- Constructor --------------\n";
          loadProblem(infile);
@@ -76,7 +66,7 @@ std::cout << "---- Constructor --------------\n";
 
 
 /* depot must be the first node in list... rest can be anywhere*/
-void Prob_pd::loadProblem(char *infile)
+void Prob_trash::loadProblem(char *infile)
 {
     datafile=std::string(infile);
 std::cout << "---- Load --------------";
@@ -86,16 +76,16 @@ std::cout << datafile<< " ---- Load --------------\n";
     // read the nodes
     int cnt=0;
     int nid=0;
-    load_dumps(datafile+".dumps.txt",cnt,nid);
-    load_depots(datafile+".depots.txt",cnt,nid);
-//    load_pickups(in,cnt,nid);
-//    load_trucks(in,depots,dumps);
+    load_dumps(datafile+".dumps.txt",nid);
+    load_depots(datafile+".depots.txt",nid);
+    load_pickups(datafile+".containers.txt",nid);
+//    load_trucks(datafile+".vehicles.txt");
     
 //    twc.setNodes(datanodes);
 //twc.dump();
 }
 
-void Prob_pd::load_trucks(std::string infile, const Bucket &depots, const Bucket &dumps) { //1 dump problem
+void Prob_trash::load_trucks(std::string infile) { //1 dump problem
     assert (depots.size());
     assert (dumps.size());
     std::ifstream in( infile.c_str() );
@@ -107,7 +97,6 @@ void Prob_pd::load_trucks(std::string infile, const Bucket &depots, const Bucket
         cnt++;
         // skip comment lines
         if (line[0] == '#') continue;
-        if (line[0] == '$') break;
         Vehicle truck(line,depots,dumps,offset);  //create truck from line on file
         if (truck.isvalid()) trucks.push_back(truck);
         else invalidTrucks.push_back(truck);
@@ -115,7 +104,7 @@ void Prob_pd::load_trucks(std::string infile, const Bucket &depots, const Bucket
     in.close();
 }
 
-void Prob_pd::load_depots(std::string infile,int &foo, int &nid) { //1 dump problem
+void Prob_trash::load_depots(std::string infile, int &nid) { //1 dump problem
     std::ifstream in( infile.c_str() );
     std::string line;
     int cnt = 0;
@@ -130,6 +119,7 @@ std::cout<<"Loading depots FILE"<<infile<<"\n";
         node.setnid(nid);
 node.dump();
         if ( not node.isvalid() or not node.isdepot()) {
+           node.setnid(node.getid());
            std::cout << "ERROR: line: " << cnt << ": " << line << std::endl;
            invalid.push_back(node);
         } else {
@@ -144,7 +134,7 @@ depots.dump();
     in.close();
 }
 
-void Prob_pd::load_dumps(std::string infile,int &foo, int &nid) { //1 dump problem
+void Prob_trash::load_dumps(std::string infile, int &nid) { //1 dump problem
     std::ifstream in( infile.c_str() );
     std::string line;
     int cnt = 0;
@@ -159,6 +149,7 @@ std::cout<<"Loading dumps FILE"<<infile<<"\n";
         node.setnid(nid);
 node.dump();
         if ( not node.isvalid() or not node.isdump()) {
+           node.setnid(node.getid());
            std::cout << "ERROR: line: " << cnt << ": " << line << std::endl;
            invalid.push_back(node);
         } else {
@@ -173,27 +164,34 @@ datanodes.dump();
 dumps.dump();
 }
 
-void Prob_pd::load_pickups(std::string infile,int &cnt, int &nid) {
+void Prob_trash::load_pickups(std::string infile, int &nid) {
     std::ifstream in( infile.c_str() );
     std::string line;
+    int cnt = 0;
+std::cout<<"Loading pickups FILE"<<infile<<"\n";
     pickups.clear();
     while ( getline(in, line) ) {
         cnt++;
         // skip comment lines
         if (line[0] == '#') continue;
-
         Trashnode node(line);  //create node from line on file
+        node.setnid(nid);
+node.dump();
+
         if ( not node.isvalid() or not node.ispickup()) {
            std::cout << "ERROR: line: " << cnt << ": " << line << std::endl;
+           node.setnid(node.getid());
            invalid.push_back(node);
         } else {
            node.setnid(nid);
            datanodes.push_back(node);
-           dumps.push_back(node);  //just in case we need to select the closest dump, for now only one is there
+           pickups.push_back(node);  //just in case we need to select the closest dump, for now only one is there
            nid++;
         }
     }
     in.close();
+datanodes.dump();
+pickups.dump();
 }
 
 

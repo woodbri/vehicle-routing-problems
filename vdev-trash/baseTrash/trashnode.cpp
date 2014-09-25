@@ -9,19 +9,19 @@ bool Trashnode::isvalid() const {
                 and (ispickup() or isdepot() or isdump())
                 and (
                     (ispickup() and demand>0) or
-                    (isdepot()  and demand>0) or
+                    (isdepot()  and demand==0) or
                     (isdump()   and demand==0));
 // #ifdef NDEBUG
     if (!ret) {
-        std::cout << "Trashnode::isvalid(): failed: nid: " << nid << std::endl;
+        std::cout << "Trashnode::isvalid(): failed: id: " << id << std::endl;
         if (! Node::isvalid())
             std::cout << "                      failed: Node::isvalid()\n";
         if (! (ispickup() or isdepot() or isdump()))
             std::cout << "                      failed: (ispickup() or isdepot() or isdump())\n";
         if (ispickup() and demand<=0)
             std::cout << "                      failed: (ispickup() and demand<=0)\n";
-        if (isdepot() and demand<=0)
-            std::cout << "                      failed: (isdepot() and demand<=0)\n";
+        if (isdepot() and demand!=0)
+            std::cout << "                      failed: (isdepot() and demand!=0)\n";
         if (isdump() and demand!=0)
             std::cout << "                      failed: (isdump() and demand!=0)\n";
     }

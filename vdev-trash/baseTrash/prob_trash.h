@@ -16,7 +16,7 @@
 #include "twpath.h"
 #include "twc.h"
 
-class Prob_pd {
+class Prob_trash {
   protected:
 typedef  TwBucket<Trashnode> Bucket;
 
@@ -40,13 +40,13 @@ typedef  TwBucket<Trashnode> Bucket;
     //int K;      // number of vehicles
     //int Q;      // capacity
 
-    Prob_pd(char *infile);
+    Prob_trash(char *infile);
     Trashnode getdepot() const { return depot;};
     void loadProblem(char *infile);
-    void load_depots(std::string infile,int &cnt,int &nid);
-    void load_dumps(std::string infile,int &cnt,int &nid);
-    void load_pickups(std::string infile,int &cnt,int &nid);
-    void load_trucks(std::string infile, const Bucket &depots, const Bucket &dumps);
+    void load_depots(std::string infile, int &nid);
+    void load_dumps(std::string infile, int &nid);
+    void load_pickups(std::string infile,int &nid);
+    void load_trucks(std::string infile);
 
     unsigned int getNodeCount() const;
     bool checkIntegrity() const;

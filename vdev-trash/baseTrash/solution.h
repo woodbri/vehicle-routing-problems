@@ -12,7 +12,7 @@
 
 const double EPSILON = 0.001;
 
-class Solution: public Prob_pd {
+class Solution: public Prob_trash {
   protected:
 typedef  Twpath<Trashnode> Bucket;
 
@@ -25,7 +25,7 @@ typedef  Twpath<Trashnode> Bucket;
 
   public:
 
-    Solution(const Prob_pd& P):Prob_pd(P){}; 
+    Solution(const Prob_trash& P):Prob_trash(P){}; 
 
 
     void setweights(double _w1,double _w2,double _w3) {w1=_w1;w2=_w2;w3=_w3;};
