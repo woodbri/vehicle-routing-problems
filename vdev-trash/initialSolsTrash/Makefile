@@ -48,7 +48,7 @@ $(BUILD_DIR)/%.o: %.cpp %.h
 $(BUILD_DIR)/trash.o: trash.cpp 
 	$(CPP) $(CPPFLAGS) $(INCLUDES) -c $< -o $@
 
-test: ./bin/trash ./montevideo/muni-b.containers.txt ./montevideo/muni-b.depots.txt ./montevideo/muni-b.dumps.txt ./montevideo/muni-b.dmatrix.txt ./montevideo/muni-b.vehicles.txt
+test: ./bin/trash ./montevideo/muni-b.containers.txt ./montevideo/muni-b.depots.txt ./montevideo/muni-b.dumps.txt ./montevideo/muni-b.dmatrix-time.txt ./montevideo/muni-b.vehicles.txt
 	./bin/trash ./montevideo/muni-b >./montevideo/muni-b.out
 
 valgrind: ./bin/trash ./data/p10a.txt

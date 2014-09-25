@@ -79,7 +79,7 @@ std::cout << datafile<< " ---- Load --------------\n";
     load_depots(datafile+".depots.txt",nid);
     load_pickups(datafile+".containers.txt",nid);
     load_trucks(datafile+".vehicles.txt");
-    load_matrix(datafile+".dmatrix.txt");
+    load_matrix(datafile+".dmatrix-time.txt");
     
 //    twc.setNodes(datanodes);
 //twc.dump();
@@ -204,9 +204,10 @@ pickups.dump();
 void Prob_trash::load_matrix(std::string infile ) {
     std::ifstream in( infile.c_str() );
     std::string line;
-    std::deque<int> fromId;
-    std::deque<int> toId;
-    std::deque<double> timeDist;
+    int fromId;
+    int toId;
+    //distanceMatrix array size is datanodes.size x datanodes.size
+    double dmatrix[datanodes.size()][datanodes.size()];
     int from,to;
     double dist;
     int cnt = 0;
@@ -220,15 +221,14 @@ std::cout<<"Loading matrix FILE"<<infile<<"\n";
         buffer >> from;
         buffer >> to;
         buffer >> dist;
-        fromId.push_back(from);
-        toId.push_back(to);
-        timeDist.push_back(dist);
+        if ( invalid.hasid(from) ) continue;
+        if ( invalid.hasid(to) ) continue;
+        fromId=datanodes.getNidFromId(from);
+        toId=datanodes.getNidFromId(to);
+        dmatrix[fromId][toId]=dist;
+ std::cout<<"("<<fromId<<" . "<<toId<<")="<<dmatrix[fromId][toId]<<"\n";
     }
     in.close();
-for (int i=0; i<fromId.size();i++) 
-    std::cout<<"("<<fromId[i]<<" . "<<toId[i]<<")="<<timeDist[i]<<"\n";
-std::cout<<"processing matrix data  goes here \n";
-
 }
 
 
