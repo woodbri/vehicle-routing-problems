@@ -79,6 +79,7 @@ std::cout << datafile<< " ---- Load --------------\n";
     load_depots(datafile+".depots.txt",nid);
     load_pickups(datafile+".containers.txt",nid);
     load_trucks(datafile+".vehicles.txt");
+    load_matrix(datafile+".dmatrix.txt");
     
 //    twc.setNodes(datanodes);
 //twc.dump();
@@ -200,9 +201,35 @@ datanodes.dump();
 pickups.dump();
 }
 
+void Prob_trash::load_matrix(std::string infile ) {
+    std::ifstream in( infile.c_str() );
+    std::string line;
+    std::deque<int> fromId;
+    std::deque<int> toId;
+    std::deque<double> timeDist;
+    int from,to;
+    double dist;
+    int cnt = 0;
+std::cout<<"Loading matrix FILE"<<infile<<"\n";
+    pickups.clear();
+    while ( getline(in, line) ) {
+        cnt++;
+        // skip comment lines
+        if (line[0] == '#') continue;
+        std::istringstream buffer( line );
+        buffer >> from;
+        buffer >> to;
+        buffer >> dist;
+        fromId.push_back(from);
+        toId.push_back(to);
+        timeDist.push_back(dist);
+    }
+    in.close();
+for (int i=0; i<fromId.size();i++) 
+    std::cout<<"("<<fromId[i]<<" . "<<toId[i]<<")="<<timeDist[i]<<"\n";
+std::cout<<"processing matrix data  goes here \n";
 
-
-
+}
 
 
 
