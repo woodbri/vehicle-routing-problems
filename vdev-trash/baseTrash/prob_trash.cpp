@@ -11,7 +11,6 @@
 bool Prob_trash::checkIntegrity() const {
    bool flag=true;
    int nodesCant=datanodes.size();
-//   int ordersCant=ordersList.size();
 
    if (datanodes.empty()) {
         std::cout << "Nodes is empty\n";
@@ -79,7 +78,7 @@ std::cout << datafile<< " ---- Load --------------\n";
     load_dumps(datafile+".dumps.txt",nid);
     load_depots(datafile+".depots.txt",nid);
     load_pickups(datafile+".containers.txt",nid);
-//    load_trucks(datafile+".vehicles.txt");
+    load_trucks(datafile+".vehicles.txt");
     
 //    twc.setNodes(datanodes);
 //twc.dump();
@@ -90,6 +89,8 @@ void Prob_trash::load_trucks(std::string infile) { //1 dump problem
     assert (dumps.size());
     std::ifstream in( infile.c_str() );
     std::string line;
+std::cout<<"Loading vehicles FILE"<<infile<<"\n";
+
     trucks.clear();
     int offset=dumps.size()+depots.size()-1;
     int cnt=0;
@@ -98,10 +99,14 @@ void Prob_trash::load_trucks(std::string infile) { //1 dump problem
         // skip comment lines
         if (line[0] == '#') continue;
         Vehicle truck(line,depots,dumps,offset);  //create truck from line on file
+truck.tau();
         if (truck.isvalid()) trucks.push_back(truck);
         else invalidTrucks.push_back(truck);
     }
     in.close();
+for (int i=0;i<trucks.size();i++)
+   trucks[i].dumpeval();
+    
 }
 
 void Prob_trash::load_depots(std::string infile, int &nid) { //1 dump problem
@@ -109,6 +114,7 @@ void Prob_trash::load_depots(std::string infile, int &nid) { //1 dump problem
     std::string line;
     int cnt = 0;
 std::cout<<"Loading depots FILE"<<infile<<"\n";
+
     depots.clear();
     while ( getline(in, line) ) {
         cnt++;
