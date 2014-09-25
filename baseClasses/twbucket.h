@@ -83,6 +83,15 @@ class compNode{
     };
 
 //  set operations tools
+    bool hasid(UID id) const {
+        const_reverse_iterator rit = path.rbegin();
+        for (const_iterator it = path.begin(); it!=path.end() ;it++,++rit) {
+              if(it->getid()==id) return true;
+              if(rit->getid()==id) return true;
+        }
+        return false;
+    };
+
     bool has(UID nid) const {
         const_reverse_iterator rit = path.rbegin();
         for (const_iterator it = path.begin(); it!=path.end() ;it++,++rit) {
@@ -179,6 +188,15 @@ class compNode{
 
 
 //  NID based tools
+
+    UID getNidFromId(UID id) const {
+        const_reverse_iterator rit = path.rbegin(); 
+        for (const_iterator it = path.begin(); it!=path.end() ;it++,++rit) {
+              if(it->getid()==id) return it->getnid();
+              if(rit->getid()==id) return it->getnid();
+        }
+        return -1;
+    };
 
     UID pos(UID nid) const {
         const_reverse_iterator rit = path.rbegin(); 
