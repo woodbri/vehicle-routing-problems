@@ -82,46 +82,123 @@ void Prob_pd::loadProblem(char *infile)
 std::cout << "---- Load --------------";
 std::cout << datafile<< " ---- Load --------------\n";
 
-    std::ifstream in( infile );
-    std::string line;
-
-/*
-    // read header line
-    std::getline(in, line);
-    std::istringstream buffer( line );
-    buffer >> K;
-    buffer >> Q;
-*/
 
     // read the nodes
     int cnt=0;
     int nid=0;
+    load_dumps(datafile+".dumps.txt",cnt,nid);
+    load_depots(datafile+".depots.txt",cnt,nid);
+//    load_pickups(in,cnt,nid);
+//    load_trucks(in,depots,dumps);
+    
+//    twc.setNodes(datanodes);
+//twc.dump();
+}
+
+void Prob_pd::load_trucks(std::string infile, const Bucket &depots, const Bucket &dumps) { //1 dump problem
+    assert (depots.size());
+    assert (dumps.size());
+    std::ifstream in( infile.c_str() );
+    std::string line;
+    trucks.clear();
+    int offset=dumps.size()+depots.size()-1;
+    int cnt=0;
     while ( getline(in, line) ) {
         cnt++;
         // skip comment lines
         if (line[0] == '#') continue;
+        if (line[0] == '$') break;
+        Vehicle truck(line,depots,dumps,offset);  //create truck from line on file
+        if (truck.isvalid()) trucks.push_back(truck);
+        else invalidTrucks.push_back(truck);
+    }
+    in.close();
+}
+
+void Prob_pd::load_depots(std::string infile,int &foo, int &nid) { //1 dump problem
+    std::ifstream in( infile.c_str() );
+    std::string line;
+    int cnt = 0;
+std::cout<<"Loading depots FILE"<<infile<<"\n";
+    depots.clear();
+    while ( getline(in, line) ) {
+        cnt++;
+        // skip comment lines
+        if (line[0] == '#') continue;
+
         Trashnode node(line);  //create node from line on file
         node.setnid(nid);
-        if ( not node.isvalid()) {
-             std::cout << "ERROR: line: " << cnt << ": " << line << std::endl;
-             //store the nodes in a problem bucket
+node.dump();
+        if ( not node.isvalid() or not node.isdepot()) {
+           std::cout << "ERROR: line: " << cnt << ": " << line << std::endl;
+           invalid.push_back(node);
         } else {
+           node.setnid(nid);
            datanodes.push_back(node);
-             //store the nodes in a depot, dump, container buckets
-             //create trucks with corresponding depot/dumps
+           depots.push_back(node);  //just in case we need to select the closest dump, for now only one is there
         }
         nid++;
     }
+datanodes.dump();
+depots.dump();
     in.close();
-//    ordersList.makeOrders(datanodes,depot);
-    twc.setNodes(datanodes);
-/*    for (int i=0;i<ordersList.size();i++) {
-          twc.setIncompatible(ordersList[i].getdid(), ordersList[i].getpid());
-          twc.setUnreachable(ordersList[i].getdid(), ordersList[i].getpid());
-    }
-*/
-//    Vehicle v(depot,Q);
-//    ordersList.setCompatibility(twc,v);
 }
+
+void Prob_pd::load_dumps(std::string infile,int &foo, int &nid) { //1 dump problem
+    std::ifstream in( infile.c_str() );
+    std::string line;
+    int cnt = 0;
+std::cout<<"Loading dumps FILE"<<infile<<"\n";
+    dumps.clear();
+    while ( getline(in, line) ) {
+        cnt++;
+        // skip comment lines
+        if (line[0] == '#') continue;
+
+        Trashnode node(line);  //create node from line on file
+        node.setnid(nid);
+node.dump();
+        if ( not node.isvalid() or not node.isdump()) {
+           std::cout << "ERROR: line: " << cnt << ": " << line << std::endl;
+           invalid.push_back(node);
+        } else {
+           node.setnid(nid);
+           datanodes.push_back(node);
+           dumps.push_back(node);  //just in case we need to select the closest dump, for now only one is there
+           nid++;
+        }
+    }
+    in.close();
+datanodes.dump();
+dumps.dump();
+}
+
+void Prob_pd::load_pickups(std::string infile,int &cnt, int &nid) {
+    std::ifstream in( infile.c_str() );
+    std::string line;
+    pickups.clear();
+    while ( getline(in, line) ) {
+        cnt++;
+        // skip comment lines
+        if (line[0] == '#') continue;
+
+        Trashnode node(line);  //create node from line on file
+        if ( not node.isvalid() or not node.ispickup()) {
+           std::cout << "ERROR: line: " << cnt << ": " << line << std::endl;
+           invalid.push_back(node);
+        } else {
+           node.setnid(nid);
+           datanodes.push_back(node);
+           dumps.push_back(node);  //just in case we need to select the closest dump, for now only one is there
+           nid++;
+        }
+    }
+    in.close();
+}
+
+
+
+
+
 
 

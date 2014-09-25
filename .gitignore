@@ -30,9 +30,16 @@ trash-collection/*.png
 pick-deliver/*.png
 pick-deliver/initialSolsPickDeliver/*.png
 pick-deliver/initialSolsPickDeliver/bin
+pick-deliver/initialSolsPickDeliver/old
+pick-deliver/old
+vdev-trash/baseTrash/old
+vdev-trash/initialSolsTrash/montevideo
+vdev-trash/initialSolsTrash/oldest
+
 
 tester
 collection
+trash
 
 #other types papers, excel, geogebra
 *.pdf

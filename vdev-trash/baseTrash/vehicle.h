@@ -15,15 +15,17 @@ class Orders;
 
 class Vehicle:public BucketN {
   private:
-    int  maxcapacity;   
+typedef  TwBucket<Trashnode> Bucket;
+    int vid;
+    int ntype;
+    double  maxcapacity; 
     Trashnode backToDepot;
-    int lastPickup;
-    int lastDelivery;
+    Trashnode dumpSite;
+
     double cost;     
-    //deque<Order> orders;
 
     /* for evaluating the truck */
-    int  curcapacity;   
+    double  curcapacity;   
 
     double w1;          // weight for duration in cost
     double w2;          // weight for TWV in cost
@@ -38,20 +40,36 @@ class Vehicle:public BucketN {
         maxcapacity = 0;
         curcapacity = 0;
         cost        = 0;
-        lastPickup=lastDelivery=0;
         w1 = w2 = w3 = 1.0;
     };
+   Vehicle(std::string line,const Bucket &depots, const Bucket &dumps, int offset ) {
+       std::istringstream buffer( line );
+       int depotId;
+       buffer >> vid;
+       buffer >> ntype;
+       buffer >> depotId;
+       buffer >> maxcapacity;
+       backToDepot=depots[offset+depotId];
+       push_back(backToDepot);
+       dumpSite=dumps[0]; //Election of dumsite has change depending on other problems 
+       curcapacity = 0;
+       cost        = 0;
+       w1 = w2 = w3 = 1.0;
+   }
+ 
+       
 
    Vehicle(const Trashnode &_depot,double _maxcapacity) {
         backToDepot=_depot;
         maxcapacity=_maxcapacity;
-        lastPickup=lastDelivery=0;
         w1 = w2 = w3 = 1.0;
         push_back(_depot);
    };
+
    std::deque<int> getpath() const;
 
 
+    bool isvalid() const ;
     // accessors
     int getmaxcapacity() const {return maxcapacity; };
     const Trashnode& getBackToDepot() const {return backToDepot;}
@@ -62,15 +80,6 @@ class Vehicle:public BucketN {
     // orders are not inserted
     int   getPosLowLimit(int nid ,int from, const TWC<Trashnode> &twc ) const;
     int   getPosHighLimit(int nid ,int from, int to, const TWC<Trashnode> &twc) const;
-//    double testInsertPUSH(const Order& order, const Orders &orders, int &pickPos,int &delPos,const TWC<Trashnode> &twc);
-//    double testInsertFIFO(const Order& order, const Orders &orders, int &pickPos,int &delPos,const TWC<Trashnode> &twc);
-//    double testInsertLIFO(const Order& order, const Orders &orders, int &pickPos,int &delPos,const TWC<Trashnode> &twc);
-//    double tryInsertPOS(const Order &order, int pickPos, int delPos);
-//    double insertPOS(const Order &order, int pickPos, int delPos);
-//    double e_erase(int pickPos, int delPos);
-//    bool   e_feasable4(const Trashnode &n1,const Trashnode &n2,const Dpnode &n3,const Dpnode &n4);
-
-//*******
 
     int pos(int nid) const ;
     bool  in(int nid) const;
@@ -82,23 +91,12 @@ class Vehicle:public BucketN {
     void e_move(int fromi,int toj);
     void e_clean();
 
-//    void removeOrder( const Order &order);
-//    void removeOrder(int orderid);
-//    void removePickup(int orderid);
-//    void removeDelivery(int orderid);
     void swapstops(int i,int j);
-//    bool insertOrderAfterLastPickup(const Order &order, const TWC<Trashnode> &twc);
-//    bool pushOrder(const Order &order);
-//    bool pushPickup(const Order &order);
- //   void pushDelivery(const Order &order);
-//    void insertPickup(const Order &order, const int at);
-//    void insertDelivery(const Order &order, const int at);
 
     Trashnode& getnode(int at) {return path[at];};
 
     void dump() const ;
     void smalldump()const ;
-//    bool sameorder(int i,int j){return path[i].getoid()==path[j].getoid();}
     void erase() {path.resize(1);};
     void clean() {path.e_resize(1,maxcapacity); evalLast(); };
 

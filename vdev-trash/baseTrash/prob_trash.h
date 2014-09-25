@@ -12,6 +12,7 @@
 //#include "order.h"
 //#include "orders.h"
 #include "bucketn.h"
+#include "vehicle.h"
 #include "twpath.h"
 #include "twc.h"
 
@@ -24,18 +25,28 @@ typedef  TwBucket<Trashnode> Bucket;
     TWC<Trashnode> twc;
     //Bucket datanodes;
     Twpath<Trashnode> datanodes;
+    Bucket dumps;
+    Bucket depots;
+    Bucket pickups;
+    Bucket invalid;
+    std::deque<Vehicle> trucks; 
+    std::deque<Vehicle> invalidTrucks; 
 
 //    Orders ordersList;
     std::string datafile;
 
 
   public:
-    int K;      // number of vehicles
-    int Q;      // capacity
+    //int K;      // number of vehicles
+    //int Q;      // capacity
 
     Prob_pd(char *infile);
     Trashnode getdepot() const { return depot;};
     void loadProblem(char *infile);
+    void load_depots(std::string infile,int &cnt,int &nid);
+    void load_dumps(std::string infile,int &cnt,int &nid);
+    void load_pickups(std::string infile,int &cnt,int &nid);
+    void load_trucks(std::string infile, const Bucket &depots, const Bucket &dumps);
 
     unsigned int getNodeCount() const;
     bool checkIntegrity() const;
