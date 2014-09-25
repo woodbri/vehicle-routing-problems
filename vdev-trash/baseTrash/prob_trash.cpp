@@ -79,7 +79,7 @@ std::cout << datafile<< " ---- Load --------------\n";
     load_depots(datafile+".depots.txt",nid);
     load_pickups(datafile+".containers.txt",nid);
     load_trucks(datafile+".vehicles.txt");
-    load_matrix(datafile+".dmatrix.txt");
+    load_matrix(datafile+".dmatrix-time.txt");
     
 //    twc.setNodes(datanodes);
 //twc.dump();
