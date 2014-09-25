@@ -40,3 +40,5 @@ collection
 *.ggb
 
 callgrind-*
+
+montevideo/
