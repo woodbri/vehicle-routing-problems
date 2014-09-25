@@ -65,6 +65,8 @@ clean:
 	rm -f tester $(OBJS) $(UTIL_OBJS) $(UTILP_OBJS)  
 	find . -name "*.d" -type f -delete
 	find . -name "*.png" -type f -delete
+	mkdir -p $(BIN_DIR)
+	mkdir -p $(BUILD_DIR)/$(UTIL) $(BUILD_DIR)/$(UTILP)
 
 
 cleanAll: clean
