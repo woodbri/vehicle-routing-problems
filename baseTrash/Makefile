@@ -1,6 +1,6 @@
 
 CPP = g++
-UTIL = ../../baseClasses
+UTIL = ../baseClasses
 CPPFLAGS = -g -O0 -MMD  -MP  -I$(UTIL)
 LDFLAGS = -lgd -I$(UTIL) -L$(UTIL)
 
@@ -20,7 +20,7 @@ $(UTIL)/%.o: $(UTIL)/%.cpp
 tester: $(UTILOBJS) $(OBJS)
 	$(CPP) $^ -o $@ $(LDFLAGS)
 
-%.o: %.cpp ../../baseClasses/twpath.h
+%.o: %.cpp ../baseClasses/twpath.h
 	$(CPP) $(CPPFLAGS) -c $< -o $@
 
 test: tester lc008.txt
