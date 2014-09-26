@@ -28,7 +28,7 @@ void Solution::plot(std::string file,std::string title){
     graph.setFile( file+".png" );
     graph.setTitle( datafile+": "+title );
     graph.drawInit();
-    Prob_pd::plot(graph);
+    Prob_trash::plot(graph);
     for (int i=0; i<fleet.size(); i++) {
           fleet[i].plot(graph,i);
     }
@@ -45,7 +45,7 @@ void Solution::plot(std::string file,std::string title){
         graph1.setFile( file+"car"+carnum+".png" );
         graph1.setTitle( datafile+": "+title+" car #"+carnum );
         graph1.drawInit();
-        Prob_pd::plot(graph1);
+        Prob_trash::plot(graph1);
         fleet[j].plot(graph1,j);
         //graph1.drawPath(fleet[j].getpath(), graph1.makeColor(j*10), 1, false);
         graph1.save();

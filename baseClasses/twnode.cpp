@@ -5,7 +5,7 @@
 
 #include "twnode.h"
 
-bool Twnode::checkintegrity() const {
+bool Twnode::isvalid() const {
     return Node::isvalid() and tw_open < tw_close
                            and tw_open >= 0
                            and service >= 0;
@@ -13,14 +13,15 @@ bool Twnode::checkintegrity() const {
 
 
 void Twnode::dump() const {
+    std::cout.precision(8);
     std::cout << nid
               << " = " << id
-              << ", " << x
-              << ", " << y
-              << ", " << demand
-              << ", " << tw_open
-              << ", " << tw_close
-              << ", " << service;
+              << ",\t\t " << x
+              << ",\t " << y
+              << ",\t " << demand
+              << ",\t " << tw_open
+              << ",\t " << tw_close
+              << ",\t " << service;
 }
 
 
@@ -38,8 +39,6 @@ void Twnode::set(int _nid, int _id, double _x, double _y, int _demand,
 
 
 Twnode::Twnode(std::string line) {
-    // TODO: extend this to support pickup and delivery pairs
-
     std::istringstream buffer( line );
     buffer >> nid;
     buffer >> x;

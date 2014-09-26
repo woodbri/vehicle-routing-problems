@@ -48,14 +48,14 @@ $(BUILD_DIR)/%.o: %.cpp %.h
 $(BUILD_DIR)/trash.o: trash.cpp 
 	$(CPP) $(CPPFLAGS) $(INCLUDES) -c $< -o $@
 
-test: ./bin/trash ./data/p10.txt
-	./bin/trash ./data/p10.txt >./data/small.out
+test: ./bin/trash ./montevideo/muni-b.containers.txt ./montevideo/muni-b.depots.txt ./montevideo/muni-b.dumps.txt ./montevideo/muni-b.dmatrix-time.txt ./montevideo/muni-b.vehicles.txt
+	./bin/trash ./montevideo/muni-b >./montevideo/muni-b.out
 
-valgrind: ./bin/trash ./data/p10.txt
-	valgrind -v --track-origins=yes --leak-check=full ./bin/trash data/p10.txt
+valgrind: ./bin/trash ./data/p10a.txt
+	valgrind -v --track-origins=yes --leak-check=full ./bin/trash montevideo/muni-b
 
 callgrind-8: ./bin/trash ./data/p10.txt
-	valgrind --tool=callgrind --callgrind-out-file=callgrind-008.out ./bin/trash data/p10.txt
+	valgrind --tool=callgrind --callgrind-out-file=callgrind-008.out ./bin/trash montevideo/muni-b
 	callgrind_annotate callgrind-8.out | tee callgrind-8.txt
 
 
@@ -65,6 +65,8 @@ clean:
 	rm -f tester $(OBJS) $(UTIL_OBJS) $(UTILP_OBJS)  
 	find . -name "*.d" -type f -delete
 	find . -name "*.png" -type f -delete
+	mkdir -p $(BIN_DIR)
+	mkdir -p $(BUILD_DIR)/$(UTIL) $(BUILD_DIR)/$(UTILP)
 
 
 cleanAll: clean

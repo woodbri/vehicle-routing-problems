@@ -153,11 +153,9 @@ void dump() const  {
 
 void dump(const Bucket &nodes) const  {
     assert( nodes.size() );
-    std::cout<<"DUMPINGGGGG \n\t";
-    for (int i=0;i<nodes.size();i++)
-        std::cout<<"pos "<<i<<"\t";
+    std::cout.precision(8);
+    std::cout<<"COMPATABILITY TABLE \n\t";
 
-    std::cout<<"\n\t";
     for (int i=0;i<nodes.size();i++)
         std::cout<<"nid "<<nodes[i].getnid()<<"\t";
 
@@ -167,10 +165,27 @@ void dump(const Bucket &nodes) const  {
 
     std::cout<<"\n";
     for (int i=0;i<nodes.size();i++){
-        std::cout<<nodes[i].getnid()<<"\t";
+        std::cout<<nodes[i].getnid()<<"="<<nodes[i].getid()<<"\t";
         for (int j=0; j<nodes.size();j++) {
            if (twcij[i][j] !=  -std::numeric_limits<double>::max()) std::cout<<twcij[i][j]<<"\t";
            else std::cout<<"--\t";
+        }
+        std::cout<<"\n";
+    }
+    std::cout<<"\n\n\n\nDISTANCE TABLE \n\t";
+
+    for (int i=0;i<nodes.size();i++)
+        std::cout<<"nid "<<nodes[i].getnid()<<"\t";
+
+    std::cout<<"\n\t";
+    for (int i=0;i<nodes.size();i++)
+        std::cout<<"id "<<nodes[i].getid()<<"\t";
+
+    std::cout<<"\n";
+    for (int i=0;i<nodes.size();i++){
+        std::cout<<nodes[i].getnid()<<"="<<nodes[i].getid()<<"\t";
+        for (int j=0; j<nodes.size();j++) {
+           std::cout<<distance[i][j]<<"\t";
         }
         std::cout<<"\n";
     }
@@ -207,7 +222,7 @@ void recreateCompatible( UID nid) {
      }
 }
 
-void recreateiDistance( UID nid) {
+void recreateDistance( UID nid) {
      assert(nid<original.size() );
      for (int j=0; j<twcij.size(); j++) {
          distance[nid][j]=  distance[j][nid]= original[j].distnace(original[nid]);
@@ -265,6 +280,44 @@ int setNodes(Bucket _original) {
     assert (original==_original);
     assert (check_integrity());
 }
+     
+void load_distance(std::string infile, const Bucket &invalid ) {
+    assert(original.size());
+    std::ifstream in( infile.c_str() );
+    std::string line;
+    int fromId;
+    int toId;
+    //distanceMatrix array size is datanodes.size x datanodes.size
+    distance.resize(original.size());
+    for (int i=0;i<original.size();i++)
+        distance[i].resize(distance.size());
+
+    int from,to;
+    double dist;
+    int cnt = 0;
+    while ( getline(in, line) ) {
+        cnt++;
+        // skip comment lines
+        if (line[0] == '#') continue;
+        std::istringstream buffer( line );
+        buffer >> from;
+        buffer >> to;
+        buffer >> dist;
+        if ( invalid.hasid(from) or invalid.hasid(to) ) {
+            //invalid.dump();
+            continue;
+        }
+        fromId=original.getNidFromId(from);
+        toId=original.getNidFromId(to);
+        distance[fromId][toId]=dist;
+    }
+ std::cout<<"LINES:"<<cnt<<"\n";
+
+    in.close();
+}
+ 
+
+
 
 
 
@@ -307,16 +360,16 @@ double twc_for_ij(const knode &ni, const knode &nj) {
 void twcij_calculate(){
     assert (original.size());
     twcij.resize(original.size());
-    distance.resize(original.size());
+//    distance.resize(original.size());
 
     for (int i=0;i<original.size();i++) {
         twcij[i].resize(original.size());
-        distance[i].resize(original.size());
+//        distance[i].resize(original.size());
     }
 
     for (int i=0;i<original.size();i++){
         for (int j=i; j<original.size();j++) {
-              distance[i][j]= distance[j][i]= original[j].distance(original[i]);
+//              distance[i][j]= distance[j][i]= original[j].distance(original[i]);
               twcij[i][j]= twc_for_ij(original[i],original[j]);
               twcij[j][i]= twc_for_ij(original[j],original[i]);
         }

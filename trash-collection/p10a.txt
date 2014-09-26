@@ -28,6 +28,9 @@
 #
 # Times are in minutes from 0 hour (mid-night)
 #
+# EXPECTED RESULT
+# 0-7-8-4-3-2-6-5-9-10-11-12-13-1-0
+# 
 #nid	type	x	y	demand	tw_open	tw_close	service
 0	0	-30	20	2000	300	900	0
 1	1	-5	25	0	240	1080	45
