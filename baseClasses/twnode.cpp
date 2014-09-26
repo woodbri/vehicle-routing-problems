@@ -13,7 +13,7 @@ bool Twnode::isvalid() const {
 
 
 void Twnode::dump() const {
-    std::cout.precision(10);
+    std::cout.precision(8);
     std::cout << nid
               << " = " << id
               << ",\t\t " << x

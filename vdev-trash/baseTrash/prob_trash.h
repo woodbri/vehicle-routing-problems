@@ -69,7 +69,6 @@ private:
     void load_dumps(std::string infile, int &nid);
     void load_pickups(std::string infile,int &nid);
     void load_trucks(std::string infile);
-    void load_matrix(std::string infile);
 };
 
 #endif

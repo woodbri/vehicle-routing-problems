@@ -79,10 +79,17 @@ std::cout << datafile<< " ---- Load --------------\n";
     load_depots(datafile+".depots.txt",nid);
     load_pickups(datafile+".containers.txt",nid);
     load_trucks(datafile+".vehicles.txt");
-    load_matrix(datafile+".dmatrix-time.txt");
-    
-//    twc.setNodes(datanodes);
-//twc.dump();
+    twc.setNodes(datanodes);
+    twc.load_distance(datafile+".dmatrix-time.txt", invalid);  
+dumps.dump("dumps");
+depots.dump("depots");
+pickups.dump("pickups");
+datanodes.dump("datanodes");
+invalid.dump("invalid");
+for (int i=0;i<trucks.size();i++)
+   trucks[i].tau();
+std::cout<<"\n";
+twc.dump();
 }
 
 void Prob_trash::load_trucks(std::string infile) { //1 dump problem
@@ -100,13 +107,10 @@ std::cout<<"Loading vehicles FILE"<<infile<<"\n";
         // skip comment lines
         if (line[0] == '#') continue;
         Vehicle truck(line,depots,dumps,offset);  //create truck from line on file
-truck.tau();
         if (truck.isvalid()) trucks.push_back(truck);
         else invalidTrucks.push_back(truck);
     }
     in.close();
-for (int i=0;i<trucks.size();i++)
-   trucks[i].dumpeval();
     
 }
 
@@ -114,7 +118,6 @@ void Prob_trash::load_depots(std::string infile, int &nid) { //1 dump problem
     std::ifstream in( infile.c_str() );
     std::string line;
     int cnt = 0;
-std::cout<<"Loading depots FILE"<<infile<<"\n";
 
     depots.clear();
     while ( getline(in, line) ) {
@@ -124,7 +127,6 @@ std::cout<<"Loading depots FILE"<<infile<<"\n";
 
         Trashnode node(line);  //create node from line on file
         node.setnid(nid);
-node.dump();
         if ( not node.isvalid() or not node.isdepot()) {
            node.setnid(node.getid());
            std::cout << "ERROR: line: " << cnt << ": " << line << std::endl;
@@ -136,8 +138,6 @@ node.dump();
         }
         nid++;
     }
-datanodes.dump();
-depots.dump();
     in.close();
 }
 
@@ -145,7 +145,6 @@ void Prob_trash::load_dumps(std::string infile, int &nid) { //1 dump problem
     std::ifstream in( infile.c_str() );
     std::string line;
     int cnt = 0;
-std::cout<<"Loading dumps FILE"<<infile<<"\n";
     dumps.clear();
     while ( getline(in, line) ) {
         cnt++;
@@ -154,7 +153,6 @@ std::cout<<"Loading dumps FILE"<<infile<<"\n";
 
         Trashnode node(line);  //create node from line on file
         node.setnid(nid);
-node.dump();
         if ( not node.isvalid() or not node.isdump()) {
            node.setnid(node.getid());
            std::cout << "ERROR: line: " << cnt << ": " << line << std::endl;
@@ -167,15 +165,12 @@ node.dump();
         }
     }
     in.close();
-datanodes.dump();
-dumps.dump();
 }
 
 void Prob_trash::load_pickups(std::string infile, int &nid) {
     std::ifstream in( infile.c_str() );
     std::string line;
     int cnt = 0;
-std::cout<<"Loading pickups FILE"<<infile<<"\n";
     pickups.clear();
     while ( getline(in, line) ) {
         cnt++;
@@ -183,7 +178,6 @@ std::cout<<"Loading pickups FILE"<<infile<<"\n";
         if (line[0] == '#') continue;
         Trashnode node(line);  //create node from line on file
         node.setnid(nid);
-node.dump();
 
         if ( not node.isvalid() or not node.ispickup()) {
            std::cout << "ERROR: line: " << cnt << ": " << line << std::endl;
@@ -197,39 +191,5 @@ node.dump();
         }
     }
     in.close();
-datanodes.dump();
-pickups.dump();
 }
-
-void Prob_trash::load_matrix(std::string infile ) {
-    std::ifstream in( infile.c_str() );
-    std::string line;
-    int fromId;
-    int toId;
-    //distanceMatrix array size is datanodes.size x datanodes.size
-    double dmatrix[datanodes.size()][datanodes.size()];
-    int from,to;
-    double dist;
-    int cnt = 0;
-std::cout<<"Loading matrix FILE"<<infile<<"\n";
-    pickups.clear();
-    while ( getline(in, line) ) {
-        cnt++;
-        // skip comment lines
-        if (line[0] == '#') continue;
-        std::istringstream buffer( line );
-        buffer >> from;
-        buffer >> to;
-        buffer >> dist;
-        if ( invalid.hasid(from) ) continue;
-        if ( invalid.hasid(to) ) continue;
-        fromId=datanodes.getNidFromId(from);
-        toId=datanodes.getNidFromId(to);
-        dmatrix[fromId][toId]=dist;
- std::cout<<"("<<fromId<<" . "<<toId<<")="<<dmatrix[fromId][toId]<<"\n";
-    }
-    in.close();
-}
-
-
 
