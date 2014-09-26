@@ -4,7 +4,7 @@ UTILP = baseTrash
 UTIL = baseClasses
 BUILD_DIR = ./build
 BIN_DIR = ./bin 
-INCLUDES = -I../../$(UTIL) -I../../$(UTILP) -I.
+INCLUDES = -I../../$(UTIL) -I../$(UTILP) -I.
 CPPFLAGS = -g -O0 -MMD  -MP  
 LDFLAGS = -lgd $(INCLUDES) -L$(UTIL) -L$(UTILP)
 
@@ -12,7 +12,7 @@ SRCS = init_trash.cpp testconstruction.cpp dumbsolution.cpp trash.cpp
 OBJS = $(addprefix $(BUILD_DIR)/,$(SRCS:.cpp=.o))
 HEADS = $(SRCS:.cpp=.h)
 
-UTILP_SRCS = $(wildcard ../../$(UTILP)/*.cpp)
+UTILP_SRCS = $(wildcard ../$(UTILP)/*.cpp)
 UTILP_HDS = $(UTILP_SRCS:.cpp=.h)
 UTILP_OBJS = $(addprefix $(BUILD_DIR)/$(UTILP)/,$(notdir $(UTILP_SRCS:.cpp=.o)))
 UTILP_HEADS = $(UTILP_HDS)
@@ -35,7 +35,7 @@ bin/trash: $(OBJS) $(UTIL_OBJS) $(UTILP_OBJS) $(UTILP_HEADS) $(UTIL_HEADS)
 	$(CPP) $^ -o $@ $(LDFLAGS)
 
 
-build/baseTrash/%.o: ../../$(UTILP)/%.cpp ../../$(UTILP)/%.h $(UTIL_HEADS) $(UTILP_HEADS)
+build/baseTrash/%.o: ../$(UTILP)/%.cpp ../$(UTILP)/%.h $(UTIL_HEADS) $(UTILP_HEADS)
 	$(CPP) $(CPPFLAGS) $(INCLUDES) -c $< -o $@
 
 build/baseClasses/%.o: ../../$(UTIL)/%.cpp ../../$(UTIL)/%.h 
