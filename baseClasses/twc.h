@@ -155,7 +155,7 @@ int countIncompatibleTo(int at, const Bucket &nodes) {
 
 /*    DUMPS   */
 void dump() const  {
-    assert( original.size() );
+    assert( original.size()==dmatrix.size() and original.size()==twcij.size() );
     dump(original);
 } 
 
