@@ -23,7 +23,7 @@ typedef unsigned long int UID;
 
     Bucket original;
     std::vector<std::vector<double> > twcij;
-    std::vector<std::vector<double> > distance;
+    std::vector<std::vector<double> > dmatrix;
 
     inline double _MIN() const { return -std::numeric_limits<double>::max();};
     inline double _MAX() const { return std::numeric_limits<double>::max();};
@@ -32,6 +32,15 @@ typedef unsigned long int UID;
 
 
 public:
+
+double distance(UID from, UID to) const {
+    assert(from<original.size() and to<original.size() );
+    return dmatrix[from][to];
+}
+ 
+double distance(const knode &from, const knode &to) {
+    return distance(from.getnid(),to.getnid());
+}
 
 
 bool isCompatibleIJ(UID fromNid, UID toNid) const {
@@ -174,6 +183,7 @@ void dump(const Bucket &nodes) const  {
     }
     std::cout<<"\n\n\n\nDISTANCE TABLE \n\t";
 
+    std::cout.precision(2);
     for (int i=0;i<nodes.size();i++)
         std::cout<<"nid "<<nodes[i].getnid()<<"\t";
 
@@ -185,7 +195,8 @@ void dump(const Bucket &nodes) const  {
     for (int i=0;i<nodes.size();i++){
         std::cout<<nodes[i].getnid()<<"="<<nodes[i].getid()<<"\t";
         for (int j=0; j<nodes.size();j++) {
-           std::cout<<distance[i][j]<<"\t";
+           if (dmatrix[i][j] !=  std::numeric_limits<double>::max()) std::cout<<dmatrix[i][j]<<"\t";
+           else std::cout<<"--\t";
         }
         std::cout<<"\n";
     }
@@ -225,7 +236,7 @@ void recreateCompatible( UID nid) {
 void recreateDistance( UID nid) {
      assert(nid<original.size() );
      for (int j=0; j<twcij.size(); j++) {
-         distance[nid][j]=  distance[j][nid]= original[j].distnace(original[nid]);
+         dmatrix[nid][j]=  dmatrix[j][nid]= original[j].dmatrix(original[nid]);
      }
 }
 
@@ -253,19 +264,19 @@ void setIncompatible(const Bucket &nodes, UID &nid ) {
 
 void setUnreachable(UID fromNid,UID toNid) {
     assert(fromNid<original.size() and toNid<original.size());
-    distance[fromNid][toNid]= _MAX();
+    dmatrix[fromNid][toNid]= _MAX();
 }
 
 void setUnreachable(UID nid, const Bucket &nodes) {
      assert(nid<original.size() );
      for (int j=0; j<nodes.size(); j++)
-         distance[nid][nodes[j].getnid()]=  _MAX();
+         dmatrix[nid][nodes[j].getnid()]=  _MAX();
 }
 
 void setUnreachable(const Bucket &nodes, UID &nid ) {
      assert(nid<original.size() );
      for (int i=0; i<nodes.size(); i++)
-         distance[nodes[i].getnid()][nid]=  _MAX();
+         dmatrix[nodes[i].getnid()][nid]=  _MAX();
 }
 
 
@@ -281,16 +292,24 @@ int setNodes(Bucket _original) {
     assert (check_integrity());
 }
      
-void load_distance(std::string infile, const Bucket &invalid ) {
-    assert(original.size());
+void loadAndProcess_distance(std::string infile, const Bucket &datanodes, const Bucket &invalid ) {
+    assert(datanodes.size());
+    original.clear();
+    original=datanodes;
+
     std::ifstream in( infile.c_str() );
     std::string line;
     int fromId;
     int toId;
-    //distanceMatrix array size is datanodes.size x datanodes.size
-    distance.resize(original.size());
+
+    dmatrix.resize(original.size());
     for (int i=0;i<original.size();i++)
-        distance[i].resize(distance.size());
+        dmatrix[i].resize(original.size());
+    //distance default value is max
+    for (int i=0;i<original.size();i++)
+       for (int j=0;j<original.size();j++) 
+          if (i==j) dmatrix[i][j]=0;
+          else dmatrix[i][j]=_MAX();
 
     int from,to;
     double dist;
@@ -303,17 +322,17 @@ void load_distance(std::string infile, const Bucket &invalid ) {
         buffer >> from;
         buffer >> to;
         buffer >> dist;
-        if ( invalid.hasid(from) or invalid.hasid(to) ) {
-            //invalid.dump();
-            continue;
-        }
+        if ( invalid.hasid(from) or invalid.hasid(to) ) continue;
+
         fromId=original.getNidFromId(from);
         toId=original.getNidFromId(to);
-        distance[fromId][toId]=dist;
+        dmatrix[fromId][toId]=dist;
     }
- std::cout<<"LINES:"<<cnt<<"\n";
-
     in.close();
+
+    twcij_calculate();
+    assert (original==datanodes);
+    assert (check_integrity());
 }
  
 
@@ -337,17 +356,18 @@ double compat(int i,int j) const {
 };
 
 double ajli(const knode &ni, const knode &nj) {
-    return ni.closes()+ni.getservicetime()+nj.distance(ni);
+    return ni.closes()+ni.getservicetime()+distance(ni,nj);
 }
 
 double ajei(const knode &ni, const knode &nj) {
-    return ni.opens()+ni.getservicetime()+nj.distance(ni);
+    return ni.opens()+ni.getservicetime()+distance(ni,nj);
 }
 
 
 double twc_for_ij(const knode &ni, const knode &nj) {
     double result;
-    if ( ( nj.closes() -ajei(ni,nj) ) > 0 ) {
+    if (distance(ni,nj)==_MAX()) result=_MIN();
+    else if ( ( nj.closes() -ajei(ni,nj) ) > 0 ) {
         result = std::min ( ajli(ni,nj) , nj.closes() )
                   - std::max ( ajei(ni,nj) , nj.opens()  ) ;
     } else result= _MIN();
@@ -358,18 +378,15 @@ double twc_for_ij(const knode &ni, const knode &nj) {
 
 /* public functions That are id based */
 void twcij_calculate(){
-    assert (original.size());
+    assert (original.size()==dmatrix.size());
     twcij.resize(original.size());
-//    distance.resize(original.size());
 
-    for (int i=0;i<original.size();i++) {
+    for (int i=0;i<original.size();i++) 
         twcij[i].resize(original.size());
-//        distance[i].resize(original.size());
-    }
+    
 
     for (int i=0;i<original.size();i++){
         for (int j=i; j<original.size();j++) {
-//              distance[i][j]= distance[j][i]= original[j].distance(original[i]);
               twcij[i][j]= twc_for_ij(original[i],original[j]);
               twcij[j][i]= twc_for_ij(original[j],original[i]);
         }
