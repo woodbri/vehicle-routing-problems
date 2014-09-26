@@ -74,8 +74,10 @@ class compNode{
         }
     };
 
-    void dump() const {
-        std::cout << "Twpath: "; // << home.getnid();
+
+    void dump() const {dump("Twbucket");};
+    void dump(const std::string &title) const {
+        std::cout << title; 
         const_iterator it = path.begin();
         for (const_iterator it = path.begin(); it != path.end();it++)
             std::cout << " " << it->getnid();
@@ -193,7 +195,7 @@ class compNode{
         const_reverse_iterator rit = path.rbegin(); 
         for (const_iterator it = path.begin(); it!=path.end() ;it++,++rit) {
               if(it->getid()==id) return it->getnid();
-              if(rit->getid()==id) return it->getnid();
+              if(rit->getid()==id) return rit->getnid();
         }
         return -1;
     };
