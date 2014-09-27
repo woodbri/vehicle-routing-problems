@@ -23,88 +23,9 @@ double TrashProblem::distance(int n1, int n2) const {
 }
 
 
-/*  DMATRIX IS NO LONGER USED ***************************************
-// routine to cycle through all the nodes and compute there
-// respective Eculidean distances and put them into a matrix
-void TrashProblem::buildDistanceMatrix() {
-    dMatrix.clear();
-    dMatrix.resize(datanodes.size());
-    for (int i=0; i<datanodes.size(); i++) {
-        dMatrix[i].clear();
-        dMatrix[i].resize(datanodes.size());
-        for (int j=0; j<datanodes.size(); j++) {
-            dMatrix[i][j] = datanodes[i].distance(datanodes[j]);
-        }
-    }
-
-}
-*********************************************************************/
 
 
 
-/* WRONG ASSUPTION OF PROBLEM DEFINITON ********************************
-// for the input node, we find and set the nid and distance for
-// the two closest depots and the nearest dump site.
-void TrashProblem::setNodeDistances(Trashnode& n) {
-    double dist = std::numeric_limits<double>::max();
-    int nid = -1;
-    double dist2 = std::numeric_limits<double>::max();
-    int nid2 = -1;
-
-    if (n.isdepot()) {
-        n.setdepotdist(n.getnid(), 0.0, -1, -1.0);
-        for (int i=0; i<dumps.size(); i++) {
-            double d = dMatrix[n.getnid()][dumps[i]];
-            if (nid == -1 or d < dist) {
-                dist = d;
-                nid = dumps[i];
-            }
-        }
-        n.setdumpdist(nid, dist);
-    }
-    else if (n.isdump()) {
-        n.setdumpdist(n.getnid(), 0.0);
-        for (int i=0; i<depots.size(); i++) {
-            double d = dMatrix[n.getnid()][depots[i]];
-            if (nid == -1 or d < dist) {
-                dist = d;
-                nid = depots[i];
-            }
-        }
-        n.setdepotdist(nid, dist, -1, -1.0);
-    }
-    else if (n.ispickup()) {
-        for (int i=0; i<dumps.size(); i++) {
-            double d = dMatrix[n.getnid()][dumps[i]];
-            if (nid == -1 or d < dist) {
-                dist = d;
-                nid = dumps[i];
-            }
-        }
-        n.setdumpdist(nid, dist);
-
-        nid = -1;
-        dist = std::numeric_limits<double>::max();
-        dist2 = std::numeric_limits<double>::max();
-        for (int i=0; i<depots.size(); i++) {
-            double d = dMatrix[n.getnid()][depots[i]];
-            if (d < dist) {
-                if (i and dist < dist2) {
-                    dist2 = dist;
-                    nid2 = nid;
-                }
-                dist = d;
-                nid = depots[i];
-            }
-            else if (i and  nid2 != nid and d < dist2) {
-                dist2 = d;
-                nid2 = depots[i];
-            }
-        }
-        n.setdepotdist(nid, dist, nid2, dist2);
-    }
-}
-*********************************************************************/
 
 
 // utility frunction to convert a selector bit array to
@@ -1003,21 +924,6 @@ void TrashProblem::optimize() {
 /************** dump routines ***********************************/
 
 
-/*   DMATRIX IS NO LONGER USED *************************************
-// print out the distance matrix as tab separated lines like:
-// irow jcol cost
-
-void TrashProblem::dumpDmatrix() const {
-    std::cout << "--------- dMatrix ------------" << std::endl;
-    twc.dumpTravelTime();
-    for (int i=0; i<dMatrix.size(); i++) {
-        for (int j=0; j<dMatrix[i].size(); j++) {
-            std::cout << i << "\t" << j << "\t" << dMatrix[i][j] << std::endl;
-        }
-    }
-
-}
-********************************************************************/
 
 
 // print each vehicle in the fleet.
@@ -1031,44 +937,6 @@ void TrashProblem::dumpFleet() const {
 }
 
 
-/* MOVED TO PROB_TRASH ***********************************************
-
-// print all the datanodes that were loaded into the problem
-
-void TrashProblem::dumpdataNodes() const {
-    std::cout << "--------- Nodes ------------" << std::endl;
-    for (int i=0; i<datanodes.size(); i++)
-        datanodes[i].dump();
-}
-
-
-
-void TrashProblem::dumpDepots() const {
-    std::cout << "--------- Depots ------------" << std::endl;
-    depots.dump("Depots");
-    for (int i=0; i<depots.size(); i++)
-        depots[i].dump();
-}
-
-
-
-void TrashProblem::dumpDumps() const {
-    std::cout << "--------- Dumps ------------" << std::endl;
-    dumps.dump("Dumps");
-    for (int i=0; i<dumps.size(); i++)
-        dumps[i].dump();
-}
-
-
-void TrashProblem::dumpPickups() const {
-    std::cout << "--------- Pickups ------------" << std::endl;
-    pickups.dump("pickups");
-    for (int i=0; i<pickups.size(); i++)
-        pickups[i].dump();
-}
-***********************************************************************
-
-*/
 
 // get the total duration of the solution, this includes wait time
 // if early arrivel at a node
