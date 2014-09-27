@@ -8,6 +8,56 @@
 #include "vehicle.h"
 
 
+bool  Vehicle::findNearestNodeTo(Bucket &unassigned, const TWC<Trashnode> &twc,UID &pos, Trashnode &bestNode) {
+    assert (unassigned.size());
+    bool flag= false;
+    double bestDist;
+    double d;
+    
+
+    flag = twc.findNearestNodeTo(path, unassigned,  pos , bestNode, bestDist);
+    
+    for (int i=0; i<unassigned.size(); i++) {
+       if ( twc.isCompatibleIAJ( path[size()-1]  , unassigned[i], dumpsite ) ) { 
+          d = unassigned[i].distanceToSegment( path[size()-1], dumpsite );
+          if ( d < bestDist) {
+            bestDist = d;
+            bestNode = unassigned[i];
+            pos = size();
+            flag= true;
+          };
+       };
+    }
+
+    return flag;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//   Steve's functions 
+
 void Vehicle::dump() const {
     std::cout << "---------- Vehicle ---------------" << std::endl;
     std::cout << "maxcapacity: " << getmaxcapacity() << std::endl;

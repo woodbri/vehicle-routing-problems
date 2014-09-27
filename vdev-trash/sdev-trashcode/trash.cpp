@@ -14,7 +14,7 @@
 #include "twnode.h"
 #include "trashnode.h"
 #include "twpath.h"
-#include "trashproblem.h"
+#include "sweep3.h"
 
 
 
@@ -53,7 +53,7 @@ int main(int argc, char **argv) {
 //---------------------------------------------------------------
 void test_trash(std::string infile) {
 
-        TrashProblem tp(infile);
+        Sweep3 tp(infile);
 
         //tp.loadproblem( infile );
 

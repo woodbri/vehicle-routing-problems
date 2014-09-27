@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <cassert>
 #include "node.h"
+//#include "twc.h"
 //#include "plot.h"
 
 /*
@@ -55,10 +56,42 @@ class compNode{
 
 
   public:
+/* major tools
+bool  findNearestNodeTo(const  TwBucket<knode> &unassigned, const TWC &twc, int &pos, knode &bestNode, double &bestDist) const {
+    assert( unassigned.size() );
+    TwBucket<knode> compatibleTo;
+    TwBucket<knode> compatibleFrom;
+
+    int flag=false;
+    bestDist = _MAX();   // dist to minimize
+    pos = 0;        // position in path to insert
+    double d;
+    
+
+    for (int i=0; i<unassigned.size(); i++) {
+        for (int j=0; j<size()-1; j++) {
+           if ( twc.isCompatibleIAJ(path[j],unassigned[i],path[j+1])) {
+              d = segmentDistanceToPoint( j , unassigned[i] );
+              if ( d < bestDist ) {
+                bestDist = d;
+                pos = j;
+                bestNode = unassigned[i];
+                flag=true;
+              }
+           }
+        }
+    }
+
+    return flag;
+}
+
+*/
+
+
 // other tools
-    double segmentDistanceToPoint(UID i, const knode& n, Node &point) const {
-        assert(i<path.size());
-        return n.distanceToSegment(path[i],path[i+1],point);
+    double segmentDistanceToPoint(UID i, const knode& n) const {
+        assert(i+1<path.size());
+        return n.distanceToSegment(path[i],path[i+1]);
     }
 
     void swap(UID i, UID j) { std::iter_swap(this->path.begin()+i,this->path.begin()+j);}
