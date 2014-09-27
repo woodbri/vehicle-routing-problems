@@ -57,19 +57,24 @@ void Prob_trash::plot(Plot<Trashnode> &graph) {
     }
 };
 
-Prob_trash::Prob_trash(char *infile)
+Prob_trash::Prob_trash(const char *infile)
      {
-std::cout << "---- Constructor --------------\n";
-         loadProblem(infile);
+std::cout << "---- char * Constructor --------------\n";
+        std::string file = infile;
+        loadProblem(file);
      } 
 
+Prob_trash::Prob_trash(const std::string &infile) {
+std::cout << "---- string Constructor --------------\n";
+    loadProblem(infile);
+}
 
 /* depot must be the first node in list... rest can be anywhere*/
-void Prob_trash::loadProblem(char *infile)
+
+void Prob_trash::loadProblem(const std::string &infile)
 {
-    datafile=std::string(infile);
-std::cout << "---- Load --------------";
-std::cout << datafile<< " ---- Load --------------\n";
+    datafile=infile;
+std::cout << "---- Loading --------------"<< datafile<< "--------\n";
 
 
     // read the nodes

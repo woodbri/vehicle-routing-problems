@@ -20,7 +20,7 @@ class Prob_trash {
   protected:
 typedef  TwBucket<Trashnode> Bucket;
 
-    Trashnode depot;
+//    Trashnode depot;
 
     TWC<Trashnode> twc;
     Twpath<Trashnode> datanodes; //dissallowing set operations
@@ -36,9 +36,10 @@ typedef  TwBucket<Trashnode> Bucket;
 
   public:
 
-    Trashnode getdepot() const { return depot;};
-    void loadProblem(char *infile);
-    Prob_trash(char *infile);
+//    Trashnode getdepot() const { return depot;};
+    Prob_trash(const char *infile);
+    Prob_trash(const std::string &infile);
+    void loadProblem(const std::string &infile);
 
     unsigned int getNodeCount() const;
 

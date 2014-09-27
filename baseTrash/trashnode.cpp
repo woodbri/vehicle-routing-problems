@@ -69,7 +69,7 @@ Trashnode::Trashnode(std::string line) : Tweval() {
 
 
 
-/* 
+ 
 //OLD IDEAS
 
 void Trashnode::setdepotdist(int _nid, double _dist, int _nid2, double _dist2) {
@@ -84,5 +84,5 @@ void Trashnode::setdumpdist(int _nid, double _dist) {
     dumpnid = _nid;
     dumpdist = _dist;
 }
-*/
+// END OLD IDEAS
 
