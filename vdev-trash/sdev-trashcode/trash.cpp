@@ -58,13 +58,12 @@ void test_trash(std::string infile) {
         //tp.loadproblem( infile );
 
         tp.dumpdataNodes();
-        //tp.dumpDmatrix();
-//        tp.dump();
+        tp.dump();
 
-/*
         std::cout << "\n----------- assignmentSweep3 -----------------------\n";
         tp.setRatio(0.9);
         tp.assignmentSweep3();
+/*
         tp.dump();
 
         tp.plot("p3.png", "assignmentSweep3", font);

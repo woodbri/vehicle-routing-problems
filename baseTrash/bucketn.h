@@ -50,22 +50,12 @@ class BucketN {
 
     void remove(int at);
     void erase(int at) {remove(at);};
-/*    void removeOrder( const Order &order);
-    void removeOrder(int oid);
-    void removePickup(int oid);
-    void removeDelivery(int oid);
-*/
     void removeNode(int nid);
     void swapstops(int i,int j);
     void swap(int i,int j);
     void move(int fromi,int toj);
     void push_back(Trashnode pathstop);
     void insert(const Trashnode &pathstop,int at);
-/*    void pushOrder(const Order &o);
-    void pushPickup(const Order &o);
-    void pushDelivery(const Order &o);
-    void insertPickup(const Order &o, const int at);
-*/
 
     Trashnode& getnode(int at) {return path[at];};
 

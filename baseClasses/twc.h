@@ -23,7 +23,7 @@ typedef unsigned long int UID;
 
     Bucket original;
     std::vector<std::vector<double> > twcij;
-    std::vector<std::vector<double> > dmatrix;
+    std::vector<std::vector<double> > travel_Time;
 
     inline double _MIN() const { return -std::numeric_limits<double>::max();};
     inline double _MAX() const { return std::numeric_limits<double>::max();};
@@ -33,36 +33,94 @@ typedef unsigned long int UID;
 
 public:
 
-double distance(UID from, UID to) const {
+Bucket getUnreachable(const Bucket &nodes, UID to) const {
+    assert( to<original.size() );
+    Bucket unreachable;
+    for (int i=0; i<nodes.size(); i++)
+        if (not isReachableIJ(nodes[i].getnid(),to))
+           unreachable.push_back(nodes[i]);
+    return unreachable;
+}
+
+Bucket getUnreachable(UID from, const Bucket &nodes) const {
+    assert( from<original.size() );
+    Bucket unreachable;
+    for (int i=0; i<nodes.size(); i++)
+        if (not isReachableIJ(from,nodes[i].getnid()))
+           unreachable.push_back(nodes[i]);
+    return unreachable;
+}
+
+Bucket getReachable(const Bucket &nodes, UID to) const {
+    assert( to<original.size() );
+    Bucket reachable;
+    for (int i=0; i<nodes.size(); i++)
+        if (isReachableIJ(nodes[i].getnid(),to))
+           reachable.push_back(nodes[i]);
+    return reachable;
+}
+
+Bucket getReachable(UID from, const Bucket &nodes) const {
+    assert( from<original.size() );
+    Bucket reachable;
+    for (int i=0; i<nodes.size(); i++)
+        if (iReachableIJ(from,nodes[i].getnid()))
+           reachable.push_back(nodes[i]);
+    return reachable;
+}
+
+
+Bucket getIncompatible(const Bucket &nodes, UID to) const {
+    assert( to<original.size() );
+    Bucket incompatible;
+    for (int i=0; i<nodes.size(); i++) 
+        if (not isCompatibleIJ(nodes[i].getnid(),to)) 
+           incompatible.push_back(nodes[i]);
+    return incompatible;
+}
+    
+Bucket getIncompatible(UID from, const Bucket &nodes) const {
+    assert( from<original.size() );
+    Bucket incompatible;
+    for (int i=0; i<nodes.size(); i++) 
+        if (not isCompatibleIJ(from,nodes[i].getnid())) 
+           incompatible.push_back(nodes[i]);
+    return incompatible;
+}
+
+Bucket getCompatible(const Bucket &nodes, UID to) const {
+    assert( to<original.size() );
+    Bucket compatible;
+    for (int i=0; i<nodes.size(); i++) 
+        if (isCompatibleIJ(nodes[i].getnid(),to))
+           compatible.push_back(nodes[i]);
+    return compatible;
+}
+    
+Bucket getCompatible(UID from, const Bucket &nodes) const {
+    assert( from<original.size() );
+    Bucket compatible;
+    for (int i=0; i<nodes.size(); i++) 
+        if (isCompatibleIJ(from,nodes[i].getnid())) 
+           compatible.push_back(nodes[i]);
+    return compatible;
+}
+    
+
+double travelTime(UID from, UID to) const {
     assert(from<original.size() and to<original.size() );
-    return dmatrix[from][to];
+    return travel_Time[from][to];
 }
  
-double distance(const knode &from, const knode &to) {
-    return distance(from.getnid(),to.getnid());
+double travelTime(const knode &from, const knode &to) {
+    return travelTime(from.getnid(),to.getnid());
 }
-
-
-bool isCompatibleIJ(UID fromNid, UID toNid) const {
-    assert(fromNid<original.size() and toNid<original.size() );
-    return not (twcij[fromNid][toNid]  == _MIN());
-}
-
-bool isCompatibleIAJ(UID fromNid, UID middleNid, UID toNid) const {
-    assert(fromNid<original.size() and middleNid<original.size()  and toNid<original.size() );
-    return isCompatibleIJ(fromNid,middleNid) and isCompatibleIJ(middleNid,toNid);
-}
-
-
 
 double compatibleIJ(UID fromNid, UID toNid) const {
     assert(fromNid<original.size() and toNid<original.size() );
     return  twcij[fromNid][toNid] ;
 }
 
-
-
-/*compatibility hast to be nodeid based not position based*/
 const knode& node(UID i) const {
     assert(i<original.size() );
     return original[i];
@@ -73,26 +131,109 @@ const knode& getNode(UID at) const {
     return original[at];
 };
 
+//state
+bool isCompatibleIJ(UID fromNid, UID toNid) const {
+    assert(fromNid<original.size() and toNid<original.size() );
+    return not (twcij[fromNid][toNid]  == _MIN());
+}
+
+bool isiReachableIJ(UID fromNid, UID toNid) const {
+    assert(fromNid<original.size() and toNid<original.size() );
+    return not (travel_Time[fromNid][toNid]  == _MIN());
+}
 
 
-int getSeed(int foo, const Bucket &nodes) {
+bool isCompatibleIAJ(UID fromNid, UID middleNid, UID toNid) const {
+    assert(fromNid<original.size() and middleNid<original.size()  and toNid<original.size() );
+    return isCompatibleIJ(fromNid,middleNid) and isCompatibleIJ(middleNid,toNid);
+}
+
+
+
+
+
+
+
+
+//  The best or the worses  
+
+knode findBestTravelTime(UID from, const Bucket &nodes) const {
+    assert (nodes.size() and from <original.size());
+    Bucket reachable=getReachable(from,nodes);
+    if (not reachable.size()) return nodes[0];
+    knode best = reachable[0];
+    double bestTime = _MAX();  
+    for (int i=0; i<reachable.size(); i++) {
+        if (reachable[i].getnid()!=from and travelTime(from,reachable[i].getid()) < bestTime) {
+            best=reachable[i];
+            bestTime=travelTime(from,reachable[i].getid());
+        }
+    }
+    return best;
+}
+
+knode findBestTravelTime(const Bucket &nodes, UID to) const {
+    assert (nodes.size() and to<original.size());
+    Bucket reachable=getReachable(nodes,to);
+    if (not reachable.size()) return nodes[0];
+    knode best = reachable[0];
+    double bestTime = _MAX(); 
+    for (int i=0; i<reachable.size(); i++) {
+        if (reachable[i].getnid()!=to and travelTime(reachable[i].getid(),to) < bestTime) {
+            best=reachable[i];
+            bestTime=travelTime(reachable[i].getid(),to);
+        }
+    }
+    return best;
+}
+
+knode findWorseTravelTime(UID from, const Bucket &nodes) const {
+// from the reachable nodes finds the worse
+    assert (nodes.size() and from <original.size());
+    Bucket reachable=getReachable(from,nodes);
+    if (not reachable.size()) return nodes[0];
+    knode worse = reachable[0];
+    double worseTime = _MIN(); 
+    for (int i=0; i<reachable.size(); i++) {
+        if (reachable[i].getnid()!=from and travelTime(from,reachable[i].getid()) > worseTime) {
+            worse=reachable[i];
+            worseTime=travelTime(from,reachable[i].getid());
+        }
+    }
+    return worse;
+}
+
+knode findWorseTravelTime(const Bucket &nodes, UID to) const {
+// from the reachable nodes finds the worse
+    assert (nodes.size() and to <original.size());
+    Bucket reachable=getReachable(nodes,to);
+    if (not reachable.size()) return nodes[0];
+    knode worse = reachable[0];
+    double worseTime = _MIN();
+    for (int i=0; i<reachable.size(); i++) {
+        if (reachable[i].getnid()!=to and travelTime(reachable[i].getid(),to) > worseTime) {
+            worse=reachable[i];
+            worseTime=travelTime(reachable[i].getid(),to);
+        }
+    }
+    return worse;
+}
+
+
+
+int getSeed(int foo, const Bucket &nodes) const {
+//ec2 get seed (needs revision)
      int bestId,count;
      double bestEc2;
      int Id;
      int bestCount=0;
      bestEc2= - _MIN();
-//std::cout<<"gettingSeed";
      for (int i=0; i<nodes.size(); i++) {
          if (i==0) bestId = nodes[0].getnid();
          Id = nodes[i].getnid();
-//std::cout<<"\n working with node "<<Id;
          count=0;
-        for (int j=0; j<nodes.size(); j++)
+        for (int j=0; j<nodes.size(); j++) {
             if ( i!=j and  isCompatibleIJ( Id , nodes[j].getnid() ) ) count++;
-//std::cout<<" has  "<<ec2(Id)<<"ec2";
-//std::cout<<" has  "<<count<<" compatibilities";
-        if (count>bestCount) {
-//std::cout<<" oldCount  "<<bestCount<<" newCount "<<count;
             bestCount=count;
             bestId=Id;
          }
@@ -102,7 +243,6 @@ int getSeed(int foo, const Bucket &nodes) {
 
 
 
-//  only in current nodes 
 int  getBestCompatible(UID fromNid, const Bucket &nodes) const {
      assert(fromNid<original.size() );
      int bestId;
@@ -123,6 +263,7 @@ int  getBestCompatible(UID fromNid, const Bucket &nodes) const {
 
 
 
+
 double ec2(UID at, const Bucket &nodes) {
      assert(at<original.size() );
      double ec2_tot=0;
@@ -134,6 +275,8 @@ double ec2(UID at, const Bucket &nodes) {
      return ec2_tot;
 }
 
+
+//counting
 int countIncompatibleFrom(int at, const Bucket &nodes) {
      assert(at<original.size() );
      int count=0;
@@ -161,6 +304,17 @@ void dump() const  {
 
 
 void dump(const Bucket &nodes) const  {
+    assert( original.size() );
+    dumpCompatability(original);
+    dumpTravelTime(original);
+}
+
+void dumpCompatability() const  {
+    assert( original.size() );
+    dumpCompatability(original);
+}
+
+void dumpCompatability(const Bucket &nodes) const  {
     assert( nodes.size() );
     std::cout.precision(8);
     std::cout<<"COMPATABILITY TABLE \n\t";
@@ -181,7 +335,16 @@ void dump(const Bucket &nodes) const  {
         }
         std::cout<<"\n";
     }
-    std::cout<<"\n\n\n\nDISTANCE TABLE \n\t";
+}
+
+void dumpTravelTime() const {
+    assert( original.size() );
+    dumpTravelTime(original);
+}
+
+void dumpTravelTime(const Bucket &nodes) const {
+    assert( nodes.size() );
+    std::cout<<"\n\n\n\nTRAVEL TIME TABLE \n\t";
 
     std::cout.precision(2);
     for (int i=0;i<nodes.size();i++)
@@ -195,7 +358,7 @@ void dump(const Bucket &nodes) const  {
     for (int i=0;i<nodes.size();i++){
         std::cout<<nodes[i].getnid()<<"="<<nodes[i].getid()<<"\t";
         for (int j=0; j<nodes.size();j++) {
-           if (dmatrix[i][j] !=  std::numeric_limits<double>::max()) std::cout<<dmatrix[i][j]<<"\t";
+           if (travelTime(i,j) !=  std::numeric_limits<double>::max()) std::cout<<travelTime(i,j)<<"\t";
            else std::cout<<"--\t";
         }
         std::cout<<"\n";
@@ -203,12 +366,12 @@ void dump(const Bucket &nodes) const  {
 }
 
 
-void dumpCompatible() const  {
+void dumpCompatible3() const  {
     assert( original.size() );
     dumpCompatible(original);
 } 
 
-void dumpCompatible(const Bucket &nodes) const {
+void dumpCompatible3(const Bucket &nodes) const {
     assert( nodes.size() );
     for (int i=0;i<nodes.size();i++) {
       for (int j=0;j<nodes.size();j++) {
@@ -222,7 +385,6 @@ void dumpCompatible(const Bucket &nodes) const {
 
 
 
-// Functions to adjust compatability depending on problem 
 
 //go back to CALCULATED state
 void recreateCompatible( UID nid) {
@@ -233,11 +395,9 @@ void recreateCompatible( UID nid) {
      }
 }
 
-void recreateDistance( UID nid) {
-     assert(nid<original.size() );
-     for (int j=0; j<twcij.size(); j++) {
-         dmatrix[nid][j]=  dmatrix[j][nid]= original[j].dmatrix(original[nid]);
-     }
+// Functions to adjust compatability depending on problem 
+void recreateTravelTime( UID nid) {
+     assert("needs to be re-read from file"=="");
 }
 
 
@@ -264,19 +424,19 @@ void setIncompatible(const Bucket &nodes, UID &nid ) {
 
 void setUnreachable(UID fromNid,UID toNid) {
     assert(fromNid<original.size() and toNid<original.size());
-    dmatrix[fromNid][toNid]= _MAX();
+    travel_Time[fromNid][toNid]= _MAX();
 }
 
 void setUnreachable(UID nid, const Bucket &nodes) {
      assert(nid<original.size() );
      for (int j=0; j<nodes.size(); j++)
-         dmatrix[nid][nodes[j].getnid()]=  _MAX();
+         travel_Time[nid][nodes[j].getnid()]=  _MAX();
 }
 
 void setUnreachable(const Bucket &nodes, UID &nid ) {
      assert(nid<original.size() );
      for (int i=0; i<nodes.size(); i++)
-         dmatrix[nodes[i].getnid()][nid]=  _MAX();
+         travel_Time[nodes[i].getnid()][nid]=  _MAX();
 }
 
 
@@ -302,14 +462,14 @@ void loadAndProcess_distance(std::string infile, const Bucket &datanodes, const 
     int fromId;
     int toId;
 
-    dmatrix.resize(original.size());
+    travel_Time.resize(original.size());
     for (int i=0;i<original.size();i++)
-        dmatrix[i].resize(original.size());
-    //distance default value is max
+        travel_Time[i].resize(original.size());
+    //travel_Time default value is max
     for (int i=0;i<original.size();i++)
        for (int j=0;j<original.size();j++) 
-          if (i==j) dmatrix[i][j]=0;
-          else dmatrix[i][j]=_MAX();
+          if (i==j) travel_Time[i][j]=0;
+          else travel_Time[i][j]=_MAX();
 
     int from,to;
     double dist;
@@ -326,7 +486,7 @@ void loadAndProcess_distance(std::string infile, const Bucket &datanodes, const 
 
         fromId=original.getNidFromId(from);
         toId=original.getNidFromId(to);
-        dmatrix[fromId][toId]=dist;
+        travel_Time[fromId][toId]=dist;
     }
     in.close();
 
@@ -356,17 +516,17 @@ double compat(int i,int j) const {
 };
 
 double ajli(const knode &ni, const knode &nj) {
-    return ni.closes()+ni.getservicetime()+distance(ni,nj);
+    return ni.closes()+ni.getservicetime()+travelTime(ni,nj);
 }
 
 double ajei(const knode &ni, const knode &nj) {
-    return ni.opens()+ni.getservicetime()+distance(ni,nj);
+    return ni.opens()+ni.getservicetime()+travelTime(ni,nj);
 }
 
 
 double twc_for_ij(const knode &ni, const knode &nj) {
     double result;
-    if (distance(ni,nj)==_MAX()) result=_MIN();
+    if (travelTime(ni,nj)==_MAX()) result=_MIN();
     else if ( ( nj.closes() -ajei(ni,nj) ) > 0 ) {
         result = std::min ( ajli(ni,nj) , nj.closes() )
                   - std::max ( ajei(ni,nj) , nj.opens()  ) ;
@@ -378,7 +538,7 @@ double twc_for_ij(const knode &ni, const knode &nj) {
 
 /* public functions That are id based */
 void twcij_calculate(){
-    assert (original.size()==dmatrix.size());
+    assert (original.size()==travel_Time.size());
     twcij.resize(original.size());
 
     for (int i=0;i<original.size();i++) 

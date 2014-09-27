@@ -27,7 +27,7 @@ double TrashProblem::distance(int n1, int n2) const {
 // respective Eculidean distances and put them into a matrix
 
 void TrashProblem::buildDistanceMatrix() {
-    dMatrix.clear();
+/*    dMatrix.clear();
     dMatrix.resize(datanodes.size());
     for (int i=0; i<datanodes.size(); i++) {
         dMatrix[i].clear();
@@ -36,6 +36,7 @@ void TrashProblem::buildDistanceMatrix() {
             dMatrix[i][j] = datanodes[i].distance(datanodes[j]);
         }
     }
+*/
 }
 
 
@@ -44,7 +45,7 @@ void TrashProblem::buildDistanceMatrix() {
 // from say a database query or some other format.
 
 void TrashProblem::loadproblem(std::string& file) {
-    std::ifstream in( file.c_str() );
+/*    std::ifstream in( file.c_str() );
     std::string line;
 
     // clearout any old data
@@ -87,6 +88,7 @@ twc.dump();
 
     for (int i=0; i<datanodes.size(); i++)
         setNodeDistances(datanodes[i]);
+*/
 }
 
 
@@ -94,7 +96,7 @@ twc.dump();
 // the two closest depots and the nearest dump site.
 
 void TrashProblem::setNodeDistances(Trashnode& n) {
-    double dist = std::numeric_limits<double>::max();
+/*    double dist = std::numeric_limits<double>::max();
     int nid = -1;
     double dist2 = std::numeric_limits<double>::max();
     int nid2 = -1;
@@ -151,6 +153,7 @@ void TrashProblem::setNodeDistances(Trashnode& n) {
         }
         n.setdepotdist(nid, dist, nid2, dist2);
     }
+*/
 }
 
 
@@ -158,7 +161,7 @@ void TrashProblem::setNodeDistances(Trashnode& n) {
 // human readable text for debug output
 
 std::string selectorAsTxt(int s) {
-    std::string str = "";
+/*    std::string str = "";
     if (s & ANY)         str += (str.length()?"|":"") + std::string("ANY");
     if (s & UNASSIGNED)  str += (str.length()?"|":"") + std::string("UNASSIGNED");
     if (s & CLUSTER1)    str += (str.length()?"|":"") + std::string("CLUSTER1");
@@ -169,6 +172,7 @@ std::string selectorAsTxt(int s) {
     if (s & DUMP)        str += (str.length()?"|":"") + std::string("DUMP");
     if (s & RATIO)       str += (str.length()?"|":"") + std::string("RATIO");
     return str;
+*/
 }
 
 
@@ -194,7 +198,7 @@ std::string selectorAsTxt(int s) {
 //
 
 bool TrashProblem::filterNode(const Trashnode &tn, int i, int selector, int demandLimit) {
-        Trashnode& tn2 = datanodes[i];
+/*        Trashnode& tn2 = datanodes[i];
         bool select = true;
 
         // filter out nodes where the demand > demandLimit
@@ -260,11 +264,14 @@ bool TrashProblem::filterNode(const Trashnode &tn, int i, int selector, int dema
             return true;
 
         return false;
+*/
 }
 
 
 int TrashProblem::findNearestNodeTo(int nid, int selector, int demandLimit) {
-    Trashnode &tn(datanodes[nid]);
+    assert (" twc.findBestTravelTime(UID from, const Bucket &nodes) "=="" and
+            " twc.findBestTravelTime(const Bucket &nodes, UID to)  "=="");
+/*    Trashnode &tn(datanodes[nid]);
     int nn = -1;        // init to not found
     double dist = -1;   // dist to nn
 
@@ -280,6 +287,7 @@ int TrashProblem::findNearestNodeTo(int nid, int selector, int demandLimit) {
     }
     //std::cout << "TrashProblem::findNearestNodeTo(" << nid << ", " << selector << ") = " << nn << " at dist = " << dist << std::endl;
     return nn;
+*/
 }
 
 
@@ -378,7 +386,7 @@ std::vector<int>  TrashProblem::solutionAsVector() const {
 // algorithms
 
 bool TrashProblem::buildFleetFromSolution(std::vector<int> solution) {
-    unassigned = std::vector<int>(datanodes.size(), 1);
+/*    unassigned = std::vector<int>(datanodes.size(), 1);
 
     std::vector<int>::iterator it;
     std::vector<int>::iterator it2;
@@ -439,6 +447,7 @@ bool TrashProblem::buildFleetFromSolution(std::vector<int> solution) {
         vid++;
     }
     return true;
+*/
 }
 
 
@@ -487,6 +496,7 @@ bool TrashProblem::findVehicleBestFit(int nid, int& vid, int& pos) {
 // the vehicle reaches capacity.
 
 void TrashProblem::nearestNeighbor() {
+/*
     // create a list of all pickup nodes and make them unassigned
     unassigned = std::vector<int>(datanodes.size(), 1);
 
@@ -529,6 +539,7 @@ void TrashProblem::nearestNeighbor() {
         if (unassigned[pickups[i]])
             std::cout << "    " << pickups[i] << std::endl;
     }
+*/
 }
 
 
@@ -536,7 +547,7 @@ void TrashProblem::nearestNeighbor() {
 // This was for testing only, not useful in real world applications
 
 void TrashProblem::dumbConstruction() {
-
+/*
     clearFleet();
 
     Trashnode& depot(datanodes[depots[0]]);
@@ -550,6 +561,7 @@ void TrashProblem::dumbConstruction() {
     }
 
     fleet.push_back(truck);
+*/
 }
 
 
@@ -566,6 +578,7 @@ void TrashProblem::dumbConstruction() {
 //    territory to fill up a vehicle but it is a simple algorithm.
 
 void TrashProblem::assignmentSweep() {
+/*
     // create a list of all pickup nodes and make them unassigned
     unassigned = std::vector<int>(datanodes.size(), 1);
 
@@ -632,6 +645,7 @@ void TrashProblem::assignmentSweep() {
         if (unassigned[pickups[i]])
             std::cout << "    " << pickups[i] << std::endl;
     }
+*/
 }
 
 
@@ -648,7 +662,7 @@ void TrashProblem::assignmentSweep() {
 //    3. add unassigned nodes to any vehicles with capacity
 
 void TrashProblem::assignmentSweep2() {
-    // create a list of all pickup nodes and make them unassigned
+/*    // create a list of all pickup nodes and make them unassigned
     unassigned = std::vector<int>(datanodes.size(), 1);
 
     clearFleet();
@@ -802,6 +816,7 @@ void TrashProblem::assignmentSweep2() {
         if (unassigned[pickups[i]])
             std::cout << "    " << pickups[i] << std::endl;
     }
+*/
 }
 
 
@@ -819,30 +834,44 @@ void TrashProblem::assignmentSweep2() {
 
 void TrashProblem::assignmentSweep3() {
     // create a list of all pickup nodes and make them unassigned
-    unassigned = std::vector<int>(datanodes.size(), 1);
+    //unassigned = std::vector<int>(datanodes.size(), 1);
+    Bucket unassigned = pickups;
+    Bucket problematic;
+    Bucket assigned;
+
+    std::deque<Vehicle> unusedTrucks = trucks;
+    std::deque<Vehicle> usedTrucks = trucks;
+    Vehicle truck;
 
     clearFleet();
 
-    for (int i=0; i<depots.size(); i++) {
+    for (int i=0; i<trucks.size(); i++) {
 
         // add this depot as the vehicles home location
         // and the associated dump
-        Trashnode& depot(datanodes[depots[i]]);
-        Trashnode& dump(datanodes[depot.getdumpnid()]);
+        //Trashnode& depot(datanodes[depots[i]]);
+        //Trashnode& dump(datanodes[depot.getdumpnid()]);
 
         // create a vehicle and attach the depot and dump to it
-        Vehicle truck(depot, dump);
+        truck=unusedTrucks[0];
+        unusedTrucks.erase(unusedTrucks.begin());
+        usedTrucks.push_back(truck);
+        
         //std::cout << "EMPTY TRUCK: "; truck.dump();
 
         int pos;
         int nid = findNearestNodeTo(truck,
                 UNASSIGNED|PICKUP|CLUSTER1|RATIO, 0, pos);
         if (nid == -1) {
-            std::cout << "TrashProblem::assignmentSweep3 failed to find an initial node for depot: " << depots[i] << std::endl;
+            std::cout << "TrashProblem::assignmentSweep3 failed to find an initial node for truck: \n";
+            truck.tau();
             continue;
         }
         truck.push_back(datanodes[nid]);
-        unassigned[nid] = 0;
+        unassigned.erase(datanodes[nid]);
+        assigned.push_back(datanodes[nid]);
+
+        //unassigned[nid] = 0;
 
         int cnt = 1;
 //        char buffer[100];
@@ -867,13 +896,12 @@ void TrashProblem::assignmentSweep3() {
             // so findNearestNodeTo() above does not return it again
 
             // add node to route
-            unassigned[nnid] = 0;
-            if (pos == 0)
-                truck.push_front(datanodes[nnid]);
-            else if (pos == truck.size())
-                truck.push_back(datanodes[nnid]);
-            else 
-                truck.insert(datanodes[nnid], pos);
+            //unassigned[nnid] = 0;
+
+            truck.insert(datanodes[nnid], pos);
+
+            assigned.push_back(datanodes[nnid]);
+            unassigned.erase(datanodes[nnid]);
 
             cnt++;
 //            sprintf(buffer, "out/p%02d-%03d.png", i, cnt);
@@ -887,50 +915,51 @@ void TrashProblem::assignmentSweep3() {
 std::cout << "------ checking unassigned nodes ----------\n";
 
     // check for unassigned nodes
-    int ucnt = 0;
+    /*int ucnt = 0;
     for (int i=0; i<pickups.size(); i++)
         if (unassigned[pickups[i]]) {
             ucnt++;
             datanodes[pickups[i]].dump();
         }
     if (ucnt == 0) return; // return if nothing left to do
+    */
+    if (unassigned.size() == 0) return; // return if nothing left to do
 
-    std::cout << ucnt << " unassigned orders after CLUSTER1|RATIO assignment" << std::endl;
+    std::cout << unassigned.size() << " unassigned orders after CLUSTER1|RATIO assignment" << std::endl;
 
     // assign remaining order based on lowest cost to insert
     // findVehicleBestFit() checks feasible()
-    for (int i=0; i<pickups.size(); i++) {
-        if (! unassigned[pickups[i]]) continue;
+    //for (int i=0; i<pickups.size(); i++) {
+    //    if (! unassigned[pickups[i]]) continue;
 
+    for (int i=0; unassigned.size(); i++) {
         int vid;
         int pos;
-        if (! findVehicleBestFit(pickups[i], vid, pos)) {
+        if (! findVehicleBestFit(unassigned[0].getnid(), vid, pos)) {
             // could not find a valid insertion point
-            std::cout << "assignmentSweep3: could not find a valid insertion point for node: " << pickups[i] << std::endl;
+            std::cout << "assignmentSweep3: could not find a valid insertion point for node: " << unassigned[0].getnid() << std::endl;
+            problematic.push_back(unassigned[0]);
+            unassigned.erase(0);
             continue;
         }
 
-        unassigned[pickups[i]] = 0;
+        //unassigned[unassigned[i]] = 0;
 
-        Vehicle& truck = fleet[vid];
+        //Vehicle& truck = fleet[vid];   
 
-        if (pos == 0)
-            truck.push_front(datanodes[pickups[i]]);
-        else if (pos == truck.size())
-            truck.push_back(datanodes[pickups[i]]);
-        else 
-            truck.insert(datanodes[pickups[i]], pos);
+        fleet[vid].insert(unassigned[0], pos);
+        unassigned.erase(0);
 
     }
 
     // check for unassigned nodes
-    ucnt = 0;
-    for (int i=0; i<pickups.size(); i++)
-        if (unassigned[pickups[i]]) ucnt++;
-    if (ucnt == 0) return; // return if nothing left to do
+    //ucnt = 0;
+    //for (int i=0; i<pickups.size(); i++)
+    //    if (unassigned[pickups[i]]) ucnt++;
+    if (problematic.size() == 0) return; // return if nothing left to do
 
-    std::cout << ucnt << " unassigned orders after best fit assignment" << std::endl;
-
+    std::cout << problematic.size() << " unassigned orders after best fit assignment" << std::endl;
+    problematic.dump("problematic");
 }
 
 
@@ -1029,17 +1058,20 @@ void TrashProblem::optimize() {
 
 void TrashProblem::dumpDmatrix() const {
     std::cout << "--------- dMatrix ------------" << std::endl;
-    for (int i=0; i<dMatrix.size(); i++) {
+    twc.dumpTravelTime();
+/*    for (int i=0; i<dMatrix.size(); i++) {
         for (int j=0; j<dMatrix[i].size(); j++) {
             std::cout << i << "\t" << j << "\t" << dMatrix[i][j] << std::endl;
         }
     }
+*/
 }
 
 
 // print each vehicle in the fleet.
 // This includes its stats and its path.
 
+//BELONGS TO SOLUTION
 void TrashProblem::dumpFleet() const {
     std::cout << "--------- Fleet ------------" << std::endl;
     for (int i=0; i<fleet.size(); i++)
@@ -1049,6 +1081,7 @@ void TrashProblem::dumpFleet() const {
 
 // print all the datanodes that were loaded into the problem
 
+//BELONGS TO PROB_TRASH
 void TrashProblem::dumpdataNodes() const {
     std::cout << "--------- Nodes ------------" << std::endl;
     for (int i=0; i<datanodes.size(); i++)
@@ -1056,30 +1089,29 @@ void TrashProblem::dumpdataNodes() const {
 }
 
 
-// print all the depot nodes
 
 void TrashProblem::dumpDepots() const {
     std::cout << "--------- Depots ------------" << std::endl;
+    depots.dump("Depots");
     for (int i=0; i<depots.size(); i++)
-        datanodes[depots[i]].dump();
+        depots[i].dump();
 }
 
 
-// print all the dumpsite nodes
 
 void TrashProblem::dumpDumps() const {
     std::cout << "--------- Dumps ------------" << std::endl;
+    dumps.dump("Dumps");
     for (int i=0; i<dumps.size(); i++)
-        datanodes[dumps[i]].dump();
+        dumps[i].dump();
 }
 
 
-// print all the pickup nodes
-
 void TrashProblem::dumpPickups() const {
     std::cout << "--------- Pickups ------------" << std::endl;
+    pickups.dump("pickups");
     for (int i=0; i<pickups.size(); i++)
-        datanodes[pickups[i]].dump();
+        pickups[i].dump();
 }
 
 
@@ -1157,7 +1189,7 @@ void TrashProblem::dumpSummary() const {
 // also highlight a path given as nids in vector highlight
 
 void TrashProblem::plot( std::string file, std::string title, std::string font, std::deque<int> highlight ) {
-    Plot<Trashnode> plot( datanodes );
+/*    Plot<Trashnode> plot( datanodes );
     plot.setFile( file );
     plot.setTitle( title );
     plot.setFont( font );
@@ -1173,13 +1205,14 @@ void TrashProblem::plot( std::string file, std::string title, std::string font, 
     plot.drawPoints(dumps, 0x00ff00, 7, true);
     plot.drawPoints(pickups, 0x0000ff, 5, true);
     plot.save();
+*/
 }
 
 
 // create a png image of the solution and save it in "file"
 
 void TrashProblem::plot( std::string file, std::string title, std::string font ) {
-    Plot<Trashnode> plot( datanodes );
+/*    Plot<Trashnode> plot( datanodes );
     plot.setFile( file );
     plot.setTitle( title );
     plot.setFont( font );
@@ -1192,4 +1225,5 @@ void TrashProblem::plot( std::string file, std::string title, std::string font )
     plot.drawPoints(dumps, 0x00ff00, 7, true);
     plot.drawPoints(pickups, 0x0000ff, 5, true);
     plot.save();
+*/
 }
