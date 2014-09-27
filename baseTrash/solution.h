@@ -5,6 +5,7 @@
 #include <cmath>
 
 #include "prob_trash.h"
+#include "twbucket.h"
 #include "twpath.h"
 #include "vehicle.h"
 #include "plot.h"
@@ -14,7 +15,7 @@ const double EPSILON = 0.001;
 
 class Solution: public Prob_trash {
   protected:
-typedef  Twpath<Trashnode> Bucket;
+typedef  TwBucket<Trashnode> Bucket;
 
     std::deque<Vehicle> fleet;
 

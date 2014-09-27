@@ -8,6 +8,7 @@
 #include "twc.h"
 #include "trashnode.h"
 #include "prob_trash.h"
+#include "solution.h"
 #include "vehicle.h"
 
 
@@ -23,9 +24,9 @@ enum Selector {
     RATIO       =128    // only select nodes with RATIO<ratio
 };
 
-class TrashProblem : Prob_trash {
+class TrashProblem : Solution {
   private:
-    std::vector<Vehicle> fleet;  //in solution
+//    std::vector<Vehicle> fleet;  //in solution
 //    Twpath<Trashnode> datanodes;
 //    TWC<Trashnode> twc;
 //    std::deque<int> depots;
@@ -34,7 +35,7 @@ class TrashProblem : Prob_trash {
 
 //    std::vector<int> unassigned;
 
-    std::vector< std::vector<double> > dMatrix;
+//    std::vector< std::vector<double> > dMatrix;
 
     double ratio; // ratio for select boarder nodes in assignmentSweep3
 
@@ -43,7 +44,7 @@ class TrashProblem : Prob_trash {
     // structors
 
     //TrashProblem(): Prob_trash() { ratio = 0.85; };
-    TrashProblem(const std::string &infile): Prob_trash(infile) { ratio = 0.85; };
+    TrashProblem(const std::string &infile): Solution(infile) { ratio = 0.85; };
 
     // accessors
     double distance(int nq, int n2) const;

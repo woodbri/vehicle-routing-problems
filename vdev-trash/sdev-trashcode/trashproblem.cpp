@@ -269,7 +269,9 @@ bool TrashProblem::filterNode(const Trashnode &tn, int i, int selector, int dema
 
 
 int TrashProblem::findNearestNodeTo(int nid, int selector, int demandLimit) {
-    Trashnode &tn(datanodes[nid]);
+    assert (" twc.findBestTravelTime(UID from, const Bucket &nodes) "=="" and
+            " twc.findBestTravelTime(const Bucket &nodes, UID to)  "=="");
+/*    Trashnode &tn(datanodes[nid]);
     int nn = -1;        // init to not found
     double dist = -1;   // dist to nn
 
@@ -285,6 +287,7 @@ int TrashProblem::findNearestNodeTo(int nid, int selector, int demandLimit) {
     }
     //std::cout << "TrashProblem::findNearestNodeTo(" << nid << ", " << selector << ") = " << nn << " at dist = " << dist << std::endl;
     return nn;
+*/
 }
 
 
@@ -1055,17 +1058,20 @@ void TrashProblem::optimize() {
 
 void TrashProblem::dumpDmatrix() const {
     std::cout << "--------- dMatrix ------------" << std::endl;
-    for (int i=0; i<dMatrix.size(); i++) {
+    twc.dumpTravelTime();
+/*    for (int i=0; i<dMatrix.size(); i++) {
         for (int j=0; j<dMatrix[i].size(); j++) {
             std::cout << i << "\t" << j << "\t" << dMatrix[i][j] << std::endl;
         }
     }
+*/
 }
 
 
 // print each vehicle in the fleet.
 // This includes its stats and its path.
 
+//BELONGS TO SOLUTION
 void TrashProblem::dumpFleet() const {
     std::cout << "--------- Fleet ------------" << std::endl;
     for (int i=0; i<fleet.size(); i++)
@@ -1075,6 +1081,7 @@ void TrashProblem::dumpFleet() const {
 
 // print all the datanodes that were loaded into the problem
 
+//BELONGS TO PROB_TRASH
 void TrashProblem::dumpdataNodes() const {
     std::cout << "--------- Nodes ------------" << std::endl;
     for (int i=0; i<datanodes.size(); i++)
@@ -1082,28 +1089,27 @@ void TrashProblem::dumpdataNodes() const {
 }
 
 
-// print all the depot nodes
 
 void TrashProblem::dumpDepots() const {
     std::cout << "--------- Depots ------------" << std::endl;
+    depots.dump("Depots");
     for (int i=0; i<depots.size(); i++)
         depots[i].dump();
 }
 
 
-// print all the dumpsite nodes
 
 void TrashProblem::dumpDumps() const {
     std::cout << "--------- Dumps ------------" << std::endl;
+    dumps.dump("Dumps");
     for (int i=0; i<dumps.size(); i++)
         dumps[i].dump();
 }
 
 
-// print all the pickup nodes
-
 void TrashProblem::dumpPickups() const {
     std::cout << "--------- Pickups ------------" << std::endl;
+    pickups.dump("pickups");
     for (int i=0; i<pickups.size(); i++)
         pickups[i].dump();
 }
