@@ -71,7 +71,7 @@ int main(int argc, char **argv) {
 
     std::string option = argv[1];
     std::string infile = argv[2];
-    //char *infile=argv[2];
+    
 
     try {
 
@@ -106,8 +106,8 @@ int main(int argc, char **argv) {
 //-------------------------------------------------------------
 void test_swap(std::string infile) {
 
-    TrashProblem tp( infile );
-//    tp.loadproblem( infile );
+    TrashProblem tp;
+    tp.loadproblem( infile );
     //tp.dumpdataNodes();
 
     do {
@@ -173,10 +173,10 @@ void test_swap(std::string infile) {
 //----------------------------------------------------------------
 // do 2opt tests
 //----------------------------------------------------------------
-void test_2opt( std::string infile) {
+void test_2opt(std::string infile) {
 
-    TrashProblem tp( infile );
-//    tp.loadproblem( infile );
+    TrashProblem tp;
+    tp.loadproblem( infile );
     //tp.dumpdataNodes();
 
     do {
@@ -209,8 +209,8 @@ void test_2opt( std::string infile) {
 // run trash collection problem
 //---------------------------------------------------------------
 void test_p10a(std::string infile) {
-    TrashProblem tp(infile);
-//    tp.loadproblem( infile );
+    TrashProblem tp;
+    tp.loadproblem( infile );
     tp.dumpdataNodes();
 
 
@@ -239,7 +239,7 @@ void test_trash(std::string infile) {
 
         TrashProblem tp(infile);
 
-        //tp.loadproblem( infile );
+        tp.loadproblem( infile );
 
         tp.dumpdataNodes();
         //tp.dumpDmatrix();
@@ -300,9 +300,9 @@ bool relocateBest(Vehicle& v2, const int& i1);
 
 void test_movesbetween(std::string infile) {
 
-    TrashProblem tp(infile);
+    TrashProblem tp;
 
-//    tp.loadproblem( infile );
+    tp.loadproblem( infile );
     tp.assignmentSweep();
 
     //tp.dumpdataNodes();
@@ -410,9 +410,9 @@ void test_movesbetween(std::string infile) {
 }
 
 void test_findNearestNodeTo(std::string infile) {
-    TrashProblem tp(infile);
+    TrashProblem tp;
 
-//    tp.loadproblem( infile );
+    tp.loadproblem( infile );
 
     tp.dumpdataNodes();
     //tp.dump();
@@ -434,9 +434,9 @@ void test_findNearestNodeTo(std::string infile) {
 //----------------------------------------------------------------------
 
 void test_dumbcons(std::string infile) {
-    TrashProblem tp(infile);
+    TrashProblem tp;
 
-//    tp.loadproblem( infile );
+    tp.loadproblem( infile );
 
     tp.dumpdataNodes();
     //tp.dump();
@@ -453,8 +453,8 @@ void test_dumbcons(std::string infile) {
 void test_optmoves(std::string infile) {
     double oldcost, newcost;
 
-    TrashProblem tp(infile);
-//    tp.loadproblem( infile );
+    TrashProblem tp;
+    tp.loadproblem( infile );
 
     //tp.dumpdataNodes();
     //tp.dumpDmatrix();
@@ -501,9 +501,9 @@ void test_optmoves(std::string infile) {
 
 void test_moveswithin(std::string infile) {
 
-    TrashProblem tp(infile);
+    TrashProblem tp;
 
-//    tp.loadproblem( infile );
+    tp.loadproblem( infile );
 
     //tp.dumpdataNodes();
     //tp.dumpDmatrix();
@@ -581,9 +581,9 @@ void test_moveswithin(std::string infile) {
 
 void test_moveswithinnew(std::string infile) {
 
-    TrashProblem tp(infile);
+    TrashProblem tp;
 
-//    tp.loadproblem( infile );
+    tp.loadproblem( infile );
 
     //tp.dumpdataNodes();
     //tp.dumpDmatrix();
