@@ -21,7 +21,7 @@ typedef TwBucket<knode> Bucket;
 typedef unsigned long int UID;
 
 
-    Bucket original;
+    TwBucket<knode> original;
     std::vector<std::vector<double> > twcij;
     std::vector<std::vector<double> > travel_Time;
 
@@ -33,7 +33,36 @@ typedef unsigned long int UID;
 
 public:
 
-Bucket getUnreachable(const Bucket &nodes, UID to) const {
+// major tools
+bool  findNearestNodeTo(const TwBucket<knode> &truck, const  TwBucket<knode> &unassigned,  UID &pos, Node &bestNode, double &bestDist) const {
+    assert( unassigned.size() );
+    int flag=false;
+    bestDist = _MAX();   // dist to minimize
+    pos = 0;        // position in path to insert
+    double d;
+
+
+    for (int i=0; i<unassigned.size(); i++) {
+        for (int j=0; j<truck.size()-1; j++) {
+           if ( isCompatibleIAJ(truck[j],unassigned[i],truck[j+1])) {
+              d = truck.segmentDistanceToPoint( j , unassigned[i] );
+              if ( d < bestDist ) {
+                bestDist = d;
+                pos = j;
+                bestNode = unassigned[i];
+                flag=true;
+              }
+           }
+        }
+    }
+
+    return flag;
+}
+
+
+
+
+TwBucket<knode> getUnreachable(const TwBucket<knode> &nodes, UID to) const {
     assert( to<original.size() );
     Bucket unreachable;
     for (int i=0; i<nodes.size(); i++)
@@ -42,7 +71,7 @@ Bucket getUnreachable(const Bucket &nodes, UID to) const {
     return unreachable;
 }
 
-Bucket getUnreachable(UID from, const Bucket &nodes) const {
+TwBucket<knode> getUnreachable(UID from, const TwBucket<knode> &nodes) const {
     assert( from<original.size() );
     Bucket unreachable;
     for (int i=0; i<nodes.size(); i++)
@@ -51,7 +80,7 @@ Bucket getUnreachable(UID from, const Bucket &nodes) const {
     return unreachable;
 }
 
-Bucket getReachable(const Bucket &nodes, UID to) const {
+TwBucket<knode> getReachable(const TwBucket<knode> &nodes, UID to) const {
     assert( to<original.size() );
     Bucket reachable;
     for (int i=0; i<nodes.size(); i++)
@@ -60,7 +89,7 @@ Bucket getReachable(const Bucket &nodes, UID to) const {
     return reachable;
 }
 
-Bucket getReachable(UID from, const Bucket &nodes) const {
+TwBucket<knode> getReachable(UID from, const TwBucket<knode> &nodes) const {
     assert( from<original.size() );
     Bucket reachable;
     for (int i=0; i<nodes.size(); i++)
@@ -70,7 +99,7 @@ Bucket getReachable(UID from, const Bucket &nodes) const {
 }
 
 
-Bucket getIncompatible(const Bucket &nodes, UID to) const {
+TwBucket<knode> getIncompatible(const TwBucket<knode> &nodes, UID to) const {
     assert( to<original.size() );
     Bucket incompatible;
     for (int i=0; i<nodes.size(); i++) 
@@ -79,7 +108,7 @@ Bucket getIncompatible(const Bucket &nodes, UID to) const {
     return incompatible;
 }
     
-Bucket getIncompatible(UID from, const Bucket &nodes) const {
+TwBucket<knode> getIncompatible(UID from, const TwBucket<knode> &nodes) const {
     assert( from<original.size() );
     Bucket incompatible;
     for (int i=0; i<nodes.size(); i++) 
@@ -88,7 +117,7 @@ Bucket getIncompatible(UID from, const Bucket &nodes) const {
     return incompatible;
 }
 
-Bucket getCompatible(const Bucket &nodes, UID to) const {
+TwBucket<knode> getCompatible(const TwBucket<knode> &nodes, UID to) const {
     assert( to<original.size() );
     Bucket compatible;
     for (int i=0; i<nodes.size(); i++) 
@@ -97,7 +126,7 @@ Bucket getCompatible(const Bucket &nodes, UID to) const {
     return compatible;
 }
     
-Bucket getCompatible(UID from, const Bucket &nodes) const {
+TwBucket<knode> getCompatible(UID from, const TwBucket<knode> &nodes) const {
     assert( from<original.size() );
     Bucket compatible;
     for (int i=0; i<nodes.size(); i++) 
@@ -149,6 +178,9 @@ bool isCompatibleIAJ(UID fromNid, UID middleNid, UID toNid) const {
 }
 
 
+bool isCompatibleIAJ(const knode &from, const knode &middle, const knode &to) const {
+    return isCompatibleIAJ( from.getnid(), middle.getnid() ,to.getnid() );
+}
 
 
 

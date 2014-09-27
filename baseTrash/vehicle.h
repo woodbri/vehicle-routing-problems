@@ -7,12 +7,14 @@
 
 #include "twpath.h"
 #include "trashnode.h"
+#include "twc.h"
 #include "plot.h"
 
 
 class Vehicle {
   private:
 typedef  TwBucket<Trashnode> Bucket;
+typedef  unsigned long int UID ;
     int vid;
     int ntype;
     Twpath<Trashnode> path;
@@ -75,6 +77,7 @@ typedef  TwBucket<Trashnode> Bucket;
    }
 
    bool isvalid() const {return true;};  //TBD
+    bool findNearestNodeTo(Bucket &unassigned,const TWC<Trashnode> &twc,  UID &pos,  Trashnode &bestNode);
 
     //--------------------------------------------------------------------
     // accessors
