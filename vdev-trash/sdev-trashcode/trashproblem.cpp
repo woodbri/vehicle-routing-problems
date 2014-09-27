@@ -23,11 +23,11 @@ double TrashProblem::distance(int n1, int n2) const {
 }
 
 
+/*  DMATRIX IS NO LONGER USED ***************************************
 // routine to cycle through all the nodes and compute there
 // respective Eculidean distances and put them into a matrix
-
 void TrashProblem::buildDistanceMatrix() {
-/*    dMatrix.clear();
+    dMatrix.clear();
     dMatrix.resize(datanodes.size());
     for (int i=0; i<datanodes.size(); i++) {
         dMatrix[i].clear();
@@ -36,67 +36,17 @@ void TrashProblem::buildDistanceMatrix() {
             dMatrix[i][j] = datanodes[i].distance(datanodes[j]);
         }
     }
-*/
+
 }
+*********************************************************************/
 
 
-// this loads the probelm definition from a text file
-// this could easily be replaced to load the problem
-// from say a database query or some other format.
 
-void TrashProblem::loadproblem(std::string& file) {
-/*    std::ifstream in( file.c_str() );
-    std::string line;
-
-    // clearout any old data
-    datanodes.clear();
-    depots.clear();
-    dumps.clear();
-    pickups.clear();
-
-    // read the nodes
-    int cnt = 0;
-    int nid = 0;
-    while ( std::getline(in, line) ) {
-        cnt++;
-        // skip comment lines
-        if (line[0] == '#') continue;
-
-        Trashnode node( line );
-        node.setnid(nid);   // renumber nodes sequentially for internal use
-        if (!node.isvalid())
-            std::cout << "ERROR: line: " << cnt << ": " << line << std::endl;
-
-        datanodes.push_back(node);
-
-        if (node.ispickup())
-            pickups.push_back(node.getnid());
-        else if (node.isdepot())
-            depots.push_back(node.getnid());
-        else if (node.isdump())
-            dumps.push_back(node.getnid());
-
-        nid++;
-    }
-
-    in.close();
-
-    twc.setNodes(datanodes);
-twc.dump();
-
-    buildDistanceMatrix();
-
-    for (int i=0; i<datanodes.size(); i++)
-        setNodeDistances(datanodes[i]);
-*/
-}
-
-
+/* WRONG ASSUPTION OF PROBLEM DEFINITON ********************************
 // for the input node, we find and set the nid and distance for
 // the two closest depots and the nearest dump site.
-
 void TrashProblem::setNodeDistances(Trashnode& n) {
-/*    double dist = std::numeric_limits<double>::max();
+    double dist = std::numeric_limits<double>::max();
     int nid = -1;
     double dist2 = std::numeric_limits<double>::max();
     int nid2 = -1;
@@ -153,8 +103,8 @@ void TrashProblem::setNodeDistances(Trashnode& n) {
         }
         n.setdepotdist(nid, dist, nid2, dist2);
     }
-*/
 }
+*********************************************************************/
 
 
 // utility frunction to convert a selector bit array to
@@ -1053,19 +1003,21 @@ void TrashProblem::optimize() {
 /************** dump routines ***********************************/
 
 
+/*   DMATRIX IS NO LONGER USED *************************************
 // print out the distance matrix as tab separated lines like:
 // irow jcol cost
 
 void TrashProblem::dumpDmatrix() const {
     std::cout << "--------- dMatrix ------------" << std::endl;
     twc.dumpTravelTime();
-/*    for (int i=0; i<dMatrix.size(); i++) {
+    for (int i=0; i<dMatrix.size(); i++) {
         for (int j=0; j<dMatrix[i].size(); j++) {
             std::cout << i << "\t" << j << "\t" << dMatrix[i][j] << std::endl;
         }
     }
-*/
+
 }
+********************************************************************/
 
 
 // print each vehicle in the fleet.
@@ -1079,9 +1031,10 @@ void TrashProblem::dumpFleet() const {
 }
 
 
+/* MOVED TO PROB_TRASH ***********************************************
+
 // print all the datanodes that were loaded into the problem
 
-//BELONGS TO PROB_TRASH
 void TrashProblem::dumpdataNodes() const {
     std::cout << "--------- Nodes ------------" << std::endl;
     for (int i=0; i<datanodes.size(); i++)
@@ -1113,7 +1066,9 @@ void TrashProblem::dumpPickups() const {
     for (int i=0; i<pickups.size(); i++)
         pickups[i].dump();
 }
+***********************************************************************
 
+*/
 
 // get the total duration of the solution, this includes wait time
 // if early arrivel at a node
