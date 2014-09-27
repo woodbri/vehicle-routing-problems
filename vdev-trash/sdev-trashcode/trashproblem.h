@@ -68,17 +68,8 @@ class TrashProblem : public Solution {
     int getVehicleCount() const {return fleet.size(); };
     Vehicle getVehicle(int i) const { return fleet[i]; };
 
-/*   DMATRIX IS NO LONGER USED
-void dumpDmatrix() const;
-*/
    
     void dumpFleet() const;
-/*  MOVED TO PROB_TRASH
-    void dumpdataNodes() const;
-    void dumpDepots() const;
-    void dumpDumps() const;
-    void dumpPickups() const;
-*/
     void dump() const;
     void dumpSummary() const;
 
@@ -87,18 +78,9 @@ void dumpDmatrix() const;
 
     // mutators
     void clearFleet() { fleet.clear(); };
-/* PROBLEM IS LOADED IN PROB_TRASH CONSTRUCTOR
-    void loadproblem(std::string& file);
-*/
 
-/* WRONG ASSUPTION OF PROBLEM DEFINITON
-    void setNodeDistances(Trashnode& n);
-*/
     void setRatio(double r) { ratio = r; };
 
-/*   DMATRIX IS NO LONGER USED
-    void buildDistanceMatrix();
-*/
 
     // methods to build initial solution
     bool buildFleetFromSolution(std::vector<int> solution);
