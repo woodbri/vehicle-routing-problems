@@ -60,6 +60,11 @@ typedef  TwBucket<Trashnode> Bucket;
     void nodesdumpeval();
     void plot(Plot<Trashnode> &graph);
     void dump();
+    void dumpdataNodes() const;
+    void dumpDepots() const;
+    void dumpDumps() const;
+    void dumpPickups() const;
+
 
 
     inline double _MAX() { (std::numeric_limits<double>::max()); };

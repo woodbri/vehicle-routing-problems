@@ -24,7 +24,7 @@ enum Selector {
     RATIO       =128    // only select nodes with RATIO<ratio
 };
 
-class TrashProblem : Solution {
+class TrashProblem : public Solution {
   private:
 //    std::vector<Vehicle> fleet;  //in solution
 //    Twpath<Trashnode> datanodes;
@@ -68,12 +68,17 @@ class TrashProblem : Solution {
     int getVehicleCount() const {return fleet.size(); };
     Vehicle getVehicle(int i) const { return fleet[i]; };
 
-    void dumpDmatrix() const;
+/*   DMATRIX IS NO LONGER USED
+void dumpDmatrix() const;
+*/
+   
     void dumpFleet() const;
+/*  MOVED TO PROB_TRASH
     void dumpdataNodes() const;
     void dumpDepots() const;
     void dumpDumps() const;
     void dumpPickups() const;
+*/
     void dump() const;
     void dumpSummary() const;
 
@@ -82,11 +87,18 @@ class TrashProblem : Solution {
 
     // mutators
     void clearFleet() { fleet.clear(); };
+/* PROBLEM IS LOADED IN PROB_TRASH CONSTRUCTOR
     void loadproblem(std::string& file);
+*/
+
+/* WRONG ASSUPTION OF PROBLEM DEFINITON
     void setNodeDistances(Trashnode& n);
+*/
     void setRatio(double r) { ratio = r; };
 
+/*   DMATRIX IS NO LONGER USED
     void buildDistanceMatrix();
+*/
 
     // methods to build initial solution
     bool buildFleetFromSolution(std::vector<int> solution);

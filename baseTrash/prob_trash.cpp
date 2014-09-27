@@ -23,6 +23,8 @@ bool Prob_trash::checkIntegrity() const {
 }
 
 
+// DUMPS ********************************************
+
 void Prob_trash::nodesdump() {
     std::cout << "---- Nodes  --------------\n";
     for (int i=0; i<datanodes.size(); i++)
@@ -44,6 +46,42 @@ void Prob_trash::dump() {
     nodesdumpeval();
 
 }
+
+
+void Prob_trash::dumpdataNodes() const {
+    std::cout << "--------- Nodes ------------" << std::endl;
+    for (int i=0; i<datanodes.size(); i++)
+        datanodes[i].dump();
+}
+
+
+
+void Prob_trash::dumpDepots() const {
+    std::cout << "--------- Depots ------------" << std::endl;
+    depots.dump("Depots");
+    for (int i=0; i<depots.size(); i++)
+        depots[i].dump();
+}
+
+
+
+void Prob_trash::dumpDumps() const {
+    std::cout << "--------- Dumps ------------" << std::endl;
+    dumps.dump("Dumps");
+    for (int i=0; i<dumps.size(); i++)
+        dumps[i].dump();
+}
+
+
+void Prob_trash::dumpPickups() const {
+    std::cout << "--------- Pickups ------------" << std::endl;
+    pickups.dump("pickups");
+    for (int i=0; i<pickups.size(); i++)
+        pickups[i].dump();
+}
+
+
+// PLOTS  ********************************************
 
 void Prob_trash::plot(Plot<Trashnode> &graph) {
     for (int i=0; i<datanodes.size(); i++){
