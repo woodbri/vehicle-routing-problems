@@ -225,7 +225,12 @@ class compNode{
     };
     void erase (int atPos) { 
         assert(atPos<path.size());
-         path.erase(path.begin()+atPos); 
+        path.erase(path.begin()+atPos); 
+    };
+    void erase (knode &node) { 
+        int atPos=pos(node.getnid());
+        assert(atPos<path.size());
+        path.erase(path.begin()+atPos); 
     };
 
     void erase (int fromPos, int toPos) { 

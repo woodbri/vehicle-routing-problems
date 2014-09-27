@@ -28,11 +28,11 @@ class TrashProblem : Prob_trash {
     std::vector<Vehicle> fleet;  //in solution
 //    Twpath<Trashnode> datanodes;
 //    TWC<Trashnode> twc;
-    std::deque<int> depots;
-    std::deque<int> dumps;
-    std::deque<int> pickups;
+//    std::deque<int> depots;
+//    std::deque<int> dumps;
+//    std::deque<int> pickups;
 
-    std::vector<int> unassigned;
+//    std::vector<int> unassigned;
 
     std::vector< std::vector<double> > dMatrix;
 
