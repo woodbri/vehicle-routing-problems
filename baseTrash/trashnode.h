@@ -32,7 +32,7 @@ class Trashnode : public Tweval {
 
 
 
-/*  OLD IDEAS DOWN BELLOW ARE COMMENTED OUT
+//  OLD IDEAS DOWN BELLOW ARE COMMENTED OUT
 protected:
     double depotdist;       // distance to nearest depot
     long int depotnid;      // nid of the closet depot
@@ -52,7 +52,8 @@ public:
 //mutators
     void setdepotdist(int _nid, double _dist, int _nid2, double _dist2);
     void setdumpdist(int _nid, double _dist);
-*/
+//END OF OLD IDEAS
+
 };
 
 #endif
