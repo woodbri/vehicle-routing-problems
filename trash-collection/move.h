@@ -42,8 +42,10 @@ class Move {
     int getpos1() const { return pos1; };
     int getpos2() const { return pos2; };
 
-    bool operator==(Move &rhs) const;
-    bool tabuEquiv(Move &tabu) const;
+    bool less(const Move& m) const;
+    bool operator==(const Move &rhs) const;
+    bool operator<(const Move &rhs) const { return this->less(rhs); };
+    bool tabuEquiv(const Move &tabu) const;
     void dump() const;
 
     void setnid1(int nid) { nid1 = nid; };
