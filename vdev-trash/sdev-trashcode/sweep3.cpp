@@ -191,6 +191,9 @@ bool Sweep3::findVehicleBestFit(int nid, int& vid, int& pos) {
 
 void Sweep3::stepOne(Vehicle &truck, Bucket &unassigned, Bucket &assigned) {
     if (not unassigned.size()) return;
+truck.dump("turck");
+unassigned.dump("unassigned");
+assigned.dump("assigned");
     Trashnode bestNode;
     UID bestPos;
     if (truck.findNearestNodeTo( unassigned, twc,  bestPos,  bestNode) ) {
@@ -244,7 +247,11 @@ void Sweep3::assignmentSweep3() {
 
 
         stepOne(truck,unassigned,assigned);        
-        assert(false);
+truck.dump("turck");
+unassigned.dump("unassigned");
+assigned.dump("assigned");
+truck.plot("sweep1","sweep1",truck.getVid());
+        assert(" end"=="");
         //std::cout << "EMPTY TRUCK: "; truck.dump();
 
         int pos;

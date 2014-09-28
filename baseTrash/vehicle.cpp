@@ -14,8 +14,8 @@ bool  Vehicle::findNearestNodeTo(Bucket &unassigned, const TWC<Trashnode> &twc,U
     double bestDist;
     double d;
     
-
-    flag = twc.findNearestNodeTo(path, unassigned,  pos , bestNode, bestDist);
+    //if (size()>1) 
+       flag = twc.findNearestNodeTo(path, unassigned,  pos , bestNode, bestDist);
     
     for (int i=0; i<unassigned.size(); i++) {
        if ( twc.isCompatibleIAJ( path[size()-1]  , unassigned[i], dumpsite ) ) { 
@@ -77,6 +77,11 @@ void Vehicle::dump() const {
 void Vehicle::dumppath() const {
     path.dump();
 }
+
+    void Vehicle::dump(const std::string &title) const {
+       path.dump(title);
+    }
+
 
    void Vehicle::dumpeval() const {
      for (int i=0;i<path.size();i++){
