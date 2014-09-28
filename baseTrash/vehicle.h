@@ -8,10 +8,11 @@
 #include "twpath.h"
 #include "trashnode.h"
 #include "twc.h"
+#include "twpath.h"
 #include "plot.h"
 
 
-class Vehicle {
+class Vehicle  {
   private:
 typedef  TwBucket<Trashnode> Bucket;
 typedef  unsigned long int UID ;
@@ -34,6 +35,7 @@ typedef  unsigned long int UID ;
     // changes and to restore the original path if the changes
     // do not improve the path.
     // There is a hidden assumption that path[0] == backToDepot node.
+
     void setvpath(Twpath<Trashnode> p) { path = p; };
 
   public:
@@ -96,6 +98,7 @@ typedef  unsigned long int UID ;
     double getw1() const { return w1; };
     double getw2() const { return w2; };
     double getw3() const { return w3; };
+    int getVid() const { return vid; };
     Trashnode getdepot() const { return backToDepot; };
     Trashnode& getdepot() { return backToDepot; };
     const Trashnode& getBackToDepot() const {return backToDepot;}
@@ -111,6 +114,7 @@ typedef  unsigned long int UID ;
     // dumps and plots
     //--------------------------------------------------------------------
     void dump() const;
+    void dump(const std::string &title) const;
     void dumpeval() const;
     void smalldump() const;
     void dumppath() const;

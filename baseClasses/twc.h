@@ -48,7 +48,7 @@ bool  findNearestNodeTo(const TwBucket<knode> &truck, const  TwBucket<knode> &un
               d = truck.segmentDistanceToPoint( j , unassigned[i] );
               if ( d < bestDist ) {
                 bestDist = d;
-                pos = j;
+                pos = j+1;
                 bestNode = unassigned[i];
                 flag=true;
               }

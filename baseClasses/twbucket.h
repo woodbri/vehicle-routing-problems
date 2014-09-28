@@ -234,10 +234,10 @@ bool  findNearestNodeTo(const  TwBucket<knode> &unassigned, const TWC &twc, int 
     };
 
     UID pos(UID nid) const {
-        const_reverse_iterator rit = path.rbegin(); 
-        for (const_iterator it = path.begin(); it!=path.end() ;it++,++rit) {
+//        const_reverse_iterator rit = path.rbegin(); 
+        for (const_iterator it = path.begin(); it!=path.end() ;it++/*,++rit*/) {
               if(it->getnid()==nid) return int(it-path.begin());
-              if(rit->getnid()==nid) return path.size()-int(path.rbegin()-rit)-1;
+//              if(rit->getnid()==nid) return path.size()-int(path.rbegin()-rit)-1;
         }
         return -1;
     };
@@ -260,7 +260,7 @@ bool  findNearestNodeTo(const  TwBucket<knode> &unassigned, const TWC &twc, int 
         assert(atPos<path.size());
         path.erase(path.begin()+atPos); 
     };
-    void erase (knode &node) { 
+    void erase (const knode &node) { 
         int atPos=pos(node.getnid());
         assert(atPos<path.size());
         path.erase(path.begin()+atPos); 
