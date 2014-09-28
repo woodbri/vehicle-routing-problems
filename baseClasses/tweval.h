@@ -27,6 +27,7 @@ public:
 
 /* constructors &destructors */
     Tweval();
+    Tweval(std::string line):Twnode(line){};
     ~Tweval(){};
 
 private:

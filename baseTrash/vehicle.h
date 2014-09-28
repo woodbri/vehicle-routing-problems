@@ -222,7 +222,7 @@ typedef  unsigned long int UID ;
     bool ontime(int i, const double D) const { return not earlyarrival(i, D) and not latearrival(i, D); };
     bool isdump(int i) const { return path[i].isdump(); };
     bool ispickup(int i) const { return path[i].ispickup(); };
-    bool isdepot(int i) const { return path[i].hasnogoods(); };
+    bool isdepot(int i) const { return path[i].isdepot(); };
 
 
 };
