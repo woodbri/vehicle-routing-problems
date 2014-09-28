@@ -7,6 +7,7 @@
 
 class Twnode: public Node {
   protected:
+    int    type;
     double demand;
     double tw_open;
     double tw_close;
@@ -19,6 +20,7 @@ class Twnode: public Node {
     double getdemand() const{ return demand;};
     double getservicetime() const{  return service;};
     double windowlength() const { return  tw_close - tw_open; };
+    int ntype() {return type;};
     void dump() const;
 
     // state
@@ -41,40 +43,45 @@ class Twnode: public Node {
 
     Twnode() {
         Node();
+        type=-1;
         demand = 0;
         tw_open = 0;
         tw_close = 0;
         service = 0;
     };
-
+/*
     Twnode(const Twnode &tw):Node(tw){
         demand = tw.demand;
         tw_open = tw.tw_open;
         tw_close = tw.tw_close;
         service = tw.service;
+        type = tw.type;
     };
-
+*/
+/*
     Twnode(const Node &n):Node(n) {
+        type=-1;
         demand = 0;
         tw_open = 0;
         tw_close = 0;
         service = 0;
     };
-
     Twnode(int nid, double x, double y):Node(nid,x,y) {
+        type=-1;
         demand = 0;
         tw_open = 0;
         tw_close = 0;
         service = 0;
     };
 
-    Twnode(int nid, int id, double x, double y, int _demand, int _tw_open, int _tw_close, int _service) : Node(nid,id,x,y) {
+    Twnode(int nid, int _type, int id, double x, double y, int _demand, int _tw_open, int _tw_close, int _service) : Node(nid,id,x,y) {
+        type=_type;
         demand = _demand;
         tw_open = _tw_open;
         tw_close = _tw_close;
         service = _service;
     };
-
+*/
     Twnode(std::string line);
 
     ~Twnode() {};

@@ -5,31 +5,27 @@
 
 class Trashnode : public Tweval {
   protected:
-    int ntype;              // node type (0=depot, 1=dump, 2=pickup)
 
   public:
     // accessors
-    void dump() const;
+//    void dump() const;
     void dumpeval() const;
 
     // state
-    bool isdepot() const {return ntype==0;};
-    bool isdump() const {return ntype==1;};
-    bool ispickup() const {return ntype==2;};
+    bool isdepot() const {return type==0;};
+    bool isdump() const {return type==1;};
+    bool ispickup() const {return type==2;};
     bool isvalid() const;
 
     // mutators
-    void setvalues(int _nid, double _x, double _y, int _demand,
-                   int _tw_open, int _tw_close, int _service, int _ntype);
-    void setntype(int _ntype) { ntype = _ntype; };
+//    void setvalues(int _nid, double _x, double _y, int _demand,
+//                   int _tw_open, int _tw_close, int _service, int _ntype);
+//    void setntype(int _ntype) { ntype = _ntype; };
 
 //Constructors
     Trashnode(std::string line);
     ~Trashnode() {};
-    Trashnode() : Tweval() {
-        ntype = -1;
-    };
-
+    Trashnode() : Tweval() { }; 
 
 
 //  OLD IDEAS DOWN BELLOW ARE COMMENTED OUT

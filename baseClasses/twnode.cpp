@@ -16,7 +16,8 @@ void Twnode::dump() const {
     std::cout.precision(8);
     std::cout << nid
               << " = " << id
-              << ",\t\t " << x
+              << ",\t\t " << type
+              << ",\t " << x
               << ",\t " << y
               << ",\t " << demand
               << ",\t " << tw_open
@@ -41,6 +42,7 @@ void Twnode::set(int _nid, int _id, double _x, double _y, int _demand,
 Twnode::Twnode(std::string line) {
     std::istringstream buffer( line );
     buffer >> nid;
+    buffer >> type;
     buffer >> x;
     buffer >> y;
     buffer >> demand;

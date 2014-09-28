@@ -881,8 +881,9 @@ bool Vehicle::relocateBest(Vehicle& v2, const int& i1) {
 void Vehicle::plot(std::string file,std::string title,int carnumber){
 //std::cout<<"USING VEHICLE PLOT\n";
     Twpath<Trashnode> trace=path;
+    trace.push_back(dumpsite);
     trace.push_back(backToDepot);
-
+trace.dump("Path");
     /** cpp11  the following next 3 lines become std::string carnum=std::to_string(carnumber */
     std::stringstream convert;
     convert << carnumber;
@@ -893,13 +894,15 @@ void Vehicle::plot(std::string file,std::string title,int carnumber){
     graph.setFile( file+extra+".png" );
     graph.setTitle( title+extra );
     graph.drawInit();
-    for (int i=0; i<size(); i++){
-        if (ispickup(i))  {
-             graph.drawPoint(path[i], 0x0000ff, 9, true);
-        } else if (isdump(i)) {
-             graph.drawPoint(path[i], 0x00ff00, 5, true);
+    for (int i=0; i<trace.size(); i++){
+//std::cout<<path[i].getnid()<<"->"path[i].ntype()<<"\t";
+std::cout<<trace[i].getnid()<<"->"<<trace[i].ntype()<<"\n";
+        if (trace[i].ispickup())  {
+             graph.drawPoint(trace[i], 0x0000ff, 9, true);
+        } else if (trace[i].isdepot()) {
+             graph.drawPoint(trace[i], 0x00ff00, 5, true);
         } else  {
-             graph.drawPoint(path[i], 0xff0000, 7, true);
+             graph.drawPoint(trace[i], 0xff0000, 7, true);
         }
     }
     plot(graph,carnumber);
@@ -909,6 +912,7 @@ void Vehicle::plot(std::string file,std::string title,int carnumber){
 void Vehicle::plot(Plot<Trashnode> graph, int carnumber){
 //std::cout<<"USING VEHICLE PLOT  1\n";
     Twpath<Trashnode> trace=path;
+    trace.push_back(dumpsite);
     trace.push_back(backToDepot);
     graph.drawPath(trace,graph.makeColor(carnumber*10), 1, true);
 }
