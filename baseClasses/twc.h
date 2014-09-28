@@ -34,7 +34,7 @@ typedef unsigned long int UID;
 public:
 
 // major tools
-bool  findNearestNodeTo(const TwBucket<knode> &truck, const  TwBucket<knode> &unassigned,  UID &pos, Node &bestNode, double &bestDist) const {
+bool  findNearestNodeTo(const TwBucket<knode> &truck, const  TwBucket<knode> &unassigned,  UID &pos, knode &bestNode, double &bestDist) const {
     assert( unassigned.size() );
     int flag=false;
     bestDist = _MAX();   // dist to minimize

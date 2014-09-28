@@ -35,15 +35,16 @@ void Trashnode::dumpeval() const {
     Tweval::dumpeval();
 };
 
-
+/*
 void Trashnode::dump() const {
     Twnode::dump();
-    std::cout << ", \t" << ntype<<"\n";
+    std::cout << ", \t" << _ntype<<"\n";
 }
 
-void Trashnode::setvalues(int _nid, double _x, double _y, int _demand,
+void Trashnode::setvalues(int _nid, int _ntype, double _x, double _y, int _demand,
                           int _tw_open, int _tw_close, int _service,
                           int _ntype) {
+    Twnode::setvalues(_nid);
     nid = _nid;
     x = _x;
     y = _y;
@@ -53,11 +54,11 @@ void Trashnode::setvalues(int _nid, double _x, double _y, int _demand,
     service = _service;
     ntype = _ntype;
 }
-
-Trashnode::Trashnode(std::string line) : Tweval() {
-    std::istringstream buffer( line );
+*/
+Trashnode::Trashnode(std::string line) : Tweval(line) {
+/*    std::istringstream buffer( line );
     buffer >> nid;
-    buffer >> ntype;
+    buffer >> _ntype;
     buffer >> x;
     buffer >> y;
     buffer >> demand;
@@ -65,6 +66,7 @@ Trashnode::Trashnode(std::string line) : Tweval() {
     buffer >> tw_close;
     buffer >> service;
     id=nid;
+*/
 }
 
 
