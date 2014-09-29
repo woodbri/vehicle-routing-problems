@@ -9,11 +9,9 @@ class Solution {
   public:
     double getCost() const {  /* TODO */ return 0.0; };
     int getNodeCount() const {  /* TODO */ return 50; };
-    std::vector<const Move> getInsNeighborhood() {
-        /* TODO */
-        std::vector<const Move> moves;
-        return moves;
-    };
+    void getInsNeighborhood(std::vector<Move>& moves) { /* TODO */ };
+    void getIntraSwNeighborhood(std::vector<Move>& moves) { /* TODO */ };
+    void getInterSwNeighborhood(std::vector<Move>& moves) { /* TODO */ };
     void applyMove(const Move&) { /* TODO */ };
 };
 

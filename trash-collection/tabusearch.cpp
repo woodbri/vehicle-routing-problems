@@ -1,5 +1,6 @@
 
 #include <iostream>
+#include <vector>
 #include <algorithm>
 #include "tabusearch.h"
 
@@ -72,9 +73,9 @@ void TabuSearch::search() {
 
     bool madeChanges;
     do {
-        madeChanges = doInsMoves()
-                 | doIntraSwMoves()
-                 | doInterSwMoves();
+        madeChanges = doNeighborhoodMoves(Ins)
+                    | doNeighborhoodMoves(IntraSw)
+                    | doNeighborhoodMoves(InterSw);
     }
     while (madeChanges and ++currentIteration < maxIteration);
 
@@ -94,7 +95,7 @@ void TabuSearch::search() {
     return madeChanges
 */
 
-bool TabuSearch::doInsMoves() {
+bool TabuSearch::doNeighborhoodMoves(Neighborhoods whichNeighborhood) {
     bool madeMove;
     bool loopMadeMove;
     madeMove = false;
@@ -103,14 +104,26 @@ bool TabuSearch::doInsMoves() {
         loopMadeMove = false;
 
         // generate the a move neighborhood based on the currentSolution
+        std::vector<Move> neighborhood;
+        switch (whichNeighborhood) {
+            case Ins:
+                currentSolution.getInsNeighborhood(neighborhood);
+                break;
+            case IntraSw:
+                currentSolution.getIntraSwNeighborhood(neighborhood);
+                break;
+            case InterSw:
+                currentSolution.getInterSwNeighborhood(neighborhood);
+                break;
+        }
+
         // and sort it
-        std::vector<const Move> neighborhood = currentSolution.getInsNeighborhood();
         std::sort(neighborhood.begin(), neighborhood.end(), Move::bySavings);
 
         // take the best move that we may apply and apply it, if any
-        for(std::vector<Move>::interator it=neighborhood.begin();
+        for (std::vector<Move>::iterator it=neighborhood.begin();
                 it!=neighborhood.end(); ++it) {
-            if (currentSolution.getCost() - it->savings < bestSolutionCost) {
+            if (currentSolution.getCost() - it->getsavings() < bestSolutionCost) {
                 currentSolution.applyMove(*it);
                 bestSolution = currentSolution;
                 bestSolutionCost = bestSolution.getCost();
@@ -129,16 +142,5 @@ bool TabuSearch::doInsMoves() {
 
     return madeMove;
 }
-
-
-bool TabuSearch::doIntraSwMoves() {
-
-}
-
-
-bool TabuSearch::doInterSwMoves() {
-
-}
-
 
 

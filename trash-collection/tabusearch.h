@@ -8,6 +8,8 @@
 
 class TabuSearch {
 
+  typedef enum { Ins, IntraSw, InterSw } Neighborhoods;
+
   private:
     std::map<const Move, int> TabuList;
 
@@ -53,9 +55,7 @@ class TabuSearch {
     void settabuLength(int n) { assert(n>0); tabuLength = n; };
 
     void search();
-    bool doInsMoves();
-    bool doIntraSwMoves();
-    bool doInterSwMoves();
+    bool doNeighborhoodMoves(Neighborhoods whichNeighborhood);
 
 };
 
