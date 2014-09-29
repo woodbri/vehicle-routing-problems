@@ -108,6 +108,15 @@ bool  findNearestNodeTo(const  TwBucket<knode> &unassigned, const TWC &twc, int 
     };
 
 
+    void dumpid() const {dumpid("Twbucket");};
+    void dumpid(const std::string &title) const {
+        std::cout << title; 
+        const_iterator it = path.begin();
+        for (const_iterator it = path.begin(); it != path.end();it++)
+            std::cout << " " << it->getid();
+        std::cout << std::endl;
+    };
+
     void dump() const {dump("Twbucket");};
     void dump(const std::string &title) const {
         std::cout << title; 
