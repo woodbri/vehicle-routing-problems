@@ -21,6 +21,11 @@ void TabuSearch::dumpStats() const {
     std::cout << "   movesAdded: " << movesAdded << std::endl
               << "   movesChecked: " << movesChecked << std::endl
               << "   movesCheckedTabu: " << movesCheckedTabu << std::endl
+              << "   bestUpdatedLastAt: " << bestUpdatedLastAt << std::endl
+              << "   bestUpdatedCnt: " << bestUpdatedCnt << std::endl
+              << "   cntInsApplied: " << cntInsApplied << std::endl
+              << "   cntIntraSwApplied: " << cntIntraSwApplied << std::endl
+              << "   cntInterSwApplied: " << cntInterSwApplied << std::endl
               ;
 }
 
@@ -60,9 +65,9 @@ void TabuSearch::makeTabu(const Move m) {
     state and a set of algorithms, it makes circularly a run at each algorithm,
     always starting from the best solution found by the previous one. The
     overall process stops either when a full round of the algorithms does not
-    find an improvement or the time granted is elapsed.
+    find an improvement or the time (aka: interation count) granted has elapsed.
     
-    Each single technique stops when it does not improve the current best
+    Each single algorithm stops when it does not improve the current best
     solution for a given number of iterations (ie: stagnation).
 
 */
@@ -73,9 +78,9 @@ void TabuSearch::search() {
 
     bool madeChanges;
     do {
-        madeChanges = doNeighborhoodMoves(Ins)
-                    | doNeighborhoodMoves(IntraSw)
-                    | doNeighborhoodMoves(InterSw);
+        madeChanges = doNeighborhoodMoves(Ins, 500)
+                    | doNeighborhoodMoves(IntraSw, 300)
+                    | doNeighborhoodMoves(InterSw, 300);
     }
     while (madeChanges and ++currentIteration < maxIteration);
 
@@ -95,9 +100,10 @@ void TabuSearch::search() {
     return madeChanges
 */
 
-bool TabuSearch::doNeighborhoodMoves(Neighborhoods whichNeighborhood) {
+bool TabuSearch::doNeighborhoodMoves(Neighborhoods whichNeighborhood, int maxStagnation) {
     bool madeMove;
     bool loopMadeMove;
+    int stagnationCnt = 0;
     madeMove = false;
 
     do {
@@ -129,16 +135,32 @@ bool TabuSearch::doNeighborhoodMoves(Neighborhoods whichNeighborhood) {
                 bestSolutionCost = bestSolution.getCost();
                 makeTabu(*it);
                 loopMadeMove = true;
+                stagnationCnt = 0;
+                bestUpdatedLastAt = currentIteration;
+                ++bestUpdatedCnt;
+                // update stats
+                switch (whichNeighborhood) {
+                    case Ins:     ++cntInsApplied;    break;
+                    case IntraSw: ++cntIntraSwApplied; break;
+                    case InterSw: ++cntInterSwApplied; break;
+                }
             }
             else if (! isTabu(*it)) {
                 currentSolution.applyMove(*it);
                 makeTabu(*it);
                 loopMadeMove = true;
+                // update stats
+                switch (whichNeighborhood) {
+                    case Ins:     ++cntInsApplied;    break;
+                    case IntraSw: ++cntIntraSwApplied; break;
+                    case InterSw: ++cntInterSwApplied; break;
+                }
             }
         }
         madeMove = madeMove or loopMadeMove;
+        ++stagnationCnt;
     }
-    while (madeMove);
+    while (madeMove and stagnationCnt < maxStagnation);
 
     return madeMove;
 }

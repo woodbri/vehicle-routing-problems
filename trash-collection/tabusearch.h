@@ -28,6 +28,11 @@ class TabuSearch {
     int movesAdded;
     int movesChecked;
     int movesCheckedTabu;
+    int bestUpdatedLastAt;
+    int bestUpdatedCnt;
+    int cntInsApplied;
+    int cntIntraSwApplied;
+    int cntInterSwApplied;
 
   public:
     TabuSearch(Solution initialSolution) {
@@ -35,8 +40,11 @@ class TabuSearch {
         bestSolutionCost = bestSolution.getCost();
         currentSolution = initialSolution;
         currentIteration = 0;
-        maxIteration = initialSolution.getNodeCount() * 10;
+        maxIteration = 1000;
         tabuLength = std::min(initialSolution.getNodeCount() / 5, 5);
+        bestUpdatedLastAt = 0;
+        bestUpdatedCnt = 0;
+        cntInsApplied = cntIntraSwApplied = cntInterSwApplied = 0;
     };
 
     int getCurrentIteration() const { return currentIteration; };
@@ -55,7 +63,7 @@ class TabuSearch {
     void settabuLength(int n) { assert(n>0); tabuLength = n; };
 
     void search();
-    bool doNeighborhoodMoves(Neighborhoods whichNeighborhood);
+    bool doNeighborhoodMoves(Neighborhoods whichNeighborhood, int maxStagnation);
 
 };
 
