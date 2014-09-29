@@ -151,13 +151,11 @@ void Prob_trash::load_trucks(std::string infile) { //1 dump problem
 std::cout<<"Loading vehicles FILE"<<infile<<"\n";
 
     trucks.clear();
-    //int offset=dumps.size()+depots.size()-1;
     int cnt=0;
     while ( getline(in, line) ) {
         cnt++;
         // skip comment lines
         if (line[0] == '#') continue;
-        //Vehicle truck(line,depots,dumps,offset);  //create truck from line on file
         Vehicle truck(line,depots,dumps);  //create truck from line on file
         if (truck.isvalid()) trucks.push_back(truck);
         else invalidTrucks.push_back(truck);

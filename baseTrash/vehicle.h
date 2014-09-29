@@ -65,27 +65,15 @@ typedef  unsigned long int UID ;
     Vehicle(std::string line,const Bucket &depots, const Bucket &dumps/*, int offset*/ ) {
        assert(depots.size());
        assert(dumps.size());
-dumps.dump("Dumps");
-dumps[0].dump();
        std::istringstream buffer( line );
        int depotId,depotNid;
        buffer >> vid;
        buffer >> ntype;
        buffer >> depotId;
        buffer >> maxcapacity;
-dumps.dump("Dumps");
-dumps[0].dump();
        if (depots.hasid(depotId)){ ;
-dumps.dump("Dumps");
-dumps[0].dump();
           dumpsite=dumps[0]; //Election of dumsite has change depending on other problems
-dumps.dump("dumpsite");
-dumps[0].dump();
-dumpsite.dump();
           backToDepot=depots[depots.posFromId(depotId)];
-dumps.dump("Dumps");
-dumps[0].dump();
-//backToDepot.dump();
           push_back(backToDepot);
           evalLast();
        } else vid=-1;

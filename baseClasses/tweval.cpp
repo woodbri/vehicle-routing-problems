@@ -17,8 +17,6 @@
     }
         
     void Tweval::evaluate (const Tweval &pred, double cargoLimit){  
-pred.dump();
-std::cout<<"TRAVVVVVEL TIME"<<TravelTime.size()<<"\n";
         assert(Tweval::TravelTime.size());
 
         distPrev = TravelTime[pred.nid][nid]; // Travel Time from previous node to this node

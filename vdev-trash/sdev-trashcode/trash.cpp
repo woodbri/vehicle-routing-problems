@@ -14,11 +14,11 @@
 #include "twnode.h"
 #include "trashnode.h"
 #include "twpath.h"
-#include "sweep3.h"
+//#include "sweep3.h"
+#include "oneTruckAllNodesInit.h"
 
 
 
-void test_trash(std::string infile) ;
 void Usage() {
     std::cout << "Usage: trash file (no extension)\n";
 }
@@ -36,7 +36,7 @@ int main(int argc, char **argv) {
 
     try {
 
-        test_trash(infile);
+        OneTruckAllNodesInit tp(infile);
 
     }
     catch (const std::exception &e) {
@@ -48,52 +48,5 @@ int main(int argc, char **argv) {
 }
 
 
-//---------------------------------------------------------------
-// run trash collection problem
-//---------------------------------------------------------------
-void test_trash(std::string infile) {
-
-        Sweep3 tp(infile);
-
-        //tp.loadproblem( infile );
-
-        tp.dumpdataNodes();
-        tp.dump();
-
-        std::cout << "\n----------- assignmentSweep3 -----------------------\n";
-        tp.setRatio(0.9);
-        tp.assignmentSweep3();
-/*
-        tp.dump();
-
-        tp.plot("p3.png", "assignmentSweep3", font);
-
-        std::cout << "\n----------- doing 3-opt -----------------------\n";
-        tp.opt_3opt();
-        tp.dumpSummary();
-        tp.plot("p5.png", "assignmentSweep3 - after 3opt", font);
-
-        std::cout << "\n----------- doing 2-opt -----------------------\n";
-        tp.opt_2opt();
-        tp.dumpSummary();
-        tp.plot("p4.png", "assignmentSweep3 - after 2opt", font);
-
-        std::cout << "\n----------- doing or-opt -----------------------\n";
-        tp.opt_or_opt();
-        tp.dumpSummary();
-        tp.plot("p6.png", "assignmentSweep3 - after or-opt", font);
-
-        std::cout << "\n----------- doing 2-opt again -----------------\n";
-        tp.opt_2opt();
-        tp.dumpSummary();
-        tp.plot("p7.png", "assignmentSweep3 - after 2opt again", font);
-
-        std::cout << "\n----------- doing pathOptimize ---------------------\n";
-        tp.optimize();
-        tp.dump();
-        tp.plot("p7.png", "assignmentSweep2 - after optimize", font);
-*/
-
-}
 
 
