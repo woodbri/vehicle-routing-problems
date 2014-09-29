@@ -21,9 +21,9 @@ typedef TwBucket<knode> Bucket;
 typedef unsigned long int UID;
 
 
-    TwBucket<knode> original;
-    std::vector<std::vector<double> > twcij;
-    std::vector<std::vector<double> > travel_Time;
+    static TwBucket<knode> original;
+    static std::vector<std::vector<double> > twcij;
+    static std::vector<std::vector<double> > travel_Time;
 
     inline double _MIN() const { return -std::numeric_limits<double>::max();};
     inline double _MAX() const { return std::numeric_limits<double>::max();};
@@ -488,18 +488,19 @@ void loadAndProcess_distance(std::string infile, const Bucket &datanodes, const 
     assert(datanodes.size());
     original.clear();
     original=datanodes;
+    int size=original.size();
 
     std::ifstream in( infile.c_str() );
     std::string line;
     int fromId;
     int toId;
 
-    travel_Time.resize(original.size());
-    for (int i=0;i<original.size();i++)
-        travel_Time[i].resize(original.size());
+    travel_Time.resize(size);
+    for (int i=0;i<size;i++)
+        travel_Time[i].resize(size);
     //travel_Time default value is 250m/min
-    for (int i=0;i<original.size();i++)
-       for (int j=i;j<original.size();j++) 
+    for (int i=0;i<size;i++)
+       for (int j=i;j<size;j++) 
           if (i==j) travel_Time[i][j]=0;
           else travel_Time[i][j]=travel_Time[j][i]=original[i].distance(original[j])*(1/250);
 
@@ -527,18 +528,13 @@ void loadAndProcess_distance(std::string infile, const Bucket &datanodes, const 
     assert (check_integrity());
 }
  
-
+const std::vector<std::vector<double> > & TravelTime(){ return travel_Time;}
 
 
 
 
 // constructors
 TWC() {};
-TWC(Bucket _original)  : original(_original) {
-    twcij_calculate();
-    assert (original==_original);
-    assert (check_integrity());
-}
 
 /* private are indexed */
 private:
@@ -596,6 +592,16 @@ bool check_integrity() const {
 
 
 };
+
+template <class knode> 
+TwBucket<knode> TWC<knode>::original;
+
+template <class knode> 
+std::vector<std::vector<double> >  TWC<knode>::twcij;
+
+template <class knode> 
+std::vector<std::vector<double> >  TWC<knode>::travel_Time;
+
 
 
 #endif

@@ -2,6 +2,7 @@
 #define BUCKET_H
 
 #include <deque>
+#include <vector>
 #include <set>
 #include <iostream>
 #include <algorithm>
@@ -37,7 +38,10 @@ class TwBucket {
 */
 
   protected:
+    typedef typename std::vector<std::vector<double> > TravelTimes;
+    static  TravelTimes TravelTime;
     std::deque<knode> path;
+
 
 class compNode{
    public:
@@ -56,6 +60,13 @@ class compNode{
 
 
   public:
+
+
+   void setTravelTimes(const TravelTimes &_tt) {
+      TravelTime=_tt;
+std::cout<<"TRAVEL TIME "<<TravelTime[0][1];
+   }
+         
 /* major tools
 bool  findNearestNodeTo(const  TwBucket<knode> &unassigned, const TWC &twc, int &pos, knode &bestNode, double &bestDist) const {
     assert( unassigned.size() );
@@ -233,7 +244,7 @@ bool  findNearestNodeTo(const  TwBucket<knode> &unassigned, const TWC &twc, int 
 
 //  NID based tools
 
-    UID getNidFromId(UID id) const {
+    long int getNidFromId(UID id) const {
         const_reverse_iterator rit = path.rbegin(); 
         for (const_iterator it = path.begin(); it!=path.end() ;it++,++rit) {
               if(it->getid()==id) return it->getnid();
@@ -241,6 +252,17 @@ bool  findNearestNodeTo(const  TwBucket<knode> &unassigned, const TWC &twc, int 
         }
         return -1;
     };
+
+
+    UID posFromId(UID id) const {
+//        const_reverse_iterator rit = path.rbegin(); 
+        for (const_iterator it = path.begin(); it!=path.end() ;it++/*,++rit*/) {
+              if(it->getid()==id) return int(it-path.begin());
+//              if(rit->getnid()==nid) return path.size()-int(path.rbegin()-rit)-1;
+        }
+        return -1;
+    };
+
 
     UID pos(UID nid) const {
 //        const_reverse_iterator rit = path.rbegin(); 
@@ -316,6 +338,8 @@ bool  findNearestNodeTo(const  TwBucket<knode> &unassigned, const TWC &twc, int 
 
 };
 
+template <class knode>
+std::vector<std::vector<double> > TwBucket<knode>::TravelTime ;
 
 
 #endif
