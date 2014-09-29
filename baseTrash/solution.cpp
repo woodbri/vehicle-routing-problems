@@ -21,6 +21,64 @@ double Solution::getDistance() {
     return totalDistance;
 }
 
+// this is a list of the node ids representing a vehicle route and 
+// each vehicle is separated with a -1
+
+std::string Solution::solutionAsText() const {
+    std::stringstream ss;;
+    const std::vector<int> s = solutionAsVector();
+    for (int i=0; i<s.size(); i++) {
+        if (i) ss << ",";
+        ss << s[i];
+    }
+    return ss.str();
+}
+
+std::string Solution::solutionAsTextID() const {
+    std::stringstream ss;; 
+    const std::vector<int> s = solutionAsVectorID();
+    for (int i=0; i<s.size(); i++) {
+        if (i) ss << ",";
+        ss << s[i];
+    }
+    return ss.str();
+}   
+    
+
+// create a vector of node ids representing a solution
+// this can be used to save a compute solution while other changes
+// are being tried on that solution and can be used with
+// buildFleetFromSolution() to reconstruct the solution
+
+std::vector<int>  Solution::solutionAsVectorID() const {
+    std::vector<int> s;
+    for (int i=0; i<fleet.size(); i++) {
+        if (fleet[i].size() == 0) continue;
+        for (int j=0; j<fleet[i].size(); j++) {
+            s.push_back(fleet[i][j].getid());
+        }
+        s.push_back(fleet[i].getdumpsite().getid());
+        s.push_back(fleet[i].getdepot().getid());
+        s.push_back(-1);
+    }
+    return s;
+}
+
+        
+std::vector<int>  Solution::solutionAsVector() const {
+    std::vector<int> s;
+    for (int i=0; i<fleet.size(); i++) {
+        if (fleet[i].size() == 0) continue;
+        for (int j=0; j<fleet[i].size(); j++) {
+            s.push_back(fleet[i][j].getnid());
+        }
+        s.push_back(fleet[i].getdumpsite().getnid());
+        s.push_back(fleet[i].getdepot().getnid());
+        s.push_back(-1);
+    }
+    return s;
+}
+
 
 void Solution::plot(std::string file,std::string title){
 

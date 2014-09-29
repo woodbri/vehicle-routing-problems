@@ -14,8 +14,8 @@
 #include "twnode.h"
 #include "trashnode.h"
 #include "twpath.h"
-//#include "sweep3.h"
-#include "oneTruckAllNodesInit.h"
+#include "sweep3.h"
+//#include "oneTruckAllNodesInit.h"
 
 
 
@@ -36,7 +36,7 @@ int main(int argc, char **argv) {
 
     try {
 
-        OneTruckAllNodesInit tp(infile);
+        Sweep3 tp(infile);
 
     }
     catch (const std::exception &e) {

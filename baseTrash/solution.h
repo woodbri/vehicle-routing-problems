@@ -34,6 +34,11 @@ typedef  TwBucket<Trashnode> Bucket;
     void dumproutes();
     void tau() ;
     void plot(std::string file,std::string title);
+    std::string solutionAsText() const ;
+    std::string solutionAsTextID() const ;
+    std::vector<int>  solutionAsVector() const ;
+    std::vector<int>  solutionAsVectorID() const ;
+
 
     void computeCosts();
     double getCost();
