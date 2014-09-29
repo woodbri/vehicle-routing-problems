@@ -883,7 +883,10 @@ void Vehicle::plot(std::string file,std::string title,int carnumber){
     Twpath<Trashnode> trace=path;
     trace.push_back(dumpsite);
     trace.push_back(backToDepot);
-trace.dump("Path");
+trace.dumpid("Path");
+    trace.pop_front();
+    trace.pop_back();
+    trace.pop_back();
     /** cpp11  the following next 3 lines become std::string carnum=std::to_string(carnumber */
     std::stringstream convert;
     convert << carnumber;
@@ -895,8 +898,6 @@ trace.dump("Path");
     graph.setTitle( title+extra );
     graph.drawInit();
     for (int i=0; i<trace.size(); i++){
-//std::cout<<path[i].getnid()<<"->"path[i].ntype()<<"\t";
-std::cout<<trace[i].getnid()<<"->"<<trace[i].ntype()<<"\n";
         if (trace[i].ispickup())  {
              graph.drawPoint(trace[i], 0x0000ff, 9, true);
         } else if (trace[i].isdepot()) {

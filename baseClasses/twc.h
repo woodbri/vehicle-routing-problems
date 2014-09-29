@@ -497,11 +497,11 @@ void loadAndProcess_distance(std::string infile, const Bucket &datanodes, const 
     travel_Time.resize(original.size());
     for (int i=0;i<original.size();i++)
         travel_Time[i].resize(original.size());
-    //travel_Time default value is max
+    //travel_Time default value is 250m/min
     for (int i=0;i<original.size();i++)
-       for (int j=0;j<original.size();j++) 
+       for (int j=i;j<original.size();j++) 
           if (i==j) travel_Time[i][j]=0;
-          else travel_Time[i][j]=_MAX();
+          else travel_Time[i][j]=travel_Time[j][i]=original[i].distance(original[j])*(1/250);
 
     int from,to;
     double dist;
