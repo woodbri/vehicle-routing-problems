@@ -8,7 +8,7 @@
 bool Twnode::isvalid() const {
     return Node::isvalid() and tw_open < tw_close
                            and tw_open >= 0
-                           and service >= 0;
+                           and serviceTime >= 0;
 }
 
 
@@ -22,7 +22,7 @@ void Twnode::dump() const {
               << ",\t " << demand
               << ",\t " << tw_open
               << ",\t " << tw_close
-              << ",\t " << service;
+              << ",\t " << serviceTime;
 }
 
 
@@ -35,7 +35,7 @@ void Twnode::set(int _nid, int _id, double _x, double _y, int _demand,
     demand = _demand;
     tw_open = _tw_open;
     tw_close = _tw_close;
-    service = _service;
+    serviceTime = _service;
 }
 
 
@@ -48,7 +48,7 @@ Twnode::Twnode(std::string line) {
     buffer >> demand;
     buffer >> tw_open;
     buffer >> tw_close;
-    buffer >> service;
+    buffer >> serviceTime;
     id=nid;
 }
 

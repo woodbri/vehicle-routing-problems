@@ -20,8 +20,8 @@ public:
     int  gettwvTot() const { return twvTot; };
     int  getcvTot() const { return cvTot; };
     double getcargo() const { return cargo; };
-    double getdistPrev() const { return distPrev; };
-    double gettotDist() const { return totDist; };
+    double getdistPrev() const { return travelTime; };
+    double gettotDist() const { return totTime; };
     bool hastwv() const { return twv; };
     bool hascv() const { return cv; };
 
@@ -51,8 +51,8 @@ private:
     int cvTot;
     double cargo;
     double waitTime;
-    double distPrev;
-    double totDist;;
+    double travelTime;
+    double totTime;
 
     void copyvalues (const Tweval &other);
 
