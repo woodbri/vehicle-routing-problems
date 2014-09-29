@@ -121,9 +121,17 @@ std::cout << "---- Loading --------------"<< datafile<< "--------\n";
     load_dumps(datafile+".dumps.txt",nid);
     load_depots(datafile+".depots.txt",nid);
     load_pickups(datafile+".containers.txt",nid);
-    load_trucks(datafile+".vehicles.txt");
 //    twc.setNodes(datanodes);
+//    TwBucket<Trashnode> TWC<Trashnode>::original;
     twc.loadAndProcess_distance(datafile+".dmatrix-time.txt", datanodes,invalid);  
+    Bucket dummy;
+    dummy.setTravelTimes(twc.TravelTime());
+    Tweval dummyNode;
+    dummyNode.setTravelTimes(twc.TravelTime());
+    assert( Tweval::TravelTime.size() );
+
+    load_trucks(datafile+".vehicles.txt");
+    
 dumps.dump("dumps");
 depots.dump("depots");
 pickups.dump("pickups");
@@ -132,7 +140,7 @@ invalid.dump("invalid");
 for (int i=0;i<trucks.size();i++)
    trucks[i].tau();
 std::cout<<"\n";
-twc.dump();
+//twc.dump();
 }
 
 void Prob_trash::load_trucks(std::string infile) { //1 dump problem
@@ -143,13 +151,14 @@ void Prob_trash::load_trucks(std::string infile) { //1 dump problem
 std::cout<<"Loading vehicles FILE"<<infile<<"\n";
 
     trucks.clear();
-    int offset=dumps.size()+depots.size()-1;
+    //int offset=dumps.size()+depots.size()-1;
     int cnt=0;
     while ( getline(in, line) ) {
         cnt++;
         // skip comment lines
         if (line[0] == '#') continue;
-        Vehicle truck(line,depots,dumps,offset);  //create truck from line on file
+        //Vehicle truck(line,depots,dumps,offset);  //create truck from line on file
+        Vehicle truck(line,depots,dumps);  //create truck from line on file
         if (truck.isvalid()) trucks.push_back(truck);
         else invalidTrucks.push_back(truck);
     }

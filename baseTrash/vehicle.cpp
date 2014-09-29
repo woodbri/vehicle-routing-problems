@@ -125,6 +125,7 @@ std::deque<int> Vehicle::getpath() const {
 
 
 bool Vehicle::push_back(Trashnode node) {
+    assert (node.getnid()>=0);
     E_Ret ret = path.e_push_back(node, getmaxcapacity());
     if (ret == OK) evalLast();
     else if (ret == INVALID) return false;

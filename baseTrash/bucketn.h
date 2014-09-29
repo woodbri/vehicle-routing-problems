@@ -62,7 +62,6 @@ class BucketN {
     void dump() const ;
     void smalldump()const ;
     void tau() const ;
-//    bool sameorder(int i,int j){return path[i].getoid()==path[j].getoid();}
     void erase() {path.resize(0);};
 
     /*algorithm spesific */
@@ -79,18 +78,10 @@ class BucketN {
     //int  getnid(int at) {return path[at].getnid();};
     bool in(int nid) const;
     bool in(const Trashnode &node) const;
-//    bool in(const Order &o) const;
     int  pos(int nid) const;
     int  pos(const Trashnode &node) const;
-/*    int  getdpos(int oid) const;
-    int  getppos(int oid) const;
-    int  getdpos(const Order &o) const;
-    int  getppos(const Order &o) const;
-*/
-   /* based on position in the path*/ 
     inline int getnid(int pos) const { return path[pos].getnid(); }
     inline int getid(int pos) const { return path[pos].getid(); }
-//    inline int getoid(int pos) const { return path[pos].getoid(); }
     inline double getx(const int pos) const {path[pos].getx();}
     inline double gety(const int pos) const {path[pos].gety();}
     inline bool hasdemand(int pos) const { return path[pos].hasdemand(); };

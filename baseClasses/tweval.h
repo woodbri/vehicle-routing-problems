@@ -1,12 +1,19 @@
 #ifndef TWEVAL_H
 #define TWEVAL_H
 
+#include <cassert>
+#include <vector>
 #include "twnode.h"
 
 //to evaluate the vehicle at node level
 
 class Tweval: public Twnode {
+protected:
+
+
 public:
+    static std::vector<std::vector<double> > TravelTime;
+
     void dumpeval() const;
     void dump() const ;
 /*accessors*/
@@ -21,6 +28,13 @@ public:
 /* mutators */        
     void evaluate (double cargoLimit);
     void evaluate (const Tweval &pred, double cargoLimit);  
+    void setTravelTimes(const std::vector<std::vector<double> > &_tt) { 
+        assert ( _tt.size() );
+        TravelTime=_tt; 
+        assert ( TravelTime.size() );
+    }
+
+
 
 /* Operators, to be discussed */
 
@@ -43,5 +57,6 @@ private:
     void copyvalues (const Tweval &other);
 
 };    
+
 
 #endif
