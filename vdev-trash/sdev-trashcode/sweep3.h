@@ -32,8 +32,8 @@ class Sweep3 : public Solution {
 
 
     // get solution
-    std::string solutionAsText() const;
-    std::vector<int> solutionAsVector() const;
+//    std::string solutionAsText() const;
+//    std::vector<int> solutionAsVector() const;
 
     double getduration() const;
     double getcost() const;

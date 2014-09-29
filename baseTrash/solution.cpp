@@ -21,25 +21,30 @@ double Solution::getDistance() {
     return totalDistance;
 }
 
+
+
+
+
 // this is a list of the node ids representing a vehicle route and 
 // each vehicle is separated with a -1
 
 std::string Solution::solutionAsText() const {
     std::stringstream ss;;
-    const std::vector<int> s = solutionAsVector();
-    for (int i=0; i<s.size(); i++) {
+    const std::vector<int> sol = solutionAsVector();
+    for (int i=0; i<sol.size(); i++) {
         if (i) ss << ",";
-        ss << s[i];
+        ss << sol[i];
     }
+std::cout<<ss.str()<<"  Solution::solutionAsText() \n";
     return ss.str();
 }
 
 std::string Solution::solutionAsTextID() const {
     std::stringstream ss;; 
-    const std::vector<int> s = solutionAsVectorID();
-    for (int i=0; i<s.size(); i++) {
+    const std::vector<int> sol = solutionAsVectorID();
+    for (int i=0; i<sol.size(); i++) {
         if (i) ss << ",";
-        ss << s[i];
+        ss << sol[i];
     }
     return ss.str();
 }   
@@ -51,32 +56,39 @@ std::string Solution::solutionAsTextID() const {
 // buildFleetFromSolution() to reconstruct the solution
 
 std::vector<int>  Solution::solutionAsVectorID() const {
-    std::vector<int> s;
+    std::vector<int> sol;
+    sol.push_back(-2);
+
     for (int i=0; i<fleet.size(); i++) {
         if (fleet[i].size() == 0) continue;
+        sol.push_back(fleet[i].getVid());
+        sol.push_back(-2);
         for (int j=0; j<fleet[i].size(); j++) {
-            s.push_back(fleet[i][j].getid());
+            sol.push_back(fleet[i][j].getid());
         }
-        s.push_back(fleet[i].getdumpsite().getid());
-        s.push_back(fleet[i].getdepot().getid());
-        s.push_back(-1);
+        sol.push_back(fleet[i].getdumpsite().getid());
+        sol.push_back(fleet[i].getdepot().getid());
+        sol.push_back(-2);
     }
-    return s;
+    return sol;
 }
 
         
 std::vector<int>  Solution::solutionAsVector() const {
-    std::vector<int> s;
+    std::vector<int> sol;
+    sol.push_back(-1);
     for (int i=0; i<fleet.size(); i++) {
         if (fleet[i].size() == 0) continue;
+        sol.push_back(fleet[i].getVid());
+        sol.push_back(-1);
         for (int j=0; j<fleet[i].size(); j++) {
-            s.push_back(fleet[i][j].getnid());
+            sol.push_back(fleet[i][j].getnid());
         }
-        s.push_back(fleet[i].getdumpsite().getnid());
-        s.push_back(fleet[i].getdepot().getnid());
-        s.push_back(-1);
+        sol.push_back(fleet[i].getdumpsite().getnid());
+        sol.push_back(fleet[i].getdepot().getnid());
+        sol.push_back(-1);
     }
-    return s;
+    return sol;
 }
 
 
@@ -159,3 +171,53 @@ double Solution::getAverageRouteDurationLength() {
     if (n == 0) return 0;
     return len/n;
 }
+
+
+ Solution::Solution(const std::string &infile, const std::vector<int> &sol):Prob_trash(infile) {
+
+    int nid,vid;
+    Vehicle truck;
+    Bucket unassigned = pickups;
+    Bucket assigned;
+    bool idSol=true;
+    if (sol[0]==-1) idSol=false;
+
+    fleet.clear();
+    Bucket solPath;
+
+    int i=1;
+    while (i<sol.size()) {
+        if (sol[i]<0 and sol[i+1]>0) break; //expected: vid -1
+        vid = sol[i];
+                
+        //get the truck from the truks:
+        for (int tr=0;tr<trucks.size();tr++) 
+           if (trucks[tr].getVid()==vid){
+              truck=trucks[tr];
+              break;
+           }
+
+        i=i+2;
+        solPath.clear();
+        while (i<sol.size() and sol[i]>=0) {
+   
+           if (idSol) nid=pickups.getNidFromId(sol[i]);
+           else nid=sol[i];
+
+           solPath.push_back(datanodes[nid]);
+           i++;
+        }
+        if (truck.e_setPath(solPath)) {
+             fleet.push_back(truck);
+             assigned+=solPath;
+             unassigned-=solPath;
+        }
+        i++;
+   };
+   if (unassigned.size() or (assigned == pickups)) 
+       std::cout<<"Something went wrong creating the solution\n";
+};
+        
+
+
+

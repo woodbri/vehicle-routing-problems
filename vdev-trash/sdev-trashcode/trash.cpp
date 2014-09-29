@@ -35,9 +35,12 @@ int main(int argc, char **argv) {
     std::string infile = argv[1];
 
     try {
-
+       
         Sweep3 tp(infile);
-
+std::cout << "tp CONSTRUCTION ENDED\n";
+std::cout<<tp.solutionAsText()<<"\n";
+        Solution (infile,tp.solutionAsVector()); 
+std::cout<<tp.solutionAsTextID()<<"\n";
     }
     catch (const std::exception &e) {
         std::cerr << e.what() << std::endl;

@@ -40,6 +40,9 @@ typedef  unsigned long int UID ;
 
   public:
 
+    // Other tools
+    bool e_setPath(const Bucket &sol);
+
     //--------------------------------------------------------------------
     // structors
     //--------------------------------------------------------------------
@@ -208,6 +211,9 @@ typedef  unsigned long int UID ;
     bool exchange3(Vehicle& v2, Vehicle& v3, const int& cnt, const int& i1, const int& i2, const int& i3, bool force);
     bool relocate(Vehicle& v2, const int& i1, const int& i2, bool force);
     bool relocateBest(Vehicle& v2, const int& i1);
+
+
+
 
     //----------------------------------------------------------------
     // I really hate these shortcuts & I love them but I'll think about them really hard
