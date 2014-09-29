@@ -1,5 +1,6 @@
 
 #include <iostream>
+#include <algorithm>
 #include "tabusearch.h"
 
 void TabuSearch::dumpTabuList() const {
@@ -69,19 +70,64 @@ void TabuSearch::search() {
 
     currentIteration = 0;
 
-    bool improved;
+    bool madeChanges;
     do {
-        improved = doInsMoves()
+        madeChanges = doInsMoves()
                  | doIntraSwMoves()
                  | doInterSwMoves();
     }
-    while (improved and ++currentIteration < maxIteration);
+    while (madeChanges and ++currentIteration < maxIteration);
 
 }
 
 
-bool TabuSearch::doInsMoves() {
+/*
+    For each of the individual move neighborhoods:
+        doInsMoves, doIntraSwMoves, doInterSwMoves
 
+    do {
+        Generate the neighhood of feasible moves order by best to worst.
+        Working through the neighborhood (best to worst) if the move is
+        aspirational then apply the move otherwise if the move is not Tabu
+        apply the move even if it makes the solution worse.
+    } until there are not valid moves or stagnation 
+    return madeChanges
+*/
+
+bool TabuSearch::doInsMoves() {
+    bool madeMove;
+    bool loopMadeMove;
+    madeMove = false;
+
+    do {
+        loopMadeMove = false;
+
+        // generate the a move neighborhood based on the currentSolution
+        // and sort it
+        std::vector<const Move> neighborhood = currentSolution.getInsNeighborhood();
+        std::sort(neighborhood.begin(), neighborhood.end(), Move::bySavings);
+
+        // take the best move that we may apply and apply it, if any
+        for(std::vector<Move>::interator it=neighborhood.begin();
+                it!=neighborhood.end(); ++it) {
+            if (currentSolution.getCost() - it->savings < bestSolutionCost) {
+                currentSolution.applyMove(*it);
+                bestSolution = currentSolution;
+                bestSolutionCost = bestSolution.getCost();
+                makeTabu(*it);
+                loopMadeMove = true;
+            }
+            else if (! isTabu(*it)) {
+                currentSolution.applyMove(*it);
+                makeTabu(*it);
+                loopMadeMove = true;
+            }
+        }
+        madeMove = madeMove or loopMadeMove;
+    }
+    while (madeMove);
+
+    return madeMove;
 }
 
 
