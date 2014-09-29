@@ -4,6 +4,8 @@
 
 #include "tweval.h"
 
+    std::vector<std::vector<double> > Tweval::TravelTime;
+
     
     void Tweval::evaluate (double cargoLimit) {
         cargo = getdemand();
@@ -15,22 +17,19 @@
     }
         
     void Tweval::evaluate (const Tweval &pred, double cargoLimit){  
+pred.dump();
+std::cout<<"TRAVVVVVEL TIME"<<TravelTime.size()<<"\n";
+        assert(Tweval::TravelTime.size());
 
-        // vehicle last move length
-        distPrev = distance(pred);
-        // tot length travel drom 1st node
-        totDist = pred.totDist + distPrev;
-        // Time Window Violation
-        twv = latearrival(totDist);
+        distPrev = TravelTime[pred.nid][nid]; // Travel Time from previous node to this node
+        totDist = pred.totDist + distPrev; // tot length travel drom 1st node
+        twv = latearrival(totDist); // Time Window Violation
 
-        // truck arrives before node opens, so waits 
-        waitTime = earlyarrival(totDist) ? opens()-totDist : 0;
-        // we add the waiting time + service time
-        totDist += waitTime + service;
-        // loading truck demand>0 or unloading demand<0
-        cargo = pred.cargo + getdemand();
-        // capacity Violation
-        cv = cargo>cargoLimit or cargo <0;
+        waitTime = earlyarrival(totDist) ? opens()-totDist : 0; // truck arrives before node opens, so waits 
+        totDist += waitTime + service; // we add the waiting time + service time
+        cargo = pred.cargo + getdemand(); // loading truck demand>0 or unloading demand<0
+        cv = cargo>cargoLimit or cargo <0; // capacity Violation
+
         // keep a total of violations
         twvTot = (twv) ? pred.twvTot+1 : pred.twvTot;
         cvTot =  (cv) ?  pred.cvTot+1 : pred.cvTot;
