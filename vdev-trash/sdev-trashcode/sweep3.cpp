@@ -10,72 +10,6 @@
 #include "plot.h"
 #include "sweep3.h"
 
-// TODO: sweepAssignment and initial construction routine
-//       need to deal with TW violations and DONT YET
-
-// compute the distance between two nodes
-// this currently computes Euclidean distances
-// but this could be changes to call OSRM
-// and/or save and fetch the distance from a matrix
-
-
-
-/*
-bool  Sweep3::findNearestNodeTo(Vehicle &truck, Bucket &unassigned, int& pos, Trashnode &BestNode) {
-    assert (unassigned.size());
-    bool flag= false;
-    double bestDist;
-
-    flag = twc.findNearestNodeTo(vehicle, unassigned,  pos , bestNode, bestDist);
-    
-    
-    for (int i=0; i<unassigned.size(); i++) {
-        if ( twc.isCompatibleIAJ( truck[truck.sizei()-1]  , unassigned[i], truck.getdump() ) 
-        d = unassigned[i].distanceToSegment( truck[truck.size()-1], dump );
-        if ( d < bestDist) {
-            bestDdist = d;
-            pos = v.size();
-            flag= true;
-        }
-    }
-
-    return flag;
-}
-*/
-
-// create a CSV string that represents the solution
-// this is a list of the node ids representing a vehicle route and 
-// each vehicle is separated with a -1
-
-std::string Sweep3::solutionAsText() const {
-    std::stringstream ss;;
-    const std::vector<int> s = solutionAsVector();
-    for (int i=0; i<s.size(); i++) {
-        if (i) ss << ",";
-        ss << s[i];
-    }
-    return ss.str();
-}
-
-
-// create a vector of node ids representing a solution
-// this can be used to save a compute solution while other changes
-// are being tried on that solution and can be used with
-// buildFleetFromSolution() to reconstruct the solution
-
-std::vector<int>  Sweep3::solutionAsVector() const {
-    std::vector<int> s;
-    for (int i=0; i<fleet.size(); i++) {
-        if (fleet[i].size() == 0) continue;
-        for (int j=0; j<fleet[i].size(); j++) {
-            s.push_back(fleet[i][j].getnid());
-        }
-        s.push_back(fleet[i].getdumpsite().getnid());
-        s.push_back(fleet[i].getdepot().getnid());
-        s.push_back(-1);
-    }
-    return s;
-}
 
 
 // reconstruct the fleet from a solution vector obtained from
@@ -191,9 +125,9 @@ bool Sweep3::findVehicleBestFit(int nid, int& vid, int& pos) {
 
 void Sweep3::stepOne(Vehicle &truck, Bucket &unassigned, Bucket &assigned) {
     if (not unassigned.size()) return;
-truck.dump("turck");
-unassigned.dump("unassigned");
-assigned.dump("assigned");
+//truck.dump("turck");
+//unassigned.dump("unassigned");
+//assigned.dump("assigned");
     Trashnode bestNode;
     UID bestPos;
     if (truck.findNearestNodeTo( unassigned, twc,  bestPos,  bestNode) ) {
@@ -251,6 +185,8 @@ truck.dump("turck");
 unassigned.dump("unassigned");
 assigned.dump("assigned");
 truck.plot("sweep1","sweep1",truck.getVid());
+        fleet.push_back(truck);
+return;
         assert(" end"=="");
         //std::cout << "EMPTY TRUCK: "; truck.dump();
 
