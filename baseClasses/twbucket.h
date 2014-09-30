@@ -64,10 +64,9 @@ class compNode{
 
    void setTravelTimes(const TravelTimes &_tt) {
       TravelTime=_tt;
-std::cout<<"TRAVEL TIME "<<TravelTime[0][1];
    }
-         
-/* major tools
+/*         
+// major tools
 bool  findNearestNodeTo(const  TwBucket<knode> &unassigned, const TWC &twc, int &pos, knode &bestNode, double &bestDist) const {
     assert( unassigned.size() );
     TwBucket<knode> compatibleTo;
@@ -95,8 +94,8 @@ bool  findNearestNodeTo(const  TwBucket<knode> &unassigned, const TWC &twc, int 
 
     return flag;
 }
-
 */
+
 
 
 // other tools

@@ -19,8 +19,9 @@ typedef  unsigned long int UID ;
     int vid;
     int ntype;
     Twpath<Trashnode> path;
-    Trashnode backToDepot;
-    Trashnode dumpsite;
+    Trashnode depot; //just for keeps
+    Trashnode endingSite;
+    Trashnode dumpSite;
 
     int maxcapacity;
     double cost;        // cost of the route
@@ -34,7 +35,7 @@ typedef  unsigned long int UID ;
     // this is used when we save a copy of the path so we can make
     // changes and to restore the original path if the changes
     // do not improve the path.
-    // There is a hidden assumption that path[0] == backToDepot node.
+    // There is a hidden assumption that path[0] == endingSite node.
 
     void setvpath(Twpath<Trashnode> p) { path = p; };
 
@@ -57,29 +58,36 @@ typedef  unsigned long int UID ;
         maxcapacity  = _depot.getdemand();
         _depot.setdemand(0);
         _depot.setservice(0);
-        backToDepot  = _depot;
-        dumpsite = _dump;
+        endingSite  = _depot;
+        dumpSite = _dump;
         push_back( _depot );
         cost         = 0;
         w1 = w2 = w3 = 1.0;
     }
 
 
-    Vehicle(std::string line,const Bucket &depots, const Bucket &dumps/*, int offset*/ ) {
-       assert(depots.size());
-       assert(dumps.size());
+    Vehicle(std::string line,const Bucket &otherlocs)  {
+       // TESTED on running program
+       assert(otherlocs.size());
        std::istringstream buffer( line );
        int depotId,depotNid;
+       int dumpId,dumpNid;
+       int endingId,endingNid;
        buffer >> vid;
        buffer >> ntype;
        buffer >> depotId;
+       buffer >> dumpId;
+       buffer >> endingId;
        buffer >> maxcapacity;
-       if (depots.hasid(depotId)){ ;
-          dumpsite=dumps[0]; //Election of dumsite has change depending on other problems
-          backToDepot=depots[depots.posFromId(depotId)];
-          push_back(backToDepot);
+
+       if (otherlocs.hasid(depotId) and otherlocs.hasid(dumpId) and otherlocs.hasid(endingId)){ ;
+          endingSite=otherlocs[otherlocs.posFromId(endingId)];
+          dumpSite=otherlocs[otherlocs.posFromId(dumpId)];
+          depot=otherlocs[otherlocs.posFromId(depotId)];
+          push_back(depot);
           evalLast();
-       } else vid=-1;
+
+       } else vid=-1;  
        cost        = 0;
        w1 = w2 = w3 = 1.0;
    }
@@ -96,23 +104,25 @@ typedef  unsigned long int UID ;
     std::deque<int> getpath() const;
     int size() const { return path.size(); };
     int getmaxcapacity() const { return maxcapacity; };
-    int getTWV() const { return backToDepot.gettwvTot(); };
-    int getCV() const { return backToDepot.getcvTot(); };
-    int getcargo() const { return path.back().getcargo(); };
-    double getduration() const { return backToDepot.gettotDist(); };
+    int getTWV() const { return endingSite.gettwvTot(); };
+    int getCV() const { return endingSite.getcvTot(); };
+    int getcargo() const { return - dumpSite.getcargo(); };
+    double getduration() const { return endingSite.gettotDist(); };
     double getcost() const { return cost; };
     double getw1() const { return w1; };
     double getw2() const { return w2; };
     double getw3() const { return w3; };
     int getVid() const { return vid; };
-    Trashnode getdepot() const { return backToDepot; };
-    Trashnode& getdepot() { return backToDepot; };
-    const Trashnode& getBackToDepot() const {return backToDepot;}
-    Trashnode getdumpsite() const { return dumpsite; };
-    Trashnode& getdumpsite() { return dumpsite; };
+    Trashnode getdepot() const { return endingSite; };
+    Trashnode& getdepot() { return endingSite; };
+    Trashnode getdumpSite() const { return dumpSite; };
+    const Trashnode& getBackToDepot() const {return endingSite;}
+    const Trashnode& getEndingSite() const {return endingSite;}
+    const Trashnode& getStartingSite() const {return depot;}
+    const Trashnode& getdumpSite() { return dumpSite; };
 
     double distancetodepot(int i) const { return path[i].distance(getdepot()); };
-    double distancetodump(int i) const { return path[i].distance(getdumpsite()); };
+    double distancetodump(int i) const { return path[i].distance(getdumpSite()); };
 
     Trashnode operator[](int i) const { return path[i]; };
 
@@ -134,9 +144,9 @@ typedef  unsigned long int UID ;
     // evaluation
     //--------------------------------------------------------------------
 
-    bool feasable() const { return backToDepot.gettwvTot() == 0 and backToDepot.getcvTot() == 0; };
-    bool hascv()const { return backToDepot.getcvTot() != 0; };
-    bool hastwv()const { return backToDepot.gettwvTot() != 0; };
+    bool feasable() const { return endingSite.gettwvTot() == 0 and endingSite.getcvTot() == 0; };
+    bool hascv()const { return endingSite.getcvTot() != 0; };
+    bool hastwv()const { return endingSite.gettwvTot() != 0; };
 
     void evalLast();
 
@@ -146,8 +156,8 @@ typedef  unsigned long int UID ;
 
     // these two do not work with autoeval
     // instead use Vehicle(depot, dump) constructor
-    //void setdepot(Trashnode _depot) { backToDepot = _depot; };
-    //void setdumpsite(Trashnode _dump) { dumpsite = _dump; };
+    //void setdepot(Trashnode _depot) { endingSite = _depot; };
+    //void setdumpSite(Trashnode _dump) { dumpSite = _dump; };
 
     void setweights(double _w1, double _w2, double _w3) {
         w1 = _w1;

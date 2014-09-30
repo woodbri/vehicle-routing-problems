@@ -186,8 +186,8 @@ unassigned.dump("unassigned");
 assigned.dump("assigned");
 truck.plot("sweep1","sweep1",truck.getVid());
         fleet.push_back(truck);
-return;
         assert(" end"=="");
+return;
         //std::cout << "EMPTY TRUCK: "; truck.dump();
 
         int pos;

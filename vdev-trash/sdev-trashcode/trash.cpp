@@ -37,10 +37,14 @@ int main(int argc, char **argv) {
     try {
        
         Sweep3 tp(infile);
-std::cout << "tp CONSTRUCTION ENDED\n";
-std::cout<<tp.solutionAsText()<<"\n";
-        Solution (infile,tp.solutionAsVector()); 
-std::cout<<tp.solutionAsTextID()<<"\n";
+
+        Solution sol1(infile,tp.solutionAsVector())  ; 
+	assert(tp.solutionAsText()==sol1.solutionAsText());
+	assert(tp.solutionAsTextID()==sol1.solutionAsTextID());
+        Solution sol2(infile,tp.solutionAsVectorID())  ; 
+	assert(tp.solutionAsText()==sol2.solutionAsText());
+	assert(tp.solutionAsTextID()==sol2.solutionAsTextID());
+        std::cout<<tp.solutionAsTextID()<<"\n";
     }
     catch (const std::exception &e) {
         std::cerr << e.what() << std::endl;
