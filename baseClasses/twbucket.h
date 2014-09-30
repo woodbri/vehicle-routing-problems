@@ -164,6 +164,13 @@ bool  findNearestNodeTo(const  TwBucket<knode> &unassigned, const TWC &twc, int 
        return true;
    }
 
+    TwBucket<knode>& operator =(const TwBucket<knode> &other)  {
+       TwBucket<knode> b=other;
+       path.clear();
+       path.insert(path.begin(),b.path.begin(),b.path.end());
+       return *this;
+    }
+
        
 
     // set doesnt mind order of nodes

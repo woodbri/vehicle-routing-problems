@@ -40,6 +40,9 @@ typedef  unsigned long int UID ;
 
   public:
 
+    // Other tools
+    bool e_setPath(const Bucket &sol);
+
     //--------------------------------------------------------------------
     // structors
     //--------------------------------------------------------------------
@@ -65,27 +68,15 @@ typedef  unsigned long int UID ;
     Vehicle(std::string line,const Bucket &depots, const Bucket &dumps/*, int offset*/ ) {
        assert(depots.size());
        assert(dumps.size());
-dumps.dump("Dumps");
-dumps[0].dump();
        std::istringstream buffer( line );
        int depotId,depotNid;
        buffer >> vid;
        buffer >> ntype;
        buffer >> depotId;
        buffer >> maxcapacity;
-dumps.dump("Dumps");
-dumps[0].dump();
        if (depots.hasid(depotId)){ ;
-dumps.dump("Dumps");
-dumps[0].dump();
           dumpsite=dumps[0]; //Election of dumsite has change depending on other problems
-dumps.dump("dumpsite");
-dumps[0].dump();
-dumpsite.dump();
           backToDepot=depots[depots.posFromId(depotId)];
-dumps.dump("Dumps");
-dumps[0].dump();
-//backToDepot.dump();
           push_back(backToDepot);
           evalLast();
        } else vid=-1;
@@ -220,6 +211,9 @@ dumps[0].dump();
     bool exchange3(Vehicle& v2, Vehicle& v3, const int& cnt, const int& i1, const int& i2, const int& i3, bool force);
     bool relocate(Vehicle& v2, const int& i1, const int& i2, bool force);
     bool relocateBest(Vehicle& v2, const int& i1);
+
+
+
 
     //----------------------------------------------------------------
     // I really hate these shortcuts & I love them but I'll think about them really hard

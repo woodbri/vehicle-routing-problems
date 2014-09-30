@@ -8,7 +8,27 @@
 #include "vehicle.h"
 
 
+bool Vehicle::e_setPath(const Bucket &sol) {
+std::cout<<"Entering Vehicle::e_setPath (remove message after testing)\n";
+     assert (sol.size());
+     if (not ( (sol[0]==path[0]) and (sol[sol.size()-1] == backToDepot) and (sol[sol.size()-2] == dumpsite) ) ) 
+         return false;
+     path=sol;
+     path[0].evaluate( getmaxcapacity() );
+
+std::cout<<"Vehicle::e_setPath BEFORE EVALUATION\n";
+dumpeval();
+     path.evaluate(1 , getmaxcapacity());
+std::cout<<"Vehicle::e_setPath AFTER EVALUATION\n";
+dumpeval();
+
+     return true;
+}     
+
+
+
 bool  Vehicle::findNearestNodeTo(Bucket &unassigned, const TWC<Trashnode> &twc,UID &pos, Trashnode &bestNode) {
+std::cout<<"Entering Vehicle::findNearestNodeTo (remove message after testing)\n";
     assert (unassigned.size());
     bool flag= false;
     double bestDist;

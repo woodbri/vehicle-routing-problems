@@ -259,6 +259,11 @@ class Twpath : public TwBucket<knode> {
     }
          
 
+    Twpath<knode>& operator =(const TwBucket<knode> &other){
+         TwBucket<knode>::operator = (other);
+         return *this;
+    }
+
     Twpath<knode>& operator -=(const TwBucket<knode> &other){
        assert("Set operation not allowed on derived class of Twpath, Overload -= if this is required"=="");
     }
