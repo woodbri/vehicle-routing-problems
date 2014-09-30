@@ -36,7 +36,7 @@ bool TabuSearch::isTabu(const Move& m) {
     ++movesChecked;  // this makes it non-const
     for (it = TabuList.begin(); it!=TabuList.end(); ++it) {
         if (it->second < currentIteration) continue;
-        if (m.tabuEquiv(it->first)) {
+        if (m.isForbidden(it->first)) {
             ++movesCheckedTabu;  // this makes it non-const
             return true;
         }
@@ -60,6 +60,12 @@ void TabuSearch::makeTabu(const Move m) {
 
 
 /*
+    This Tabu search algorithm was adapted from the paper:
+
+    "Tabu Search Techniques for the Hetrogeneous Vehicle Routing
+    Problem with Time Windows and Carrier-Dependent Cots" by
+    Sara Ceschia, Luca Di Gaspero, and Andrea Schaerf
+
     We use a sequential solving strategy for combining our three neighborhood
     move functions. This as know as a "token-ring" search. Given an initial
     state and a set of algorithms, it makes circularly a run at each algorithm,
