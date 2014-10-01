@@ -8,9 +8,27 @@
 #include "vehicle.h"
 
 
+bool Vehicle::deltaCargoGeneratesCV(const Trashnode &node) {
+#ifdef TESTED
+std::cout<<"Entering Vehicle::deltaCargoGeneratesCV \n";
+std::cout<<getcargo()<<"+"<<node.getdemand()<<" ¿? " <<getmaxcapacity()<<" \n";
+#endif
+     return  ( getcargo() + node.getdemand() > getmaxcapacity()  ) ;
+};
+
+bool Vehicle::deltaTimeGeneratesTV(const Trashnode &node, int pos) {
+#ifdef TESTED
+std::cout<<"Entering Vehicle::deltaTimeGeneratesCV \n";
+//std::cout<<path.getDeltaTime()<<"+"<<node.getdemand()<<" ¿? " <<getmaxcapacity()<<" \n";
+#endif
+     if (pos==path.size()) return path.getDeltaTime(node,dumpSite) + getduration()  > endingSite.closes();
+     else return  ( path.getDeltaTime(node,pos) + getduration()  > endingSite.closes() ) ;
+}
+
+
 bool Vehicle::e_setPath(const Bucket &sol) {
-#ifdef TESTS
-std::cout<<"Entering Vehicle::e_setPath (remove message after testing)\n";
+#ifdef TESTED
+std::cout<<"Entering Vehicle::e_setPath \n";
 #endif
      assert (sol.size());
      if (not sol.size()) return false;
@@ -30,8 +48,8 @@ std::cout<<"Entering Vehicle::e_setPath (remove message after testing)\n";
 
 
 bool  Vehicle::findNearestNodeTo(Bucket &unassigned, const TWC<Trashnode> &twc,UID &pos, Trashnode &bestNode) {
-#ifdef TESTS
-std::cout<<"Entering Vehicle::findNearestNodeTo (remove message after testing)\n";
+#ifdef TESTED
+std::cout<<"Entering Vehicle::findNearestNodeTo \n";
 #endif
     assert (unassigned.size());
     if (not unassigned.size()) return false;
@@ -549,7 +567,7 @@ bool Vehicle::pathOptInvertSequence() {
 // it currently assume all ops succeed but if they dont
 // the paths will get realy messed up
 
-bool Vehicle::findBestFit(Trashnode& tn, int* tpos, double* deltacost) {
+bool Vehicle::findBestFit(const Trashnode& tn, int* tpos, double* deltacost) {
     int bestpos = -1;
     double bestdelta;
 

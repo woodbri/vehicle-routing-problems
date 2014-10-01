@@ -43,6 +43,10 @@ typedef  unsigned long int UID ;
 
     // Other tools
     bool e_setPath(const Bucket &sol);
+    bool deltaCargoGeneratesCV(const Trashnode &node);
+    bool deltaTimeGeneratesTV(const Trashnode &node,int pos);
+    bool isvalid() const {return vid>=0;};  //
+    bool findNearestNodeTo(Bucket &unassigned,const TWC<Trashnode> &twc,  UID &pos,  Trashnode &bestNode);
 
     //--------------------------------------------------------------------
     // structors
@@ -92,8 +96,6 @@ typedef  unsigned long int UID ;
        w1 = w2 = w3 = 1.0;
    }
 
-    bool isvalid() const {return vid>=0;};  //
-    bool findNearestNodeTo(Bucket &unassigned,const TWC<Trashnode> &twc,  UID &pos,  Trashnode &bestNode);
 
     //--------------------------------------------------------------------
     // accessors
@@ -106,7 +108,7 @@ typedef  unsigned long int UID ;
     int getmaxcapacity() const { return maxcapacity; };
     int getTWV() const { return endingSite.gettwvTot(); };
     int getCV() const { return endingSite.getcvTot(); };
-    int getcargo() const { return - dumpSite.getcargo(); };
+    int getcargo() const { return  path[path.size()-1].getcargo(); };
     double getduration() const { return endingSite.gettotDist(); };
     double getcost() const { return cost; };
     double getw1() const { return w1; };
@@ -208,7 +210,7 @@ typedef  unsigned long int UID ;
     bool pathOptExchangeNodes();
     bool pathOptInvertSequence();
 
-    bool findBestFit(Trashnode& tn, int* tpos, double* deltacost);
+    bool findBestFit(const Trashnode &node, int* tpos, double* deltacost);
 
     //--------------------------------------------------------------------
     // algorithm specific - inter-route manipulations

@@ -65,36 +65,24 @@ class compNode{
    void setTravelTimes(const TravelTimes &_tt) {
       TravelTime=_tt;
    }
-/*         
-// major tools
-bool  findNearestNodeTo(const  TwBucket<knode> &unassigned, const TWC &twc, int &pos, knode &bestNode, double &bestDist) const {
-    assert( unassigned.size() );
-    TwBucket<knode> compatibleTo;
-    TwBucket<knode> compatibleFrom;
 
-    int flag=false;
-    bestDist = _MAX();   // dist to minimize
-    pos = 0;        // position in path to insert
-    double d;
-    
-
-    for (int i=0; i<unassigned.size(); i++) {
-        for (int j=0; j<size()-1; j++) {
-           if ( twc.isCompatibleIAJ(path[j],unassigned[i],path[j+1])) {
-              d = segmentDistanceToPoint( j , unassigned[i] );
-              if ( d < bestDist ) {
-                bestDist = d;
-                pos = j;
-                bestNode = unassigned[i];
-                flag=true;
-              }
-           }
-        }
-    }
-
-    return flag;
+double  getDeltaTime(const knode &node, const knode &dump) {
+     int pos=path.size()-1;
+#ifndef TESTED
+std::cout<<"Entering twbucket::getdeltaTime (node,node)\n";
+//std::cout<<TravelTime[pos][node.getnid] <<"+"<< TravelTime[node.getnid][dump.getnid()] <<" - " <<  TravelTime[pos][dump.getnid()] <<" \n";
+#endif
+     return TravelTime[pos][node.getnid()] + TravelTime[node.getnid()][dump.getnid()]  -   TravelTime[pos][dump.getnid()];
 }
-*/
+
+double  getDeltaTime(const knode &node, UID pos) {
+      assert(pos<path.size() and pos > 0 );
+#ifndef TESTED
+std::cout<<"Entering twbucket::getdeltaTime (node,pos)\n";
+//std::cout<<TravelTime[pos-1][node.getnid] <<"+"<< TravelTime[node.getnid][pos] <<" - " <<  TravelTime[pos-1][pos] <<" \n";
+#endif
+     return TravelTime[pos-1][node.getnid()] + TravelTime[node.getnid()][pos]  -   TravelTime[pos-1][pos];
+}
 
 
 

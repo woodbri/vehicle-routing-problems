@@ -20,16 +20,30 @@ class Sweep3 : public Solution {
 
     double ratio; // ratio for select boarder nodes in assignmentSweep3
 
+    std::deque<Vehicle> unusedTrucks;
+    std::deque<Vehicle> usedTrucks;
+    Bucket unassigned;
+    Bucket problematic;
+    Bucket assigned;
+
+
 
   public:
 
     Sweep3(const std::string &infile): Solution(infile) { 
+       unusedTrucks=trucks;
+       unassigned=pickups;
+       fleet.clear();
+
        ratio = 0.85; 
        assignmentSweep3();
     };
 
 
-
+ private:
+    void stepOne(Vehicle &truck);
+    Vehicle getTruck();
+    void assignmentSweep3();
 
     // get solution
 //    std::string solutionAsText() const;
@@ -59,10 +73,8 @@ class Sweep3 : public Solution {
     
     // methods to build initial solution
     bool buildFleetFromSolution(std::vector<int> solution);
-    void stepOne(Vehicle &truck, Bucket &unassigned, Bucket &assigned);
-    void assignmentSweep3();
     int findNearestNodeTo(Vehicle &v, int selector, int demandLimit, int& pos);
-    bool findVehicleBestFit(int nid, int& vid, int& pos) ;
+    bool findVehicleBestFit(const Trashnode& node, int& vid, int& pos) ;
 
     // intra-route optimization routines
     void opt_2opt();
