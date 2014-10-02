@@ -12,6 +12,7 @@ class Twnode: public Node {
     double tw_open;
     double tw_close;
     double serviceTime;
+    int streetid;
 
   public:
     // accessors
@@ -20,7 +21,8 @@ class Twnode: public Node {
     double getdemand() const{ return demand;};
     double getservicetime() const{  return serviceTime;};
     double windowlength() const { return  tw_close - tw_open; };
-    int ntype() {return type;};
+    int ntype() const {return type;};
+    int streetId() const {return streetid;};
     void dump() const;
 
     // state
@@ -39,6 +41,7 @@ class Twnode: public Node {
     void settwopen(int _tw_open) { tw_open = _tw_open; };
     void settwclose(int _tw_close) { tw_close = _tw_close; };
     void setservice(int _service) { serviceTime = _service; };
+    void setStreetId(int _sid) { streetid = _sid; };
 
     // structors
 

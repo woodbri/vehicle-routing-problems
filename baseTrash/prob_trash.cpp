@@ -278,12 +278,11 @@ void Prob_trash::load_pickups(std::string infile) {
         cnt++;
         if (line[0] == '#') continue;
         Trashnode node(line);  
-
+        node.setType(2);
         if ( not node.isvalid() ) {
            std::cout << "ERROR: line: " << cnt << ": " << line << std::endl;
            invalid.push_back(node);
         } else {
-          node.setType(2);
           pickups.push_back(node);
         }
     }
