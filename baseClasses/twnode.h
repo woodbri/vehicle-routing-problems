@@ -21,8 +21,8 @@ class Twnode: public Node {
     double getdemand() const{ return demand;};
     double getservicetime() const{  return serviceTime;};
     double windowlength() const { return  tw_close - tw_open; };
-    int ntype() {return type;};
-    int streetID() {return streetid;};
+    int ntype() const {return type;};
+    int streetId() const {return streetid;};
     void dump() const;
 
     // state

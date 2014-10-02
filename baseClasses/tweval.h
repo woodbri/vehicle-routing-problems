@@ -22,6 +22,7 @@ public:
     double getcargo() const { return cargo; };
     double getdistPrev() const { return travelTime; };
     double gettotDist() const { return totTime; };
+    double getTotTime() const { return totTime; };
     bool hastwv() const { return twv; };
     bool hascv() const { return cv; };
 
