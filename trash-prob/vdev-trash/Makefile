@@ -11,7 +11,8 @@ BIN_DIR = ./bin
 
 INCLUDES = -I../../$(BASECLASSES) -I../../$(BASETRASH) -I../../$(INITTRASH) -I.
 CPPFLAGS = -g -O0 -MMD  -MP
-LDFLAGS = -lgd $(INCLUDES) -L$(BASECLASSES) -L$(BASETRASH) -L$(INITTRASH)
+JSON_LIBS = -L /lib/x86_64-linux-gnu/ -ljson
+LDFLAGS = -lgd $(INCLUDES) -L$(BASECLASSES) -L$(BASETRASH) -L$(INITTRASH) $(JSON_LIBS)
 
 SRCS =  
 OBJS = $(addprefix $(BUILD_DIR)/,$(SRCS:.cpp=.o))
@@ -19,6 +20,8 @@ HEADS = $(SRCS:.cpp=.h)
 
 
 
+# BASECLASSES_SRCS = ../../$(BASECLASSES)/node.cpp  ../../$(BASECLASSES)/twnode.cpp ../../$(BASECLASSES)/tweval.cpp 
+ 
 BASECLASSES_SRCS = $(wildcard ../../$(BASECLASSES)/*.cpp)
 BASECLASSES_HDS = $(UTIL_SRCS:.cpp=.h)
 BASECLASSES_OBJS = $(addprefix $(BUILD_DIR)/$(BASECLASSES)/,$(notdir $(BASECLASSES_SRCS:.cpp=.o)))
