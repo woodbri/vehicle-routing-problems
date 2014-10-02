@@ -134,6 +134,10 @@ std::cout<<"Entering twbucket::getdeltaTime (node,pos)\n";
         return false;
     };
 
+    bool has(const knode &node) const {
+        return has(node.getnid());
+    };
+
     bool has(UID nid) const {
         const_reverse_iterator rit = path.rbegin();
         for (const_iterator it = path.begin(); it!=path.end() ;it++,++rit) {
@@ -257,6 +261,10 @@ std::cout<<"Entering twbucket::getdeltaTime (node,pos)\n";
         return -1;
     };
 
+
+    UID pos(const knode &node) const {
+        return pos(node.getnid());
+    };
 
     UID pos(UID nid) const {
 //        const_reverse_iterator rit = path.rbegin(); 

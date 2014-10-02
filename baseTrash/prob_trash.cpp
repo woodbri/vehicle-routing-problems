@@ -148,12 +148,15 @@ invalid.dump("invalid");
     datanodes=nodes;
 
 
+
     twc.loadAndProcess_distance(datafile+".dmatrix-time.txt", datanodes,invalid);  
     Bucket dummy;
     dummy.setTravelTimes(twc.TravelTime());
     Tweval dummyNode;
     dummyNode.setTravelTimes(twc.TravelTime());
     assert( Tweval::TravelTime.size() );
+
+    buildStreets(pickups);
 
     load_trucks(datafile+".vehicles.txt");
     assert(trucks.size() and depots.size() and dumps.size() and endings.size());
@@ -178,11 +181,45 @@ std::cout<<"\n";
 //twc.dump();
 }
 
+void Prob_trash::buildStreets( Bucket &unassigned, Bucket &assigned) {
+
+#ifdef TESTED
+std::cout<<"Build Streets\n";
+#endif
+    Bucket assign;
+    Trashnode node;
+    if ( not unassigned.size()) return;
+    node= unassigned[0];
+    Street  street( node );
+    unassigned.pop_front();
+    assigned.push_back( node );
+    street.e_insert(unassigned,assign);
+street.dumpid();
+    assigned+=assign;
+    streets.push_back(street);
+    buildStreets(unassigned,assigned);
+}
+    
+
+
+void Prob_trash::buildStreets(const Bucket &nodes) {
+#ifdef TESTED
+std::cout<<"Build Streets\n";
+#endif
+    Bucket assigned;
+    Bucket unassigned=nodes;
+    Street street;
+    buildStreets (unassigned, assigned);
+}
+
+
 void Prob_trash::load_trucks(std::string infile) {
     assert (otherlocs.size());
     std::ifstream in( infile.c_str() );
     std::string line;
+#ifdef TESTED
 std::cout<<"Prob_trash:LoadTrucks"<<infile<<"\n";
+#endif
 
     trucks.clear();
     while ( getline(in, line) ) {
@@ -280,7 +317,9 @@ void Prob_trash::load_pickups(std::string infile) {
         Trashnode node(line);  
         node.setType(2);
         if ( not node.isvalid() ) {
+#ifdef TESTED
            std::cout << "ERROR: line: " << cnt << ": " << line << std::endl;
+#endif
            invalid.push_back(node);
         } else {
           pickups.push_back(node);

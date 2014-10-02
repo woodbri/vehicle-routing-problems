@@ -13,7 +13,7 @@ INCLUDES = -I../../$(BASECLASSES) -I../../$(BASETRASH) -I../../$(INITTRASH) -I.
 CPPFLAGS = -g -O0 -MMD  -MP
 LDFLAGS = -lgd $(INCLUDES) -L$(BASECLASSES) -L$(BASETRASH) -L$(INITTRASH)
 
-SRCS =  street.cpp
+SRCS =  
 OBJS = $(addprefix $(BUILD_DIR)/,$(SRCS:.cpp=.o))
 HEADS = $(SRCS:.cpp=.h)
 
