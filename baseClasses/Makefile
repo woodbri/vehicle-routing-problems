@@ -1,7 +1,12 @@
 
 CPP = g++
-CPPFLAGS = -g -O0 -MMD -MP -I/usr/local/include
-LDFLAGS = -lgd
+
+CURL_CFLAGS := $(shell pkg-config --cflags curlpp)
+CURL_LIBS := $(shell pkg-config --libs curlpp)
+JSON_LIBS = -L /lib/x86_64-linux-gnu/ -ljson
+
+CPPFLAGS = -g -O0 -MMD -MP -I/usr/local/include $(CURL_CFLAGS)
+LDFLAGS = -lgd $(CURL_LIBS) $(JSON_LIBS)
 
 SRCS = $(wildcard *.cpp)
 OBJS = $(SRCS:.cpp=.o)

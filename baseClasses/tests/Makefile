@@ -4,7 +4,7 @@ UTIL = ..
 
 CURL_CFLAGS := $(shell pkg-config --cflags curlpp)
 CURL_LIBS := $(shell pkg-config --libs curlpp)
-JSON_LIBS = -L /lib/i386-linux-gnu/ -ljson
+JSON_LIBS = -L /lib/x86_64-linux-gnu/ -ljson
 
 CPPFLAGS = -g -O0 -MMD -MP -I$(UTIL) $(CURL_CFLAGS) -DNDEBUG
 LDFLAGS = -lgd -I$(UTIL) -L$(UTIL) $(CURL_LIBS) $(JSON_LIBS) 

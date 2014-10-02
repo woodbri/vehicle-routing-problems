@@ -1,6 +1,9 @@
 
 CPP = g++
 
+CURL_CFLAGS := $(shell pkg-config --cflags curlpp)
+CURL_LIBS := $(shell pkg-config --libs curlpp)
+JSON_LIBS = -L /lib/x86_64-linux-gnu/ -ljson
 
 BASETRASH = baseTrash
 BASECLASSES = baseClasses
@@ -10,9 +13,8 @@ BUILD_DIR = ./build
 BIN_DIR = ./bin
 
 INCLUDES = -I../../$(BASECLASSES) -I../../$(BASETRASH) -I../../$(INITTRASH) -I.
-CPPFLAGS = -g -O0 -MMD  -MP
-JSON_LIBS = -L /lib/x86_64-linux-gnu/ -ljson
-LDFLAGS = -lgd $(INCLUDES) -L$(BASECLASSES) -L$(BASETRASH) -L$(INITTRASH) $(JSON_LIBS)
+CPPFLAGS = -g -O0 -MMD  -MP $(CURL_CFLAGS)
+LDFLAGS = -lgd $(INCLUDES) -L$(BASECLASSES) -L$(BASETRASH) -L$(INITTRASH) $(JSON_LIBS) $(CURL_LIBS) $(JSON_LIBS)
 
 SRCS =  
 OBJS = $(addprefix $(BUILD_DIR)/,$(SRCS:.cpp=.o))
