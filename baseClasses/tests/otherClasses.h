@@ -33,7 +33,7 @@ class Testnode : public Tweval {
         buffer >> demand;
         buffer >> tw_open;
         buffer >> tw_close;
-        buffer >> service;
+        //buffer >> service;
     };
 };
 

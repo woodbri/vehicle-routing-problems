@@ -103,7 +103,7 @@ std::cout << "---- char * Constructor --------------\n";
      } 
 
 Prob_trash::Prob_trash(const std::string &infile) {
-std::cout << "---- string Constructor --------------\n";
+std::cout << "Prob_trash---- string Constructor --------------\n";
     loadProblem(infile);
 }
 
@@ -112,17 +112,43 @@ std::cout << "---- string Constructor --------------\n";
 void Prob_trash::loadProblem(const std::string &infile)
 {
     datafile=infile;
-std::cout << "---- Loading --------------"<< datafile<< "--------\n";
+    Bucket nodes;
+    Bucket intersection;
+std::cout << "Prob_trash LoadProblem --------------"<< datafile<< "--------\n";
 
 
     // read the nodes
     int cnt=0;
     int nid=0;
-    load_dumps(datafile+".dumps.txt",nid);
-    load_depots(datafile+".depots.txt",nid);
-    load_pickups(datafile+".containers.txt",nid);
-//    twc.setNodes(datanodes);
-//    TwBucket<Trashnode> TWC<Trashnode>::original;
+    int id=0;
+
+    load_pickups(datafile+".containers.txt");
+    load_otherlocs(datafile+".otherlocs.txt");
+
+    intersection = otherlocs * pickups;
+    invalid += intersection;
+    pickups -= intersection;
+    nodes -= intersection;
+
+intersection.dump("intersection");
+invalid.dump("invalid");
+
+
+    nodes = pickups+otherlocs;
+
+    for (int i=0;i<nodes.size();i++) {
+        nodes[i].setnid(i);
+        id = nodes[i].getid();
+        if ( pickups.hasid( id ) ) pickups[ pickups.posFromId( id ) ].setnid(i);
+        else if ( otherlocs.hasid( id ) ) otherlocs[ otherlocs.posFromId( id ) ].setnid(i);
+    }
+
+    assert( pickups.size() and otherlocs.size() );
+
+    datanodes=nodes;
+
+
+
     twc.loadAndProcess_distance(datafile+".dmatrix-time.txt", datanodes,invalid);  
     Bucket dummy;
     dummy.setTravelTimes(twc.TravelTime());
@@ -130,41 +156,91 @@ std::cout << "---- Loading --------------"<< datafile<< "--------\n";
     dummyNode.setTravelTimes(twc.TravelTime());
     assert( Tweval::TravelTime.size() );
 
+    buildStreets(pickups);
+
     load_trucks(datafile+".vehicles.txt");
+    assert(trucks.size() and depots.size() and dumps.size() and endings.size());
     
+
+nodes.dump("nodes");
 dumps.dump("dumps");
 depots.dump("depots");
 pickups.dump("pickups");
+endings.dump("endings");
 datanodes.dump("datanodes");
 invalid.dump("invalid");
+
+std::cout<<"TRUCKS\n";
 for (int i=0;i<trucks.size();i++)
    trucks[i].tau();
+std::cout<<"\n";
+std::cout<<"INVALID TRUCKS\n";
+for (int i=0;i<invalidTrucks.size();i++)
+   invalidTrucks[i].tau();
 std::cout<<"\n";
 //twc.dump();
 }
 
-void Prob_trash::load_trucks(std::string infile) { //1 dump problem
-    assert (depots.size());
-    assert (dumps.size());
+void Prob_trash::buildStreets( Bucket &unassigned, Bucket &assigned) {
+
+#ifdef TESTED
+std::cout<<"Build Streets\n";
+#endif
+    Bucket assign;
+    Trashnode node;
+    if ( not unassigned.size()) return;
+    node= unassigned[0];
+    Street  street( node );
+    unassigned.pop_front();
+    assigned.push_back( node );
+    street.e_insert(unassigned,assign);
+street.dumpid();
+    assigned+=assign;
+    streets.push_back(street);
+    buildStreets(unassigned,assigned);
+}
+    
+
+
+void Prob_trash::buildStreets(const Bucket &nodes) {
+#ifdef TESTED
+std::cout<<"Build Streets\n";
+#endif
+    Bucket assigned;
+    Bucket unassigned=nodes;
+    Street street;
+    buildStreets (unassigned, assigned);
+}
+
+
+void Prob_trash::load_trucks(std::string infile) {
+    assert (otherlocs.size());
     std::ifstream in( infile.c_str() );
     std::string line;
-std::cout<<"Loading vehicles FILE"<<infile<<"\n";
+#ifdef TESTED
+std::cout<<"Prob_trash:LoadTrucks"<<infile<<"\n";
+#endif
 
     trucks.clear();
-    int cnt=0;
     while ( getline(in, line) ) {
-        cnt++;
-        // skip comment lines
+
         if (line[0] == '#') continue;
-        Vehicle truck(line,depots,dumps);  //create truck from line on file
-        if (truck.isvalid()) trucks.push_back(truck);
-        else invalidTrucks.push_back(truck);
+        Vehicle truck(line,otherlocs);  
+        if (truck.isvalid()) {
+            trucks.push_back(truck);
+            depots.push_back(truck.getStartingSite());
+            dumps.push_back(truck.getdumpSite());
+            endings.push_back(truck.getEndingSite());
+        }
+        else { invalidTrucks.push_back(truck);
+        }
     }
     in.close();
     
 }
 
-void Prob_trash::load_depots(std::string infile, int &nid) { //1 dump problem
+void Prob_trash::load_depots(std::string infile) { 
+std::cout<<"Prob_trash:Load_depots"<<infile<<"\n";
     std::ifstream in( infile.c_str() );
     std::string line;
     int cnt = 0;
@@ -172,26 +248,44 @@ void Prob_trash::load_depots(std::string infile, int &nid) { //1 dump problem
     depots.clear();
     while ( getline(in, line) ) {
         cnt++;
-        // skip comment lines
         if (line[0] == '#') continue;
 
-        Trashnode node(line);  //create node from line on file
-        node.setnid(nid);
+        Trashnode node(line);  
         if ( not node.isvalid() or not node.isdepot()) {
-           node.setnid(node.getid());
            std::cout << "ERROR: line: " << cnt << ": " << line << std::endl;
            invalid.push_back(node);
         } else {
-           node.setnid(nid);
-           datanodes.push_back(node);
-           depots.push_back(node);  //just in case we need to select the closest dump, for now only one is there
+           depots.push_back(node); 
         }
-        nid++;
     }
     in.close();
 }
 
-void Prob_trash::load_dumps(std::string infile, int &nid) { //1 dump problem
+void Prob_trash::load_otherlocs(std::string infile) { 
+std::cout<<"Prob_trash:Load_otherlocs"<<infile<<"\n";
+    std::ifstream in( infile.c_str() );
+    std::string line;
+    int cnt = 0;
+
+    otherlocs.clear();
+    while ( getline(in, line) ) {
+        cnt++;
+
+        if (line[0] == '#') continue;
+
+        Trashnode node(line);  
+        if ( not node.isvalid() ) {
+           std::cout << "ERROR: line: " << cnt << ": " << line << std::endl;
+           invalid.push_back(node);
+        } else {
+           otherlocs.push_back(node);  
+        }
+    }
+    in.close();
+}
+
+
+void Prob_trash::load_dumps(std::string infile) { //1 dump problem
     std::ifstream in( infile.c_str() );
     std::string line;
     int cnt = 0;
@@ -201,45 +295,37 @@ void Prob_trash::load_dumps(std::string infile, int &nid) { //1 dump problem
         // skip comment lines
         if (line[0] == '#') continue;
 
-        Trashnode node(line);  //create node from line on file
-        node.setnid(nid);
+        Trashnode node(line);  
         if ( not node.isvalid() or not node.isdump()) {
-           node.setnid(node.getid());
            std::cout << "ERROR: line: " << cnt << ": " << line << std::endl;
            invalid.push_back(node);
         } else {
-           node.setnid(nid);
-           datanodes.push_back(node);
-           dumps.push_back(node);  //just in case we need to select the closest dump, for now only one is there
-           nid++;
+           dumps.push_back(node);  
         }
     }
     in.close();
 }
 
-void Prob_trash::load_pickups(std::string infile, int &nid) {
+void Prob_trash::load_pickups(std::string infile) {
     std::ifstream in( infile.c_str() );
     std::string line;
     int cnt = 0;
     pickups.clear();
     while ( getline(in, line) ) {
         cnt++;
-        // skip comment lines
         if (line[0] == '#') continue;
-        Trashnode node(line);  //create node from line on file
-        node.setnid(nid);
-
-        if ( not node.isvalid() or not node.ispickup()) {
+        Trashnode node(line);  
+        node.setType(2);
+        if ( not node.isvalid() ) {
+#ifdef TESTED
            std::cout << "ERROR: line: " << cnt << ": " << line << std::endl;
-           node.setnid(node.getid());
+#endif
            invalid.push_back(node);
         } else {
-           node.setnid(nid);
-           datanodes.push_back(node);
-           pickups.push_back(node);  //just in case we need to select the closest dump, for now only one is there
-           nid++;
+          pickups.push_back(node);
         }
     }
+
     in.close();
 }
 

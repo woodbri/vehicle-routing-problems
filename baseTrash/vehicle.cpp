@@ -8,38 +8,61 @@
 #include "vehicle.h"
 
 
+bool Vehicle::deltaCargoGeneratesCV(const Trashnode &node) {
+#ifdef TESTED
+std::cout<<"Entering Vehicle::deltaCargoGeneratesCV \n";
+std::cout<<getcargo()<<"+"<<node.getdemand()<<" ¿? " <<getmaxcapacity()<<" \n";
+#endif
+     return  ( getcargo() + node.getdemand() > getmaxcapacity()  ) ;
+};
+
+bool Vehicle::deltaTimeGeneratesTV(const Trashnode &node, int pos) {
+#ifdef TESTED
+std::cout<<"Entering Vehicle::deltaTimeGeneratesCV \n";
+//std::cout<<path.getDeltaTime()<<"+"<<node.getdemand()<<" ¿? " <<getmaxcapacity()<<" \n";
+#endif
+     if (pos==path.size()) return path.getDeltaTime(node,dumpSite) + getduration()  > endingSite.closes();
+     else return  ( path.getDeltaTime(node,pos) + getduration()  > endingSite.closes() ) ;
+}
+
+
 bool Vehicle::e_setPath(const Bucket &sol) {
-std::cout<<"Entering Vehicle::e_setPath (remove message after testing)\n";
+#ifdef TESTED
+std::cout<<"Entering Vehicle::e_setPath \n";
+#endif
      assert (sol.size());
-     if (not ( (sol[0]==path[0]) and (sol[sol.size()-1] == backToDepot) and (sol[sol.size()-2] == dumpsite) ) ) 
+     if (not sol.size()) return false;
+
+     if (not ( (sol[0]==path[0]) and (sol[sol.size()-1] == endingSite) and (sol[sol.size()-2] == dumpSite) ) ) 
          return false;
      path=sol;
+     path.pop_back();
+     path.pop_back();
      path[0].evaluate( getmaxcapacity() );
-
-std::cout<<"Vehicle::e_setPath BEFORE EVALUATION\n";
-dumpeval();
      path.evaluate(1 , getmaxcapacity());
-std::cout<<"Vehicle::e_setPath AFTER EVALUATION\n";
-dumpeval();
 
+     assert((sol[0]==path[0]) and (sol[sol.size()-1] == endingSite) and (sol[sol.size()-2] == dumpSite));
      return true;
 }     
 
 
 
 bool  Vehicle::findNearestNodeTo(Bucket &unassigned, const TWC<Trashnode> &twc,UID &pos, Trashnode &bestNode) {
-std::cout<<"Entering Vehicle::findNearestNodeTo (remove message after testing)\n";
+#ifdef TESTED
+std::cout<<"Entering Vehicle::findNearestNodeTo \n";
+#endif
     assert (unassigned.size());
+    if (not unassigned.size()) return false;
+
     bool flag= false;
     double bestDist;
     double d;
     
-    //if (size()>1) 
-       flag = twc.findNearestNodeTo(path, unassigned,  pos , bestNode, bestDist);
+    flag = twc.findNearestNodeTo(path, unassigned,  pos , bestNode, bestDist);
     
     for (int i=0; i<unassigned.size(); i++) {
-       if ( twc.isCompatibleIAJ( path[size()-1]  , unassigned[i], dumpsite ) ) { 
-          d = unassigned[i].distanceToSegment( path[size()-1], dumpsite );
+       if ( twc.isCompatibleIAJ( path[size()-1]  , unassigned[i], dumpSite ) ) { 
+          d = unassigned[i].distanceToSegment( path[size()-1], dumpSite );
           if ( d < bestDist) {
             bestDist = d;
             bestNode = unassigned[i];
@@ -109,15 +132,15 @@ void Vehicle::dumppath() const {
           path[i].dumpeval();
      }
      std::cout<<"\nDump site:"<<"\n";
-     dumpsite.dumpeval();
+     dumpSite.dumpeval();
      std::cout<<"\nBack to depot:"<<"\n";
-     backToDepot.dumpeval();
+     endingSite.dumpeval();
      std::cout <<"TOTAL COST="<<cost <<"\n";
    }
 
 
    void Vehicle::smalldump() const {
-      backToDepot.dumpeval();
+      endingSite.dumpeval();
       std::cout << "TOTAL COST="<<cost << ", TAU= ";
       tau(); std::cout<<"\n";
    }
@@ -125,11 +148,13 @@ void Vehicle::dumppath() const {
    void Vehicle::tau() const {
       for (int i=0; i< path.size(); i++)
          std::cout<<getnid(i)<<" , ";
-      std::cout<<dumpsite.getnid()<<" , ";
+      std::cout<<dumpSite.getnid()<<" , ";
+      std::cout<<endingSite.getnid()<<" , ";
       std::cout<<" (";
       for (int i=0; i< path.size(); i++)
          std::cout<<getid(i)<<" , ";
-      std::cout<<dumpsite.getid()<<" , ";
+      std::cout<<dumpSite.getid()<<" , ";
+      std::cout<<endingSite.getid()<<" , ";
       std::cout<<" )";
    }
 
@@ -138,7 +163,7 @@ std::deque<int> Vehicle::getpath() const {
       std::deque<int> p;
       p = path.getpath();
       p.push_front(getdepot().getnid());
-      p.push_back(getdumpsite().getnid());
+      p.push_back(getdumpSite().getnid());
       p.push_back(getdepot().getnid());
       return p;
 }
@@ -237,12 +262,12 @@ void Vehicle::restorePath(Twpath<Trashnode> oldpath) {
 
 void Vehicle::evalLast() {
     Trashnode last = path[path.size()-1];
-    dumpsite.setdemand(-last.getcargo());
-    dumpsite.evaluate(last, getmaxcapacity());
-    backToDepot.evaluate(dumpsite, getmaxcapacity());
-    cost = w1*backToDepot.gettotDist() +
-           w2*backToDepot.getcvTot() +
-           w3*backToDepot.gettwvTot();
+    dumpSite.setdemand(-last.getcargo());
+    dumpSite.evaluate(last, getmaxcapacity());
+    endingSite.evaluate(dumpSite, getmaxcapacity());
+    cost = w1*endingSite.gettotDist() +
+           w2*endingSite.getcvTot() +
+           w3*endingSite.gettwvTot();
 }
 
 
@@ -542,7 +567,7 @@ bool Vehicle::pathOptInvertSequence() {
 // it currently assume all ops succeed but if they dont
 // the paths will get realy messed up
 
-bool Vehicle::findBestFit(Trashnode& tn, int* tpos, double* deltacost) {
+bool Vehicle::findBestFit(const Trashnode& tn, int* tpos, double* deltacost) {
     int bestpos = -1;
     double bestdelta;
 
@@ -902,8 +927,8 @@ bool Vehicle::relocateBest(Vehicle& v2, const int& i1) {
 void Vehicle::plot(std::string file,std::string title,int carnumber){
 //std::cout<<"USING VEHICLE PLOT\n";
     Twpath<Trashnode> trace=path;
-    trace.push_back(dumpsite);
-    trace.push_back(backToDepot);
+    trace.push_back(dumpSite);
+    trace.push_back(endingSite);
 trace.dumpid("Path");
     trace.pop_front();
     trace.pop_back();
@@ -934,8 +959,8 @@ trace.dumpid("Path");
 void Vehicle::plot(Plot<Trashnode> graph, int carnumber){
 //std::cout<<"USING VEHICLE PLOT  1\n";
     Twpath<Trashnode> trace=path;
-    trace.push_back(dumpsite);
-    trace.push_back(backToDepot);
+    trace.push_back(dumpSite);
+    trace.push_back(endingSite);
     graph.drawPath(trace,graph.makeColor(carnumber*10), 1, true);
 }
 

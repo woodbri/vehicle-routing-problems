@@ -14,7 +14,7 @@
 #include "twnode.h"
 #include "trashnode.h"
 #include "twpath.h"
-#include "sweep3.h"
+#include "feasableSol.h"
 //#include "oneTruckAllNodesInit.h"
 
 
@@ -36,11 +36,7 @@ int main(int argc, char **argv) {
 
     try {
        
-        Sweep3 tp(infile);
-std::cout << "tp CONSTRUCTION ENDED\n";
-std::cout<<tp.solutionAsText()<<"\n";
-        Solution (infile,tp.solutionAsVector()); 
-std::cout<<tp.solutionAsTextID()<<"\n";
+        FeasableSol tp(infile);
     }
     catch (const std::exception &e) {
         std::cerr << e.what() << std::endl;

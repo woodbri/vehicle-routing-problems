@@ -5,16 +5,19 @@
 #include "trashnode.h"
 
 bool Trashnode::isvalid() const {
+    return  ispickup()? demand>0:true; 
+};
+/*
     bool ret = Twnode::isvalid()
                 and (ispickup() or isdepot() or isdump())
                 and (
                     (ispickup() and demand>0) or
                     (isdepot()  and demand==0) or
                     (isdump()   and demand==0));
-// #ifdef NDEBUG
+//#ifdef NDEBUG
     if (!ret) {
         std::cout << "Trashnode::isvalid(): failed: id: " << id << std::endl;
-        if (! Node::isvalid())
+        if (! Twnode::isvalid())
             std::cout << "                      failed: Node::isvalid()\n";
         if (! (ispickup() or isdepot() or isdump()))
             std::cout << "                      failed: (ispickup() or isdepot() or isdump())\n";
@@ -27,7 +30,7 @@ bool Trashnode::isvalid() const {
     }
 // #endif
     return ret;
-};
+*/
 
 
 void Trashnode::dumpeval() const {

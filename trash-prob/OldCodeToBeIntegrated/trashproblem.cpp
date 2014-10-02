@@ -164,7 +164,7 @@ int TrashProblem::findNearestNodeTo(int nid, int selector, int demandLimit) {
 
 int TrashProblem::findNearestNodeTo(Vehicle &v, int selector, int demandLimit, int& pos) {
     Trashnode depot(v.getdepot());
-    Trashnode dump(v.getdumpsite());
+    Trashnode dump(v.getdumpSite());
     int nn = -1;        // init to not found
     int loc = 0;        // position in path to insert
     double dist = -1;   // dist to nn
@@ -242,7 +242,7 @@ std::vector<int>  TrashProblem::solutionAsVector() const {
         for (int j=0; j<fleet[i].size(); j++) {
             s.push_back(fleet[i][j].getnid());
         }
-        s.push_back(fleet[i].getdumpsite().getnid());
+        s.push_back(fleet[i].getdumpSite().getnid());
         s.push_back(fleet[i].getdepot().getnid());
         s.push_back(-1);
     }

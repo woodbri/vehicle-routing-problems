@@ -258,6 +258,11 @@ class Twpath : public TwBucket<knode> {
         }
     }
          
+    void dumpeval() const {
+        for (int i=0;i<path.size();i++)
+            path[i].dumpeval();
+   }
+
 
     Twpath<knode>& operator =(const TwBucket<knode> &other){
          TwBucket<knode>::operator = (other);

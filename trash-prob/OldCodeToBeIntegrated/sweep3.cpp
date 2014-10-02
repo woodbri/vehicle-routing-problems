@@ -19,67 +19,8 @@
 // algorithms
 
 bool Sweep3::buildFleetFromSolution(std::vector<int> solution) {
-/*    unassigned = std::vector<int>(datanodes.size(), 1);
-
-    std::vector<int>::iterator it;
-    std::vector<int>::iterator it2;
-    std::vector<int>::iterator start = solution.begin();
-
-    clearFleet();
-
-    int vid = 0;
-    while ((it = std::find(start, solution.end(), -1)) != solution.end()) {
-        if (*start != *(it-1) or !datanodes[*start].isdepot()) {
-            // error first and last nodes must be the same depot
-            std::cout << "ERROR: truck[" << vid
-                      << "]: first and last nodes must be the same depot!"
-                      << std::endl;
-            return false;
-        }
-        if (!datanodes[*(it-2)].isdump()) {
-            // error path[size-2] must be a dumpsite
-            std::cout << "ERROR: truck[" << vid
-                      << "]: path[size-2] must be a dumpsite node!"
-                      << std::endl;
-            return false;
-        }
-
-        Trashnode& depot(datanodes[*start]);
-        Trashnode& dump(datanodes[*(it-2)]);
-        unassigned[dump.getnid()] = 0;
-
-        Vehicle truck(depot, dump);
-        for (it2=start+1; it2<it-2; it2++) {
-            if (*it2 < 0 or *it2 > datanodes.size()) {
-                std::cout << "ERROR: truck[" << vid << "]: node: " << *it2
-                          << " is NOT in range of the input problem nodes!"
-                          << std::endl;
-                return false;
-            }
-            if (datanodes[*it2].ispickup()) {
-                if (unassigned[*it2] == 0) {
-                    std::cout << "ERROR: truck[" << vid << "]: node: " << *it2
-                              << " has already been assigned to another Truck!"
-                              << std::endl;
-                    return false;
-                }
-                unassigned[*it2] = 0;
-                truck.push_back(datanodes[*it2]);
-            }
-            else {
-                std::cout << "ERROR: truck[" << vid << "]: node: " << *it2
-                          << " is not a pickup node!" << std::endl;
-                return false;
-            }
-        }
-
-        //truck.dump();
-        fleet.push_back(truck);
-
-        start = it+1;
-        vid++;
-    }
-    return true;
+/* 
+IN SOLUTION
 */
 }
 
@@ -88,7 +29,7 @@ bool Sweep3::buildFleetFromSolution(std::vector<int> solution) {
 // NOTE: findBestFit() does check for feasibility so time windows
 //       and capacity are not violated.
 
-bool Sweep3::findVehicleBestFit(int nid, int& vid, int& pos) {
+bool Sweep3::findVehicleBestFit(const Trashnode &node, int& vid, int& pos) {
 
     // track the best result found
     int vbest = -1;
@@ -96,14 +37,15 @@ bool Sweep3::findVehicleBestFit(int nid, int& vid, int& pos) {
     double vcost;
 
     for (int i=0; i<fleet.size(); i++) {
-        if ( fleet[i].getcargo() + datanodes[nid].getdemand() 
-             > fleet[i].getmaxcapacity() ) continue;
+        if (fleet[i].deltaCargoGeneratesCV(node) ) continue;
+       // if ( fleet[i].getcargo() + datanodes[nid].getdemand() 
+       //      > fleet[i].getmaxcapacity() ) continue;
 
         int tpos;
         double cost;
-        Trashnode tn = datanodes[nid];
+        Trashnode tn = node;
 
-        if (fleet[i].findBestFit(tn, &tpos, &cost)) {
+        if (fleet[i].findBestFit(node, &tpos, &cost)) {
 //std::cout << "findVehicleBestFit: nid: "<<nid<<", i: "<<i<<", tpos: "<<tpos<<", cost: "<<cost<<std::endl;
             if (vbest == -1 or cost < vcost) {
                 vbest = i;
@@ -122,30 +64,69 @@ bool Sweep3::findVehicleBestFit(int nid, int& vid, int& pos) {
     return false;
 }
 
+//TODO:
+//   need new truck when bestNode generates TV regardless of cargo
+//   what to check firts Cargo or Time????
+//   how to handla that once the Dump is inserted, not to look for best Position on
+//       the first part of ther Route????
 
-void Sweep3::stepOne(Vehicle &truck, Bucket &unassigned, Bucket &assigned) {
+void Sweep3::stepOne(Vehicle &truck) {
+// THE INVARIANT
+// union must be pickups
+    assert(pickups == unassigned + problematic + assigned);
+// all intersections must be empty set
+    assert( not (unassigned * problematic).size()  ) ;
+    assert( not (unassigned * assigned).size()  ) ;
+    assert( not (problematic * assigned).size()  ) ;
+
     if (not unassigned.size()) return;
-//truck.dump("turck");
-//unassigned.dump("unassigned");
-//assigned.dump("assigned");
+          
     Trashnode bestNode;
     UID bestPos;
     if (truck.findNearestNodeTo( unassigned, twc,  bestPos,  bestNode) ) {
-        truck.insert(bestNode,bestPos);
-        assigned.push_back(bestNode);
-        unassigned.erase(bestNode);
-        stepOne(truck, unassigned, assigned);
+std::cout << "We need a new TRUCK or go to DUMP:"<< truck.deltaCargoGeneratesCV(bestNode)<<"\n";
+        if(  truck.deltaCargoGeneratesCV(bestNode) ) {
+std::cout << "We need a new TRUCK:"<< truck.deltaTimeGeneratesTV(bestNode,bestPos)<<"\n";
+            if (truck.deltaTimeGeneratesTV(bestNode,bestPos)) {}; //TBD
+                fleet.push_back(truck);
+truck.plot("sweep2","sweep2",truck.getVid());
+
+                truck=unusedTrucks[0];
+                unusedTrucks.erase(unusedTrucks.begin());
+                usedTrucks.push_back(truck);
+
+                stepOne(truck);
+        } else {
+            truck.insert(bestNode,bestPos);
+
+std::stringstream ss;
+ss << truck.getVid()<<"-"<<tmp<<" ";
+std::string s = ss.str();
+truck.plot(s,s,0);
+tmp++;
+            assigned.push_back(bestNode);
+            unassigned.erase(bestNode);
+            stepOne(truck);
+        } 
     }
 } 
 
 
 
 
+Vehicle  Sweep3::getTruck() {
+        Vehicle truck=unusedTrucks[0];
+        unusedTrucks.erase(unusedTrucks.begin());
+        usedTrucks.push_back(truck);
+        return truck;
+}
 
 
 //    Sweep3::assignmentSweep3
 //
-//    This implements Assignment Sweep construction algorithm with the
+//    This implements Assignment Sweep construction algorithm 
+//
+//  NO TWIST
 //    twist that I cluster first and identify the nearest depot (CLUSTER1)
 //    and the second nearest depot (CLUSTER2) to all nodes. The construction
 //    algorithm follows this pseudo code:
@@ -153,41 +134,24 @@ void Sweep3::stepOne(Vehicle &truck, Bucket &unassigned, Bucket &assigned) {
 //    2. add unassigned nodes based on the lowest cost to insert them
 
 void Sweep3::assignmentSweep3() {
-    // create a list of all pickup nodes and make them unassigned
-    //unassigned = std::vector<int>(datanodes.size(), 1);
-    Bucket unassigned = pickups;
-    Bucket problematic;
-    Bucket assigned;
-
-    assert(not problematic.size());
-    assert(not assigned.size());
-
-    assert(pickups == unassigned + problematic + assigned); //the invariant
-
-    std::deque<Vehicle> unusedTrucks = trucks;
-    std::deque<Vehicle> usedTrucks = trucks;
-
+// THE INVARIANT
+// union must be pickups
+    assert(pickups == unassigned + problematic + assigned);
+// all intersections must be empty set
+    assert( not (unassigned * problematic).size()  ) ;
+    assert( not (unassigned * assigned).size()  ) ;
+    assert( not (problematic * assigned).size()  ) ;
 
     Vehicle truck;
 
-    clearFleet();
+    truck=getTruck();
 
-    //for (int i=0; i<trucks.size(); i++) {
-    while (unusedTrucks.size()) {
+    stepOne(truck);        
+    fleet.push_back(truck); //need to save the last truck
 
-        truck=unusedTrucks[0];
-        unusedTrucks.erase(unusedTrucks.begin());
-        usedTrucks.push_back(truck);
-
-
-        stepOne(truck,unassigned,assigned);        
-truck.dump("turck");
-unassigned.dump("unassigned");
-assigned.dump("assigned");
 truck.plot("sweep1","sweep1",truck.getVid());
-        fleet.push_back(truck);
-return;
         assert(" end"=="");
+return;
         //std::cout << "EMPTY TRUCK: "; truck.dump();
 
         int pos;
@@ -196,7 +160,6 @@ return;
         if (nid == -1) {
             std::cout << "Sweep3::assignmentSweep3 failed to find an initial node for truck: \n";
             truck.tau();
-            continue;
         }
         truck.push_back(datanodes[nid]);
         unassigned.erase(datanodes[nid]);
@@ -241,7 +204,7 @@ return;
         }
 
         fleet.push_back(truck);
-    }
+    
 
 std::cout << "------ checking unassigned nodes ----------\n";
 
@@ -266,7 +229,7 @@ std::cout << "------ checking unassigned nodes ----------\n";
     for (int i=0; unassigned.size(); i++) {
         int vid;
         int pos;
-        if (! findVehicleBestFit(unassigned[0].getnid(), vid, pos)) {
+        if (! findVehicleBestFit(unassigned[0], vid, pos)) {
             // could not find a valid insertion point
             std::cout << "assignmentSweep3: could not find a valid insertion point for node: " << unassigned[0].getnid() << std::endl;
             problematic.push_back(unassigned[0]);

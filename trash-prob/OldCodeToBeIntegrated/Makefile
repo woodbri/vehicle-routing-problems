@@ -8,7 +8,7 @@ INCLUDES = -I../../$(UTIL) -I../../$(UTILP) -I.
 CPPFLAGS = -g -O0 -MMD  -MP  
 LDFLAGS = -lgd $(INCLUDES) -L$(UTIL) -L$(UTILP)
 
-SRCS = init_trash.cpp testconstruction.cpp dumbsolution.cpp trash.cpp
+SRCS = trashproblem.cpp trash.cpp oneTruckAllNodesInit.cpp sweep3.cpp feasableSol.cpp
 OBJS = $(addprefix $(BUILD_DIR)/,$(SRCS:.cpp=.o))
 HEADS = $(SRCS:.cpp=.h)
 

@@ -9,3 +9,13 @@ vehicle-routing-problems
  * more to come ...
 
 # THIS IS A WORK IN PROGRESS
+
+# Dependencies
+
+We current this have dependencies in our development environment for
+
+ * libgd2 - used for generating plots of the routes
+ * libcurl - used via curlpp to access OSRM engine
+ * curlpp - a C++ wrapper around libcurl to talk to OSRM engine https://code.google.com/p/curlpp/
+ * OSRM - we have a local server installed for our coverage area. This is used for comput drive times and routes https://github.com/Project-OSRM/osrm-backend
+

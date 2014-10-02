@@ -13,6 +13,7 @@
 //#include "orders.h"
 #include "bucketn.h"
 #include "vehicle.h"
+#include "street.h"
 #include "twpath.h"
 #include "twc.h"
 
@@ -24,12 +25,15 @@ typedef  TwBucket<Trashnode> Bucket;
 
     TWC<Trashnode> twc;
     Twpath<Trashnode> datanodes; //dissallowing set operations
+    Bucket otherlocs;
     Bucket dumps;
     Bucket depots;
     Bucket pickups;
+    Bucket endings;
     Bucket invalid;
     std::deque<Vehicle> trucks; 
     std::deque<Vehicle> invalidTrucks; 
+    std::deque<Street>  streets; 
 
     std::string datafile;
 
@@ -71,10 +75,14 @@ typedef  TwBucket<Trashnode> Bucket;
     inline double _MIN() { ( - std::numeric_limits<double>::max() ); };
 
 private:
-    void load_depots(std::string infile, int &nid);
-    void load_dumps(std::string infile, int &nid);
-    void load_pickups(std::string infile,int &nid);
+    void load_depots(std::string infile);
+    void load_dumps(std::string infile);
+    void load_pickups(std::string infile);
+    void load_endings(std::string infile);
+    void load_otherlocs(std::string infile);
     void load_trucks(std::string infile);
+    void buildStreets( Bucket &unassigned, Bucket &assigned);
+    void buildStreets( const Bucket &nodes);
 };
 
 #endif

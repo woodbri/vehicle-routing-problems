@@ -15,6 +15,7 @@
 #include "tweval.h"
 #include "otherClasses.h"
 #include "md5.h"
+#include "osrm.h"
 
 // TODO: all Twpath::e_*() functions return E_Ret = OK|NO_CHANGE|INVALID
 //       the test should probably add tests for the return codes
@@ -513,6 +514,28 @@ class TestProblem {
         return true;
     }
 
+    bool test_osrm() {
+        int status;
+        double ttime;
+
+        std::string url = "http://localhost:5000/viaroute?z=18&instructions=false&alt=false&loc=-34.89773,-56.1241&loc=-34.848845,-56.21662&loc=-34.848821,-56.094837&loc=-34.89773,-56.1241";
+
+        cURLpp::Cleanup myCleanup;
+        OSRM osrm;
+        if(osrm.callOSRM(url))
+            return false;
+
+        if(osrm.getStatus(status))
+            return false;
+        std::cout << "OSRM: status: " << status << std::endl;
+
+        if(osrm.getTravelTime(ttime))
+            return false;
+        std::cout << "OSRM: ttime: " << ttime << std::endl;
+
+        return true;
+    }
+
 void Usage() {
     std::cout << "Usage: tester in.txt\n";
 }
@@ -529,6 +552,7 @@ int main(int argc, char **argv) {
     try {
 
         test_md5();
+        test_osrm();
 
         TestProblem tp( infile );
         if (tp.getnumtests() != tp.getnumpass())

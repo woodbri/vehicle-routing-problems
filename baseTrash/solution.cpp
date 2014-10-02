@@ -35,7 +35,7 @@ std::string Solution::solutionAsText() const {
         if (i) ss << ",";
         ss << sol[i];
     }
-std::cout<<ss.str()<<"  Solution::solutionAsText() \n";
+//std::cout<<ss.str()<<"  Solution::solutionAsText() \n";
     return ss.str();
 }
 
@@ -57,18 +57,18 @@ std::string Solution::solutionAsTextID() const {
 
 std::vector<int>  Solution::solutionAsVectorID() const {
     std::vector<int> sol;
-    sol.push_back(-2);
+    sol.push_back(-1);
 
     for (int i=0; i<fleet.size(); i++) {
         if (fleet[i].size() == 0) continue;
         sol.push_back(fleet[i].getVid());
-        sol.push_back(-2);
+        sol.push_back(-1);
         for (int j=0; j<fleet[i].size(); j++) {
             sol.push_back(fleet[i][j].getid());
         }
-        sol.push_back(fleet[i].getdumpsite().getid());
+        sol.push_back(fleet[i].getdumpSite().getid());
         sol.push_back(fleet[i].getdepot().getid());
-        sol.push_back(-2);
+        sol.push_back(-1);
     }
     return sol;
 }
@@ -76,17 +76,17 @@ std::vector<int>  Solution::solutionAsVectorID() const {
         
 std::vector<int>  Solution::solutionAsVector() const {
     std::vector<int> sol;
-    sol.push_back(-1);
+    sol.push_back(-2);
     for (int i=0; i<fleet.size(); i++) {
         if (fleet[i].size() == 0) continue;
         sol.push_back(fleet[i].getVid());
-        sol.push_back(-1);
+        sol.push_back(-2);
         for (int j=0; j<fleet[i].size(); j++) {
             sol.push_back(fleet[i][j].getnid());
         }
-        sol.push_back(fleet[i].getdumpsite().getnid());
+        sol.push_back(fleet[i].getdumpSite().getnid());
         sol.push_back(fleet[i].getdepot().getnid());
-        sol.push_back(-1);
+        sol.push_back(-2);
     }
     return sol;
 }
@@ -180,7 +180,7 @@ double Solution::getAverageRouteDurationLength() {
     Bucket unassigned = pickups;
     Bucket assigned;
     bool idSol=true;
-    if (sol[0]==-1) idSol=false;
+    if (sol[0]==-2) idSol=false;
 
     fleet.clear();
     Bucket solPath;
@@ -207,6 +207,7 @@ double Solution::getAverageRouteDurationLength() {
            solPath.push_back(datanodes[nid]);
            i++;
         }
+solPath.dumpid("solPath");
         if (truck.e_setPath(solPath)) {
              fleet.push_back(truck);
              assigned+=solPath;

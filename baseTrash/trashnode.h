@@ -13,8 +13,10 @@ class Trashnode : public Tweval {
 
     // state
     bool isdepot() const {return type==0;};
+    bool isStarting() const {return type==0;};
     bool isdump() const {return type==1;};
     bool ispickup() const {return type==2;};
+    bool isEnding() const {return type==3;};
     bool isvalid() const;
 
     // mutators
