@@ -22,7 +22,8 @@ void Twnode::dump() const {
               << ",\t " << demand
               << ",\t " << tw_open
               << ",\t " << tw_close
-              << ",\t " << serviceTime;
+              << ",\t " << serviceTime
+              << ",\t " << streetid;
 }
 
 
@@ -42,14 +43,17 @@ void Twnode::set(int _nid, int _id, double _x, double _y, int _demand,
 Twnode::Twnode(std::string line) {
     std::istringstream buffer( line );
     buffer >> nid;
-    buffer >> type;
+//    buffer >> type;
     buffer >> x;
     buffer >> y;
     buffer >> demand;
     buffer >> tw_open;
     buffer >> tw_close;
     buffer >> serviceTime;
+    buffer >> streetid;
     id=nid;
+    type= (tw_open < tw_close and tw_open >= 0 and serviceTime >= 0)? 0:-1;
+//dump();std::cout<<"\n";
 }
 
 
