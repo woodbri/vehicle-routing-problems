@@ -518,7 +518,7 @@ class TestProblem {
         int status;
         double ttime;
 
-        std::string url = "http://localhost:5000/viaroute?z=18&instructions=false&alt=false&loc-56.1241,-34.89773&loc=-56.21662,-34.848845&loc=-56.094837,-34.848821&loc=-56.1241,-34.89773";
+        std::string url = "http://localhost:5000/viaroute?z=18&instructions=false&alt=false&loc=-34.89773,-56.1241&loc=-34.848845,-56.21662&loc=-34.848821,-56.094837&loc=-34.89773,-56.1241";
 
         cURLpp::Cleanup myCleanup;
         OSRM osrm;

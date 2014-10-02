@@ -30,7 +30,7 @@ bool OSRM::getTravelTime(double& ttime) const {
         return true;
     }
 
-    ttime = json_object_get_int(jobj);
+    ttime = (double) json_object_get_int(jobj) / 60.0;
     json_object_put(jtree);
 
     return false;
