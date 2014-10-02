@@ -13,6 +13,7 @@
 //#include "orders.h"
 #include "bucketn.h"
 #include "vehicle.h"
+#include "street.h"
 #include "twpath.h"
 #include "twc.h"
 
@@ -32,6 +33,7 @@ typedef  TwBucket<Trashnode> Bucket;
     Bucket invalid;
     std::deque<Vehicle> trucks; 
     std::deque<Vehicle> invalidTrucks; 
+    std::deque<Street>  streets; 
 
     std::string datafile;
 
@@ -79,6 +81,8 @@ private:
     void load_endings(std::string infile);
     void load_otherlocs(std::string infile);
     void load_trucks(std::string infile);
+    void buildStreets( Bucket &unassigned, Bucket &assigned);
+    void buildStreets( const Bucket &nodes);
 };
 
 #endif

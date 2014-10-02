@@ -16,14 +16,14 @@ void Twnode::dump() const {
     std::cout.precision(8);
     std::cout << nid
               << " = " << id
-              << ",\t\t " << type
-              << ",\t " << x
-              << ",\t " << y
-              << ",\t " << demand
-              << ",\t " << tw_open
-              << ",\t " << tw_close
-              << ",\t " << serviceTime
-              << ",\t " << streetid;
+              << ",\t\ttype " << type
+              << ",\tx " << x
+              << ",\ty " << y
+              << ",\tdemand " << demand
+              << ",\topen " << tw_open
+              << ",\tclose " << tw_close
+              << ",\tserviceT " << serviceTime
+              << ",\t street:" << streetid;
 }
 
 
