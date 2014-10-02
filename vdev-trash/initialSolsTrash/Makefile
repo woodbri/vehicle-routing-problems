@@ -19,8 +19,6 @@ HEADS = $(SRCS:.cpp=.h)
 
 
 
-
-
 BASECLASSES_SRCS = $(wildcard ../../$(BASECLASSES)/*.cpp)
 BASECLASSES_HDS = $(UTIL_SRCS:.cpp=.h)
 BASECLASSES_OBJS = $(addprefix $(BUILD_DIR)/$(BASECLASSES)/,$(notdir $(BASECLASSES_SRCS:.cpp=.o)))
@@ -35,7 +33,7 @@ BASETRASH_HEADS = $(BASETRASH_HDS)
 
 INITTRASH_SRCS = $(wildcard ../../$(INITTRASH)/*.cpp)
 INITTRASH_HDS = $(INITTRASH_SRCS:.cpp=.h)
-INITTRASH_OBJS = $(addprefix $(BUILD_DIR)/$(INITTRASP)/,$(notdir $(INITTRASH_SRCS:.cpp=.o)))
+INITTRASH_OBJS = $(addprefix $(BUILD_DIR)/$(INITTRASH)/,$(notdir $(INITTRASH_SRCS:.cpp=.o)))
 INITTRASH_HEADS = $(INITTRASH_HDS)
 
 DEPS = $(addprefix $(BUILD_DIR)/,$(SRCS:.cpp=.d))
@@ -86,10 +84,11 @@ callgrind-8: ./bin/trash ./data/p10.txt
 .PHONY: clean
 
 clean:
-	rm -f tester $(OBJS) $(BASECLASSES) $(INITTRASH) $(BASETRASH)  
+	rm -f trash $(OBJS) $(BASECLASSES_OBJS) $(BASETRASH_OBJS) $(INITTRASH_OBJS)
 	find . -name "*.d" -type f -delete
 	find . -name "*.png" -type f -delete
 	mkdir -p $(BIN_DIR)
+	echo $(INITTRASH)
 	mkdir -p $(BUILD_DIR)/$(BASECLASSES) $(BUILD_DIR)/$(BASETRASH) $(BUILD_DIR)/$(INITTRASH)
 
 
