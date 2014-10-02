@@ -98,6 +98,12 @@ truck.plot("sweep2","sweep2",truck.getVid());
                 stepOne(truck);
         } else {
             truck.insert(bestNode,bestPos);
+
+std::stringstream ss;
+ss << truck.getVid()<<"-"<<tmp<<" ";
+std::string s = ss.str();
+truck.plot(s,s,0);
+tmp++;
             assigned.push_back(bestNode);
             unassigned.erase(bestNode);
             stepOne(truck);

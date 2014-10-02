@@ -1,54 +1,78 @@
 
 CPP = g++
-UTILP = baseTrash
-UTIL = baseClasses
-BUILD_DIR = ./build
-BIN_DIR = ./bin 
-INCLUDES = -I../../$(UTIL) -I../../$(UTILP) -I.
-CPPFLAGS = -g -O0 -MMD  -MP  
-LDFLAGS = -lgd $(INCLUDES) -L$(UTIL) -L$(UTILP)
 
-SRCS = init_trash.cpp testconstruction.cpp dumbsolution.cpp trash.cpp
+
+BASETRASH   = baseTrash
+BASECLASSES = baseClasses
+INITTRASH   = initTrash 
+
+BUILD_DIR = ./build
+BIN_DIR   = ./bin 
+
+INCLUDES = -I../../$(BASECLASSES) -I../../$(BASETRASH) -I../../$(INITTRASH) -I.
+CPPFLAGS = -g -O0 -MMD  -MP  
+LDFLAGS = -lgd $(INCLUDES) -L$(BASECLASSES) -L$(BASETRASH) -L$(INITTRASH)
+
+SRCS =  init_trash.cpp
 OBJS = $(addprefix $(BUILD_DIR)/,$(SRCS:.cpp=.o))
 HEADS = $(SRCS:.cpp=.h)
 
-UTILP_SRCS = $(wildcard ../../$(UTILP)/*.cpp)
-UTILP_HDS = $(UTILP_SRCS:.cpp=.h)
-UTILP_OBJS = $(addprefix $(BUILD_DIR)/$(UTILP)/,$(notdir $(UTILP_SRCS:.cpp=.o)))
-UTILP_HEADS = $(UTILP_HDS)
 
-UTIL_SRCS = $(wildcard ../../$(UTIL)/*.cpp)
-UTIL_HDS = $(UTIL_SRCS:.cpp=.h)
-UTIL_OBJS = $(addprefix $(BUILD_DIR)/$(UTIL)/,$(notdir $(UTIL_SRCS:.cpp=.o)))
-UTIL_HEADS = ../../$(UTIL)/twpath.h ../../$(UTIL)/twc.h ../../$(UTIL)/twbucket.h ../../$(UTIL)/plot.h
 
+
+
+BASECLASSES_SRCS = $(wildcard ../../$(BASECLASSES)/*.cpp)
+BASECLASSES_HDS = $(UTIL_SRCS:.cpp=.h)
+BASECLASSES_OBJS = $(addprefix $(BUILD_DIR)/$(BASECLASSES)/,$(notdir $(BASECLASSES_SRCS:.cpp=.o)))
+BASECLASSES_HEADS = ../../$(BASECLASSES)/twpath.h ../../$(BASECLASSES)/twc.h ../../$(BASECLASSES)/twbucket.h ../../$(BASECLASSES)/plot.h $(BASECLASSES_HDS)
+
+
+BASETRASH_SRCS = $(wildcard ../../$(BASETRASH)/*.cpp)
+BASETRASH_HDS = $(BASETRASH_SRCS:.cpp=.h)
+BASETRASH_OBJS = $(addprefix $(BUILD_DIR)/$(BASETRASH)/,$(notdir $(BASETRASH_SRCS:.cpp=.o)))
+BASETRASH_HEADS = $(BASETRASH_HDS)
+
+
+INITTRASH_SRCS = $(wildcard ../../$(INITTRASH)/*.cpp)
+INITTRASH_HDS = $(INITTRASH_SRCS:.cpp=.h)
+INITTRASH_OBJS = $(addprefix $(BUILD_DIR)/$(INITTRASP)/,$(notdir $(INITTRASH_SRCS:.cpp=.o)))
+INITTRASH_HEADS = $(INITTRASH_HDS)
 
 DEPS = $(addprefix $(BUILD_DIR)/,$(SRCS:.cpp=.d))
 
 
 
 
-all: $(OBJS) $(UTIL_OBJS) $(UTILP_OBJS) build/trash.o ./bin/trash 
+all:   $(OBJS) $(BASECLASSES_OBJS) $(BASETRASH_OBJS) $(INITTRASH_OBJS) build/trash.o ./bin/trash
+  
 
 
-bin/trash: $(OBJS) $(UTIL_OBJS) $(UTILP_OBJS) $(UTILP_HEADS) $(UTIL_HEADS) 
+build/trash.o: trash.cpp $(BASECLASSES_HEADS) $(BASETRASH_HEADS) $(INITTRASH_HEADS) $(HEADS)
+	echo  "Compiling Main"
+	$(CPP) $(CPPFLAGS) $(INCLUDES) -c $< -o $@
+
+build/baseClasses/%.o: ../../$(BASECLASSES)/%.cpp  ../../$(BASECLASSES)/%.h $(BASECLASSES_HEADS)
+	echo  "Compiling Base Classes"
+	$(CPP) $(CPPFLAGS) $(INCLUDES) -c $< -o $@
+
+build/baseTrash/%.o: ../../$(BASETRASH)/%.cpp ../../$(BASETRASH)/%.h  $(BASECLASSES_HEADS) $(BASETRASH_HEADS)
+	echo  "Compiling Base Trash"
+	$(CPP) $(CPPFLAGS) $(INCLUDES) -c $< -o $@
+
+
+build/initTrash/%.o: ../../$(INITTRASH)/%.cpp  ../../$(INITTRASH)/%.h  $(BASECLASSES_HEADS) $(BASETRASH_HEADS) $(INITTRASH_HEADS)
+	echo  "Compiling Init Trash"
+	$(CPP) $(CPPFLAGS) $(INCLUDES) -c $< -o $@
+
+build/%.o: %.cpp %.h $(BASECLASSES_HEADS) $(BASETRASH_HEADS) $(INITTRASH_HEADS)
+	echo  "Compiling local"
+	$(CPP) $(CPPFLAGS) $(INCLUDES) -c $< -o $@
+
+bin/trash: $(OBJS) $(BASECLASSES_OBJS) $(BASETRASH_OBJS) $(INITTRASH_OBJS) $(BASECLASSES_HEADS) $(BASETRASH_HEADS) $(INITTRASH_HEADS)
+	echo $(OBJS) $(BASECLASSES_OBJS) $(BASETRASH_OBJS) $(INITTRASH_OBJS) $(BASECLASSES_HEADS) $(BASETRASH_HEADS) $(INITTRASH_HEADS)
 	$(CPP) $^ -o $@ $(LDFLAGS)
 
-
-build/baseTrash/%.o: ../../$(UTILP)/%.cpp ../../$(UTILP)/%.h $(UTIL_HEADS) $(UTILP_HEADS)
-	$(CPP) $(CPPFLAGS) $(INCLUDES) -c $< -o $@
-
-build/baseClasses/%.o: ../../$(UTIL)/%.cpp ../../$(UTIL)/%.h 
-	$(CPP) $(CPPFLAGS) $(INCLUDES) -c $< -o $@
-
-$(BUILD_DIR)/%.o: %.cpp %.h  
-	$(CPP) $(CPPFLAGS) $(INCLUDES) -c $< -o $@
-
-
-$(BUILD_DIR)/trash.o: trash.cpp 
-	$(CPP) $(CPPFLAGS) $(INCLUDES) -c $< -o $@
-
-test: ./bin/trash ./montevideo/muni-b.containers.txt ./montevideo/muni-b.depots.txt ./montevideo/muni-b.dumps.txt ./montevideo/muni-b.dmatrix-time.txt ./montevideo/muni-b.vehicles.txt
+test: ./bin/trash ./montevideo/muni-b.containers.txt ./montevideo/muni-b.othrelocs.txt ./montevideo/muni-b.dmatrix-time.txt ./montevideo/muni-b.vehicles.txt
 	./bin/trash ./montevideo/muni-b >./montevideo/muni-b.out
 
 valgrind: ./bin/trash ./data/p10a.txt
@@ -62,17 +86,17 @@ callgrind-8: ./bin/trash ./data/p10.txt
 .PHONY: clean
 
 clean:
-	rm -f tester $(OBJS) $(UTIL_OBJS) $(UTILP_OBJS)  
+	rm -f tester $(OBJS) $(BASECLASSES) $(INITTRASH) $(BASETRASH)  
 	find . -name "*.d" -type f -delete
 	find . -name "*.png" -type f -delete
 	mkdir -p $(BIN_DIR)
-	mkdir -p $(BUILD_DIR)/$(UTIL) $(BUILD_DIR)/$(UTILP)
+	mkdir -p $(BUILD_DIR)/$(BASECLASSES) $(BUILD_DIR)/$(BASETRASH) $(BUILD_DIR)/$(INITTRASH)
 
 
 cleanAll: clean
-	$(MAKE) -C ../$(UTILP) clean
-	$(MAKE) -C ../../$(UTIL) clean
-	$(MAKE) -C ../../$(UTIL)/tests clean
+	$(MAKE) -C ../../$(BASECLASSES) clean
+	$(MAKE) -C ../../$(BASETRASH) clean
+	$(MAKE) -C ../../$(INITTRASH) clean
 	$(MAKE) -C ../../trash-collection clean
 	$(MAKE) -C ../../pick-deliver clean
 	rm ./bin/trash

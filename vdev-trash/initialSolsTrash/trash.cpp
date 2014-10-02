@@ -5,41 +5,38 @@
 #include <fstream>
 #include <sstream>
 #include <string>
-#include <deque>
+#include <vector>
 #include <math.h>
 
-#include "init_trash.h"
-#include "prob_trash.h"
-#include "dumbsolution.h"
+#include <stdio.h>
+
+#include "node.h"
+#include "twnode.h"
+#include "trashnode.h"
+#include "twpath.h"
+#include "feasableSol.h"
+//#include "oneTruckAllNodesInit.h"
 
 
-void Usage()
-{
-    std::cout << "Usage: tester in.txt\n";
+
+void Usage() {
+    std::cout << "Usage: trash file (no extension)\n";
 }
 
+static std::string font = "/usr/share/fonts/truetype/ttf-dejavu/DejaVuSans.ttf";
 
-int main (int argc, char **argv)
-{
+int main(int argc, char **argv) {
+
     if (argc < 2) {
         Usage();
         return 1;
     }
 
-    char * infile = argv[1];
-    
-    try {   //ALL THESE ARE TESTS DONT NEED TO BE REAL SOLUTIONS
+    std::string infile = argv[1];
 
-        Prob_trash P(infile);   //setting a new problem
-//P.dump();
-        std::string title;
-        std::cout << "Problem '" << infile << "'loaded\n";
-//        DumbSolution sols(P);
-//        sols.insertConstruction();
-//        sols.insertDumbInitialSolutions();
-//        std::cout << "ENDING\n";
-//        sols.dump();
-        
+    try {
+       
+        FeasableSol tp(infile);
     }
     catch (const std::exception &e) {
         std::cerr << e.what() << std::endl;
@@ -48,3 +45,7 @@ int main (int argc, char **argv)
 
     return 0;
 }
+
+
+
+

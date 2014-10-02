@@ -14,7 +14,7 @@
 #include "twnode.h"
 #include "trashnode.h"
 #include "twpath.h"
-#include "sweep3.h"
+#include "feasableSol.h"
 //#include "oneTruckAllNodesInit.h"
 
 
@@ -36,15 +36,7 @@ int main(int argc, char **argv) {
 
     try {
        
-        Sweep3 tp(infile);
-
-        Solution sol1(infile,tp.solutionAsVector())  ; 
-	assert(tp.solutionAsText()==sol1.solutionAsText());
-	assert(tp.solutionAsTextID()==sol1.solutionAsTextID());
-        Solution sol2(infile,tp.solutionAsVectorID())  ; 
-	assert(tp.solutionAsText()==sol2.solutionAsText());
-	assert(tp.solutionAsTextID()==sol2.solutionAsTextID());
-        std::cout<<tp.solutionAsTextID()<<"\n";
+        FeasableSol tp(infile);
     }
     catch (const std::exception &e) {
         std::cerr << e.what() << std::endl;
