@@ -2,18 +2,18 @@
 CPP = g++
 
 
-BASETRASH   = baseTrash
+BASETRASH = baseTrash
 BASECLASSES = baseClasses
-INITTRASH   = initTrash 
+INITTRASH = initTrash
 
 BUILD_DIR = ./build
-BIN_DIR   = ./bin 
+BIN_DIR = ./bin
 
 INCLUDES = -I../../$(BASECLASSES) -I../../$(BASETRASH) -I../../$(INITTRASH) -I.
-CPPFLAGS = -g -O0 -MMD  -MP  
+CPPFLAGS = -g -O0 -MMD  -MP
 LDFLAGS = -lgd $(INCLUDES) -L$(BASECLASSES) -L$(BASETRASH) -L$(INITTRASH)
 
-SRCS =  init_trash.cpp
+SRCS =  dumbsolution.cpp
 OBJS = $(addprefix $(BUILD_DIR)/,$(SRCS:.cpp=.o))
 HEADS = $(SRCS:.cpp=.h)
 
@@ -28,13 +28,14 @@ BASECLASSES_HEADS = ../../$(BASECLASSES)/twpath.h ../../$(BASECLASSES)/twc.h ../
 BASETRASH_SRCS = $(wildcard ../../$(BASETRASH)/*.cpp)
 BASETRASH_HDS = $(BASETRASH_SRCS:.cpp=.h)
 BASETRASH_OBJS = $(addprefix $(BUILD_DIR)/$(BASETRASH)/,$(notdir $(BASETRASH_SRCS:.cpp=.o)))
-BASETRASH_HEADS = $(BASETRASH_HDS)
-
+BASETRASH_HEADS = $(BASETRASH_HDS) $(BASECLASSES_HEADS)
 
 INITTRASH_SRCS = $(wildcard ../../$(INITTRASH)/*.cpp)
 INITTRASH_HDS = $(INITTRASH_SRCS:.cpp=.h)
 INITTRASH_OBJS = $(addprefix $(BUILD_DIR)/$(INITTRASH)/,$(notdir $(INITTRASH_SRCS:.cpp=.o)))
-INITTRASH_HEADS = $(INITTRASH_HDS)
+INITTRASH_HEADS = $(INITTRASH_HDS)  $(BASECLASSES_HEADS)
+
+
 
 DEPS = $(addprefix $(BUILD_DIR)/,$(SRCS:.cpp=.d))
 
@@ -42,35 +43,29 @@ DEPS = $(addprefix $(BUILD_DIR)/,$(SRCS:.cpp=.d))
 
 
 all:   $(OBJS) $(BASECLASSES_OBJS) $(BASETRASH_OBJS) $(INITTRASH_OBJS) build/trash.o ./bin/trash
-  
+
 
 
 build/trash.o: trash.cpp $(BASECLASSES_HEADS) $(BASETRASH_HEADS) $(INITTRASH_HEADS) $(HEADS)
-	echo  "Compiling Main"
 	$(CPP) $(CPPFLAGS) $(INCLUDES) -c $< -o $@
 
 build/baseClasses/%.o: ../../$(BASECLASSES)/%.cpp  ../../$(BASECLASSES)/%.h $(BASECLASSES_HEADS)
-	echo  "Compiling Base Classes"
 	$(CPP) $(CPPFLAGS) $(INCLUDES) -c $< -o $@
 
 build/baseTrash/%.o: ../../$(BASETRASH)/%.cpp ../../$(BASETRASH)/%.h  $(BASECLASSES_HEADS) $(BASETRASH_HEADS)
-	echo  "Compiling Base Trash"
 	$(CPP) $(CPPFLAGS) $(INCLUDES) -c $< -o $@
 
 
 build/initTrash/%.o: ../../$(INITTRASH)/%.cpp  ../../$(INITTRASH)/%.h  $(BASECLASSES_HEADS) $(BASETRASH_HEADS) $(INITTRASH_HEADS)
-	echo  "Compiling Init Trash"
 	$(CPP) $(CPPFLAGS) $(INCLUDES) -c $< -o $@
 
 build/%.o: %.cpp %.h $(BASECLASSES_HEADS) $(BASETRASH_HEADS) $(INITTRASH_HEADS)
-	echo  "Compiling local"
 	$(CPP) $(CPPFLAGS) $(INCLUDES) -c $< -o $@
 
-bin/trash: $(OBJS) $(BASECLASSES_OBJS) $(BASETRASH_OBJS) $(INITTRASH_OBJS) $(BASECLASSES_HEADS) $(BASETRASH_HEADS) $(INITTRASH_HEADS)
-	echo $(OBJS) $(BASECLASSES_OBJS) $(BASETRASH_OBJS) $(INITTRASH_OBJS) $(BASECLASSES_HEADS) $(BASETRASH_HEADS) $(INITTRASH_HEADS)
+bin/trash: build/trash.o $(OBJS) $(BASECLASSES_OBJS) $(BASETRASH_OBJS) $(INITTRASH_OBJS) $(BASECLASSES_HEADS) $(BASETRASH_HEADS) $(INITTRASH_HEADS)
 	$(CPP) $^ -o $@ $(LDFLAGS)
 
-test: ./bin/trash ./montevideo/muni-b.containers.txt ./montevideo/muni-b.othrelocs.txt ./montevideo/muni-b.dmatrix-time.txt ./montevideo/muni-b.vehicles.txt
+test: ./bin/trash ./montevideo/muni-b.containers.txt ./montevideo/muni-b.otherlocs.txt ./montevideo/muni-b.dmatrix-time.txt ./montevideo/muni-b.vehicles.txt
 	./bin/trash ./montevideo/muni-b >./montevideo/muni-b.out
 
 valgrind: ./bin/trash ./data/p10a.txt
@@ -99,6 +94,6 @@ cleanAll: clean
 	$(MAKE) -C ../../trash-collection clean
 	$(MAKE) -C ../../pick-deliver clean
 	rm ./bin/trash
-        
+
 -include $(DEPS)
 
