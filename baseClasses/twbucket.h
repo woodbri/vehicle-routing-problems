@@ -68,19 +68,11 @@ class compNode{
 
 double  getDeltaTime(const knode &node, const knode &dump) {
      int pos=path.size()-1;
-#ifndef TESTED
-std::cout<<"Entering twbucket::getdeltaTime (node,node)\n";
-//std::cout<<TravelTime[pos][node.getnid] <<"+"<< TravelTime[node.getnid][dump.getnid()] <<" - " <<  TravelTime[pos][dump.getnid()] <<" \n";
-#endif
      return TravelTime[pos][node.getnid()] + TravelTime[node.getnid()][dump.getnid()]  -   TravelTime[pos][dump.getnid()];
 }
 
 double  getDeltaTime(const knode &node, UID pos) {
       assert(pos<path.size() and pos > 0 );
-#ifndef TESTED
-std::cout<<"Entering twbucket::getdeltaTime (node,pos)\n";
-//std::cout<<TravelTime[pos-1][node.getnid] <<"+"<< TravelTime[node.getnid][pos] <<" - " <<  TravelTime[pos-1][pos] <<" \n";
-#endif
      return TravelTime[pos-1][node.getnid()] + TravelTime[node.getnid()][pos]  -   TravelTime[pos-1][pos];
 }
 
@@ -125,7 +117,8 @@ std::cout<<"Entering twbucket::getdeltaTime (node,pos)\n";
     };
 
 //  set operations tools
-    bool hasid(UID id) const {
+    bool hasId(const knode &node) const { return hasid(node.getid()); };
+    bool hasId(UID id) const {
         const_reverse_iterator rit = path.rbegin();
         for (const_iterator it = path.begin(); it!=path.end() ;it++,++rit) {
               if(it->getid()==id) return true;
@@ -134,10 +127,8 @@ std::cout<<"Entering twbucket::getdeltaTime (node,pos)\n";
         return false;
     };
 
-    bool has(const knode &node) const {
-        return has(node.getnid());
-    };
 
+    bool has(const knode &node) const { return has(node.getnid()); };
     bool has(UID nid) const {
         const_reverse_iterator rit = path.rbegin();
         for (const_iterator it = path.begin(); it!=path.end() ;it++,++rit) {
@@ -238,9 +229,43 @@ std::cout<<"Entering twbucket::getdeltaTime (node,pos)\n";
        return *this;
     }
 
+//Last node on path data retreival
+    double getTotTravelTime() const {
+       assert (size());
+       return path[size()-1].getTotTravelTime();
+    };
 
+    double getTotWaitTime() const {
+       assert (size());
+       return path[size()-1].getTotWaitTime();
+    };
 
-//  NID based tools
+    double getTotServiceTime() const {
+       assert (size());
+       return path[size()-1].getTotWaitTime();
+    };
+
+    double getDepartureTime() const {
+       assert (size());
+       return path[size()-1].getDepartureTime();
+    };
+
+    int getTwvTot() const {
+       assert (size());
+       return path[size()-1].gettwvTot();
+    };
+
+    int getCvTot() const {
+       assert (size());
+       return path[size()-1].gettwvTot();
+    };
+
+    double getTotCargo() const {
+       assert (size());
+       return path[size()-1].getcargo();
+    };
+
+//  ID based tools  to NID tools
 
     long int getNidFromId(UID id) const {
         const_reverse_iterator rit = path.rbegin(); 
@@ -252,7 +277,7 @@ std::cout<<"Entering twbucket::getdeltaTime (node,pos)\n";
     };
 
 
-    UID posFromId(UID id) const {
+    long int posFromId(UID id) const {
 //        const_reverse_iterator rit = path.rbegin(); 
         for (const_iterator it = path.begin(); it!=path.end() ;it++/*,++rit*/) {
               if(it->getid()==id) return int(it-path.begin());
@@ -262,11 +287,9 @@ std::cout<<"Entering twbucket::getdeltaTime (node,pos)\n";
     };
 
 
-    UID pos(const knode &node) const {
-        return pos(node.getnid());
-    };
-
-    UID pos(UID nid) const {
+//  NID tools
+    long int pos(const knode &node) const { return pos(node.getnid()); };
+    long int pos(UID nid) const {
 //        const_reverse_iterator rit = path.rbegin(); 
         for (const_iterator it = path.begin(); it!=path.end() ;it++/*,++rit*/) {
               if(it->getnid()==nid) return int(it-path.begin());

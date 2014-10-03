@@ -505,7 +505,7 @@ void loadAndProcess_distance(std::string infile, const Bucket &datanodes, const 
           else travel_Time[i][j]=travel_Time[j][i]=original[i].distance(original[j])*(1/250);
 
     int from,to;
-    double dist;
+    double time;
     int cnt = 0;
     while ( getline(in, line) ) {
         cnt++;
@@ -514,12 +514,12 @@ void loadAndProcess_distance(std::string infile, const Bucket &datanodes, const 
         std::istringstream buffer( line );
         buffer >> from;
         buffer >> to;
-        buffer >> dist;
-        if ( invalid.hasid(from) or invalid.hasid(to) ) continue;
+        buffer >> time;
+        if ( invalid.hasId(from) or invalid.hasId(to) ) continue;
 
-        fromId=original.getNidFromId(from);
-        toId=original.getNidFromId(to);
-        travel_Time[fromId][toId]=dist;
+        fromId= getNidFromId(from);
+        toId=getNidFromId(to);
+        travel_Time[fromId][toId]=time;
     }
     in.close();
 
@@ -530,7 +530,7 @@ void loadAndProcess_distance(std::string infile, const Bucket &datanodes, const 
  
 const std::vector<std::vector<double> > & TravelTime(){ return travel_Time;}
 
-
+long int getNidFromId(int id) const { return original.getNidFromId( id ); }
 
 
 // constructors

@@ -9,23 +9,30 @@
     
     void Tweval::evaluate (double cargoLimit) {
         cargo = getdemand();
-        waitTime = 0;
-        travelTime = 0;
-        totTime = 0;
+        departureTime = arrivalTime = waitTime =  travelTime = 0;
+        totTravelTime = totWaitTime = totServiceTime= 0;
         twvTot = cvTot = 0;
         twv = cv = false;
     }
         
+
     void Tweval::evaluate (const Tweval &pred, double cargoLimit){  
         assert(Tweval::TravelTime.size());
 
-        travelTime = TravelTime[pred.nid][nid]; // Travel Time from previous node to this node
-        totTime = pred.totTime + travelTime;    // tot length travel drom 1st node
-        twv = latearrival(totTime); // Time Window Violation
+        travelTime     = TravelTime[pred.nid][nid]; // Travel Time from previous node to this node
+        totTravelTime  = pred.totTravelTime + travelTime;    // tot length travel from 1st node
 
-        waitTime = earlyarrival(totTime) ? opens()-totTime : 0; // truck arrives before node opens, so waits 
-        totTime += waitTime + serviceTime; // we add the waiting time + service time
-        cargo = pred.cargo + demand; // loading truck demand>0 or unloading demand<0
+        arrivalTime   = pred.departureTime + travelTime; // Time Window Violation
+        twv = latearrival(arrivalTime); // Time Window Violation
+
+        waitTime     = earlyarrival(arrivalTime) ? opens()-arrivalTime : 0; // truck arrives before node opens, so waits 
+        totWaitTime  = pred.totWaitTime + waitTime; 
+
+        totServiceTime = pred.totServiceTime + serviceTime;
+        departureTime      = arrivalTime + waitTime + serviceTime; 
+
+
+        cargo = pred.cargo + demand;// loading truck demand>0 or unloading demand<0
         cv = cargo>cargoLimit or cargo <0; // capacity Violation
 
         // keep a total of violations
@@ -37,7 +44,7 @@
 
     void Tweval::dump() const {
         Twnode::dump();
-        std::cout << std::endl;;
+        std::cout << std::endl;
     }
 
     void Tweval::dumpeval() const  {
@@ -47,33 +54,21 @@
                   << ", cvTot=" << cvTot
                   << ", cargo=" << cargo
                   << ", travel Time=" << travelTime
-                  << ", waitTime=" << waitTime
-                  << ", serviceTime=" << serviceTime
-                  << ", totTime=" << totTime
+                  << ", arrival Time=" << arrivalTime
+                  << ", wait Time=" << waitTime
+                  << ", service Time=" << serviceTime
+                  << ", departure Time=" << departureTime
                   << std::endl;
     }
 
 
 
    Tweval::Tweval():Twnode() {
-       twv = cv = false;
-       twvTot = cvTot = 0;
-       cargo = 0;
-       waitTime = 0; 
-       travelTime = totTime = 0;
-    }
+        arrivalTime = waitTime =  travelTime = 0;
+        totTravelTime = totWaitTime = totServiceTime= 0;
+        twvTot = cvTot = 0;
+        twv = cv = false;
+   }
 
-
-/* Private */
-    void Tweval::copyvalues (const Tweval &other) {
-              twv = other.twv;
-              cv = other.cv;
-              twvTot = other.twvTot;
-              cvTot = other.cvTot;
-              cargo = other.cargo;
-              travelTime = other.travelTime;
-              totTime = other.totTime;
-              waitTime = other.waitTime;
-    }
 
 
