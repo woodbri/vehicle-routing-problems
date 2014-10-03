@@ -21,8 +21,18 @@ public:
     int  getcvTot() const { return cvTot; };
     double getcargo() const { return cargo; };
     double getdistPrev() const { return travelTime; };
-    double gettotDist() const { return totTime; };
-    double getTotTime() const { return totTime; };
+
+
+    double getTotTime() const { return departureTime;};
+    double getTravelTime() const { return travelTime; };
+    double getArrivalTime() const { return arrivalTime; };
+    double getWaitTime() const {return waitTime;};
+    double getDepartureTime() const { return departureTime; };
+    double getTotTravelTime() const { return totTravelTime; };
+    double getTotWaitTime() const { return totWaitTime; };
+    double getTotServiceTime() const { return totServiceTime; };
+    
+
     bool hastwv() const { return twv; };
     bool hascv() const { return cv; };
 
@@ -42,7 +52,14 @@ public:
 
 /* constructors &destructors */
     Tweval();
-    Tweval(std::string line):Twnode(line){};
+    Tweval(std::string line):Twnode(line){
+        cv = twv = false;
+	cvTot = twvTot = 0;
+	cargo = 0;
+	arrivalTime = travelTime = waitTime = departureTime =0;
+        totWaitTime = totTravelTime = totServiceTime =0;
+   };
+
     ~Tweval(){};
 
 private:
@@ -51,11 +68,17 @@ private:
     int twvTot;
     int cvTot;
     double cargo;
-    double waitTime;
-    double travelTime;
-    double totTime;
 
-    void copyvalues (const Tweval &other);
+    double travelTime;
+    double arrivalTime;
+    double waitTime;
+    //double serviceTime  already in twnode
+    double departureTime;
+
+    double totWaitTime;
+    double totTravelTime;
+    double totServiceTime;
+
 
 };    
 
