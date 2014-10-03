@@ -69,7 +69,7 @@ bin/trash: build/trash.o $(OBJS) $(BASECLASSES_OBJS) $(BASETRASH_OBJS) $(INITTRA
 	$(CPP) $^ -o $@ $(LDFLAGS)
 
 test: ./bin/trash ./montevideo/muni-b.containers.txt ./montevideo/muni-b.otherlocs.txt ./montevideo/muni-b.dmatrix-time.txt ./montevideo/muni-b.vehicles.txt
-	./bin/trash ./montevideo/muni-b >./montevideo/muni-b.out
+	./bin/trash ./montevideo/muni-b >./logs/muni-b.out
 
 valgrind: ./bin/trash ./data/p10a.txt
 	valgrind -v --track-origins=yes --leak-check=full ./bin/trash montevideo/muni-b

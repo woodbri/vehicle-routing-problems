@@ -6,9 +6,22 @@
 
 
 double Node::distance(const Node &n) const {
-        double dx = n.x - x;
-        double dy = n.y - y;
-        return sqrt( dx*dx + dy*dy );
+    // Haversine sphereical distance for lat/lon values
+    const double deg2rad = 3.14159265358979323846 / 180.0;
+    const double rad2deg = 180.0 / 3.14159265358979323846;
+    double theta, dist;
+    theta = n.x - x;
+    dist = sin(deg2rad * n.y) * sin(deg2rad * y) +
+           cos(deg2rad * n.y) * cos(deg2rad * y) * cos(deg2rad * theta);
+    dist = acos(dist);
+    dist = rad2deg * dist;
+    dist = dist * 60 * 1.1515;
+    return dist;
+
+    // Simple Euclidean distance in x-y plane
+    //double dx = n.x - x;
+    //double dy = n.y - y;
+    //return sqrt( dx*dx + dy*dy );
 };
 
 
