@@ -139,8 +139,8 @@ invalid.dump("invalid");
     for (int i=0;i<nodes.size();i++) {
         nodes[i].setnid(i);
         id = nodes[i].getid();
-        if ( pickups.hasid( id ) ) pickups[ pickups.posFromId( id ) ].setnid(i);
-        else if ( otherlocs.hasid( id ) ) otherlocs[ otherlocs.posFromId( id ) ].setnid(i);
+        if ( pickups.hasId( id ) ) pickups[ pickups.posFromId( id ) ].setnid(i);
+        else if ( otherlocs.hasId( id ) ) otherlocs[ otherlocs.posFromId( id ) ].setnid(i);
     }
 
     assert( pickups.size() and otherlocs.size() );

@@ -127,13 +127,15 @@ void Vehicle::dumppath() const {
 
 
    void Vehicle::dumpeval() const {
-     for (int i=0;i<path.size();i++){
+     std::cout<<"\nStarting site:"<<"\n";
+     path[0].dumpeval();
+     for (int i=1;i<path.size();i++){
          std::cout<<"\npath stop #:"<<i<<"\n";
           path[i].dumpeval();
      }
      std::cout<<"\nDump site:"<<"\n";
      dumpSite.dumpeval();
-     std::cout<<"\nBack to depot:"<<"\n";
+     std::cout<<"\nEnding site :"<<"\n";
      endingSite.dumpeval();
      std::cout <<"TOTAL COST="<<cost <<"\n";
    }
@@ -262,10 +264,10 @@ void Vehicle::restorePath(Twpath<Trashnode> oldpath) {
 
 void Vehicle::evalLast() {
     Trashnode last = path[path.size()-1];
-    dumpSite.setdemand(-last.getcargo());
+    dumpSite.setDemand(-last.getcargo());
     dumpSite.evaluate(last, getmaxcapacity());
     endingSite.evaluate(dumpSite, getmaxcapacity());
-    cost = w1*endingSite.gettotDist() +
+    cost = w1*endingSite.getTotTime() +
            w2*endingSite.getcvTot() +
            w3*endingSite.gettwvTot();
 }

@@ -58,18 +58,6 @@ typedef  unsigned long int UID ;
         w1 = w2 = w3 = 1.0;
     };
 
-    Vehicle( Trashnode _depot, Trashnode _dump ) {
-        maxcapacity  = _depot.getdemand();
-        _depot.setdemand(0);
-        _depot.setservice(0);
-        endingSite  = _depot;
-        dumpSite = _dump;
-        push_back( _depot );
-        cost         = 0;
-        w1 = w2 = w3 = 1.0;
-    }
-
-
     Vehicle(std::string line,const Bucket &otherlocs)  {
        // TESTED on running program
        assert(otherlocs.size());
@@ -77,23 +65,31 @@ typedef  unsigned long int UID ;
        int depotId,depotNid;
        int dumpId,dumpNid;
        int endingId,endingNid;
+       double dumpServiceTime;
+
+       cost        = 0;
+       w1 = w2 = w3 = 1.0;
+
        buffer >> vid;
-       buffer >> ntype;
        buffer >> depotId;
        buffer >> dumpId;
        buffer >> endingId;
+       buffer >> dumpServiceTime;
        buffer >> maxcapacity;
 
-       if (otherlocs.hasid(depotId) and otherlocs.hasid(dumpId) and otherlocs.hasid(endingId)){ ;
+       if (otherlocs.hasId(depotId) and otherlocs.hasId(dumpId) and otherlocs.hasId(endingId)){ ;
           endingSite=otherlocs[otherlocs.posFromId(endingId)];
           dumpSite=otherlocs[otherlocs.posFromId(dumpId)];
+          dumpSite.setServiceTime(dumpServiceTime);
           depot=otherlocs[otherlocs.posFromId(depotId)];
+	  depot.setType(0);
+	  depot.setDemand(0);
+	  dumpSite.setType(1);
+	  endingSite.setType(3);
           push_back(depot);
           evalLast();
 
        } else vid=-1;  
-       cost        = 0;
-       w1 = w2 = w3 = 1.0;
    }
 
 
@@ -109,7 +105,7 @@ typedef  unsigned long int UID ;
     int getTWV() const { return endingSite.gettwvTot(); };
     int getCV() const { return endingSite.getcvTot(); };
     int getcargo() const { return  path[path.size()-1].getcargo(); };
-    double getduration() const { return endingSite.gettotDist(); };
+    double getduration() const { return endingSite.getTotTime(); };
     double getcost() const { return cost; };
     double getw1() const { return w1; };
     double getw2() const { return w2; };
