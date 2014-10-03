@@ -10,6 +10,7 @@
 
 #include <stdio.h>
 
+#include "osrm.h"
 #include "node.h"
 #include "twnode.h"
 #include "trashnode.h"
@@ -34,9 +35,14 @@ int main(int argc, char **argv) {
 
     std::string infile = argv[1];
 
+    // MUST call this once to initial communications via cURL
+    cURLpp::Cleanup myCleanup;
+
     try {
        
         FeasableSol tp(infile);
+        tp.dump();
+
     }
     catch (const std::exception &e) {
         std::cerr << e.what() << std::endl;

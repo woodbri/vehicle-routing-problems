@@ -107,6 +107,7 @@ typedef  unsigned long int UID ;
     int getcargo() const { return  path[path.size()-1].getcargo(); };
     double getduration() const { return endingSite.getTotTime(); };
     double getcost() const { return cost; };
+    double getTimeOSRM() const;
     double getw1() const { return w1; };
     double getw2() const { return w2; };
     double getw3() const { return w3; };
