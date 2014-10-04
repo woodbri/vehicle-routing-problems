@@ -1,0 +1,8 @@
+#!/bin/sh
+echo "Running extraction: osrm-extract uruguay-latest.osm.pbf"
+time osrm-extract uruguay-latest.osm.pbf
+
+echo "Running osrm-prepare uruguay-latest.osrm"
+time osrm-prepare uruguay-latest.osrm
+
+echo "Ready!"
