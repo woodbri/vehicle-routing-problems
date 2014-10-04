@@ -46,22 +46,22 @@ Find an appropriate file and fetch it. We will use Uruguay for our example.
 
   http://download.geofabrik.de/south-america/uruguay.html
 
-There are a bunch of support files that need to be present for OSRM to work
-a sample set is provided in the ``osrm-work`` directory along with the scripts
-mentioned below.
-
-```
-cd /path/for/osrm-work/
-wget -N http://download.geofabrik.de/south-america/uruguay-latest.osm.bz2
-time osrm-extract uruguay-latest.osm.pbf
-time osrm-prepare uruguay-latest.osrm
-```
-
-There are shell scripts to automate this. Edit them for your needs:
+There are a bunch of support files that need to be present for OSRM to work a sample set is provided in the ``uruguay`` directory along with the scripts mentioned below. 
 
  * wget-latest-uruguay
  * do-prepare
  * run-test-server
+
+If you need another country just remane the directory to the appropiate name, and change the scripts to handle the country you desire.
+
+```
+cd /path/for/osrm-data/
+cp -r /path/to/vehicle-routing-problems-clone/osrm-work/uruguay/ .
+cd uruguay
+sh ./wget-latest-uruguay
+./do-prepare
+./run-test-server
+```
 
 ## Running the OSRM Server
 
@@ -70,6 +70,34 @@ installed the ``osrm-work`` directory and prepared the data there then
 all you need to do it run the ``run-test-server`` to get it running. If
 you want to have it start on boot up, I'll leave that as an exercise for
 the user.
+
+Having osrm-routed running is a requierment for vehicle-routing-problems programs to run, so if
+ * you dont want it to start on boot up
+ * if you want it to start on boot up and you couldn't solve the excersice.
+then do the following every time you boot the computer.
+
+```
+cd /path/for/osrm-data/uruguay
+./run-test-server
+cd /path/to/where/you/were/before
+```
+
+## Try it out
+
+Lets get a route:
+
+```
+cd /path/to/any/direcotry/
+GET 'http://localhost:5000/viaroute?z=18&instructions=true&alt=false&loc=-34.8977,-56.1241&loc=-34.8917,-56.1678'
+```
+
+You will get aan output that starts like:
+
+```
+{"status":0,"status_message": "Found route between point .....etc
+```
+
+## About server.ini
 
 I have included a server.ini file which osrm-routed reads. I think it has been
 deprecated in favor of commandline options. ``osrm-routed --help`` will
