@@ -24,7 +24,7 @@ double Vehicle::getTimeOSRM() const {
     url << "&loc=" << dumpSite.gety() << "," << dumpSite.getx();
     url << "&loc=" << endingSite.gety() << "," << endingSite.getx();
 
-std::cout << "OSRM: " << url << std::endl;
+//std::cout << "OSRM: " << url.str() << std::endl;
 
     if(osrm.callOSRM(url.str())) {
         std::cout << "osrm.callOSRM: failed for url: " << url << std::endl;
@@ -40,6 +40,8 @@ std::cout << "OSRM: " << url << std::endl;
         std::cout << "osrm.getTravelTime failed to find the travel time!" << std::endl;
         return -1.0;
     }
+
+    ttime += path.getTotWaitTime() + path.getTotServiceTime();
 
     return ttime;
 }
