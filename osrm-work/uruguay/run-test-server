@@ -1,0 +1,23 @@
+#/bin/sh
+if [ -z $1 ] ; then
+    echo "Usage: run-test-server path/to/file.osrm"
+    exit
+fi
+
+if [ a`id -un` != 'awww-data' ] ; then
+    sudo rm -f /run/shm/*
+
+    if [ ! -f nohup.out ] ; then
+        touch nohup.out
+    fi
+    chmod 666 nohup.out
+
+    exec sudo -u www-data ./run-test-server $*
+    exit 1
+fi
+
+echo "Starting OSRM server"
+echo nohup osrm-routed $1
+nohup osrm-routed $1 &
+
+exit 0

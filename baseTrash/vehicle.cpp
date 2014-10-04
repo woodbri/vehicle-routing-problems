@@ -6,7 +6,45 @@
 
 #include "twpath.h"
 #include "vehicle.h"
+#include "osrm.h"
 
+// getTimeOSRM() REQUIRES the main() to call cURLpp::Cleanup myCleanup; ONCE!
+
+double Vehicle::getTimeOSRM() const {
+    std::ostringstream url(std::ostringstream::ate);
+    url.str("http://localhost:5000/viaroute?z=18&instructions=false&alt=false");
+
+    OSRM osrm;
+    int status;
+    double ttime;
+
+    for (int i=0; i<path.size(); i++)
+        url << "&loc=" << path[i].gety() << "," << path[i].getx();
+
+    url << "&loc=" << dumpSite.gety() << "," << dumpSite.getx();
+    url << "&loc=" << endingSite.gety() << "," << endingSite.getx();
+
+//std::cout << "OSRM: " << url.str() << std::endl;
+
+    if(osrm.callOSRM(url.str())) {
+        std::cout << "osrm.callOSRM: failed for url: " << url << std::endl;
+        return -1.0;
+    }
+
+    if(osrm.getStatus(status)) {
+        std::cout << "osrm.getStatus: reported: " << status << std::endl;
+        return -1.0;
+    }
+
+    if(osrm.getTravelTime(ttime)) {
+        std::cout << "osrm.getTravelTime failed to find the travel time!" << std::endl;
+        return -1.0;
+    }
+
+    ttime += path.getTotWaitTime() + path.getTotServiceTime();
+
+    return ttime;
+}
 
 bool Vehicle::deltaCargoGeneratesCV(const Trashnode &node) {
 #ifdef TESTED
@@ -107,6 +145,7 @@ void Vehicle::dump() const {
     std::cout << "cargo: " << getcargo() << std::endl;
     std::cout << "duration: " << getduration() << std::endl;
     std::cout << "cost: " << getcost() << std::endl;
+    std::cout << "OSRM time: " << getTimeOSRM() << std::endl;
     std::cout << "TWV: " << getTWV() << std::endl;
     std::cout << "CV: " << getCV() << std::endl;
     std::cout << "w1: " << getw1() << std::endl;

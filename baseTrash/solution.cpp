@@ -154,6 +154,8 @@ void Solution::dump() {
               << "\n     Total Cost: " << totalCost
               << std::endl;
     for (int i=0; i<fleet.size(); i++) {
+        std::cout << "V" << i << " Total OSRM Time: "
+                  << fleet[i].getTimeOSRM() << std::endl;
         fleet[i].getBackToDepot().dumpeval();
     }
 }

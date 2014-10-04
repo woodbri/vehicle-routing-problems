@@ -1,0 +1,31 @@
+#!/bin/sh
+
+
+
+wget -N http://download.geofabrik.de/south-america/uruguay-latest.osm.pbf
+
+wget -N http://download.geofabrik.de/south-america/uruguay-latest.osm.pbf.md5
+
+
+
+md5sum uruguay-latest.osm.pbf > uruguay-download.md5
+
+
+
+MD5A=`cat uruguay-download.md5 | cut -d ' ' -f 1 `
+
+MD5B=`cat uruguay-latest.osm.pbf.md5 | cut -d ' ' -f 1 `
+
+
+
+if [ $MD5A != $MD5B ] ; then
+
+    echo "ERROR: MD5 sums do not match!"
+
+    exit 1
+
+fi
+
+
+
+exit 0
