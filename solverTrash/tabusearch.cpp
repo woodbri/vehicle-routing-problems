@@ -2,6 +2,8 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
+
+#include "neighborhoods.h"
 #include "tabusearch.h"
 
 void TabuSearch::dumpTabuList() const {
@@ -84,7 +86,9 @@ void TabuSearch::search() {
 
     bool madeChanges;
     do {
-        madeChanges = doNeighborhoodMoves(Ins, 500)
+        // set the stagnation count as the last the last parameter
+        // thhe values 500, 300, 300 can from the paper mentioned above
+        madeChanges = doNeighborhoodMoves(Ins,     500)
                     | doNeighborhoodMoves(IntraSw, 300)
                     | doNeighborhoodMoves(InterSw, 300);
     }
@@ -94,16 +98,20 @@ void TabuSearch::search() {
 
 
 /*
-    For each of the individual move neighborhoods:
+    Algorithm for processing neighborhood moves
+
+    For the requested individual move neighborhood:
         doInsMoves, doIntraSwMoves, doInterSwMoves
 
     do {
-        Generate the neighhood of feasible moves order by best to worst.
-        Working through the neighborhood (best to worst) if the move is
-        aspirational then apply the move otherwise if the move is not Tabu
-        apply the move even if it makes the solution worse.
+        Generate the neighhood of moves order from best to worst.
+        Working through the neighborhood (best to worst)
+        Filter out inFeasible moves then
+        if the move is aspirational we apply the move
+        otherwise if the move is not Tabu apply the move
+        even if it makes the solution worse.
     } until there are not valid moves or stagnation 
-    return madeChanges
+    return an indicator that we made changes or not.
 */
 
 bool TabuSearch::doNeighborhoodMoves(Neighborhoods whichNeighborhood, int maxStagnation) {
@@ -116,6 +124,10 @@ bool TabuSearch::doNeighborhoodMoves(Neighborhoods whichNeighborhood, int maxSta
         loopMadeMove = false;
 
         // generate the a move neighborhood based on the currentSolution
+        // this is fast and stupid move generation because we will
+        // only look at a very small percentage of the actual moves
+        // because we have to calcuate savings we should have already
+        // checked for feasibility so only feasible solutions are returned
         std::vector<Move> neighborhood;
         switch (whichNeighborhood) {
             case Ins:
@@ -129,12 +141,14 @@ bool TabuSearch::doNeighborhoodMoves(Neighborhoods whichNeighborhood, int maxSta
                 break;
         }
 
-        // and sort it
+        // and sort it so we can work from the best to the worst
         std::sort(neighborhood.begin(), neighborhood.end(), Move::bySavings);
 
         // take the best move that we may apply and apply it, if any
         for (std::vector<Move>::iterator it=neighborhood.begin();
                 it!=neighborhood.end(); ++it) {
+
+            // if the move is aspirational then we apply it
             if (currentSolution.getCost() - it->getsavings() < bestSolutionCost) {
                 currentSolution.applyMove(*it);
                 bestSolution = currentSolution;
@@ -151,6 +165,9 @@ bool TabuSearch::doNeighborhoodMoves(Neighborhoods whichNeighborhood, int maxSta
                     case InterSw: ++cntInterSwApplied; break;
                 }
             }
+            // if the move is not Tabu, then we apply it even if
+            // it makes the solution worse so we move to a new
+            // area of the search space
             else if (! isTabu(*it)) {
                 currentSolution.applyMove(*it);
                 makeTabu(*it);
