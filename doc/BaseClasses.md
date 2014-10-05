@@ -30,14 +30,21 @@ overview of base clases
 * class methods
 
 
-## Plot1
+## Plot
 
 * overview of class
 * class members
 * class methods
 
 
-## Vec2d
+## Singleton
+
+* overview of class
+* class members
+* class methods
+
+
+## MD5
 
 * overview of class
 * class members

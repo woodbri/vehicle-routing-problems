@@ -67,9 +67,7 @@ sh ./wget-latest-uruguay
 
 As mentioned above there are some needed support files and if you have 
 installed the ``osrm-work`` directory and prepared the data there then
-all you need to do it run the ``run-test-server`` to get it running. If
-you want to have it start on boot up, I'll leave that as an exercise for
-the user.
+all you need to do it run the ``run-test-server`` to get it running.
 
 Having osrm-routed running is a requierment for vehicle-routing-problems programs to run, so if
  * you dont want it to start on boot up
@@ -80,6 +78,37 @@ then do the following every time you boot the computer.
 cd /path/for/osrm-data/uruguay
 ./run-test-server
 cd /path/to/where/you/were/before
+```
+
+If you want to stop the server then you can run:
+
+```
+sudo killall osrm-routed
+```
+
+If you change the data and want to restart the server then kill it and use the
+``run-test-server`` again.
+
+## Start OSRM at boot like other services
+
+This process is a little more complicated. It requires installing these files
+
+```
+sudo cp etc/osrm.conf /etc/
+sudo cp etc/init.d/osrm /etc/init.d/
+```
+
+You then need to edit ``/etc/osrm.conf`` and change the lines to point to the
+appropriate files on your system. Then you can use:
+
+```
+sudo service osrm start|stop|reload|status
+```
+
+And to get it to run at boot time then run:
+
+```
+sudo update-rc.d osrm defaults
 ```
 
 ## Try it out
@@ -97,12 +126,19 @@ You will get aan output that starts like:
 {"status":0,"status_message": "Found route between point .....etc
 ```
 
+If this does not work, then something is broken and you need to make sure all
+the prior steps have run and completed successfully. If you can not get this 
+to get some help.
+
 ## About server.ini
 
 I have included a server.ini file which osrm-routed reads. I think it has been
 deprecated in favor of commandline options. ``osrm-routed --help`` will
-display them. For example it doesnot look like the router honors the Port
+display them. For example it does not look like the router honors the Port
 value in the server.ini file so it should eventually be removed and the
-script updated to use the commandline options.
+script updated to use the commandline options. If you are using the sysV init
+scripts mentioned above, they do NOT support runing multiple instances of
+``osrm-routed`` configured on different port. We would be happy to get a pull
+request with improvements.
 
 
