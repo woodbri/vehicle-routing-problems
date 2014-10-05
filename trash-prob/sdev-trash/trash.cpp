@@ -10,6 +10,7 @@
 
 #include <stdio.h>
 
+#include "trashconfig.h"
 #include "osrm.h"
 #include "node.h"
 #include "twnode.h"
@@ -39,6 +40,11 @@ int main(int argc, char **argv) {
     cURLpp::Cleanup myCleanup;
 
     try {
+
+        std::cout << "CONFIG: osrmBaseUrl: " << CONFIG->osrmBaseUrl << std::endl
+                  << "            plotDir: " << CONFIG->plotDir << std::endl
+                  << "       plotFontFile: " << CONFIG->plotFontFile << std::endl
+                  << std::endl;
        
         FeasableSol tp(infile);
         tp.dump();
