@@ -4,6 +4,7 @@
 #include <sstream>
 #include <deque>
 
+#include "trashconfig.h"
 #include "twpath.h"
 #include "vehicle.h"
 #include "osrm.h"
@@ -12,7 +13,8 @@
 
 double Vehicle::getTimeOSRM() const {
     std::ostringstream url(std::ostringstream::ate);
-    url.str("http://localhost:5000/viaroute?z=18&instructions=false&alt=false");
+    url.str(CONFIG->osrmBaseUrl);
+    url << "viaroute?z=18&instructions=false&alt=false";
 
     OSRM osrm;
     int status;
