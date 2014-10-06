@@ -1,5 +1,5 @@
-#ifndef FEASABLESOL_H
-#define FEASABLESOL_H
+#ifndef TRUCKMANYVISITSDUMP_H
+#define TRUCKMANYVISITSDUMP_H
 
 #include <string>
 #include <iostream>
@@ -10,10 +10,10 @@
 #include "prob_trash.h"
 #include "solution.h"
 #include "vehicle.h"
+#include "oneTruckAllNodesInit.h"
 
 
-
-class FeasableSol : public Solution {
+class TruckManyVisitsDump : public OneTruckAllNodesInit {
   private:
     typedef  TwBucket<Trashnode> Bucket;
     typedef  unsigned long int UID;
@@ -29,17 +29,17 @@ class FeasableSol : public Solution {
 int tmp;
   public:
 
-    FeasableSol(const std::string &infile): Solution(infile) { 
+    TruckManyVisitsDump(const std::string &infile): OneTruckAllNodesInit(infile) { 
        unusedTrucks=trucks;
        unassigned=pickups;
-       fleet.clear();
 tmp=0;
        process();
     };
 
 
  private:
-    void stepOne(Vehicle &truck);
+    void insertGoing(Bucket &bigTruck, Vehicle &truck, UID goingPos);
+    void insertComming(Bucket &bigTruck, Vehicle &truck, UID goingPos);
     Vehicle getTruck();
     void process();
 

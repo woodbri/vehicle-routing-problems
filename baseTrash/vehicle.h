@@ -40,11 +40,32 @@ typedef  unsigned long int UID ;
     void setvpath(Twpath<Trashnode> p) { path = p; };
 
   public:
+    // TODO LIST 
+    // insertion will not be performed 
+    //  return false if TV or CV is generated 
+    bool eval_insertMoveDumps( const Trashnode &node, int at) const;
+    bool eval_insertSteadyDumps(const Trashnode &node, int at) const;
 
-    // Other tools
+    // insertion will be performed and return false if TV or CV is generated 
+    bool e_insertMoveDumps(const Trashnode &node, int at);
+    bool e_insertSteadyDumps(const Trashnode &node, int at);
+    bool e_insert(const Trashnode &node, int at) { return  e_insertMoveDumps(node, at); };
+
+
+    // Very TIGHT insertion 
+    // insertion will not be performed if 
+    //      TV and CV are  generated 
+    //  true- insertion was done
+    //  false- not inserted 
+    bool e_insertMoveDumpsTight(const Trashnode &node, int at);
+    bool e_insertSteadyDumpsTight(const Trashnode &node, int at);
+    bool e_insertTight(const Trashnode &node, int at) { return  e_insertMoveDumpsTight(node, at); };
+    // END TODO LIST
+    
+
     bool e_setPath(const Bucket &sol);
-    bool deltaCargoGeneratesCV(const Trashnode &node);
-    bool deltaTimeGeneratesTV(const Trashnode &node,int pos);
+    bool deltaCargoGeneratesCV(const Trashnode &node, int pos) const;
+    bool deltaTimeGeneratesTV(const Trashnode &node,int pos) const;
     bool isvalid() const {return vid>=0;};  //
     bool findNearestNodeTo(Bucket &unassigned,const TWC<Trashnode> &twc,  UID &pos,  Trashnode &bestNode);
 
@@ -123,7 +144,8 @@ typedef  unsigned long int UID ;
     double distancetodepot(int i) const { return path[i].distance(getdepot()); };
     double distancetodump(int i) const { return path[i].distance(getdumpSite()); };
 
-    Trashnode operator[](int i) const { return path[i]; };
+    const Trashnode& operator[](int i) const { return path[i]; };
+    //Trashnode operator[](int i) const { return path[i]; };
 
     //--------------------------------------------------------------------
     // dumps and plots
@@ -228,6 +250,7 @@ typedef  unsigned long int UID ;
     // I really hate these shortcuts & I love them but I'll think about them really hard
     //----------------------------------------------------------------
 
+    Bucket  Path() const { return path; };
     int getnid(int i) const { return path[i].getnid(); };
     int getid(int i) const { return path[i].getid(); };
     double getx(const int i) const { path[i].getx(); };
@@ -241,6 +264,7 @@ typedef  unsigned long int UID ;
     bool isdump(int i) const { return path[i].isdump(); };
     bool ispickup(int i) const { return path[i].ispickup(); };
     bool isdepot(int i) const { return path[i].isdepot(); };
+    bool getcargo(int i) const { return path[i].getcargo(); };
 
 
 };

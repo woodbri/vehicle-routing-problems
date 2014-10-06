@@ -14,7 +14,8 @@
 #include "twnode.h"
 #include "trashnode.h"
 #include "twpath.h"
-#include "feasableSol.h"
+#include "truckManyVisitsDump.h"
+//#include "feasableSol.h"
 //#include "oneTruckAllNodesInit.h"
 
 
@@ -36,7 +37,7 @@ int main(int argc, char **argv) {
 
     try {
        
-        FeasableSol tp(infile);
+        TruckManyVisitsDump tp(infile);
     }
     catch (const std::exception &e) {
         std::cerr << e.what() << std::endl;

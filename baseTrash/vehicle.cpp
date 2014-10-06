@@ -9,6 +9,31 @@
 #include "vehicle.h"
 #include "osrm.h"
 
+// space reserved for TODO list
+
+// Very TIGHT insertion 
+    // insertion will not be performed if 
+    //      TV and CV are  generated 
+    //  true- insertion was done
+    //  false- not inserted 
+bool Vehicle::e_insertSteadyDumpsTight(const Trashnode &node, int at){
+    assert ( at<=size() );
+
+    if ( deltaCargoGeneratesCV(node,at) ) return false;
+    if ( deltaTimeGeneratesTV(node,at) ) return false;
+    if ( path.e_insert(node,at,maxcapacity) ) return false;
+    evalLast();
+
+    assert ( feasable() );
+    return true;
+};
+
+
+// end space reserved for TODO list
+
+
+
+
 // getTimeOSRM() REQUIRES the main() to call cURLpp::Cleanup myCleanup; ONCE!
 
 double Vehicle::getTimeOSRM() const {
@@ -48,15 +73,21 @@ double Vehicle::getTimeOSRM() const {
     return ttime;
 }
 
-bool Vehicle::deltaCargoGeneratesCV(const Trashnode &node) {
+bool Vehicle::deltaCargoGeneratesCV(const Trashnode &node, int pos) const { //position becomes important
 #ifdef TESTED
 std::cout<<"Entering Vehicle::deltaCargoGeneratesCV \n";
 std::cout<<getcargo()<<"+"<<node.getdemand()<<" ¿? " <<getmaxcapacity()<<" \n";
 #endif
-     return  ( getcargo() + node.getdemand() > getmaxcapacity()  ) ;
+     //cycle until a dump is found
+     int i;
+     for (i=pos; i<size() and not isdump(i); i++) {};
+     // two choices i points to a dump or i == size() 
+     // in any case the i-1 node has the truck's cargo
+     return  ( getcargo( i-1 ) + node.getdemand() > getmaxcapacity()  ) ;
 };
 
-bool Vehicle::deltaTimeGeneratesTV(const Trashnode &node, int pos) {
+
+bool Vehicle::deltaTimeGeneratesTV(const Trashnode &node, int pos) const {
 #ifdef TESTED
 std::cout<<"Entering Vehicle::deltaTimeGeneratesCV \n";
 //std::cout<<path.getDeltaTime()<<"+"<<node.getdemand()<<" ¿? " <<getmaxcapacity()<<" \n";
