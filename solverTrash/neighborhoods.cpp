@@ -3,28 +3,67 @@
 #include "neighborhoods.h"
 
 
+// apply valid and feasable move to the current solution (this)
+void Neighborhoods::applyMove(const Move& m) {
+    switch (m.getmtype()) {
+        case Move::Ins:
+            {
+                // Get a copy of the node we are going to remove
+                // remove if from v1
+                Vehicle& v1 = fleet[m.getvid1()];
+                Trashnode n1 = v1[m.getpos1()];     // TODO can be ref?
+                v1.remove(m.getpos1());
+                // Get a reference to vid2
+                Vehicle& v2 = fleet[m.getvid2()];
+                // and insert n1 at the appropriate location
+                v2.insert(n1, m.getpos2());
+            }
+            break;
+        case Move::IntraSw:
+            {
+                Vehicle& v1 = fleet[m.getvid1()];
+                v1.swap(m.getnid1(), m.getnid2());
+            }
+            break;
+        case Move::InterSw:
+            {
+                Vehicle& v1 = fleet[m.getvid1()];
+                Vehicle& v2 = fleet[m.getvid2()];
+                v1.swap(v2, m.getpos1(), m.getpos2());
+            }
+            break;
+    }
+}
+
+
 // make or simulate making the move and check if the modified
-// route(s) are feasible
+// route(s) are feasable
 bool Neighborhoods::isNotFeasible(const Move& m) const {
     switch (m.getmtype()) {
         case Move::Ins:
+            {
             // remove a node will not make the path infeasible
-            // so we only need to chec on inserting it
+            // so we only need to check on inserting it
             Vehicle v2 = fleet[m.getvid2()];
-            Trashnode n1 = fleet[m.getnid1()];
+            Trashnode n1 = v2[m.getpos1()];
             v2.insert(n1, m.getpos2());
-            if (not v2.feasible()) return true;
+            if (not v2.feasable()) return true;
+            }
             break;
         case Move::IntraSw:
-            Vehicle v1 fleet[m.getvid1()];
+            {
+            Vehicle v1 = fleet[m.getvid1()];
             v1.swap(m.getnid1(), m.getnid2());
-            if (not v1.feasible()) return true;
+            if (not v1.feasable()) return true;
+            }
             break;
         case Move::InterSw:
-            Vehicle v1 fleet[m.getvid1()];
+            {
+            Vehicle v1 = fleet[m.getvid1()];
             Vehicle v2 = fleet[m.getvid2()];
             v1.swap(v2, m.getpos1(), m.getpos2());
-            if (not v1.feasible() or not v2.feasible()) return true;
+            if (not v1.feasable() or not v2.feasable()) return true;
+            }
             break;
         default:
             return true;
@@ -72,20 +111,20 @@ void Neighborhoods::getInsNeighborhood(std::vector<Move>& moves) const {
             if (vi==vj) continue;
             // iterate through the positions of each path (pi, pj)
             // dont exchange the depot in position 0
-            for (int pi=1; pi<fleet[vi].path.size(); pi++) {
+            for (int pi=1; pi<fleet[vi].size(); pi++) {
                 // dont try to move the dump
-                if(fleet[vi].path[pi].isDump()) continue;
-                for (int pj=1; pj<fleet[vj].path.size(); pj++) {
+                if(fleet[vi][pi].isdump()) continue;
+                for (int pj=1; pj<fleet[vj].size(); pj++) {
                     // create a move with a dummy savings value
                     Move m(Move::Ins,
-                           fleet[vi].path[pi].getnid(), // nid1
+                           fleet[vi][pi].getnid(), // nid1
                            -1,  // nid2
                            vi,  // vid1
                            vj,  // vid2
                            pi,  // pos1
                            pj,  // pos2
                            0.0);    // dummy savings
-                    if (isInFeasible(m)) continue;
+                    if (isNotFeasible(m)) continue;
                     double savings = getMoveSavings(m);
                     m.setsavings(savings);
                     moves.push_back(m);
@@ -112,22 +151,22 @@ void Neighborhoods::getIntraSwNeighborhood(std::vector<Move>& moves) const {
     for (int vi=0; vi<fleet.size(); vi++) {
         // iterate through the nodes in the path (pi, pj)
         // dont exchange the depot in position 0
-        for (int pi=1; pi<fleet[vi].path.size(); pi++) {
+        for (int pi=1; pi<fleet[vi].size(); pi++) {
             // dont try to move the dump
-            if(fleet[vi].path[pi].isDump()) continue;
-            for (int pj=pi+1; pj<fleet[vj].path.size(); pj++) {
+            if(fleet[vi][pi].isdump()) continue;
+            for (int pj=pi+1; pj<fleet[vi].size(); pj++) {
                 // dont try to move the dump
-                if(fleet[vi].path[pj].isDump()) continue;
+                if(fleet[vi][pj].isdump()) continue;
                 // create a move with a dummy savings value
                 Move m(Move::IntraSw,
-                       fleet[vi].path[pi].getnid(), // nid1
-                       fleet[vi].path[pj].getnid(), // nid2
+                       fleet[vi][pi].getnid(), // nid1
+                       fleet[vi][pj].getnid(), // nid2
                        vi,  // vid1
                        -1,  // vid2
                        pi,  // pos1
                        pj,  // pos2
                        0.0);    // dummy savings
-                if (isInFeasible(m)) continue;
+                if (isNotFeasible(m)) continue;
                 double savings = getMoveSavings(m);
                 m.setsavings(savings);
                 moves.push_back(m);
@@ -155,22 +194,22 @@ void Neighborhoods::getInterSwNeighborhood(std::vector<Move>& moves) const {
             if (vi==vj) continue;
             // iterate through the positions of each path (pi, pj)
             // dont exchange the depot in position 0
-            for (int pi=1; pi<fleet[vi].path.size(); pi++) {
+            for (int pi=1; pi<fleet[vi].size(); pi++) {
                 // dont try to move the dump
-                if(fleet[vi].path[pi].isDump()) continue;
-                for (int pj=1; pj<fleet[vj].path.size(); pj++) {
+                if(fleet[vi][pi].isdump()) continue;
+                for (int pj=1; pj<fleet[vj].size(); pj++) {
                     // dont try to move the dump
-                    if(fleet[vj].path[pj].isDump()) continue;
+                    if(fleet[vj][pj].isdump()) continue;
                     // create a move with a dummy savings value
                     Move m(Move::Ins,
-                           fleet[vi].path[pi].getnid(), // nid1
-                           fleet[vj].path[pj].getnid(), // nid2
+                           fleet[vi][pi].getnid(), // nid1
+                           fleet[vj][pj].getnid(), // nid2
                            vi,  // vid1
                            vj,  // vid2
                            pi,  // pos1
                            pj,  // pos2
                            0.0);    // dummy savings
-                    if (isInFeasible(m)) continue;
+                    if (isNotFeasible(m)) continue;
                     double savings = getMoveSavings(m);
                     m.setsavings(savings);
                     moves.push_back(m);
@@ -180,9 +219,4 @@ void Neighborhoods::getInterSwNeighborhood(std::vector<Move>& moves) const {
     }
 }
 
-
-// apply the move to the current solution (this)
-void Neighborhoods::applyMove(const Move&) {
-
-}
 
