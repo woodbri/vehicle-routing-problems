@@ -980,10 +980,10 @@ trace.dumpid("Path");
     std::stringstream convert;
     convert << carnumber;
     std::string carnum = convert.str();
-    std::string extra=file+"vehicle"+carnum ;
+    std::string extra="vehicle"+carnum ;
 
     Plot<Trashnode> graph( trace );
-    graph.setFile( file+extra+".png" );
+    graph.setFile( CONFIG->plotDir+file+extra+".png" );
     graph.setTitle( title+extra );
     graph.drawInit();
     for (int i=0; i<trace.size(); i++){

@@ -36,7 +36,7 @@ void FeasableSol::stepOne(Vehicle &truck) {
         if(  truck.deltaCargoGeneratesCV(bestNode) ) {
             if (truck.deltaTimeGeneratesTV(bestNode,bestPos)) {}; //TBD
                 fleet.push_back(truck);
-truck.plot("Feasable ","",truck.getVid());
+truck.plot("Feasable-","",truck.getVid());
 
                 truck=unusedTrucks[0];
                 unusedTrucks.erase(unusedTrucks.begin());
@@ -84,6 +84,6 @@ void FeasableSol::process() {
     stepOne(truck);        
     fleet.push_back(truck); //need to save the last truck
 
-truck.plot("Feasable ","",truck.getVid());
+truck.plot("Feasable-","",truck.getVid());
 return;
 }

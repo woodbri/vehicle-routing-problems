@@ -41,6 +41,8 @@ int main(int argc, char **argv) {
 
     try {
 
+        CONFIG->plotDir = "./logs/";
+
         std::cout << "CONFIG: osrmBaseUrl: " << CONFIG->osrmBaseUrl << std::endl
                   << "            plotDir: " << CONFIG->plotDir << std::endl
                   << "       plotFontFile: " << CONFIG->plotFontFile << std::endl
