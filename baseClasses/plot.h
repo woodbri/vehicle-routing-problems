@@ -29,12 +29,13 @@ private:
 
 public:
     void calcExtents(){//const TwBucket<knode>& pnts) {
+#ifndef PGROUTING
         double extents[4];
 
         extents[0] = std::numeric_limits<double>::max();
         extents[1] = std::numeric_limits<double>::max();
-        extents[2] = std::numeric_limits<double>::min();
-        extents[3] = std::numeric_limits<double>::min();
+        extents[2] = - std::numeric_limits<double>::max();
+        extents[3] = - std::numeric_limits<double>::max();
 
         for (int i=0; i<pts.size(); i++) {
             if (pts[i].getx() < extents[0]) extents[0] = pts[i].getx();
@@ -54,10 +55,13 @@ public:
         cy = (extents[3] + extents[1]) / 2.0;
 
         scale = fmin((double)width/dx, (double)height/dy);
+
+#endif
     }
 
 
     Plot(const TwBucket<knode> &_pts) : pts(_pts) {
+#ifndef PGROUTING
         file = "plot.png";
         title = file;
         width = 800;
@@ -66,21 +70,28 @@ public:
         im = NULL;
         // set the default to Vicky's recent ubuntu instalation font location :)
         font = "/usr/share/fonts/truetype/msttcorefonts/Verdana.ttf";
+#endif
     }
 
     void setFont(std::string _font) { font = _font; };
 
     void setPoints(const std::deque<knode> &_pts) {
+#ifndef PGROUTING
         pts = _pts;
         calcExtents();
+#endif
     };
 
     int makeColor(int i) const {
+#ifndef PGROUTING
         int b = (i % 4 + 1) * 0x40 - 1;
         int g = ((i /  4) % 4 + 1) * 0x40 - 1;
         int r = ((i / 16) % 4 + 1) * 0x40 - 1;
 
         return  r*256*256 + g*256 + b;
+#else
+	return 0;
+#endif
     };
 
     void setFile(std::string _file) { file = _file; };
@@ -100,14 +111,17 @@ public:
 
 
     void drawInit() {
+#ifndef PGROUTING
         if (im) gdImageDestroy(im);
         im = gdImageCreateTrueColor(width, height);
         gdImageFilledRectangle(im, 0, 0, width-1, height-1, 0x00ffffff);
+#endif
     }
 
 
 
     void drawPath(std::deque<int> ids, int color, int thick, bool label) {
+#ifndef PGROUTING
         // make sure drawInit() has been called
         if (!im) {
             fprintf(stderr, "Plot::drawInit() has not been called!\n");
@@ -136,10 +150,12 @@ public:
             // TODO pick midpoint of 2nd segment calc angle of segment
             //  and label along it
         }
+#endif
     }
 
 
     void drawPoints(std::deque<int> ids, int color, int size, bool label) {
+#ifndef PGROUTING
         // make sure drawInit() has been called
         if (!im) {
             fprintf(stderr, "Plot::drawInit() has not been called!\n");
@@ -158,17 +174,23 @@ public:
                                 scalex(a.getx()), scaley(a.gety())-5, str);
             }
         }
+#endif
     }
 
 
 
     int save() {
+#ifndef PGROUTING
         // use the object variable file
         return save(file);
+#else
+	return 1;
+#endif
     }
 
 
     int save(std::string _file) {
+#ifndef PGROUTING
         FILE *fp;
 
         // make sure we have been initiallized correctly
@@ -194,6 +216,7 @@ public:
         gdImageDestroy(im);
         im = NULL;
         return 0;
+#endif
     }
 
 
@@ -201,6 +224,7 @@ public:
 /* with this vehicle plot work and uses the class template */
 
     void drawPoint(const knode &a, int color, int size, bool label) {
+#ifndef PGROUTING
         // make sure drawInit() has been called
         if (!im) {
             fprintf(stderr, "Plot::drawInit() has not been called!\n");
@@ -215,10 +239,12 @@ public:
             gdImageStringFT(im, NULL, 0x00000000, (char *)font.c_str(), 6, 0,
                                 scalex(a.getx()), scaley(a.gety())-5, str);
         }
+#endif
     }
 
 
     void drawPath( TwBucket<knode> path, int color, int thick, bool label) {
+#ifndef PGROUTING
 
         // make sure drawInit() has been called
         if (!im) {
@@ -247,6 +273,7 @@ public:
             // TODO pick midpoint of 2nd segment calc angle of segment
             //  and label along it
         }
+#endif
     }
 
 
