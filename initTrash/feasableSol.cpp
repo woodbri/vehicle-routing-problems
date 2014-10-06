@@ -33,7 +33,7 @@ void FeasableSol::stepOne(Vehicle &truck) {
     Trashnode bestNode;
     UID bestPos;
     if (truck.findNearestNodeTo( unassigned, twc,  bestPos,  bestNode) ) {
-        if(  truck.deltaCargoGeneratesCV(bestNode) ) {
+        if(  truck.deltaCargoGeneratesCV(bestNode,bestPos) ) {
             if (truck.deltaTimeGeneratesTV(bestNode,bestPos)) {}; //TBD
                 fleet.push_back(truck);
 truck.plot("Feasable-","",truck.getVid());

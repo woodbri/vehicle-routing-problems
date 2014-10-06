@@ -66,12 +66,12 @@ class compNode{
       TravelTime=_tt;
    }
 
-double  getDeltaTime(const knode &node, const knode &dump) {
+double  getDeltaTime(const knode &node, const knode &dump) const {
      int pos=path.size()-1;
      return TravelTime[pos][node.getnid()] + TravelTime[node.getnid()][dump.getnid()]  -   TravelTime[pos][dump.getnid()];
 }
 
-double  getDeltaTime(const knode &node, UID pos) {
+double  getDeltaTime(const knode &node, UID pos) const {
       assert(pos<path.size() and pos > 0 );
      return TravelTime[pos-1][node.getnid()] + TravelTime[node.getnid()][pos]  -   TravelTime[pos-1][pos];
 }

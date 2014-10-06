@@ -1,5 +1,5 @@
-#ifndef TRASHPROBLEM_H
-#define TRASHPROBLEM_H
+#ifndef  ONETRUCKALLNODESINIT_H
+#define  ONETRUCKALLNODESINIT_H
 
 #include <string>
 #include <iostream>
