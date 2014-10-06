@@ -18,7 +18,9 @@
 
 
 class Move {
+  public:
     typedef enum { Invalid = -1, Ins = 0, IntraSw = 1, InterSw = 2 } Mtype;
+
   private:
     Mtype mtype;      // type of move
     int nid1;       // node 1

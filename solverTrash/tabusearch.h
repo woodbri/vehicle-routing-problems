@@ -35,13 +35,13 @@ class TabuSearch {
     int cntInterSwApplied;
 
   public:
-    TabuSearch(Solution initialSolution) {
-        bestSolution = initialSolution;
+    TabuSearch(const Solution& initialSolution) :
+        bestSolution(initialSolution), currentSolution(initialSolution)
+    {
         bestSolutionCost = bestSolution.getCost();
-        currentSolution = initialSolution;
         currentIteration = 0;
         maxIteration = 1000;
-        tabuLength = std::min(initialSolution.getNodeCount() / 5, 5);
+        tabuLength = std::min(initialSolution.getNodeCount() / 5, (unsigned int) 5);
         bestUpdatedLastAt = 0;
         bestUpdatedCnt = 0;
         cntInsApplied = cntIntraSwApplied = cntInterSwApplied = 0;
