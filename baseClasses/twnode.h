@@ -38,8 +38,8 @@ class Twnode: public Node {
              int _tw_open, int _tw_close, int _service);
     void setDemand(int _demand) { demand = _demand; };
     void setType(int _type) { type = _type; };
-    void settwopen(int _tw_open) { tw_open = _tw_open; };
-    void settwclose(int _tw_close) { tw_close = _tw_close; };
+    void setOpens(int _tw_open) { tw_open = _tw_open; };
+    void setCloses(int _tw_close) { tw_close = _tw_close; };
     void setServiceTime(int _service) { serviceTime = _service; };
     void setStreetId(int _sid) { streetid = _sid; };
 

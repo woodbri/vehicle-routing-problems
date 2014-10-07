@@ -89,6 +89,8 @@ typedef  unsigned long int UID ;
        int dumpId,dumpNid;
        int endingId,endingNid;
        double dumpServiceTime;
+       double endTime,startTime;
+       endTime=startTime=0;
 
        cost        = 0;
        w1 = w2 = w3 = 1.0;
@@ -99,20 +101,28 @@ typedef  unsigned long int UID ;
        buffer >> endingId;
        buffer >> dumpServiceTime;
        buffer >> maxcapacity;
+       buffer >> startTime;
+       buffer >> endTime;
 
-       if (otherlocs.hasId(depotId) and otherlocs.hasId(dumpId) and otherlocs.hasId(endingId)){ ;
+       if (depotId>=0 and dumpId>=0 and endingId>=0 and startTime>=0 and startTime<=endTime and maxcapacity>0 and dumpServiceTime>=0 and vid>=0
+	  and otherlocs.hasId(depotId) and otherlocs.hasId(dumpId) and otherlocs.hasId(endingId)){ 
+
           endingSite=otherlocs[otherlocs.posFromId(endingId)];
+	  if (endingSite.closes() > endTime) endingSite.setCloses(endTime);
           dumpSite=otherlocs[otherlocs.posFromId(dumpId)];
           dumpSite.setServiceTime(dumpServiceTime);
           depot=otherlocs[otherlocs.posFromId(depotId)];
+	  if (depot.opens() < startTime) depot.setOpens(startTime);
+
 	  depot.setType(0);
 	  depot.setDemand(0);
 	  dumpSite.setType(1);
 	  endingSite.setType(3);
           push_back(depot);
           evalLast();
+dumpeval();
 
-       } else vid=-1;  
+       } else vid=-1;  //truck is rejected
    }
 
 
