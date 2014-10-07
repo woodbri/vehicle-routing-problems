@@ -44,16 +44,19 @@ bool Neighborhoods::isNotFeasible(const Move& m)  {
             {
             // remove a node will not make the path infeasible
             // so we only need to check on inserting it
+
+            // copy the vehicle and the node
+            // so we can change it and then throw it away
             Vehicle v2 = fleet[m.getvid2()];
             Trashnode n1 = v2[m.getpos1()];
-            v2.insert(n1, m.getpos2());
+            if (not v2.insert(n1, m.getpos2())) return true;
             if (not v2.feasable()) return true;
             }
             break;
         case Move::IntraSw:
             {
             Vehicle v1 = fleet[m.getvid1()];
-            v1.swap(m.getnid1(), m.getnid2());
+            if (not v1.swap(m.getnid1(), m.getnid2())) return true;
             if (not v1.feasable()) return true;
             }
             break;
@@ -61,7 +64,7 @@ bool Neighborhoods::isNotFeasible(const Move& m)  {
             {
             Vehicle v1 = fleet[m.getvid1()];
             Vehicle v2 = fleet[m.getvid2()];
-            v1.swap(v2, m.getpos1(), m.getpos2());
+            if (not v1.swap(v2, m.getpos1(), m.getpos2())) return true;
             if (not v1.feasable() or not v2.feasable()) return true;
             }
             break;
@@ -103,18 +106,37 @@ double Neighborhoods::getMoveSavings(const Move& m)  {
 //      nid2 = -1 unused
 //      pos2 - position to insert nid1 in vid2
 //
+// Algorithm
+//   for every pickup node in every vehicle
+//      create Move objects for moving that node to every position
+//      in every other route if the Move would be feasable
+//
 void Neighborhoods::getInsNeighborhood(std::vector<Move>& moves)  {
     moves.clear();
     // iterate through the vechicles (vi, vj)
     for (int vi=0; vi<fleet.size(); vi++) {
         for (int vj=0; vj<fleet.size(); vj++) {
             if (vi==vj) continue;
+
             // iterate through the positions of each path (pi, pj)
             // dont exchange the depot in position 0
             for (int pi=1; pi<fleet[vi].size(); pi++) {
+
                 // dont try to move the dump
                 if(fleet[vi][pi].isdump()) continue;
+
                 for (int pj=1; pj<fleet[vj].size(); pj++) {
+
+                    // we can't break because we might have multiple dumps
+                    // if we could get the position of the next dump
+                    // we could jump pj forward to it
+                    if (fleet[vj].deltaCargoGeneratesCV(fleet[vi][pi], pj))
+                        continue;
+
+                    // if we check TWC we can break out if pj/->pi
+                    if (fleet[vj].deltaTimeGeneratesTV(fleet[vi][pi], pj))
+                        break;
+
                     // create a move with a dummy savings value
                     Move m(Move::Ins,
                            fleet[vi][pi].getnid(), // nid1
@@ -124,9 +146,16 @@ void Neighborhoods::getInsNeighborhood(std::vector<Move>& moves)  {
                            pi,  // pos1
                            pj,  // pos2
                            0.0);    // dummy savings
+
+                    // we check two feasable conditions above but
+                    // isNotFeasible tests if the move is possible
+                    // or rejected by the lower level move methods
+                    // TODO see if removing this changes the results
                     if (isNotFeasible(m)) continue;
-                    double savings = getMoveSavings(m);
-                    m.setsavings(savings);
+
+                    // compute the savings and set it in the move
+                    m.setsavings(getMoveSavings(m));
+
                     moves.push_back(m);
                 }
             }
@@ -145,18 +174,32 @@ void Neighborhoods::getInsNeighborhood(std::vector<Move>& moves)  {
 //      nid2 - node id 2 that will get swapped with node id 1
 //      pos2 - position of nid2 in vid1
 //
+// Algorithm
+//  for every vehicle
+//      for every pickup node
+//          try to swap that node to every other position
+//          within its original vehicle
+//
 void Neighborhoods::getIntraSwNeighborhood(std::vector<Move>& moves)  {
     moves.clear();
-    // iterate through each vihcle (vi)
+
+    // iterate through each vehicle (vi)
     for (int vi=0; vi<fleet.size(); vi++) {
+
         // iterate through the nodes in the path (pi, pj)
         // dont exchange the depot in position 0
         for (int pi=1; pi<fleet[vi].size(); pi++) {
+
             // dont try to move the dump
             if(fleet[vi][pi].isdump()) continue;
+
+            // since we are swapping node, swap(i,j) == swap(j,i)
+            // we only need to search forward
             for (int pj=pi+1; pj<fleet[vi].size(); pj++) {
+
                 // dont try to move the dump
                 if(fleet[vi][pj].isdump()) continue;
+
                 // create a move with a dummy savings value
                 Move m(Move::IntraSw,
                        fleet[vi][pi].getnid(), // nid1
@@ -166,9 +209,11 @@ void Neighborhoods::getIntraSwNeighborhood(std::vector<Move>& moves)  {
                        pi,  // pos1
                        pj,  // pos2
                        0.0);    // dummy savings
+
                 if (isNotFeasible(m)) continue;
-                double savings = getMoveSavings(m);
-                m.setsavings(savings);
+
+                m.setsavings(getMoveSavings(m));
+
                 moves.push_back(m);
             }
         }
@@ -197,9 +242,11 @@ void Neighborhoods::getInterSwNeighborhood(std::vector<Move>& moves)  {
             for (int pi=1; pi<fleet[vi].size(); pi++) {
                 // dont try to move the dump
                 if(fleet[vi][pi].isdump()) continue;
+
                 for (int pj=1; pj<fleet[vj].size(); pj++) {
                     // dont try to move the dump
                     if(fleet[vj][pj].isdump()) continue;
+
                     // create a move with a dummy savings value
                     Move m(Move::Ins,
                            fleet[vi][pi].getnid(), // nid1
