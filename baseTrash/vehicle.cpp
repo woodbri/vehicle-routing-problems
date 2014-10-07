@@ -18,9 +18,14 @@
     //  false- not inserted 
 bool Vehicle::e_insertSteadyDumpsTight(const Trashnode &node, int at){
     assert ( at<=size() );
+#ifndef TESTED
+std::cout<<"Entering Vehicle::e_insertSteadyDumpsTight \n";
+#endif
+
 
     if ( deltaCargoGeneratesCV(node,at) ) return false;
     if ( deltaTimeGeneratesTV(node,at) ) return false;
+path[size()-1].dumpeval();
     if ( path.e_insert(node,at,maxcapacity) ) return false;
     evalLast();
 
@@ -31,6 +36,25 @@ bool Vehicle::e_insertSteadyDumpsTight(const Trashnode &node, int at){
 
 // end space reserved for TODO list
 
+
+bool Vehicle::e_insertDumpInPath( const Trashnode &lonelyNodeAfterDump ) {
+#ifndef TESTED
+std::cout<<"Entering Vehicle::e_insertDumpInPath \n";
+#endif
+    //we arrived here because of CV
+    if ( deltaTimeGeneratesTV( dumpSite,lonelyNodeAfterDump ) ) return false;
+    Trashnode dump=dumpSite;
+    dump.setDemand(-getcargo());
+    path.e_push_back(dump,maxcapacity);
+    path.e_push_back(lonelyNodeAfterDump,maxcapacity);
+    evalLast();
+
+    assert ( feasable() );
+    return true;
+};
+    
+
+    
 
 
 
@@ -76,21 +100,33 @@ double Vehicle::getTimeOSRM() const {
 bool Vehicle::deltaCargoGeneratesCV(const Trashnode &node, int pos) const { //position becomes important
 #ifdef TESTED
 std::cout<<"Entering Vehicle::deltaCargoGeneratesCV \n";
-std::cout<<getcargo()<<"+"<<node.getdemand()<<" ¿? " <<getmaxcapacity()<<" \n";
+//std::cout<<getcargo()<<"+"<<node.getdemand()<<" ¿? " <<getmaxcapacity()<<" \n";
 #endif
      //cycle until a dump is found
      int i;
      for (i=pos; i<size() and not isdump(i); i++) {};
      // two choices i points to a dump or i == size() 
      // in any case the i-1 node has the truck's cargo
-     return  ( getcargo( i-1 ) + node.getdemand() > getmaxcapacity()  ) ;
+#ifdef TESTED
+path[i-1].dumpeval();
+std::cout<<getCargo(i-1)<<"+"<<node.getdemand()<<" ¿? " <<getmaxcapacity()<<" \n";
+#endif
+     return  ( path[i-1].getcargo() + node.getdemand() > maxcapacity  ) ;
 };
 
+bool Vehicle::deltaTimeGeneratesTV(const Trashnode &dump, const Trashnode &node) const {
+#ifndef TESTED
+std::cout<<"Entering Vehicle::deltaTimeGeneratesTV (S 1 2 D E )  (S 1 2 D N D E) \n";
+std::cout<<path.getDeltaTimeAfterDump(dumpSite,node)<<" + "<< getduration()<<" ¿? "<<  endingSite.closes();
+#endif
+     return  ( path.getDeltaTimeAfterDump(dumpSite,node) + getduration()  > endingSite.closes() ) ;
+}
 
 bool Vehicle::deltaTimeGeneratesTV(const Trashnode &node, int pos) const {
-#ifdef TESTED
-std::cout<<"Entering Vehicle::deltaTimeGeneratesCV \n";
-//std::cout<<path.getDeltaTime()<<"+"<<node.getdemand()<<" ¿? " <<getmaxcapacity()<<" \n";
+#ifndef TESTED
+std::cout<<"Entering Vehicle::deltaTimeGeneratesTV (S 1 2 3 D E )  (S 1 2 N 3 D E)\n";
+if (pos==path.size()) std::cout<<" (S 1 2 3 D E )  (S 1 2 3 N D E)" << path.getDeltaTime(node,dumpSite)<<" + "<< getduration()<<" ¿? "<<  endingSite.closes()<<"\n";
+else std::cout<<" (S 1 2 3 D E )  (S 1 2 N 3 D E) "<< path.getDeltaTime(node,pos)<<" + "<< getduration()<<" ¿? "<<  endingSite.closes()<<"\n";
 #endif
      if (pos==path.size()) return path.getDeltaTime(node,dumpSite) + getduration()  > endingSite.closes();
      else return  ( path.getDeltaTime(node,pos) + getduration()  > endingSite.closes() ) ;
@@ -214,9 +250,11 @@ void Vehicle::dumppath() const {
 
 
    void Vehicle::smalldump() const {
+      std::cout<<"\nDump site:"<<"\n";
+      dumpSite.dumpeval();
+      std::cout<<"\nEnding site :"<<"\n";
       endingSite.dumpeval();
-      std::cout << "TOTAL COST="<<cost << ", TAU= ";
-      tau(); std::cout<<"\n";
+      std::cout <<"TOTAL COST="<<cost <<"\n";
    }
 
    void Vehicle::tau() const {
