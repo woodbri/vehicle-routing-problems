@@ -63,7 +63,9 @@ typedef  unsigned long int UID ;
     // END TODO LIST
     
 
+    bool e_insertDumpInPath( const Trashnode &going );
     bool e_setPath(const Bucket &sol);
+    bool deltaTimeGeneratesTV(const Trashnode &dump, const Trashnode &node) const; 
     bool deltaCargoGeneratesCV(const Trashnode &node, int pos) const;
     bool deltaTimeGeneratesTV(const Trashnode &node,int pos) const;
     bool isvalid() const {return vid>=0;};  //
@@ -264,7 +266,7 @@ typedef  unsigned long int UID ;
     bool isdump(int i) const { return path[i].isdump(); };
     bool ispickup(int i) const { return path[i].ispickup(); };
     bool isdepot(int i) const { return path[i].isdepot(); };
-    bool getcargo(int i) const { return path[i].getcargo(); };
+    bool getCargo(int i) const { return path[i].getcargo(); };
 
 
 };

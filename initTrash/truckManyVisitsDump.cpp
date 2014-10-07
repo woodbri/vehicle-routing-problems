@@ -19,24 +19,27 @@ void TruckManyVisitsDump::insertComming(Bucket &bigTruck,Vehicle &truck, UID goi
     assert( not (unassigned * problematic).size()  ) ;
     assert( not (unassigned * assigned).size()  ) ;
     assert( not (problematic * assigned).size()  ) ;
+
 //END INVARIANT
+//truck.plot("truckManyVisitsDump-","Insert Comming",tmp++);
 
     if (not unassigned.size()) { return; }; //something has to be done before return
+    assert(bigTruck.size()>1);
+
     Trashnode comming;
     comming=bigTruck[bigTruck.size()-1];
     if ( truck.e_insertSteadyDumpsTight(comming,goingPos+1) ) {
             assigned.push_back(comming);
             unassigned.erase(comming);
             bigTruck.erase(comming);
-            goingPos++; //next recurtion value
+            goingPos++; 
         } else {
-        // we need a new truck
-/*
+truck.plot("truckManyVisitsDump-","Pushing: ",truck.getVid());
                 fleet.push_back(truck);
-                turck=getTruck();
+                truck=getTruck();
                 goingPos=1;
                 insertGoing(bigTruck,truck,goingPos);
-*/              
+
                 return;
     }
     insertGoing(bigTruck,truck,goingPos);
@@ -61,33 +64,36 @@ void TruckManyVisitsDump::insertGoing(Bucket &bigTruck,Vehicle &truck, UID going
     assert( not (unassigned * assigned).size()  ) ;
     assert( not (problematic * assigned).size()  ) ;
 //END INVARIANT
+
+//truck.plot("truckManyVisitsDump-","Insert Going",tmp++);
     if (not unassigned.size()) { return; }; //asomething has to be done before return
+    assert(bigTruck.size()>1);
     Trashnode going;
     going=bigTruck[1];
 // alternate code
 
+truck.dump("Truck");
+truck.smalldump();
          
-    if ( truck.e_insertSteadyDumpsTight(going,goingPos+1) ) {
-            truck.insert(going,goingPos);
+    if ( truck.e_insertSteadyDumpsTight(going,goingPos) ) {
             assigned.push_back(going);
             unassigned.erase(going);
+            bigTruck.erase(1);
     } else {
-
-/*
-            if ( truck.InsertDumpInPath( going ) ) { //true when the insertion was performed (no TV)
+            if ( truck.e_insertDumpInPath( going ) ) { //true when the insertion was performed (no TV)
         	goingPos=truck.size()-1;  
                 assigned.push_back(going);
                 unassigned.erase(going);
+                bigTruck.erase(1);
             }  else {  //adding the Dump and the going node creates a TV
 	      //we need a new truck 
+truck.plot("truckManyVisitsDump-","Many Visits",truck.getVid());
 		fleet.push_back(truck);
-		turck=getTruck();
+		Vehicle truck( getTruck() );
                 goingPos=1;
 		insertGoing(bigTruck,truck,goingPos);
 		return;
             }
-	}
-*/
     }
     insertComming(bigTruck,truck,goingPos);
     //the invariant must hold before a return
@@ -125,15 +131,19 @@ void TruckManyVisitsDump::process() {
 
     //reteriving the result of oneTruckAllNodesInit
     Bucket bigTruck;
+    assert(fleet.size());
+fleet[0].dump("fleet[0]");
     bigTruck=fleet[0].Path();
     fleet.clear();
+bigTruck.dump("bigTruck");
     int goingPos=1;
     Vehicle truck;
     truck=getTruck();
-
+truck.dump("Truck");
     insertGoing(bigTruck,truck,goingPos);        
-//    fleet.push_back(truck); //need to save the last truck
+    fleet.push_back(truck); //need to save the last truck
 
-truck.plot("Feasable-","",truck.getVid());
+
+truck.plot("truckManyVisitsDump-","Many Visits",truck.getVid());
 return;
 }

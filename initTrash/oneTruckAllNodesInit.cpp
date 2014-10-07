@@ -52,7 +52,7 @@ void OneTruckAllNodesInit::process() {
     stepOne(truck,unassigned,assigned);        
 
 truck.plot("OneTruckAllNodes","OneTruckAllNodes",truck.getVid()); // plot displays the route to be plotted
-    
+    fleet.push_back(truck);
     assert(pickups ==  assigned);
 
 }
