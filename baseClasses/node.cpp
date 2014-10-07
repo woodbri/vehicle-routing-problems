@@ -9,13 +9,13 @@ double Node::distance(const Node &n) const {
     // Haversine sphereical distance for lat/lon values
     const double deg2rad = 3.14159265358979323846 / 180.0;
     const double rad2deg = 180.0 / 3.14159265358979323846;
-    double theta, dist;
-    theta = n.x - x;
-    dist = sin(deg2rad * n.y) * sin(deg2rad * y) +
-           cos(deg2rad * n.y) * cos(deg2rad * y) * cos(deg2rad * theta);
-    dist = acos(dist);
-    dist = rad2deg * dist;
-    dist = dist * 60 * 1.1515;
+    const double radius = 6367000; // Earth radius 6367 Km in meters
+    double dlon = (n.x - x) * deg2rad;
+    double dlat = (n.y - y) * deg2rad;
+    double a = pow( sin(dlat/2.0), 2) + cos( y ) * cos( n.y ) *
+               pow( sin(dlon/2.0), 2);
+    double c = 2.0 * atan2( sqrt(a), sqrt( 1.0-a ) );
+    double dist = radius * c;
     return dist;
 
     // Simple Euclidean distance in x-y plane

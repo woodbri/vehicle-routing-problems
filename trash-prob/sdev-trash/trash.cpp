@@ -17,7 +17,7 @@
 #include "trashnode.h"
 #include "twpath.h"
 #include "feasableSol.h"
-//#include "oneTruckAllNodesInit.h"
+#include "tabusearch.h"
 
 
 
@@ -49,7 +49,15 @@ int main(int argc, char **argv) {
                   << std::endl;
        
         FeasableSol tp(infile);
-        tp.dump();
+        //tp.dump();
+
+        const Solution sol = tp;
+
+        TabuSearch ts(sol);
+        ts.search();
+        Solution best = ts.getBestSolution();
+        best.dump();
+        ts.dumpStats();
 
     }
     catch (const std::exception &e) {
