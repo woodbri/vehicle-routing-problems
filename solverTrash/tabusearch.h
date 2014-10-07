@@ -4,11 +4,11 @@
 #include <map>
 #include <cassert>
 #include "move.h"
-#include "solution.h"
+#include "neighborhoods.h"
 
 class TabuSearch {
 
-  typedef enum { Ins, IntraSw, InterSw } Neighborhoods;
+   typedef enum { Ins, IntraSw, InterSw } neighborMovesName;
 
   private:
     std::map<const Move, int> TabuList;
@@ -18,10 +18,10 @@ class TabuSearch {
     int maxIteration;
     int currentIteration;
 
-    Solution bestSolution;
+    Neighborhoods bestSolution;
     double bestSolutionCost;
 
-    Solution currentSolution;
+    Neighborhoods currentSolution;
 
     // keep strack of some statistics
 
@@ -35,7 +35,7 @@ class TabuSearch {
     int cntInterSwApplied;
 
   public:
-    TabuSearch(const Solution& initialSolution) :
+    TabuSearch(const Neighborhoods &initialSolution) :
         bestSolution(initialSolution), currentSolution(initialSolution)
     {
         bestSolutionCost = bestSolution.getCost();
@@ -63,7 +63,7 @@ class TabuSearch {
     void settabuLength(int n) { assert(n>0); tabuLength = n; };
 
     void search();
-    bool doNeighborhoodMoves(Neighborhoods whichNeighborhood, int maxStagnation);
+    bool doNeighborhoodMoves(neighborMovesName whichNeighborhood, int maxStagnation);
 
 };
 
