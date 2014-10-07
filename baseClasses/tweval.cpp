@@ -8,9 +8,13 @@
 
     
     void Tweval::evaluate (double cargoLimit) {
-        cargo = getdemand();
-        departureTime = arrivalTime = waitTime =  travelTime = 0;
-        totTravelTime = totWaitTime = totServiceTime= 0;
+        cargo = demand;
+        travelTime=0;
+        arrivalTime= opens();
+        totTravelTime = 0;
+        totWaitTime = 0;
+        totServiceTime= serviceTime;
+        departureTime = arrivalTime + serviceTime;
         twvTot = cvTot = 0;
         twv = cv = false;
     }

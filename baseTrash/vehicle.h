@@ -120,6 +120,7 @@ typedef  unsigned long int UID ;
 	  endingSite.setType(3);
           push_back(depot);
           evalLast();
+dumpeval();
 
        } else vid=-1;  //truck is rejected
    }

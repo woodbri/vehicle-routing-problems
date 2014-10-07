@@ -29,6 +29,7 @@ void TruckManyVisitsDump::insertComming(Bucket &bigTruck,Vehicle &truck, UID goi
     Trashnode comming;
     comming=bigTruck[bigTruck.size()-1];
     if ( truck.e_insertSteadyDumpsTight(comming,goingPos+1) ) {
+truck.dumpeval();
             assigned.push_back(comming);
             unassigned.erase(comming);
             bigTruck.erase(comming);
