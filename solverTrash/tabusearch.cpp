@@ -114,7 +114,7 @@ void TabuSearch::search() {
     return an indicator that we made changes or not.
 */
 
-bool TabuSearch::doNeighborhoodMoves(Neighborhoods whichNeighborhood, int maxStagnation) {
+bool TabuSearch::doNeighborhoodMoves(neighborMovesName whichNeighborhood, int maxStagnation) {
     bool madeMove;
     bool loopMadeMove;
     int stagnationCnt = 0;

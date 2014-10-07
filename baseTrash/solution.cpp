@@ -11,12 +11,12 @@ void Solution::computeCosts() {
     }
 }
 
-double Solution::getCost() {
+double Solution::getCost()  {
     computeCosts();    // somewhere in the code the getcost returns 0 because the cost hant been computed
     return totalCost;
 }
 
-double Solution::getDistance() {
+double Solution::getDistance()  {
     computeCosts();
     return totalDistance;
 }

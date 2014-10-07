@@ -38,7 +38,7 @@ void Neighborhoods::applyMove(const Move& m) {
 
 // make or simulate making the move and check if the modified
 // route(s) are feasable
-bool Neighborhoods::isNotFeasible(const Move& m) const {
+bool Neighborhoods::isNotFeasible(const Move& m)  {
     switch (m.getmtype()) {
         case Move::Ins:
             {
@@ -75,7 +75,7 @@ bool Neighborhoods::isNotFeasible(const Move& m) const {
 // make or simulate making the move and return the savings
 // that it will generate. This would be equivalent to 
 // savings = oldsolution.getcost() - newsolution.getcost()
-double Neighborhoods::getMoveSavings(const Move& m) const {
+double Neighborhoods::getMoveSavings(const Move& m)  {
     // TODO: improve this, this is probably very inefficient
     // for example IF we combined the savings calc with isNotFeasible()
     // we can get the savings from the new paths we made.
@@ -85,7 +85,7 @@ double Neighborhoods::getMoveSavings(const Move& m) const {
 
     // make a copy of the current solution
     // we dont what to modify this as we are const
-    Solution newsol = *this;
+    Neighborhoods newsol = *this;
     newsol.applyMove(m);
     double newCost = newsol.getCost();
 
@@ -103,7 +103,7 @@ double Neighborhoods::getMoveSavings(const Move& m) const {
 //      nid2 = -1 unused
 //      pos2 - position to insert nid1 in vid2
 //
-void Neighborhoods::getInsNeighborhood(std::vector<Move>& moves) const {
+void Neighborhoods::getInsNeighborhood(std::vector<Move>& moves)  {
     moves.clear();
     // iterate through the vechicles (vi, vj)
     for (int vi=0; vi<fleet.size(); vi++) {
@@ -145,7 +145,7 @@ void Neighborhoods::getInsNeighborhood(std::vector<Move>& moves) const {
 //      nid2 - node id 2 that will get swapped with node id 1
 //      pos2 - position of nid2 in vid1
 //
-void Neighborhoods::getIntraSwNeighborhood(std::vector<Move>& moves) const {
+void Neighborhoods::getIntraSwNeighborhood(std::vector<Move>& moves)  {
     moves.clear();
     // iterate through each vihcle (vi)
     for (int vi=0; vi<fleet.size(); vi++) {
@@ -186,7 +186,7 @@ void Neighborhoods::getIntraSwNeighborhood(std::vector<Move>& moves) const {
 //      nid2 = node id in vehicle 2
 //      pos2 - position od nid2 in vid2
 //
-void Neighborhoods::getInterSwNeighborhood(std::vector<Move>& moves) const {
+void Neighborhoods::getInterSwNeighborhood(std::vector<Move>& moves)  {
     moves.clear();
     // iterate through the vechicles (vi, vj)
     for (int vi=0; vi<fleet.size(); vi++) {
