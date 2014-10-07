@@ -75,24 +75,32 @@ double  getDeltaTime(const knode &node, const knode &dump) const {
      return TravelTime[pos][node.getnid()] + TravelTime[node.getnid()][dump.getnid()]  -   TravelTime[pos][dump.getnid()];
 }
 
-double  getDeltaTimeAfterDump(const knode &dump, const knode &node ) const {
-     if (  dump.getDepartureTime() + TravelTime[dump.getnid()][node.getnid()]   > node.closes() ) return _MAX();
-     else  TravelTime[dump.getnid()][node.getnid()] + TravelTime[node.getnid()][dump.getnid()] + dump.getservicetime();
+double  getDeltaTimeAfterDump(const knode &dump, const knode &lonelyNodeAfterDump ) const {
+     if (  dump.getDepartureTime() + TravelTime[dump.getnid()][lonelyNodeAfterDump.getnid()]   > lonelyNodeAfterDump.closes() ) return _MAX();
+     else  TravelTime[dump.getnid()][lonelyNodeAfterDump.getnid()] + TravelTime[lonelyNodeAfterDump.getnid()][dump.getnid()] + dump.getservicetime();
 }
 
 
 double  getDeltaTime(const knode &node, UID pos) const {
-      assert(pos<path.size() );
-     //TODO need to check for the rest of the route :(
+     assert(pos<path.size() );
+
      if ( path[pos-1].getDepartureTime() + TravelTime[pos-1][node.getnid()] > node.closes() ) return _MAX();
      double delta = ( TravelTime[pos-1][node.getnid()] + TravelTime[node.getnid()][pos]  -   TravelTime[pos-1][pos]);
+/*
      bool flag = false; 
      for (int i=pos;i<path.size();i++) // checking if the delta affects any node after it
 	if ( path[i].getArrivalTime()+delta>path[i].closes() ) {flag=true;break;}
-     if (flag) return _MAX();
+*/     if (deltaGeneratesTV(delta,pos)) return _MAX();
      else return ( TravelTime[pos-1][node.getnid()] + TravelTime[node.getnid()][pos]  -   TravelTime[pos-1][pos]) ;
 }
 
+bool deltaGeneratesTV(double delta, UID pos) const {
+     assert(pos<path.size() );
+     bool flag = false;
+     for (int i=pos;i<path.size();i++) // checking if the delta affects any node after it
+        if ( path[i].getArrivalTime()+delta>path[i].closes() ) {flag=true;break;}
+     return flag;
+}
 
 
 // other tools
