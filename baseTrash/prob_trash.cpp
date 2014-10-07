@@ -156,7 +156,7 @@ invalid.dump("invalid");
     dummyNode.setTravelTimes(twc.TravelTime());
     assert( Tweval::TravelTime.size() );
 
-    buildStreets(pickups);
+//    buildStreets(pickups);
 
     load_trucks(datafile+".vehicles.txt");
     assert(trucks.size() and depots.size() and dumps.size() and endings.size());
@@ -178,7 +178,7 @@ std::cout<<"INVALID TRUCKS\n";
 for (int i=0;i<invalidTrucks.size();i++)
    invalidTrucks[i].tau();
 std::cout<<"\n";
-twc.dump();
+//twc.dump();
 }
 
 void Prob_trash::buildStreets( Bucket &unassigned, Bucket &assigned) {
