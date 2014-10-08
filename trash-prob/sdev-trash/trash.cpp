@@ -51,9 +51,7 @@ int main(int argc, char **argv) {
         FeasableSol tp(infile);
         //tp.dump();
 
-        Neighborhoods sol(tp);
-
-        TabuSearch ts(sol);
+        TabuSearch ts(tp);
         ts.search();
         Solution best = ts.getBestSolution();
         best.dump();

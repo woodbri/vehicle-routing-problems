@@ -47,9 +47,10 @@ bool Neighborhoods::isNotFeasible(const Move& m)  {
 
             // copy the vehicle and the node
             // so we can change it and then throw it away
-            Vehicle v1 = fleet[m.getvid1()];
+assert( m.getvid2()<fleet.size() );
             Vehicle v2 = fleet[m.getvid2()];
-            Trashnode n1 = v1[m.getpos1()];
+assert( m.getpos1()<v2.size() ); 
+            Trashnode n1 = v2[m.getpos1()];
             if (not v2.insert(n1, m.getpos2())) return true;
             if (not v2.feasable()) return true;
             }
