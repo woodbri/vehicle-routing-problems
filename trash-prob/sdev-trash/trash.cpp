@@ -51,8 +51,6 @@ int main(int argc, char **argv) {
         FeasableSol tp(infile);
         //tp.dump();
 
-        //const Solution sol = tp;
-
         TabuSearch ts(tp);
         ts.search();
         Solution best = ts.getBestSolution();
