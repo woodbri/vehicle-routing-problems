@@ -44,7 +44,7 @@ typedef  TwBucket<Trashnode> Bucket;
     Prob_trash(const std::string &infile);
     void loadProblem(const std::string &infile);
 
-    unsigned int getNodeCount() const;
+    unsigned int getNodeCount() const {return datanodes.size();};
 
     bool checkIntegrity() const;
 

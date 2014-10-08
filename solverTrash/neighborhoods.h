@@ -7,6 +7,9 @@
 class Neighborhoods : public Solution {
 
 public:
+
+   //added missing Constructor
+   Neighborhoods(const Solution &solution): Solution(solution){}; 
 //check for constness later
     bool isNotFeasible(const Move& m) ;
     double getMoveSavings(const Move& m) ;

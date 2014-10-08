@@ -23,7 +23,7 @@ typedef unsigned long int UID;
 
     static TwBucket<knode> original;
     static std::vector<std::vector<double> > twcij;
-    static std::vector<std::vector<double> > travel_Time;
+    std::vector<std::vector<double> > travel_Time;
 
     inline double _MIN() const { return -std::numeric_limits<double>::max();};
     inline double _MAX() const { return std::numeric_limits<double>::max();};
@@ -390,7 +390,7 @@ void dumpTravelTime(const Bucket &nodes) const {
     for (int i=0;i<nodes.size();i++){
         std::cout<<nodes[i].getnid()<<"="<<nodes[i].getid()<<"\t";
         for (int j=0; j<nodes.size();j++) {
-           if (travelTime(i,j) !=  std::numeric_limits<double>::max()) std::cout<<travelTime(i,j)<<"\t";
+           if (travel_Time[i][j] !=  std::numeric_limits<double>::max()) std::cout<<travel_Time[i][j]<<"\t";
            else std::cout<<"--\t";
         }
         std::cout<<"\n";
@@ -501,10 +501,13 @@ void loadAndProcess_distance(std::string infile, const Bucket &datanodes, const 
     //travel_Time default value is 250m/min
     for (int i=0;i<size;i++)
        for (int j=i;j<size;j++) {
-std::cout<<"Dist"<< i <<" to " << j<<" = "<<original[i].distance(original[j])<<"\n";
-          if (i==j) travel_Time[i][j]=0;
-          else travel_Time[i][j]=travel_Time[j][i]=original[i].distance(original[j])*(1/250);
+//std::cout<<"Dist"<< i <<" to " << j<<" = "<<(original[i].distance(original[j])/250)<<"\n";
+          if (i==j) travel_Time[i][i]=0;
+          else travel_Time[i][j]=travel_Time[j][i]=original[i].distance(original[j])/250;
+//std::cout<<"Dist"<< i <<" to " << j<<" = "<<(travel_Time[i][j])<<"\n";
     }
+//dumpTravelTime();
+
 
     int from,to;
     double time;
@@ -600,10 +603,10 @@ TwBucket<knode> TWC<knode>::original;
 
 template <class knode> 
 std::vector<std::vector<double> >  TWC<knode>::twcij;
-
+/*
 template <class knode> 
 std::vector<std::vector<double> >  TWC<knode>::travel_Time;
-
+*/
 
 
 #endif
