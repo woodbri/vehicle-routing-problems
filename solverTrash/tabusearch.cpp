@@ -88,9 +88,14 @@ void TabuSearch::search() {
     do {
         // set the stagnation count as the last the last parameter
         // thhe values 500, 300, 300 can from the paper mentioned above
+        std::cout << "TABUSEARCH: Starting iteration: " << currentIteration
+            << std::endl;
         madeChanges = doNeighborhoodMoves(Ins,     500)
                     | doNeighborhoodMoves(IntraSw, 300)
                     | doNeighborhoodMoves(InterSw, 300);
+        std::cout << "TABUSEARCH: Finished iteration: " << currentIteration
+            << ", madeChanges: " << madeChanges << std::endl;
+        dumpStats();
     }
     while (madeChanges and ++currentIteration < maxIteration);
 
@@ -132,12 +137,18 @@ bool TabuSearch::doNeighborhoodMoves(neighborMovesName whichNeighborhood, int ma
         switch (whichNeighborhood) {
             case Ins:
                 currentSolution.getInsNeighborhood(neighborhood);
+std::cout << "\tdoNeighborhoodMoves for Ins: " << neighborhood.size()
+    << " moves generated" << std::endl;
                 break;
             case IntraSw:
                 currentSolution.getIntraSwNeighborhood(neighborhood);
+std::cout << "\tdoNeighborhoodMoves for IntraSw: " << neighborhood.size()
+    << " moves generated" << std::endl;
                 break;
             case InterSw:
                 currentSolution.getInterSwNeighborhood(neighborhood);
+std::cout << "\tdoNeighborhoodMoves for InterSw: " << neighborhood.size()
+    << " moves generated" << std::endl;
                 break;
         }
 
@@ -150,6 +161,7 @@ bool TabuSearch::doNeighborhoodMoves(neighborMovesName whichNeighborhood, int ma
 
             // if the move is aspirational then we apply it
             if (currentSolution.getCost() - it->getsavings() < bestSolutionCost) {
+std::cout << "\tdoNeighborhoodMoves: Aspiration move: "; it->dump();
                 currentSolution.applyMove(*it);
                 bestSolution = currentSolution;
                 bestSolutionCost = bestSolution.getCost();
@@ -169,6 +181,7 @@ bool TabuSearch::doNeighborhoodMoves(neighborMovesName whichNeighborhood, int ma
             // it makes the solution worse so we move to a new
             // area of the search space
             else if (! isTabu(*it)) {
+std::cout << "\tdoNeighborhoodMoves: Not Tabu: "; it->dump();
                 currentSolution.applyMove(*it);
                 makeTabu(*it);
                 loopMadeMove = true;
