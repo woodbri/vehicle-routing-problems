@@ -11,11 +11,11 @@ public:
    //added missing Constructor
    Neighborhoods(const Solution &solution): Solution(solution){}; 
 //check for constness later
-    bool isNotFeasible(const Move& m) ;
-    double getMoveSavings(const Move& m) ;
-    void getInsNeighborhood(std::vector<Move>& moves) ;
-    void getIntraSwNeighborhood(std::vector<Move>& moves) ;
-    void getInterSwNeighborhood(std::vector<Move>& moves) ;
+    bool isNotFeasible(const Move& m) const ;
+    double getMoveSavings(const Move& m) const ;
+    void getInsNeighborhood(std::vector<Move>& moves) const ;
+    void getIntraSwNeighborhood(std::vector<Move>& moves) const;
+    void getInterSwNeighborhood(std::vector<Move>& moves) const;
 
     void applyMove(const Move&);
 
