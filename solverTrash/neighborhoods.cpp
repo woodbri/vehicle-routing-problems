@@ -22,7 +22,7 @@ void Neighborhoods::applyMove(const Move& m) {
         case Move::IntraSw:
             {
                 Vehicle& v1 = fleet[m.getvid1()];
-                v1.swap(m.getnid1(), m.getnid2());
+                v1.swap(m.getpos1(), m.getpos2());
             }
             break;
         case Move::InterSw:
@@ -47,8 +47,9 @@ bool Neighborhoods::isNotFeasible(const Move& m)  {
 
             // copy the vehicle and the node
             // so we can change it and then throw it away
+            Vehicle v1 = fleet[m.getvid1()];
             Vehicle v2 = fleet[m.getvid2()];
-            Trashnode n1 = v2[m.getpos1()];
+            Trashnode n1 = v1[m.getpos1()];
             if (not v2.insert(n1, m.getpos2())) return true;
             if (not v2.feasable()) return true;
             }
@@ -56,7 +57,7 @@ bool Neighborhoods::isNotFeasible(const Move& m)  {
         case Move::IntraSw:
             {
             Vehicle v1 = fleet[m.getvid1()];
-            if (not v1.swap(m.getnid1(), m.getnid2())) return true;
+            if (not v1.swap(m.getpos1(), m.getpos2())) return true;
             if (not v1.feasable()) return true;
             }
             break;
