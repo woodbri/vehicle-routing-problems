@@ -41,8 +41,8 @@ typedef  TwBucket<Trashnode> Bucket;
 
 
     void computeCosts();
-    double getCost();
-    double getDistance();
+    double getCost() const ;
+    double getDistance() const ;
     double getAverageRouteDurationLength();
 
     Solution& operator=( const Solution& rhs ) {

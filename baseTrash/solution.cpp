@@ -11,13 +11,11 @@ void Solution::computeCosts() {
     }
 }
 
-double Solution::getCost()  {
-    computeCosts();    // somewhere in the code the getcost returns 0 because the cost hant been computed
+double Solution::getCost() const {
     return totalCost;
 }
 
-double Solution::getDistance()  {
-    computeCosts();
+double Solution::getDistance() const {
     return totalDistance;
 }
 
