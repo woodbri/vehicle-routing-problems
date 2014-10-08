@@ -13,7 +13,7 @@
 #include "oneTruckAllNodesInit.h"
 
 
-class TruckManyVisitsDump : public OneTruckAllNodesInit {
+class TruckManyVisitsDump : public Solution {
   private:
     typedef  TwBucket<Trashnode> Bucket;
     typedef  unsigned long int UID;
@@ -29,7 +29,7 @@ class TruckManyVisitsDump : public OneTruckAllNodesInit {
 int tmp;
   public:
 
-    TruckManyVisitsDump(const std::string &infile): OneTruckAllNodesInit(infile) { 
+    TruckManyVisitsDump(const Solution &sol): Solution(sol) { 
        unusedTrucks=trucks;
        unassigned=pickups;
 tmp=0;

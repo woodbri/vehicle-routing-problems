@@ -90,7 +90,7 @@ truck.smalldump();
 	      //we need a new truck 
 truck.plot("truckManyVisitsDump-","Many Visits",truck.getVid());
 		fleet.push_back(truck);
-		Vehicle truck( getTruck() );
+		truck= getTruck();
                 goingPos=1;
 		insertGoing(bigTruck,truck,goingPos);
 		return;

@@ -16,7 +16,7 @@
 #include "twpath.h"
 #include "truckManyVisitsDump.h"
 //#include "feasableSol.h"
-//#include "oneTruckAllNodesInit.h"
+#include "oneTruckAllNodesInit.h"
 
 
 
@@ -37,7 +37,9 @@ int main(int argc, char **argv) {
 
     try {
        
-        TruckManyVisitsDump tp(infile);
+        OneTruckAllNodesInit   sol1(infile);
+        TruckManyVisitsDump sol2(sol1);
+        std::cout<<"\n"<<sol2.solutionAsTextID();
     }
     catch (const std::exception &e) {
         std::cerr << e.what() << std::endl;
