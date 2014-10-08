@@ -35,7 +35,7 @@ class TabuSearch {
     int cntInterSwApplied;
 
   public:
-    TabuSearch(const Neighborhoods &initialSolution) :
+    TabuSearch(const Neighborhoods initialSolution) :
         bestSolution(initialSolution), currentSolution(initialSolution)
     {
         bestSolutionCost = bestSolution.getCost();

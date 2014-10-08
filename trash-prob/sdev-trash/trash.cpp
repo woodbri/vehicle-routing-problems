@@ -51,7 +51,7 @@ int main(int argc, char **argv) {
         FeasableSol tp(infile);
         //tp.dump();
 
-        const Solution sol = tp;
+        Neighborhoods sol(tp);
 
         TabuSearch ts(sol);
         ts.search();
