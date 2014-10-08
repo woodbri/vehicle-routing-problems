@@ -146,7 +146,7 @@ void Solution::dumproutes()  {
     tau();
 }
 
-
+/*
 void Solution::dump() {
     computeCosts();
     tau();
@@ -159,7 +159,7 @@ void Solution::dump() {
         fleet[i].getBackToDepot().dumpeval();
     }
 }
-
+*/
 
 double Solution::getAverageRouteDurationLength() {
     double len = 0.0;
@@ -217,10 +217,91 @@ solPath.dumpid("solPath");
         }
         i++;
    };
+   computeCosts();
    if (unassigned.size() or (assigned == pickups)) 
        std::cout<<"Something went wrong creating the solution\n";
 };
         
 
 
+
+
+// code moved from OLD CODE TO BE INTEGRATED
+double Solution::getduration() const {
+    double d = 0;
+    for (int i=0; i<fleet.size(); i++)
+        d += fleet[i].getduration();
+    return d;
+}
+
+
+// get the total cost of the solution
+// cost = w1 * getduration() + w2 * getTWV() + w3 * getCV()
+
+double Solution::getcost() const {
+    double d = 0;
+    for (int i=0; i<fleet.size(); i++)
+        d += fleet[i].getcost();
+    return d;
+}
+
+
+// get the total number of TWV in the dolution
+
+int Solution::getTWV() const {
+    int d = 0;
+    for (int i=0; i<fleet.size(); i++)
+        d += fleet[i].getTWV();
+    return d;
+}
+
+
+// get the total number of CV in the solution
+
+int Solution::getCV() const {
+    int d = 0;
+    for (int i=0; i<fleet.size(); i++)
+        d += fleet[i].getCV();
+    return d;
+}
+
+
+// dump the problem and the solution
+void Solution::dumpFleet() const {
+    std::cout << "--------- Fleet ------------" << std::endl;
+    for (int i=0; i<fleet.size(); i++)
+        fleet[i].dump();
+}
+
+
+
+void Solution::dump() const {
+    dumpDepots();
+    dumpDumps();
+    dumpPickups();
+    dumpFleet();
+    std::cout << "--------- Solution ------------" << std::endl;
+    std::cout << "Total path length: " << getduration() << std::endl;
+    std::cout << "Total path cost: " << getcost() << std::endl;
+    std::cout << "Total count of TWV: " << getTWV() << std::endl;
+    std::cout << "Total count of CV: " << getCV() << std::endl;
+    std::cout << "Solution: " << solutionAsText() << std::endl;
+    for (int i=0; i<fleet.size(); i++) {
+        std::cout << "V" << i << " Total OSRM Time: "
+                  << fleet[i].getTimeOSRM() << std::endl;
+    }
+
+}
+
+
+// dump summary of the solution
+
+void Solution::dumpSummary() const {
+    std::cout << "--------- Solution ------------" << std::endl;
+    std::cout << "Total path length: " << getduration() << std::endl;
+    std::cout << "Total path cost: " << getcost() << std::endl;
+    std::cout << "Total count of TWV: " << getTWV() << std::endl;
+    std::cout << "Total count of CV: " << getCV() << std::endl;
+    std::cout << "Solution: " << solutionAsText() << std::endl;
+}
 

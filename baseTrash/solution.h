@@ -31,7 +31,6 @@ typedef  TwBucket<Trashnode> Bucket;
 
 
     void setweights(double _w1,double _w2,double _w3) {w1=_w1;w2=_w2;w3=_w3;};
-    void dump();
     void dumproutes();
     void tau() ;
     void plot(std::string file,std::string title);
@@ -70,10 +69,19 @@ typedef  TwBucket<Trashnode> Bucket;
 
     bool operator <  (Solution &another) const {
         return fleet.size() < another.fleet.size() || totalCost < another.totalCost;
-
-    
-
     };
+
+   
+// code moved from OLD CODE TO BE INTEGRATED
+double getduration() const ;
+double getcost() const ;
+int getTWV() const ;
+int getCV() const ;
+
+void dump() const;
+void dumpFleet() const ;
+void dumpSummary() const ;
+
 };
 
 #endif

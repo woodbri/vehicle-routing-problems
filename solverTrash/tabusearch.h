@@ -38,6 +38,8 @@ class TabuSearch {
     TabuSearch(const Neighborhoods &initialSolution) :
         bestSolution(initialSolution), currentSolution(initialSolution)
     {
+        bestSolution.computeCosts();
+bestSolution.dump();
         bestSolutionCost = bestSolution.getCost();
         currentIteration = 0;
         maxIteration = 1000;

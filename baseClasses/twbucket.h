@@ -86,11 +86,8 @@ double  getDeltaTime(const knode &node, UID pos) const {
 
      if ( path[pos-1].getDepartureTime() + TravelTime[pos-1][node.getnid()] > node.closes() ) return _MAX();
      double delta = ( TravelTime[pos-1][node.getnid()] + TravelTime[node.getnid()][pos]  -   TravelTime[pos-1][pos]);
-/*
-     bool flag = false; 
-     for (int i=pos;i<path.size();i++) // checking if the delta affects any node after it
-	if ( path[i].getArrivalTime()+delta>path[i].closes() ) {flag=true;break;}
-*/     if (deltaGeneratesTV(delta,pos)) return _MAX();
+
+     if (deltaGeneratesTV(delta,pos)) return _MAX();
      else return ( TravelTime[pos-1][node.getnid()] + TravelTime[node.getnid()][pos]  -   TravelTime[pos-1][pos]) ;
 }
 

@@ -931,9 +931,6 @@ void TrashProblem::optimize() {
 
 //BELONGS TO SOLUTION
 void TrashProblem::dumpFleet() const {
-    std::cout << "--------- Fleet ------------" << std::endl;
-    for (int i=0; i<fleet.size(); i++)
-        fleet[i].dump();
 }
 
 
@@ -942,10 +939,6 @@ void TrashProblem::dumpFleet() const {
 // if early arrivel at a node
 
 double TrashProblem::getduration() const {
-    double d = 0;
-    for (int i=0; i<fleet.size(); i++)
-        d += fleet[i].getduration();
-    return d;
 }
 
 
@@ -953,58 +946,30 @@ double TrashProblem::getduration() const {
 // cost = w1 * getduration() + w2 * getTWV() + w3 * getCV()
 
 double TrashProblem::getcost() const {
-    double d = 0;
-    for (int i=0; i<fleet.size(); i++)
-        d += fleet[i].getcost();
-    return d;
 }
 
 
 // get the total number of TWV in the dolution
 
 int TrashProblem::getTWV() const {
-    int d = 0;
-    for (int i=0; i<fleet.size(); i++)
-        d += fleet[i].getTWV();
-    return d;
 }
 
 
 // get the total number of CV in the solution
 
 int TrashProblem::getCV() const {
-    int d = 0;
-    for (int i=0; i<fleet.size(); i++)
-        d += fleet[i].getCV();
-    return d;
 }
 
 
 // dump the problem and the solution
 
 void TrashProblem::dump() const {
-    dumpDepots();
-    dumpDumps();
-    dumpPickups();
-    dumpFleet();
-    std::cout << "--------- Solution ------------" << std::endl;
-    std::cout << "Total path length: " << getduration() << std::endl;
-    std::cout << "Total path cost: " << getcost() << std::endl;
-    std::cout << "Total count of TWV: " << getTWV() << std::endl;
-    std::cout << "Total count of CV: " << getCV() << std::endl;
-    std::cout << "Solution: " << solutionAsText() << std::endl;
 }
 
 
 // dump summary of the solution
 
 void TrashProblem::dumpSummary() const {
-    std::cout << "--------- Solution ------------" << std::endl;
-    std::cout << "Total path length: " << getduration() << std::endl;
-    std::cout << "Total path cost: " << getcost() << std::endl;
-    std::cout << "Total count of TWV: " << getTWV() << std::endl;
-    std::cout << "Total count of CV: " << getCV() << std::endl;
-    std::cout << "Solution: " << solutionAsText() << std::endl;
 }
 
 
