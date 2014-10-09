@@ -12,10 +12,12 @@
 #include "twpath.h"
 #include "plot.h"
 #include "move.h"
+#include "basevehicle.h"
 
 
-class Vehicle  {
+class Vehicle: public BaseVehicle  {
   private:
+/*
     typedef  TwBucket<Trashnode> Bucket;
     typedef  unsigned long int UID ;
     inline double _MAX() const { ( std::numeric_limits<double>::max() ); };
@@ -35,7 +37,7 @@ class Vehicle  {
     double w1;          // weight for duration in cost
     double w2;          // weight for TWV in cost
     double w3;          // weight for CV in cost
-
+*/
   protected:
 
     // this is used when we save a copy of the path so we can make
@@ -69,7 +71,8 @@ class Vehicle  {
     // END TODO LIST
     
     bool eval_erase(int at, double &savings) const;
-    bool applyMoveINS(const Trashnode &node, int pos);
+    bool applyMoveINSerasePart(int nodeNid, int pos);
+    bool applyMoveINSinsertPart(const Trashnode &node, int pos);
     bool e_makeFeasable(int currentPos);
     long int  eval_insertMoveDumps( const Trashnode &node, std::deque<Move> &moves, int fromTruck, int formPos, int toTruck, double savings, double factor ) const;
     bool e_insertDumpInPath( const Trashnode &going );

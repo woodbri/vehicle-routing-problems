@@ -107,11 +107,25 @@ std::cout<<"Entering Vehicle::e_makeFeasable\n";
     return feasable();
 }
 
-bool Vehicle::applyMoveINS(const Trashnode &node, int pos) {
+bool Vehicle::applyMoveINSerasePart(int nodeNid, int pos) {
 #ifndef TESTED
 std::cout<<"Entering Vehicle::applyMoveINS\n";
 #endif
-	insert(node,pos);
+	assert (path[pos].getnid()==nodeNid); //if this assertion fails might be because its not being applied to the correct solution
+	if (not (path[pos].getnid()==nodeNid))  return false;
+        path.erase(pos);
+        e_makeFeasable( pos );
+        evalLast();
+        assert ( feasable() );
+        return feasable();
+}
+
+
+bool Vehicle::applyMoveINSinsertPart(const Trashnode &node, int pos) {
+#ifndef TESTED
+std::cout<<"Entering Vehicle::applyMoveINS\n";
+#endif
+	path.insert(node,pos);
 	e_makeFeasable( pos );
 	evalLast();
 	assert ( feasable() );
