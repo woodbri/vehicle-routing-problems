@@ -4,6 +4,9 @@
 #include <sstream>
 #include <deque>
 
+#include "trashstats.h"
+#include "timer.h"
+
 #include "trashconfig.h"
 #include "twpath.h"
 #include "vehicle.h"
@@ -171,6 +174,8 @@ double Vehicle::getTimeOSRM() const {
     int status;
     double ttime;
 
+    Timer osrmtime;
+
     for (int i=0; i<path.size(); i++)
         url << "&loc=" << path[i].gety() << "," << path[i].getx();
 
@@ -181,18 +186,24 @@ double Vehicle::getTimeOSRM() const {
 
     if(osrm.callOSRM(url.str())) {
         std::cout << "osrm.callOSRM: failed for url: " << url << std::endl;
+        STATS->inc("failedGetTimeOSRM");
         return -1.0;
     }
 
     if(osrm.getStatus(status)) {
         std::cout << "osrm.getStatus: reported: " << status << std::endl;
+        STATS->inc("failedGetTimeOSRM");
         return -1.0;
     }
 
     if(osrm.getTravelTime(ttime)) {
         std::cout << "osrm.getTravelTime failed to find the travel time!" << std::endl;
+        STATS->inc("failedGetTimeOSRM");
         return -1.0;
     }
+
+    STATS->addto("cumTimeGetTimeOSRM", osrmtime.duration());
+    STATS->inc("cntGetTimeOSRM");
 
     ttime += path.getTotWaitTime() + path.getTotServiceTime();
 
