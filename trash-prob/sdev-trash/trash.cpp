@@ -5,11 +5,11 @@
 #include <fstream>
 #include <sstream>
 #include <string>
-#include <vector>
 #include <math.h>
 
 #include <stdio.h>
 
+#include "timer.h"
 #include "trashconfig.h"
 #include "trashstats.h"
 #include "osrm.h"
@@ -41,6 +41,7 @@ int main(int argc, char **argv) {
     cURLpp::Cleanup myCleanup;
 
     try {
+        Timer starttime;
 
         CONFIG->plotDir = "./logs/";
 
@@ -52,11 +53,26 @@ int main(int argc, char **argv) {
         FeasableSol tp(infile);
         //tp.dump();
 
+        STATS->set("zzFeasableSol time", starttime.duration());
+
+        Timer searchtime;
+
         TabuSearch ts(tp);
         ts.setMaxIteration(10);
         ts.search();
+
+        STATS->set("zzSearch time", searchtime.duration());
+
         Solution best = ts.getBestSolution();
+        best.computeCosts();
+
+        STATS->set("zzTotal time", starttime.duration());
+
         best.dump();
+
+        STATS->set("zBest cost", best.getCost());
+        STATS->set("zBest distance", best.getDistance());
+
         STATS->dump("Final");
 
     }

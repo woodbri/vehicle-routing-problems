@@ -16,9 +16,9 @@ cycles=0;
 //check for constness later
     bool isNotFeasible(const Move& m) const ;
     double getMoveSavings(const Move& m) const ;
-    void getInsNeighborhood(std::vector<Move>& moves) const ;
-    void getIntraSwNeighborhood(std::vector<Move>& moves) const;
-    void getInterSwNeighborhood(std::vector<Move>& moves) const;
+    void getInsNeighborhood(std::deque<Move>& moves) const ;
+    void getIntraSwNeighborhood(std::deque<Move>& moves) const;
+    void getInterSwNeighborhood(std::deque<Move>& moves) const;
 
     void v_getInsNeighborhood(std::deque<Move>& moves,double factor) ;
 

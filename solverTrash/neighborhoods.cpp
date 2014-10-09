@@ -114,7 +114,7 @@ double Neighborhoods::getMoveSavings(const Move& m)  const {
 //      create Move objects for moving that node to every position
 //      in every other route if the Move would be feasable
 //
-void Neighborhoods::getInsNeighborhood(std::vector<Move>& moves)  const {
+void Neighborhoods::getInsNeighborhood(std::deque<Move>& moves)  const {
     moves.clear();
     // iterate through the vechicles (vi, vj)
     for (int vi=0; vi<fleet.size(); vi++) {
@@ -185,7 +185,7 @@ void Neighborhoods::getInsNeighborhood(std::vector<Move>& moves)  const {
 //          try to swap that node to every other position
 //          within its original vehicle
 //
-void Neighborhoods::getIntraSwNeighborhood(std::vector<Move>& moves)  const {
+void Neighborhoods::getIntraSwNeighborhood(std::deque<Move>& moves)  const {
     moves.clear();
 
     // iterate through each vehicle (vi)
@@ -236,7 +236,7 @@ void Neighborhoods::getIntraSwNeighborhood(std::vector<Move>& moves)  const {
 //      nid2 = node id in vehicle 2
 //      pos2 - position od nid2 in vid2
 //
-void Neighborhoods::getInterSwNeighborhood(std::vector<Move>& moves)  const {
+void Neighborhoods::getInterSwNeighborhood(std::deque<Move>& moves)  const {
     moves.clear();
     // iterate through the vechicles (vi, vj)
     for (int vi=0; vi<fleet.size(); vi++) {
