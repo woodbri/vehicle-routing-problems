@@ -1,6 +1,7 @@
 #ifndef VEHICLE_H
 #define VEHICLE_H
 
+#include <limits>
 #include <vector>
 #include <sstream>
 
@@ -15,8 +16,12 @@
 
 class Vehicle  {
   private:
-typedef  TwBucket<Trashnode> Bucket;
-typedef  unsigned long int UID ;
+    typedef  TwBucket<Trashnode> Bucket;
+    typedef  unsigned long int UID ;
+    inline double _MAX() const { ( std::numeric_limits<double>::max() ); };
+    inline double _MIN() const { ( - std::numeric_limits<double>::max() ); };
+
+
     int vid;
     int ntype;
     Twpath<Trashnode> path;
@@ -47,7 +52,6 @@ typedef  unsigned long int UID ;
     bool eval_insertSteadyDumps(const Trashnode &node, int at) const;
 
     bool e_insertIntoFeasableTruck(const Trashnode &node,int pos);
-    bool applyMoveINS(const Trashnode &node, int pos);
     // insertion will be performed and return false if TV or CV is generated 
     bool e_insertMoveDumps(const Trashnode &node, int at);
     bool e_insertSteadyDumps(const Trashnode &node, int at);
@@ -64,9 +68,10 @@ typedef  unsigned long int UID ;
     bool e_insertTight(const Trashnode &node, int at) { return  e_insertMoveDumpsTight(node, at); };
     // END TODO LIST
     
-
+    bool eval_erase(int at, double &savings) const;
+    bool applyMoveINS(const Trashnode &node, int pos);
     bool e_makeFeasable(int currentPos);
-    long int eval_insertMoveDumps( const Trashnode &node, std::deque<Move> &moves, int fromTruck, int formPos, int toTruck,double factor ) const;
+    long int  eval_insertMoveDumps( const Trashnode &node, std::deque<Move> &moves, int fromTruck, int formPos, int toTruck, double savings, double factor ) const;
     bool e_insertDumpInPath( const Trashnode &going );
     bool e_setPath(const Bucket &sol);
     bool deltaTimeGeneratesTV(const Trashnode &dump, const Trashnode &node) const; 

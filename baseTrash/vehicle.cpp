@@ -39,8 +39,22 @@ std::cout<<"Entering Vehicle::e_insertIntoFeasableTruck \n";
 	return true;
 }
 
+//dont forget, negative savings is a higher cost
+bool Vehicle::eval_erase(int at, double &savings) const {
+	assert (at<size() and at>0 );
+	assert( not path[at].isdump());
+	Vehicle truck = (*this);
+	truck.path.erase(at);
+	if ( truck.e_makeFeasable(at) ) savings = _MIN(); // -infinity
+        else savings = cost - truck.cost;
+	return truck.feasable();
+};
+	
 
-long int Vehicle::eval_insertMoveDumps( const Trashnode &node,std::deque<Move> &moves, int fromTruck, int fromPos, int toTruck, double factor) const {
+	
+	
+
+long int Vehicle::eval_insertMoveDumps( const Trashnode &node,std::deque<Move> &moves, int fromTruck, int fromPos, int toTruck, double eraseSavings, double factor) const {
 #ifdef TESTED
 std::cout<<"Entering Vehicle::eval_insertMoveDumps \n";
 #endif
@@ -62,7 +76,7 @@ std::cout<<"Entering Vehicle::eval_insertMoveDumps \n";
                 if ( path.size()*factor > impossiblePos.size() ) return moves.size(); 
              } else {
 		assert ( truck.feasable() );
-		Move move(Move::Ins, node.getnid(),  -1,  fromTruck, toTruck,  fromPos, currentPos, (cost-truck.cost)   );
+		Move move(Move::Ins, node.getnid(),  -1,  fromTruck, toTruck,  fromPos, currentPos, (cost-truck.cost+eraseSavings)   );
 		moves.push_back(move);
 
                 truck.remove(currentPos);
@@ -72,7 +86,7 @@ std::cout<<"Entering Vehicle::eval_insertMoveDumps \n";
 	           unTestedPos.pop_back();
 		   if ( testingPos<path.size() and  path[ testingPos ].isdump()) continue; //skipping dumps
         	   if ( truck.e_insertIntoFeasableTruck( node, testingPos) ) {
-			Move move(Move::Ins, node.getnid(),  -1,  fromTruck, toTruck,  fromPos, testingPos, (cost-truck.cost)   );
+			Move move(Move::Ins, node.getnid(),  -1,  fromTruck, toTruck,  fromPos, testingPos, (cost-truck.cost + eraseSavings)   );
 			moves.push_back(move);
                    } else unfeasablePos.push_back( testingPos);
 		   truck.remove( testingPos );
