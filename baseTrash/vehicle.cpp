@@ -9,12 +9,12 @@
 
 #include "trashconfig.h"
 #include "twpath.h"
-#include "vehicle.h"
 #include "osrm.h"
 #include "move.h"
+#include "vehicle.h"
+#include "basevehicle.h"
 
 // space reserved for TODO list
-
 bool Vehicle::e_insertIntoFeasableTruck(const Trashnode &node,int pos) {
 #ifdef TESTED
 std::cout<<"Entering Vehicle::e_insertIntoFeasableTruck \n";
@@ -136,10 +136,10 @@ std::cout<<"Entering Vehicle::applyMoveINS\n";
 
 bool Vehicle::e_insertMoveDumps( const Trashnode &node, int at) {
 	assert (at<=size());
-/*
-        path.insert(node,at);
-        path.e_moveDumps(at);
-*/
+//
+//        path.insert(node,at);
+//        path.e_moveDumps(at);
+//
 }
 
 
@@ -192,7 +192,7 @@ std::cout<<"Entering Vehicle::e_insertDumpInPath \n";
 
 
 // getTimeOSRM() REQUIRES the main() to call cURLpp::Cleanup myCleanup; ONCE!
-
+/*
 double Vehicle::getTimeOSRM() const {
     std::ostringstream url(std::ostringstream::ate);
     url.str(CONFIG->osrmBaseUrl);
@@ -237,6 +237,7 @@ double Vehicle::getTimeOSRM() const {
 
     return ttime;
 }
+*/
 
 //bool Vehicle::deltaCargoGeneratesCV_AUTO(const Trashnode &node, int pos) const { //position becomes important
 
@@ -287,7 +288,7 @@ endingSite.dump();
 }
 //////////////
 
-
+/*
 
 
 bool Vehicle::e_setPath(const Bucket &sol) {
@@ -362,8 +363,7 @@ std::cout<<"Entering Vehicle::findNearestNodeTo \n";
 
 
 
-
-//   Steve's functions 
+//   BaseVehicles's functions 
 
 void Vehicle::dump() const {
     std::cout << "---------- Vehicle ---------------" << std::endl;
@@ -878,9 +878,9 @@ bool Vehicle::findBestFit(const Trashnode& tn, int* tpos, double* deltacost) {
 // Inter-route modifications
 // --------------------------------------------------------------------------
 
-/*
-    2-exchange - swap path[i1] with v2[i2]
-*/
+//
+//    2-exchange - swap path[i1] with v2[i2]
+//
 bool Vehicle::swap2(Vehicle& v2, const int& i1, const int& i2, bool force) {
     if (i1 < 0 or i1 > this->size()-1 or i2 < 0 or i2 > v2.size()-1)
         return false;
@@ -906,10 +906,10 @@ bool Vehicle::swap2(Vehicle& v2, const int& i1, const int& i2, bool force) {
 }
 
 
-/*
+//
     3-route node exchange - swap3
     path[i1] -> v2.path[i2] -> v3.path[i3] -> path[i1]
-*/
+//
 bool Vehicle::swap3(Vehicle& v2, Vehicle& v3, const int& i1, const int& i2, const int& i3, bool force) {
     if ( i1 < 0 or i1 > this->size()-1 or
          i2 < 0 or i2 > v2.size()-1 or
@@ -1016,12 +1016,12 @@ bool Vehicle::exchangeSeq(Vehicle& v2, const int& i1, const int& j1, const int& 
 }
 
 
-/*
-    exchange tails
-    this swaps the seq of nodes from an index to the end of the path with
-    another path and its given index
-    exchange v1[i1...n1] <--> v2[i2..n2]
-*/
+//
+//    exchange tails
+//    this swaps the seq of nodes from an index to the end of the path with
+//    another path and its given index
+//    exchange v1[i1...n1] <--> v2[i2..n2]
+//
 bool Vehicle::exchangeTails(Vehicle& v2, const int& i1, const int& i2, bool force) {
     if ( i1 < 0 or i1 > this->size()-1 or
          i2 < 0 or i2 > v2.size()-1 ) return false;
@@ -1192,7 +1192,7 @@ bool Vehicle::relocateBest(Vehicle& v2, const int& i1) {
     return true;
 }
 
-/**************************************PLOT************************************/
+// **************************************PLOT************************************ /
 void Vehicle::plot(std::string file,std::string title,int carnumber){
 //std::cout<<"USING VEHICLE PLOT\n";
     Twpath<Trashnode> trace=path;
@@ -1202,7 +1202,7 @@ trace.dumpid("Path");
     trace.pop_front();
     trace.pop_back();
     trace.pop_back();
-    /** cpp11  the following next 3 lines become std::string carnum=std::to_string(carnumber */
+    // ** cpp11  the following next 3 lines become std::string carnum=std::to_string(carnumber  /
     std::stringstream convert;
     convert << carnumber;
     std::string carnum = convert.str();
@@ -1232,5 +1232,5 @@ void Vehicle::plot(Plot<Trashnode> graph, int carnumber){
     trace.push_back(endingSite);
     graph.drawPath(trace,graph.makeColor(carnumber*10), 1, true);
 }
-
+*/
 

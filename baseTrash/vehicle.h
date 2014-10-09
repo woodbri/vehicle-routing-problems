@@ -15,14 +15,14 @@
 #include "basevehicle.h"
 
 
-class Vehicle: public BaseVehicle  {
+class Vehicle: public BaseVehicle {
   private:
-/*
     typedef  TwBucket<Trashnode> Bucket;
     typedef  unsigned long int UID ;
     inline double _MAX() const { ( std::numeric_limits<double>::max() ); };
     inline double _MIN() const { ( - std::numeric_limits<double>::max() ); };
 
+/*
 
     int vid;
     int ntype;
@@ -44,9 +44,9 @@ class Vehicle: public BaseVehicle  {
     // changes and to restore the original path if the changes
     // do not improve the path.
     // There is a hidden assumption that path[0] == endingSite node.
-
+/*
     void setvpath(Twpath<Trashnode> p) { path = p; };
-
+*/
   public:
     // TODO LIST 
     // insertion will not be performed 
@@ -76,15 +76,11 @@ class Vehicle: public BaseVehicle  {
     bool e_makeFeasable(int currentPos);
     long int  eval_insertMoveDumps( const Trashnode &node, std::deque<Move> &moves, int fromTruck, int formPos, int toTruck, double savings, double factor ) const;
     bool e_insertDumpInPath( const Trashnode &going );
-    bool e_setPath(const Bucket &sol);
     bool deltaTimeGeneratesTV(const Trashnode &dump, const Trashnode &node) const; 
     bool deltaCargoGeneratesCV(const Trashnode &node, int pos) const;
     bool deltaCargoGeneratesCV_AUTO(const Trashnode &node, int pos) const;
     bool deltaTimeGeneratesTV(const Trashnode &node,int pos) const;
     bool deltaTimeGeneratesTV_AUTO(const Trashnode &node,int pos) const;
-    bool isvalid() const {return vid>=0;};  //
-    bool findNearestNodeTo(Bucket &unassigned,const TWC<Trashnode> &twc,  UID &pos,  Trashnode &bestNode);
-    double getCurrentCapacity() const {return maxcapacity - path[size()-1].getcargo();}
     //--------------------------------------------------------------------
     // structors
     //--------------------------------------------------------------------
@@ -95,7 +91,8 @@ class Vehicle: public BaseVehicle  {
         w1 = w2 = w3 = 1.0;
     };
 
-    Vehicle(std::string line,const Bucket &otherlocs)  {
+    Vehicle(std::string line,const Bucket &otherlocs): BaseVehicle(line,otherlocs)   {
+/*
        // TESTED on running program
        assert(otherlocs.size());
        std::istringstream buffer( line );
@@ -137,8 +134,13 @@ class Vehicle: public BaseVehicle  {
 dumpeval();
 
        } else vid=-1;  //truck is rejected
-   }
+*/   }
 
+/*
+    bool e_setPath(const Bucket &sol);
+    bool isvalid() const {return vid>=0;};  //
+    bool findNearestNodeTo(Bucket &unassigned,const TWC<Trashnode> &twc,  UID &pos,  Trashnode &bestNode);
+    double getCurrentCapacity() const {return maxcapacity - path[size()-1].getcargo();}
 
     //--------------------------------------------------------------------
     // accessors
@@ -291,7 +293,7 @@ dumpeval();
     bool ispickup(int i) const { return path[i].ispickup(); };
     bool isdepot(int i) const { return path[i].isdepot(); };
     bool getCargo(int i) const { return path[i].getcargo(); };
-
+*/
 
 };
 
