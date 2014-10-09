@@ -44,11 +44,9 @@ typedef  unsigned long int UID ;
     // TODO LIST 
     // insertion will not be performed 
     //  return false if TV or CV is generated 
-    long int eval_insertMoveDumps( const Trashnode &node, std::deque<Move> &moves, int fromTruck, int formPos, int toTruck ) const;
     bool eval_insertSteadyDumps(const Trashnode &node, int at) const;
 
     bool e_insertIntoFeasableTruck(const Trashnode &node,int pos);
-    bool e_makeFeasable();
     bool applyMoveINS(const Trashnode &node, int pos);
     // insertion will be performed and return false if TV or CV is generated 
     bool e_insertMoveDumps(const Trashnode &node, int at);
@@ -67,6 +65,8 @@ typedef  unsigned long int UID ;
     // END TODO LIST
     
 
+    bool e_makeFeasable(int currentPos);
+    long int eval_insertMoveDumps( const Trashnode &node, std::deque<Move> &moves, int fromTruck, int formPos, int toTruck,double factor ) const;
     bool e_insertDumpInPath( const Trashnode &going );
     bool e_setPath(const Bucket &sol);
     bool deltaTimeGeneratesTV(const Trashnode &dump, const Trashnode &node) const; 

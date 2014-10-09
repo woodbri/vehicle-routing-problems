@@ -251,6 +251,7 @@ std::cout<<"Entering TabuSearch::v_doNeighborhoodMoves() \n";
     bool madeMove;
     bool loopMadeMove;
     int stagnationCnt = 0;
+    double factor=0.5;
     madeMove = false;
 
     do {
@@ -266,7 +267,7 @@ std::cout<<"Entering TabuSearch::v_doNeighborhoodMoves() \n";
         switch (whichNeighborhood) {
             case Ins:
 std::cout<<"TabuSearch::v_doNeighborhoodMoves 1\n";
-                currentSolution.v_getInsNeighborhood(setOfInsMoves);
+                currentSolution.v_getInsNeighborhood(setOfInsMoves,factor);
 std::cout<<"TabuSearch::v_doNeighborhoodMoves >> \n"<<setOfInsMoves.size()<<"moves found";
 		assert(true==false);
 

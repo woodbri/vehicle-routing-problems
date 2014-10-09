@@ -20,7 +20,7 @@ cycles=0;
     void getIntraSwNeighborhood(std::vector<Move>& moves) const;
     void getInterSwNeighborhood(std::vector<Move>& moves) const;
 
-    void v_getInsNeighborhood(std::deque<Move>& moves) ;
+    void v_getInsNeighborhood(std::deque<Move>& moves,double factor) ;
 
     void applyMove(const Move&);
 
