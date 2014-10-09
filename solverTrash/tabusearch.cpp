@@ -3,6 +3,7 @@
 #include <vector>
 #include <algorithm>
 
+#include "trashstats.h"
 #include "neighborhoods.h"
 #include "tabusearch.h"
 
@@ -20,36 +21,18 @@ void TabuSearch::dumpTabuList() const {
 
 void TabuSearch::dumpStats() const {
     std::cout << "TabuList Stats at iteration: " << currentIteration << std::endl;
-    std::cout << "   movesAdded: " << movesAdded << std::endl
-              << "   movesChecked: " << movesChecked << std::endl
-              << "   movesCheckedTabu: " << movesCheckedTabu << std::endl
-              << "   bestUpdatedLastAt: " << bestUpdatedLastAt << std::endl
-              << "   bestUpdatedCnt: " << bestUpdatedCnt << std::endl
-              << "   cntInsApplied: " << cntInsApplied << std::endl
-              << "   cntIntraSwApplied: " << cntIntraSwApplied << std::endl
-              << "   cntInterSwApplied: " << cntInterSwApplied << std::endl
-              << "   timeGenIns: " << timeGenIns << std::endl
-              << "   timeGenIntraSw: " << timeGenIntraSw << std::endl
-              << "   timeGenInterSw: " << timeGenInterSw << std::endl
-              << "   timeApplyMoves: " << timeApplyMoves << std::endl
-              << "   cntGenInsCalls: " << cntGenInsCalls << std::endl
-              << "   cntGenIntraSwCalls: " << cntGenIntraSwCalls << std::endl
-              << "   cntGenInterSwCalls: " << cntGenInterSwCalls << std::endl
-              << "   cumInsMoves: " << cumInsMoves << std::endl
-              << "   cumIntraSwMoves: " << cumIntraSwMoves << std::endl
-              << "   cumInterSwMoves: " << cumInterSwMoves << std::endl
-              ;
+    STATS->dump("");
 }
 
 
-bool TabuSearch::isTabu(const Move& m) {
-    std::map<const Move, int>::iterator it;
+bool TabuSearch::isTabu(const Move& m) const {
+    std::map<const Move, int>::const_iterator it;
 
-    ++movesChecked;  // this makes it non-const
+    STATS->inc("tabuMovesChecked");
     for (it = TabuList.begin(); it!=TabuList.end(); ++it) {
         if (it->second < currentIteration) continue;
         if (m.isForbidden(it->first)) {
-            ++movesCheckedTabu;  // this makes it non-const
+            STATS->inc("tabuMovesCheckedTabu");
             return true;
         }
     }
@@ -67,7 +50,7 @@ void TabuSearch::cleanExpired() {
 
 void TabuSearch::makeTabu(const Move m) {
     TabuList[m] = currentIteration + tabuLength;
-    ++movesAdded;
+    STATS->inc("movesAdded");
 }
 
 
@@ -153,25 +136,25 @@ bool TabuSearch::doNeighborhoodMoves(neighborMovesName whichNeighborhood, int ma
         switch (whichNeighborhood) {
             case Ins:
                 currentSolution.getInsNeighborhood(neighborhood);
-                timeGenIns += timeNeighboorhoodGeneration.duration();
-                ++cntGenInsCalls;
-                cumInsMoves += neighborhood.size();
+                STATS->addto("timeGenIns", timeNeighboorhoodGeneration.duration());
+                STATS->inc("cntGenInsCalls");
+                STATS->addto("cumInsMoves", neighborhood.size());
 std::cout << "\tdoNeighborhoodMoves for Ins: " << neighborhood.size()
     << " moves generated" << std::endl;
                 break;
             case IntraSw:
                 currentSolution.getIntraSwNeighborhood(neighborhood);
-                timeGenIntraSw += timeNeighboorhoodGeneration.duration();
-                ++cntGenIntraSwCalls;
-                cumIntraSwMoves += neighborhood.size();
+                STATS->addto("timeGenIntraSw", timeNeighboorhoodGeneration.duration());
+                STATS->inc("cntGenIntraSwCalls");
+                STATS->addto("cumIntraSwMoves", neighborhood.size());
 std::cout << "\tdoNeighborhoodMoves for IntraSw: " << neighborhood.size()
     << " moves generated" << std::endl;
                 break;
             case InterSw:
                 currentSolution.getInterSwNeighborhood(neighborhood);
-                timeGenInterSw += timeNeighboorhoodGeneration.duration();
-                ++cntGenInterSwCalls;
-                cumInterSwMoves += neighborhood.size();
+                STATS->addto("timeGenInterSw", timeNeighboorhoodGeneration.duration());
+                STATS->inc("cntGenInterSwCalls");
+                STATS->addto("cumInterSwMoves", neighborhood.size());
 std::cout << "\tdoNeighborhoodMoves for InterSw: " << neighborhood.size()
     << " moves generated" << std::endl;
                 break;
@@ -195,13 +178,13 @@ std::cout << "\tdoNeighborhoodMoves: Aspiration move: "; it->dump();
                 makeTabu(*it);
                 loopMadeMove = true;
                 stagnationCnt = 0;
-                bestUpdatedLastAt = currentIteration;
-                ++bestUpdatedCnt;
+                STATS->set("bestUpdatedLastAt", currentIteration);
+                STATS->inc("bestUpdatedCnt");
                 // update stats
                 switch (whichNeighborhood) {
-                    case Ins:     ++cntInsApplied;    break;
-                    case IntraSw: ++cntIntraSwApplied; break;
-                    case InterSw: ++cntInterSwApplied; break;
+                    case Ins:     STATS->inc("cntInsApplied");    break;
+                    case IntraSw: STATS->inc("cntIntraSwApplied"); break;
+                    case InterSw: STATS->inc("cntInterSwApplied"); break;
                 }
 
                 // ok we made a move, so now the neighborhood is no
@@ -218,9 +201,9 @@ std::cout << "\tdoNeighborhoodMoves: Not Tabu: "; it->dump();
                 loopMadeMove = true;
                 // update stats
                 switch (whichNeighborhood) {
-                    case Ins:     ++cntInsApplied;    break;
-                    case IntraSw: ++cntIntraSwApplied; break;
-                    case InterSw: ++cntInterSwApplied; break;
+                    case Ins:     STATS->inc("cntInsApplied");    break;
+                    case IntraSw: STATS->inc("cntIntraSwApplied"); break;
+                    case InterSw: STATS->inc("cntInterSwApplied"); break;
                 }
 
                 // ok we made a move, so now the neighborhood is no
@@ -228,7 +211,7 @@ std::cout << "\tdoNeighborhoodMoves: Not Tabu: "; it->dump();
                 break;
             }
         }
-        timeApplyMoves += applyMoveTimer.duration();
+        STATS->addto("timeApplyMoves", applyMoveTimer.duration());
         madeMove = madeMove or loopMadeMove;
         ++stagnationCnt;
     }

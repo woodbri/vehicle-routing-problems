@@ -25,6 +25,7 @@ class TabuSearch {
 
     Neighborhoods currentSolution;
 
+/*
     // keep strack of some statistics
 
     int movesAdded;
@@ -45,7 +46,7 @@ class TabuSearch {
     int cumInsMoves;
     int cumIntraSwMoves;
     int cumInterSwMoves;
-
+*/
 
   public:
     TabuSearch(const Neighborhoods initialSolution) :
@@ -58,6 +59,7 @@ class TabuSearch {
         maxIteration = 1000;
         tabuLength = std::min(initialSolution.getNodeCount() / 5, (unsigned int) 5);
 
+/*
         // initial the stats
         movesAdded = movesChecked = movesCheckedTabu = 0;
         bestUpdatedLastAt = bestUpdatedCnt = 0;
@@ -65,6 +67,7 @@ class TabuSearch {
         timeGenIns = timeGenIntraSw = timeGenInterSw = 0;
         cntGenInsCalls = cntGenIntraSwCalls = cntGenInterSwCalls = 0;
         cumInsMoves = cumIntraSwMoves = cumInterSwMoves = 0;
+*/
     };
 
     int getCurrentIteration() const { return currentIteration; };
@@ -74,7 +77,7 @@ class TabuSearch {
     Solution getCurrentSolution() const {return currentSolution; };
     void dumpTabuList() const;
     void dumpStats() const;
-    bool isTabu(const Move& m);
+    bool isTabu(const Move& m) const;
 
     void makeTabu(const Move m);
     void cleanExpired();

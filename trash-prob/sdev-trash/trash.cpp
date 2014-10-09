@@ -11,6 +11,7 @@
 #include <stdio.h>
 
 #include "trashconfig.h"
+#include "trashstats.h"
 #include "osrm.h"
 #include "node.h"
 #include "twnode.h"
@@ -52,10 +53,11 @@ int main(int argc, char **argv) {
         //tp.dump();
 
         TabuSearch ts(tp);
+        ts.setMaxIteration(10);
         ts.search();
         Solution best = ts.getBestSolution();
         best.dump();
-        ts.dumpStats();
+        STATS->dump("Final");
 
     }
     catch (const std::exception &e) {
