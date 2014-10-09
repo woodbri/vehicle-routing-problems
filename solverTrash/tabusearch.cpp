@@ -3,6 +3,7 @@
 #include <vector>
 #include <algorithm>
 
+#include "trashstats.h"
 #include "neighborhoods.h"
 #include "tabusearch.h"
 
@@ -20,26 +21,18 @@ void TabuSearch::dumpTabuList() const {
 
 void TabuSearch::dumpStats() const {
     std::cout << "TabuList Stats at iteration: " << currentIteration << std::endl;
-    std::cout << "   movesAdded: " << movesAdded << std::endl
-              << "   movesChecked: " << movesChecked << std::endl
-              << "   movesCheckedTabu: " << movesCheckedTabu << std::endl
-              << "   bestUpdatedLastAt: " << bestUpdatedLastAt << std::endl
-              << "   bestUpdatedCnt: " << bestUpdatedCnt << std::endl
-              << "   cntInsApplied: " << cntInsApplied << std::endl
-              << "   cntIntraSwApplied: " << cntIntraSwApplied << std::endl
-              << "   cntInterSwApplied: " << cntInterSwApplied << std::endl
-              ;
+    STATS->dump("");
 }
 
 
-bool TabuSearch::isTabu(const Move& m) {
-    std::map<const Move, int>::iterator it;
+bool TabuSearch::isTabu(const Move& m) const {
+    std::map<const Move, int>::const_iterator it;
 
-    ++movesChecked;  // this makes it non-const
+    STATS->inc("tabuMovesChecked");
     for (it = TabuList.begin(); it!=TabuList.end(); ++it) {
         if (it->second < currentIteration) continue;
         if (m.isForbidden(it->first)) {
-            ++movesCheckedTabu;  // this makes it non-const
+            STATS->inc("tabuMovesCheckedTabu");
             return true;
         }
     }
@@ -57,7 +50,7 @@ void TabuSearch::cleanExpired() {
 
 void TabuSearch::makeTabu(const Move m) {
     TabuList[m] = currentIteration + tabuLength;
-    ++movesAdded;
+    STATS->inc("movesAdded");
 }
 
 
@@ -84,21 +77,26 @@ void TabuSearch::search() {
 
     currentIteration = 0;
 
+    Timer start;
     bool madeChanges;
     do {
         // set the stagnation count as the last the last parameter
         // thhe values 500, 300, 300 can from the paper mentioned above
         std::cout << "TABUSEARCH: Starting iteration: " << currentIteration
             << std::endl;
-        madeChanges = doNeighborhoodMoves(Ins,     500)
-                    | doNeighborhoodMoves(IntraSw, 300)
-                    | doNeighborhoodMoves(InterSw, 300);
+//        madeChanges = doNeighborhoodMoves(Ins,     500)
+//                    | doNeighborhoodMoves(IntraSw, 300)
+//                    | doNeighborhoodMoves(InterSw, 300);
+        madeChanges = doNeighborhoodMoves(Ins,     5)
+                    | doNeighborhoodMoves(IntraSw, 3)
+                    | doNeighborhoodMoves(InterSw, 3);
         std::cout << "TABUSEARCH: Finished iteration: " << currentIteration
             << ", madeChanges: " << madeChanges << std::endl;
         dumpStats();
     }
     while (madeChanges and ++currentIteration < maxIteration);
 
+    std::cout << "TABUSEARCH: Total time: " << start.duration() << std::endl;
 }
 
 
@@ -135,28 +133,40 @@ bool TabuSearch::doNeighborhoodMoves(neighborMovesName whichNeighborhood, int ma
         // because we have to calcuate savings we should have already
         // checked for feasibility so only feasible solutions are returned
         std::vector<Move> neighborhood;
+        Timer timeNeighboorhoodGeneration;
         switch (whichNeighborhood) {
             case Ins:
                 currentSolution.getInsNeighborhood(neighborhood);
+                STATS->addto("timeGenIns", timeNeighboorhoodGeneration.duration());
+                STATS->inc("cntGenInsCalls");
+                STATS->addto("cumInsMoves", neighborhood.size());
 std::cout << "\tdoNeighborhoodMoves for Ins: " << neighborhood.size()
     << " moves generated" << std::endl;
                 break;
             case IntraSw:
                 currentSolution.getIntraSwNeighborhood(neighborhood);
+                STATS->addto("timeGenIntraSw", timeNeighboorhoodGeneration.duration());
+                STATS->inc("cntGenIntraSwCalls");
+                STATS->addto("cumIntraSwMoves", neighborhood.size());
 std::cout << "\tdoNeighborhoodMoves for IntraSw: " << neighborhood.size()
     << " moves generated" << std::endl;
                 break;
             case InterSw:
                 currentSolution.getInterSwNeighborhood(neighborhood);
+                STATS->addto("timeGenInterSw", timeNeighboorhoodGeneration.duration());
+                STATS->inc("cntGenInterSwCalls");
+                STATS->addto("cumInterSwMoves", neighborhood.size());
 std::cout << "\tdoNeighborhoodMoves for InterSw: " << neighborhood.size()
     << " moves generated" << std::endl;
                 break;
         }
 
+
         // and sort it so we can work from the best to the worst
         std::sort(neighborhood.begin(), neighborhood.end(), Move::bySavings);
 
         // take the best move that we may apply and apply it, if any
+        Timer applyMoveTimer;
         for (std::vector<Move>::iterator it=neighborhood.begin();
                 it!=neighborhood.end(); ++it) {
 
@@ -169,14 +179,18 @@ std::cout << "\tdoNeighborhoodMoves: Aspiration move: "; it->dump();
                 makeTabu(*it);
                 loopMadeMove = true;
                 stagnationCnt = 0;
-                bestUpdatedLastAt = currentIteration;
-                ++bestUpdatedCnt;
+                STATS->set("bestUpdatedLastAt", currentIteration);
+                STATS->inc("bestUpdatedCnt");
                 // update stats
                 switch (whichNeighborhood) {
-                    case Ins:     ++cntInsApplied;    break;
-                    case IntraSw: ++cntIntraSwApplied; break;
-                    case InterSw: ++cntInterSwApplied; break;
+                    case Ins:     STATS->inc("cntInsApplied");    break;
+                    case IntraSw: STATS->inc("cntIntraSwApplied"); break;
+                    case InterSw: STATS->inc("cntInterSwApplied"); break;
                 }
+
+                // ok we made a move, so now the neighborhood is no
+                // longer valid so break to regenerate a new neighborhood
+                break;
             }
             // if the move is not Tabu, then we apply it even if
             // it makes the solution worse so we move to a new
@@ -188,12 +202,17 @@ std::cout << "\tdoNeighborhoodMoves: Not Tabu: "; it->dump();
                 loopMadeMove = true;
                 // update stats
                 switch (whichNeighborhood) {
-                    case Ins:     ++cntInsApplied;    break;
-                    case IntraSw: ++cntIntraSwApplied; break;
-                    case InterSw: ++cntInterSwApplied; break;
+                    case Ins:     STATS->inc("cntInsApplied");    break;
+                    case IntraSw: STATS->inc("cntIntraSwApplied"); break;
+                    case InterSw: STATS->inc("cntInterSwApplied"); break;
                 }
+
+                // ok we made a move, so now the neighborhood is no
+                // longer valid so break to regenerate a new neighborhood
+                break;
             }
         }
+        STATS->addto("timeApplyMoves", applyMoveTimer.duration());
         madeMove = madeMove or loopMadeMove;
         ++stagnationCnt;
     }

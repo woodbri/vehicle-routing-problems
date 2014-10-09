@@ -3,6 +3,8 @@
 
 #include <map>
 #include <cassert>
+
+#include "timer.h"
 #include "move.h"
 #include "neighborhoods.h"
 
@@ -23,6 +25,7 @@ class TabuSearch {
 
     Neighborhoods currentSolution;
 
+/*
     // keep strack of some statistics
 
     int movesAdded;
@@ -33,20 +36,38 @@ class TabuSearch {
     int cntInsApplied;
     int cntIntraSwApplied;
     int cntInterSwApplied;
+    double timeGenIns;
+    double timeGenIntraSw;
+    double timeGenInterSw;
+    double timeApplyMoves;
+    int cntGenInsCalls;
+    int cntGenIntraSwCalls;
+    int cntGenInterSwCalls;
+    int cumInsMoves;
+    int cumIntraSwMoves;
+    int cumInterSwMoves;
+*/
 
   public:
     TabuSearch(const Neighborhoods initialSolution) :
         bestSolution(initialSolution), currentSolution(initialSolution)
     {
         bestSolution.computeCosts();
-//bestSolution.dump();
+        bestSolution.dump();
         bestSolutionCost = bestSolution.getCost();
         currentIteration = 0;
         maxIteration = 1000;
         tabuLength = std::min(initialSolution.getNodeCount() / 5, (unsigned int) 5);
-        bestUpdatedLastAt = 0;
-        bestUpdatedCnt = 0;
+
+/*
+        // initial the stats
+        movesAdded = movesChecked = movesCheckedTabu = 0;
+        bestUpdatedLastAt = bestUpdatedCnt = 0;
         cntInsApplied = cntIntraSwApplied = cntInterSwApplied = 0;
+        timeGenIns = timeGenIntraSw = timeGenInterSw = 0;
+        cntGenInsCalls = cntGenIntraSwCalls = cntGenInterSwCalls = 0;
+        cumInsMoves = cumIntraSwMoves = cumInterSwMoves = 0;
+*/
     };
 
     int getCurrentIteration() const { return currentIteration; };
@@ -56,7 +77,7 @@ class TabuSearch {
     Solution getCurrentSolution() const {return currentSolution; };
     void dumpTabuList() const;
     void dumpStats() const;
-    bool isTabu(const Move& m);
+    bool isTabu(const Move& m) const;
 
     void makeTabu(const Move m);
     void cleanExpired();
