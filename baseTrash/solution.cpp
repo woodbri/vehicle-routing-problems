@@ -1,5 +1,12 @@
 #include "solution.h"
 
+bool Solution::feasable() const {
+assert(fleet.size());
+
+        for (int i=0; i<fleet.size(); i++) 
+            if (not fleet[i].feasable()) return false;
+	return true;
+}
 
 
 void Solution::computeCosts() {

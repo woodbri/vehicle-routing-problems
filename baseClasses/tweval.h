@@ -21,6 +21,7 @@ public:
     int  getcvTot() const { return cvTot; };
     double getcargo() const { return cargo; };
     double getdistPrev() const { return travelTime; };
+    bool feasable() const { return twvTot == 0 and cvTot == 0;};
 
 
     double getTotTime() const { return departureTime;};

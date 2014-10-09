@@ -128,7 +128,7 @@ void Neighborhoods::getInsNeighborhood(std::vector<Move>& moves)  const {
                 // dont try to move the dump
                 if(fleet[vi][pi].isdump()) continue;
 
-                for (int pj=1; pj<fleet[vj].size(); pj++) {
+                for (int pj=1; pj<=fleet[vj].size(); pj++) {
 
                     // we can't break because we might have multiple dumps
                     // if we could get the position of the next dump
@@ -270,3 +270,31 @@ void Neighborhoods::getInterSwNeighborhood(std::vector<Move>& moves)  const {
 }
 
 
+
+
+////////////////////VIcky's part of the file
+void Neighborhoods::v_getInsNeighborhood(std::deque<Move>& moves)   {
+#ifndef TESTED
+std::cout<<"Entering Neighborhoods::v_getInsNeighborhood"<<fleet.size()<<" trucks \n";
+#endif
+assert (feasable());
+    
+    moves.clear();
+    int oldcant=0;
+    // iterate through the vechicles (vi, vj)
+    for (int fromTruck=0; fromTruck<fleet.size(); fromTruck++) {
+        for (int toTruck=0; toTruck<fleet.size(); toTruck++) {
+
+            if (fromTruck==toTruck) continue;
+
+            for (int fromPos=1; fromPos<fleet[fromTruck].size(); fromPos++) {
+                if(fleet[fromTruck][fromPos].isdump()) continue;   // skiping dump
+                fleet[toTruck].eval_insertMoveDumps( fleet[fromTruck][fromPos], moves, fromTruck, fromPos, toTruck  );
+            }
+        }
+    }
+#ifndef TESTED
+std::cout<<"EXIT Neighborhoods::v_getInsNeighborhood"<<moves.size()<<" MOVES found total \n";
+#endif
+}
+ 

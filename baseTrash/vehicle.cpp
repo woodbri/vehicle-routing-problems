@@ -8,8 +8,107 @@
 #include "twpath.h"
 #include "vehicle.h"
 #include "osrm.h"
+#include "move.h"
 
 // space reserved for TODO list
+
+bool Vehicle::e_insertIntoFeasableTruck(const Trashnode &node,int pos) {
+#ifdef TESTED
+std::cout<<"Entering Vehicle::e_insertIntoFeasableTruck \n";
+#endif
+	assert( feasable() ); 
+	double localCost=cost;
+     	if ( not path.e__insert(node,pos,maxcapacity) ) {
+	        assert( feasable() );
+		return false;
+	}
+     	evalLast();
+
+	if (not feasable() ) {
+		path.e_remove(pos,maxcapacity);
+     		evalLast();
+		assert(localCost == cost);
+	        assert( feasable() );
+		return false;
+        };
+
+	assert( feasable() );
+	return true;
+}
+
+
+long int Vehicle::eval_insertMoveDumps( const Trashnode &node,std::deque<Move> &moves, int fromTruck, int fromPos, int toTruck ) const {
+#ifdef TESTED
+std::cout<<"Entering Vehicle::eval_insertMoveDumps \n";
+#endif
+	Vehicle truck = (*this);
+	std::deque<int> unTestedPos;
+	std::deque<int> unfeasablePos;
+	std::deque<int> impossiblePos;
+	int currentPos,testingPos;
+
+        for ( int i=1; i<size(); i++) unTestedPos.push_back(i); //<=?
+        while (unTestedPos.size()) {
+             currentPos=unTestedPos[0];
+	     unTestedPos.pop_front();
+	     truck.insert(node,currentPos);
+             if ( not truck.e_makeFeasable() ) {
+		impossiblePos.push_back(currentPos);
+             } else {
+		assert ( truck.feasable() );
+		Move move(Move::Ins, node.getnid(),  -1,  fromTruck, toTruck,  fromPos, currentPos, (cost-truck.cost)   );
+		moves.push_back(move);
+
+                truck.remove(currentPos);
+		//unknown state of truck here
+                while ( unTestedPos.size()>0 ) {
+		   if (  path[ unTestedPos[0] ].isdump()) continue; //skipping dumps
+                   testingPos= unTestedPos[0];
+	           unTestedPos.pop_front();
+        	   if ( truck.e_insertIntoFeasableTruck( node, testingPos) ) {
+			Move move(Move::Ins, node.getnid(),  -1,  fromTruck, toTruck,  fromPos, testingPos, (cost-truck.cost)   );
+			moves.push_back(move);
+                   } else unfeasablePos.push_back( testingPos);
+		   truck.remove( testingPos );
+		}
+		unTestedPos=unfeasablePos;
+             }
+             truck=(*this);
+        }
+	return moves.size();
+}
+
+bool Vehicle::e_makeFeasable() {
+#ifdef TESTED
+std::cout<<"Entering Vehicle::e_makeFeasable\n";
+#endif
+    path.e__adjustDumpsToMaxCapacity(dumpSite, maxcapacity);
+    evalLast();
+    return feasable();
+}
+
+bool Vehicle::applyMoveINS(const Trashnode &node, int pos) {
+#ifndef TESTED
+std::cout<<"Entering Vehicle::applyMoveINS\n";
+#endif
+	insert(node,pos);
+	e_makeFeasable();
+	evalLast();
+	assert ( feasable() );
+	return feasable();
+}
+	
+
+
+bool Vehicle::e_insertMoveDumps( const Trashnode &node, int at) {
+	assert (at<=size());
+/*
+        path.insert(node,at);
+        path.e_moveDumps(at);
+*/
+}
+
+
 
 // Very TIGHT insertion 
     // insertion will not be performed if 
@@ -96,6 +195,8 @@ double Vehicle::getTimeOSRM() const {
 
     return ttime;
 }
+
+//bool Vehicle::deltaCargoGeneratesCV_AUTO(const Trashnode &node, int pos) const { //position becomes important
 
 bool Vehicle::deltaCargoGeneratesCV(const Trashnode &node, int pos) const { //position becomes important
 #ifdef TESTED

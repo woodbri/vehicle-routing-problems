@@ -39,7 +39,7 @@ class TabuSearch {
         bestSolution(initialSolution), currentSolution(initialSolution)
     {
         bestSolution.computeCosts();
-bestSolution.dump();
+//bestSolution.dump();
         bestSolutionCost = bestSolution.getCost();
         currentIteration = 0;
         maxIteration = 1000;
@@ -66,6 +66,10 @@ bestSolution.dump();
 
     void search();
     bool doNeighborhoodMoves(neighborMovesName whichNeighborhood, int maxStagnation);
+
+
+    void v_search();
+    bool v_doNeighborhoodMoves(neighborMovesName whichNeighborhood, int maxStagnation);
 
 };
 

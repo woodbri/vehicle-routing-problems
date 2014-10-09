@@ -22,7 +22,7 @@
 
     void Tweval::evaluate (const Tweval &pred, double cargoLimit){  
         assert(Tweval::TravelTime.size());
-
+	
         travelTime     = TravelTime[pred.nid][nid]; // Travel Time from previous node to this node
         totTravelTime  = pred.totTravelTime + travelTime;    // tot length travel from 1st node
 
@@ -35,6 +35,7 @@
         totServiceTime = pred.totServiceTime + serviceTime;
         departureTime      = arrivalTime + waitTime + serviceTime; 
 
+	if (type==1 and pred.cargo>=0) demand= - pred.cargo;   //type 1 empties the truck (aka dumpSite)
 
         cargo = pred.cargo + demand;// loading truck demand>0 or unloading demand<0
         cv = cargo>cargoLimit or cargo <0; // capacity Violation
