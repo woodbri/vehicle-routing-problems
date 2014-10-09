@@ -50,7 +50,7 @@ void TabuSearch::cleanExpired() {
 
 void TabuSearch::makeTabu(const Move m) {
     TabuList[m] = currentIteration + tabuLength;
-    STATS->inc("movesAdded");
+    STATS->inc("tabuMovesAdded");
 }
 
 
@@ -296,14 +296,14 @@ std::cout<<"TabuSearch::v_doNeighborhoodMoves 2\n";
                 makeTabu(*it);
                 loopMadeMove = true;
                 stagnationCnt = 0;
-                bestUpdatedLastAt = currentIteration;
-                ++bestUpdatedCnt;
+//                bestUpdatedLastAt = currentIteration;
+//                ++bestUpdatedCnt;
                 // update stats
-                switch (whichNeighborhood) {
-                    case Ins:     ++cntInsApplied;    break;
-                    case IntraSw: ++cntIntraSwApplied; break;
-                    case InterSw: ++cntInterSwApplied; break;
-                }
+//                switch (whichNeighborhood) {
+//                    case Ins:     ++cntInsApplied;    break;
+//                    case IntraSw: ++cntIntraSwApplied; break;
+//                    case InterSw: ++cntInterSwApplied; break;
+//                }
             }
         }
         madeMove = madeMove or loopMadeMove;
