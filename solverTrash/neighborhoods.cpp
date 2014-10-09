@@ -282,16 +282,17 @@ std::cout<<"Entering Neighborhoods::v_getInsNeighborhood"<<fleet.size()<<" truck
 assert (feasable());
     
     moves.clear();
-    int oldcant=0;
+    double savings;
     // iterate through the vechicles (vi, vj)
     for (int fromTruck=0; fromTruck<fleet.size(); fromTruck++) {
         for (int toTruck=0; toTruck<fleet.size(); toTruck++) {
 
             if (fromTruck==toTruck) continue;
-
             for (int fromPos=1; fromPos<fleet[fromTruck].size(); fromPos++) {
-                if(fleet[fromTruck][fromPos].isdump()) continue;   // skiping dump
-                fleet[toTruck].eval_insertMoveDumps( fleet[fromTruck][fromPos], moves, fromTruck, fromPos, toTruck, factor );
+		if ( not fleet[fromTruck].eval_erase(fromPos,savings) ) continue; //for whatever reason erasing a node makes the truck infeasable 
+		
+		if(fleet[fromTruck][fromPos].isdump()) continue;   // skiping dump
+                fleet[toTruck].eval_insertMoveDumps( fleet[fromTruck][fromPos], moves, fromTruck, fromPos, toTruck, savings, factor );
             }
         }
     }

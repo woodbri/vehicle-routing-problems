@@ -1,5 +1,5 @@
-#ifndef VEHICLE_H
-#define VEHICLE_H
+#ifndef BASEVEHICLE_H
+#define BASEVEHICLE_H
 
 #include <limits>
 #include <vector>
@@ -12,17 +12,15 @@
 #include "twpath.h"
 #include "plot.h"
 #include "move.h"
-#include "basevehicle.h"
 
 
-class Vehicle: public BaseVehicle {
-  private:
+class BaseVehicle  {
+  protected:
     typedef  TwBucket<Trashnode> Bucket;
     typedef  unsigned long int UID ;
     inline double _MAX() const { ( std::numeric_limits<double>::max() ); };
     inline double _MIN() const { ( - std::numeric_limits<double>::max() ); };
 
-/*
 
     int vid;
     int ntype;
@@ -37,17 +35,18 @@ class Vehicle: public BaseVehicle {
     double w1;          // weight for duration in cost
     double w2;          // weight for TWV in cost
     double w3;          // weight for CV in cost
-*/
+
   protected:
 
     // this is used when we save a copy of the path so we can make
     // changes and to restore the original path if the changes
     // do not improve the path.
     // There is a hidden assumption that path[0] == endingSite node.
-/*
+
     void setvpath(Twpath<Trashnode> p) { path = p; };
-*/
+
   public:
+/*
     // TODO LIST 
     // insertion will not be performed 
     //  return false if TV or CV is generated 
@@ -81,18 +80,22 @@ class Vehicle: public BaseVehicle {
     bool deltaCargoGeneratesCV_AUTO(const Trashnode &node, int pos) const;
     bool deltaTimeGeneratesTV(const Trashnode &node,int pos) const;
     bool deltaTimeGeneratesTV_AUTO(const Trashnode &node,int pos) const;
+*/
+    bool isvalid() const {return vid>=0;};  //
+    bool findNearestNodeTo(Bucket &unassigned,const TWC<Trashnode> &twc,  UID &pos,  Trashnode &bestNode);
+    double getCurrentCapacity() const {return maxcapacity - path[size()-1].getcargo();}
+    bool e_setPath(const Bucket &sol);
     //--------------------------------------------------------------------
     // structors
     //--------------------------------------------------------------------
 
-    Vehicle() {
+    BaseVehicle() {
         maxcapacity = 0;
         cost        = 0;
         w1 = w2 = w3 = 1.0;
     };
 
-    Vehicle(std::string line,const Bucket &otherlocs): BaseVehicle(line,otherlocs)   {
-/*
+    BaseVehicle(std::string line,const Bucket &otherlocs)  {
        // TESTED on running program
        assert(otherlocs.size());
        std::istringstream buffer( line );
@@ -134,13 +137,8 @@ class Vehicle: public BaseVehicle {
 dumpeval();
 
        } else vid=-1;  //truck is rejected
-*/   }
+   }
 
-/*
-    bool e_setPath(const Bucket &sol);
-    bool isvalid() const {return vid>=0;};  //
-    bool findNearestNodeTo(Bucket &unassigned,const TWC<Trashnode> &twc,  UID &pos,  Trashnode &bestNode);
-    double getCurrentCapacity() const {return maxcapacity - path[size()-1].getcargo();}
 
     //--------------------------------------------------------------------
     // accessors
@@ -204,7 +202,7 @@ dumpeval();
     //--------------------------------------------------------------------
 
     // these two do not work with autoeval
-    // instead use Vehicle(depot, dump) constructor
+    // instead use BaseVehicle(depot, dump) constructor
     //void setdepot(Trashnode _depot) { endingSite = _depot; };
     //void setdumpSite(Trashnode _dump) { dumpSite = _dump; };
 
@@ -232,7 +230,7 @@ dumpeval();
 
     // multiple path manipulators
 
-    bool swap(Vehicle& v2, const int& i1, const int& i2);
+    bool swap(BaseVehicle& v2, const int& i1, const int& i2);
 
     // restore a saved path to undo an operation
 
@@ -263,13 +261,13 @@ dumpeval();
     // algorithm specific - inter-route manipulations
     //--------------------------------------------------------------------
 
-    bool swap2(Vehicle& v2, const int& i1, const int& i2, bool force);
-    bool swap3(Vehicle& v2, Vehicle& v3, const int& i1, const int& i2, const int& i3, bool force);
-    bool exchangeSeq(Vehicle& v2, const int& i1, const int& j1, const int& i2, const int& j2, bool force);
-    bool exchangeTails(Vehicle& v2, const int& i1, const int& i2, bool force);
-    bool exchange3(Vehicle& v2, Vehicle& v3, const int& cnt, const int& i1, const int& i2, const int& i3, bool force);
-    bool relocate(Vehicle& v2, const int& i1, const int& i2, bool force);
-    bool relocateBest(Vehicle& v2, const int& i1);
+    bool swap2(BaseVehicle& v2, const int& i1, const int& i2, bool force);
+    bool swap3(BaseVehicle& v2, BaseVehicle& v3, const int& i1, const int& i2, const int& i3, bool force);
+    bool exchangeSeq(BaseVehicle& v2, const int& i1, const int& j1, const int& i2, const int& j2, bool force);
+    bool exchangeTails(BaseVehicle& v2, const int& i1, const int& i2, bool force);
+    bool exchange3(BaseVehicle& v2, BaseVehicle& v3, const int& cnt, const int& i1, const int& i2, const int& i3, bool force);
+    bool relocate(BaseVehicle& v2, const int& i1, const int& i2, bool force);
+    bool relocateBest(BaseVehicle& v2, const int& i1);
 
 
 
@@ -293,7 +291,7 @@ dumpeval();
     bool ispickup(int i) const { return path[i].ispickup(); };
     bool isdepot(int i) const { return path[i].isdepot(); };
     bool getCargo(int i) const { return path[i].getcargo(); };
-*/
+
 
 };
 
