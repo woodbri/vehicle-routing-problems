@@ -1,6 +1,6 @@
 
 #include <iostream>
-#include <vector>
+#include <deque>
 #include <algorithm>
 
 #include "trashstats.h"
@@ -122,7 +122,10 @@ bool TabuSearch::doNeighborhoodMoves(neighborMovesName whichNeighborhood, int ma
     bool madeMove;
     bool loopMadeMove;
     int stagnationCnt = 0;
+    double factor = 0.5;
     madeMove = false;
+
+    STATS->set("factor", factor);
 
     do {
         loopMadeMove = false;
@@ -132,11 +135,12 @@ bool TabuSearch::doNeighborhoodMoves(neighborMovesName whichNeighborhood, int ma
         // only look at a very small percentage of the actual moves
         // because we have to calcuate savings we should have already
         // checked for feasibility so only feasible solutions are returned
-        std::vector<Move> neighborhood;
+        std::deque<Move> neighborhood;
         Timer timeNeighboorhoodGeneration;
         switch (whichNeighborhood) {
             case Ins:
-                currentSolution.getInsNeighborhood(neighborhood);
+                //currentSolution.getInsNeighborhood(neighborhood);
+                currentSolution.v_getInsNeighborhood(neighborhood, factor);
                 STATS->addto("timeGenIns", timeNeighboorhoodGeneration.duration());
                 STATS->inc("cntGenInsCalls");
                 STATS->addto("cumInsMoves", neighborhood.size());
@@ -167,7 +171,7 @@ std::cout << "\tdoNeighborhoodMoves for InterSw: " << neighborhood.size()
 
         // take the best move that we may apply and apply it, if any
         Timer applyMoveTimer;
-        for (std::vector<Move>::iterator it=neighborhood.begin();
+        for (std::deque<Move>::iterator it=neighborhood.begin();
                 it!=neighborhood.end(); ++it) {
 
             // if the move is aspirational then we apply it
@@ -262,7 +266,7 @@ std::cout<<"Entering TabuSearch::v_doNeighborhoodMoves() \n";
         // only look at a very small percentage of the actual moves
         // because we have to calcuate savings we should have already
         // checked for feasibility so only feasible solutions are returned
-        std::vector<Move> neighborhood;
+        std::deque<Move> neighborhood;
         std::deque<Move> setOfInsMoves;
         switch (whichNeighborhood) {
             case Ins:
@@ -287,7 +291,7 @@ std::cout<<"TabuSearch::v_doNeighborhoodMoves 2\n";
 
         // take the best move that we may apply and apply it, if any
 /*
-        for (std::vector<Move>::iterator it=neighborhood.begin();
+        for (std::deque<Move>::iterator it=neighborhood.begin();
                 it!=neighborhood.end(); ++it) {
 
             // if the move is aspirational then we apply it
