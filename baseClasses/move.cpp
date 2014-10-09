@@ -58,5 +58,6 @@ void Move::dump() const {
               << ",\t" << vid2
               << ",\t" << pos1
               << ",\t" << pos2
+              << ",\t" << savings
               << std::endl;
 }

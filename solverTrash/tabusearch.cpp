@@ -127,6 +127,8 @@ bool TabuSearch::doNeighborhoodMoves(neighborMovesName whichNeighborhood, int ma
 
     STATS->set("factor", factor);
 
+    int loopMax = 100;
+    int loopCounter = 0;
     do {
         loopMadeMove = false;
 
@@ -219,8 +221,10 @@ std::cout << "\tdoNeighborhoodMoves: Not Tabu: "; it->dump();
         STATS->addto("timeApplyMoves", applyMoveTimer.duration());
         madeMove = madeMove or loopMadeMove;
         ++stagnationCnt;
+        ++loopCounter;
     }
-    while (madeMove and stagnationCnt < maxStagnation);
+    while (madeMove and stagnationCnt < maxStagnation and loopCounter < loopMax);
+    std::cout << "doNeighborhoodMoves: loopCounter: " << loopCounter << std::endl;
 
     return madeMove;
 }
