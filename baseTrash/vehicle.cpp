@@ -37,7 +37,7 @@ std::cout<<"Entering Vehicle::e_insertIntoFeasableTruck \n";
 }
 
 
-long int Vehicle::eval_insertMoveDumps( const Trashnode &node,std::deque<Move> &moves, int fromTruck, int fromPos, int toTruck ) const {
+long int Vehicle::eval_insertMoveDumps( const Trashnode &node,std::deque<Move> &moves, int fromTruck, int fromPos, int toTruck, double factor) const {
 #ifdef TESTED
 std::cout<<"Entering Vehicle::eval_insertMoveDumps \n";
 #endif
@@ -47,13 +47,16 @@ std::cout<<"Entering Vehicle::eval_insertMoveDumps \n";
 	std::deque<int> impossiblePos;
 	int currentPos,testingPos;
 
-        for ( int i=1; i<size(); i++) unTestedPos.push_back(i); //<=?
+
+
+        for ( int i=1; i<=size(); i++) unTestedPos.push_back(i); 
         while (unTestedPos.size()) {
-             currentPos=unTestedPos[0];
-	     unTestedPos.pop_front();
+             currentPos=unTestedPos.back();
+	     unTestedPos.pop_back();
 	     truck.insert(node,currentPos);
-             if ( not truck.e_makeFeasable() ) {
+             if ( not truck.e_makeFeasable(currentPos) ) {
 		impossiblePos.push_back(currentPos);
+                if ( path.size()*factor > impossiblePos.size() ) return moves.size(); 
              } else {
 		assert ( truck.feasable() );
 		Move move(Move::Ins, node.getnid(),  -1,  fromTruck, toTruck,  fromPos, currentPos, (cost-truck.cost)   );
@@ -62,9 +65,9 @@ std::cout<<"Entering Vehicle::eval_insertMoveDumps \n";
                 truck.remove(currentPos);
 		//unknown state of truck here
                 while ( unTestedPos.size()>0 ) {
-		   if (  path[ unTestedPos[0] ].isdump()) continue; //skipping dumps
-                   testingPos= unTestedPos[0];
-	           unTestedPos.pop_front();
+                   testingPos= unTestedPos.back();
+	           unTestedPos.pop_back();
+		   if ( testingPos<path.size() and  path[ testingPos ].isdump()) continue; //skipping dumps
         	   if ( truck.e_insertIntoFeasableTruck( node, testingPos) ) {
 			Move move(Move::Ins, node.getnid(),  -1,  fromTruck, toTruck,  fromPos, testingPos, (cost-truck.cost)   );
 			moves.push_back(move);
@@ -78,11 +81,11 @@ std::cout<<"Entering Vehicle::eval_insertMoveDumps \n";
 	return moves.size();
 }
 
-bool Vehicle::e_makeFeasable() {
+bool Vehicle::e_makeFeasable(int currentPos) {
 #ifdef TESTED
 std::cout<<"Entering Vehicle::e_makeFeasable\n";
 #endif
-    path.e__adjustDumpsToMaxCapacity(dumpSite, maxcapacity);
+    path.e__adjustDumpsToMaxCapacity(currentPos, dumpSite, maxcapacity);
     evalLast();
     return feasable();
 }
@@ -92,7 +95,7 @@ bool Vehicle::applyMoveINS(const Trashnode &node, int pos) {
 std::cout<<"Entering Vehicle::applyMoveINS\n";
 #endif
 	insert(node,pos);
-	e_makeFeasable();
+	e_makeFeasable( pos );
 	evalLast();
 	assert ( feasable() );
 	return feasable();

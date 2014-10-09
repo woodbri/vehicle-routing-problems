@@ -26,6 +26,7 @@ void FeasableSol::stepOne(Vehicle &truck) {
     assert( not (unassigned * problematic).size()  ) ;
     assert( not (unassigned * assigned).size()  ) ;
     assert( not (problematic * assigned).size()  ) ;
+    assert ( truck.feasable()) ;
 //END INVARIANT
 
     if (not unassigned.size()) return;
@@ -33,8 +34,7 @@ void FeasableSol::stepOne(Vehicle &truck) {
     Trashnode bestNode;
     UID bestPos;
     if (truck.findNearestNodeTo( unassigned, twc,  bestPos,  bestNode) ) {
-        if(  truck.deltaCargoGeneratesCV(bestNode,bestPos) ) {
-            if (truck.deltaTimeGeneratesTV(bestNode,bestPos)) {}; //TBD
+        if(  not  truck.e_insertIntoFeasableTruck(bestNode,bestPos) ) { 
                 fleet.push_back(truck);
 truck.plot("Feasable-","",truck.getVid());
 
@@ -42,14 +42,21 @@ truck.plot("Feasable-","",truck.getVid());
                 unusedTrucks.erase(unusedTrucks.begin());
                 usedTrucks.push_back(truck);
 
+                assert ( truck.feasable()) ;
                 stepOne(truck);
         } else {
-            truck.insert(bestNode,bestPos);
+//            truck.insert(bestNode,bestPos);
             assigned.push_back(bestNode);
             unassigned.erase(bestNode);
+
+            assert ( truck.feasable()) ;
             stepOne(truck);
         } 
+    } else {
+	std::cout<<"no nearest node was found\n";
+	assert(true==false);
     }
+
 } 
 
 

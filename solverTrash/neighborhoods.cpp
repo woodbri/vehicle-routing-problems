@@ -275,7 +275,7 @@ void Neighborhoods::getInterSwNeighborhood(std::vector<Move>& moves)  const {
 
 
 ////////////////////VIcky's part of the file
-void Neighborhoods::v_getInsNeighborhood(std::deque<Move>& moves)   {
+void Neighborhoods::v_getInsNeighborhood(std::deque<Move>& moves, double factor)   {
 #ifndef TESTED
 std::cout<<"Entering Neighborhoods::v_getInsNeighborhood"<<fleet.size()<<" trucks \n";
 #endif
@@ -291,7 +291,7 @@ assert (feasable());
 
             for (int fromPos=1; fromPos<fleet[fromTruck].size(); fromPos++) {
                 if(fleet[fromTruck][fromPos].isdump()) continue;   // skiping dump
-                fleet[toTruck].eval_insertMoveDumps( fleet[fromTruck][fromPos], moves, fromTruck, fromPos, toTruck  );
+                fleet[toTruck].eval_insertMoveDumps( fleet[fromTruck][fromPos], moves, fromTruck, fromPos, toTruck, factor );
             }
         }
     }

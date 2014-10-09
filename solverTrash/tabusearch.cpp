@@ -251,6 +251,7 @@ std::cout<<"Entering TabuSearch::v_doNeighborhoodMoves() \n";
     bool madeMove;
     bool loopMadeMove;
     int stagnationCnt = 0;
+    double factor=0.5;
     madeMove = false;
 
     do {
@@ -266,7 +267,7 @@ std::cout<<"Entering TabuSearch::v_doNeighborhoodMoves() \n";
         switch (whichNeighborhood) {
             case Ins:
 std::cout<<"TabuSearch::v_doNeighborhoodMoves 1\n";
-                currentSolution.v_getInsNeighborhood(setOfInsMoves);
+                currentSolution.v_getInsNeighborhood(setOfInsMoves,factor);
 std::cout<<"TabuSearch::v_doNeighborhoodMoves >> \n"<<setOfInsMoves.size()<<"moves found";
 		assert(true==false);
 
@@ -285,6 +286,7 @@ std::cout<<"TabuSearch::v_doNeighborhoodMoves 2\n";
         std::sort(neighborhood.begin(), neighborhood.end(), Move::bySavings);
 
         // take the best move that we may apply and apply it, if any
+/*
         for (std::vector<Move>::iterator it=neighborhood.begin();
                 it!=neighborhood.end(); ++it) {
 
@@ -306,6 +308,7 @@ std::cout<<"TabuSearch::v_doNeighborhoodMoves 2\n";
                 }
             }
         }
+*/
         madeMove = madeMove or loopMadeMove;
         ++stagnationCnt;
     }

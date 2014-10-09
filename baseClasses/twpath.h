@@ -303,6 +303,7 @@ std::cout<<"Entering twpath::createsViolation \n";
 
 
     // doesnt insert if it creates a CV or TWV violation
+    // dosnt move dumps
     bool e__insert(const knode &n, UID at, double maxcapacity ) {
 #ifdef TESTED
 std::cout<<"Entering twpath::e__insert \n";
@@ -319,27 +320,24 @@ std::cout<<"Entering twpath::e__insert \n";
         return true;
     };
 
-   bool e__adjustDumpsToMaxCapacity(const knode &dumpS,double maxcapacity) { //TODO convert to iterators
+   bool e__adjustDumpsToMaxCapacity(int currentPos, const knode &dumpS,double maxcapacity) { //TODO convert to iterators
 #ifdef TESTED
 std::cout<<"Entering twpath::e__adjustDumpsToMaxCapacity \n";
 #endif
-
-	//path might be unfeasable, and it wont bother to go back to original state
-	//cycle/evaluate  to remove dumps if any
 	knode dumpSite=dumpS;
-        int i=1;
+        int i=currentPos;
 	while ( i<path.size()) {
 	    if (path[i].isdump()) erase(i);
 	    else i++;
         };
-	evaluate(1,maxcapacity); //make sure everything is evaluated
+	evaluate(currentPos,maxcapacity); //make sure everything is evaluated
 	if (path[size()-1].feasable()) return true; // no need to add a dump
         if (  path[size()-1].gettwvTot() ) return false; //without dumps its unfeasable
 
 	//the path is dumpless
 	while ( path[size()-1].getcvTot() )  { //add dumps because of CV
 	    //cycle until we find the first non CV
-            for (i = path.size()-1; i>=1 and not path[i].getcvTot(); i--) {};
+            for (i = path.size()-1; i>=currentPos and not path[i].getcvTot(); i--) {};
 	    insert(dumpSite,i+1); // the dump should be after pos i
 	    evaluate(i+1,maxcapacity);//reevaluate the rest of the route
 	    //dont bother going to what we had before
