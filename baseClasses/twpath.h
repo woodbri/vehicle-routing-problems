@@ -278,6 +278,77 @@ class Twpath : public TwBucket<knode> {
     Twpath<knode>& operator +=(const TwBucket<knode> &other){
        assert("Set operation not allowed on derived class of Twpath, Overload += if this is required"=="");
     }
+////// (double underscore) (considers  Dumps;)
+
+    bool createsViolation(UID from,double maxcapacity) {
+#ifdef TESTED
+std::cout<<"Entering twpath::createsViolation \n";
+#endif
+        assert (from<=size()); //the equal just in case the last operation was erase
+
+        if (from >= path.size()) from = size()-1;
+
+        iterator it = path.begin()+from;
+        while (it != path.end()){
+            if (it==path.begin()) it->evaluate(maxcapacity);
+            else {
+		it->evaluate(*(it-1),maxcapacity);
+		if ( not it->feasable() ) return true;
+            }
+            if (it->isdump()) break;
+            it++;
+        }
+        return false;
+    };
+
+
+    // doesnt insert if it creates a CV or TWV violation
+    bool e__insert(const knode &n, UID at, double maxcapacity ) {
+#ifdef TESTED
+std::cout<<"Entering twpath::e__insert \n";
+#endif
+        assert ( at <= size() );
+        assert ( path[size()-1].feasable() );
+        path.insert(path.begin() + at, n);
+        if ( createsViolation(at, maxcapacity) ){
+                erase(at);
+		if (not createsViolation(at,maxcapacity) ) return false;
+		assert (true==false);
+        }
+        assert ( path[size()-1].feasable() );
+        return true;
+    };
+
+   bool e__adjustDumpsToMaxCapacity(const knode &dumpS,double maxcapacity) { //TODO convert to iterators
+#ifdef TESTED
+std::cout<<"Entering twpath::e__adjustDumpsToMaxCapacity \n";
+#endif
+
+	//path might be unfeasable, and it wont bother to go back to original state
+	//cycle/evaluate  to remove dumps if any
+	knode dumpSite=dumpS;
+        int i=1;
+	while ( i<path.size()) {
+	    if (path[i].isdump()) erase(i);
+	    else i++;
+        };
+	evaluate(1,maxcapacity); //make sure everything is evaluated
+	if (path[size()-1].feasable()) return true; // no need to add a dump
+        if (  path[size()-1].gettwvTot() ) return false; //without dumps its unfeasable
+
+	//the path is dumpless
+	while ( path[size()-1].getcvTot() )  { //add dumps because of CV
+	    //cycle until we find the first non CV
+            for (i = path.size()-1; i>=1 and not path[i].getcvTot(); i--) {};
+	    insert(dumpSite,i+1); // the dump should be after pos i
+	    evaluate(i+1,maxcapacity);//reevaluate the rest of the route
+	    //dont bother going to what we had before
+	    if (  path[size()-1].feasable() ) return true; //added a dump and  is no cv and no twv 
+	    if (  path[size()-1].gettwvTot() ) return false; // added a dump and created a twv, so why bother adding another dump
+        };
+	return  path[size()-1].feasable() ;
+    };
+	
 };
 
 

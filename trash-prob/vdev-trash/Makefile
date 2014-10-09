@@ -8,13 +8,14 @@ JSON_LIBS = -L /lib/x86_64-linux-gnu/ -ljson
 BASETRASH = baseTrash
 BASECLASSES = baseClasses
 INITTRASH = initTrash
+SOLVERTRASH = solverTrash
 
 BUILD_DIR = ./build
 BIN_DIR = ./bin
 
-INCLUDES = -I../../$(BASECLASSES) -I../../$(BASETRASH) -I../../$(INITTRASH) -I.
+INCLUDES = -I../../$(BASECLASSES) -I../../$(BASETRASH) -I../../$(INITTRASH) -I../../$(SOLVERTRASH) -I.
 CPPFLAGS = -g -O0 -MMD  -MP $(CURL_CFLAGS)
-LDFLAGS = -lgd $(INCLUDES) -L$(BASECLASSES) -L$(BASETRASH) -L$(INITTRASH) $(JSON_LIBS) $(CURL_LIBS) $(JSON_LIBS)
+LDFLAGS = -lgd $(INCLUDES) -L$(BASECLASSES) -L$(BASETRASH) -L$(INITTRASH) $(CURL_LIBS) $(JSON_LIBS)
 
 SRCS =  
 OBJS = $(addprefix $(BUILD_DIR)/,$(SRCS:.cpp=.o))
@@ -22,16 +23,14 @@ HEADS = $(SRCS:.cpp=.h)
 
 
 
-# BASECLASSES_SRCS = ../../$(BASECLASSES)/node.cpp  ../../$(BASECLASSES)/twnode.cpp ../../$(BASECLASSES)/tweval.cpp 
- 
 BASECLASSES_SRCS = $(wildcard ../../$(BASECLASSES)/*.cpp)
 BASECLASSES_HDS = $(UTIL_SRCS:.cpp=.h)
 BASECLASSES_OBJS = $(addprefix $(BUILD_DIR)/$(BASECLASSES)/,$(notdir $(BASECLASSES_SRCS:.cpp=.o)))
-BASECLASSES_HEADS = ../../$(BASECLASSES)/twpath.h ../../$(BASECLASSES)/twc.h ../../$(BASECLASSES)/twbucket.h ../../$(BASECLASSES)/plot.h $(BASECLASSES_HDS)
+BASECLASSES_HEADS = ../../$(BASECLASSES)/twpath.h ../../$(BASECLASSES)/twc.h ../../$(BASECLASSES)/twbucket.h ../../$(BASECLASSES)/plot.h ../../$(BASECLASSES)/singleton.h $(BASECLASSES_HDS)
 
 
 BASETRASH_SRCS = $(wildcard ../../$(BASETRASH)/*.cpp)
-BASETRASH_HDS = $(BASETRASH_SRCS:.cpp=.h)
+BASETRASH_HDS = $(BASETRASH_SRCS:.cpp=.h) ../../$(BASETRASH)/trashconfig.h
 BASETRASH_OBJS = $(addprefix $(BUILD_DIR)/$(BASETRASH)/,$(notdir $(BASETRASH_SRCS:.cpp=.o)))
 BASETRASH_HEADS = $(BASETRASH_HDS) $(BASECLASSES_HEADS)
 
@@ -40,6 +39,11 @@ INITTRASH_HDS = $(INITTRASH_SRCS:.cpp=.h)
 INITTRASH_OBJS = $(addprefix $(BUILD_DIR)/$(INITTRASH)/,$(notdir $(INITTRASH_SRCS:.cpp=.o)))
 INITTRASH_HEADS = $(INITTRASH_HDS)  $(BASECLASSES_HEADS)
 
+SOLVERTRASH_SRCS = $(wildcard ../../$(SOLVERTRASH)/*.cpp)
+SOLVERTRASH_HDS = $(SOLVERTRASH_SRCS:.cpp=.h)
+SOLVERTRASH_OBJS = $(addprefix $(BUILD_DIR)/$(SOLVERTRASH)/,$(notdir $(SOLVERTRASH_SRCS:.cpp=.o)))
+SOLVERTRASH_HEADS = $(SOLVERTRASH_HDS)  $(BASECLASSES_HEADS)
+
 
 
 DEPS = $(addprefix $(BUILD_DIR)/,$(SRCS:.cpp=.d))
@@ -47,11 +51,11 @@ DEPS = $(addprefix $(BUILD_DIR)/,$(SRCS:.cpp=.d))
 
 
 
-all:   $(OBJS) $(BASECLASSES_OBJS) $(BASETRASH_OBJS) $(INITTRASH_OBJS) build/trash.o ./bin/trash
+all:   $(OBJS) $(BASECLASSES_OBJS) $(BASETRASH_OBJS) $(INITTRASH_OBJS) $(SOLVERTRASH_OBJS) build/trash.o ./bin/trash
 
 
 
-build/trash.o: trash.cpp $(BASECLASSES_HEADS) $(BASETRASH_HEADS) $(INITTRASH_HEADS) $(HEADS)
+build/trash.o: trash.cpp $(BASECLASSES_HEADS) $(BASETRASH_HEADS) $(INITTRASH_HEADS) $(SOLVERTRASH_HDS) $(HEADS)
 	$(CPP) $(CPPFLAGS) $(INCLUDES) -c $< -o $@
 
 build/baseClasses/%.o: ../../$(BASECLASSES)/%.cpp  ../../$(BASECLASSES)/%.h $(BASECLASSES_HEADS)
@@ -64,10 +68,13 @@ build/baseTrash/%.o: ../../$(BASETRASH)/%.cpp ../../$(BASETRASH)/%.h  $(BASECLAS
 build/initTrash/%.o: ../../$(INITTRASH)/%.cpp  ../../$(INITTRASH)/%.h  $(BASECLASSES_HEADS) $(BASETRASH_HEADS) $(INITTRASH_HEADS)
 	$(CPP) $(CPPFLAGS) $(INCLUDES) -c $< -o $@
 
-build/%.o: %.cpp %.h $(BASECLASSES_HEADS) $(BASETRASH_HEADS) $(INITTRASH_HEADS)
+build/solverTrash/%.o: ../../$(SOLVERTRASH)/%.cpp  ../../$(SOLVERTRASH)/%.h  $(BASECLASSES_HEADS) $(BASETRASH_HEADS) $(SOLVERTRASH_HEADS)
 	$(CPP) $(CPPFLAGS) $(INCLUDES) -c $< -o $@
 
-bin/trash: build/trash.o $(OBJS) $(BASECLASSES_OBJS) $(BASETRASH_OBJS) $(INITTRASH_OBJS) $(BASECLASSES_HEADS) $(BASETRASH_HEADS) $(INITTRASH_HEADS)
+build/%.o: %.cpp %.h $(BASECLASSES_HEADS) $(BASETRASH_HEADS) $(INITTRASH_HEADS) $(SOLVERTRASH_HEADS)
+	$(CPP) $(CPPFLAGS) $(INCLUDES) -c $< -o $@
+
+bin/trash: build/trash.o $(OBJS) $(BASECLASSES_OBJS) $(BASETRASH_OBJS) $(INITTRASH_OBJS) $(SOLVERTRASH_OBJS) $(BASECLASSES_HEADS) $(BASETRASH_HEADS) $(INITTRASH_HEADS) $(SOLVERTRASH_HEADS)
 	$(CPP) $^ -o $@ $(LDFLAGS)
 
 test: ./bin/trash ./montevideo/muni-b.containers.txt ./montevideo/muni-b.otherlocs.txt ./montevideo/muni-b.dmatrix-time.txt ./montevideo/muni-b.vehicles.txt
@@ -89,17 +96,15 @@ clean:
 	find . -name "*.png" -type f -delete
 	mkdir -p $(BIN_DIR)
 	echo $(INITTRASH)
-	mkdir -p $(BUILD_DIR)/$(BASECLASSES) $(BUILD_DIR)/$(BASETRASH) $(BUILD_DIR)/$(INITTRASH)
+	mkdir -p $(BUILD_DIR)/$(BASECLASSES) $(BUILD_DIR)/$(BASETRASH) $(BUILD_DIR)/$(INITTRASH) $(BUILD_DIR)/$(SOLVERTRASH)
 
 
 cleanAll: clean
 	$(MAKE) -C ../../$(BASECLASSES) clean
 	$(MAKE) -C ../../$(BASETRASH) clean
 	$(MAKE) -C ../../$(INITTRASH) clean
-	$(MAKE) -C ../../trash-collection clean
-	$(MAKE) -C ../../pick-deliver clean
+	$(MAKE) -C ../../$(SOLVERTRASH) clean
 	rm ./bin/trash
 
 -include $(DEPS)
-
 

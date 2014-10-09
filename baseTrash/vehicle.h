@@ -10,6 +10,7 @@
 #include "twc.h"
 #include "twpath.h"
 #include "plot.h"
+#include "move.h"
 
 
 class Vehicle  {
@@ -23,7 +24,7 @@ typedef  unsigned long int UID ;
     Trashnode endingSite;
     Trashnode dumpSite;
 
-    int maxcapacity;
+    double maxcapacity;
     double cost;        // cost of the route
 
     double w1;          // weight for duration in cost
@@ -43,9 +44,12 @@ typedef  unsigned long int UID ;
     // TODO LIST 
     // insertion will not be performed 
     //  return false if TV or CV is generated 
-    bool eval_insertMoveDumps( const Trashnode &node, int at) const;
+    long int eval_insertMoveDumps( const Trashnode &node, std::deque<Move> &moves, int fromTruck, int formPos, int toTruck ) const;
     bool eval_insertSteadyDumps(const Trashnode &node, int at) const;
 
+    bool e_insertIntoFeasableTruck(const Trashnode &node,int pos);
+    bool e_makeFeasable();
+    bool applyMoveINS(const Trashnode &node, int pos);
     // insertion will be performed and return false if TV or CV is generated 
     bool e_insertMoveDumps(const Trashnode &node, int at);
     bool e_insertSteadyDumps(const Trashnode &node, int at);
@@ -67,10 +71,12 @@ typedef  unsigned long int UID ;
     bool e_setPath(const Bucket &sol);
     bool deltaTimeGeneratesTV(const Trashnode &dump, const Trashnode &node) const; 
     bool deltaCargoGeneratesCV(const Trashnode &node, int pos) const;
+    bool deltaCargoGeneratesCV_AUTO(const Trashnode &node, int pos) const;
     bool deltaTimeGeneratesTV(const Trashnode &node,int pos) const;
+    bool deltaTimeGeneratesTV_AUTO(const Trashnode &node,int pos) const;
     bool isvalid() const {return vid>=0;};  //
     bool findNearestNodeTo(Bucket &unassigned,const TWC<Trashnode> &twc,  UID &pos,  Trashnode &bestNode);
-
+    double getCurrentCapacity() const {return maxcapacity - path[size()-1].getcargo();}
     //--------------------------------------------------------------------
     // structors
     //--------------------------------------------------------------------

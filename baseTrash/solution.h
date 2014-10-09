@@ -73,6 +73,7 @@ typedef  TwBucket<Trashnode> Bucket;
 
    
 // code moved from OLD CODE TO BE INTEGRATED
+bool feasable() const;
 double getduration() const ;
 double getcost() const ;
 int getTWV() const ;
