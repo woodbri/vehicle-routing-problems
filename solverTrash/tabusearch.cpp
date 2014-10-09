@@ -285,6 +285,7 @@ std::cout<<"TabuSearch::v_doNeighborhoodMoves 2\n";
         std::sort(neighborhood.begin(), neighborhood.end(), Move::bySavings);
 
         // take the best move that we may apply and apply it, if any
+/*
         for (std::vector<Move>::iterator it=neighborhood.begin();
                 it!=neighborhood.end(); ++it) {
 
@@ -306,6 +307,7 @@ std::cout<<"TabuSearch::v_doNeighborhoodMoves 2\n";
                 }
             }
         }
+*/
         madeMove = madeMove or loopMadeMove;
         ++stagnationCnt;
     }
