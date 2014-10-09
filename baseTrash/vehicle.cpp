@@ -65,8 +65,8 @@ std::cout<<"Entering Vehicle::eval_insertMoveDumps \n";
                 truck.remove(currentPos);
 		//unknown state of truck here
                 while ( unTestedPos.size()>0 ) {
-                   testingPos= unTestedPos[0];
-	           unTestedPos.pop_front();
+                   testingPos= unTestedPos.back();
+	           unTestedPos.pop_back();
 		   if ( testingPos<path.size() and  path[ testingPos ].isdump()) continue; //skipping dumps
         	   if ( truck.e_insertIntoFeasableTruck( node, testingPos) ) {
 			Move move(Move::Ins, node.getnid(),  -1,  fromTruck, toTruck,  fromPos, testingPos, (cost-truck.cost)   );

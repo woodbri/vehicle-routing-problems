@@ -42,14 +42,14 @@ truck.plot("Feasable-","",truck.getVid());
                 unusedTrucks.erase(unusedTrucks.begin());
                 usedTrucks.push_back(truck);
 
-    assert ( truck.feasable()) ;
+                assert ( truck.feasable()) ;
                 stepOne(truck);
         } else {
 //            truck.insert(bestNode,bestPos);
             assigned.push_back(bestNode);
             unassigned.erase(bestNode);
 
-    assert ( truck.feasable()) ;
+            assert ( truck.feasable()) ;
             stepOne(truck);
         } 
     } else {
