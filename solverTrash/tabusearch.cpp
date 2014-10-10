@@ -180,7 +180,8 @@ std::cout << "\tdoNeighborhoodMoves for InterSw: " << neighborhood.size()
 
         // and sort it so we can work from the best to the worst
         std::sort(neighborhood.begin(), neighborhood.end(), Move::bySavings);
-
+	for (int i=0;i<neighborhood.size();i++) neighborhood[i].dump();
+std::cout<<"======================================================";
         // take the best move that we may apply and apply it, if any
         Timer applyMoveTimer;
         for (std::deque<Move>::iterator it=neighborhood.begin();

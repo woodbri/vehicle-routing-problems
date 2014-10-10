@@ -287,6 +287,48 @@ void Neighborhoods::getInterSwNeighborhood(std::deque<Move>& moves)  const {
 
 
 ////////////////////VIcky's part of the file
+/*
+void Neighborhoods::v_getInterSwNeighborhood(std::deque<Move>& moves)  const {
+    assert (feasable());
+
+    moves.clear();
+    // iterate through the vechicles (vi, vj)
+    for (int fromTruck=0; fromTruck<fleet.size(); fromTruck++) {  
+        for (int toTruck=fromTruck+1; toTruck<fleet.size(); toTruck++) { //testNeeded
+            assert (not fromTruck==toTruck); 
+            for (int fromPos=1; fromPos<fleet[fromTruck].size(); fromPos++) {
+
+            // iterate through the positions of each path (pi, pj)
+            // dont exchange the depot in position 0
+            for (int pi=1; pi<fleet[vi].size(); pi++) {
+                // dont try to move the dump
+                if(fleet[vi][pi].isdump()) continue;
+
+                for (int pj=1; pj<fleet[vj].size(); pj++) {
+                    // dont try to move the dump
+                    if(fleet[vj][pj].isdump()) continue;
+
+                    // create a move with a dummy savings value
+                    Move m(Move::Ins,
+                           fleet[vi][pi].getnid(), // nid1
+                           fleet[vj][pj].getnid(), // nid2
+                           vi,  // vid1
+                           vj,  // vid2
+                           pi,  // pos1
+                           pj,  // pos2
+                           0.0);    // dummy savings
+                    if (isNotFeasible(m)) continue;
+                    double savings = getMoveSavings(m);
+                    m.setsavings(savings);
+                    moves.push_back(m);
+                }
+            }
+        }
+    }
+}
+*/
+
+
 void Neighborhoods::v_getInsNeighborhood(std::deque<Move>& moves, double factor)   {
 #ifndef TESTED
 std::cout<<"Entering Neighborhoods::v_getInsNeighborhood"<<fleet.size()<<" trucks \n";
