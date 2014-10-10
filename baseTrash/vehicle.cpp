@@ -272,7 +272,7 @@ std::cout<<getCargo(i-1)<<"+"<<node.getdemand()<<" ¿? " <<getmaxcapacity()<<" \
 
 //////////// Delta Time generates TV
 bool Vehicle::deltaTimeGeneratesTV(const Trashnode &dump, const Trashnode &node) const {
-#ifndef TESTED
+#ifdef TESTED
 std::cout<<"Entering Vehicle::deltaTimeGeneratesTV  ";
 std::cout<<" (S 1 2 3 D E )  (S 1 2 3 D N D E)"<<path.getDeltaTimeAfterDump(dumpSite,node)<<" + "<< getduration()<<" ¿? "<<  endingSite.closes();
 std::cout<<"\n";
@@ -285,7 +285,7 @@ std::cout<<"\n";
 
 
 bool Vehicle::deltaTimeGeneratesTV(const Trashnode &node, int pos) const {
-#ifndef TESTED
+#ifdef TESTED
 std::cout<<"Entering Vehicle::deltaTimeGeneratesTV ";
 if (pos==path.size()) std::cout<<" (S 1 2 3 D E )  (S 1 2 3 N D E)" << path.getDeltaTime(node,dumpSite)<<" + "<< getduration()<<" ¿? "<<  endingSite.closes()<<"\n";
 else std::cout<<" (S 1 2 3 D E )  (S 1 2 N 3 D E) "<< path.getDeltaTime(node,pos)<<" + "<< getduration()<<" ¿? "<<  endingSite.closes()<<"\n";
