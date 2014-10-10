@@ -88,8 +88,8 @@ void TabuSearch::search() {
 //                    | doNeighborhoodMoves(IntraSw, 300)
 //                    | doNeighborhoodMoves(InterSw, 300);
         madeChanges = doNeighborhoodMoves(Ins,     100)
-                    | doNeighborhoodMoves(IntraSw, 60)
-                    | doNeighborhoodMoves(InterSw, 60)
+                    | doNeighborhoodMoves(IntraSw, 40)
+                    | doNeighborhoodMoves(InterSw, 40)
                     ;
         std::cout << "TABUSEARCH: Finished iteration: " << currentIteration
             << ", madeChanges: " << madeChanges << std::endl;
@@ -240,7 +240,7 @@ std::cout << "\tdoNeighborhoodMoves: Not Tabu: "; it->dump();
         ++stagnationCnt;
         ++loopCounter;
     }
-    while (madeMove and stagnationCnt < maxStagnation and loopCounter < loopMax);
+    while (madeMove and stagnationCnt < maxStagnation /* and loopCounter < loopMax */ );
     std::cout << "doNeighborhoodMoves: loopCounter: " << loopCounter << std::endl;
 
     return madeMove;
