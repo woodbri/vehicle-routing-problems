@@ -17,12 +17,15 @@ void Neighborhoods::applyMove(const Move& m)  {
                 Vehicle& v2 = fleet[m.getvid2()];
                 // and insert n1 at the appropriate location
                 v2.insert(n1, m.getpos2());
+		assert( fleet[m.getvid1()].feasable() );
+		assert( fleet[m.getvid2()].feasable() );
             }
             break;
         case Move::IntraSw:
             {
                 Vehicle& v1 = fleet[m.getvid1()];
                 v1.swap(m.getpos1(), m.getpos2());
+		assert( fleet[m.getvid1()].feasable() );
             }
             break;
         case Move::InterSw:
@@ -30,6 +33,8 @@ void Neighborhoods::applyMove(const Move& m)  {
                 Vehicle& v1 = fleet[m.getvid1()];
                 Vehicle& v2 = fleet[m.getvid2()];
                 v1.swap(v2, m.getpos1(), m.getpos2());
+		assert( fleet[m.getvid1()].feasable() );
+		assert( fleet[m.getvid2()].feasable() );
             }
             break;
     }
