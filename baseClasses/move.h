@@ -74,7 +74,6 @@ class Move {
     int getInsFromTruck() const { assert(mtype==Move::Ins); return vid1; };
     int getInsToTruck() const { assert(mtype==Move::Ins); return vid2; };
     int getIntraSwTruck1() const { assert(mtype==Move::IntraSw); return vid1; };
-    int getIntraSwTruck2() const { assert(mtype==Move::IntraSw); return vid2; };
     int getInterSwTruck1() const { assert(mtype==Move::InterSw); return vid1; };
     int getInterSwTruck2() const { assert(mtype==Move::InterSw); return vid2; };
 
