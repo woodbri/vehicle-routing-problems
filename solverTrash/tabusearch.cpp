@@ -87,9 +87,9 @@ void TabuSearch::search() {
 //        madeChanges = doNeighborhoodMoves(Ins,     500)
 //                    | doNeighborhoodMoves(IntraSw, 300)
 //                    | doNeighborhoodMoves(InterSw, 300);
-        madeChanges = doNeighborhoodMoves(Ins,     5)
-                    | doNeighborhoodMoves(IntraSw, 3)
-                    | doNeighborhoodMoves(InterSw, 3);
+        madeChanges = doNeighborhoodMoves(Ins,     10)
+                    | doNeighborhoodMoves(IntraSw, 6)
+                    | doNeighborhoodMoves(InterSw, 6);
         std::cout << "TABUSEARCH: Finished iteration: " << currentIteration
             << ", madeChanges: " << madeChanges << std::endl;
         dumpStats();
