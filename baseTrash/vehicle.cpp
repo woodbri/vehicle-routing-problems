@@ -45,7 +45,7 @@ bool Vehicle::eval_erase(int at, double &savings) const {
 	assert( not path[at].isdump());
 	Vehicle truck = (*this);
 	truck.path.erase(at);
-	if ( truck.e_makeFeasable(at) ) savings = _MIN(); // -infinity
+	if ( not truck.e_makeFeasable(at) ) savings = _MIN(); // -infinity
         else savings = cost - truck.cost;
 	return truck.feasable();
 };
