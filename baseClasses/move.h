@@ -2,6 +2,7 @@
 #define MOVE_H
 
 #include <limits>
+#include <cassert>
 
 // This class defines a move object that can be placed on the Tabu list
 // and/or can be applied to a given solution to transform it to a new state
@@ -68,7 +69,14 @@ class Move {
     void setpos2(int pos) { pos2 = pos; };
     void setsavings(double save) { savings = save; };
 
-    static bool bySavings(const Move& a, const Move& b) { return a.getsavings()<b.getsavings(); };
+    static bool bySavings(const Move& a, const Move& b) { return a.getsavings()>b.getsavings(); };
+
+    int getInsFromTruck() const { assert(mtype==Move::Ins); return vid1; };
+    int getInsToTruck() const { assert(mtype==Move::Ins); return vid2; };
+    int getIntraSwTruck1() const { assert(mtype==Move::IntraSw); return vid1; };
+    int getIntraSwTruck2() const { assert(mtype==Move::IntraSw); return vid2; };
+    int getInterSwTruck1() const { assert(mtype==Move::InterSw); return vid1; };
+    int getInterSwTruck2() const { assert(mtype==Move::InterSw); return vid2; };
 
 };
 
