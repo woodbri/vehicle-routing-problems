@@ -350,7 +350,7 @@ assert (feasable());
             }
         }
     }
-#ifndef TESTED
+#ifdef TESTED
 std::cout<<"EXIT Neighborhoods::v_getInsNeighborhood"<<moves.size()<<" MOVES found total \n";
 #endif
 }

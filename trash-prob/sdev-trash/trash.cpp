@@ -61,7 +61,7 @@ int main(int argc, char **argv) {
         Timer searchtime;
 
         TabuSearch ts(tp);
-        ts.setMaxIteration(10);
+        ts.setMaxIteration(30);
         ts.search();
 
         STATS->set("zzSearch time", searchtime.duration());

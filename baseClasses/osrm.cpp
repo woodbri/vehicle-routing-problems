@@ -71,7 +71,7 @@ bool OSRM::getStatus(int& status) const {
 bool OSRM::callOSRM(const std::string url) {
     std::stringstream result;
 
-    std::cout << "callOSRM: url: " << url << std::endl;
+    //std::cout << "callOSRM: url: " << url << std::endl;
 
     try {
 

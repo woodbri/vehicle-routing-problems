@@ -87,9 +87,10 @@ void TabuSearch::search() {
 //        madeChanges = doNeighborhoodMoves(Ins,     500)
 //                    | doNeighborhoodMoves(IntraSw, 300)
 //                    | doNeighborhoodMoves(InterSw, 300);
-        madeChanges = doNeighborhoodMoves(Ins,     5)
-                    | doNeighborhoodMoves(IntraSw, 3)
-                    | doNeighborhoodMoves(InterSw, 3);
+        madeChanges = doNeighborhoodMoves(Ins,     100)
+                    | doNeighborhoodMoves(IntraSw, 60)
+                    | doNeighborhoodMoves(InterSw, 60)
+                    ;
         std::cout << "TABUSEARCH: Finished iteration: " << currentIteration
             << ", madeChanges: " << madeChanges << std::endl;
 
@@ -97,6 +98,8 @@ void TabuSearch::search() {
         STATS->set("0 Iteration", currentIteration);
         STATS->set("0 Cost After", currentSolution.getCost());
         dumpStats();
+        currentSolution.dumpFleet();
+        std::cout << "--------------------------------------------\n";
     }
     while (madeChanges and ++currentIteration < maxIteration);
 
@@ -180,8 +183,11 @@ std::cout << "\tdoNeighborhoodMoves for InterSw: " << neighborhood.size()
 
         // and sort it so we can work from the best to the worst
         std::sort(neighborhood.begin(), neighborhood.end(), Move::bySavings);
-	for (int i=0;i<neighborhood.size();i++) neighborhood[i].dump();
-std::cout<<"======================================================";
+
+        // dump the neighborhood
+//        for (int i=0;i<neighborhood.size();i++) neighborhood[i].dump();
+//        std::cout<<"======================================================";
+
         // take the best move that we may apply and apply it, if any
         Timer applyMoveTimer;
         for (std::deque<Move>::iterator it=neighborhood.begin();
