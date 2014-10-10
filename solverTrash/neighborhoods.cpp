@@ -8,10 +8,12 @@ void Neighborhoods::applyMove(const Move& m)  {
     switch (m.getmtype()) {
         case Move::Ins:
             {
-		applyInsMove( m );  //aplyInsMove already does an asertion at the end
-		assert( fleet[m.getvid1()].feasable() ); //just in case
-		assert( fleet[m.getvid2()].feasable() );
-		break;
+#ifndef STEVE_OLD
+                //aplyInsMove already does an asertion at the end
+                applyInsMove( m );
+                assert( fleet[m.getvid1()].feasable() ); //just in case
+                assert( fleet[m.getvid2()].feasable() );
+#else
                 // Get a copy of the node we are going to remove
                 // remove if from v1
                 Vehicle& v1 = fleet[m.getvid1()];
@@ -21,15 +23,16 @@ void Neighborhoods::applyMove(const Move& m)  {
                 Vehicle& v2 = fleet[m.getvid2()];
                 // and insert n1 at the appropriate location
                 v2.insert(n1, m.getpos2());
-		assert( fleet[m.getvid1()].feasable() );
-		assert( fleet[m.getvid2()].feasable() );
+                assert( fleet[m.getvid1()].feasable() );
+                assert( fleet[m.getvid2()].feasable() );
+#endif
             }
             break;
         case Move::IntraSw:
             {
                 Vehicle& v1 = fleet[m.getvid1()];
                 v1.swap(m.getpos1(), m.getpos2());
-		assert( fleet[m.getvid1()].feasable() );
+                assert( fleet[m.getvid1()].feasable() );
             }
             break;
         case Move::InterSw:
@@ -37,8 +40,8 @@ void Neighborhoods::applyMove(const Move& m)  {
                 Vehicle& v1 = fleet[m.getvid1()];
                 Vehicle& v2 = fleet[m.getvid2()];
                 v1.swap(v2, m.getpos1(), m.getpos2());
-		assert( fleet[m.getvid1()].feasable() );
-		assert( fleet[m.getvid2()].feasable() );
+                assert( fleet[m.getvid1()].feasable() );
+                assert( fleet[m.getvid2()].feasable() );
             }
             break;
     }
@@ -57,9 +60,9 @@ bool Neighborhoods::isNotFeasible(const Move& m) const {
             // copy the vehicle and the node
             // so we can change it and then throw it away
             Vehicle v1 = fleet[m.getvid1()];
-assert( m.getvid2()<fleet.size() );
+            assert( m.getvid2()<fleet.size() );
             Vehicle v2 = fleet[m.getvid2()];
-assert( m.getpos1()<v1.size() ); 
+            assert( m.getpos1()<v1.size() ); 
             Trashnode n1 = v1[m.getpos1()];
             if (not v2.insert(n1, m.getpos2())) return true;
             if (not v2.feasable()) return true;

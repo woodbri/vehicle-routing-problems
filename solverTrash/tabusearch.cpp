@@ -96,6 +96,10 @@ void TabuSearch::search() {
     }
     while (madeChanges and ++currentIteration < maxIteration);
 
+    currentSolution.computeCosts();
+    STATS->set("0 Iteration", currentIteration);
+    STATS->set("0 Cost After", currentSolution.getCost());
+
     std::cout << "TABUSEARCH: Total time: " << start.duration() << std::endl;
 }
 
@@ -141,8 +145,14 @@ bool TabuSearch::doNeighborhoodMoves(neighborMovesName whichNeighborhood, int ma
         Timer timeNeighboorhoodGeneration;
         switch (whichNeighborhood) {
             case Ins:
-                //currentSolution.getInsNeighborhood(neighborhood);
+#ifndef STEVE_OLD
                 currentSolution.v_getInsNeighborhood(neighborhood, factor);
+#else
+                std::string solBefore = currentSolution.solutionAsText();
+                currentSolution.getInsNeighborhood(neighborhood);
+                std::string solAfter = currentSolution.solutionAsText();
+                assert(solBefore == solAfter);
+#endif
                 STATS->addto("timeGenIns", timeNeighboorhoodGeneration.duration());
                 STATS->inc("cntGenInsCalls");
                 STATS->addto("cumInsMoves", neighborhood.size());
