@@ -253,9 +253,10 @@ std::cout<<"Entering TabuSearch::v_search() \n";
     do {
         // set the stagnation count as the last the last parameter
         // thhe values 500, 300, 300 can from the paper mentioned above
-        madeChanges = v_doNeighborhoodMoves(Ins,     500);
-                 //   | doNeighborhoodMoves(IntraSw, 300)
-                 //   | doNeighborhoodMoves(InterSw, 300);
+        madeChanges = //v_doNeighborhoodMoves(Ins,     500);
+                //  v_doNeighborhoodMoves(IntraSw, 300);
+                  v_doNeighborhoodMoves(InterSw, 300);
+		assert(true==false);
     }
     while (madeChanges and ++currentIteration < maxIteration);
 
@@ -284,25 +285,27 @@ std::cout<<"Entering TabuSearch::v_doNeighborhoodMoves() \n";
         std::deque<Move> neighborhood;
         std::deque<Move> setOfInsMoves;
         switch (whichNeighborhood) {
-            case Ins:
+/*            case Ins:
+
 std::cout<<"TabuSearch::v_doNeighborhoodMoves 1\n";
                 currentSolution.v_getInsNeighborhood(setOfInsMoves,factor);
 std::cout<<"TabuSearch::v_doNeighborhoodMoves >> \n"<<setOfInsMoves.size()<<"moves found";
 		assert(true==false);
-
-
                 break;
-/*            case IntraSw:
-                currentSolution.getIntraSwNeighborhood(neighborhood);
+            case IntraSw:
+                currentSolution.v_getIntraSwNeighborhood(neighborhood);
+	assert(true==false);
                 break;
-            case InterSw:
-                currentSolution.getInterSwNeighborhood(neighborhood);
+*/            case InterSw:
+                currentSolution.v_getInterSwNeighborhood(neighborhood,factor);
                 break;
-*/        }
+        }
 
         // and sort it so we can work from the best to the worst
-std::cout<<"TabuSearch::v_doNeighborhoodMoves 2\n";
         std::sort(neighborhood.begin(), neighborhood.end(), Move::bySavings);
+	for (int i=0;i<neighborhood.size();i++) neighborhood[i].dump();
+std::cout<<"======================================================";
+		assert(true==false);
 
         // take the best move that we may apply and apply it, if any
 /*
