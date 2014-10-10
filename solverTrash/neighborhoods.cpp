@@ -8,6 +8,10 @@ void Neighborhoods::applyMove(const Move& m)  {
     switch (m.getmtype()) {
         case Move::Ins:
             {
+		applyInsMove( m );  //aplyInsMove already does an asertion at the end
+		assert( fleet[m.getvid1()].feasable() ); //just in case
+		assert( fleet[m.getvid2()].feasable() );
+		break;
                 // Get a copy of the node we are going to remove
                 // remove if from v1
                 Vehicle& v1 = fleet[m.getvid1()];
@@ -306,3 +310,12 @@ std::cout<<"EXIT Neighborhoods::v_getInsNeighborhood"<<moves.size()<<" MOVES fou
 #endif
 }
  
+
+bool Neighborhoods::applyInsMove( const Move &move) {
+	assert(move.getmtype() == Move::Ins);
+	fleet[ move.getInsFromTruck() ].applyMoveINSerasePart(move.getnid1(), move.getpos1());
+        fleet[ move.getInsToTruck() ].applyMoveINSinsertPart(datanodes[ move.getnid2() ], move.getpos2());
+	assert( fleet[ move.getInsFromTruck() ].feasable() );
+	assert( fleet[ move.getInsToTruck() ].feasable() );
+	return (fleet[ move.getInsFromTruck() ].feasable() and  fleet[ move.getInsToTruck() ].feasable() );
+}
