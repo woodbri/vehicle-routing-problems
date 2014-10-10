@@ -87,18 +87,18 @@ void TabuSearch::search() {
 //        madeChanges = doNeighborhoodMoves(Ins,     500)
 //                    | doNeighborhoodMoves(IntraSw, 300)
 //                    | doNeighborhoodMoves(InterSw, 300);
-        madeChanges = doNeighborhoodMoves(Ins,     10)
-                    | doNeighborhoodMoves(IntraSw, 6)
-                    | doNeighborhoodMoves(InterSw, 6);
+        madeChanges = doNeighborhoodMoves(Ins,     5)
+                    | doNeighborhoodMoves(IntraSw, 3)
+                    | doNeighborhoodMoves(InterSw, 3);
         std::cout << "TABUSEARCH: Finished iteration: " << currentIteration
             << ", madeChanges: " << madeChanges << std::endl;
+
+        currentSolution.computeCosts();
+        STATS->set("0 Iteration", currentIteration);
+        STATS->set("0 Cost After", currentSolution.getCost());
         dumpStats();
     }
     while (madeChanges and ++currentIteration < maxIteration);
-
-    currentSolution.computeCosts();
-    STATS->set("0 Iteration", currentIteration);
-    STATS->set("0 Cost After", currentSolution.getCost());
 
     std::cout << "TABUSEARCH: Total time: " << start.duration() << std::endl;
 }
