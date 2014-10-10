@@ -14,7 +14,7 @@ BUILD_DIR = ./build
 BIN_DIR = ./bin
 
 INCLUDES = -I../../$(BASECLASSES) -I../../$(BASETRASH) -I../../$(INITTRASH) -I../../$(SOLVERTRASH) -I.
-CPPFLAGS = -g -O0 -MMD  -MP $(CURL_CFLAGS)
+CPPFLAGS = -g -O0 -MMD  -MP $(CURL_CFLAGS) $(DEFINES)
 LDFLAGS = -lgd $(INCLUDES) -L$(BASECLASSES) -L$(BASETRASH) -L$(INITTRASH) $(CURL_LIBS) $(JSON_LIBS)
 
 SRCS =  
@@ -80,10 +80,10 @@ bin/trash: build/trash.o $(OBJS) $(BASECLASSES_OBJS) $(BASETRASH_OBJS) $(INITTRA
 test: ./bin/trash ./montevideo/muni-b.containers.txt ./montevideo/muni-b.otherlocs.txt ./montevideo/muni-b.dmatrix-time.txt ./montevideo/muni-b.vehicles.txt
 	./bin/trash ./montevideo/muni-b >./logs/muni-b.out
 
-valgrind: ./bin/trash ./data/p10a.txt
+valgrind: ./bin/trash ./montevideo/muni-b.containers.txt ./montevideo/muni-b.otherlocs.txt ./montevideo/muni-b.dmatrix-time.txt ./montevideo/muni-b.vehicles.txt
 	valgrind -v --track-origins=yes --leak-check=full ./bin/trash montevideo/muni-b
 
-callgrind-8: ./bin/trash ./data/p10.txt
+callgrind-8: ./bin/trash ./montevideo/muni-b.containers.txt ./montevideo/muni-b.otherlocs.txt ./montevideo/muni-b.dmatrix-time.txt ./montevideo/muni-b.vehicles.txt
 	valgrind --tool=callgrind --callgrind-out-file=callgrind-008.out ./bin/trash montevideo/muni-b
 	callgrind_annotate callgrind-8.out | tee callgrind-8.txt
 

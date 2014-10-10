@@ -55,6 +55,9 @@ int main(int argc, char **argv) {
 
         STATS->set("zzFeasableSol time", starttime.duration());
 
+        tp.computeCosts();
+        STATS->set("zInitial cost", tp.getCost());
+
         Timer searchtime;
 
         TabuSearch ts(tp);
