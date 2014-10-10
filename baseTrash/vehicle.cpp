@@ -14,6 +14,59 @@
 #include "vehicle.h"
 #include "basevehicle.h"
 
+// from the second truck point of view
+long int Vehicle::eval_interSwapMoveDumps( std::deque<Move> &moves, const Vehicle &other,int  truckPos,int  otherTruckPos, int fromPos,  double factor) const {
+#ifdef TESTED
+std::cout<<"Entering Vehicle::eval_interSwapMoveDumps \n";
+#endif
+
+	if ( path[fromPos].isdump() ) return moves.size();
+	double originalCost= cost + other.cost;
+	double newCost;
+
+	Trashnode node = path[fromPos]; //saved for roll back
+        Vehicle truck = (*this);
+        Vehicle otherTruck = other;
+        std::deque<int> unTestedPos;
+        std::deque<int> impossiblePos;
+        int currentPos,testingPos;
+
+        for ( int i=1; i<otherTruck.size(); i++) 
+		if ( not otherTruck[i].isdump() ) unTestedPos.push_back(i); //cant swap with a dump
+
+        while (unTestedPos.size()) {
+             currentPos=unTestedPos.back();
+             unTestedPos.pop_back();
+
+             truck.path[fromPos]=otherTruck.path[currentPos]; //swaping
+	     otherTruck.path[currentPos]=node;
+
+             if ( not otherTruck.e_makeFeasable(currentPos) or not truck.e_makeFeasable(fromPos) ) {
+                impossiblePos.push_back(currentPos);
+                if ( otherTruck.path.size()*factor > impossiblePos.size() ) return moves.size();
+             } else {
+                assert ( truck.feasable() );
+		assert ( otherTruck.feasable() );
+		newCost = truck.cost + otherTruck.cost; //deltaCost= newCost - originalCost
+
+	        otherTruck.path[currentPos] = truck.path[fromPos];
+                //truck.path[frompPos] will get another value so no need to roll back
+
+                Move move(Move::InterSw , node.getnid(), otherTruck.path[currentPos].getnid() ,  truckPos , otherTruckPos ,  fromPos, currentPos, (originalCost-newCost)   );
+                moves.push_back(move);
+move.dump();
+std::cout<<"cost"<<cost<<"\tother.cost"<< other.cost;
+std::cout<<"\ttruck.cost"<<truck.cost<<"\totherTruck.cost"<< otherTruck.cost;
+std::cout<<"\n";
+
+
+             }
+        }
+        return moves.size();
+}
+
+
+
 // space reserved for TODO list
 bool Vehicle::e_insertIntoFeasableTruck(const Trashnode &node,int pos) {
 #ifdef TESTED
@@ -41,6 +94,9 @@ std::cout<<"Entering Vehicle::e_insertIntoFeasableTruck \n";
 
 //dont forget, negative savings is a higher cost
 bool Vehicle::eval_erase(int at, double &savings) const {
+#ifdef TESTED
+std::cout<<"Entering Vehicle::eval_erase \n";
+#endif
 	assert (at<size() and at>0 );
 	if ( path[at].isdump() ) { savings=_MIN(); return false;}
 	Vehicle truck = (*this);
