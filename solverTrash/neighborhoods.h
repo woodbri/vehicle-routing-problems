@@ -23,6 +23,7 @@ cycles=0;
     void v_getInsNeighborhood(std::deque<Move>& moves,double factor) ;
 
     void applyMove(const Move&);
+    bool applyInsMove( const Move &move);
 
 };
 
