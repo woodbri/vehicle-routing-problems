@@ -42,7 +42,7 @@ std::cout<<"Entering Vehicle::e_insertIntoFeasableTruck \n";
 //dont forget, negative savings is a higher cost
 bool Vehicle::eval_erase(int at, double &savings) const {
 	assert (at<size() and at>0 );
-	assert( not path[at].isdump());
+	if ( path[at].isdump() ) { savings=_MIN(); return false;}
 	Vehicle truck = (*this);
 	truck.path.erase(at);
 	if ( not truck.e_makeFeasable(at) ) savings = _MIN(); // -infinity
@@ -108,8 +108,8 @@ std::cout<<"Entering Vehicle::e_makeFeasable\n";
 }
 
 bool Vehicle::applyMoveINSerasePart(int nodeNid, int pos) {
-#ifndef TESTED
-std::cout<<"Entering Vehicle::applyMoveINS\n";
+#ifdef TESTED
+std::cout<<"Entering Vehicle::applyMoveINSerasePart\n";
 #endif
 	assert (path[pos].getnid()==nodeNid); //if this assertion fails might be because its not being applied to the correct solution
 	if (not (path[pos].getnid()==nodeNid))  return false;
@@ -122,8 +122,8 @@ std::cout<<"Entering Vehicle::applyMoveINS\n";
 
 
 bool Vehicle::applyMoveINSinsertPart(const Trashnode &node, int pos) {
-#ifndef TESTED
-std::cout<<"Entering Vehicle::applyMoveINS\n";
+#ifdef TESTED
+std::cout<<"Entering Vehicle::applyMoveINSinsertPart\n";
 #endif
 	path.insert(node,pos);
 	e_makeFeasable( pos );
