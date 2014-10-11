@@ -13,6 +13,11 @@ void Solution::computeCosts() {
     totalCost = 0.0;
     totalDistance = 0.0;
     for (int i=0; i<fleet.size(); i++) {
+        // if the vehicle has no containers then it never leaves
+        // we always insert the starting location in the path
+        // so vehicle.size()-1 == 0 is an empty vehicle
+        // and hence has no cost
+        if (fleet[i].size()-1 == 0) continue;
         totalCost += fleet[i].getcost();
         totalDistance += fleet[i].getduration();
     }

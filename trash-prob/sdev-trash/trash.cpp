@@ -57,11 +57,13 @@ int main(int argc, char **argv) {
 
         tp.computeCosts();
         STATS->set("zInitial cost", tp.getCost());
+        STATS->set("yNode count", tp.getNodeCount());
+        STATS->set("yVehicle count", tp.getFleetSize());
 
         Timer searchtime;
 
         TabuSearch ts(tp);
-        ts.setMaxIteration(20);
+        ts.setMaxIteration(1000);
         ts.search();
 
         STATS->set("zzSearch time", searchtime.duration());

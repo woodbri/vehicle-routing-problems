@@ -36,24 +36,24 @@ double BaseVehicle::getTimeOSRM() const {
 
     if(osrm.callOSRM(url.str())) {
         std::cout << "osrm.callOSRM: failed for url: " << url << std::endl;
-        STATS->inc("failedGetTimeOSRM");
+        STATS->inc("failed To Get Time OSRM");
         return -1.0;
     }
 
     if(osrm.getStatus(status)) {
         std::cout << "osrm.getStatus: reported: " << status << std::endl;
-        STATS->inc("failedGetTimeOSRM");
+        STATS->inc("failed To Get Time OSRM");
         return -1.0;
     }
 
     if(osrm.getTravelTime(ttime)) {
         std::cout << "osrm.getTravelTime failed to find the travel time!" << std::endl;
-        STATS->inc("failedGetTimeOSRM");
+        STATS->inc("failed To Get Time OSRM");
         return -1.0;
     }
 
-    STATS->addto("cumTimeGetTimeOSRM", osrmtime.duration());
-    STATS->inc("cntGetTimeOSRM");
+    STATS->addto("cum Time Get Time OSRM", osrmtime.duration());
+    STATS->inc("cnt Get Time OSRM");
 
     ttime += path.getTotWaitTime() + path.getTotServiceTime();
 
@@ -303,9 +303,15 @@ void BaseVehicle::evalLast() {
     dumpSite.setDemand(-last.getcargo());
     dumpSite.evaluate(last, getmaxcapacity());
     endingSite.evaluate(dumpSite, getmaxcapacity());
-    cost = w1*endingSite.getTotTime() +
-           w2*endingSite.getcvTot() +
-           w3*endingSite.gettwvTot();
+    // if a vehcile has no containers to pickup it is empty
+    // and empty trucks do not leave leave the depot
+    // so cost for path.size()-1 == 0 is 0
+    if (path.size()-1 == 0)
+        cost = 0.0;
+    else
+        cost = w1*endingSite.getTotTime() +
+               w2*endingSite.getcvTot() +
+               w3*endingSite.gettwvTot();
 }
 
 
