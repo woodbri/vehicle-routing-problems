@@ -43,6 +43,7 @@ typedef  TwBucket<Trashnode> Bucket;
     void computeCosts();
     double getCost() const ;
     double getDistance() const ;
+    int getFleetSize() const { return fleet.size(); };
     double getAverageRouteDurationLength();
 
     Solution& operator=( const Solution& rhs ) {

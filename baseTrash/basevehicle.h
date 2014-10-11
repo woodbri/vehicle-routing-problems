@@ -118,7 +118,7 @@ dumpeval();
     int getTWV() const { return endingSite.gettwvTot(); };
     int getCV() const { return endingSite.getcvTot(); };
     int getcargo() const { return  path[path.size()-1].getcargo(); };
-    double getduration() const { return endingSite.getTotTime(); };
+    double getduration() const { return (path.size()-1 == 0)?0.0:endingSite.getTotTime(); };
     double getcost() const { return cost; };
     double getTimeOSRM() const;
     double getw1() const { return w1; };

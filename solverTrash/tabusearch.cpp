@@ -28,11 +28,11 @@ void TabuSearch::dumpStats() const {
 bool TabuSearch::isTabu(const Move& m) const {
     std::map<const Move, int>::const_iterator it;
 
-    STATS->inc("tabuMovesChecked");
+    STATS->inc("tabu Moves Checked");
     for (it = TabuList.begin(); it!=TabuList.end(); ++it) {
         if (it->second < currentIteration) continue;
         if (m.isForbidden(it->first)) {
-            STATS->inc("tabuMovesCheckedTabu");
+            STATS->inc("tabu Moves Checked Tabu");
             return true;
         }
     }
@@ -49,8 +49,21 @@ void TabuSearch::cleanExpired() {
 
 
 void TabuSearch::makeTabu(const Move m) {
-    TabuList[m] = currentIteration + tabuLength;
-    STATS->inc("tabuMovesAdded");
+    int r = rand()%5-2;
+    switch (m.getmtype()) {
+        case Move::Ins:
+            TabuList[m] = currentIteration + tabuLengthIns + r;
+            STATS->inc("tabu Ins Moves Added");
+            break;
+        case Move::IntraSw:
+            TabuList[m] = currentIteration + tabuLengthIntraSw + r;
+            STATS->inc("tabu IntraSw Moves Added");
+            break;
+        case Move::InterSw:
+            TabuList[m] = currentIteration + tabuLengthInterSw + r;
+            STATS->inc("tabu InterSw Moves Added");
+            break;
+    }
 }
 
 
@@ -80,25 +93,29 @@ void TabuSearch::search() {
     Timer start;
     bool madeChanges;
     do {
+        // we always start from the best solution of the last run
+        currentSolution = bestSolution;
+
         // set the stagnation count as the last the last parameter
         // thhe values 500, 300, 300 can from the paper mentioned above
         std::cout << "TABUSEARCH: Starting iteration: " << currentIteration
             << std::endl;
-//        madeChanges = doNeighborhoodMoves(Ins,     500)
-//                    | doNeighborhoodMoves(IntraSw, 300)
-//                    | doNeighborhoodMoves(InterSw, 300);
-        madeChanges = doNeighborhoodMoves(Ins,     100)
-                    | doNeighborhoodMoves(IntraSw, 40)
-                    | doNeighborhoodMoves(InterSw, 40)
+
+        // this is a token ring search
+        // for each iteration we process all moves available
+        // from each slot (ie: Ins, IntraSw, InterSw)
+        // when there are no move moves we terminate
+        madeChanges = doNeighborhoodMoves(Ins,     500)
+                    | doNeighborhoodMoves(IntraSw, 300)
+                    | doNeighborhoodMoves(InterSw, 300)
                     ;
+
         std::cout << "TABUSEARCH: Finished iteration: " << currentIteration
             << ", madeChanges: " << madeChanges << std::endl;
 
-        currentSolution.computeCosts();
         STATS->set("0 Iteration", currentIteration);
-        STATS->set("0 Cost After", currentSolution.getCost());
+        STATS->set("0 Best Cost After", bestSolution.getCost());
         dumpStats();
-        currentSolution.dumpFleet();
         std::cout << "--------------------------------------------\n";
     }
     while (madeChanges and ++currentIteration < maxIteration);
@@ -134,8 +151,6 @@ bool TabuSearch::doNeighborhoodMoves(neighborMovesName whichNeighborhood, int ma
 
     STATS->set("factor", factor);
 
-    int loopMax = 100;
-    int loopCounter = 0;
     do {
         loopMadeMove = false;
 
@@ -144,52 +159,56 @@ bool TabuSearch::doNeighborhoodMoves(neighborMovesName whichNeighborhood, int ma
         // only look at a very small percentage of the actual moves
         // because we have to calcuate savings we should have already
         // checked for feasibility so only feasible solutions are returned
+
+        // VERIFY that  neighborhood generation is CONST
+        std::string solBefore = currentSolution.solutionAsText();
+
         std::deque<Move> neighborhood;
         Timer timeNeighboorhoodGeneration;
         switch (whichNeighborhood) {
             case Ins:
-#ifndef STEVE_OLD
                 currentSolution.v_getInsNeighborhood(neighborhood, factor);
-#else
-                std::string solBefore = currentSolution.solutionAsText();
-                currentSolution.getInsNeighborhood(neighborhood);
-                std::string solAfter = currentSolution.solutionAsText();
-                assert(solBefore == solAfter);
-#endif
-                STATS->addto("timeGenIns", timeNeighboorhoodGeneration.duration());
-                STATS->inc("cntGenInsCalls");
-                STATS->addto("cumInsMoves", neighborhood.size());
+                //currentSolution.getInsNeighborhood(neighborhood);
+                STATS->addto("time Gen Ins", timeNeighboorhoodGeneration.duration());
+                STATS->inc("cnt Gen Ins Calls");
+                STATS->addto("cum Ins Moves", neighborhood.size());
 std::cout << "\tdoNeighborhoodMoves for Ins: " << neighborhood.size()
     << " moves generated" << std::endl;
                 break;
             case IntraSw:
+                //currentSolution.v_getIntraSwNeighborhood(neighborhood, factor);
                 currentSolution.getIntraSwNeighborhood(neighborhood);
-                STATS->addto("timeGenIntraSw", timeNeighboorhoodGeneration.duration());
-                STATS->inc("cntGenIntraSwCalls");
-                STATS->addto("cumIntraSwMoves", neighborhood.size());
+                STATS->addto("time Gen IntraSw", timeNeighboorhoodGeneration.duration());
+                STATS->inc("cnt Gen IntraSw Calls");
+                STATS->addto("cum IntraSw Moves", neighborhood.size());
 std::cout << "\tdoNeighborhoodMoves for IntraSw: " << neighborhood.size()
     << " moves generated" << std::endl;
                 break;
             case InterSw:
-                currentSolution.getInterSwNeighborhood(neighborhood);
-                STATS->addto("timeGenInterSw", timeNeighboorhoodGeneration.duration());
-                STATS->inc("cntGenInterSwCalls");
-                STATS->addto("cumInterSwMoves", neighborhood.size());
+                currentSolution.v_getInterSwNeighborhood(neighborhood, factor);
+                //currentSolution.getInterSwNeighborhood(neighborhood);
+                STATS->addto("time Gen InterSw", timeNeighboorhoodGeneration.duration());
+                STATS->inc("cnt Gen InterSw Calls");
+                STATS->addto("cum InterSw Moves", neighborhood.size());
 std::cout << "\tdoNeighborhoodMoves for InterSw: " << neighborhood.size()
     << " moves generated" << std::endl;
                 break;
         }
 
+        // VERIFY that neighborhood generation is CONST
+        std::string solAfter = currentSolution.solutionAsText();
+        assert(solBefore == solAfter);
 
         // and sort it so we can work from the best to the worst
         std::sort(neighborhood.begin(), neighborhood.end(), Move::bySavings);
 
-        // dump the neighborhood
+// dump the neighborhood
 //        for (int i=0;i<neighborhood.size();i++) neighborhood[i].dump();
 //        std::cout<<"======================================================";
 
         // take the best move that we may apply and apply it, if any
         Timer applyMoveTimer;
+        bool allTabu = true;
         for (std::deque<Move>::iterator it=neighborhood.begin();
                 it!=neighborhood.end(); ++it) {
 
@@ -202,13 +221,14 @@ std::cout << "\tdoNeighborhoodMoves: Aspiration move: "; it->dump();
                 makeTabu(*it);
                 loopMadeMove = true;
                 stagnationCnt = 0;
-                STATS->set("bestUpdatedLastAt", currentIteration);
-                STATS->inc("bestUpdatedCnt");
+                allTabu = false;
+                STATS->set("best Updated Last At", currentIteration);
+                STATS->inc("best Updated Cnt");
                 // update stats
                 switch (whichNeighborhood) {
-                    case Ins:     STATS->inc("cntInsApplied");    break;
-                    case IntraSw: STATS->inc("cntIntraSwApplied"); break;
-                    case InterSw: STATS->inc("cntInterSwApplied"); break;
+                    case Ins:     STATS->inc("cnt Ins Applied");    break;
+                    case IntraSw: STATS->inc("cnt IntraSw Applied"); break;
+                    case InterSw: STATS->inc("cnt InterSw Applied"); break;
                 }
 
                 // ok we made a move, so now the neighborhood is no
@@ -223,25 +243,40 @@ std::cout << "\tdoNeighborhoodMoves: Not Tabu: "; it->dump();
                 currentSolution.applyMove(*it);
                 makeTabu(*it);
                 loopMadeMove = true;
+                allTabu = false;
                 // update stats
                 switch (whichNeighborhood) {
-                    case Ins:     STATS->inc("cntInsApplied");    break;
-                    case IntraSw: STATS->inc("cntIntraSwApplied"); break;
-                    case InterSw: STATS->inc("cntInterSwApplied"); break;
+                    case Ins:     STATS->inc("cnt Ins Applied");    break;
+                    case IntraSw: STATS->inc("cnt IntraSw Applied"); break;
+                    case InterSw: STATS->inc("cnt InterSw Applied"); break;
                 }
 
                 // ok we made a move, so now the neighborhood is no
                 // longer valid so break to regenerate a new neighborhood
                 break;
             }
+            else {
+                ++stagnationCnt;
+            }
         }
-        STATS->addto("timeApplyMoves", applyMoveTimer.duration());
+        if (allTabu and neighborhood.size()) {
+std::cout << "\tdoNeighborhoodMoves: All Tabu: "; neighborhood.begin()->dump();
+            currentSolution.applyMove(*(neighborhood.begin()));
+            makeTabu(*(neighborhood.begin()));
+            madeMove = true;
+            switch (whichNeighborhood) {
+                case Ins:     STATS->inc("cnt allTabu Ins Applied");    break;
+                case IntraSw: STATS->inc("cnt allTabu IntraSw Applied"); break;
+                case InterSw: STATS->inc("cnt allTabu InterSw Applied"); break;
+            }
+        }
+        STATS->addto("time Apply Moves", applyMoveTimer.duration());
         madeMove = madeMove or loopMadeMove;
-        ++stagnationCnt;
-        ++loopCounter;
     }
-    while (madeMove and stagnationCnt < maxStagnation /* and loopCounter < loopMax */ );
-    std::cout << "doNeighborhoodMoves: loopCounter: " << loopCounter << std::endl;
+    while (madeMove and stagnationCnt < maxStagnation );
+
+    if (not madeMove)
+        std::cout << "\tStagnation reached in neighborhood: " << whichNeighborhood << std::endl;
 
     return madeMove;
 }
