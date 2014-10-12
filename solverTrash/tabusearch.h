@@ -3,7 +3,9 @@
 
 #include <map>
 #include <cassert>
+#include <cstdlib>
 
+#include "trashstats.h"
 #include "timer.h"
 #include "move.h"
 #include "neighborhoods.h"
@@ -15,7 +17,12 @@ class TabuSearch {
   private:
     std::map<const Move, int> TabuList;
 
-    int tabuLength;
+    int tabuLengthIns;
+    int tabuLengthIntraSw;
+    int tabuLengthInterSw;
+
+    bool allTabu;
+    Move bestMoveAllTabu;
 
     int maxIteration;
     int currentIteration;
@@ -24,29 +31,6 @@ class TabuSearch {
     double bestSolutionCost;
 
     Neighborhoods currentSolution;
-
-/*
-    // keep strack of some statistics
-
-    int movesAdded;
-    int movesChecked;
-    int movesCheckedTabu;
-    int bestUpdatedLastAt;
-    int bestUpdatedCnt;
-    int cntInsApplied;
-    int cntIntraSwApplied;
-    int cntInterSwApplied;
-    double timeGenIns;
-    double timeGenIntraSw;
-    double timeGenInterSw;
-    double timeApplyMoves;
-    int cntGenInsCalls;
-    int cntGenIntraSwCalls;
-    int cntGenInterSwCalls;
-    int cumInsMoves;
-    int cumIntraSwMoves;
-    int cumInterSwMoves;
-*/
 
   public:
     TabuSearch(const Neighborhoods initialSolution) :
@@ -57,22 +41,25 @@ class TabuSearch {
         bestSolutionCost = bestSolution.getCost();
         currentIteration = 0;
         maxIteration = 1000;
-        tabuLength = std::min(initialSolution.getNodeCount() / 5, (unsigned int) 5);
+        int ncnt = initialSolution.getNodeCount() / 5;
+        tabuLengthIns     = std::max(5, std::min(ncnt, 40));
+        tabuLengthIntraSw = std::max(5, std::min(ncnt, 15));
+        tabuLengthInterSw = std::max(5, std::min(ncnt, 10));
 
-/*
-        // initial the stats
-        movesAdded = movesChecked = movesCheckedTabu = 0;
-        bestUpdatedLastAt = bestUpdatedCnt = 0;
-        cntInsApplied = cntIntraSwApplied = cntInterSwApplied = 0;
-        timeGenIns = timeGenIntraSw = timeGenInterSw = 0;
-        cntGenInsCalls = cntGenIntraSwCalls = cntGenInterSwCalls = 0;
-        cumInsMoves = cumIntraSwMoves = cumInterSwMoves = 0;
-*/
+        STATS->set("tabu Length Ins", tabuLengthIns);
+        STATS->set("tabu Length IntraSw", tabuLengthIntraSw);
+        STATS->set("tabu Length InterSw", tabuLengthInterSw);
+
+        // for repeatible results set this to a constant value
+        // for more random results use: srand( time(NULL) );
+        srand(37);
     };
 
     int getCurrentIteration() const { return currentIteration; };
     int getMaxIteration() const { return maxIteration; };
-    int getTabuLength() const { return tabuLength; };
+    int getTabuLengthIns() const { return tabuLengthIns; };
+    int getTabuLengthIntraSw() const { return tabuLengthIntraSw; };
+    int getTabuLengthInterSw() const { return tabuLengthInterSw; };
     Solution getBestSolution() const { return bestSolution; };
     Solution getCurrentSolution() const {return currentSolution; };
     void dumpTabuList() const;
@@ -83,7 +70,9 @@ class TabuSearch {
     void cleanExpired();
 
     void setMaxIteration(int n) { assert(n>0); maxIteration = n; };
-    void settabuLength(int n) { assert(n>0); tabuLength = n; };
+    void settabuLengthIns(int n) { assert(n>0); tabuLengthIns = n; };
+    void settabuLengthIntraSw(int n) { assert(n>0); tabuLengthIntraSw = n; };
+    void settabuLengthInterSw(int n) { assert(n>0); tabuLengthInterSw = n; };
 
     void search();
     bool doNeighborhoodMoves(neighborMovesName whichNeighborhood, int maxStagnation);
