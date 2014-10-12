@@ -52,9 +52,11 @@ class Vehicle: public BaseVehicle {
     bool eval_erase(int at, double &savings) const;
     bool applyMoveINSerasePart(int nodeNid, int pos);
     bool applyMoveINSinsertPart(const Trashnode &node, int pos);
-    bool applyMoveIntraSw(vehicle &otherTruck, int truckPos, int otherTruckPos);
+    bool applyMoveInterSw(Vehicle &otherTruck, int truckPos, int otherTruckPos);
+    bool applyMoveIntraSw(int fromPos, int withPos);
     bool e_makeFeasable(int currentPos);
     long int eval_insertMoveDumps( const Trashnode &node, std::deque<Move> &moves, int fromTruck, int formPos, int toTruck, double savings, double factor ) const;
+    long int eval_intraSwapMoveDumps( std::deque<Move> &moves, int  truckPos, int fromPos,  double factor) const ;
     long int eval_interSwapMoveDumps( std::deque<Move> &moves, const Vehicle &otherTruck,int  truckPos,int  otherTruckPos, int fromPos,  double factor) const;
     bool e_insertDumpInPath( const Trashnode &going );
     bool deltaTimeGeneratesTV(const Trashnode &dump, const Trashnode &node) const; 

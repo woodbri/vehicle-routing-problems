@@ -26,6 +26,8 @@ cycles=0;
 
     void applyMove(const Move&);
     bool applyInsMove( const Move &move);
+    bool applyIntraSwMove( const Move &move);
+    bool applyInterSwMove( const Move &move);
 
 };
 
