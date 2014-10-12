@@ -187,6 +187,31 @@ std::cout<<"Entering Vehicle::applyMoveINSinsertPart\n";
 	assert ( feasable() );
 	return feasable();
 }
+
+bool Vehicle::applyMoveIntraSw(Vehicle & otherTruck, truckPos, otherTruckPos) {
+#ifndef TESTED
+std::cout<<"Entering Vehicle::applyMoveIntraSw\n";
+#endif
+	std:inter_swp( path.begin()+truckPos,  otherTruck.path.begin()+otherTruckPos);
+        e_makeFeasable( truckPos );
+        otherTruck.e_makeFeasable( otherTruckPos );
+        evalLast();
+        otherTruck.evalLast();
+        assert ( feasable() );
+        assert ( otherTruck.feasable() );
+        return feasable() and otherTruck.feasable();
+}
+
+bool Vehicle::applyMoveInterSw(Vehicle & otherTruck, fromPos, withPos) {
+#ifndef TESTED
+std::cout<<"Entering Vehicle::applyMoveInterSw\n";
+#endif
+        std:inter_swp( path.begin()+fromPos,  path.begin()+withPos);
+        e_makeFeasable( td::min(fromPos,withPos) );
+        evalLast();
+        assert ( feasable() );
+        return feasable() ;
+}
 	
 
 
