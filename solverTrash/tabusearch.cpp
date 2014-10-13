@@ -2,6 +2,7 @@
 #include <iostream>
 #include <deque>
 #include <algorithm>
+#include <cstdlib>
 
 #include "trashstats.h"
 #include "neighborhoods.h"
@@ -30,7 +31,14 @@ bool TabuSearch::isTabu(const Move& m) const {
 
     STATS->inc("tabu Moves Checked");
     for (it = TabuList.begin(); it!=TabuList.end(); ++it) {
-        if (it->second < currentIteration) continue;
+        //if (it->second < currentIteration) continue;
+        if ( (it->first.getmtype()==Move::Ins and
+              it->second < currentIterationIns) or
+             (it->first.getmtype()==Move::IntraSw and
+              it->second < currentIterationIntraSw) or
+             (it->first.getmtype()==Move::InterSw and
+              it->second < currentIterationInterSw) 
+             ) continue;
         if (m.isForbidden(it->first)) {
             STATS->inc("tabu Moves Checked Tabu");
             return true;
@@ -49,18 +57,20 @@ void TabuSearch::cleanExpired() {
 
 
 void TabuSearch::makeTabu(const Move m) {
+    // generate a randon value between -2 and +2
+    // to adjust the tabu length with
     int r = rand()%5-2;
     switch (m.getmtype()) {
         case Move::Ins:
-            TabuList[m] = currentIteration + tabuLengthIns + r;
+            TabuList[m] = currentIterationIns + tabuLengthIns + r;
             STATS->inc("tabu Ins Moves Added");
             break;
         case Move::IntraSw:
-            TabuList[m] = currentIteration + tabuLengthIntraSw + r;
+            TabuList[m] = currentIterationIntraSw + tabuLengthIntraSw + r;
             STATS->inc("tabu IntraSw Moves Added");
             break;
         case Move::InterSw:
-            TabuList[m] = currentIteration + tabuLengthInterSw + r;
+            TabuList[m] = currentIterationInterSw + tabuLengthInterSw + r;
             STATS->inc("tabu InterSw Moves Added");
             break;
     }
@@ -91,13 +101,11 @@ void TabuSearch::search() {
     currentIteration = 0;
 
     Timer start;
-    bool madeChanges;
+    bool improvedBest;
+    int lastImproved = 0;
     do {
-        // we always start from the best solution of the last run
-        currentSolution = bestSolution;
-
         // set the stagnation count as the last the last parameter
-        // thhe values 500, 300, 300 can from the paper mentioned above
+        // the values 500, 300, 300 can from the paper mentioned above
         std::cout << "TABUSEARCH: Starting iteration: " << currentIteration
             << std::endl;
 
@@ -105,20 +113,27 @@ void TabuSearch::search() {
         // for each iteration we process all moves available
         // from each slot (ie: Ins, IntraSw, InterSw)
         // when there are no move moves we terminate
-        madeChanges = doNeighborhoodMoves(Ins,     500)
-                    | doNeighborhoodMoves(IntraSw, 300)
-                    | doNeighborhoodMoves(InterSw, 300)
-                    ;
+        // or if we reach stagnation. Stagnation is N moves
+        // without improving the bestSolution
+        improvedBest  = doNeighborhoodMoves(Ins,     500);
+        improvedBest |= doNeighborhoodMoves(IntraSw, 300);
+        improvedBest |= doNeighborhoodMoves(InterSw, 300);
+
+        if (! improvedBest) ++lastImproved;
+        else lastImproved = 0;
 
         std::cout << "TABUSEARCH: Finished iteration: " << currentIteration
-            << ", madeChanges: " << madeChanges << std::endl;
+            << ", improvedBest: " << improvedBest
+            << ", run time: " << start.duration()
+            << std::endl;
 
         STATS->set("0 Iteration", currentIteration);
         STATS->set("0 Best Cost After", bestSolution.getCost());
         dumpStats();
         std::cout << "--------------------------------------------\n";
     }
-    while (madeChanges and ++currentIteration < maxIteration);
+    //while (improvedBest and ++currentIteration < maxIteration);
+    while (lastImproved < 1 and ++currentIteration < maxIteration);
 
     std::cout << "TABUSEARCH: Total time: " << start.duration() << std::endl;
 }
@@ -132,33 +147,34 @@ void TabuSearch::search() {
         doInsMoves, doIntraSwMoves, doInterSwMoves
 
     do {
-        Generate the neighhood of moves order from best to worst.
+        Generate the neighborhood of moves and order from best to worst.
         Working through the neighborhood (best to worst)
         Filter out inFeasible moves then
         if the move is aspirational we apply the move
         otherwise if the move is not Tabu apply the move
-        even if it makes the solution worse.
+        even if it makes the current solution worse.
+        If all moves are tabu, then apply one (either best or ar random)
     } until there are not valid moves or stagnation 
-    return an indicator that we made changes or not.
+    return an indicator that we improved the best move ot not.
 */
 
 bool TabuSearch::doNeighborhoodMoves(neighborMovesName whichNeighborhood, int maxStagnation) {
-    bool madeMove;
-    bool loopMadeMove;
+    bool improvedBest = false;
     int stagnationCnt = 0;
     double factor = 0.5;
-    madeMove = false;
+
+    // we always start from the best solution of the last run
+    currentSolution = bestSolution;
 
     STATS->set("factor", factor);
 
     do {
-        loopMadeMove = false;
 
         // generate the a move neighborhood based on the currentSolution
-        // this is fast and stupid move generation because we will
-        // only look at a very small percentage of the actual moves
-        // because we have to calcuate savings we should have already
-        // checked for feasibility so only feasible solutions are returned
+        // this is fast and efficient as move generation account for most
+        // of the computational time.
+        // We only look at a very small percentage of the actual moves
+        // but we have to calcuate savings and feasiblity
 
         // VERIFY that  neighborhood generation is CONST
         std::string solBefore = currentSolution.solutionAsText();
@@ -167,8 +183,11 @@ bool TabuSearch::doNeighborhoodMoves(neighborMovesName whichNeighborhood, int ma
         Timer timeNeighboorhoodGeneration;
         switch (whichNeighborhood) {
             case Ins:
+                ++currentIterationIns;
                 currentSolution.v_getInsNeighborhood(neighborhood, factor);
                 //currentSolution.getInsNeighborhood(neighborhood);
+
+                // collect stats
                 STATS->addto("time Gen Ins", timeNeighboorhoodGeneration.duration());
                 STATS->inc("cnt Gen Ins Calls");
                 STATS->addto("cum Ins Moves", neighborhood.size());
@@ -176,8 +195,11 @@ std::cout << "\tdoNeighborhoodMoves for Ins: " << neighborhood.size()
     << " moves generated" << std::endl;
                 break;
             case IntraSw:
+                ++currentIterationIntraSw;
                 //currentSolution.v_getIntraSwNeighborhood(neighborhood, factor);
                 currentSolution.getIntraSwNeighborhood(neighborhood);
+
+                // collect stats
                 STATS->addto("time Gen IntraSw", timeNeighboorhoodGeneration.duration());
                 STATS->inc("cnt Gen IntraSw Calls");
                 STATS->addto("cum IntraSw Moves", neighborhood.size());
@@ -185,8 +207,11 @@ std::cout << "\tdoNeighborhoodMoves for IntraSw: " << neighborhood.size()
     << " moves generated" << std::endl;
                 break;
             case InterSw:
+                ++currentIterationInterSw;
                 currentSolution.v_getInterSwNeighborhood(neighborhood, factor);
                 //currentSolution.getInterSwNeighborhood(neighborhood);
+
+                // collect stats
                 STATS->addto("time Gen InterSw", timeNeighboorhoodGeneration.duration());
                 STATS->inc("cnt Gen InterSw Calls");
                 STATS->addto("cum InterSw Moves", neighborhood.size());
@@ -219,7 +244,7 @@ std::cout << "\tdoNeighborhoodMoves: Aspiration move: "; it->dump();
                 bestSolution = currentSolution;
                 bestSolutionCost = bestSolution.getCost();
                 makeTabu(*it);
-                loopMadeMove = true;
+                improvedBest = true;
                 stagnationCnt = 0;
                 allTabu = false;
                 STATS->set("best Updated Last At", currentIteration);
@@ -242,7 +267,6 @@ std::cout << "\tdoNeighborhoodMoves: Aspiration move: "; it->dump();
 std::cout << "\tdoNeighborhoodMoves: Not Tabu: "; it->dump();
                 currentSolution.applyMove(*it);
                 makeTabu(*it);
-                loopMadeMove = true;
                 allTabu = false;
                 // update stats
                 switch (whichNeighborhood) {
@@ -259,11 +283,20 @@ std::cout << "\tdoNeighborhoodMoves: Not Tabu: "; it->dump();
                 ++stagnationCnt;
             }
         }
+
+        // if all the moves are tabu then we need to pick one
+        // the articles says to pick the best but that does not diversify
+        // the search trajecory very much
+        // so we will try picking based on different strategies here
         if (allTabu and neighborhood.size()) {
-std::cout << "\tdoNeighborhoodMoves: All Tabu: "; neighborhood.begin()->dump();
-            currentSolution.applyMove(*(neighborhood.begin()));
-            makeTabu(*(neighborhood.begin()));
-            madeMove = true;
+            bool pickWorst = rand()%100 > 50;
+            //int pick = rand() % std::min((unsigned)neighborhood.size(), (unsigned)stagnationCnt*10);
+            int pick = 0; // pick the best
+            //if (pickWorst) pick = neighborhood.size()-1; // pick the worst
+
+std::cout << "\tdoNeighborhoodMoves: All Tabu(" << pick << "): "; neighborhood.begin()->dump();
+            currentSolution.applyMove(*(neighborhood.begin()+pick));
+            makeTabu(*(neighborhood.begin()+pick));
             switch (whichNeighborhood) {
                 case Ins:     STATS->inc("cnt allTabu Ins Applied");    break;
                 case IntraSw: STATS->inc("cnt allTabu IntraSw Applied"); break;
@@ -271,14 +304,13 @@ std::cout << "\tdoNeighborhoodMoves: All Tabu: "; neighborhood.begin()->dump();
             }
         }
         STATS->addto("time Apply Moves", applyMoveTimer.duration());
-        madeMove = madeMove or loopMadeMove;
     }
-    while (madeMove and stagnationCnt < maxStagnation );
+    while (stagnationCnt < maxStagnation );
 
-    if (not madeMove)
+    if (not improvedBest)
         std::cout << "\tStagnation reached in neighborhood: " << whichNeighborhood << std::endl;
 
-    return madeMove;
+    return improvedBest;
 }
 
 ///////////////////////////////////////////////////

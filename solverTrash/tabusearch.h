@@ -26,6 +26,9 @@ class TabuSearch {
 
     int maxIteration;
     int currentIteration;
+    int currentIterationIns;
+    int currentIterationIntraSw;
+    int currentIterationInterSw;
 
     Neighborhoods bestSolution;
     double bestSolutionCost;
@@ -39,7 +42,7 @@ class TabuSearch {
         bestSolution.computeCosts();
         bestSolution.dump();
         bestSolutionCost = bestSolution.getCost();
-        currentIteration = 0;
+        currentIteration = currentIterationIns = currentIterationIntraSw = currentIterationInterSw = 0;
         maxIteration = 1000;
         int ncnt = initialSolution.getNodeCount() / 5;
         tabuLengthIns     = std::max(5, std::min(ncnt, 40));

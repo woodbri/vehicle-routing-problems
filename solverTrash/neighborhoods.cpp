@@ -266,7 +266,7 @@ void Neighborhoods::getInterSwNeighborhood(std::deque<Move>& moves)  const {
                     if(fleet[vj][pj].isdump()) continue;
 
                     // create a move with a dummy savings value
-                    Move m(Move::Ins,
+                    Move m(Move::InterSw,
                            fleet[vi][pi].getnid(), // nid1
                            fleet[vj][pj].getnid(), // nid2
                            vi,  // vid1
