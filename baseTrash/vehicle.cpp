@@ -58,14 +58,23 @@ std::cout<<"Entering Vehicle::eval_intraSwapMoveDumps \n";
 		continue;
 	     };
 		//no TWV now to check for dump moving
-	     newCost=originalCost+deltaTravelTime;
 	     if ( path[fromPos].getdemand()  == path[currentPos].getdemand() or foundFromPosNearestDump==false) { //no need to move dumps
-                	Move move(Move::IntraSw , node.getnid(), path[currentPos].getnid() ,  truckPos , truckPos ,  fromPos, currentPos, (originalCost-newCost)   );
+
+                	Move move(Move::IntraSw , node.getnid(), path[currentPos].getnid() ,  truckPos , truckPos ,  fromPos, currentPos, (- deltaTravelTime )   );
                 	moves.push_back(move);
 #ifndef TESTED
+if (node.getnid()== 138 or node.getnid()== 148) {
 move.dump();
-std::cout<<"origina cost"<<originalCost<<"\t new cost"<< newCost;
+std::cout<<"origina cost"<<originalCost<<"\t deltaTravelTime "<<  deltaTravelTime;
 std::cout<<"\n";
+    std::stringstream convert;
+    convert << currentPos<<" swaping"<<path[currentPos].getnid()<<"with"<<node.getnid();
+    std::string carnum = convert.str();
+truck=(*this);
+truck.plot(carnum+"before","bintraSwp",currentPos);
+truck.applyMoveIntraSw(fromPos,currentPos);
+truck.plot(carnum+"zafter","zintraSwp",currentPos);
+}
 #endif
 			continue;
 	     };

@@ -294,7 +294,7 @@ void Neighborhoods::v_getIntraSwNeighborhood(std::deque<Move>& moves, double fac
     // iterate through each vehicle (vi)
     for (int truckPos=0; truckPos<fleet.size(); truckPos++) {
 
-        for (int fromPos=1; fromPos<fleet[truckPos].size(); fromPos++) {
+        for (int fromPos=1; fromPos<fleet[truckPos].size()-1; fromPos++) {
 		if(fleet[truckPos][fromPos].isdump()) continue;   // skiping dump
 
 		fleet[truckPos].eval_intraSwapMoveDumps( moves,  truckPos, fromPos, factor); 

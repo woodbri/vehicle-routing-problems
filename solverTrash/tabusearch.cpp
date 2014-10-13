@@ -367,7 +367,6 @@ std::cout<<"TabuSearch::v_doNeighborhoodMoves >> \n"<<setOfInsMoves.size()<<"mov
                 break;
 */            case IntraSw:
                 currentSolution.v_getIntraSwNeighborhood(neighborhood,factor);
-	assert(true==false);
                 break;
 /*            case InterSw:
                 currentSolution.v_getInterSwNeighborhood(neighborhood,factor);
@@ -376,6 +375,13 @@ std::cout<<"TabuSearch::v_doNeighborhoodMoves >> \n"<<setOfInsMoves.size()<<"mov
 
         // and sort it so we can work from the best to the worst
         std::sort(neighborhood.begin(), neighborhood.end(), Move::bySavings);
+ currentSolution.plot("before","bintraSwp");
+neighborhood[0].dump();
+ currentSolution.applyIntraSwMove(neighborhood[0]);
+ currentSolution.plot("zafter","bintraSwp");
+
+
+std::cout<<"======================================================";
 	for (int i=0;i<neighborhood.size();i++) neighborhood[i].dump();
 std::cout<<"======================================================";
 		assert(true==false);
