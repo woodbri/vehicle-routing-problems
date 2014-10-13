@@ -87,7 +87,7 @@ double  getDeltaTimeSwap(UID pos1, UID pos2) const {
 std::cout<<"Entering twBucket::getDeltaTimeSwap() \n";
 #endif
 
-     double delta;
+     double delta, oldTime, newTime;
      if (pos1> pos2) { int tmp=pos1; pos1=pos2; pos2=tmp;} //pos1 is the lowest
 
      //special case nidPrev nid1 nid2 nidNext
@@ -98,21 +98,42 @@ std::cout<<"Entering twBucket::getDeltaTimeSwap() \n";
 	nid1=path[pos1].getnid();
 	nid2=path[pos2].getnid(); 
 	if (pos2!=size()) nidNext=path[pos2+1].getnid();
+        //               pos1-1  pos1  pos2  pos2+1
         //newpath looks: nidPrev nid2 nid1, nidNext
 	if ( path[pos1-1].getDepartureTime() + TravelTime[nidPrev][nid2] > path[pos2].closes() ) return _MAX();
-	if ( path[pos1-1].getDepartureTime() + TravelTime[nidPrev][nid2] +  TravelTime[nid2][nid1] > path[pos1].closes() ) return _MAX();
+	if ( path[pos1-1].getDepartureTime() + TravelTime[nidPrev][nid2] + path[pos1].getservicetime() + TravelTime[nid2][nid1] > path[pos1].closes() ) return _MAX();
         //locally we are ok...  no capacity Violations
-        delta =   TravelTime[nidPrev][nid2] +  TravelTime[nid2][nid1]  
-           		- ( TravelTime[nidPrev][nid1] +  TravelTime[nid1][nid2]) ;
-        if (pos2!=size()-1) delta+=  TravelTime[nid2][nidNext] - TravelTime[nid1][nidNext] ;
+        // sum (services) remains constant
+        if (pos2+1==size()) {
+        //newpath looks: nidPrev nid1 nid2,  DUMP in V
+        //               pos1-1  pos1  pos2  pos2+1
+        //newpath looks: nidPrev nid2 nid1,  DUMP in V
+        // delta = new - old
+		oldTime =  path[pos2].getDepartureTime();
+	        newTime =  path[pos1-1].getDepartureTime() + TravelTime[nidPrev][nid2] + TravelTime[nid2][nid1];
+		  delta = oldTime -newTime;
+        } else { 
+        //oldpath looks: nidPrev nid1 nid2,  nidNext
+        //               pos1-1  pos1  pos2  pos2+1
+        //newpath looks: nidPrev nid2 nid1,  nidNext
+
+		oldTime =  path[pos2+1].getArrivalTime();
+	        newTime =  path[pos1-1].getDepartureTime() + TravelTime[nidPrev][nid2] + TravelTime[nid2][nid1] + TravelTime[nid1][nidNext] ;
+		delta   =  oldTime - newTime;;
+        }
 
         if (pos2+1 < size() and deltaGeneratesTV(delta,pos2+1)) return _MAX();
 	return delta;
+        // end of case when one ode is after the other
      }
+
+        //oldpath looks: nidPrev1 nid1 nidnext1		nidPrev2  nid2,  nidNext2
+        //               pos1-1  pos1  pos1+1		pos2-1	  pos2    pos2+1
+        //newpath looks: nidPrev1 nid2 nidnext1		nidPrev2, nid1,  nidNext2
      double delta1 = getDeltaTime( path[pos2] , pos1, pos1+1 );
      double delta2 = getDeltaTime( path[pos1] , pos2, pos2+1 );
-     if ( (delta1 == _MAX() ) or  (delta2 == _MAX()) ) return _MAX();
-     if (deltaGeneratesTVupTo (delta1, pos1, pos2-1) ) return _MAX();
+     if ( (delta1 == _MAX() ) or  (delta2 == _MAX()) ) return _MAX(); //inmidiate TWV is generated
+     if (deltaGeneratesTVupTo (delta1, pos1, pos2-1) ) return _MAX(); 
      if (deltaGeneratesTV (delta1+delta2, pos2+1) ) return _MAX();
 
      //simple checks for cargo Violation
