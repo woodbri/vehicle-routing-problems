@@ -45,6 +45,7 @@ void Neighborhoods::applyMove(const Move& m)  {
             }
             break;
     }
+    computeCosts();
 }
 
 
