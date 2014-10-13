@@ -149,8 +149,8 @@ dumpeval();
     void dumppath() const;
     void tau() const ;
 
-    void plot(std::string file,std::string title,int carnumber);
-    void plot(Plot<Trashnode> graph,int carnumber);
+    void plot(std::string file,std::string title,int carnumber) const;
+    void plot(Plot<Trashnode> graph,int carnumber) const;
 
 
     //--------------------------------------------------------------------

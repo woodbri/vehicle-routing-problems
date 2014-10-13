@@ -968,7 +968,7 @@ bool BaseVehicle::relocateBest(BaseVehicle& v2, const int& i1) {
 }
 
 /**************************************PLOT************************************/
-void BaseVehicle::plot(std::string file,std::string title,int carnumber){
+void BaseVehicle::plot(std::string file,std::string title,int carnumber) const{
 //std::cout<<"USING VEHICLE PLOT\n";
     Twpath<Trashnode> trace=path;
     trace.push_back(dumpSite);
@@ -1000,7 +1000,7 @@ trace.dumpid("Path");
     graph.save();
 }
 
-void BaseVehicle::plot(Plot<Trashnode> graph, int carnumber){
+void BaseVehicle::plot(Plot<Trashnode> graph, int carnumber)const{
 //std::cout<<"USING VEHICLE PLOT  1\n";
     Twpath<Trashnode> trace=path;
     trace.push_back(dumpSite);

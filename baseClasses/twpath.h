@@ -27,7 +27,7 @@ class Twpath : public TwBucket<knode> {
     // ------------------------------------------------------------------
 
   private:
-
+   
     typedef unsigned long UID;
     typedef typename std::deque<knode>::iterator iterator;
     typedef typename std::deque<knode>::reverse_iterator reverse_iterator;
