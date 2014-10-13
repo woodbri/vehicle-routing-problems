@@ -119,8 +119,8 @@ void TabuSearch::search() {
         improvedBest |= doNeighborhoodMoves(IntraSw, 300);
         improvedBest |= doNeighborhoodMoves(InterSw, 300);
 
-        if (! improvedBest) ++lastImproved;
-        else lastImproved = 0;
+        if (improvedBest) lastImproved = 0;
+        else ++lastImproved;
 
         std::cout << "TABUSEARCH: Finished iteration: " << currentIteration
             << ", improvedBest: " << improvedBest
