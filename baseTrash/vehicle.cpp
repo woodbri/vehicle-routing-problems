@@ -62,12 +62,22 @@ std::cout<<"Entering Vehicle::eval_intraSwapMoveDumps \n";
 	     if ( path[fromPos].getdemand()  == path[currentPos].getdemand() or foundFromPosNearestDump==false) { //no need to move dumps
                 	Move move(Move::IntraSw , node.getnid(), path[currentPos].getnid() ,  truckPos , truckPos ,  fromPos, currentPos, (originalCost-newCost)   );
                 	moves.push_back(move);
+#ifndef TESTED
+move.dump();
+std::cout<<"origina cost"<<originalCost<<"\t new cost"<< newCost;
+std::cout<<"\n";
+#endif
 			continue;
 	     };
 		
 	     if ( currentPos < dumpsPos[0] ) { //they share the same dump, no need to move dumps
                 	Move move(Move::IntraSw , node.getnid(), path[currentPos].getnid() ,  truckPos , truckPos ,  fromPos, currentPos, (originalCost-newCost)   );
                 	moves.push_back(move);
+#ifdef TESTED
+move.dump();
+std::cout<<"origina cost"<<originalCost<<"\t new cost"<< newCost;
+std::cout<<"\n";
+#endif
 			continue;
              }
 
@@ -94,10 +104,15 @@ std::cout<<"Entering Vehicle::eval_intraSwapMoveDumps \n";
 	     if (moveDumpsFrom==-1) { //no CV
                 	Move move(Move::IntraSw , node.getnid(), path[currentPos].getnid() ,  truckPos , truckPos ,  fromPos, currentPos, (originalCost-newCost)   );
                 	moves.push_back(move);
+#ifdef TESTED
+move.dump();
+std::cout<<"origina cost"<<originalCost<<"\t new cost"<< newCost;
+std::cout<<"\n";
+#endif
 			continue;
              }
 	     //dump moving is requiered here
-	     assert ("Vehicle::intraSwapMoveDumps  move dumps part need implementation");
+	     assert ("Vehicle::intraSwapMoveDumps  move dumps part need implementation"=="");
 
         }
         return moves.size();
@@ -144,11 +159,13 @@ std::cout<<"Entering Vehicle::eval_interSwapMoveDumps \n";
 
                 Move move(Move::InterSw , node.getnid(), otherTruck.path[currentPos].getnid() ,  truckPos , otherTruckPos ,  fromPos, currentPos, (originalCost-newCost)   );
                 moves.push_back(move);
+
+#ifdef TESTED
 move.dump();
 std::cout<<"cost"<<cost<<"\tother.cost"<< other.cost;
 std::cout<<"\ttruck.cost"<<truck.cost<<"\totherTruck.cost"<< otherTruck.cost;
 std::cout<<"\n";
-
+#endif
 
              }
         }

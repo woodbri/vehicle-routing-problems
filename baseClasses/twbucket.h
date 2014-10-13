@@ -83,6 +83,10 @@ double  getDeltaTimeAfterDump(const knode &dump, const knode &lonelyNodeAfterDum
 
 double  getDeltaTimeSwap(UID pos1, UID pos2) const {
      assert( pos1<path.size()-1 and pos2<path.size() );
+#ifndef TESTED
+std::cout<<"Entering twBucket::getDeltaTimeSwap() \n";
+#endif
+
      //_MAX when inmidiate TWV occurs
      double delta;
      if (pos1> pos2) { int tmp=pos1; pos1=pos2; pos2=tmp;} //pos1 is the lowest
@@ -93,14 +97,15 @@ double  getDeltaTimeSwap(UID pos1, UID pos2) const {
 	nidPrev=path[pos1-1].getnid();
 	nid1=path[pos1].getnid();
 	nid2=path[pos2].getnid(); 
-	nidNext=path[pos2+1].getnid();
+	if (pos2!=size()) nidNext=path[pos2+1].getnid();
         //newpath looks: nidPrev nid2 nid1, nidNext
 	if ( path[pos1-1].getDepartureTime() + TravelTime[nidPrev][nid2] > path[pos2].closes() ) return _MAX();
 	if ( path[pos1-1].getDepartureTime() + TravelTime[nidPrev][nid2] +  TravelTime[nid2][nid1] > path[pos1].closes() ) return _MAX();
-	if ( path[pos1-1].getDepartureTime() + TravelTime[nidPrev][nid2] +  TravelTime[nid2][nid1] + TravelTime[nid1][nidNext] > path[pos2+1].closes() ) return _MAX();
         //locally we are ok...  
-        delta =   TravelTime[nidPrev][nid2] +  TravelTime[nid2][nid1] + TravelTime[nid1][nidNext] 
-           		- ( TravelTime[nidPrev][nid1] +  TravelTime[nid1][nid2] + TravelTime[nid2][nidNext] );
+        delta =   TravelTime[nidPrev][nid2] +  TravelTime[nid2][nid1]  
+           		- ( TravelTime[nidPrev][nid1] +  TravelTime[nid1][nid2]) ;
+        if (pos2!=size()-1) delta+=  TravelTime[nid2][nidNext] - TravelTime[nid1][nidNext] ;
+
         if (pos2+1 < size() and deltaGeneratesTV(delta,pos2+1)) return _MAX();
 	return delta;
      }
@@ -112,14 +117,14 @@ double  getDeltaTimeSwap(UID pos1, UID pos2) const {
      prev2=path[pos2-1].getnid();
      nid2=path[pos2].getnid(); 
  
-     if ( path[pos1-1].getDepartureTime() + TravelTime[prev1][nid2] > path[nid2].closes() ) return _MAX();
+     if ( path[pos1-1].getDepartureTime() + TravelTime[prev1][nid2] > path[pos2].closes() ) return _MAX();
      if ( path[pos1-1].getDepartureTime() + TravelTime[prev1][nid2] + TravelTime[nid2][next1] > path[pos1+1].closes() ) return _MAX();
      delta =  TravelTime[prev1][nid2] +   TravelTime[nid2][next1]
                         - ( TravelTime[prev1][nid1] +  TravelTime[nid1][next1] );
 
      if (deltaGeneratesTVupTo(delta,pos1+1,pos2-1)) return _MAX();
 
-     if ( path[pos2-1].getDepartureTime() + delta + TravelTime[prev2][nid1] > path[nid1].closes() ) return _MAX();
+     if ( path[pos2-1].getDepartureTime() + delta + TravelTime[prev2][nid1] > path[pos1].closes() ) return _MAX();
      if ( pos2 != size()-1 and (path[pos2-1].getDepartureTime() + delta + TravelTime[prev2][nid1] + TravelTime[nid1][next2] > path[pos2+1].closes() )) return _MAX();
 
      
