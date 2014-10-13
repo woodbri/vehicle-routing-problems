@@ -45,7 +45,6 @@ void Neighborhoods::applyMove(const Move& m)  {
             }
             break;
     }
-    computeCosts();
 }
 
 
@@ -288,6 +287,20 @@ void Neighborhoods::getInterSwNeighborhood(std::deque<Move>& moves)  const {
 
 
 ////////////////////VIcky's part of the file
+void Neighborhoods::v_getIntraSwNeighborhood(std::deque<Move>& moves, double factor)  const {
+    moves.clear();
+
+    // iterate through each vehicle (vi)
+    for (int truckPos=0; truckPos<fleet.size(); truckPos++) {
+
+        for (int fromPos=1; fromPos<fleet[truckPos].size(); fromPos++) {
+		if(fleet[truckPos][fromPos].isdump()) continue;   // skiping dump
+
+		fleet[truckPos].eval_intraSwapMoveDumps( moves,  truckPos, fromPos, factor); 
+        }
+    }
+}
+
 
 void Neighborhoods::v_getInterSwNeighborhood(std::deque<Move>& moves, double factor)  const {
     assert (feasable());
@@ -344,3 +357,28 @@ bool Neighborhoods::applyInsMove( const Move &move) {
 	assert( fleet[ move.getInsToTruck() ].feasable() );
 	return (fleet[ move.getInsFromTruck() ].feasable() and  fleet[ move.getInsToTruck() ].feasable() );
 }
+// 2 vehicles involved
+bool Neighborhoods::applyInterSwMove( const Move &move) {
+	assert(move.getmtype() == Move::InterSw);
+	assert(not (move.getInterSwTruck1()==move.getInterSwTruck2()));
+	assert(fleet[move.getInterSwTruck1()][ move.getpos1()].getnid()  == move.getnid1() );
+	assert(fleet[move.getInterSwTruck2()][ move.getpos2()].getnid()  == move.getnid2() );
+	
+	fleet[move.getInterSwTruck1()].applyMoveInterSw( fleet[move.getInterSwTruck2()],  move.getpos1(),move.getpos2() )  ;
+
+	assert( fleet[ move.getInterSwTruck1() ].feasable() );
+	assert( fleet[ move.getInterSwTruck2() ].feasable() );
+	return (fleet[ move.getInterSwTruck1() ].feasable() and  fleet[ move.getInterSwTruck2() ].feasable() );
+}
+
+//1 vehichle involved
+bool Neighborhoods::applyIntraSwMove( const Move &move) {
+        assert(move.getmtype() == Move::IntraSw);
+        assert(fleet[move.getIntraSwTruck()][ move.getpos1()].getnid()  == move.getnid1() );
+        assert(fleet[move.getIntraSwTruck()][ move.getpos2()].getnid()  == move.getnid2() );
+
+        fleet[move.getIntraSwTruck()].applyMoveIntraSw(  move.getpos1(),move.getpos2() )  ;
+
+        assert( fleet[ move.getIntraSwTruck() ].feasable() );
+        return (fleet[ move.getIntraSwTruck() ].feasable()) ;
+}  

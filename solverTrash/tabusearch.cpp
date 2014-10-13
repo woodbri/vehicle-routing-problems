@@ -295,8 +295,8 @@ std::cout<<"Entering TabuSearch::v_search() \n";
         // set the stagnation count as the last the last parameter
         // thhe values 500, 300, 300 can from the paper mentioned above
         madeChanges = //v_doNeighborhoodMoves(Ins,     500);
-                //  v_doNeighborhoodMoves(IntraSw, 300);
-                  v_doNeighborhoodMoves(InterSw, 300);
+                  v_doNeighborhoodMoves(IntraSw, 300);
+                //  v_doNeighborhoodMoves(InterSw, 300);
 		assert(true==false);
     }
     while (madeChanges and ++currentIteration < maxIteration);
@@ -333,14 +333,14 @@ std::cout<<"TabuSearch::v_doNeighborhoodMoves 1\n";
 std::cout<<"TabuSearch::v_doNeighborhoodMoves >> \n"<<setOfInsMoves.size()<<"moves found";
 		assert(true==false);
                 break;
-            case IntraSw:
-                currentSolution.v_getIntraSwNeighborhood(neighborhood);
+*/            case IntraSw:
+                currentSolution.v_getIntraSwNeighborhood(neighborhood,factor);
 	assert(true==false);
                 break;
-*/            case InterSw:
+/*            case InterSw:
                 currentSolution.v_getInterSwNeighborhood(neighborhood,factor);
                 break;
-        }
+*/        }
 
         // and sort it so we can work from the best to the worst
         std::sort(neighborhood.begin(), neighborhood.end(), Move::bySavings);

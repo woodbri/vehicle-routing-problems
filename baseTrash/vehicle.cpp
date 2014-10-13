@@ -14,6 +14,111 @@
 #include "vehicle.h"
 #include "basevehicle.h"
 
+long int Vehicle::eval_intraSwapMoveDumps( std::deque<Move> &moves, int  truckPos, int fromPos,  double factor) const {
+#ifdef TESTED
+std::cout<<"Entering Vehicle::eval_intraSwapMoveDumps \n";
+#endif
+        if ( path[fromPos].isdump() ) return moves.size();
+        double originalCost= cost;
+        double newCost;
+	double deltaTravelTime;
+	double newCargoAtNearestFromPosDump,newCargoAtCurrentNearestDump ; 
+	int moveDumpsFrom;
+	int currentNearestDumpPos;
+
+        Trashnode node = path[fromPos]; //saved for roll back
+        Vehicle truck = (*this);
+        std::deque<int> unTestedPos;
+        std::deque<int> impossiblePos;
+        std::deque<int> dumpsPos;
+        int currentPos;
+	Trashnode fromPosNearestDump;
+        bool foundFromPosNearestDump=false;
+	bool foundCurrentNearestDump;
+
+        for ( int i=fromPos+1; i<size(); i++) {
+                if ( not path[i].isdump() ) unTestedPos.push_back(i); //cant swap with a dump
+		if (path[i].isdump() and not foundFromPosNearestDump) {
+			dumpsPos.push_back(i);
+			foundFromPosNearestDump=true;
+		}
+        }
+
+	if (foundFromPosNearestDump==false){
+		fromPosNearestDump = path[size()-1];   //the last node info can be used as the dumpfor CV
+		fromPosNearestDump.setDemand( - fromPosNearestDump.getdemand() );
+	} else fromPosNearestDump= path[ dumpsPos[0] ];
+
+        while (unTestedPos.size()) {
+             currentPos=unTestedPos.front();
+             unTestedPos.pop_front();
+	     deltaTravelTime = path.getDeltaTimeSwap( fromPos, currentPos) ;
+	     if (deltaTravelTime==_MAX()) {
+		impossiblePos.push_back(currentPos);
+		continue;
+	     };
+		//no TWV now to check for dump moving
+	     newCost=originalCost+deltaTravelTime;
+	     if ( path[fromPos].getdemand()  == path[currentPos].getdemand() or foundFromPosNearestDump==false) { //no need to move dumps
+                	Move move(Move::IntraSw , node.getnid(), path[currentPos].getnid() ,  truckPos , truckPos ,  fromPos, currentPos, (originalCost-newCost)   );
+                	moves.push_back(move);
+#ifndef TESTED
+move.dump();
+std::cout<<"origina cost"<<originalCost<<"\t new cost"<< newCost;
+std::cout<<"\n";
+#endif
+			continue;
+	     };
+		
+	     if ( currentPos < dumpsPos[0] ) { //they share the same dump, no need to move dumps
+                	Move move(Move::IntraSw , node.getnid(), path[currentPos].getnid() ,  truckPos , truckPos ,  fromPos, currentPos, (originalCost-newCost)   );
+                	moves.push_back(move);
+#ifdef TESTED
+move.dump();
+std::cout<<"origina cost"<<originalCost<<"\t new cost"<< newCost;
+std::cout<<"\n";
+#endif
+			continue;
+             }
+
+	     newCargoAtNearestFromPosDump = fromPosNearestDump.getdemand() - path[currentPos].getdemand() + node.getdemand();
+	     moveDumpsFrom =-1;
+
+	     if ( - newCargoAtNearestFromPosDump>maxcapacity) moveDumpsFrom=fromPos;
+	     else {
+                foundCurrentNearestDump=false;
+		for ( int i=1;i < dumpsPos.size(); i++) {
+                    if (currentPos < dumpsPos[i] and not foundFromPosNearestDump) {
+                        currentNearestDumpPos=i;
+                        foundCurrentNearestDump=true;
+			break;
+                    }
+		}
+		if ( foundCurrentNearestDump )
+			newCargoAtCurrentNearestDump = path[currentNearestDumpPos].getdemand() - node.getdemand() + path[currentPos].getdemand();
+		else 
+			newCargoAtCurrentNearestDump = - path[size()-1].getcargo() - node.getdemand() + path[currentPos].getdemand();
+		if (newCargoAtCurrentNearestDump > maxcapacity ) moveDumpsFrom=currentPos;
+	     }
+
+	     if (moveDumpsFrom==-1) { //no CV
+                	Move move(Move::IntraSw , node.getnid(), path[currentPos].getnid() ,  truckPos , truckPos ,  fromPos, currentPos, (originalCost-newCost)   );
+                	moves.push_back(move);
+#ifdef TESTED
+move.dump();
+std::cout<<"origina cost"<<originalCost<<"\t new cost"<< newCost;
+std::cout<<"\n";
+#endif
+			continue;
+             }
+	     //dump moving is requiered here
+	     assert ("Vehicle::intraSwapMoveDumps  move dumps part need implementation"=="");
+
+        }
+        return moves.size();
+}
+
+
 // from the second truck point of view
 long int Vehicle::eval_interSwapMoveDumps( std::deque<Move> &moves, const Vehicle &other,int  truckPos,int  otherTruckPos, int fromPos,  double factor) const {
 #ifdef TESTED
@@ -54,11 +159,13 @@ std::cout<<"Entering Vehicle::eval_interSwapMoveDumps \n";
 
                 Move move(Move::InterSw , node.getnid(), otherTruck.path[currentPos].getnid() ,  truckPos , otherTruckPos ,  fromPos, currentPos, (originalCost-newCost)   );
                 moves.push_back(move);
+
+#ifdef TESTED
 move.dump();
 std::cout<<"cost"<<cost<<"\tother.cost"<< other.cost;
 std::cout<<"\ttruck.cost"<<truck.cost<<"\totherTruck.cost"<< otherTruck.cost;
 std::cout<<"\n";
-
+#endif
 
              }
         }
@@ -171,7 +278,7 @@ std::cout<<"Entering Vehicle::applyMoveINSerasePart\n";
 	if (not (path[pos].getnid()==nodeNid))  return false;
         path.erase(pos);
         e_makeFeasable( pos );
-        evalLast();
+        // evalLast(); done in make feasable
         assert ( feasable() );
         return feasable();
 }
@@ -183,9 +290,36 @@ std::cout<<"Entering Vehicle::applyMoveINSinsertPart\n";
 #endif
 	path.insert(node,pos);
 	e_makeFeasable( pos );
-	evalLast();
+	//evalLast(); makeFeasable alredy does it
 	assert ( feasable() );
 	return feasable();
+}
+
+bool Vehicle::applyMoveInterSw(Vehicle &otherTruck,int truckPos, int otherTruckPos) {
+#ifndef TESTED
+std::cout<<"Entering Vehicle::applyMoveIntraSw\n";
+#endif
+	path.swap( truckPos,  otherTruck.path, otherTruckPos);
+        e_makeFeasable( truckPos );
+        otherTruck.e_makeFeasable( otherTruckPos );
+
+        //evalLast();
+        //otherTruck.evalLast();
+
+        assert ( feasable() );
+        assert ( otherTruck.feasable() );
+        return feasable() and otherTruck.feasable();
+}
+
+bool Vehicle::applyMoveIntraSw(int  fromPos, int withPos) {
+#ifndef TESTED
+std::cout<<"Entering Vehicle::applyMoveInterSw\n";
+#endif
+        path.swap( fromPos,  withPos);
+        e_makeFeasable( std::min(fromPos,withPos) );
+        //evalLast(); done in makeFeasable
+        assert ( feasable() );
+        return feasable() ;
 }
 	
 
