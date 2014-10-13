@@ -21,10 +21,10 @@ std::cout<<"Entering Vehicle::eval_intraSwapMoveDumps \n";
         if ( path[fromPos].isdump() ) return moves.size();
         double originalCost= cost;
         double newCost;
-	double deltaTravelTime;
-	double newCargoAtNearestFromPosDump,newCargoAtCurrentNearestDump ; 
-	int moveDumpsFrom;
-	int currentNearestDumpPos;
+        double deltaTravelTime;
+        double newCargoAtNearestFromPosDump,newCargoAtCurrentNearestDump ; 
+        int moveDumpsFrom;
+        int currentNearestDumpPos;
 
         Trashnode node = path[fromPos]; //saved for roll back
         Vehicle truck = (*this);
@@ -32,36 +32,43 @@ std::cout<<"Entering Vehicle::eval_intraSwapMoveDumps \n";
         std::deque<int> impossiblePos;
         std::deque<int> dumpsPos;
         int currentPos;
-	Trashnode fromPosNearestDump;
+        Trashnode fromPosNearestDump;
         bool foundFromPosNearestDump=false;
-	bool foundCurrentNearestDump;
+        bool foundCurrentNearestDump;
 
         for ( int i=fromPos+1; i<size(); i++) {
                 if ( not path[i].isdump() ) unTestedPos.push_back(i); //cant swap with a dump
-		if (path[i].isdump() and not foundFromPosNearestDump) {
-			dumpsPos.push_back(i);
-			foundFromPosNearestDump=true;
-		}
+            if (path[i].isdump() and not foundFromPosNearestDump) {
+                dumpsPos.push_back(i);
+                foundFromPosNearestDump=true;
+            }
         }
 
-	if (foundFromPosNearestDump==false){
-		fromPosNearestDump = path[size()-1];   //the last node info can be used as the dumpfor CV
-		fromPosNearestDump.setDemand( - fromPosNearestDump.getdemand() );
-	} else fromPosNearestDump= path[ dumpsPos[0] ];
+        if (foundFromPosNearestDump==false){
+            fromPosNearestDump = path[size()-1];   //the last node info can be used as the dumpfor CV
+            fromPosNearestDump.setDemand( - fromPosNearestDump.getdemand() );
+        } else fromPosNearestDump= path[ dumpsPos[0] ];
 
         while (unTestedPos.size()) {
-             currentPos=unTestedPos.front();
-             unTestedPos.pop_front();
-	     deltaTravelTime = path.getDeltaTimeSwap( fromPos, currentPos) ;
-	     if (deltaTravelTime==_MAX()) {
-		impossiblePos.push_back(currentPos);
-		continue;
-	     };
-		//no TWV now to check for dump moving
-	     if ( path[fromPos].getdemand()  == path[currentPos].getdemand() or foundFromPosNearestDump==false) { //no need to move dumps
-
-                	Move move(Move::IntraSw , node.getnid(), path[currentPos].getnid() ,  truckPos , truckPos ,  fromPos, currentPos, (- deltaTravelTime )   );
-                	moves.push_back(move);
+            currentPos=unTestedPos.front();
+            unTestedPos.pop_front();
+            deltaTravelTime = path.getDeltaTimeSwap( fromPos, currentPos) ;
+            if (deltaTravelTime==_MAX()) {
+                impossiblePos.push_back(currentPos);
+                continue;
+            };
+            //no TWV now to check for dump moving
+            if ( path[fromPos].getdemand()  == path[currentPos].getdemand() or
+                    foundFromPosNearestDump==false) { //no need to move dumps
+                Move move(Move::IntraSw,
+                          node.getnid(),
+                          path[currentPos].getnid(),
+                          truckPos,
+                          truckPos,
+                          fromPos,
+                          currentPos,
+                          (- deltaTravelTime )   );
+                moves.push_back(move);
 #ifndef TESTED
 if (node.getnid()== 138 or node.getnid()== 148) {
 move.dump();
@@ -76,55 +83,69 @@ truck.applyMoveIntraSw(fromPos,currentPos);
 truck.plot(carnum+"zafter","zintraSwp",currentPos);
 }
 #endif
-			continue;
-	     };
-		
-	     if ( currentPos < dumpsPos[0] ) { //they share the same dump, no need to move dumps
-                	Move move(Move::IntraSw , node.getnid(), path[currentPos].getnid() ,  truckPos , truckPos ,  fromPos, currentPos, (originalCost-newCost)   );
-                	moves.push_back(move);
+                continue;
+            };
+
+            if ( currentPos < dumpsPos[0] ) { //they share the same dump, no need to move dumps
+                Move move(Move::IntraSw,
+                          node.getnid(),
+                          path[currentPos].getnid(),
+                          truckPos,
+                          truckPos,
+                          fromPos,
+                          currentPos,
+                          (originalCost-newCost)   );
+                moves.push_back(move);
 #ifdef TESTED
 move.dump();
 std::cout<<"origina cost"<<originalCost<<"\t new cost"<< newCost;
 std::cout<<"\n";
 #endif
-			continue;
-             }
+                continue;
+            }
 
-	     newCargoAtNearestFromPosDump = fromPosNearestDump.getdemand() - path[currentPos].getdemand() + node.getdemand();
-	     moveDumpsFrom =-1;
+            newCargoAtNearestFromPosDump = fromPosNearestDump.getdemand() - path[currentPos].getdemand() + node.getdemand();
+            moveDumpsFrom =-1;
 
-	     if ( - newCargoAtNearestFromPosDump>maxcapacity) moveDumpsFrom=fromPos;
-	     else {
+            if ( - newCargoAtNearestFromPosDump>maxcapacity) moveDumpsFrom=fromPos;
+            else {
                 foundCurrentNearestDump=false;
-		for ( int i=1;i < dumpsPos.size(); i++) {
+                for ( int i=1;i < dumpsPos.size(); i++) {
                     if (currentPos < dumpsPos[i] and not foundFromPosNearestDump) {
                         currentNearestDumpPos=i;
                         foundCurrentNearestDump=true;
-			break;
+                        break;
                     }
-		}
-		if ( foundCurrentNearestDump )
-			newCargoAtCurrentNearestDump = path[currentNearestDumpPos].getdemand() - node.getdemand() + path[currentPos].getdemand();
-		else 
-			newCargoAtCurrentNearestDump = - path[size()-1].getcargo() - node.getdemand() + path[currentPos].getdemand();
-		if (newCargoAtCurrentNearestDump > maxcapacity ) moveDumpsFrom=currentPos;
-	     }
+                }
+                if ( foundCurrentNearestDump )
+                    newCargoAtCurrentNearestDump = path[currentNearestDumpPos].getdemand() - node.getdemand() + path[currentPos].getdemand();
+                else 
+                    newCargoAtCurrentNearestDump = - path[size()-1].getcargo() - node.getdemand() + path[currentPos].getdemand();
+                if (newCargoAtCurrentNearestDump > maxcapacity ) moveDumpsFrom=currentPos;
+            }
 
-	     if (moveDumpsFrom==-1) { //no CV
-                	Move move(Move::IntraSw , node.getnid(), path[currentPos].getnid() ,  truckPos , truckPos ,  fromPos, currentPos, (originalCost-newCost)   );
-                	moves.push_back(move);
+            if (moveDumpsFrom==-1) { //no CV
+                Move move(Move::IntraSw,
+                          node.getnid(),
+                          path[currentPos].getnid(),
+                          truckPos,
+                          truckPos,
+                          fromPos,
+                          currentPos,
+                          (originalCost-newCost)   );
+                moves.push_back(move);
 #ifdef TESTED
 move.dump();
 std::cout<<"origina cost"<<originalCost<<"\t new cost"<< newCost;
 std::cout<<"\n";
 #endif
-			continue;
-             }
-	     //dump moving is requiered here
-	     assert ("Vehicle::intraSwapMoveDumps  move dumps part need implementation"=="");
+                continue;
+            }
+        //dump moving is requiered here
+        assert ("Vehicle::intraSwapMoveDumps  move dumps part need implementation"=="");
 
-        }
-        return moves.size();
+    }
+    return moves.size();
 }
 
 
@@ -305,7 +326,7 @@ std::cout<<"Entering Vehicle::applyMoveINSinsertPart\n";
 }
 
 bool Vehicle::applyMoveInterSw(Vehicle &otherTruck,int truckPos, int otherTruckPos) {
-#ifndef TESTED
+#ifdef TESTED
 std::cout<<"Entering Vehicle::applyMoveIntraSw\n";
 #endif
 	path.swap( truckPos,  otherTruck.path, otherTruckPos);
@@ -321,7 +342,7 @@ std::cout<<"Entering Vehicle::applyMoveIntraSw\n";
 }
 
 bool Vehicle::applyMoveIntraSw(int  fromPos, int withPos) {
-#ifndef TESTED
+#ifdef TESTED
 std::cout<<"Entering Vehicle::applyMoveInterSw\n";
 #endif
         path.swap( fromPos,  withPos);
