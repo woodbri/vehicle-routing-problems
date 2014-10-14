@@ -1,13 +1,16 @@
 
-
+#include "trashstats.h"
 #include "neighborhoods.h"
 
 
 // apply valid and feasable move to the current solution (this)
 void Neighborhoods::applyMove(const Move& m)  {
+    if (m.getsavings() < 0)
+        STATS->inc("neg savings applied");
     switch (m.getmtype()) {
         case Move::Ins:
             {
+                if (m.getsavings() < 0) STATS->inc("neg sav Ins applied");
 #ifndef STEVE_OLD
                 //aplyInsMove already does an asertion at the end
                 applyInsMove( m );
@@ -30,6 +33,7 @@ void Neighborhoods::applyMove(const Move& m)  {
             break;
         case Move::IntraSw:
             {
+                if (m.getsavings() < 0) STATS->inc("neg sav IntraSw applied");
                 //Vehicle& v1 = fleet[m.getvid1()];
                 //v1.swap(m.getpos1(), m.getpos2());
                 applyIntraSwMove( m );
@@ -38,6 +42,7 @@ void Neighborhoods::applyMove(const Move& m)  {
             break;
         case Move::InterSw:
             {
+                if (m.getsavings() < 0) STATS->inc("neg sav InterSw applied");
                 //Vehicle& v1 = fleet[m.getvid1()];
                 //Vehicle& v2 = fleet[m.getvid2()];
                 //v1.swap(v2, m.getpos1(), m.getpos2());

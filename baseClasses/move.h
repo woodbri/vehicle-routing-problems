@@ -70,6 +70,7 @@ class Move {
     void setsavings(double save) { savings = save; };
 
     static bool bySavings(const Move& a, const Move& b) { return a.getsavings()>b.getsavings(); };
+    static bool bySavingsA(const Move& a, const Move& b) { return a.getsavings()<b.getsavings(); };
 
     int getInsFromTruck() const { assert(mtype==Move::Ins); return vid1; };
     int getInsToTruck() const { assert(mtype==Move::Ins); return vid2; };
