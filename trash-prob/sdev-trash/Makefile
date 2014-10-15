@@ -83,9 +83,9 @@ test: ./bin/trash ./montevideo/muni-b.containers.txt ./montevideo/muni-b.otherlo
 valgrind: ./bin/trash ./montevideo/muni-b.containers.txt ./montevideo/muni-b.otherlocs.txt ./montevideo/muni-b.dmatrix-time.txt ./montevideo/muni-b.vehicles.txt
 	valgrind -v --track-origins=yes --leak-check=full ./bin/trash montevideo/muni-b
 
-callgrind-8: ./bin/trash ./montevideo/muni-b.containers.txt ./montevideo/muni-b.otherlocs.txt ./montevideo/muni-b.dmatrix-time.txt ./montevideo/muni-b.vehicles.txt
-	valgrind --tool=callgrind --callgrind-out-file=callgrind-008.out ./bin/trash montevideo/muni-b
-	callgrind_annotate callgrind-8.out | tee callgrind-8.txt
+callgrind-8: ./bin/trash ./montevideo/muni-b.*
+	valgrind --tool=callgrind --callgrind-out-file=logs/callgrind-008.out ./bin/trash montevideo/muni-b
+	callgrind_annotate logs/callgrind-008.out | tee logs/callgrind-008.txt
 
 
 .PHONY: clean
