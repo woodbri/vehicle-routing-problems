@@ -488,19 +488,19 @@ void loadAndProcess_distance(std::string infile, const Bucket &datanodes, const 
     assert(datanodes.size());
     original.clear();
     original=datanodes;
-    int size=original.size();
+    int siz=original.size();
 
     std::ifstream in( infile.c_str() );
     std::string line;
     int fromId;
     int toId;
 
-    travel_Time.resize(size);
-    for (int i=0;i<size;i++)
-        travel_Time[i].resize(size);
+    travel_Time.resize(siz);
+    for (int i=0;i<siz;i++)
+        travel_Time[i].resize(siz);
     //travel_Time default value is 250m/min
-    for (int i=0;i<size;i++)
-       for (int j=i;j<size;j++) {
+    for (int i=0;i<siz;i++)
+       for (int j=i;j<siz;j++) {
 //std::cout<<"Dist"<< i <<" to " << j<<" = "<<(original[i].distance(original[j])/250)<<"\n";
           if (i==j) travel_Time[i][i]=0;
           else travel_Time[i][j]=travel_Time[j][i]=original[i].distance(original[j])/250;
@@ -509,6 +509,7 @@ void loadAndProcess_distance(std::string infile, const Bucket &datanodes, const 
 //dumpTravelTime();
 
 
+std::cout<<siz<<"<---- size\n";
     int from,to;
     double time;
     int cnt = 0;
@@ -521,9 +522,9 @@ void loadAndProcess_distance(std::string infile, const Bucket &datanodes, const 
         buffer >> to;
         buffer >> time;
         if ( invalid.hasId(from) or invalid.hasId(to) ) continue;
-
         fromId= getNidFromId(from);
         toId=getNidFromId(to);
+	if (fromId==-1 or toId==-1) continue;
         travel_Time[fromId][toId]=time;
     }
     in.close();

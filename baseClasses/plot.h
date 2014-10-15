@@ -169,7 +169,7 @@ public:
             // label the nodes if requested
             if (label) {
                 char str[80];
-                sprintf(str, "%d", a.getnid());
+                sprintf(str, "%d", a.getid());
                 gdImageStringFT(im, NULL, 0x00000000, (char*) font.c_str(), 6, 0,
                                 scalex(a.getx()), scaley(a.gety())-5, str);
             }
@@ -235,7 +235,7 @@ public:
 
         if (label) {
             char str[80];
-            sprintf(str, "%d", a.getnid());
+            sprintf(str, "%d", a.getid());
             gdImageStringFT(im, NULL, 0x00000000, (char *)font.c_str(), 6, 0,
                                 scalex(a.getx()), scaley(a.gety())-5, str);
         }
