@@ -17,7 +17,7 @@
 #include "twnode.h"
 #include "trashnode.h"
 #include "twpath.h"
-#include "feasableSol.h"
+#include "feasableSolLoop.h"
 #include "tabusearch.h"
 
 
@@ -50,7 +50,7 @@ int main(int argc, char **argv) {
                   << "       plotFontFile: " << CONFIG->plotFontFile << std::endl
                   << std::endl;
        
-        FeasableSol tp(infile);
+        FeasableSolLoop tp(infile);
         //tp.dump();
 
         STATS->set("zzFeasableSol time", starttime.duration());
