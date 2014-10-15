@@ -40,9 +40,15 @@ void FeasableSolLoop::stepOneLoop(Vehicle &truck) {
                 fleet.push_back(truck);
 truck.plot("Feasable-","",truck.getVid());
 
-                truck=unusedTrucks[0];
-                unusedTrucks.erase(unusedTrucks.begin());
-                usedTrucks.push_back(truck);
+                if (unusedTrucks.size()) {
+                    truck=unusedTrucks[0];
+                    unusedTrucks.erase(unusedTrucks.begin());
+                    usedTrucks.push_back(truck);
+                }
+                else {
+                    std::cout << "No more trucks available. unassigned containers: " << unassigned.size() << std::endl;
+                    return;
+                }
 
             } else {
                 assigned.push_back(bestNode);
