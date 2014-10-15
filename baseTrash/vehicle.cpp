@@ -14,6 +14,58 @@
 #include "vehicle.h"
 #include "basevehicle.h"
 
+
+// from the second truck point of view
+long int Vehicle::eval_intraSwapMoveDumps( std::deque<Move> &moves, int  truckPos, int fromPos,  double factor) const {
+#ifdef TESTED
+std::cout<<"Entering Vehicle::eval_interSwapMoveDumps \n";
+#endif
+
+        if ( path[fromPos].isdump() ) return moves.size();
+        double originalCost= cost ;
+        double newCost;
+
+        Trashnode node = path[fromPos]; //saved for roll back
+        Vehicle truck = (*this);
+        std::deque<int> unTestedPos;
+        std::deque<int> impossiblePos;
+        int currentPos,testingPos;
+
+        for ( int i=fromPos+1; i<size(); i++)
+                if ( not path[i].isdump() ) unTestedPos.push_back(i); //cant swap with a dump
+
+        while (unTestedPos.size()) {
+             currentPos=unTestedPos.back();
+             unTestedPos.pop_back();
+
+             truck.path[fromPos]=truck.path[currentPos]; //swaping
+             truck.path[currentPos]=node;
+
+             if ( not truck.e_makeFeasable(currentPos) ) {
+                impossiblePos.push_back(currentPos);
+                if ( path.size()*factor > impossiblePos.size() ) return moves.size();
+             } else {
+                assert ( truck.feasable() );
+                newCost = truck.cost ; //deltaCost= newCost - originalCost
+
+                truck.path[currentPos] = truck.path[fromPos];
+                //truck.path[frompPos] will get another value so no need to roll back
+
+                Move move(Move::IntraSw, node.getnid(), path[currentPos].getnid(), truckPos, truckPos, fromPos, currentPos, (originalCost-newCost)   );
+                moves.push_back(move);
+
+#ifdef TESTED
+move.dump();
+std::cout<<"cost"<<cost<<"\tother.cost"<< other.cost;
+std::cout<<"\ttruck.cost"<<truck.cost<<"\totherTruck.cost"<< otherTruck.cost;
+std::cout<<"\n";
+#endif
+
+             }
+        }
+        return moves.size();
+}
+/*
 long int Vehicle::eval_intraSwapMoveDumps( std::deque<Move> &moves, int  truckPos, int fromPos,  double factor) const {
 #ifdef TESTED
 std::cout<<"Entering Vehicle::eval_intraSwapMoveDumps \n";
@@ -69,7 +121,7 @@ std::cout<<"Entering Vehicle::eval_intraSwapMoveDumps \n";
                           currentPos,
                           (- deltaTravelTime )   );
                 moves.push_back(move);
-#ifndef TESTED
+#ifdef TESTED
 if (node.getnid()== 138 or node.getnid()== 148) {
 move.dump();
 std::cout<<"origina cost"<<originalCost<<"\t deltaTravelTime "<<  deltaTravelTime;
@@ -87,14 +139,7 @@ truck.plot(carnum+"zafter","zintraSwp",currentPos);
             };
 
             if ( currentPos < dumpsPos[0] ) { //they share the same dump, no need to move dumps
-                Move move(Move::IntraSw,
-                          node.getnid(),
-                          path[currentPos].getnid(),
-                          truckPos,
-                          truckPos,
-                          fromPos,
-                          currentPos,
-                          (originalCost-newCost)   );
+                Move move(Move::IntraSw, node.getnid(), path[currentPos].getnid(), truckPos, truckPos, fromPos, currentPos, (originalCost-newCost)   );
                 moves.push_back(move);
 #ifdef TESTED
 move.dump();
@@ -147,7 +192,7 @@ std::cout<<"\n";
     }
     return moves.size();
 }
-
+*/
 
 // from the second truck point of view
 long int Vehicle::eval_interSwapMoveDumps( std::deque<Move> &moves, const Vehicle &other,int  truckPos,int  otherTruckPos, int fromPos,  double factor) const {
@@ -346,7 +391,7 @@ bool Vehicle::applyMoveIntraSw(int  fromPos, int withPos) {
 std::cout<<"Entering Vehicle::applyMoveInterSw\n";
 #endif
         path.swap( fromPos,  withPos);
-        e_makeFeasable( std::min(fromPos,withPos) );
+        if (not e_makeFeasable( std::min(fromPos,withPos) ) ) return false;
         //evalLast(); done in makeFeasable
         assert ( feasable() );
         return feasable() ;
