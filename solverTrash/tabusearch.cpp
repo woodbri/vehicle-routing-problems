@@ -196,8 +196,8 @@ std::cout << "\tdoNeighborhoodMoves for Ins: " << neighborhood.size()
                 break;
             case IntraSw:
                 ++currentIterationIntraSw;
-                //currentSolution.v_getIntraSwNeighborhood(neighborhood, factor);
-                currentSolution.getIntraSwNeighborhood(neighborhood);
+                currentSolution.v_getIntraSwNeighborhood(neighborhood, factor);
+                //currentSolution.getIntraSwNeighborhood(neighborhood);
 
                 // collect stats
                 STATS->addto("time Gen IntraSw", timeNeighboorhoodGeneration.duration());

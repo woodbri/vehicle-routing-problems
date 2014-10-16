@@ -53,6 +53,7 @@ int main(int argc, char **argv) {
         FeasableSolLoop tp(infile);
         //tp.dump();
 
+        std::cout << "FeasableSol time: " << starttime.duration() << std::endl;
         STATS->set("zzFeasableSol time", starttime.duration());
 
         tp.computeCosts();
