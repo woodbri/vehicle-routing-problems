@@ -7,13 +7,13 @@
 class Neighborhoods : public Solution {
 
 public:
-int cycles;
 
-   //added missing Constructor
   Neighborhoods(const Solution &solution): Solution(solution){
-cycles=0;
+intraTruckPos=0;
+interTruckPos1=0;
+interTruckPos2=1;
  }; 
-//check for constness later
+
     bool isNotFeasible(const Move& m) const ;
     double getMoveSavings(const Move& m) const ;
     void getInsNeighborhood(std::deque<Move>& moves) const ;
@@ -28,6 +28,11 @@ cycles=0;
     bool applyInsMove( const Move &move);
     bool applyIntraSwMove( const Move &move);
     bool applyInterSwMove( const Move &move);
+
+private:
+   mutable int intraTruckPos;
+   mutable int interTruckPos1;
+   mutable int interTruckPos2;
 
 };
 

@@ -299,33 +299,42 @@ void Neighborhoods::v_getIntraSwNeighborhood(std::deque<Move>& moves, double fac
     moves.clear();
 
     // iterate through each vehicle (vi)
-    for (int truckPos=0; truckPos<fleet.size(); truckPos++) {
+    int truckPos=intraTruckPos;
+    if  (intraTruckPos==fleet.size()-1 ) intraTruckPos=0;
+    else intraTruckPos++;
 
-        for (int fromPos=1; fromPos<fleet[truckPos].size()-1; fromPos++) {
-		if(fleet[truckPos][fromPos].isdump()) continue;   // skiping dump
-
-		fleet[truckPos].eval_intraSwapMoveDumps( moves,  truckPos, fromPos, factor); 
-        }
-    }
+std::cout<<"working with truck "<<truckPos<<" intraSw neighborhood\n";
+    fleet[truckPos].eval_intraSwapMoveDumps( moves,  truckPos, 0, factor); 
 }
 
 
 void Neighborhoods::v_getInterSwNeighborhood(std::deque<Move>& moves, double factor)  const {
     assert (feasable());
+    if (not fleet.size())  return;    
+
+    int truckPos=interTruckPos1;
+    int otherTruckPos=interTruckPos2;
+    
+    if  (interTruckPos1==fleet.size()-2 and interTruckPos2==fleet.size()-1) {interTruckPos1=0; interTruckPos2=1;}
+    else if (interTruckPos1<fleet.size()-2 and interTruckPos2==fleet.size()-1) { interTruckPos1++; interTruckPos2=interTruckPos1+1;}
+    else if (interTruckPos2<fleet.size()-1) interTruckPos2++;
+
 
     moves.clear();
+std::cout<<"working with truck "<<truckPos<<" and"<< otherTruckPos<<"interSw neighborhood\n";
+
     // iterate through the vechicles (vi, vj)
-    for (int truckPos=0; truckPos < fleet.size(); truckPos++) {  
-        for (int otherTruckPos =truckPos + 1; otherTruckPos < fleet.size(); otherTruckPos++) { //testNeeded
-            assert (not (truckPos == otherTruckPos) ); 
+//    for (int truckPos=0; truckPos < fleet.size(); truckPos++) {  
+//        for (int otherTruckPos =truckPos + 1; otherTruckPos < fleet.size(); otherTruckPos++) { //testNeeded
+//            assert (not (truckPos == otherTruckPos) ); 
 
             for (int fromPos=1; fromPos<fleet[truckPos].size(); fromPos++) {
 		if(fleet[truckPos][fromPos].isdump()) continue;   // skiping dump
 		
 		fleet[truckPos].eval_interSwapMoveDumps( moves, fleet[otherTruckPos], truckPos, otherTruckPos, fromPos, factor); 
             }
-        }
-    }
+//        }
+//    }
 }
 
 
