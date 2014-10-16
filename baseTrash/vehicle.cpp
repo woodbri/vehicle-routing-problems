@@ -16,20 +16,24 @@
 
 
 // from the second truck point of view
-long int Vehicle::eval_intraSwapMoveDumps( std::deque<Move> &moves, int  truckPos, int fromPos,  double factor) const {
+long int Vehicle::eval_intraSwapMoveDumps( std::deque<Move> &moves, int  truckPos, int fromPo,  double factor) const {
 #ifdef TESTED
 std::cout<<"Entering Vehicle::eval_interSwapMoveDumps \n";
 #endif
 
-        if ( path[fromPos].isdump() ) return moves.size();
         double originalCost= cost ;
         double newCost;
 
-        Trashnode node = path[fromPos]; //saved for roll back
-        Vehicle truck = (*this);
+        Trashnode node; 
+        Vehicle truck ;
         std::deque<int> unTestedPos;
         std::deque<int> impossiblePos;
-        int currentPos,testingPos;
+        int currentPos,testingPos,fromPos;
+
+     for (fromPos=1;fromPos<size();fromPos++) {
+        if ( path[fromPos].isdump() ) continue;
+        node = path[fromPos]; //saved for roll back
+        truck = (*this);
 
         for ( int i=fromPos+1; i<size(); i++)
                 if ( not path[i].isdump() ) unTestedPos.push_back(i); //cant swap with a dump
@@ -53,17 +57,16 @@ std::cout<<"Entering Vehicle::eval_interSwapMoveDumps \n";
 
                 Move move(Move::IntraSw, node.getnid(), path[currentPos].getnid(), truckPos, truckPos, fromPos, currentPos, (originalCost-newCost)   );
                 moves.push_back(move);
-
 #ifdef TESTED
 move.dump();
-std::cout<<"cost"<<cost<<"\tother.cost"<< other.cost;
 std::cout<<"\ttruck.cost"<<truck.cost<<"\totherTruck.cost"<< otherTruck.cost;
 std::cout<<"\n";
 #endif
 
              }
         }
-        return moves.size();
+     }
+     return moves.size();
 }
 /*
 long int Vehicle::eval_intraSwapMoveDumps( std::deque<Move> &moves, int  truckPos, int fromPos,  double factor) const {
