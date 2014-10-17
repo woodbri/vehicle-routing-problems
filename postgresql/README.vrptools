@@ -1,0 +1,34 @@
+
+# vrp_trashCollection()
+
+This function solves a trash collection problem with multiple hetrogeneous
+vehicles that can make multiple runs to a dump. The input is defined in
+four tables ``containers``, ``otherlocs``, ``vehicles``, and ``ttimes``
+that are passed to the function as SQL queries.
+
+This example queries identifies the required column names for each table.
+More detailed information is below.
+
+```
+    SELECT seq, vehicle_id, node_id, node_type, delta_time, cargo
+      FROM vrp_trashCollection(
+        'select id, x, y, open, close, service, demand from containers',
+        'select id, x, y, open, close from otherlocs',
+        'select vid, start_id, dump_id, end_id, capacity, dumpservicetime,
+                starttime, endtime from vehicles',
+        'select from_id, to_id, ttime from ttimes'
+        );
+```
+
+## containers table
+
+
+## otherlocs table
+
+
+## vehicles table
+
+
+## ttimes table
+
+

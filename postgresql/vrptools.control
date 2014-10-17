@@ -1,0 +1,7 @@
+# vrptools extension
+comment = 'Functions to provide Vehicle Routing Problem tools.'
+default_version = '1.0'
+encoding = 'UTF8'
+module_pathname = '$libdir/vrptools-1.0'
+relocatable = true
+
