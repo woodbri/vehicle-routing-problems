@@ -5,7 +5,8 @@
 void TrashProb::addContainers( container_t *containers, int count ) {
     pickups.clear();
     for (int i=0; i<count; ++i) {
-        Trashnode node(...);
+        container_t c = containers[i];
+        Trashnode node(c.id, c.x, c.y, c.open, c.close, c.service, c.demand, c.sid);
         if (node.isvalid()) {
             pickups.push_back(node);
         }
@@ -19,7 +20,8 @@ void TrashProb::addContainers( container_t *containers, int count ) {
 void TrashProb::addOtherlocs( otherloc_t *otherlocs, int count ) {
     otherlocs.clear();
     for (int i=0; i<count; ++i) {
-        Trashnode node(...);
+        otherloc_t c = otherlocs[i];
+        Trashnode node(c.id, c.x, c.y, c.open, c.close, 0, 0, -1);
         if (node.isvalid()) {
             otherlocs.push_back(node);
         }
@@ -72,7 +74,9 @@ void TrashProb::addTtimes( ttime_t *ttimes, int count ) {
 
 void TrashProb::addVehicles( vehicle_t *vehicles, int count ) {
     for (int i=0; i<count; ++i) {
-        Vehicle truck(...);
+        vehicle_t v = vehicles[i];
+        Vehicle truck(v.vid, v.start_id, v.dump_id, v.end_id, v.capacity,
+            v.dumpservicetime, v.starttime, v.endtime, otherlocs);
         if (truck.isvalid()) {
             trucks.push_back(truck);
             depots.push_back(truck.getStartingSite());
