@@ -14,6 +14,11 @@
 #include "node.h"
 #include "twpath.h"
 
+typedef struct _ttime {
+    int from_id;
+    int to_id;
+    double ttime;
+} ttime_t;
 
 template <class knode> class TWC {
 private:
@@ -483,7 +488,44 @@ int setNodes(Bucket _original) {
     assert (original==_original);
     assert (check_integrity());
 }
-     
+
+
+void loadAndProcess_distance(ttime_t *ttimes, int count, const Bucket &datanodes, const Bucket &invalid ) {
+    assert(datanodes.size());
+    original.clear();
+    original=datanodes;
+    int siz=original.size();
+
+    travel_Time.resize(siz);
+    for (int i=0; i<siz; i++)
+        travel_Time[i].resize(siz);
+
+    //travel_Time default value is 250m/min
+    for (int i=0; i<siz; i++)
+        for (int j=i; j<siz; j++) {
+            if (i==j) travel_Time[i][i] = 0;
+            else travel_Time[i][j]=travel_Time[j][i]=original[i].distance(original[j])/250;
+        }
+
+    std::cout << siz << "<---- size\n";
+
+    for (int i=0; i<count; ++i) {
+        int from    = ttimes[i].from_id;
+        int to      = ttimes[i].to_id;
+        double time = ttimes[i].ttime;
+        if ( invalid.hasId(from) or invalid.hasId(to) ) continue;
+        int fromId = getNidFromId(from);
+        int toId = getNidFromId(to);
+        if (fromId == -1 or toId == -1) continue;
+        travel_Time[fromId][toId] = time;
+    }
+
+    twcij_calculate();
+    assert (original==datanodes);
+    assert (check_integrity());
+}
+ 
+
 void loadAndProcess_distance(std::string infile, const Bucket &datanodes, const Bucket &invalid ) {
     assert(datanodes.size());
     original.clear();

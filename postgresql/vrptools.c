@@ -19,6 +19,7 @@ Datum vrp_trash_collection_run(PG_FUNCTION_ARGS);
 #define DEBUG 1
 
 #ifdef DEBUG
+#include <stdio.h>
 #define DBG(format, arg...)                     \
     elog(NOTICE, format , ## arg)
 #else
@@ -426,7 +427,7 @@ static void fetch_ttime(HeapTuple *tuple, TupleDesc *tupdesc,
 
     binval = SPI_getbinval(*tuple, *tupdesc, columns->ttime, &isnull);
     if (isnull) elog(ERROR, "ttime.ttime contains a null value");
-    data->ttime = DatumGetInt32(binval);
+    data->ttime = DatumGetFloat8(binval);
 }
 
 
@@ -733,6 +734,37 @@ static int solve_trash_collection(
 
     DBG("Calling solve_trash_collection_wrapper\n");
 
+#if 0
+    FILE *fh = fopen("/tmp/test.txt", "wb");
+    int i;
+    if (!fh) return -1;
+    fprintf(fh, "------ containers -----\n");
+    for (i=0; i<container_count; i++) {
+        container_t c = containers[i];
+        fprintf(fh, "%d, %.6lf, %.6lf, %d, %d, %d, %d\n",
+            c.id, c.x, c.y, c.open, c.close, c.service, c.demand);
+    }
+    fprintf(fh, "------ otherlocs -----\n");
+    for (i=0; i<otherloc_count; i++) {
+        otherloc_t c = otherlocs[i];
+        fprintf(fh, "%d, %.6lf, %.6lf, %d, %d\n",
+            c.id, c.x, c.y, c.open, c.close);
+    }
+    fprintf(fh, "------ vehicles -----\n");
+    for (i=0; i<vehicle_count; i++) {
+        vehicle_t c = vehicles[i];
+        fprintf(fh, "%d, %d, %d, %d, %d, %d, %d, %d\n",
+            c.vid, c.start_id, c.dump_id, c.end_id, c.capacity,
+            c.dumpservicetime, c.starttime, c.endtime);
+    }
+    fprintf(fh, "------ ttimes -----\n");
+    for (i=0; i<ttime_count; i++) {
+        ttime_t c = ttimes[i];
+        fprintf(fh, "%d, %d, %.6lf\n", c.from_id, c.to_id, c.ttime);
+    }
+    fclose(fh);
+#endif
+
 /*
     ret = vrp_trash_collection(
             containers, container_count,
@@ -744,6 +776,7 @@ static int solve_trash_collection(
     // fake the call for testing purposes
     result = NULL;
     result_count = 0;
+    ret = -1;
 
     DBG("Message received from inside:");
     DBG("%s",err_msg);

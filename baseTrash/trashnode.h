@@ -28,6 +28,7 @@ class Trashnode : public Tweval {
     Trashnode(std::string line);
     ~Trashnode() {};
     Trashnode() : Tweval() { }; 
+    Trashnode(int _id, double _x, double _y, int _open, int _close, int _service, int _demand, int _sid) : Tweval(_id, _x, _y, _open, _close, _service, _demand, _sid) {};
 
 
 //  OLD IDEAS DOWN BELLOW ARE COMMENTED OUT

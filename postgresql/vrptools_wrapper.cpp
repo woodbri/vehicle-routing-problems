@@ -20,8 +20,21 @@ int vrp_trash_collection( container_t *containers, unsigned int container_count,
         TrashProb prob;
         prob.addContainers( containers, container_count );
         prob.addOtherlocs( otherlocs, otherloc_count );
-        prob.addVehicles( vehicles, vehicle_count );
+
+        if (not checkNodesOk()) {
+            std::string err = whatIsWrong();
+            *err_msg = err.c_str();
+            return -1;
+        }
+
         prob.addTtimes( ttimes, ttime_count );
+        prob.addVehicles( vehicles, vehicle_count );
+
+        if (not isValid()) {
+            std::string err = whatIsWrong();
+            *err_msg = err.c_str();
+            return -1;
+        }
 
         FeasableSolLoop tp(prob);
         tp.computeCosts();
