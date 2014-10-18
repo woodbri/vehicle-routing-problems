@@ -385,6 +385,10 @@ static void fetch_vehicle(HeapTuple *tuple, TupleDesc *tupdesc,
     if (isnull) elog(ERROR, "vehicle.start_id contains a null value");
     data->start_id = DatumGetInt32(binval);
 
+    binval = SPI_getbinval(*tuple, *tupdesc, columns->dump_id, &isnull);
+    if (isnull) elog(ERROR, "vehicle.dump_id contains a null value");
+    data->dump_id = DatumGetInt32(binval);
+
     binval = SPI_getbinval(*tuple, *tupdesc, columns->end_id, &isnull);
     if (isnull) elog(ERROR, "vehicle.end_id contains a null value");
     data->end_id = DatumGetInt32(binval);
@@ -738,29 +742,31 @@ static int solve_trash_collection(
     FILE *fh = fopen("/tmp/test.txt", "wb");
     int i;
     if (!fh) return -1;
+    fprintf(fh, "%d %d %d %d\n",
+        container_count, otherloc_count, vehicle_count, ttime_count);
     fprintf(fh, "------ containers -----\n");
     for (i=0; i<container_count; i++) {
         container_t c = containers[i];
-        fprintf(fh, "%d, %.6lf, %.6lf, %d, %d, %d, %d\n",
+        fprintf(fh, "%d %.6lf %.6lf %d %d %d %d\n",
             c.id, c.x, c.y, c.open, c.close, c.service, c.demand);
     }
     fprintf(fh, "------ otherlocs -----\n");
     for (i=0; i<otherloc_count; i++) {
         otherloc_t c = otherlocs[i];
-        fprintf(fh, "%d, %.6lf, %.6lf, %d, %d\n",
+        fprintf(fh, "%d %.6lf %.6lf %d %d\n",
             c.id, c.x, c.y, c.open, c.close);
     }
     fprintf(fh, "------ vehicles -----\n");
     for (i=0; i<vehicle_count; i++) {
         vehicle_t c = vehicles[i];
-        fprintf(fh, "%d, %d, %d, %d, %d, %d, %d, %d\n",
+        fprintf(fh, "%d %d %d %d %d %d %d %d\n",
             c.vid, c.start_id, c.dump_id, c.end_id, c.capacity,
             c.dumpservicetime, c.starttime, c.endtime);
     }
     fprintf(fh, "------ ttimes -----\n");
     for (i=0; i<ttime_count; i++) {
         ttime_t c = ttimes[i];
-        fprintf(fh, "%d, %d, %.6lf\n", c.from_id, c.to_id, c.ttime);
+        fprintf(fh, "%d %d %.6lf\n", c.from_id, c.to_id, c.ttime);
     }
     fclose(fh);
 #endif
