@@ -2,7 +2,7 @@
 #define TRASHPROB_H
 
 #include <string>
-#include <ostringstream>
+#include <sstream>
 
 #include "vrptools.h"
 #include "prob_trash.h"

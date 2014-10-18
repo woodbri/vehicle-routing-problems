@@ -7,6 +7,7 @@
 #include "prob_trash.h"
 #include "twbucket.h"
 #include "twpath.h"
+#include "pg_types_vrp.h"
 #include "vehicle.h"
 #include "plot.h"
 //#include "orders.h"
@@ -39,6 +40,7 @@ typedef  TwBucket<Trashnode> Bucket;
     std::vector<int>  solutionAsVector() const ;
     std::vector<int>  solutionAsVectorID() const ;
 
+    vehicle_path_t *getSolutionForPg(int& count) const;
 
     void computeCosts();
     double getCost() const ;

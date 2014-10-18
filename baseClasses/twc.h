@@ -13,12 +13,8 @@
 
 #include "node.h"
 #include "twpath.h"
+#include "pg_types_vrp.h"
 
-typedef struct _ttime {
-    int from_id;
-    int to_id;
-    double ttime;
-} ttime_t;
 
 template <class knode> class TWC {
 private:

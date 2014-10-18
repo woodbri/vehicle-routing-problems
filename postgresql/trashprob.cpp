@@ -2,10 +2,10 @@
 #include "trashprob.h"
 
 
-void TrashProb::addContainers( container_t *containers, int count ) {
+void TrashProb::addContainers( container_t *_containers, int count ) {
     pickups.clear();
     for (int i=0; i<count; ++i) {
-        container_t c = containers[i];
+        container_t c = _containers[i];
         Trashnode node(c.id, c.x, c.y, c.open, c.close, c.service, c.demand, c.sid);
         if (node.isvalid()) {
             pickups.push_back(node);
@@ -17,10 +17,10 @@ void TrashProb::addContainers( container_t *containers, int count ) {
 }
 
 
-void TrashProb::addOtherlocs( otherloc_t *otherlocs, int count ) {
+void TrashProb::addOtherlocs( otherloc_t *_otherlocs, int count ) {
     otherlocs.clear();
     for (int i=0; i<count; ++i) {
-        otherloc_t c = otherlocs[i];
+        otherloc_t c = _otherlocs[i];
         Trashnode node(c.id, c.x, c.y, c.open, c.close, 0, 0, -1);
         if (node.isvalid()) {
             otherlocs.push_back(node);
@@ -43,7 +43,7 @@ bool TrashProb::checkNodesOk() {
     intersection = otherlocs * pickups;
     invalid += intersection;
     pickups -= intersection;
-    nodes pickups + otherlocs;
+    nodes = pickups + otherlocs;
 
     for (int i=0; i<nodes.size(); i++) {
         nodes[i].setnid(i);
@@ -60,9 +60,9 @@ bool TrashProb::checkNodesOk() {
 }
 
 
-void TrashProb::addTtimes( ttime_t *ttimes, int count ) {
+void TrashProb::addTtimes( ttime_t *_ttimes, int count ) {
 
-    twc.loadAndProcess_distance(ttimes, count, datanodes, invalid);
+    twc.loadAndProcess_distance(_ttimes, count, datanodes, invalid);
 
     Bucket dummy;
     dummy.setTravelTimes(twc.TravelTime());
@@ -72,9 +72,9 @@ void TrashProb::addTtimes( ttime_t *ttimes, int count ) {
 }
 
 
-void TrashProb::addVehicles( vehicle_t *vehicles, int count ) {
+void TrashProb::addVehicles( vehicle_t *_vehicles, int count ) {
     for (int i=0; i<count; ++i) {
-        vehicle_t v = vehicles[i];
+        vehicle_t v = _vehicles[i];
         Vehicle truck(v.vid, v.start_id, v.dump_id, v.end_id, v.capacity,
             v.dumpservicetime, v.starttime, v.endtime, otherlocs);
         if (truck.isvalid()) {
@@ -84,7 +84,7 @@ void TrashProb::addVehicles( vehicle_t *vehicles, int count ) {
             endings.push_back(truck.getEndingSite());
         }
         else {
-            invalidTrucks.push_back(node);
+            invalidTrucks.push_back(truck);
         }
     }
 //    assert(trucks.size() and depots.size() and dumps.size() and endings.size());

@@ -32,7 +32,10 @@ double Solution::getDistance() const {
 }
 
 
-
+vehicle_path_t *Solution::getSolutionForPg(int& count) const {
+    count = -1;
+    return NULL;
+}
 
 
 // this is a list of the node ids representing a vehicle route and 

@@ -12,20 +12,7 @@
 #include "twpath.h"
 #include "plot.h"
 #include "move.h"
-
-
-// WARNING: this struct is COPIED from the postgresql/vrptools.h
-// to avoid dragging in lots of stuff only needed for postgresq;
-typedef struct vehicle {
-    int vid;
-    int start_id;
-    int dump_id;
-    int end_id;
-    int capacity;
-    int dumpservicetime;
-    int starttime;
-    int endtime;
-} vehicle_t;
+#include "pg_types_vrp.h"
 
 
 class BaseVehicle  {

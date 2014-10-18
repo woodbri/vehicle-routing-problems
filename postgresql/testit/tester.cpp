@@ -9,7 +9,8 @@
 #include "../vrptools.h"
 #include "../trashprob.h"
 #include "osrm.h"
-#include "trashconfig.h"
+
+#define LOG std::cout
 
 int main(int argc, char **argv) {
     cURLpp::Cleanup myCleanup;
@@ -18,7 +19,7 @@ int main(int argc, char **argv) {
         int container_count;
         int otherloc_count;
         int vehicle_count;
-        int ttime_count
+        int ttime_count;
         container_t *containers;
         otherloc_t *otherlocs;
         vehicle_t *vehicles;
@@ -36,16 +37,23 @@ int main(int argc, char **argv) {
             buffer >> ttime_count;
         } while (false);
 
+        LOG << "Header: " << container_count
+            << ", " << otherloc_count
+            << ", " << vehicle_count
+            << ", " << ttime_count
+            << "\n";
+
         containers = (container_t *) malloc( container_count * sizeof(container_t) );
         otherlocs = (otherloc_t *) malloc( otherloc_count * sizeof(otherloc_t) );
         vehicles = (vehicle_t *) malloc( vehicle_count * sizeof(vehicle_t) );
         ttimes = (ttime_t *) malloc( ttime_count * sizeof(ttime_t) );
 
-        getline(in, line);
-        assert(line[0] != '-');
+        LOG << "reading containers ...\n";
+        getline(in, line); LOG << line << "\n";
+        assert(line[0] == '-');
             
         for (int i=0; i<container_count; ++i) {
-            getline(in, line);
+            getline(in, line); LOG << line << "\n";
             std::istringstream buffer( line );
             buffer >> containers[i].id;
             buffer >> containers[i].x;
@@ -56,11 +64,12 @@ int main(int argc, char **argv) {
             buffer >> containers[i].demand;
         }
 
-        getline(in, line);
-        assert(line[0] != '-');
+        LOG << "reading otherlocs ...\n";
+        getline(in, line); LOG << line << "\n";
+        assert(line[0] == '-');
             
         for (int i=0; i<otherloc_count; ++i) {
-            getline(in, line);
+            getline(in, line); LOG << line << "\n";
             std::istringstream buffer( line );
             buffer >> otherlocs[i].id;
             buffer >> otherlocs[i].x;
@@ -69,11 +78,12 @@ int main(int argc, char **argv) {
             buffer >> otherlocs[i].close;
         }
 
-        getline(in, line);
-        assert(line[0] != '-');
+        LOG << "reading vehicles ...\n";
+        getline(in, line); LOG << line << "\n";
+        assert(line[0] == '-');
 
         for (int i=0; i<vehicle_count; ++i) {
-            getline(in, line);
+            getline(in, line); LOG << line << "\n";
             std::istringstream buffer( line );
             buffer >> vehicles[i].vid;
             buffer >> vehicles[i].start_id;
@@ -85,8 +95,9 @@ int main(int argc, char **argv) {
             buffer >> vehicles[i].endtime;
         }
 
-        getline(in, line);
-        assert(line[0] != '-');
+        LOG << "reading ttimes ...\n";
+        getline(in, line); LOG << line << "\n";
+        assert(line[0] == '-');
 
         for (int i=0; i<ttime_count; ++i) {
             getline(in, line);
@@ -98,16 +109,18 @@ int main(int argc, char **argv) {
         
         in.close();
 
+        LOG << "data read, continuing ...\n";
+
         int ret;
-        vehicle_path_t **vehicle_paths;
-        int *vehicle_path_count;
+        vehicle_path_t *result;
+        int result_count;
         char *err_msg;
 
         ret = vrp_trash_collection( containers, container_count,
                                     otherlocs, otherloc_count,
                                     vehicles, vehicle_count,
                                     ttimes, ttime_count,
-                                    result, result_count, &err_msg);
+                                    &result, &result_count, &err_msg);
 
         std::cout << "ret: " << ret << std::endl;
         std::cout << "msg: " << err_msg << std::endl;

@@ -74,8 +74,14 @@ class Vehicle: public BaseVehicle {
         w1 = w2 = w3 = 1.0;
     };
 
-    Vehicle(std::string line,const Bucket &otherlocs): BaseVehicle(line,otherlocs)   { }
+    Vehicle(std::string line,const Bucket &otherlocs): BaseVehicle(line,otherlocs) {};
 
+    Vehicle(int _vid, int _start_id, int _dump_id, int _end_id,
+            int _capacity, int _dumpservicetime, int _starttime,
+            int _endtime, const Bucket &otherlocs)
+        : BaseVehicle(_vid, _start_id, _dump_id, _end_id,
+                      _capacity, _dumpservicetime, _starttime,
+                      _endtime, otherlocs) {};
 
 };
 
