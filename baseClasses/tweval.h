@@ -32,6 +32,7 @@ public:
     double getTotTravelTime() const { return totTravelTime; };
     double getTotWaitTime() const { return totWaitTime; };
     double getTotServiceTime() const { return totServiceTime; };
+    double getDumpVisits() const { return dumpVisits; };
     
 
     bool hastwv() const { return twv; };
@@ -79,6 +80,7 @@ private:
     double totWaitTime;
     double totTravelTime;
     double totServiceTime;
+    double dumpVisits;
 
 
 };    

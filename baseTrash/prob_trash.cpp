@@ -135,14 +135,14 @@ invalid.dump("invalid");
 
 
     nodes = pickups+otherlocs;
-
+    nodes.push_back(C);
     for (int i=0;i<nodes.size();i++) {
         nodes[i].setnid(i);
         id = nodes[i].getid();
         if ( pickups.hasId( id ) ) pickups[ pickups.posFromId( id ) ].setnid(i);
         else if ( otherlocs.hasId( id ) ) otherlocs[ otherlocs.posFromId( id ) ].setnid(i);
-    }
-
+    };
+    C=nodes.back();
     assert( pickups.size() and otherlocs.size() );
 
     datanodes=nodes;
@@ -150,18 +150,23 @@ invalid.dump("invalid");
 
 
     twc.loadAndProcess_distance(datafile+".dmatrix-time.txt", datanodes,invalid);  
+    twc.settCC(C,pickups);
     Bucket dummy;
     dummy.setTravelTimes(twc.TravelTime());
-    Tweval dummyNode;
-    dummyNode.setTravelTimes(twc.TravelTime());
+    C.setTravelTimes(twc.TravelTime());
+
     assert( Tweval::TravelTime.size() );
 
 //    buildStreets(pickups);
 
     load_trucks(datafile+".vehicles.txt");
     assert(trucks.size() and depots.size() and dumps.size() and endings.size());
+    for (int i=0;i<trucks.size();i++) {
+	trucks[i].setInitialValues(C,twc,pickups);
+    }
     
-
+#ifdef TESTED
+C.dump();
 nodes.dump("nodes");
 dumps.dump("dumps");
 depots.dump("depots");
@@ -169,6 +174,7 @@ pickups.dump("pickups");
 endings.dump("endings");
 datanodes.dump("datanodes");
 invalid.dump("invalid");
+#endif
 
 std::cout<<"TRUCKS\n";
 for (int i=0;i<trucks.size();i++)
@@ -178,7 +184,9 @@ std::cout<<"INVALID TRUCKS\n";
 for (int i=0;i<invalidTrucks.size();i++)
    invalidTrucks[i].tau();
 std::cout<<"\n";
-//twc.dump();
+#ifdef TESTED
+twc.dump();
+#endif
 }
 
 void Prob_trash::buildStreets( Bucket &unassigned, Bucket &assigned) {
@@ -311,6 +319,9 @@ void Prob_trash::load_pickups(std::string infile) {
     std::string line;
     int cnt = 0;
     pickups.clear();
+    double st,op,cl,dm,x,y;
+    st=op=cl=dm=x=y=0;
+    
     while ( getline(in, line) ) {
         cnt++;
         if (line[0] == '#') continue;
@@ -323,9 +334,22 @@ void Prob_trash::load_pickups(std::string infile) {
            invalid.push_back(node);
         } else {
           pickups.push_back(node);
+	  st+=node.getservicetime();
+	  op+=node.opens();
+	  cl+=node.closes();
+	  dm+=node.getdemand();
+	  x+=node.getx();
+	  y+=node.gety();
         }
     }
 
     in.close();
+	st=st/pickups.size();
+	op=op/pickups.size();
+	cl=cl/pickups.size();
+	dm=dm/pickups.size();
+	x=x/pickups.size();
+	y=y/pickups.size();
+	C.set(-1,-1,x,y,dm,op,cl,st);
 }
 

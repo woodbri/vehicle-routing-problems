@@ -48,13 +48,14 @@ int main(int argc, char **argv) {
                   << std::endl;
        
         FeasableSol tp(infile);
-        //tp.dump();
+        tp.setInitialValues();
 
         TabuSearch ts(tp);
         ts.v_search();
-        Solution best = ts.getBestSolution();
-        best.dump();
         ts.dumpStats();
+
+        Solution best = ts.getBestSolution();
+        best.setInitialValues();
 
     }
     catch (const std::exception &e) {

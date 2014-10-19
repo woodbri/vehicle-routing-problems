@@ -33,6 +33,7 @@ typedef  TwBucket<Trashnode> Bucket;
     std::deque<Vehicle> trucks; 
     std::deque<Vehicle> invalidTrucks; 
     std::deque<Street>  streets; 
+    Trashnode C;
 
     std::string datafile;
 

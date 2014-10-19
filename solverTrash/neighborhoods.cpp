@@ -339,12 +339,12 @@ std::cout<<"working with truck "<<truckPos<<" and"<< otherTruckPos<<"interSw nei
 
 
 
-void Neighborhoods::v_getInsNeighborhood(std::deque<Move>& moves, double factor) {
+void Neighborhoods::v_getInsNeighborhood(std::deque<Move>& moves, double factor) const {
      v_getInsNeighborhood( moves, factor,0);
 };
 
 
-void Neighborhoods::v_getInsNeighborhood(std::deque<Move>& moves, double factor, int count)   {
+void Neighborhoods::v_getInsNeighborhood(std::deque<Move>& moves, double factor, int count) const  {
 
 #ifndef TESTED
 std::cout<<"Entering Neighborhoods::v_getInsNeighborhood"<<fleet.size()<<" trucks \n";
