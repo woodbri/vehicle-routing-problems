@@ -75,8 +75,6 @@ class Vehicle: public BaseVehicle {
     };
 
 
-    Vehicle(std::string line,const Bucket &otherlocs): BaseVehicle(line,otherlocs) {};
-
     Vehicle(int _vid, int _start_id, int _dump_id, int _end_id,
             int _capacity, int _dumpservicetime, int _starttime,
             int _endtime, const Bucket &otherlocs)
@@ -85,7 +83,7 @@ class Vehicle: public BaseVehicle {
                       _endtime, otherlocs) {};
 
 
-    Vehicle(std::string line,const Bucket &otherlocs): BaseVehicle(line,otherlocs)   { }
+    Vehicle(std::string line,const Bucket &otherlocs): BaseVehicle(line,otherlocs)   {}
 
 	//for cost function
 	Trashnode C , LC;
