@@ -72,6 +72,17 @@ typedef  TwBucket<Trashnode> Bucket;
         return fleet.size() < another.fleet.size() || totalCost < another.totalCost;
     };
 
+
+// Cost related
+
+	void setInitialValues() {
+		for (int i=0;i<fleet.size();i++) {
+//fleet[i].tau();
+//fleet[i].dump();
+//fleet[i].dumpeval();
+			fleet[i].setInitialValues(C,twc,pickups);
+}
+	}
    
 // code moved from OLD CODE TO BE INTEGRATED
 bool feasable() const;

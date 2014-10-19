@@ -26,9 +26,9 @@ class TabuSearch {
 
     int maxIteration;
     int currentIteration;
-    int currentIterationIns;
-    int currentIterationIntraSw;
-    int currentIterationInterSw;
+    mutable int currentIterationIns;
+    mutable int currentIterationIntraSw;
+    mutable int currentIterationInterSw;
 
     Neighborhoods bestSolution;
     double bestSolutionCost;
@@ -56,6 +56,9 @@ class TabuSearch {
         // for repeatible results set this to a constant value
         // for more random results use: srand( time(NULL) );
         srand(37);
+	limitIntraSw=bestSolution.getFleetSize();
+	limitInterSw=limitIntraSw*(limitIntraSw-1) ;
+	limitIns=limitIntraSw ;
     };
 
     int getCurrentIteration() const { return currentIteration; };
@@ -82,7 +85,17 @@ class TabuSearch {
 
 
     void v_search();
-    bool v_doNeighborhoodMoves(neighborMovesName whichNeighborhood, int maxStagnation);
+    bool v_doNeighborhoodMoves(neighborMovesName whichNeighborhood, int maxCnt, std::deque<Move> notTabu, std::deque<Move> tabu);
+    void v_getNeighborhood(neighborMovesName whichNeighborhood,std::deque<Move> &neighborhood,double factor) const;
+    bool applyAspirational(std::deque<Move> &neighborhood, std::deque<Move> &notTabu,std::deque<Move> &tabu);
+    bool applyNonTabu (std::deque<Move> &notTabu);
+    bool applyTabu (std::deque<Move> &tabu);
+    bool applyTabu (std::deque<Move> &tabu, int strategy);
+
+    private:
+	int limitIntraSw;
+	int limitInterSw;
+	int limitIns;
 
 };
 
