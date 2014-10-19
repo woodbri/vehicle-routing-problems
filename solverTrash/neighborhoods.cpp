@@ -339,27 +339,48 @@ std::cout<<"working with truck "<<truckPos<<" and"<< otherTruckPos<<"interSw nei
 
 
 
-void Neighborhoods::v_getInsNeighborhood(std::deque<Move>& moves, double factor)   {
+void Neighborhoods::v_getInsNeighborhood(std::deque<Move>& moves, double factor) const {
+     v_getInsNeighborhood( moves, factor,0);
+};
+
+
+void Neighborhoods::v_getInsNeighborhood(std::deque<Move>& moves, double factor, int count) const  {
+
 #ifndef TESTED
 std::cout<<"Entering Neighborhoods::v_getInsNeighborhood"<<fleet.size()<<" trucks \n";
 #endif
 assert (feasable());
-    
+
     moves.clear();
     double savings;
-    // iterate through the vechicles (vi, vj)
-    for (int fromTruck=0; fromTruck<fleet.size(); fromTruck++) {
-        for (int toTruck=0; toTruck<fleet.size(); toTruck++) {
 
-            if (fromTruck==toTruck) continue;
-            for (int fromPos=1; fromPos<fleet[fromTruck].size(); fromPos++) {
+    int fromTruck=insTruckPos1;
+    int toTruck=insTruckPos2;
+
+    insTruckPos2++;
+    if (insTruckPos1 == insTruckPos2) insTruckPos2++;
+    if (insTruckPos2 == fleet.size()) {insTruckPos1++; insTruckPos2=0;};
+    if (insTruckPos1 == fleet.size()) {insTruckPos1=0; insTruckPos2=1;};
+
+std::cout<<"working with truck "<<fromTruck<<" and"<< toTruck<<"insSw neighborhood\n";
+std::cout<<"NEXT are working with truck "<<insTruckPos1<<" and"<< insTruckPos2<<"insSw neighborhood\n";
+    // iterate through the vechicles (vi, vj)
+//    for (int fromTruck=0; fromTruck<fleet.size(); fromTruck++) {
+//        for (int toTruck=0; toTruck<fleet.size(); toTruck++) {
+
+  //          if (fromTruck==toTruck) continue;
+          for (int fromPos=1; fromPos<fleet[fromTruck].size(); fromPos++) {
 		if ( not fleet[fromTruck].eval_erase(fromPos,savings) ) continue; //for whatever reason erasing a node makes the truck infeasable 
 		
 		if(fleet[fromTruck][fromPos].isdump()) continue;   // skiping dump
                 fleet[toTruck].eval_insertMoveDumps( fleet[fromTruck][fromPos], moves, fromTruck, fromPos, toTruck, savings, factor );
-            }
-        }
-    }
+          }
+//        if (count>4) return;
+//	for (int i=0;i<moves.size();i++) 
+//		if (moves[i].getsavings()> (-count/20)) return;
+//        v_getInsNeighborhood( moves, factor+0.1,count+1);
+       // }
+    //}
 #ifdef TESTED
 std::cout<<"EXIT Neighborhoods::v_getInsNeighborhood"<<moves.size()<<" MOVES found total \n";
 #endif

@@ -403,7 +403,12 @@ bool deltaGeneratesTV(double delta, UID pos) const {
 
     double getTotServiceTime() const {
        assert (size());
-       return path[size()-1].getTotWaitTime();
+       return path[size()-1].getTotServiceTime();
+    };
+
+    double getDumpVisits() const {
+       assert (size());
+       return path[size()-1].getDumpVisits();
     };
 
     double getDepartureTime() const {
@@ -425,6 +430,12 @@ bool deltaGeneratesTV(double delta, UID pos) const {
        assert (size());
        return path[size()-1].getcargo();
     };
+
+    double travelTime(UID i, UID j) {
+       assert (i<size());
+       assert (j<size());
+       return TravelTime[i][j];
+    }
 
 //  ID based tools  to NID tools
 

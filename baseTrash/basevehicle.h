@@ -29,6 +29,8 @@ class BaseVehicle  {
     Trashnode depot; //just for keeps
     Trashnode endingSite;
     Trashnode dumpSite;
+    double startTime;
+    double endTime;;
 
     double maxcapacity;
     double cost;        // cost of the route
@@ -120,7 +122,6 @@ dumpeval();
        int dumpId,dumpNid;
        int endingId,endingNid;
        double dumpServiceTime;
-       double endTime,startTime;
        endTime=startTime=0;
 
        cost        = 0;

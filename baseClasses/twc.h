@@ -142,7 +142,7 @@ double travelTime(UID from, UID to) const {
     return travel_Time[from][to];
 }
  
-double travelTime(const knode &from, const knode &to) {
+double travelTime(const knode &from, const knode &to) const {
     return travelTime(from.getnid(),to.getnid());
 }
 
@@ -522,6 +522,33 @@ void loadAndProcess_distance(ttime_t *ttimes, int count, const Bucket &datanodes
 }
  
 
+double getAverageTime(const Bucket &from, const knode &to) const {
+    assert(to.getnid()<original.size());
+    double time=0;
+    int j=to.getnid();
+    for (int i=0;i<from.size();i++) {
+	time+= travelTime( from[i].getnid() , j ) ;
+    }
+    time=time / from.size();
+    return time;
+}
+     
+double getAverageTime(const knode &from, const Bucket &to) const {
+    assert(from.getnid()<original.size());
+    double time=0;
+    int j=from.getnid();
+    for (int i=0;i<to.size();i++)
+	time+= travel_Time[j][ to[i].getnid() ];
+    time=time / to.size();
+    return time;
+}
+     
+void settCC (const knode &C, const Bucket &picks) {
+    int pos=C.getnid();
+    travel_Time[pos][pos]=getAverageTime(C,picks);
+}
+
+
 void loadAndProcess_distance(std::string infile, const Bucket &datanodes, const Bucket &invalid ) {
     assert(datanodes.size());
     original.clear();
@@ -532,22 +559,18 @@ void loadAndProcess_distance(std::string infile, const Bucket &datanodes, const 
     std::string line;
     int fromId;
     int toId;
-
     travel_Time.resize(siz);
     for (int i=0;i<siz;i++)
         travel_Time[i].resize(siz);
     //travel_Time default value is 250m/min
     for (int i=0;i<siz;i++)
        for (int j=i;j<siz;j++) {
-//std::cout<<"Dist"<< i <<" to " << j<<" = "<<(original[i].distance(original[j])/250)<<"\n";
           if (i==j) travel_Time[i][i]=0;
           else travel_Time[i][j]=travel_Time[j][i]=original[i].distance(original[j])/250;
-//std::cout<<"Dist"<< i <<" to " << j<<" = "<<(travel_Time[i][j])<<"\n";
     }
-//dumpTravelTime();
 
 
-std::cout<<siz<<"<---- size\n";
+//std::cout<<siz<<"<---- size\n";
     int from,to;
     double time;
     int cnt = 0;
