@@ -7,6 +7,7 @@ void TrashProb::addContainers( container_t *_containers, int count ) {
     for (int i=0; i<count; ++i) {
         container_t c = _containers[i];
         Trashnode node(c.id, c.x, c.y, c.open, c.close, c.service, c.demand, c.sid);
+        node.setType(2);
         if (node.isvalid()) {
             pickups.push_back(node);
         }
@@ -43,6 +44,10 @@ bool TrashProb::checkNodesOk() {
     intersection = otherlocs * pickups;
     invalid += intersection;
     pickups -= intersection;
+
+intersection.dump("intersection");
+invalid.dump("invalid");
+
     nodes = pickups + otherlocs;
 
     for (int i=0; i<nodes.size(); i++) {
