@@ -77,17 +77,18 @@ class Vehicle: public BaseVehicle {
     Vehicle(std::string line,const Bucket &otherlocs): BaseVehicle(line,otherlocs)   { }
 
 	//for cost function
-	Trashnode C , LC;
+	Trashnode C , last;
 	double ttSC, ttDC, ttCD, ttDE, ttCC;
 	double realttSC, realttDC, realttCD, realttDE, realttCC;
 	int N, Nreal,minDumpVisits,maxDumpVisits,realDumpVisits;
-        int Z,z1,z2;
-	double arrivalEcloseslast,shiftLength;
+        int Z,z1,z2,realz1,realz2,n,z,Zmissing;
+	double arrivalEcloseslast,realArrivalEclosesLast,shiftLength;
 	double serviceE;
-	double maxArrivalTimeAtLastContainer;
 	double totalTime,realTotalTime;
 	double forcedWaitTime,totalWaitTime,idleTime;
+	double realForcedWaitTime,realtotalWaitTime,realIdleTime;
 	double idleTimeSCDE,idleTimeSDCDE;
+	double realIdleTimeSCDE,realIdleTimeSDCDE;
 	inline int  realN() { return ( path.getDumpVisits() + 1 ) ;}
 	inline double  totalServiceTime() { 
 		return ( path.getTotServiceTime()+  dumpSite.getservicetime() + endingSite.getservicetime() ) ;}  
@@ -121,8 +122,7 @@ class Vehicle: public BaseVehicle {
 		z2 = idleTimeSDCDE / (C.getservicetime() + ttCC);
                 idleTime= totalWaitTime-forcedWaitTime;
 
-		LC = node;
-		realTotalTime= endingSite.getArrivalTime();
+		last=(size()>1)? path[size()-1] : C ;
 		realttSC=path.size()>1?path[1].getTotTravelTime()  :ttSC;
 		realttCC=size()>1?(path.getTotTravelTime()-realttSC)/(size()-1) :ttCC;
 		realttCD=size()>1? twc.travelTime( path[path.size()-1] , dumpSite )  :ttCD;
@@ -131,31 +131,97 @@ class Vehicle: public BaseVehicle {
 			for (int i=1;i<path.size()-1;i++) 
 			    if (path[i].isdump()) realttDC+= twc.travelTime( path[i], path[i+1]);
                         realttDC/path.getDumpVisits();
-                };
+                } else realttDC=ttDC;
 		realttDE=ttDE;
-		//z = path.size()-1;
+		realArrivalEclosesLast = (size()>1)? path[size()-1].closes() + realttCD + dumpSite.getservicetime() + realttDE : arrivalEcloseslast;
+		realForcedWaitTime=endTime-( realArrivalEclosesLast  +  serviceE );
+		realTotalTime= endingSite.getArrivalTime();
+		realIdleTime =  realArrivalEclosesLast -  realTotalTime ;
+		n  = size() - 1 - ( realN() - 1 );
+	        z = (realN()==1)?  n  : n % Z ;
+		Zmissing=(Z>z)? Z-z:0;
+		realIdleTimeSCDE =  ( z )? realIdleTime - (C.getservicetime() + realttCC ) * Zmissing :
+                		           C.closes() - ( depot.getDepartureTime() +  realttSC);
+		realz1 = std::min ( (int) (floor(realIdleTime / ( C.getservicetime() + realttCC ) )) ,Zmissing ) ;
+		realIdleTimeSDCDE =  C.closes() - ( dumpSite.getDepartureTime() +  realttDC );
+		realz2 = realIdleTimeSDCDE / ( C.getservicetime() +  realttCC );
+
        		
 		double deltaTime= totalTime - realTotalTime;
 dumpCostValues();
 	}
+
 void dumpCostValues(){
+	std::cout<<" +++++++++++++++++++++  	 TRUCK #<<"<<vid<<"      +++++++++++++++++++++ \n\n\n"; 
 	std::cout<<" Average Container \t"; 
 	C.dump();
 	std::cout<<" ------  truck time limits -------\n"
 		<<"Shift Starts\t"<<startTime<<"\n"
 		<<"Shift ends\t"<<endTime<<"\n"
 		<<"Shift length\t"<<shiftLength<<"\n";
+
+	std::cout<<" ------  current path -------\n";
+	tau();
 		
 		
-	std::cout<<"\n\n\n ------  Values for emtpy truck that is in the solution -------\n"
+	std::cout<<"\n\n\n ------Real  Values of current truck in the solution -------\n"
+                <<"realttSC=\t"     <<realttSC<<"\n"
+                <<"realttCC=\t"     <<realttCC<<"\n"
+                <<"realttCD=\t"     <<realttCD<<"\n"
+                <<"realttDC=\t"     <<realttDC<<"\n"
+                <<"realttDE=\t"     <<realttDE<<"\n"
+		<<"service(E)\t"<<serviceE<<"\n"
+		<<" Z = floor( maxcapacity/C.getdemand() )\n"
+		<<Z<<" = floor( "<<maxcapacity<<"/"<<C.getdemand()<<" )\n"
+
+                <<" \nrealarrivalEcloseslast = path[size()-1].closes() + realttCD + dumpSite.getservicetime() + realttDE \n"
+                << arrivalEcloseslast<< " = " <<path[size()-1].closes()<<" + "<<realttCD<<" + "<<dumpSite.getservicetime()<<" + "<<realttDE<< "\n"
+
+                <<"\n realForcedWaitTime = shiftEnds -( realArrivalEclosesLast  +  serviceE )\n"
+                <<realForcedWaitTime<<" = "<<endTime<<" - (" <<realArrivalEclosesLast <<" + " <<serviceE<<" )\n"
+
+		<<" \nrealN \n"
+		<<realN()<<"\n"
+
+		<<" realTotalTime =  endingSite.getArrivalTime()\n"
+		<< realTotalTime<<" = "<<  endingSite.getArrivalTime()<<"\n"
+
+		<<" n = size() - 1 - ( realN()-1 )   <-- total number of containers served\n"
+		<< n <<" = "<<size()<<" - 1 - (" <<realN()<<" -1 )\n"
+
+	        <<"  z = (realN()==1)  z = n  : n % Z   <-- total number of containers in last trip\n"
+	        <<  z <<" = ( "<<realN()<<" == 1 )" << z<<" = "<<n <<" : "<< n<< " % " <<Z<<"\n" 
+		
+		<<"realIdleTime =  realArrivalEclosesLast -  realTotalTime\n" 
+		<<realIdleTime<<" = "<< realArrivalEclosesLast<<" -  "<<realTotalTime<<"\n" 
+
+		<<"Zmissing=(Z>z)? Z-z:0\n"
+		<<Zmissing<<" = "<<Z<<" > "<<z<<")?"<<Z<<" - "<<z<<":0\n";
+
+		std::cout<<"\n realz1 = min ( realIdleTimeSCDE / (C.getservicetime() + realttCC) , Zmissing )\n"
+		<<realz1<<" = min (" <<realIdleTimeSCDE<<" / ( "<<C.getservicetime()<<" + "<< realttCC<<" ) ,"<<Zmissing<<"\n"
+		<<realz1<<" containers can be served in a trip: SCDE\n"
+
+		<<" \n realIdleTimeSDCDE = C.closes() - ( dumpSite.getDepartureTime() + realttDC)\n"
+		<<realIdleTimeSDCDE<<" = "<< C.closes()<<" - ( "<<dumpSite.getDepartureTime()<<" + "<< realttDC<<" )\n"
+	
+		<<"\n realz2 = idleTimeSDCDE / (C.getservicetime() + ttCC)\n"
+		<<realz2<<" = " <<realIdleTimeSDCDE<<" / ( "<<C.getservicetime()<<" + "<< realttCC<<" )\n"
+		<<realz2<<" containers can be served in a trip: SDCDE\n"
+
+
+;
+
+
+        std::cout<<"\n\n\n ------estimated  Values for emtpy truck that is in the solution -------\n"
 		<<"ttSC=\t"	<<ttSC<<"\n" 
 		<<"ttCC=\t"	<<ttCC<<"\n" 
 		<<"ttCD=\t"	<<ttCD<<"\n" 
 		<<"ttDC=\t"	<<ttDC<<"\n" 
 		<<"ttDE=\t"	<<ttDE<<"\n" 
-		<<"service(E)\t"<<serviceE<<"\n"
-		<<" Z = floor( maxcapacity/C.getdemand() )\n"
-		<<Z<<" = floor( "<<maxcapacity<<"/"<<C.getdemand()<<" )\n"
+                <<"service(E)\t"<<serviceE<<"\n"
+                <<" Z = floor( maxcapacity/C.getdemand() )    <<--- this is still the estimation\n"
+                <<Z<<" = floor( "<<maxcapacity<<"/"<<C.getdemand()<<" )\n"
 
 		<<" \narrivalEcloseslast = C.closes() + ttCD + dumpSite.getservicetime() + ttDE \n"
 		<< arrivalEcloseslast<< " = " <<C.closes()<<" + "<<ttCD<<" + "<<dumpSite.getservicetime()<<" + "<<ttDE<< "\n"
@@ -163,31 +229,32 @@ void dumpCostValues(){
 		<<"\n forcedWaitTime = shiftEnds -( arrivalEcloseslast  +  serviceE )\n"
 		<<forcedWaitTime<<" = "<<endTime<<" - (" <<arrivalEcloseslast <<" + " <<serviceE<<" )\n"
 
-		<<" \nwith N=1\n"
-		<<" upperLimit(totalTime) = depot.getservicetime()  + ttSC + ttDE + endingSite.getservicetime()\n"
+                <<" \nwith N=1\n"
+                <<" upperLimit(totalTime) = depot.getservicetime()  + ttSC + ttDE + endingSite.getservicetime()\n"
                         <<"+ N * Z * C.getservicetime() + N * (Z - 1) * ttCC + (N -1) * ttDC\n"
                         <<"+ N * ( dumpSite.getservicetime() + ttCD )\n"
-		<< totalTime<<" = "<< depot.getservicetime()<< " + "<< ttSC<<" + "<<ttDE<<" + "<< endingSite.getservicetime()<<"\n"
+                << totalTime<<" = "<< depot.getservicetime()<< " + "<< ttSC<<" + "<<ttDE<<" + "<< endingSite.getservicetime()<<"\n"
                         <<" + "<< N<<" *"<< Z<< " * "<< C.getservicetime()<<" +"<< N<<" * ("<<Z<<" - 1) * "<<ttCC<<" + ("<<N<<" -1) *"<< ttDC<<"\n"
                         <<" + "<< N<<" * (" <<dumpSite.getservicetime()<<" +"<< ttCD<<" )"<<"\n"
 
-		<<" \n last (and only trip) can/cant serve Z containers? =  upperLimit(totalTime) <= arrivalEcloseslast (CAN) \n"
-		<<" last (and only trip) " <<( totalTime <= arrivalEcloseslast ?"CAN":"CAN NOT" )<< " serve <<"<<Z<<" containers  "
-			<< (totalTime <= arrivalEcloseslast) <<"="<<totalTime<<" <= " <<arrivalEcloseslast <<"\n"
+                <<" \n last (and only trip) can/cant serve Z containers? =  upperLimit(totalTime) <= arrivalEcloseslast (CAN) \n"
+                <<" last (and only trip) " <<( totalTime <= arrivalEcloseslast ?"CAN":"CAN NOT" )<< " serve <<"<<Z<<" containers  "
+                        << (totalTime <= arrivalEcloseslast) <<"="<<totalTime<<" <= " <<arrivalEcloseslast <<"\n"
 
-		<<" \n idleTimeSCDE = C.closes() - ( depot.getDepartureTime() + ttSC )\n"
-		<<idleTimeSCDE<<" = "<< C.closes()<<" - ( "<<depot.getDepartureTime()<<" + "<< ttSC<<" )\n"
-	
-		<<"\n z1 = idleTimeSCDE / (C.getservicetime() + ttCC)\n"
-		<<z1<<" = " <<idleTimeSCDE<<" / ( "<<C.getservicetime()<<" + "<< ttCC<<" )\n"
-		<<z1<<" containers can be served in a trip: SCDE\n"
+                <<" \n idleTimeSCDE = C.closes() - ( depot.getDepartureTime() + ttSC )\n"
+                <<idleTimeSCDE<<" = "<< C.closes()<<" - ( "<<depot.getDepartureTime()<<" + "<< ttSC<<" )\n"
 
-		<<" \n idleTimeSDCDE = C.closes() - ( dumpSite.getDepartureTime() + ttDC)\n"
-		<<idleTimeSDCDE<<" = "<< C.closes()<<" - ( "<<dumpSite.getDepartureTime()<<" + "<< ttDC<<" )\n"
-	
-		<<"\n z2 = idleTimeSDCDE / (C.getservicetime() + ttCC)\n"
-		<<z2<<" = " <<idleTimeSDCDE<<" / ( "<<C.getservicetime()<<" + "<< ttCC<<" )\n"
-		<<z2<<" containers can be served in a trip: SDCDE\n"
+                <<"\n z1 = idleTimeSCDE / (C.getservicetime() + ttCC)\n"
+                <<z1<<" = " <<idleTimeSCDE<<" / ( "<<C.getservicetime()<<" + "<< ttCC<<" )\n"
+                <<z1<<" containers can be served in a trip: SCDE\n"
+
+                <<" \n idleTimeSDCDE = C.closes() - ( dumpSite.getDepartureTime() + ttDC)\n"
+                <<idleTimeSDCDE<<" = "<< C.closes()<<" - ( "<<dumpSite.getDepartureTime()<<" + "<< ttDC<<" )\n"
+
+                <<"\n z2 = idleTimeSDCDE / (C.getservicetime() + ttCC)\n"
+                <<z2<<" = " <<idleTimeSDCDE<<" / ( "<<C.getservicetime()<<" + "<< ttCC<<" )\n"
+                <<z2<<" containers can be served in a trip: SDCDE\n"
+
 
 
 
