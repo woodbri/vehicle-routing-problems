@@ -87,10 +87,10 @@ class TabuSearch {
     void v_search();
     bool v_doNeighborhoodMoves(neighborMovesName whichNeighborhood, int maxCnt, std::deque<Move> notTabu, std::deque<Move> tabu);
     void v_getNeighborhood(neighborMovesName whichNeighborhood,std::deque<Move> &neighborhood,double factor) const;
-    bool applyAspirational(std::deque<Move> &neighborhood, std::deque<Move> &notTabu,std::deque<Move> &tabu);
-    bool applyNonTabu (std::deque<Move> &notTabu);
-    bool applyTabu (std::deque<Move> &tabu);
-    bool applyTabu (std::deque<Move> &tabu, int strategy);
+    bool v_applyAspirational(std::deque<Move> &neighborhood, std::deque<Move> &notTabu,std::deque<Move> &tabu);
+    bool v_applyNonTabu (std::deque<Move> &notTabu);
+    bool v_applyTabu (std::deque<Move> &tabu);
+    bool v_applyTabu (std::deque<Move> &tabu, int strategy);
 
     private:
 	int limitIntraSw;

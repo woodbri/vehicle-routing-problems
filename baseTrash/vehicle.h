@@ -89,6 +89,7 @@ class Vehicle: public BaseVehicle {
 	double realForcedWaitTime,realtotalWaitTime,realIdleTime;
 	double idleTimeSCDE,idleTimeSDCDE;
 	double realIdleTimeSCDE,realIdleTimeSDCDE;
+		double sumIdle,penalty;
 	inline int  realN() { return ( path.getDumpVisits() + 1 ) ;}
 	inline double  totalServiceTime() { 
 		return ( path.getTotServiceTime()+  dumpSite.getservicetime() + endingSite.getservicetime() ) ;}  
@@ -196,7 +197,12 @@ void dumpCostValues(){
 		<<realIdleTime<<" = "<< realArrivalEclosesLast<<" -  "<<realTotalTime<<"\n" 
 
 		<<"Zmissing=(Z>z)? Z-z:0\n"
-		<<Zmissing<<" = "<<Z<<" > "<<z<<")?"<<Z<<" - "<<z<<":0\n";
+		<<Zmissing<<" = "<<Z<<" > "<<z<<")?"<<Z<<" - "<<z<<":0\n"
+
+		<<"realIdleTimeSCDE =  ( z )? realIdleTime - (C.getservicetime() + realttCC ) * Zmissing :\n"
+                		           "C.closes() - ( depot.getDepartureTime() +  realttSC)\n"
+		<<realIdleTimeSCDE<<" =  ( "<<z<< " )? "<<realIdleTime<<" - ("<<C.getservicetime()<<" +"<< realttCC<<" ) * "<<Zmissing<<" :"
+                		           <<C.closes()<<" - ( "<<depot.getDepartureTime()<<" +  "<<realttSC<<")\n" ;
 
 		std::cout<<"\n realz1 = min ( realIdleTimeSCDE / (C.getservicetime() + realttCC) , Zmissing )\n"
 		<<realz1<<" = min (" <<realIdleTimeSCDE<<" / ( "<<C.getservicetime()<<" + "<< realttCC<<" ) ,"<<Zmissing<<"\n"
@@ -208,11 +214,30 @@ void dumpCostValues(){
 		<<"\n realz2 = idleTimeSDCDE / (C.getservicetime() + ttCC)\n"
 		<<realz2<<" = " <<realIdleTimeSDCDE<<" / ( "<<C.getservicetime()<<" + "<< realttCC<<" )\n"
 		<<realz2<<" containers can be served in a trip: SDCDE\n"
+	
+		<<"sum of the idleTimes"<< (sumIdle=realIdleTimeSDCDE+realIdleTimeSDCDE+realIdleTimeSCDE)<<"\n";
+/*
+		<<"\n\n\n DELTA TIME SIMULATION\n"
+		<<"if a container is added into a very full truck:\n";
 
-
+		for (double delta=-20; delta<20;delta++) { //changes in time  
+			if (n) {
+				std::cout<<"same amount of containers delta="<<delta<<  "\t    delta+delta/n=" <<(penalty=delta/n)<<"\t";
+				std::cout<<"penalty*sumIdle= "<<(penalty*sumIdle)<<"\n";
+			}
+			if (n+1){
+				 std::cout<<"1 container more          delta="<<delta<<"\tdelta+delta/(n+1)="<<(delta/(n+1))<<"\t";
+				std::cout<<"penalty*sumIdle= "<<(penalty*sumIdle)<<"\n";
+			}
+			if (n-1) {
+				 std::cout<<"1 container less          delta ="<<delta<<"\tdelta+delta/(n-1)="<<(delta/(n-1))<<"\t";
+				std::cout<<"penalty*sumIdle= "<<(penalty*sumIdle)<<"\n";
+			}
+		}
+*/
 ;
 
-
+/*
         std::cout<<"\n\n\n ------estimated  Values for emtpy truck that is in the solution -------\n"
 		<<"ttSC=\t"	<<ttSC<<"\n" 
 		<<"ttCC=\t"	<<ttCC<<"\n" 
@@ -276,7 +301,7 @@ void dumpCostValues(){
 			<<"forcedWaitTime\t"<<forcedWaitTime<<"\t\t\t\t" <<"forcedWaitTime/shiftLength\t"<<forcedWaitTime/shiftLength*100<<"%\n"
 			<<"idleTime\t"<<idleTime<<"\t"<<"idleTime/shiftLength\t"<<idleTime/shiftLength*100<<"%\n"
 			<<"arrivalEcloseslast\t"<<arrivalEcloseslast<<"\n";
-
+*/
 	};
 };
 

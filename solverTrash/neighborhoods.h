@@ -32,6 +32,8 @@ insTruckPos2=1;
     bool applyIntraSwMove( const Move &move);
     bool applyInterSwMove( const Move &move);
 
+    bool v_applyInsMove( const Move &move);
+    void v_applyMove(const Move&);
 private:
    mutable int intraTruckPos;
    mutable int interTruckPos1;
