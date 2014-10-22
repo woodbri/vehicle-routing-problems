@@ -370,6 +370,7 @@ void Neighborhoods::getInsNeighborhood(std::deque<Move>& moves, const Move& last
     int removed = clearRelatedMoves(moves, lastMove);
     int added = addRelatedMovesIns(moves, lastMove);
 
+    // ---- ALL of the FOLLOWING is DEBUG and STATS collection ------
 std::cout << "getInsNeighborhood: neighborhood updated: "
           << -removed << ", " << added
           << ", " << moves.size() << ", time: "
@@ -413,6 +414,7 @@ void Neighborhoods::getIntraSwNeighborhood(std::deque<Move>& moves, const Move& 
     int removed = clearRelatedMoves(moves, lastMove);
     int added = addRelatedMovesIntraSw(moves, lastMove);
 
+    // ---- ALL of the FOLLOWING is DEBUG and STATS collection ------
 std::cout << "getIntraSwNeighborhood: neighborhood updated: "
           << -removed << ", " << added
           << ", " << moves.size() << ", time: "
@@ -451,6 +453,7 @@ void Neighborhoods::getInterSwNeighborhood(std::deque<Move>& moves, const Move& 
     int removed = clearRelatedMoves(moves, lastMove);
     int added = addRelatedMovesInterSw(moves, lastMove);
 
+    // ---- ALL of the FOLLOWING is DEBUG and STATS collection ------
 std::cout << "getInsNeighborhood: neighborhood updated: "
           << -removed << ", " << added
           << ", " << moves.size() << ", time: "
