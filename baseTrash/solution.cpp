@@ -33,8 +33,66 @@ double Solution::getDistance() const {
 
 
 vehicle_path_t *Solution::getSolutionForPg(int& count) const {
-    count = -1;
-    return NULL;
+    count = 0;
+
+    // count the number of records we need for the output
+    for (int i=0; i<fleet.size(); ++i)
+        if (fleet[i].size() > 1)            // don't count empty routes
+            count += fleet[i].size() + 2;   // add final dump and ending nodes
+
+    // malloc memory to hold the output results
+    vehicle_path_t *results;
+    results = (vehicle_path_t *) malloc(count * sizeof(vehicle_path_t));
+    if (not results) {
+        count = -1;
+        return NULL;
+    }
+
+    // remap internal node types to pg node types
+    int map[] = {0, 2, 1, 3};
+
+    int seq = 0;
+    for (int i=0; i<fleet.size(); ++i) {
+        if (fleet[i].size() <= 1) continue;
+        for (int j=0; j<fleet[i].size(); ++j) {
+            results[seq].seq       = seq+1;
+            results[seq].vid       = fleet[i].getVid();
+            results[seq].nid       = fleet[i][j].getid();
+            results[seq].ntype     = map[fleet[i][j].ntype()];
+            results[seq].deltatime = (j==0)?0: fleet[i][j].getDepartureTime() -
+                                               fleet[i][j-1].getDepartureTime();
+            results[seq].cargo     = (j==0)?0: fleet[i][j].getcargo() -
+                                               fleet[i][j-1].getcargo();
+            // at a dump and the following node we report that nodes cargo
+            //if (results[seq].cargo <= 0)
+            //    results[seq].cargo = fleet[i][j].getcargo();
+
+            ++seq;
+        }
+        // add the final dump
+        results[seq].seq       = seq+1;
+        results[seq].vid       = fleet[i].getVid();
+        results[seq].nid       = fleet[i].getdumpSite().getid();
+        results[seq].ntype     = 2;
+        results[seq].deltatime = fleet[i].getdumpSite().getDepartureTime() -
+                                 fleet[i][fleet[i].size()-1].getDepartureTime();
+        results[seq].cargo     = -fleet[i][fleet[i].size()-1].getcargo();
+        ++seq;
+
+        // add the ending location
+        results[seq].seq       = seq+1;
+        results[seq].vid       = fleet[i].getVid();
+        results[seq].nid       = fleet[i].getdepot().getid();
+        results[seq].ntype     = 3;
+        results[seq].deltatime = fleet[i].getdepot().getDepartureTime() -
+                                 fleet[i].getdumpSite().getDepartureTime();
+        results[seq].cargo     = fleet[i].getdepot().getcargo();
+        ++seq;
+    }
+
+std::cout << "Solution::getSolutionForPg: seq: " << seq <<", count: " << count << std::endl;
+
+    return results;
 }
 
 

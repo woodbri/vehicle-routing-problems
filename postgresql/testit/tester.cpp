@@ -123,7 +123,21 @@ int main(int argc, char **argv) {
                                     &result, &result_count, &err_msg);
 
         std::cout << "ret: " << ret << std::endl;
-        std::cout << "msg: " << err_msg << std::endl;
+        if (err_msg) std::cout << "msg: " << err_msg << std::endl;
+
+        if (result_count > 0) {
+            for (int i=0; i<result_count; ++i) {
+                std::cout << result[i].seq
+                    << "\t" << result[i].vid
+                    << "\t" << result[i].nid
+                    << "\t" << result[i].ntype
+                    << "\t" << result[i].deltatime
+                    << "\t" << result[i].cargo
+                    << std::endl;
+            }
+            free(result);
+        }
+
     }
     catch (const std::exception &e) {
         std::cerr << e.what() << std::endl;
