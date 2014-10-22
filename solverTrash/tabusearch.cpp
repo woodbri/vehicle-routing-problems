@@ -104,11 +104,12 @@ void TabuSearch::search() {
     bool improvedBest;
     int lastImproved = 0;
     do {
-        // set the stagnation count as the last the last parameter
-        // the values 500, 300, 300 can from the paper mentioned above
         std::cout << "TABUSEARCH: Starting iteration: " << currentIteration
             << std::endl;
-
+        // [article]
+        // set the stagnation count as the last the last parameter
+        // the values 500, 300, 300 can from the paper mentioned above
+        //
         // this is a token ring search
         // for each iteration we process all moves available
         // from each slot (ie: Ins, IntraSw, InterSw)
@@ -139,9 +140,63 @@ void TabuSearch::search() {
 }
 
 
+void TabuSearch::generateNeighborhoodStats(std::string mtype, double tm, int cnt) const {
+    STATS->addto("time Gen "+mtype, tm);
+    STATS->inc("cnt Calls Gen "+mtype);
+    STATS->addto("cum Moves "+mtype, cnt);
+std::cout << "\tdoNeighborhoodMoves for " << mtype << ": " << cnt
+<< " moves generated" << std::endl;
+}
+
+
+void TabuSearch::generateNeighborhood(neighborMovesName whichNeighborhood, std::deque<Move>& neighborhood, const Move& lastMove) const {
+
+    // generate the a move neighborhood based on the currentSolution
+    // this is fast and efficient as move generation accounts for most
+    // of the computational time.
+    // We only look at a very small percentage of the actual moves
+    // but we have to calcuate savings and feasiblity on all of them
+
+std::cout << "generateNeighborhood: lastMove: "; lastMove.dump();
+
+    Timer timeNeighboorhoodGeneration;
+    switch (whichNeighborhood) {
+        case Ins:
+            ++currentIterationIns;
+            //currentSolution.v_getInsNeighborhood(neighborhood, factor);
+            currentSolution.getInsNeighborhood(neighborhood, lastMove);
+
+            // collect stats
+            generateNeighborhoodStats("Ins",
+                    timeNeighboorhoodGeneration.duration(),
+                    neighborhood.size());
+            break;
+        case IntraSw:
+            ++currentIterationIntraSw;
+            //currentSolution.v_getIntraSwNeighborhood(neighborhood, factor);
+            currentSolution.getIntraSwNeighborhood(neighborhood, lastMove);
+
+            // collect stats
+            generateNeighborhoodStats("IntraSw",
+                    timeNeighboorhoodGeneration.duration(),
+                    neighborhood.size());
+            break;
+        case InterSw:
+            ++currentIterationInterSw;
+            //currentSolution.v_getInterSwNeighborhood(neighborhood, factor);
+            currentSolution.getInterSwNeighborhood(neighborhood, lastMove);
+
+            // collect stats
+            generateNeighborhoodStats("InterSw",
+                    timeNeighboorhoodGeneration.duration(),
+                    neighborhood.size());
+            break;
+    }
+}
+
 
 /*
-    Algorithm for processing neighborhood moves
+    Algorithm for processing neighborhood moves [article]
 
     For the requested individual move neighborhood:
         doInsMoves, doIntraSwMoves, doInterSwMoves
@@ -153,76 +208,34 @@ void TabuSearch::search() {
         if the move is aspirational we apply the move
         otherwise if the move is not Tabu apply the move
         even if it makes the current solution worse.
-        If all moves are tabu, then apply one (either best or ar random)
+        If all moves are tabu, then apply the best one
     } until there are not valid moves or stagnation 
-    return an indicator that we improved the best move ot not.
+    return an indicator that we improved the best move or not.
 */
 
 bool TabuSearch::doNeighborhoodMoves(neighborMovesName whichNeighborhood, int maxStagnation) {
     bool improvedBest = false;
     int stagnationCnt = 0;
     double factor = 0.5;
+    std::string mName;
 
-    // we always start from the best solution of the last run
+    switch (whichNeighborhood) {
+        case Ins:     mName = "Ins";    break;
+        case IntraSw: mName = "IntraSw"; break;
+        case InterSw: mName = "InterSw"; break;
+    }
+
+    // we always start from the best solution of the last run [article]
     currentSolution = bestSolution;
 
     STATS->set("factor", factor);
 
+    std::deque<Move> neighborhood;
+    Move lastMove;
+
     do {
-
-        // generate the a move neighborhood based on the currentSolution
-        // this is fast and efficient as move generation account for most
-        // of the computational time.
-        // We only look at a very small percentage of the actual moves
-        // but we have to calcuate savings and feasiblity
-
-        // VERIFY that  neighborhood generation is CONST
-        std::string solBefore = currentSolution.solutionAsText();
-
-        std::deque<Move> neighborhood;
-        Timer timeNeighboorhoodGeneration;
-        switch (whichNeighborhood) {
-            case Ins:
-                ++currentIterationIns;
-                currentSolution.v_getInsNeighborhood(neighborhood, factor);
-                //currentSolution.getInsNeighborhood(neighborhood);
-
-                // collect stats
-                STATS->addto("time Gen Ins", timeNeighboorhoodGeneration.duration());
-                STATS->inc("cnt Gen Ins Calls");
-                STATS->addto("cum Ins Moves", neighborhood.size());
-std::cout << "\tdoNeighborhoodMoves for Ins: " << neighborhood.size()
-    << " moves generated" << std::endl;
-                break;
-            case IntraSw:
-                ++currentIterationIntraSw;
-                currentSolution.v_getIntraSwNeighborhood(neighborhood, factor);
-                //currentSolution.getIntraSwNeighborhood(neighborhood);
-
-                // collect stats
-                STATS->addto("time Gen IntraSw", timeNeighboorhoodGeneration.duration());
-                STATS->inc("cnt Gen IntraSw Calls");
-                STATS->addto("cum IntraSw Moves", neighborhood.size());
-std::cout << "\tdoNeighborhoodMoves for IntraSw: " << neighborhood.size()
-    << " moves generated" << std::endl;
-                break;
-            case InterSw:
-                ++currentIterationInterSw;
-                currentSolution.v_getInterSwNeighborhood(neighborhood, factor);
-                //currentSolution.getInterSwNeighborhood(neighborhood);
-
-                // collect stats
-                STATS->addto("time Gen InterSw", timeNeighboorhoodGeneration.duration());
-                STATS->inc("cnt Gen InterSw Calls");
-                STATS->addto("cum InterSw Moves", neighborhood.size());
-std::cout << "\tdoNeighborhoodMoves for InterSw: " << neighborhood.size()
-    << " moves generated" << std::endl;
-                break;
-        }
-
-        // VERIFY that neighborhood generation is CONST
-        std::string solAfter = currentSolution.solutionAsText();
-        assert(solBefore == solAfter);
+        // generate or regenerate the neighborhood moves
+        generateNeighborhood(whichNeighborhood, neighborhood, lastMove);
 
         // and sort it so we can work from the best to the worst
         std::sort(neighborhood.begin(), neighborhood.end(), Move::bySavings);
@@ -241,20 +254,17 @@ std::cout << "\tdoNeighborhoodMoves for InterSw: " << neighborhood.size()
             if (currentSolution.getCost() - it->getsavings() < bestSolutionCost) {
 std::cout << "\tdoNeighborhoodMoves: Aspiration move: "; it->dump();
                 currentSolution.applyMove(*it);
+                makeTabu(*it);
+                lastMove = *it;
+
                 bestSolution = currentSolution;
                 bestSolutionCost = bestSolution.getCost();
-                makeTabu(*it);
                 improvedBest = true;
                 stagnationCnt = 0;
                 allTabu = false;
                 STATS->set("best Updated Last At", currentIteration);
                 STATS->inc("best Updated Cnt");
-                // update stats
-                switch (whichNeighborhood) {
-                    case Ins:     STATS->inc("cnt Ins Applied");    break;
-                    case IntraSw: STATS->inc("cnt IntraSw Applied"); break;
-                    case InterSw: STATS->inc("cnt InterSw Applied"); break;
-                }
+                STATS->inc("cnt Applied " + mName);
 
                 // ok we made a move, so now the neighborhood is no
                 // longer valid so break to regenerate a new neighborhood
@@ -267,13 +277,10 @@ std::cout << "\tdoNeighborhoodMoves: Aspiration move: "; it->dump();
 std::cout << "\tdoNeighborhoodMoves: Not Tabu: "; it->dump();
                 currentSolution.applyMove(*it);
                 makeTabu(*it);
+                lastMove = *it;
+
                 allTabu = false;
-                // update stats
-                switch (whichNeighborhood) {
-                    case Ins:     STATS->inc("cnt Ins Applied");    break;
-                    case IntraSw: STATS->inc("cnt IntraSw Applied"); break;
-                    case InterSw: STATS->inc("cnt InterSw Applied"); break;
-                }
+                STATS->inc("cnt Applied " + mName);
 
                 // ok we made a move, so now the neighborhood is no
                 // longer valid so break to regenerate a new neighborhood
@@ -285,23 +292,16 @@ std::cout << "\tdoNeighborhoodMoves: Not Tabu: "; it->dump();
         }
 
         // if all the moves are tabu then we need to pick one
-        // the articles says to pick the best but that does not diversify
-        // the search trajecory very much
-        // so we will try picking based on different strategies here
+        // the articles says to pick the best
         if (allTabu and neighborhood.size()) {
-            bool pickWorst = rand()%100 > 50;
-            //int pick = rand() % std::min((unsigned)neighborhood.size(), (unsigned)stagnationCnt*10);
             int pick = 0; // pick the best
-            //if (pickWorst) pick = neighborhood.size()-1; // pick the worst
 
-std::cout << "\tdoNeighborhoodMoves: All Tabu(" << pick << "): "; neighborhood.begin()->dump();
-            currentSolution.applyMove(*(neighborhood.begin()+pick));
-            makeTabu(*(neighborhood.begin()+pick));
-            switch (whichNeighborhood) {
-                case Ins:     STATS->inc("cnt allTabu Ins Applied");    break;
-                case IntraSw: STATS->inc("cnt allTabu IntraSw Applied"); break;
-                case InterSw: STATS->inc("cnt allTabu InterSw Applied"); break;
-            }
+            lastMove = *(neighborhood.begin()+pick);
+            currentSolution.applyMove(lastMove);
+            makeTabu(lastMove);
+
+std::cout << "\tdoNeighborhoodMoves: All Tabu(" << pick << "): "; lastMove.dump();
+            STATS->inc("cnt Applied " + mName);
         }
         STATS->addto("time Apply Moves", applyMoveTimer.duration());
     }

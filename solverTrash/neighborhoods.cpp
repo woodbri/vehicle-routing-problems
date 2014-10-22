@@ -119,27 +119,70 @@ double Neighborhoods::getMoveSavings(const Move& m)  const {
 }
 
 
-// this should be dumb and fast as it is called a HUGE number of times
-// The Ins move is defined as follows:
-//      mtype = Move::Ins
-//      vid1 - vehicle from
-//      nid1 - node id in vehicle 1
-//      pos1 - postion of nid1 in vid1
-//      vid2 - destination vehicle
-//      nid2 = -1 unused
-//      pos2 - position to insert nid1 in vid2
-//
-// Algorithm
-//   for every pickup node in every vehicle
-//      create Move objects for moving that node to every position
-//      in every other route if the Move would be feasable
-//
-void Neighborhoods::getInsNeighborhood(std::deque<Move>& moves)  const {
-    moves.clear();
+int Neighborhoods::clearRelatedMoves(std::deque<Move>& moves, const Move& lastMove)  const {
+    int cnt = 0;
+    int kept = 0;
+
+    // an invalid move will trigger clearing all moves
+    // if the fleet is <4 then all moves will get cleared regardless
+    if ( lastMove.getmtype() == Move::Invalid or fleet.size()<4) {
+        cnt = moves.size();
+        moves.clear();
+    }
+    else {
+
+        // otherwise we just remove the moves that would be invalidated
+        // by the last move when it was applied
+        std::deque<Move>::iterator it = moves.begin();
+        while (it != moves.end()) {
+            if ( it->getvid1() == lastMove.getvid1() ||
+                 it->getvid1() == lastMove.getvid2() ||
+                 it->getvid2() == lastMove.getvid1() ||
+                 it->getvid2() == lastMove.getvid2() ) {
+                ++cnt;
+                it = moves.erase( it );
+            }
+            else {
+                ++it;
+                ++kept;
+            }
+        }
+    }
+
+std::cout << "clearRelatedMoves: cleared: " << cnt << ", kept: " << kept << std::endl;
+
+    return cnt;
+}
+
+
+int Neighborhoods::addRelatedMovesIns(std::deque<Move>& moves, const Move& lastMove)  const {
+    int cnt = 0;
+    bool all = lastMove.getmtype() == Move::Invalid;
+    int va = lastMove.getvid1();
+    int vb = lastMove.getvid2();
+
+    // generate moves based on the list of vid positions
+    // and add them to the moves container
     // iterate through the vechicles (vi, vj)
     for (int vi=0; vi<fleet.size(); vi++) {
         for (int vj=0; vj<fleet.size(); vj++) {
             if (vi==vj) continue;
+            // assume we have vehicles 0-10
+            // and lastMove has vid1=va and vid2=vb
+            // then we want to renerate moves where
+            //  vi      vj
+            //------------
+            //  va  -> 0-10
+            //  vb  -> 0-10
+            // 0-10 ->  va
+            // 0-10 ->  vb
+            // unless we need to generate all moves
+            //
+            if ( not all and
+                 not (((vi == va or vi == vb) and
+                       (vj != va or vj != vb)) or
+                      ((vj == va or vj == vb) and
+                       (vi != va or vi != vb))) ) continue;
 
             // iterate through the positions of each path (pi, pj)
             // dont exchange the depot in position 0
@@ -182,34 +225,29 @@ void Neighborhoods::getInsNeighborhood(std::deque<Move>& moves)  const {
                     m.setsavings(getMoveSavings(m));
 
                     moves.push_back(m);
+                    ++cnt;
                 }
             }
         }
     }
+
+    return cnt;
 }
 
 
-// this should be dumb and fast as it is called a HUGE number of times
-// IntraSw move is defined as follows:
-//      mtype = Move::IntraSw
-//      vid1 - vehicle we are changing
-//      nid1 - node id 1 that we are swapping
-//      pos1 - position of nid1 in vid1
-//      vid2 = -1 unused
-//      nid2 - node id 2 that will get swapped with node id 1
-//      pos2 - position of nid2 in vid1
-//
-// Algorithm
-//  for every vehicle
-//      for every pickup node
-//          try to swap that node to every other position
-//          within its original vehicle
-//
-void Neighborhoods::getIntraSwNeighborhood(std::deque<Move>& moves)  const {
-    moves.clear();
+int Neighborhoods::addRelatedMovesIntraSw(std::deque<Move>& moves, const Move& lastMove)  const {
+    int cnt = 0;
+    bool all = lastMove.getmtype() == Move::Invalid or not moves.size();
+    int va = lastMove.getvid1();
 
+    // generate moves based on the list of vid positions
+    // and add them to the moves container
     // iterate through each vehicle (vi)
     for (int vi=0; vi<fleet.size(); vi++) {
+
+        // we only need to regenerate moves for the vehicle in lastMove
+        // unless all is true
+        if (not all and not vi == va) continue;
 
         // iterate through the nodes in the path (pi, pj)
         // dont exchange the depot in position 0
@@ -243,6 +281,110 @@ void Neighborhoods::getIntraSwNeighborhood(std::deque<Move>& moves)  const {
             }
         }
     }
+
+    return cnt;
+}
+
+
+int Neighborhoods::addRelatedMovesInterSw(std::deque<Move>& moves, const Move& lastMove)  const {
+    int cnt = 0;
+
+    // an ivalid move will trigger generating the full neighborhood
+    if ( lastMove.getmtype() == Move::Invalid ) {
+        // make a list of all vid positions
+    }
+    else {
+        // make a list of all impacted vid positions
+    }
+
+    // generate moves based on the list of vid positions
+    // and add them to the moves container
+
+    return cnt;
+}
+
+
+
+
+// this should be dumb and fast as it is called a HUGE number of times
+// The Ins move is defined as follows:
+//      mtype = Move::Ins
+//      vid1 - vehicle from
+//      nid1 - node id in vehicle 1
+//      pos1 - postion of nid1 in vid1
+//      vid2 - destination vehicle
+//      nid2 = -1 unused
+//      pos2 - position to insert nid1 in vid2
+//
+// Algorithm
+//   for every pickup node in every vehicle
+//      create Move objects for moving that node to every position
+//      in every other route if the Move would be feasable
+//
+void Neighborhoods::getInsNeighborhood(std::deque<Move>& moves, const Move& lastMove)  const {
+    int removed = clearRelatedMoves(moves, lastMove);
+    int added = addRelatedMovesIns(moves, lastMove);
+
+std::cout << "getInsNeighborhood: neighborhood updated: "
+          << -removed << ", " << added
+          << ", " << moves.size() << " ";
+lastMove.dump();
+
+    STATS->addto("cum Ins removed", removed);
+    STATS->addto("cum Ins added", added);
+
+    std::vector<int> stats(fleet.size(), 0);
+    for (std::deque<Move>::const_iterator it = moves.begin();
+            it != moves.end(); ++it) {
+        ++stats[it->getvid1()];
+        ++stats[it->getvid2()];
+    }
+    std::cout << "=== neigborhood stats ===\n";
+    for (int i=0; i<stats.size(); ++i)
+        if (stats[i]) std::cout << "\tvpos["<<i<<"] = "<<stats[i]<<std::endl;
+    std::cout << "=========================\n";
+}
+
+
+// this should be dumb and fast as it is called a HUGE number of times
+// IntraSw move is defined as follows:
+//      mtype = Move::IntraSw
+//      vid1 - vehicle we are changing
+//      nid1 - node id 1 that we are swapping
+//      pos1 - position of nid1 in vid1
+//      vid2 = -1 unused
+//      nid2 - node id 2 that will get swapped with node id 1
+//      pos2 - position of nid2 in vid1
+//
+// Algorithm
+//  for every vehicle
+//      for every pickup node
+//          try to swap that node to every other position
+//          within its original vehicle
+//
+void Neighborhoods::getIntraSwNeighborhood(std::deque<Move>& moves, const Move& lastMove)  const {
+    int removed = clearRelatedMoves(moves, lastMove);
+    int added = addRelatedMovesIntraSw(moves, lastMove);
+
+std::cout << "getIntraSwNeighborhood: neighborhood updated: "
+          << -removed << ", " << added
+          << ", " << moves.size() << " ";
+lastMove.dump();
+
+    STATS->addto("cum IntraSw removed", removed);
+    STATS->addto("cum IntraSw added", added);
+
+    std::vector<int> stats(fleet.size(), 0);
+    for (std::deque<Move>::const_iterator it = moves.begin();
+            it != moves.end(); ++it) {
+        ++stats[it->getvid1()];
+        ++stats[it->getvid2()];
+    }
+    std::cout << "=== neigborhood stats ===\n";
+    for (int i=0; i<stats.size(); ++i)
+        if (stats[i]) std::cout << "\tvpos["<<i<<"] = "<<stats[i]<<std::endl;
+    std::cout << "=========================\n";
+
 }
 
 
@@ -256,7 +398,7 @@ void Neighborhoods::getIntraSwNeighborhood(std::deque<Move>& moves)  const {
 //      nid2 = node id in vehicle 2
 //      pos2 - position od nid2 in vid2
 //
-void Neighborhoods::getInterSwNeighborhood(std::deque<Move>& moves)  const {
+void Neighborhoods::getInterSwNeighborhood(std::deque<Move>& moves, const Move& lastMove)  const {
     moves.clear();
     // iterate through the vechicles (vi, vj)
     for (int vi=0; vi<fleet.size(); vi++) {
