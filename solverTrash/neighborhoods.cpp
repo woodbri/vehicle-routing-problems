@@ -1,4 +1,5 @@
 
+#include "timer.h"
 #include "trashstats.h"
 #include "neighborhoods.h"
 
@@ -125,7 +126,8 @@ int Neighborhoods::clearRelatedMoves(std::deque<Move>& moves, const Move& lastMo
 
     // an invalid move will trigger clearing all moves
     // if the fleet is <4 then all moves will get cleared regardless
-    if ( lastMove.getmtype() == Move::Invalid or fleet.size()<4) {
+    if ( lastMove.getmtype() == Move::Invalid or 
+         (lastMove.getmtype() != Move::IntraSw and fleet.size()<4) ) {
         cnt = moves.size();
         moves.clear();
     }
@@ -179,10 +181,8 @@ int Neighborhoods::addRelatedMovesIns(std::deque<Move>& moves, const Move& lastM
             // unless we need to generate all moves
             //
             if ( not all and
-                 not (((vi == va or vi == vb) and
-                       (vj != va or vj != vb)) or
-                      ((vj == va or vj == vb) and
-                       (vi != va or vi != vb))) ) continue;
+                 not ( (vi == va or vi == vb) or
+                       (vj == va or vj == vb) ) ) continue;
 
             // iterate through the positions of each path (pi, pj)
             // dont exchange the depot in position 0
@@ -268,7 +268,7 @@ int Neighborhoods::addRelatedMovesIntraSw(std::deque<Move>& moves, const Move& l
                        fleet[vi][pi].getnid(), // nid1
                        fleet[vi][pj].getnid(), // nid2
                        vi,  // vid1
-                       -1,  // vid2
+                       vi,  // vid2
                        pi,  // pos1
                        pj,  // pos2
                        0.0);    // dummy savings
@@ -278,6 +278,7 @@ int Neighborhoods::addRelatedMovesIntraSw(std::deque<Move>& moves, const Move& l
                 m.setsavings(getMoveSavings(m));
 
                 moves.push_back(m);
+                ++cnt;
             }
         }
     }
@@ -288,17 +289,60 @@ int Neighborhoods::addRelatedMovesIntraSw(std::deque<Move>& moves, const Move& l
 
 int Neighborhoods::addRelatedMovesInterSw(std::deque<Move>& moves, const Move& lastMove)  const {
     int cnt = 0;
-
-    // an ivalid move will trigger generating the full neighborhood
-    if ( lastMove.getmtype() == Move::Invalid ) {
-        // make a list of all vid positions
-    }
-    else {
-        // make a list of all impacted vid positions
-    }
+    bool all = lastMove.getmtype() == Move::Invalid;
+    int va = lastMove.getvid1();
+    int vb = lastMove.getvid2();
 
     // generate moves based on the list of vid positions
     // and add them to the moves container
+
+    // iterate through the vechicles (vi, vj)
+    for (int vi=0; vi<fleet.size(); vi++) {
+        for (int vj=0; vj<fleet.size(); vj++) {
+            if (vi==vj) continue;
+            // assume we have vehicles 0-10
+            // and lastMove has vid1=va and vid2=vb
+            // then we want to regenerate moves where
+            //  vi      vj
+            //------------
+            //  va  -> 0-10
+            //  vb  -> 0-10
+            // 0-10 ->  va
+            // 0-10 ->  vb
+            // unless we need to generate all moves
+            //
+            if ( not all and
+                 not ( (vi == va or vi == vb) or
+                       (vj == va or vj == vb) ) ) continue;
+
+            // iterate through the positions of each path (pi, pj)
+            // dont exchange the depot in position 0
+            for (int pi=1; pi<fleet[vi].size(); pi++) {
+                // dont try to move the dump
+                if(fleet[vi][pi].isdump()) continue;
+
+                for (int pj=1; pj<fleet[vj].size(); pj++) {
+                    // dont try to move the dump
+                    if(fleet[vj][pj].isdump()) continue;
+
+                    // create a move with a dummy savings value
+                    Move m(Move::InterSw,
+                           fleet[vi][pi].getnid(), // nid1
+                           fleet[vj][pj].getnid(), // nid2
+                           vi,  // vid1
+                           vj,  // vid2
+                           pi,  // pos1
+                           pj,  // pos2
+                           0.0);    // dummy savings
+                    if (isNotFeasible(m)) continue;
+                    double savings = getMoveSavings(m);
+                    m.setsavings(savings);
+                    moves.push_back(m);
+                    ++cnt;
+                }
+            }
+        }
+    }
 
     return cnt;
 }
@@ -322,12 +366,14 @@ int Neighborhoods::addRelatedMovesInterSw(std::deque<Move>& moves, const Move& l
 //      in every other route if the Move would be feasable
 //
 void Neighborhoods::getInsNeighborhood(std::deque<Move>& moves, const Move& lastMove)  const {
+    Timer t0;
     int removed = clearRelatedMoves(moves, lastMove);
     int added = addRelatedMovesIns(moves, lastMove);
 
 std::cout << "getInsNeighborhood: neighborhood updated: "
           << -removed << ", " << added
-          << ", " << moves.size() << " ";
+          << ", " << moves.size() << ", time: "
+          << t0.duration();
 lastMove.dump();
 
     STATS->addto("cum Ins removed", removed);
@@ -363,12 +409,14 @@ lastMove.dump();
 //          within its original vehicle
 //
 void Neighborhoods::getIntraSwNeighborhood(std::deque<Move>& moves, const Move& lastMove)  const {
+    Timer t0;
     int removed = clearRelatedMoves(moves, lastMove);
     int added = addRelatedMovesIntraSw(moves, lastMove);
 
 std::cout << "getIntraSwNeighborhood: neighborhood updated: "
           << -removed << ", " << added
-          << ", " << moves.size() << " ";
+          << ", " << moves.size() << ", time: "
+          << t0.duration();
 lastMove.dump();
 
     STATS->addto("cum IntraSw removed", removed);
@@ -399,38 +447,29 @@ lastMove.dump();
 //      pos2 - position od nid2 in vid2
 //
 void Neighborhoods::getInterSwNeighborhood(std::deque<Move>& moves, const Move& lastMove)  const {
-    moves.clear();
-    // iterate through the vechicles (vi, vj)
-    for (int vi=0; vi<fleet.size(); vi++) {
-        for (int vj=0; vj<fleet.size(); vj++) {
-            if (vi==vj) continue;
-            // iterate through the positions of each path (pi, pj)
-            // dont exchange the depot in position 0
-            for (int pi=1; pi<fleet[vi].size(); pi++) {
-                // dont try to move the dump
-                if(fleet[vi][pi].isdump()) continue;
+    Timer t0;
+    int removed = clearRelatedMoves(moves, lastMove);
+    int added = addRelatedMovesInterSw(moves, lastMove);
 
-                for (int pj=1; pj<fleet[vj].size(); pj++) {
-                    // dont try to move the dump
-                    if(fleet[vj][pj].isdump()) continue;
+std::cout << "getInsNeighborhood: neighborhood updated: "
+          << -removed << ", " << added
+          << ", " << moves.size() << ", time: "
+          << t0.duration();
+lastMove.dump();
 
-                    // create a move with a dummy savings value
-                    Move m(Move::InterSw,
-                           fleet[vi][pi].getnid(), // nid1
-                           fleet[vj][pj].getnid(), // nid2
-                           vi,  // vid1
-                           vj,  // vid2
-                           pi,  // pos1
-                           pj,  // pos2
-                           0.0);    // dummy savings
-                    if (isNotFeasible(m)) continue;
-                    double savings = getMoveSavings(m);
-                    m.setsavings(savings);
-                    moves.push_back(m);
-                }
-            }
-        }
+    STATS->addto("cum InterSw removed", removed);
+    STATS->addto("cum InterSw added", added);
+
+    std::vector<int> stats(fleet.size(), 0);
+    for (std::deque<Move>::const_iterator it = moves.begin();
+            it != moves.end(); ++it) {
+        ++stats[it->getvid1()];
+        ++stats[it->getvid2()];
     }
+    std::cout << "=== neigborhood stats ===\n";
+    for (int i=0; i<stats.size(); ++i)
+        if (stats[i]) std::cout << "\tvpos["<<i<<"] = "<<stats[i]<<std::endl;
+    std::cout << "=========================\n";
 }
 
 
