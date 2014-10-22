@@ -334,12 +334,17 @@ std::cout<<"Entering twpath::e__adjustDumpsToMaxCapacity \n";
 	if (path[size()-1].feasable()) return true; // no need to add a dump
         if (  path[size()-1].gettwvTot() ) return false; //without dumps its unfeasable
 
-	//the path is dumpless
+	//the path is dumplessi from the currentpos
 	while ( path[size()-1].getcvTot() )  { //add dumps because of CV
 	    //cycle until we find the first non CV
-            for (i = path.size()-1; i>=currentPos and not path[i].getcvTot(); i--) {};
+            for (i = path.size()-1; i>=currentPos-1 and path[i].getcvTot(); i--) {};
 	    insert(dumpSite,i+1); // the dump should be after pos i
-	    evaluate(i+1,maxcapacity);//reevaluate the rest of the route
+	    evaluate(i,maxcapacity);//reevaluate the rest of the route
+
+#ifdef TESTED
+std::cout<<"Entering twpath::e__adjustDumpsToMaxCapacity: inserted a dump \n";
+dumpeval();
+#endif 
 	    //dont bother going to what we had before
 	    if (  path[size()-1].feasable() ) return true; //added a dump and  is no cv and no twv 
 	    if (  path[size()-1].gettwvTot() ) return false; // added a dump and created a twv, so why bother adding another dump
