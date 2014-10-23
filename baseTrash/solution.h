@@ -76,6 +76,13 @@ typedef  TwBucket<Trashnode> Bucket;
 // Cost related
 
 #ifdef VICKY
+	void dumpCostValues() {
+		for (int i=0;i<fleet.size();i++) 
+			fleet[i].getcost(twc);
+		for (int i=0;i<fleet.size();i++) 
+			fleet[i].dumpCostValues();
+	}
+
 	void setInitialValues() {
 		for (int i=0;i<fleet.size();i++) 
 			fleet[i].setInitialValues(C,twc,pickups);
