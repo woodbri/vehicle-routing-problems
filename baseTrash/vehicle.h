@@ -74,9 +74,9 @@ class Vehicle: public BaseVehicle {
         w1 = w2 = w3 = 1.0;
     };
 
-<<<<<<< HEAD
-    Vehicle(std::string line,const Bucket &otherlocs): BaseVehicle(line,otherlocs)   { };
-=======
+
+    Vehicle(std::string line,const Bucket &otherlocs): BaseVehicle(line,otherlocs)   { }
+
 
     Vehicle(int _vid, int _start_id, int _dump_id, int _end_id,
             int _capacity, int _dumpservicetime, int _starttime,
@@ -85,9 +85,6 @@ class Vehicle: public BaseVehicle {
                       _capacity, _dumpservicetime, _starttime,
                       _endtime, otherlocs) {};
 
-
-    Vehicle(std::string line,const Bucket &otherlocs): BaseVehicle(line,otherlocs)   { }
->>>>>>> postgresql
 
 #ifdef VICKY
     bool eval_erase(int at, double &savings,const TWC<Trashnode> &twc) const;
@@ -341,10 +338,7 @@ void dumpCostValues(){
 			<<"arrivalEcloseslast\t"<<arrivalEcloseslast<<"\n";
 */
 	};
-<<<<<<< HEAD
 #endif
-=======
->>>>>>> postgresql
 
 };
 
