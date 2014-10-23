@@ -32,6 +32,7 @@ class Twnode: public Node {
     bool hasnogoods() const { return getdemand()==0; };
     bool earlyarrival(const double arrivalTime) const { return arrivalTime < tw_open; };
     bool latearrival(const double arrivalTime) const { return arrivalTime > tw_close; };
+    bool sameStreet (const Twnode &other) const {return streetid==other.streetid; };
 
     // mutators
     void set(int _nid, int _id, double _x, double _y, int _demand,

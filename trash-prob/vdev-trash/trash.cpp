@@ -49,13 +49,14 @@ int main(int argc, char **argv) {
        
         FeasableSol tp(infile);
         tp.setInitialValues();
+        tp.dumpCostValues();
 
         TabuSearch ts(tp);
         ts.v_search();
         ts.dumpStats();
 
         Solution best = ts.getBestSolution();
-        best.setInitialValues();
+        best.dumpCostValues();
 
     }
     catch (const std::exception &e) {

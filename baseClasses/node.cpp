@@ -46,6 +46,11 @@ Node  Node::operator-( const Node &v ) const { return Node( x - v.x, y - v.y ); 
 Node  Node::operator*( double f ) const { return Node( x * f, y * f ); };
 double Node::dotProduct( const Node &p ) const { return x * p.x + y * p.y; };
 double Node::length( const Node &p ) const { return sqrt( x * x + y * y ); };
+double Node::gradient( const Node &p ) const { 
+	double deltaY = p.y - y;
+	double deltaX= p.x - x+0.001;
+	return  deltaY/deltaX;
+};
 double Node::distanceTo( const Node &p ) const { return sqrt( distanceToSquared( p ) ); };
 
 double Node::distanceToSquared( const Node &p ) const {

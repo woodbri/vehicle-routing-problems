@@ -510,6 +510,14 @@ void settCC (const knode &C, const Bucket &picks) {
     travel_Time[pos][pos]=getAverageTime(C,picks);
 }
 
+bool sameStreet(int i,int j) {
+	return original[i].sameStreet(original[j]);
+}
+
+double gradient(int i,int j) {
+	return original[i].gradient(original[j]);
+}
+
 void loadAndProcess_distance(std::string infile, const Bucket &datanodes, const Bucket &invalid ) {
     assert(datanodes.size());
     original.clear();
@@ -527,11 +535,14 @@ void loadAndProcess_distance(std::string infile, const Bucket &datanodes, const 
     for (int i=0;i<siz;i++)
        for (int j=i;j<siz;j++) {
           if (i==j) travel_Time[i][i]=0;
-          else travel_Time[i][j]=travel_Time[j][i]=original[i].distance(original[j])/250;
+          else {
+		travel_Time[i][j]=travel_Time[j][i]=original[i].distance(original[j])/250;
+#ifdef VICKY
+		if (not sameStreet(i,j)) travel_Time[i][j]=travel_Time[i][j] * ( std::abs(std::sin(gradient(i,j))) + std::abs(std::cos(gradient(i,j)))  );
+#endif
+          }
     }
 
-
-//std::cout<<siz<<"<---- size\n";
     int from,to;
     double time;
     int cnt = 0;

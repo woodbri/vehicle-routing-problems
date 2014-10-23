@@ -21,6 +21,22 @@ void Solution::computeCosts() {
         totalCost += fleet[i].getcost();
         totalDistance += fleet[i].getduration();
     }
+#ifdef VICKY
+    totalCost = 0.0;
+    for (int i=0; i<fleet.size(); i++) {
+	if (fleet[i].size()==1) {
+		std::cout<<"FOUND A TRUCK WITHOUT CONTAINERS";
+		trucks.push_back(fleet[i]);
+		fleet.erase(fleet.begin()+i);
+		break;
+	};
+    }
+    for (int i=0; i<fleet.size(); i++) {
+//if (fleet[i].size()==1) std::cout<<"FOUND A TRUCK WITHOUT CONTAINERS";
+	totalCost+=fleet[i].getcost(twc);
+    }
+
+#endif
 }
 
 double Solution::getCost() const {
