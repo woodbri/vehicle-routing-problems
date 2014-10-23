@@ -12,6 +12,7 @@
 #include "twpath.h"
 #include "plot.h"
 #include "move.h"
+#include "pg_types_vrp.h"
 
 
 class BaseVehicle  {
@@ -62,6 +63,56 @@ class BaseVehicle  {
         cost        = 0;
         w1 = w2 = w3 = 1.0;
     };
+
+    BaseVehicle(int _vid, int _start_id, int _dump_id, int _end_id,
+                int _capacity, int _dumpservicetime, int _starttime,
+                int _endtime, const Bucket &otherlocs) {
+
+        assert(otherlocs.size());
+        cost        = 0;
+        w1 = w2 = w3 = 1.0;
+
+        int depotId,  depotNid;
+        int dumpId,   dumpNid;
+        int endingId, endingNid;
+        double dumpServiceTime;
+        double endTime, startTime;
+
+        vid             = _vid;
+        depotId         = _start_id;
+        dumpId          = _dump_id;
+        endingId        = _end_id;
+        maxcapacity     = _capacity;
+        dumpServiceTime = _dumpservicetime;
+        startTime       = _starttime;
+        endTime         = _endtime;
+
+        if ( depotId >= 0 and dumpId >= 0 and endingId >= 0 and
+             startTime >= 0 and startTime <= endTime and maxcapacity > 0 and
+             dumpServiceTime >= 0 and vid >= 0 and otherlocs.hasId(depotId) and
+             otherlocs.hasId(dumpId) and otherlocs.hasId(endingId) ){ 
+
+            endingSite=otherlocs[otherlocs.posFromId(endingId)];
+	        if (endingSite.closes() > endTime)
+                endingSite.setCloses(endTime);
+            dumpSite=otherlocs[otherlocs.posFromId(dumpId)];
+            dumpSite.setServiceTime(dumpServiceTime);
+            depot=otherlocs[otherlocs.posFromId(depotId)];
+	        if (depot.opens() < startTime)
+                depot.setOpens(startTime);
+
+            depot.setType(0);
+            depot.setDemand(0);
+            dumpSite.setType(1);
+            endingSite.setType(3);
+            push_back(depot);
+            evalLast();
+dumpeval();
+
+        }
+        else
+            vid=-1;  //truck is rejected
+    }
 
     BaseVehicle(std::string line,const Bucket &otherlocs)  {
        // TESTED on running program

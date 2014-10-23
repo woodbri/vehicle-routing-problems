@@ -41,6 +41,7 @@ typedef  TwBucket<Trashnode> Bucket;
   public:
 
 //    Trashnode getdepot() const { return depot;};
+    Prob_trash() {};
     Prob_trash(const char *infile);
     Prob_trash(const std::string &infile);
     void loadProblem(const std::string &infile);

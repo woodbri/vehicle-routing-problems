@@ -54,13 +54,23 @@ public:
 
 /* constructors &destructors */
     Tweval();
-    Tweval(std::string line):Twnode(line){
+    Tweval(std::string line):Twnode(line) {
         cv = twv = false;
-	cvTot = twvTot = 0;
-	cargo = 0;
-	arrivalTime = travelTime = waitTime = departureTime =0;
+        cvTot = twvTot = 0;
+        cargo = 0;
+        arrivalTime = travelTime = waitTime = departureTime =0;
         totWaitTime = totTravelTime = totServiceTime =0;
-   };
+    };
+
+    Tweval(int _id, double _x, double _y, int _open, int _close, int _service, int _demand, int _sid) : Twnode() {
+        set(_id, _id, _x, _y, _demand, _open, _close, _service);
+        setStreetId(_sid);
+        cv = twv = false;
+        cvTot = twvTot = 0;
+        cargo = 0;
+        arrivalTime = travelTime = waitTime = departureTime =0;
+        totWaitTime = totTravelTime = totServiceTime =0;
+    };
 
     ~Tweval(){};
 
