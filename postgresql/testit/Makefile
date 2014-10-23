@@ -104,7 +104,7 @@ clean:
 	find . -name "*.png" -type f -delete
 	mkdir -p $(BIN_DIR)
 	echo $(INITTRASH)
-	mkdir -p $(BUILD_DIR)/$(BASECLASSES) $(BUILD_DIR)/$(BASETRASH) $(BUILD_DIR)/$(INITTRASH) $(BUILD_DIR)/$(SOLVERTRASH) $(BUILD_DIR)/$(PSQLTRASH)
+	mkdir -p $(BUILD_DIR)/$(BASECLASSES) $(BUILD_DIR)/$(BASETRASH) $(BUILD_DIR)/$(INITTRASH) $(BUILD_DIR)/$(SOLVERTRASH) $(BUILD_DIR)/$(PSQLTRASH) logs
 
 
 cleanAll: clean
