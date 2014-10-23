@@ -81,6 +81,8 @@ class TabuSearch {
     void settabuLengthInterSw(int n) { assert(n>0); tabuLengthInterSw = n; };
 
     void search();
+    void generateNeighborhoodStats(std::string mtype, double tm, int cnt) const;
+    void generateNeighborhood(neighborMovesName whichNeighborhood, std::deque<Move>& neighborhood, const Move& lastMove) const;
     bool doNeighborhoodMoves(neighborMovesName whichNeighborhood, int maxStagnation);
 
 

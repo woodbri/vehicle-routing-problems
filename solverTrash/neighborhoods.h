@@ -18,9 +18,13 @@ insTruckPos2=0;
 
     bool isNotFeasible(const Move& m) const ;
     double getMoveSavings(const Move& m) const ;
-    void getInsNeighborhood(std::deque<Move>& moves) const ;
-    void getIntraSwNeighborhood(std::deque<Move>& moves) const;
-    void getInterSwNeighborhood(std::deque<Move>& moves) const;
+    int clearRelatedMoves(std::deque<Move>& moves, const Move& lastMove)  const;
+    int addRelatedMovesIns(std::deque<Move>& moves, const Move& lastMove)  const;
+    int addRelatedMovesIntraSw(std::deque<Move>& moves, const Move& lastMove)  const;
+    int addRelatedMovesInterSw(std::deque<Move>& moves, const Move& lastMove)  const;
+    void getInsNeighborhood(std::deque<Move>& moves, const Move& lastMove) const ;
+    void getIntraSwNeighborhood(std::deque<Move>& moves, const Move& lastMove) const;
+    void getInterSwNeighborhood(std::deque<Move>& moves, const Move& lastMove) const;
 
     void v_getIntraSwNeighborhood(std::deque<Move>& moves, double factor) const;
     void v_getInsNeighborhood(std::deque<Move>& moves,double factor) const ;
