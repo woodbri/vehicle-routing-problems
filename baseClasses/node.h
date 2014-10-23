@@ -47,6 +47,7 @@ class Node {
     Node operator*( double f ) const;
     double dotProduct( const Node &p ) const ;
     double length( const Node &p ) const ;
+    double gradient( const Node &p ) const ;
     double distanceTo( const Node &p ) const ;
     double distanceToSquared( const Node &p ) const ;
     Node unit( const Node &p ) const ;

@@ -161,9 +161,11 @@ invalid.dump("invalid");
 
     load_trucks(datafile+".vehicles.txt");
     assert(trucks.size() and depots.size() and dumps.size() and endings.size());
+#ifdef VICKY
     for (int i=0;i<trucks.size();i++) {
 	trucks[i].setInitialValues(C,twc,pickups);
     }
+#endif
     
 #ifdef TESTED
 C.dump();

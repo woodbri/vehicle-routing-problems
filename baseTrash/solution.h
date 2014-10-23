@@ -75,15 +75,13 @@ typedef  TwBucket<Trashnode> Bucket;
 
 // Cost related
 
+#ifdef VICKY
 	void setInitialValues() {
-		for (int i=0;i<fleet.size();i++) {
-//fleet[i].tau();
-//fleet[i].dump();
-//fleet[i].dumpeval();
+		for (int i=0;i<fleet.size();i++) 
 			fleet[i].setInitialValues(C,twc,pickups);
-}
 	}
-   
+#endif
+
 // code moved from OLD CODE TO BE INTEGRATED
 bool feasable() const;
 double getduration() const ;

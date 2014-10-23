@@ -12,8 +12,8 @@ public:
 intraTruckPos=0;
 interTruckPos1=0;
 interTruckPos2=1;
-insTruckPos1=0;
-insTruckPos2=1;
+insTruckPos1=fleet.size()-1;
+insTruckPos2=0;
  }; 
 
     bool isNotFeasible(const Move& m) const ;

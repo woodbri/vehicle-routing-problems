@@ -288,10 +288,82 @@ std::cout<<"Entering Vehicle::eval_erase \n";
 	truck.path.erase(at);
 	if ( not truck.e_makeFeasable(at) ) savings = _MIN(); // -infinity
         else savings = cost - truck.cost;
+
 	return truck.feasable();
 };
 	
+#ifdef VICKY
+//dont forget, negative savings is a higher cost
+bool Vehicle::eval_erase(int at, double &savings,const TWC<Trashnode> &twc) const {
+#ifdef TESTED
+std::cout<<"Entering Vehicle::eval_erase \n";
+#endif
+        assert (at<size() and at>0 );
+        if ( path[at].isdump() ) { savings=_MIN(); return false;}
+        Vehicle truck = (*this);
+	double oldcost=truck.getcost(twc);
 
+        truck.path.erase(at);
+
+        if ( not truck.e_makeFeasable(at) ) savings = _MIN(); // -infinity
+        else savings = oldcost - truck.getcost(twc);
+
+#ifdef TESTED
+std::cout<<"ERASE : oldcost"<<oldcost<<"\tnewcost"<<truck.getcost(twc)<<"\tsavings"<<oldcost - truck.getcost(twc)<<"\n";
+std::cout<<"\n";
+#endif
+        return truck.feasable();
+};
+
+long int Vehicle::eval_insertMoveDumps( const Trashnode &node,std::deque<Move> &moves, int fromTruck, int fromPos, int toTruck, double eraseSavings, double factor, const TWC<Trashnode> &twc) const {
+#ifdef TESTED
+std::cout<<"Entering Vehicle::eval_insertMoveDumps \n";
+#endif
+        Vehicle truck = (*this);
+        std::deque<int> unTestedPos;
+        std::deque<int> unfeasablePos;
+        std::deque<int> impossiblePos;
+        int currentPos,testingPos;
+	double oldcost=truck.getcost(twc);
+	double newcost;
+#ifdef TESTED
+truck.dumpCostValues();
+#endif
+
+        for ( int i=1; i<=size(); i++) unTestedPos.push_back(i);
+        while (unTestedPos.size()) {
+             currentPos=unTestedPos.back();
+             unTestedPos.pop_back();
+             truck.insert(node,currentPos);
+	
+             if ( not truck.e_makeFeasable(currentPos) ) {
+#ifdef TESTED
+truck.tau();
+truck.dumpeval();
+std::cout<<"\n";
+assert(true==false);
+#endif
+                impossiblePos.push_back(currentPos);
+                if ( path.size()*factor > impossiblePos.size() ) return moves.size();
+             } else {
+                assert ( truck.feasable() );
+	        newcost=truck.getcost(twc);
+#ifdef TESTED
+std::cout<<"insert to "<<toTruck<<": oldcost"<<oldcost<<"\tnewcost"<<truck.getcost(twc)
+	<<"\ninsert savings="<< (oldcost-newcost) <<"\teraseSavings"<<eraseSavings<<"\tsavings"<<oldcost - newcost + eraseSavings<<"\n";
+std::cout<<"\n";
+#endif
+                Move move(Move::Ins, node.getnid(),  -1,  fromTruck, toTruck,  fromPos, currentPos, (oldcost - newcost + eraseSavings)   );
+                moves.push_back(move);
+#ifdef TESTED
+move.dump();
+#endif
+             }
+             truck=(*this);
+        }
+        return moves.size();
+}
+#endif
 	
 	
 
@@ -356,7 +428,7 @@ std::cout<<"Entering Vehicle::applyMoveINSerasePart\n";
 	if (not (path[pos].getnid()==nodeNid))  return false;
         path.erase(pos);
         e_makeFeasable( pos );
-        // evalLast(); done in make feasable
+if (not feasable() ) dumpeval();
         assert ( feasable() );
         return feasable();
 }
@@ -368,7 +440,7 @@ std::cout<<"Entering Vehicle::applyMoveINSinsertPart\n";
 #endif
 	path.insert(node,pos);
 	e_makeFeasable( pos );
-	//evalLast(); makeFeasable alredy does it
+if (not feasable() ) dumpeval();
 	assert ( feasable() );
 	return feasable();
 }
