@@ -21,7 +21,7 @@ sub Usage {
     die "Usage: add-lic-to-source dir [exclude.txt]\n";
 }
 
-my $DOUPDATES = 0;
+my $DOUPDATES = 1;
 
 my @files = ();
 my %exclude = (
@@ -90,6 +90,47 @@ sub headerok {
 
 sub updateheader {
     my $f = shift;
+
+    # read the file
+    my @file = ();
+    open(IN, $f) || die "Failed to read '$f' : $!\n";
+    @file = <IN>;
+    close(IN);
+
+    my ($first, $last);
+
+    # check if header exists and remove it
+    for (my $i=0; $i<@file; $i++) {
+        $first = $i if $file[$i] =~ m/\/\*VRP\*\*/;
+        $last = $i if $file[$i] =~ m/\*\*VRP\*\//;
+        last if $first && $last;
+    }
+
+    if ((defined $first || defined $last) && ! (defined $first && defined $last)) {
+        print "ERROR: '$f' appears to have a header but it does not look complete. SKIPPING!\n";
+        return;
+    }
+
+    if (defined $first && defined $last) {
+        # remove the old header
+        if ($last > $first && $last - $first < 20) {
+            splice @file, $first, $last-$first+1;
+        }
+    }
+
+    # add the current header
+    @file = (@HEADER, @file);
+
+    # rewrite the file
+    if (defined $first && defined $last) {
+        print "UPDATE: '$f', old header ($first - $last) removed\n";
+    }
+    else {
+        print "UPDATE: '$f', added header\n";
+    }
+    open(OUT, ">$f") || die "Failed to rewrite '$f' : $!\n";
+    print OUT @file;
+    close(OUT);
 
 }
 
