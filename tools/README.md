@@ -6,8 +6,20 @@ They can be invoke using the make.
 ```
 make            # report the various options available
 make astyle     # runs astyle source formater over our code
-make doxygen    # will eventually run doxygen documentation generator
+make doxygen    # run doxygen documentation generator
+make clean      # clean ../build/doxy/ of generated documentation
+make fileheader # scan all source files and add or update the standard headers
 ```
+
+## WARNING WARNING WARNING
+
+The commands astyle and fileheader can make global changes to all files in the
+source tree! ALWAYS run these in a new branch so you can check the results
+and abandon them if you don't like the results or they somehow break the 
+source. See astyle below for an example of making a temporary branch.
+
+NOTE: These are admin tools and should NOT be run by developers.
+
 
 ## astyle source code formatter
 
@@ -50,10 +62,26 @@ that does the project merges should do this AND only when everyone has pushed
 all the work in progress and it has been merged into ``develop`` first or it
 will cause LOTS of conflicts that will need to be resolved.
 
-## doxygen documentation generator (WORK IN PROGRESS)
+## doxygen documentation generator
 
-Our plan is to document out classes and use doxygen to extract and create 
-documentation for developers of the class objects and methods.
+You can run ``make doxygen`` and it will parse our source files and generate
+HTML output in ``../build/doxy/html/``. You can then copy the directory tree
+to your webserver or browse it locally.
+
+You can run ``make clean`` to remove the in ``../builc/doxy/*``.
+
+### Requirements
+
+ * sudo apt-get install doxygen graphviz
+ * there might be others - update this if you find more
+
+## fileheader - add and/or update standard file headers
+
+``make fileheader`` will scan the source files (the script has some specific
+exclusion that might need to be updated from time to time) and adds the
+standard header to the files if it is missing or it removes old ones or
+modified headers and then ass the standard header.
+
 
 ## other tools
 
