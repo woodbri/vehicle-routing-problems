@@ -1,11 +1,11 @@
 
+ASTYLE=/usr/local/bin/astyle
 
 all:
 	@echo "Usage: make astyle|doxygen"
 
 astyle:
-	astyle --options=astyle.conf "../*.cpp" "../*.h"
-	find .. -name archive -prune -o -name \*.orig -print
+	$(ASTYLE) --options=astyle.conf "../*.cpp" "../*.h"
 
 doxygen:
 	@echo "Not implemented yet!"
