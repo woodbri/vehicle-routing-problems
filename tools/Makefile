@@ -2,10 +2,14 @@
 ASTYLE=/usr/local/bin/astyle
 
 all:
-	@echo "Usage: make astyle|doxygen"
+	@echo "Usage: make astyle|doxygen|clean"
 
 astyle:
 	$(ASTYLE) --options=astyle.conf "../*.cpp" "../*.h"
 
 doxygen:
-	@echo "Not implemented yet!"
+	mkdir -p ../build/doxy/
+	doxygen
+
+clean:
+	rm -rf ../build/doxy/*
