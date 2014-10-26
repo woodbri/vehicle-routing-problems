@@ -1,5 +1,6 @@
 
 CPP = g++
+PG_CPPFLAGS = -DPGROUTING -DNDEBUG
 
 VRPTOOLS_VERSION = 1.0
 OBJS = vrptools.o
