@@ -8,8 +8,37 @@ assert(fleet.size());
 	return true;
 }
 
+#ifdef VICKY
+int Solution::v_computeCosts() {
+    totalCost = 0.0;
+    totalDistance = 0.0;
+    int removedPos=-1;
+
+    for (int i=0; i<fleet.size(); i++) {
+        if (fleet[i].size()==1) {
+#ifndef TESTED
+                std::cout<<"FOUND A TRUCK WITHOUT CONTAINERS";
+#endif
+		removedPos=i;
+                trucks.push_back(fleet[i]);
+                fleet.erase(fleet.begin()+i);
+                break;
+        };
+    }
+    for (int i=0; i<fleet.size(); i++) {
+        totalCost+=fleet[i].getcost(twc);
+    }
+
+}
+#endif
+
+
 
 void Solution::computeCosts() {
+#ifdef VICKY
+assert(true==false);
+#endif
+
     totalCost = 0.0;
     totalDistance = 0.0;
     for (int i=0; i<fleet.size(); i++) {
@@ -21,22 +50,6 @@ void Solution::computeCosts() {
         totalCost += fleet[i].getcost();
         totalDistance += fleet[i].getduration();
     }
-#ifdef VICKY
-    totalCost = 0.0;
-    for (int i=0; i<fleet.size(); i++) {
-	if (fleet[i].size()==1) {
-		std::cout<<"FOUND A TRUCK WITHOUT CONTAINERS";
-		trucks.push_back(fleet[i]);
-		fleet.erase(fleet.begin()+i);
-		break;
-	};
-    }
-    for (int i=0; i<fleet.size(); i++) {
-//if (fleet[i].size()==1) std::cout<<"FOUND A TRUCK WITHOUT CONTAINERS";
-	totalCost+=fleet[i].getcost(twc);
-    }
-
-#endif
 }
 
 double Solution::getCost() const {

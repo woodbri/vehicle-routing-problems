@@ -519,11 +519,13 @@ void Neighborhoods::v_getIntraSwNeighborhood(std::deque<Move>& moves, double fac
 
     // iterate through each vehicle (vi)
     int truckPos=intraTruckPos;
-    if  (intraTruckPos==fleet.size()-1 ) intraTruckPos=0;
-    else intraTruckPos++;
 
 std::cout<<"working with truck "<<truckPos<<" intraSw neighborhood\n";
-    fleet[truckPos].eval_intraSwapMoveDumps( moves,  truckPos, 0, factor); 
+    fleet[truckPos].eval_intraSwapMoveDumps( moves,  truckPos, factor, twc); 
+    moves[0].dump();    
+    if ( (moves.size()==0) or (moves[0].getsavings()<0))  
+       if  (intraTruckPos==fleet.size()-1 ) intraTruckPos=0;
+       else intraTruckPos++;
 }
 
 
@@ -565,8 +567,8 @@ void Neighborhoods::v_getInsNeighborhood(std::deque<Move>& moves, double factor)
 
 void Neighborhoods::v_getInsNeighborhood(std::deque<Move>& moves, double factor, int count) const  {
 
-#ifndef TESTED
-std::cout<<"Entering Neighborhoods::v_getInsNeighborhood"<<fleet.size()<<" trucks \n";
+#ifdef TESTED
+std::cout<<"Entering Neighborhoods::v_getInsNeighborhood for "<<fleet.size()<<" trucks \n";
 #endif
 assert (feasable());
 
@@ -576,13 +578,15 @@ assert (feasable());
            interTruckPos1=insTruckPos1=fleet.size()-1;
            interTruckPos2=insTruckPos2=0;
     };
-    if (insTruckPos1== insTruckPos2) return;
+    if (insTruckPos1 == insTruckPos2) return;
 
     int fromTruck=insTruckPos1;
     int toTruck=insTruckPos2;
 
 
-std::cout<<"\n\n\n\n**********************************working with truck "<<fromTruck<<" and"<< toTruck<<"insSw neighborhood\n";
+#ifndef TESTED
+std::cout<<"\n\n\n\n**********************************working with truck "<<fromTruck<<" and "<< toTruck<<" insSw neighborhood\n";
+#endif
     // iterate through the vechicles (vi, vj)
 //    for (int fromTruck=0; fromTruck<fleet.size(); fromTruck++) {
 //        for (int toTruck=0; toTruck<fleet.size(); toTruck++) {
@@ -602,13 +606,13 @@ std::cout<<"\n\n\n\n**********************************working with truck "<<from
 		//fleet[fromTruck].eval_erase(fromPos,savings,twc);
                 fleet[toTruck].eval_insertMoveDumps( fleet[fromTruck][fromPos], moves, fromTruck, fromPos, toTruck, savings, factor ,twc);
           }
-    if (not moves.size())  {
+    //if (not moves.size())  {
     	insTruckPos2++;
     	if (insTruckPos1 == insTruckPos2) insTruckPos2++;
     	if (insTruckPos2 == fleet.size()) {insTruckPos1++; insTruckPos2=0;};
     	if (insTruckPos1 == fleet.size()) {insTruckPos1=0; insTruckPos2=1;};
 	assert(insTruckPos1 != insTruckPos2);
-    }
+    //}
 //        if (count>4) return;
 //	for (int i=0;i<moves.size();i++) 
 //		if (moves[i].getsavings()> (-count/20)) return;
@@ -616,7 +620,7 @@ std::cout<<"\n\n\n\n**********************************working with truck "<<from
        // }
     //}
 #ifdef TESTED
-std::cout<<"EXIT Neighborhoods::v_getInsNeighborhood"<<moves.size()<<" MOVES found total \n";
+std::cout<<"EXIT Neighborhoods::v_getInsNeighborhood "<<moves.size()<<" MOVES found total \n";
 #endif
 }
  
@@ -624,10 +628,10 @@ bool Neighborhoods::v_applyInsMove( const Move &move) {
 	assert(move.getmtype() == Move::Ins);
 	assert( fleet[ move.getInsFromTruck() ].feasable() );
 	assert( fleet[ move.getInsToTruck() ].feasable() );
-	move.dump();
 	fleet[ move.getInsFromTruck() ].getcost(twc);
 	fleet[ move.getInsToTruck() ].getcost(twc);
 #ifdef TESTED
+move.dump();
 fleet[ move.getInsFromTruck() ].dumpCostValues();
 fleet[ move.getInsToTruck() ].dumpCostValues();
 #endif
@@ -655,12 +659,10 @@ assert(true==false);
 
 
 void Neighborhoods::v_applyMove(const Move& m)  {
-    if (m.getsavings() < 0)
-        STATS->inc("neg savings applied");
+
     switch (m.getmtype()) {
         case Move::Ins:
             {
-                if (m.getsavings() < 0) STATS->inc("neg sav Ins applied");
                 v_applyInsMove( m );
                 assert( fleet[m.getvid1()].feasable() ); //just in case
                 assert( fleet[m.getvid2()].feasable() );
@@ -668,20 +670,21 @@ void Neighborhoods::v_applyMove(const Move& m)  {
             break;
         case Move::IntraSw:
             {
-                if (m.getsavings() < 0) STATS->inc("neg sav IntraSw applied");
                 applyIntraSwMove( m );
                 assert( fleet[m.getvid1()].feasable() );
             }
             break;
         case Move::InterSw:
             {
-                if (m.getsavings() < 0) STATS->inc("neg sav InterSw applied");
                 applyInterSwMove( m );
                 assert( fleet[m.getvid1()].feasable() );
                 assert( fleet[m.getvid2()].feasable() );
             }
             break;
     }
-    computeCosts();
+    v_computeCosts();
 }
+
+
+
 #endif

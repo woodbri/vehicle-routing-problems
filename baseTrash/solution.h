@@ -43,6 +43,7 @@ typedef  TwBucket<Trashnode> Bucket;
     vehicle_path_t *getSolutionForPg(int& count) const;
 
     void computeCosts();
+    int v_computeCosts();
     double getCost() const ;
     double getDistance() const ;
     int getFleetSize() const { return fleet.size(); };

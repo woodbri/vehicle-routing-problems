@@ -33,6 +33,7 @@ public:
     double getTotWaitTime() const { return totWaitTime; };
     double getTotServiceTime() const { return totServiceTime; };
     double getDumpVisits() const { return dumpVisits; };
+    double deltaGeneratesTWV(double deltaTime) const;
     
 
     bool hastwv() const { return twv; };

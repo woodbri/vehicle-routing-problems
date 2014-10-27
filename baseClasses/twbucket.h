@@ -25,7 +25,7 @@ none of the manipulation at this level is evaluated
 
 template <class knode> 
 class TwBucket {
-/*  CLASS SUMMARY
+/**  CLASS SUMMARY
 
 
 --  other tools
@@ -55,8 +55,8 @@ class compNode{
 };
 
 
-  private:
     typedef unsigned long UID;
+    typedef unsigned long POS;
     typedef typename std::deque<knode>::iterator iterator;
     typedef typename std::deque<knode>::reverse_iterator reverse_iterator;
     typedef typename std::deque<knode>::const_reverse_iterator const_reverse_iterator;
@@ -70,14 +70,112 @@ class compNode{
       TravelTime=_tt;
    }
 
+/**
+  simulates the following contiguous containers in the path
+  prev curr next  
+  prev curr dump
+
+  prev,curr,next are positions in the path
+  
+  returns ttpc + serv(c) + ttcn
+          ttpc + serv(c) + ttcd
+          infinity              if there is a TWV
+*/
+  double  timePCN(POS prev, POS curr, POS next) const {
+	assert ( prev < path.size() );
+	assert ( curr < path.size() );
+	assert ( next < path.size() );
+	double result = path[curr].getArrivalTime()+ travelTime(  path[prev] ,path[curr] );
+
+	if ( result  > path[curr].closes() ) return _MAX();
+	if ( result  < path[curr].opens() ) result = path[curr].opens() - path[prev].getDepartureTime();
+
+	return result + path[curr].getservicetime() + travelTime(  path[curr] ,path[next] );
+  }
+
+  double  timePCN(POS &prev, POS &curr, const knode &dump) const {
+	assert ( prev < path.size() );
+	assert ( curr < path.size() );
+	double result = path[curr].getArrivalTime()+ travelTime(  path[prev] ,path[curr] );
+
+	if ( result  > path[curr].closes() ) return _MAX();
+	return result + path[curr].getservicetime() + travelTime(  path[curr] , dump );
+  }
+
+/**
+  travelTime
+	from Node to Node
+	from nodeId to nodeId
+
+  doesn't need to be in the path.
+*/
+  double travelTime( const knode &from, const knode &to) const {
+	return travelTime( from.getnid(), to.getnid()  );
+  }
+
+  double travelTime(UID i, UID j) const {
+       assert (i<TravelTime.size());
+       assert (j<TravelTime.size());
+       return TravelTime[i][j];
+  }
+
+
+/**
+  getDeltaTime
+  Simulates the following change of times within the path
+        last dump
+	last node dump
+
+  checks TWV at:
+	node
+	dump
+
+  returns
+	\$f delta = tt_last,node + service(n) + tt_node,dump - tt_last,dump \f$
+
+*/
+
 double  getDeltaTime(const knode &node, const knode &dump) const {
-     int pos=path.size()-1;
-     return TravelTime[pos][node.getnid()] + TravelTime[node.getnid()][dump.getnid()]  -   TravelTime[pos][dump.getnid()];
+     knode last=path[path.size()-1];
+     double nodeArrival = last.getDepartureTime() + travelTime(last,node);
+
+     if (  node.latearrival(nodeArrival) ) return _MAX();
+     if (  node.earlyarrival(nodeArrival) ) nodeArrival= node.opens();
+     double dumpArrival =  nodeArrival + node.getservicetime() + travelTime(node,dump);
+     if (  dump.latearrival(dumpArrival) ) return _MAX();
+     if (  dump.earlyarrival(dumpArrival) ) dumpArrival= dump.opens();
+     double delta = dumpArrival - last.getDepartureTime();
+     return delta;
 }
 
-double  getDeltaTimeAfterDump(const knode &dump, const knode &lonelyNodeAfterDump ) const {
-     if (  dump.getDepartureTime() + TravelTime[dump.getnid()][lonelyNodeAfterDump.getnid()]   > lonelyNodeAfterDump.closes() ) return _MAX();
-     else  TravelTime[dump.getnid()][lonelyNodeAfterDump.getnid()] + TravelTime[lonelyNodeAfterDump.getnid()][dump.getnid()] + dump.getservicetime();
+/**
+  getDeltaTimeAfterDump
+  Simulates the following change of travelTimes within the path
+	dump
+        dump node dump2
+  checks for TWV at
+	node
+	dump2
+	
+  returns
+	\$f tt_dump,node + service(node) + tt_node,dump + service(dump) \f$
+	infinity when there is a TWV
+
+*/
+
+double  getDeltaTimeAfterDump(const knode &dump, const knode &node ) const {
+     double nodeArrival = dump.getDepartureTime() + travelTime(dump,node);
+
+     if (  node.latearrival(nodeArrival) ) return _MAX();
+     if (  node.earlyarrival(nodeArrival) ) nodeArrival= node.opens();
+
+     double dumpArrival =  nodeArrival + node.getservicetime() + travelTime(node,dump);
+
+     if (  dump.latearrival(dumpArrival) ) return _MAX();
+     if (  dump.earlyarrival(dumpArrival) ) dumpArrival= dump.opens();
+
+     double delta = dumpArrival + dump.getservicetime() - dump.getDepartureTime();
+     return delta;
 }
 
 
@@ -186,9 +284,8 @@ double  getDeltaTimeTVcheck(const knode &node, UID pos, UID pos1) const {
 
 //to be used when inserting a node right before pos
 double  getDeltaTime(const knode &node, UID pos) const {
-     assert(pos<=path.size() );
-     assert(pos>0);
-     if (pos==0 and path[pos].isdepot()) return _MAX();
+     assert(pos<path.size() );
+     if (pos==0 or path[pos].isdepot()) return _MAX();
 
      int nid=path[pos].getnid();
      int prev=path[pos-1].getnid();
@@ -431,11 +528,6 @@ bool deltaGeneratesTV(double delta, UID pos) const {
        return path[size()-1].getcargo();
     };
 
-    double travelTime(UID i, UID j) {
-       assert (i<size());
-       assert (j<size());
-       return TravelTime[i][j];
-    }
 
 //  ID based tools  to NID tools
 
