@@ -39,7 +39,11 @@ class TabuSearch {
     TabuSearch(const Neighborhoods initialSolution) :
         bestSolution(initialSolution), currentSolution(initialSolution)
     {
+#ifdef VICKY
+        bestSolution.v_computeCosts();
+#else
         bestSolution.computeCosts();
+#endif
         bestSolution.dump();
         bestSolutionCost = bestSolution.getCost();
         currentIteration = currentIterationIns = currentIterationIntraSw = currentIterationInterSw = 0;
@@ -72,7 +76,7 @@ class TabuSearch {
     void dumpStats() const;
     bool isTabu(const Move& m) const;
 
-    void makeTabu(const Move m);
+    void makeTabu(const Move &m);
     void cleanExpired();
 
     void setMaxIteration(int n) { assert(n>0); maxIteration = n; };
@@ -87,12 +91,18 @@ class TabuSearch {
 
 
     void v_search();
-    bool v_doNeighborhoodMoves(neighborMovesName whichNeighborhood, int maxCnt, std::deque<Move> notTabu, std::deque<Move> tabu);
+    bool v_doNeighborhoodMoves(neighborMovesName whichNeighborhood, int maxCnt, std::deque<Move> &aspirationalTabu, std::deque<Move> &notTabu, std::deque<Move> &tabu);
     void v_getNeighborhood(neighborMovesName whichNeighborhood,std::deque<Move> &neighborhood,double factor) const;
+    bool v_applyAspirationalTabu(std::deque<Move> &aspirationalTabu);
     bool v_applyAspirational(std::deque<Move> &neighborhood, std::deque<Move> &notTabu,std::deque<Move> &tabu);
+    bool v_applyAspirationalNotTabu(std::deque<Move> &neighborhood, std::deque<Move> &aspirationalTabu,std::deque<Move> &notTabu,std::deque<Move> &tabu);
     bool v_applyNonTabu (std::deque<Move> &notTabu);
     bool v_applyTabu (std::deque<Move> &tabu);
     bool v_applyTabu (std::deque<Move> &tabu, int strategy);
+    void v_addToStats (const Move &move) const ;
+    void v_savingsStats (const Move &move) const;
+    void v_computeCosts(Neighborhoods &s) ;
+    bool reachedMaxCycles(int,neighborMovesName);
 
     private:
 	int limitIntraSw;

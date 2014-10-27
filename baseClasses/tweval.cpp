@@ -79,3 +79,7 @@
 
 
 
+ double Tweval::deltaGeneratesTWV(double deltaTime) const{
+	return (arrivalTime+deltaTime > closes());
+}
+
