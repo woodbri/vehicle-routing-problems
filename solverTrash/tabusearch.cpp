@@ -73,13 +73,13 @@ std::cout<<"endMove\n";
         case Move::IntraSw:
             TabuList[m] = currentIterationIntraSw + tabuLengthIntraSw + r;
             STATS->inc("tabu IntraSw Moves Added");
-#ifdef VICKY
-assert(true==false);
-#endif
             break;
         case Move::InterSw:
             TabuList[m] = currentIterationInterSw + tabuLengthInterSw + r;
             STATS->inc("tabu InterSw Moves Added");
+#ifdef VICKY
+assert(true==false);
+#endif
             break;
     }
 }
@@ -334,7 +334,7 @@ std::cout<<"Entering TabuSearch::v_search() \n";
     std::deque<Move> nonTabu;
     std::deque<Move> tabu;
     currentIteration = 0;
-    maxIteration = 1;
+    maxIteration = 10;
 
     Timer start;
     bool improvedBest;
@@ -346,7 +346,7 @@ std::cout<<"Entering TabuSearch::v_search() \n";
         // this is a token ring search
         improvedBest  = v_doNeighborhoodMoves(Ins,     limitIns*50, aspirationalTabu, nonTabu,tabu);
         //improvedBest |= v_doNeighborhoodMoves(InterSw, limitInterSw*5, nonTabu,tabu);
-        //improvedBest |= v_doNeighborhoodMoves(IntraSw, limitIntraSw*100, aspirationalTabu, nonTabu,tabu);
+        improvedBest |= v_doNeighborhoodMoves(IntraSw, limitIntraSw*100, aspirationalTabu, nonTabu,tabu);
 
         if (improvedBest) lastImproved = 0;
         else ++lastImproved;
@@ -637,7 +637,6 @@ std::cout<<" Reached end of cycle -No moves found- "<<Cnt<<" out of "<< maxMoves
 	} 
 	CntNonAspirational++;
 	if (notTabu.size()) continue;
-	assert( tabu.size()>0 ) ;
 	
         switch (whichNeighborhood) {
                  case Ins: { limit = CntNonAspirational>limitIns; }
@@ -646,7 +645,7 @@ std::cout<<" Reached end of cycle -No moves found- "<<Cnt<<" out of "<< maxMoves
         };
         solAfter  = currentSolution.solutionAsText();
         assert (solBefore==solAfter);
-	if ( reachedMaxCycles(CntNonAspirational ,whichNeighborhood) ) {
+	if ( tabu.size()>0 and reachedMaxCycles(CntNonAspirational ,whichNeighborhood) ) {
 	//if ( limit ) {  // we cycled thru all the local neighborhoods and no non aspirational nor non Tabu move was found 
                 Cnt++;
 		v_applyTabu( tabu,0 ); //random
@@ -657,7 +656,7 @@ std::cout<<" Reached end of cycle -No moves found- "<<Cnt<<" out of "<< maxMoves
 		tabu.clear();
 		notTabu.clear();	
 	        break;
-       } 
+       }  
     }	
     while ( Cnt < maxMoves );
 
