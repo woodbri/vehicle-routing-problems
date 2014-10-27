@@ -1,3 +1,16 @@
+/*VRP*********************************************************************
+ *
+ * vehicle routing problems
+ *      A collection of C++ classes for developing VRP solutions
+ *      and specific solutions developed using these classes.
+ *
+ * Copyright 2014 Stephen Woodbridge <woodbri@imaptools.com>
+ * Copyright 2014 Vicky Vergara <vicky_vergara@hotmail.com>
+ *
+ * This is free software; you can redistribute and/or modify it under
+ * the terms of the MIT License. Please file LICENSE for details.
+ *
+ ********************************************************************VRP*/
 
 #include <stdexcept>
 #include <algorithm>
@@ -43,12 +56,10 @@ int main(int argc, char **argv) {
     try {
         Timer starttime;
 
-        CONFIG->plotDir = "./logs/";
+        CONFIG->set("plotDir", "./logs/");
+        //CONFIG->set("osrmBaseUrl", "http://imaptools.com:5000/");
+        CONFIG->dump("CONFIG");
 
-        std::cout << "CONFIG: osrmBaseUrl: " << CONFIG->osrmBaseUrl << std::endl
-                  << "            plotDir: " << CONFIG->plotDir << std::endl
-                  << "       plotFontFile: " << CONFIG->plotFontFile << std::endl
-                  << std::endl;
        
         FeasableSolLoop tp(infile);
         //tp.dump();

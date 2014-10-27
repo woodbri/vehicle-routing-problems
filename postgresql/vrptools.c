@@ -1,3 +1,16 @@
+/*VRP*********************************************************************
+ *
+ * vehicle routing problems
+ *      A collection of C++ classes for developing VRP solutions
+ *      and specific solutions developed using these classes.
+ *
+ * Copyright 2014 Stephen Woodbridge <woodbri@imaptools.com>
+ * Copyright 2014 Vicky Vergara <vicky_vergara@hotmail.com>
+ *
+ * This is free software; you can redistribute and/or modify it under
+ * the terms of the MIT License. Please file LICENSE for details.
+ *
+ ********************************************************************VRP*/
 #include "postgres.h"
 #include "executor/spi.h"
 #include "funcapi.h"
@@ -98,7 +111,7 @@ static int fetch_container_columns(SPITupleTable *tuptable,
     container_columns->close    = SPI_fnumber(SPI_tuptable->tupdesc, "close");
     container_columns->service  = SPI_fnumber(SPI_tuptable->tupdesc, "service");
     container_columns->demand   = SPI_fnumber(SPI_tuptable->tupdesc, "demand");
-    //container_columns->sid      = SPI_fnumber(SPI_tuptable->tupdesc, "street_id");
+    container_columns->sid      = SPI_fnumber(SPI_tuptable->tupdesc, "street_id");
 
     if (    container_columns->id       == SPI_ERROR_NOATTRIBUTE 
          || container_columns->x        == SPI_ERROR_NOATTRIBUTE 
@@ -107,11 +120,11 @@ static int fetch_container_columns(SPITupleTable *tuptable,
          || container_columns->close    == SPI_ERROR_NOATTRIBUTE 
          || container_columns->service  == SPI_ERROR_NOATTRIBUTE 
          || container_columns->demand   == SPI_ERROR_NOATTRIBUTE 
-         //|| container_columns->sid      == SPI_ERROR_NOATTRIBUTE
+         || container_columns->sid      == SPI_ERROR_NOATTRIBUTE
         ) {
         elog(ERROR, "Error: container query must return columns "
             "'id', 'x', 'y', 'open', 'close', 'service', 'demand'"
-            //", street_id'"
+            ", street_id'"
             );
         return -1;
     }
@@ -130,13 +143,13 @@ static int fetch_container_columns(SPITupleTable *tuptable,
                 != INT4OID
          || SPI_gettypeid(SPI_tuptable->tupdesc, container_columns->demand)
                 != INT4OID
-         //|| SPI_gettypeid(SPI_tuptable->tupdesc, container_columns->sid)
-         //       != INT4OID
+         || SPI_gettypeid(SPI_tuptable->tupdesc, container_columns->sid)
+                != INT4OID
         ) {
             elog(ERROR, "Error, container column types must be: int4 id"
                 ", float8 x, float8 y, int4 open, int4 close"
                 ", int4 service, int4 demand"
-                //", int4 street_id"
+                ", int4 street_id"
             );
             return -1;
     }
@@ -327,11 +340,9 @@ static void fetch_container(HeapTuple *tuple, TupleDesc *tupdesc,
     if (isnull) elog(ERROR, "container.demand contains a null value");
     data->demand = DatumGetInt32(binval);
 
-/*
     binval = SPI_getbinval(*tuple, *tupdesc, columns->sid, &isnull);
     if (isnull) elog(ERROR, "container.street_id contains a null value");
     data->sid = DatumGetInt32(binval);
-*/
 }
 
 
@@ -769,20 +780,22 @@ static int solve_trash_collection(
         fprintf(fh, "%d %d %.6lf\n", c.from_id, c.to_id, c.ttime);
     }
     fclose(fh);
-#endif
 
-/*
     ret = vrp_trash_collection(
             containers, container_count,
             otherlocs, otherloc_count,
             vehicles, vehicle_count,
             ttimes, ttime_count,
             result, result_count, &err_msg);
-*/
+
+#else
+
     // fake the call for testing purposes
     result = NULL;
     result_count = 0;
     ret = -1;
+
+#endif
 
     DBG("Message received from inside:");
     DBG("%s",err_msg);

@@ -1,3 +1,16 @@
+/*VRP*********************************************************************
+ *
+ * vehicle routing problems
+ *      A collection of C++ classes for developing VRP solutions
+ *      and specific solutions developed using these classes.
+ *
+ * Copyright 2014 Stephen Woodbridge <woodbri@imaptools.com>
+ * Copyright 2014 Vicky Vergara <vicky_vergara@hotmail.com>
+ *
+ * This is free software; you can redistribute and/or modify it under
+ * the terms of the MIT License. Please file LICENSE for details.
+ *
+ ********************************************************************VRP*/
 
 
 #include <iostream>
@@ -17,7 +30,7 @@
 
 double BaseVehicle::getTimeOSRM() const {
     std::ostringstream url(std::ostringstream::ate);
-    url.str(CONFIG->osrmBaseUrl);
+    url.str(CONFIG->getString("osrmBaseUrl"));
     url << "viaroute?z=18&instructions=false&alt=false";
 
     OSRM osrm;
@@ -984,7 +997,7 @@ trace.dumpid("Path");
     std::string extra="vehicle"+carnum ;
 
     Plot<Trashnode> graph( trace );
-    graph.setFile( CONFIG->plotDir+file+extra+".png" );
+    graph.setFile( CONFIG->getString("plotDir") + file + extra + ".png" );
     graph.setTitle( title+extra );
     graph.drawInit();
     for (int i=0; i<trace.size(); i++){
