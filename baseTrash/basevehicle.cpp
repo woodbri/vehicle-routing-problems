@@ -17,7 +17,7 @@
 
 double BaseVehicle::getTimeOSRM() const {
     std::ostringstream url(std::ostringstream::ate);
-    url.str(CONFIG->osrmBaseUrl);
+    url.str(CONFIG->getString("osrmBaseUrl"));
     url << "viaroute?z=18&instructions=false&alt=false";
 
     OSRM osrm;
@@ -984,7 +984,7 @@ trace.dumpid("Path");
     std::string extra="vehicle"+carnum ;
 
     Plot<Trashnode> graph( trace );
-    graph.setFile( CONFIG->plotDir+file+extra+".png" );
+    graph.setFile( CONFIG->getString("plotDir") + file + extra + ".png" );
     graph.setTitle( title+extra );
     graph.drawInit();
     for (int i=0; i<trace.size(); i++){

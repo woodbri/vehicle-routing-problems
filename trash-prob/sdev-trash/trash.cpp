@@ -43,12 +43,10 @@ int main(int argc, char **argv) {
     try {
         Timer starttime;
 
-        CONFIG->plotDir = "./logs/";
+        CONFIG->set("plotDir", "./logs/");
+        //CONFIG->set("osrmBaseUrl", "http://imaptools.com:5000/");
+        CONFIG->dump("CONFIG");
 
-        std::cout << "CONFIG: osrmBaseUrl: " << CONFIG->osrmBaseUrl << std::endl
-                  << "            plotDir: " << CONFIG->plotDir << std::endl
-                  << "       plotFontFile: " << CONFIG->plotFontFile << std::endl
-                  << std::endl;
        
         FeasableSolLoop tp(infile);
         //tp.dump();
