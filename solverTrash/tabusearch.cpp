@@ -49,10 +49,12 @@ bool TabuSearch::isTabu(const Move& m) const {
 
 
 void TabuSearch::cleanExpired() {
+#ifdef THIS_IS_A_BUG_SHOULD_NOT_USE_currentIteration
     std::map<const Move, int>::iterator it;
     for (it = TabuList.begin(); it!=TabuList.end(); ++it)
         if (it->second < currentIteration)
             TabuList.erase(it);
+#endif
 }
 
 
