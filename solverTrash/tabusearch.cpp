@@ -77,7 +77,7 @@ std::cout<<"endMove\n";
         case Move::InterSw:
             TabuList[m] = currentIterationInterSw + tabuLengthInterSw + r;
             STATS->inc("tabu InterSw Moves Added");
-#ifdef VICKY
+#ifndef VICKY
 assert(true==false);
 #endif
             break;
@@ -345,7 +345,7 @@ std::cout<<"Entering TabuSearch::v_search() \n";
 
         // this is a token ring search
         improvedBest  = v_doNeighborhoodMoves(Ins,     limitIns*50, aspirationalTabu, nonTabu,tabu);
-        //improvedBest |= v_doNeighborhoodMoves(InterSw, limitInterSw*5, nonTabu,tabu);
+        //improvedBest |= v_doNeighborhoodMoves(InterSw, limitInterSw*5, aspirationalTabu, nonTabu, tabu);
         improvedBest |= v_doNeighborhoodMoves(IntraSw, limitIntraSw*100, aspirationalTabu, nonTabu,tabu);
 
         if (improvedBest) lastImproved = 0;
@@ -571,7 +571,7 @@ std::cout<<"Entering TabuSearch::v_doNeighobrhoodMoves\n";
     bool limit;
 
     // we always start from the best solution of the last run
-    currentSolution = bestSolution;
+    //currentSolution = bestSolution;
 
     STATS->set("factor", factor);
     std::deque<Move> neighborhood;
