@@ -24,11 +24,12 @@
  *
  * TrashConfig is derived from Config and create a global singleton object
  * for storing key/value pairs for configuring the Trash Collection application.
+ * The following keys are currently defined:
  *
- * \var osrmBaseUrl Sets the location of the OSRM server to use.
- * \var plotDir Sets the location where plot files will get written.
- * \var plotFontFile Sets the location of the default font file for plots.
- * \bug plotFontFile varible may not be working in the code.
+ * \arg \c osrmBaseUrl Sets the location of the OSRM server to use.
+ * \arg \c plotDir Sets the location where plot files will get written.
+ * \arg \c plotFontFile Sets the location of the default font file for plots.
+ * \bug \c plotFontFile varible may not be working in the code.
  *
  */
 class TrashConfig : public Config {
