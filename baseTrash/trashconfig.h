@@ -3,35 +3,51 @@
 
 #include <string>
 
-#include "singleton.h"
+#include "config.h"
 
-class TrashConfig {
+/*!
+ * \class TrashConfig
+ * \brief Defines TrashConfig object and initializes some default attributes.
+ *
+ * TrashConfig is derived from Config and create a global singleton object
+ * for storing key/value pairs for configuring the Trash Collection application.
+ *
+ * \var osrmBaseUrl Sets the location of the OSRM server to use.
+ * \var plotDir Sets the location where plot files will get written.
+ * \var plotFontFile Sets the location of the default font file for plots.
+ * \bug plotFontFile varible may not be working in the code.
+ *
+ */
+class TrashConfig : public Config {
   public:
-    std::string osrmBaseUrl;
-    std::string plotDir;
-    std::string plotFontFile;
-    //double tabu_w1;
-    //double tabu_w2;
-    //double tabu_w3;
 
-    TrashConfig() {
-        osrmBaseUrl  = "http://localhost:5000/";
-        plotDir      = "./";
-        plotFontFile = "/usr/share/fonts/truetype/msttcorefonts/Verdana.ttf";
-        //tabu_w1     = 1.0;
-        //tabu_w2     = 1.0;
-        //tabu_w3     = 1.0;
+    TrashConfig() : Config() {
+        set("osrmBaseUrl", "http://localhost:5000/");
+        set("plotDir",     "./");
+        set("plotFontFile", "/usr/share/fonts/truetype/msttcorefonts/Verdana.ttf");
     };
     ~TrashConfig() {};
 };
 
-typedef Singleton<TrashConfig> Config; // Global declaration
-
-#define CONFIG Config::Instance()
-
 #endif
-/*
-    Then you can access parameters via:
 
-    CONFIG->parameter
-*/
+/*! \var typedef Singleton<TrashConfig> OurTrashConfig
+ *  \brief A type definition for a our Config object.
+ */
+typedef Singleton<TrashConfig> OurTrashConfig;
+
+/*! \def CONFIG
+ *  \brief A macro to make it easier to access the our TrashConfig object.
+ *
+ *  The TrashConfig object is instanciated as a global static object and
+ *  can be referenced using the CONFIG macro like:
+ *  \code
+    CONFIG->method();
+ *  \endcode
+ */
+// redefine baseClasses CONFIG to access TrashConfig
+#ifdef CONFIG
+#undef CONFIG
+#endif
+#define CONFIG OurTrashConfig::Instance()
+
