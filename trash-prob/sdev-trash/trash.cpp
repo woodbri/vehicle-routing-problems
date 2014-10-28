@@ -9,6 +9,7 @@
 
 #include <stdio.h>
 
+#include "logger.h"
 #include "timer.h"
 #include "trashconfig.h"
 #include "trashstats.h"
@@ -20,6 +21,17 @@
 #include "feasableSolLoop.h"
 #include "tabusearch.h"
 
+/* Logging Severity Levels
+    0   INFO
+    1   WARNING
+    2   ERROR
+    3   FATAL  NOTE FATAL is converted to ERROR when NDEBUG is defined
+
+    DLOG(<level>) << "message";
+    DLOG_IF(<level>, <cond>) << "message";
+    DLOG_EVERY_N(<level>, <n>) << "message";
+    CHECK(<cond>) << "message";  // print "message" and FATAL if false
+*/
 
 
 void Usage() {
@@ -29,6 +41,12 @@ void Usage() {
 static std::string font = "/usr/share/fonts/truetype/ttf-dejavu/DejaVuSans.ttf";
 
 int main(int argc, char **argv) {
+
+    FLAGS_log_dir = "./logs/";
+    google::InitGoogleLogging("sdev/Trash");
+    FLAGS_logtostderr = 0;
+    FLAGS_stderrthreshold = google::ERROR;
+    FLAGS_minloglevel = google::INFO;
 
     if (argc < 2) {
         Usage();
@@ -51,7 +69,7 @@ int main(int argc, char **argv) {
         FeasableSolLoop tp(infile);
         //tp.dump();
 
-        std::cout << "FeasableSol time: " << starttime.duration() << std::endl;
+        DLOG(INFO) << "FeasableSol time: " << starttime.duration();
         STATS->set("zzFeasableSol time", starttime.duration());
 
         tp.computeCosts();
@@ -78,6 +96,7 @@ int main(int argc, char **argv) {
         STATS->set("zBest distance", best.getDistance());
 
         STATS->dump("Final");
+        DLOG(INFO) << "Total time: " << starttime.duration();
 
     }
     catch (const std::exception &e) {
