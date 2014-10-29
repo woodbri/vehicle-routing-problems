@@ -21,6 +21,7 @@
 #include "optsol.h"
 #include "tabuopt.h"
 
+#ifdef VICKY
 /** 
 Before doing any optimization within the trucks, the truck number must be reduced as much as possible
 
@@ -140,7 +141,7 @@ std::cout<<"Entering TabuOpt::applyAspirationalTabu() \n";
         STATS->set("best Updated Last At", currentIteration);
         STATS->inc("best Updated Cnt");
 
-        currentSolution.applyMove(aspirationalTabu[0]);  //allways the best even if negative
+        currentSolution.v_applyMove(aspirationalTabu[0]);  //allways the best even if negative
         makeTabu(aspirationalTabu[0]);
         bestSolution = currentSolution;
         computeCosts(bestSolution);
@@ -172,7 +173,7 @@ std::cout<<"Entering TabuOpt::applyNonTabu() \n";
 std::cout << "\tapplyNonTabu: Not Tabu: "; notTabu[0].dump();
 std::cout << "\n";
 
-        currentSolution.applyMove(notTabu[0]);  //allways the best even if negative
+        currentSolution.v_applyMove(notTabu[0]);  //allways the best even if negative
         makeTabu(notTabu[0]);
 	addToStats(notTabu[0]);
 	return true;
@@ -190,14 +191,14 @@ std::cout<<"Entering TabuOpt::applyTabu #of possible moves:"<<tabu.size()<<"\n";
         assert( tabu.size() );  //cant apply, there are non saved
 	
         if (strategy==0) {  //pick Best
-            currentSolution.applyMove(tabu[0]);
+            currentSolution.v_applyMove(tabu[0]);
             makeTabu(tabu[0]);
 std::cout << "\tapplyTabu:  best: "; tabu[0].dump();
 	    addToStats(tabu[0]);
 	} else {
           int pickWorse = rand()% ( tabu.size()-1 );
 std::cout << "\tapplyTabu: pickworse"<<pickWorse<<"\n"; tabu[pickWorse].dump();
-            currentSolution.applyMove(tabu[pickWorse]);
+            currentSolution.v_applyMove(tabu[pickWorse]);
             makeTabu(tabu[pickWorse]);
 	    addToStats(tabu[pickWorse]);
 	}
@@ -365,7 +366,7 @@ std::cout<<"Entering TabuOpt::applyAspirationalNotTabu() \n";
         for (std::deque<Move>::iterator it=neighborhood.begin();
                 it!=neighborhood.end(); ++it) {
 	    current=currentSolution;
-            current.applyMove(*it);
+            current.v_applyMove(*it);
 	    computeCosts(current);
 	    newCost = current.getCost();
 
@@ -432,3 +433,6 @@ std::cout<<"Entering TabuOpt::computeCosts \n";
 
 
 
+
+
+#endif
