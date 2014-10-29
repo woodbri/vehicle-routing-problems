@@ -144,7 +144,7 @@ class compNode{
 	dump
 
   returns
-	\$f delta = tt_last,node + service(n) + tt_node,dump - tt_last,dump \f$
+	\$ delta = tt_last,node + service(n) + tt_node,dump - tt_last,dump \f$
 
 */
 
@@ -171,7 +171,7 @@ double  getDeltaTime(const knode &node, const knode &dump) const {
 	dump2
 	
   returns
-	\$f tt_dump,node + service(node) + tt_node,dump + service(dump) \f$
+	\f$ tt_dump,node + service(node) + tt_node,dump + service(dump) \f$
 	infinity when there is a TWV
 
 */
