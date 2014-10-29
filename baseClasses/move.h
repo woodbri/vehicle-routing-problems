@@ -90,6 +90,7 @@ class Move {
     bool operator<(const Move &rhs) const { return this->less(rhs); };
     bool isForbidden(const Move &tabu) const;
     void dump() const;
+    void Dump() const;
 
     void setmtype(Mtype _mtype) { mtype = _mtype; };
     void setnid1(int nid) { nid1 = nid; };

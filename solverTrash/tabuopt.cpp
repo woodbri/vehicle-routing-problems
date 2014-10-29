@@ -67,6 +67,8 @@ std::cout<<"Entering TabuOpt::search() \n";
     Timer start;
     bool improvedBest;
     int lastImproved = 0;
+    bestSolution.optimizeTruckNumber();
+
     do {
         std::cout << "TABUSEARCH: Starting iteration: " << currentIteration
             << std::endl;

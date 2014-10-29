@@ -74,3 +74,46 @@ void Move::dump() const {
               << ",\t" << savings
               << std::endl;
 }
+
+void Move::Dump() const {
+    switch (mtype){
+    case Ins:
+    	std::cout << "Move: INS" 
+              << "\t    NodeID:" << nid1
+              << "\tFrom Truck:" << vid1
+              << "\t  From Pos:" << pos1
+              << "\t  To Truck:" << vid2
+              << "\t    To Pos:" << pos2
+              << "\t   savings:" << savings
+              << std::endl;
+    	break;
+    case IntraSw:
+        std::cout << "Move: IntraSw" 
+              << "\t    NodeID:" << nid1
+              << "\t  At Truck:" << vid1
+              << "\t  From Pos:" << pos1
+              << "\t    To Pos:" << pos2
+              << "\t   savings:" << savings
+              << std::endl;
+        break;
+    case InterSw:
+        std::cout << "Move: InterSw" 
+              << "\t    NodeID:" << nid1
+              << "\t  (at Truck:" << vid1
+              << "\t  at Pos:" << pos1
+              << ")\t with NodeID:" << nid2
+              << "\t    (at Truck:" << vid2
+              << "\t      at Pos:" << pos2
+              << ")\t   savings:" << savings
+              << std::endl;
+        break;
+    }
+
+}
+
+
+
+
+
+
+

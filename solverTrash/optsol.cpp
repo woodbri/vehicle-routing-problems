@@ -17,8 +17,102 @@
 #include "optsol.h"
 
 
-#ifdef VICKY
-////////////////////VIcky's part of the file
+
+void OptSol::optimizeTruckNumber()   {
+	std::deque<int> fullz1,fullz2;
+	std::deque<int> notFullz1,notFullz2,allTrucks;
+	std::deque<Move> moves;
+	int z1Tot=0;
+	int z2Tot=0;
+	int minn=datanodes.size();
+	int truckWithMinn=-1;
+	int fromTruck,toTruck,fromPos;
+	double savings;
+	double factor=1;
+	for (int i=0;i<fleet.size();i++) {
+		allTrucks.push_back(i);
+
+		if (fleet[i].getz1()) {
+			notFullz1.push_back(i);
+			z1Tot+=fleet[i].getz1();
+		} else fullz1.push_back(i);
+
+		if (fleet[i].getz2()) {
+			notFullz2.push_back(i);
+			z2Tot+=fleet[i].getz2();
+		} else fullz2.push_back(i);
+
+		if ( fleet[i].getn()<minn) {
+			minn= fleet[i].getn();
+			truckWithMinn=i;
+		}
+	}
+	fromTruck=truckWithMinn;
+std::cout<<"fromTruck"<<fromTruck<<"\n";
+std::cout<<"not FUll Trucks \n";
+for (int i=0;i<notFullz1.size();i++) 
+   std::cout<<notFullz1[i]<<"\t";
+std::cout<<"\n";
+std::cout<<" FUll Trucks \n";
+for (int i=0;i<fullz1.size();i++) 
+   std::cout<<fullz1[i]<<"\t";
+std::cout<<"\n";
+
+
+ 
+	if (minn<=z1Tot) { //a truck can be removed without extra trip in any other truck
+            //for (int i=0;i<notFullz1.size();i++) {
+	    	//fromTruck=notFullz1[i];
+            for (int i=0;i<allTrucks.size();i++) {
+	    	fromTruck=allTrucks[i];
+	    	if (emptyTheTruck(fromTruck,allTrucks)) {
+			std::cout<<"Truck is empty now\n";
+			fleet.erase(fleet.begin()+fromTruck);
+dumpCostValues();
+			break;
+	    	}
+            }
+ 	}
+
+assert(true==false);
+}
+
+			
+
+bool OptSol::emptyTheTruck(int fromTruck, std::deque<int> notFull) {
+	std::deque<Move> moves;
+	int fromPos=1;
+	int toTruck;
+        double savings, factor;
+            int count=fleet[fromTruck].getn();
+            for (int j=0;j<count;j++) {
+                moves.clear();
+
+                for (int i=0;i<notFull.size();i++) {
+                   toTruck=notFull[i];
+                   if (toTruck==fromTruck) continue;
+		   if ( not fleet[fromTruck].eval_erase(fromPos,savings,twc) ) continue; //for whatever reason erasing a node makes the truck infeasable 
+                   fleet[toTruck].eval_insertMoveDumps( fleet[fromTruck][fromPos], moves, fromTruck, fromPos, toTruck, savings, factor, twc );
+                };
+
+                if (moves.size()) {
+                  std::sort(moves.begin(), moves.end(), Move::bySavings);
+moves[0].Dump();
+                  v_applyMove(moves[0]);
+                } else {
+std::cout<<"no feasable move found for "<<fromPos<<"\n";
+                        fromPos++;
+                }
+                if (fromPos>=fleet[fromTruck].size()) break;
+            }
+        return (fleet[fromTruck].size()==1);
+}
+
+
+
+	
+
+
 void OptSol::v_getIntraSwNeighborhood(std::deque<Move>& moves, double factor)  const {
     moves.clear();
 
@@ -191,4 +285,3 @@ void OptSol::v_applyMove(const Move& m)  {
 
 
 
-#endif
