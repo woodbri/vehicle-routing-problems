@@ -19,9 +19,9 @@
 
 #include "trashstats.h"
 #include "optsol.h"
-#include "tabuopt.h"
+#include "tabubase.h"
 
-void TabuOpt::dumpTabuList() const {
+void TabuBase::dumpTabuList() const {
     std::map<const Move, int>::const_iterator it;
 
     std::cout << "TabuList at iteration: " << currentIteration << std::endl;
@@ -33,13 +33,13 @@ void TabuOpt::dumpTabuList() const {
 }
 
 
-void TabuOpt::dumpStats() const {
+void TabuBase::dumpStats() const {
     std::cout << "TabuList Stats at iteration: " << currentIteration << std::endl;
     STATS->dump("");
 }
 
 
-void TabuOpt::generateNeighborhoodStats(std::string mtype, double tm, int cnt) const {
+void TabuBase::generateNeighborhoodStats(std::string mtype, double tm, int cnt) const {
     STATS->addto("time Gen "+mtype, tm);
     STATS->inc("cnt Calls Gen "+mtype);
     STATS->addto("cum Moves "+mtype, cnt);
@@ -49,7 +49,7 @@ std::cout << "\tdoNeighborhoodMoves for " << mtype << ": " << cnt
 
 
 
-bool TabuOpt::isTabu(const Move& m) const {
+bool TabuBase::isTabu(const Move& m) const {
     std::map<const Move, int>::const_iterator it;
 
     STATS->inc("tabu Moves Checked");
@@ -71,7 +71,7 @@ bool TabuOpt::isTabu(const Move& m) const {
 }
 
 
-void TabuOpt::cleanExpired() {
+void TabuBase::cleanExpired() {
     std::map<const Move, int>::iterator it;
     for (it = TabuList.begin(); it!=TabuList.end(); ++it)
         if (it->second < currentIteration)
@@ -79,7 +79,7 @@ void TabuOpt::cleanExpired() {
 }
 
 
-void TabuOpt::makeTabu(const Move &m) {
+void TabuBase::makeTabu(const Move &m) {
 #ifdef VICKY
 std::cout<<"makeTabu\n";
 m.dump();
@@ -127,7 +127,7 @@ assert(true==false);
 
 */
 #ifdef TESTED
-void TabuOpt::search() {
+void TabuBase::search() {
 
     currentIteration = 0;
 
@@ -170,7 +170,7 @@ void TabuOpt::search() {
     std::cout << "TABUSEARCH: Total time: " << start.duration() << std::endl;
 }
 
-void TabuOpt::generateNeighborhood(neighborMovesName whichNeighborhood, std::deque<Move>& neighborhood, const Move& lastMove) const {
+void TabuBase::generateNeighborhood(neighborMovesName whichNeighborhood, std::deque<Move>& neighborhood, const Move& lastMove) const {
 
     // generate the a move neighborhood based on the currentSolution
     // this is fast and efficient as move generation accounts for most
@@ -234,7 +234,7 @@ std::cout << "generateNeighborhood: lastMove: "; lastMove.dump();
     return an indicator that we improved the best move or not.
 */
 
-bool TabuOpt::doNeighborhoodMoves(neighborMovesName whichNeighborhood, int maxStagnation) {
+bool TabuBase::doNeighborhoodMoves(neighborMovesName whichNeighborhood, int maxStagnation) {
     bool improvedBest = false;
     int stagnationCnt = 0;
     double factor = 0.5;
@@ -333,15 +333,42 @@ std::cout << "\tdoNeighborhoodMoves: All Tabu(" << pick << "): "; lastMove.dump(
 
     return improvedBest;
 }
-#endif
+
+
+void TabuBase::savingsStats(const Move &move) const{
+    move.dump();
+    if (move.getsavings() < 0) {
+        STATS->inc("neg savings applied");
+        switch  (move.getmtype()) {
+                case Move::Ins: STATS->inc("neg sav v_Ins applied");break;
+                case Move::IntraSw: STATS->inc("neg sav v_IntraSw applied"); break;
+                case Move::InterSw: STATS->inc("neg sav v_InterSw applied"); break;
+        }
+    } else {
+        STATS->inc("pos savings applied");
+        switch  (move.getmtype()) {
+                case Move::Ins: STATS->inc("pos sav v_Ins applied");break;
+                case Move::IntraSw: STATS->inc("pos sav v_IntraSw applied"); break;
+                case Move::InterSw: STATS->inc("pos sav v_InterSw applied"); break;
+        }
+    }
+};
+
+void TabuBase::addToStats(const Move &move) const {
+	 switch ( move.getmtype()) {
+                    case Move::Ins:     STATS->inc("cnt Ins Applied");    break;
+                    case Move::IntraSw: STATS->inc("cnt IntraSw Applied"); break;
+                    case Move::InterSw: STATS->inc("cnt InterSw Applied"); break;
+         }
+	v_savingsStats(move);
+};
 
 ///////////////////////////////////////////////////
-#ifdef VICKY
 
 
-void TabuOpt::v_search() {
+void TabuBase::v_search() {
 #ifndef TESTED
-std::cout<<"Entering TabuOpt::v_search() \n";
+std::cout<<"Entering TabuBase::v_search() \n";
 #endif
 
     std::deque<Move> aspirationalTabu;
@@ -385,10 +412,10 @@ std::cout<<"Entering TabuOpt::v_search() \n";
 
 
 
-void TabuOpt::v_getNeighborhood( neighborMovesName whichNeighborhood, std::deque<Move> &neighborhood,double factor) const {
+void TabuBase::v_getNeighborhood( neighborMovesName whichNeighborhood, std::deque<Move> &neighborhood,double factor) const {
         neighborhood.clear();
 #ifdef TESTED
-std::cout<<"Entering TabuOpt::v_getNeighborhod() \n";
+std::cout<<"Entering TabuBase::v_getNeighborhod() \n";
 #endif
         Timer v_getNeighborhoodTimer;
         switch (whichNeighborhood) {
@@ -413,14 +440,14 @@ std::cout << "\tdoNeighborhoodMoves for InterSw: " << neighborhood.size() << " m
                 break;
         }
 #ifndef TESTED
-std::cout<<"Exiting TabuOpt::v_getNeighborhod() \n";
+std::cout<<"Exiting TabuBase::v_getNeighborhod() \n";
 #endif
 }
 
 
-bool TabuOpt::v_applyAspirationalTabu(std::deque<Move> & aspirationalTabu) {
+bool TabuBase::v_applyAspirationalTabu(std::deque<Move> & aspirationalTabu) {
 #ifdef TESTED
-std::cout<<"Entering TabuOpt::v_applyAspirationalTabu() \n";
+std::cout<<"Entering TabuBase::v_applyAspirationalTabu() \n";
 #endif
 	assert (aspirationalTabu.size());
         std::sort(aspirationalTabu.begin(), aspirationalTabu.end(), Move::bySavings); //the list is short so not so yikes (1 per local neighborhood)
@@ -435,25 +462,16 @@ std::cout<<"Entering TabuOpt::v_applyAspirationalTabu() \n";
         bestSolutionCost = bestSolution.getCost();
 	v_addToStats(aspirationalTabu[0]);
 #ifndef TESTED
-std::cout<<"Exiting TabuOpt::v_applyAspirationalTabu made \n"; aspirationalTabu[0].dump();
+std::cout<<"Exiting TabuBase::v_applyAspirationalTabu made \n"; aspirationalTabu[0].dump();
 #endif
         return true;
 }
 
 
-void TabuOpt::v_addToStats(const Move &move) const {
-	 switch ( move.getmtype()) {
-                    case Move::Ins:     STATS->inc("cnt Ins Applied");    break;
-                    case Move::IntraSw: STATS->inc("cnt IntraSw Applied"); break;
-                    case Move::InterSw: STATS->inc("cnt InterSw Applied"); break;
-         }
-	v_savingsStats(move);
-};
-
 #ifdef NOTWORKING
-bool TabuOpt::v_applyAspirational(std::deque<Move> &neighborhood, std::deque<Move> &notTabu,std::deque<Move> &tabu) {
+bool TabuBase::v_applyAspirational(std::deque<Move> &neighborhood, std::deque<Move> &notTabu,std::deque<Move> &tabu) {
 #ifndef TESTED
-std::cout<<"Entering TabuOpt::v_applyAspirational() \n";
+std::cout<<"Entering TabuBase::v_applyAspirational() \n";
 #endif
         Timer applyMoveTimer;
         bool allTabu = true;
@@ -488,7 +506,7 @@ std::cout << "\tapplyAspirational: Aspiration move: "; it->dump();
 	           tabu.clear();
 //assert(true==false);
 #ifndef TESTED
-std::cout<<"Exiting TabuOpt::v_applyAspirational  move made \n";
+std::cout<<"Exiting TabuBase::v_applyAspirational  move made \n";
 #endif
 	           return true;
 		
@@ -515,9 +533,9 @@ std::cout << "\tapplyApsirational: exiting ";
 
 
 
-bool TabuOpt::v_applyNonTabu (std::deque<Move> &notTabu) {
+bool TabuBase::v_applyNonTabu (std::deque<Move> &notTabu) {
 #ifndef TESTED
-std::cout<<"Entering TabuOpt::applyNonTabu() \n";
+std::cout<<"Entering TabuBase::applyNonTabu() \n";
 #endif
         assert (  notTabu.size() ) ;  //cant apply, there are non saved
         std::sort(notTabu.begin(), notTabu.end(), Move::bySavings); //the list is short so not so yikes (1 per local neighborhood)
@@ -530,14 +548,14 @@ std::cout << "\n";
 	return true;
 }
 
-bool  TabuOpt::v_applyTabu (std::deque<Move> &tabu) {
+bool  TabuBase::v_applyTabu (std::deque<Move> &tabu) {
         assert ( tabu.size() );   //cant apply, there are non saved
 	return v_applyTabu(tabu,0);
 }
 
-bool TabuOpt::v_applyTabu (std::deque<Move> &tabu, int strategy) {
+bool TabuBase::v_applyTabu (std::deque<Move> &tabu, int strategy) {
 #ifndef TESTED
-std::cout<<"Entering TabuOpt::applyTabu #of possible moves:"<<tabu.size()<<"\n";
+std::cout<<"Entering TabuBase::applyTabu #of possible moves:"<<tabu.size()<<"\n";
 #endif
         assert( tabu.size() );  //cant apply, there are non saved
 	
@@ -555,12 +573,12 @@ std::cout << "\tapplyTabu: pickworse"<<pickWorse<<"\n"; tabu[pickWorse].dump();
 	}
 	tabu.clear();
 #ifndef TESTED
-std::cout<<"Exiting TabuOpt::applyTabu #of possible moves:"<<tabu.size()<<"\n";
+std::cout<<"Exiting TabuBase::applyTabu #of possible moves:"<<tabu.size()<<"\n";
 #endif
 	return true;
 }
 
-bool TabuOpt::reachedMaxCycles(int number, neighborMovesName whichNeighborhood) {
+bool TabuBase::reachedMaxCycles(int number, neighborMovesName whichNeighborhood) {
 	bool limit;
         switch (whichNeighborhood) {
                case Ins: { limit = number>limitIns; }
@@ -571,11 +589,11 @@ bool TabuOpt::reachedMaxCycles(int number, neighborMovesName whichNeighborhood) 
 }
 
 
-bool TabuOpt::v_doNeighborhoodMoves(neighborMovesName whichNeighborhood, int maxMoves, 
+bool TabuBase::v_doNeighborhoodMoves(neighborMovesName whichNeighborhood, int maxMoves, 
     std::deque<Move> &aspirationalTabu, std::deque<Move> &notTabu, std::deque<Move> &tabu) { 
 
 #ifndef TESTED
-std::cout<<"Entering TabuOpt::v_doNeighobrhoodMoves\n";
+std::cout<<"Entering TabuBase::v_doNeighobrhoodMoves\n";
 #endif
     bool improvedBest = false;
     int Cnt = 0;
@@ -676,7 +694,7 @@ std::cout<<" Reached end of cycle -No moves found- "<<Cnt<<" out of "<< maxMoves
 
 #ifndef TESTED
 std::cout<<" Moves made "<<Cnt<<" out of "<< maxMoves<<"\n";
-std::cout<<"Exiting TabuOpt::v_doNeighobrhoodMoves\n";
+std::cout<<"Exiting TabuBase::v_doNeighobrhoodMoves\n";
 #endif
     return improvedBest;
 }
@@ -684,9 +702,9 @@ std::cout<<"Exiting TabuOpt::v_doNeighobrhoodMoves\n";
 /**
 	
 */
-bool TabuOpt::v_applyAspirationalNotTabu (std::deque<Move> &neighborhood, std::deque<Move> &aspirationalTabu, std::deque<Move> &notTabu,std::deque<Move> &tabu) {
+bool TabuBase::v_applyAspirationalNotTabu (std::deque<Move> &neighborhood, std::deque<Move> &aspirationalTabu, std::deque<Move> &notTabu,std::deque<Move> &tabu) {
 #ifdef TESTED
-std::cout<<"Entering TabuOpt::v_applyAspirationalNotTabu() \n";
+std::cout<<"Entering TabuBase::v_applyAspirationalNotTabu() \n";
 #endif
         Timer applyAspirationalNotTabuTimer;
 //        bool allTabu = true;
@@ -728,7 +746,7 @@ std::cout << "\tapplyAspirationalNotTabu:  "; it->dump();
 	           tabu.clear();
 //assert(true==false);
 #ifndef TESTED
-std::cout<<"Exiting TabuOpt::v_applyAspirationalNotTabu  move made \n";
+std::cout<<"Exiting TabuBase::v_applyAspirationalNotTabu  move made \n";
 #endif
 	           return true;
 		
@@ -755,7 +773,7 @@ std::cout<<"\n";
 	return false;          
 };
 
-void TabuOpt::v_savingsStats(const Move &move) const{
+void TabuBase::v_savingsStats(const Move &move) const{
     move.dump();
     if (move.getsavings() < 0) {
         STATS->inc("neg savings applied");
@@ -775,7 +793,7 @@ void TabuOpt::v_savingsStats(const Move &move) const{
 };
 
 	
-void TabuOpt::v_computeCosts(OptSol &s) {
+void TabuBase::v_computeCosts(OptSol &s) {
         int removedTruck = s.v_computeCosts();
         if (removedTruck==-1) return;
 	int vid1,vid2;

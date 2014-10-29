@@ -23,11 +23,11 @@
 #include "move.h"
 #include "optsol.h"
 
-class TabuOpt {
+class TabuBase {
 
-   typedef enum { Ins, IntraSw, InterSw } neighborMovesName;
 
-  private:
+  protected:
+    typedef enum { Ins, IntraSw, InterSw } neighborMovesName;
     std::map<const Move, int> TabuList;
 
     int tabuLengthIns;
@@ -43,26 +43,27 @@ class TabuOpt {
     mutable int currentIterationIntraSw;
     mutable int currentIterationInterSw;
 
-    OptSol bestSolution;
-    OptSol currentSolution;
+    //OptSol bestSolution;
+    //OptSol currentSolution;
 
-    double bestSolutionCost;
+    //double bestSolutionCost;
 
 
   public:
-    TabuOpt(const OptSol &initialSolution) :
-        bestSolution(initialSolution), currentSolution(initialSolution)
+    TabuBase(/*const OptSol &initialSolution*/)// :
+//        bestSolution(initialSolution), currentSolution(initialSolution)
     {
 #ifdef VICKY
-        bestSolution.v_computeCosts();
+//        bestSolution.v_computeCosts();
 #else
-        bestSolution.computeCosts();
+//        bestSolution.computeCosts();
 #endif
-        bestSolution.dump();
-        bestSolutionCost = bestSolution.getCost();
+//        bestSolution.dump();
+//        bestSolutionCost = bestSolution.getCost();
         currentIteration = currentIterationIns = currentIterationIntraSw = currentIterationInterSw = 0;
         maxIteration = 1000;
-        int ncnt = initialSolution.getNodeCount() / 5;
+        srand(37);
+/*        int ncnt = initialSolution.getNodeCount() / 5;
         tabuLengthIns     = std::max(5, std::min(ncnt, 40));
         tabuLengthIntraSw = std::max(5, std::min(ncnt, 15));
         tabuLengthInterSw = std::max(5, std::min(ncnt, 10));
@@ -73,39 +74,39 @@ class TabuOpt {
 
         // for repeatible results set this to a constant value
         // for more random results use: srand( time(NULL) );
-        srand(37);
 	limitIntraSw=bestSolution.getFleetSize();
 	limitInterSw=limitIntraSw*(limitIntraSw-1) ;
 	limitIns=limitIntraSw ;
-    };
+*/    };
 
     void dumpTabuList() const;
     void dumpStats() const;
     void makeTabu(const Move &m);
     void cleanExpired();
     bool isTabu(const Move& m) const;
-    Solution getBestSolution() const { return bestSolution; };
+//    Solution getBestSolution() const { return bestSolution; };
+//    Solution getCurrentSolution() const {return currentSolution; };
 
-#ifdef TESTED
     int getCurrentIteration() const { return currentIteration; };
     int getMaxIteration() const { return maxIteration; };
     int getTabuLengthIns() const { return tabuLengthIns; };
     int getTabuLengthIntraSw() const { return tabuLengthIntraSw; };
     int getTabuLengthInterSw() const { return tabuLengthInterSw; };
-    Solution getCurrentSolution() const {return currentSolution; };
 
 
     void setMaxIteration(int n) { assert(n>0); maxIteration = n; };
     void settabuLengthIns(int n) { assert(n>0); tabuLengthIns = n; };
     void settabuLengthIntraSw(int n) { assert(n>0); tabuLengthIntraSw = n; };
     void settabuLengthInterSw(int n) { assert(n>0); tabuLengthInterSw = n; };
+    void generateNeighborhoodStats(std::string mtype, double tm, int cnt) const;
+    void addToStats (const Move &move) const ;
+    void savingsStats (const Move &move) const;
 
+#ifdef TESTED
     void search();
     void generateNeighborhood(neighborMovesName whichNeighborhood, std::deque<Move>& neighborhood, const Move& lastMove) const;
     bool doNeighborhoodMoves(neighborMovesName whichNeighborhood, int maxStagnation);
-#endif
 
-    void generateNeighborhoodStats(std::string mtype, double tm, int cnt) const;
 
     void v_search();
     bool v_doNeighborhoodMoves(neighborMovesName whichNeighborhood, int maxCnt, std::deque<Move> &aspirationalTabu, std::deque<Move> &notTabu, std::deque<Move> &tabu);
@@ -116,11 +117,9 @@ class TabuOpt {
     bool v_applyNonTabu (std::deque<Move> &notTabu);
     bool v_applyTabu (std::deque<Move> &tabu);
     bool v_applyTabu (std::deque<Move> &tabu, int strategy);
-    void v_addToStats (const Move &move) const ;
-    void v_savingsStats (const Move &move) const;
     void v_computeCosts(OptSol &s) ;
     bool reachedMaxCycles(int,neighborMovesName);
-
+#endif
     private:
 	int limitIntraSw;
 	int limitInterSw;
