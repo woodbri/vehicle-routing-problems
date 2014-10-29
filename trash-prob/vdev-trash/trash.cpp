@@ -29,7 +29,7 @@
 #include "trashnode.h"
 #include "twpath.h"
 #include "feasableSol.h"
-#include "tabusearch.h"
+#include "tabuopt.h"
 
 
 
@@ -54,7 +54,7 @@ int main(int argc, char **argv) {
     try {
 
         CONFIG->set("plotDir", "./logs/");
-        //CONFIG->set("osrmBaseUrl", "http://imaptools.com:5000/");
+        CONFIG->set("osrmBaseUrl", "http://imaptools.com:5000/");
         CONFIG->dump("CONFIG");
 
        
@@ -62,7 +62,7 @@ int main(int argc, char **argv) {
         tp.setInitialValues();
         tp.dumpCostValues();
 
-        TabuSearch ts(tp);
+        TabuOpt ts(tp);
         ts.v_search();
         ts.dumpStats();
 

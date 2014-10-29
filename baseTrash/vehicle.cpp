@@ -108,7 +108,7 @@ return the number of moves added to moves
 
 
 
-long int Vehicle::eval_intraSwapMoveDumps( std::deque<Move> &moves, int  truckPos,  double factor, TWC<Trashnode> twc ) const {
+long int Vehicle::eval_intraSwapMoveDumps( std::deque<Move> &moves, int  truckPos,  double factor, const TWC<Trashnode> &twc ) const {
 #ifdef TESTED
 std::cout<<"Entering Vehicle::eval_intraSwapMoveDumps \n";
 #endif
@@ -176,6 +176,48 @@ std::cout<<"Entering Vehicle::eval_intraSwapMoveDumps \n";
     if ( deltaMovesSize ) return deltaMovesSize;
     return 0;
 }
+
+
+// from the second truck point of view
+long int Vehicle::eval_interSwapMoveDumps( std::deque<Move> &moves, const Vehicle &otherTruck,int  truckPos,int  otherTruckPos, int fromPos,  double factor,const TWC<Trashnode> &twc ) const {
+#ifdef TESTED
+std::cout<<"Entering Vehicle::eval_interSwapMoveDumps \n";
+#endif
+
+        if ( path[fromPos].isdump() ) return moves.size();
+
+        Trashnode node = path[fromPos]; //saved for roll back
+        Vehicle truck = (*this);
+        Vehicle other = otherTruck;
+        double originalCost= truck.getcost(twc)  + other.getcost(twc);
+        double newCost,savings;
+	int deltaMovesSize=0;
+
+//        std::deque<int> unTestedPos;
+//        std::deque<int> impossiblePos;
+//        int currentPos,testingPos;
+
+        for ( int i=1; i<truck.size(); i++) {
+	   if (truck.path[i].isdump() ) continue;
+           for ( int j=1; j<other.size(); j++) {
+		if (other.path[j].isdump()) continue;
+		if ( truck.applyMoveInterSw(other, i, j)) {
+		   newCost=truck.getcost(twc) + other.getcost(twc);
+		   savings= originalCost - newCost;
+                   Move move(Move::InterSw , node.getnid(), otherTruck.path[j].getnid() ,  truckPos , otherTruckPos ,  i, j, (originalCost-newCost)   );
+                   if (savings>0) {
+                     moves.push_back(move);
+                     deltaMovesSize++;
+                   } 
+		}
+		truck.applyMoveInterSw(other, j, i);
+            }
+        }
+	if ( deltaMovesSize ) return deltaMovesSize;
+        return 0;
+}
+
+
 #endif
 
 

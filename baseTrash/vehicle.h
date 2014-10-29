@@ -102,7 +102,8 @@ class Vehicle: public BaseVehicle {
 
 #ifdef VICKY
     double timePCN(POS prev, POS curr, POS next) const;
-    long int eval_intraSwapMoveDumps( std::deque<Move> &moves, int  truckPos,  double factor, TWC<Trashnode> twc ) const;
+    long int eval_intraSwapMoveDumps( std::deque<Move> &moves, int  truckPos,  double factor, const TWC<Trashnode> &twc ) const;
+    long int eval_interSwapMoveDumps( std::deque<Move> &moves, const Vehicle &otherTruck,int  truckPos,int  otherTruckPos, int fromPos,  double factor,const TWC<Trashnode> &twc ) const; 
     bool eval_erase(int at, double &savings,const TWC<Trashnode> &twc) const;
     long int eval_insertMoveDumps( const Trashnode &node, std::deque<Move> &moves, int fromTruck, int formPos, int toTruck, double savings, double factor ,const TWC<Trashnode> &twc) const;
 	//for cost function
