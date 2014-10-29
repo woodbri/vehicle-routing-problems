@@ -20,7 +20,7 @@
 /*!
  * \class Move
  *
- * \brief A clas to define a neighborhood Move
+ * \brief A class to define a neighborhood Move
  *
  * This class defines a move object that can be placed on the Tabu list
  * and/or can be applied to a given solution to transform it to a new state
@@ -38,7 +38,20 @@
  */
 class Move {
   public:
-    typedef enum { Invalid = -1, Ins = 0, IntraSw = 1, InterSw = 2 } Mtype;
+
+    /*! \enum Mtype
+     * Enumerated move type for Move
+     * \var Invalid an invalid or undefined move
+     * \var Ins an Ins move that removes a node from one truck and inserts it into another truck 
+     * \var IntraSw an IntraSw move that swaps two nodes in the same truck
+     * \var InterSw an InterSw move that swaps nodes between two trucks
+     */ 
+    typedef enum {
+        Invalid = -1,
+        Ins = 0,
+        IntraSw = 1,
+        InterSw = 2
+    } Mtype;
 
   private:
     Mtype mtype;      // type of move
