@@ -407,6 +407,44 @@ void Solution::dump() const {
 }
 
 
+bool Solution::applyInsMove( const Move &move) {
+        assert(move.getmtype() == Move::Ins);
+        fleet[ move.getInsFromTruck() ].applyMoveINSerasePart(move.getnid1(), move.getpos1());
+        fleet[ move.getInsToTruck() ].applyMoveINSinsertPart(datanodes[ move.getnid1() ], move.getpos2());
+        assert( fleet[ move.getInsFromTruck() ].feasable() );
+        assert( fleet[ move.getInsToTruck() ].feasable() );
+        return (fleet[ move.getInsFromTruck() ].feasable() and  fleet[ move.getInsToTruck() ].feasable() );
+}
+
+
+// 2 vehicles involved
+bool Solution::applyInterSwMove( const Move &move) {
+        assert(move.getmtype() == Move::InterSw);
+        assert(not (move.getInterSwTruck1()==move.getInterSwTruck2()));
+        assert(fleet[move.getInterSwTruck1()][ move.getpos1()].getnid()  == move.getnid1() );
+        assert(fleet[move.getInterSwTruck2()][ move.getpos2()].getnid()  == move.getnid2() );
+
+        fleet[move.getInterSwTruck1()].applyMoveInterSw( fleet[move.getInterSwTruck2()],  move.getpos1(),move.getpos2() )  ;
+
+        assert( fleet[ move.getInterSwTruck1() ].feasable() );
+        assert( fleet[ move.getInterSwTruck2() ].feasable() );
+        return (fleet[ move.getInterSwTruck1() ].feasable() and  fleet[ move.getInterSwTruck2() ].feasable() );
+}
+
+//1 vehichle involved
+bool Solution::applyIntraSwMove( const Move &move) {
+        assert(move.getmtype() == Move::IntraSw);
+        assert(fleet[move.getIntraSwTruck()][ move.getpos1()].getnid()  == move.getnid1() );
+        assert(fleet[move.getIntraSwTruck()][ move.getpos2()].getnid()  == move.getnid2() );
+
+        fleet[move.getIntraSwTruck()].applyMoveIntraSw(  move.getpos1(),move.getpos2() )  ;
+
+        assert( fleet[ move.getIntraSwTruck() ].feasable() );
+        return (fleet[ move.getIntraSwTruck() ].feasable()) ;
+}
+
+
+
 // dump summary of the solution
 
 void Solution::dumpSummary() const {
