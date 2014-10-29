@@ -24,7 +24,7 @@
 #include "optsol.h"
 #include "tabubase.h"
 
-class TabuOpt: public TabuBase {
+class TabuOpt: public TabuBase<OptSol> {
 
 //   typedef enum { Ins, IntraSw, InterSw } neighborMovesName;
 
@@ -44,16 +44,16 @@ class TabuOpt: public TabuBase {
     mutable int currentIterationIns;
     mutable int currentIterationIntraSw;
     mutable int currentIterationInterSw;
-#endif
     OptSol bestSolution;
     OptSol currentSolution;
 
     double bestSolutionCost;
+#endif
 
 
   public:
     TabuOpt(const OptSol &initialSolution) :
-        bestSolution(initialSolution), currentSolution(initialSolution), TabuBase()
+         TabuBase(initialSolution)
     {
 #ifdef VICKY
         bestSolution.v_computeCosts();
@@ -81,9 +81,9 @@ class TabuOpt: public TabuBase {
 	limitIns=limitIntraSw ;
     };
 
+#ifdef TESTED
     Solution getBestSolution() const { return bestSolution; };
     Solution getCurrentSolution() const {return currentSolution; };
-#ifdef TESTED
     void dumpTabuList() const;
     void dumpStats() const;
     void makeTabu(const Move &m);

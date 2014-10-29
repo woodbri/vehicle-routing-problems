@@ -24,7 +24,7 @@
 #include "neighborhoods.h"
 #include "tabubase.h"
 
-class TabuSearch : public TabuBase {
+class TabuSearch : public TabuBase<Neighborhoods> {
 /*
    typedef enum { Ins, IntraSw, InterSw } neighborMovesName;
 
@@ -43,15 +43,16 @@ class TabuSearch : public TabuBase {
     mutable int currentIterationIns;
     mutable int currentIterationIntraSw;
     mutable int currentIterationInterSw;
-*/
     Neighborhoods bestSolution;
     double bestSolutionCost;
 
     Neighborhoods currentSolution;
+*/
 
   public:
     TabuSearch(const Neighborhoods initialSolution) :
-        bestSolution(initialSolution), currentSolution(initialSolution)
+        //bestSolution(initialSolution), currentSolution(initialSolution)
+	TabuBase(initialSolution)
     {
 #ifdef VICKY
         bestSolution.v_computeCosts();
@@ -97,9 +98,9 @@ class TabuSearch : public TabuBase {
     void settabuLengthInterSw(int n) { assert(n>0); tabuLengthInterSw = n; };
 
     void generateNeighborhoodStats(std::string mtype, double tm, int cnt) const;
-#endif
     Solution getBestSolution() const { return bestSolution; };
     Solution getCurrentSolution() const {return currentSolution; };
+#endif
     void search();
     void generateNeighborhood(neighborMovesName whichNeighborhood, std::deque<Move>& neighborhood, const Move& lastMove) const;
     bool doNeighborhoodMoves(neighborMovesName whichNeighborhood, int maxStagnation);
