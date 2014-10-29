@@ -21,6 +21,7 @@
 #include "neighborhoods.h"
 #include "tabusearch.h"
 
+#ifdef TOBEREMOVED
 void TabuSearch::dumpTabuList() const {
     std::map<const Move, int>::const_iterator it;
 
@@ -30,6 +31,14 @@ void TabuSearch::dumpTabuList() const {
         std::cout << " - expires: " << it->second << std::endl;
     }
     std::cout << "--------------------------" << std::endl;
+}
+
+void TabuSearch::generateNeighborhoodStats(std::string mtype, double tm, int cnt) const {
+    STATS->addto("time Gen "+mtype, tm);
+    STATS->inc("cnt Calls Gen "+mtype);
+    STATS->addto("cum Moves "+mtype, cnt);
+std::cout << "\tdoNeighborhoodMoves for " << mtype << ": " << cnt
+<< " moves generated" << std::endl;
 }
 
 
@@ -96,7 +105,7 @@ assert(true==false);
             break;
     }
 }
-
+#endif
 
 /*
     This Tabu search algorithm was adapted from the paper:
@@ -124,6 +133,7 @@ void TabuSearch::search() {
     Timer start;
     bool improvedBest;
     int lastImproved = 0;
+maxIteration=1;
     do {
         std::cout << "TABUSEARCH: Starting iteration: " << currentIteration
             << std::endl;
@@ -160,14 +170,6 @@ void TabuSearch::search() {
     std::cout << "TABUSEARCH: Total time: " << start.duration() << std::endl;
 }
 
-
-void TabuSearch::generateNeighborhoodStats(std::string mtype, double tm, int cnt) const {
-    STATS->addto("time Gen "+mtype, tm);
-    STATS->inc("cnt Calls Gen "+mtype);
-    STATS->addto("cum Moves "+mtype, cnt);
-std::cout << "\tdoNeighborhoodMoves for " << mtype << ": " << cnt
-<< " moves generated" << std::endl;
-}
 
 
 void TabuSearch::generateNeighborhood(neighborMovesName whichNeighborhood, std::deque<Move>& neighborhood, const Move& lastMove) const {

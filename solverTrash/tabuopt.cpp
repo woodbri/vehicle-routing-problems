@@ -777,7 +777,7 @@ void TabuOpt::v_savingsStats(const Move &move) const{
 #endif
 	
 void TabuOpt::v_computeCosts(OptSol &s) {
-#ifndef TESTED
+#ifdef TESTED
 std::cout<<"Entering TabuOpt::v_computeCosts \n";
 #endif
         int removedTruck = s.v_computeCosts();

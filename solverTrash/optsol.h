@@ -11,8 +11,8 @@
  * the terms of the MIT License. Please file LICENSE for details.
  *
  ********************************************************************VRP*/
-#ifndef NEIGHBORHOODS_H
-#define NEIGHBORHOODS_H
+#ifndef OPTSOL_H
+#define OPTSOL_H
 
 #include "solution.h"
 #include "move.h"
