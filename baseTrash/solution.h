@@ -23,7 +23,7 @@
 #include "pg_types_vrp.h"
 #include "vehicle.h"
 #include "plot.h"
-//#include "orders.h"
+#include "move.h"
 
 const double EPSILON = 0.001;
 
@@ -86,6 +86,16 @@ typedef  TwBucket<Trashnode> Bucket;
     bool operator <  (Solution &another) const {
         return fleet.size() < another.fleet.size() || totalCost < another.totalCost;
     };
+
+
+bool applyInsMove( const Move &move) ;
+bool applyInterSwMove( const Move &move) ;
+bool applyIntraSwMove( const Move &move) ;
+
+
+
+
+
 
 
 // Cost related
