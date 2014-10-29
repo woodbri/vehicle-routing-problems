@@ -100,12 +100,38 @@ std::cout<<"endMove\n";
         case Move::InterSw:
             TabuList[m] = currentIterationInterSw + tabuLengthInterSw + r;
             STATS->inc("tabu InterSw Moves Added");
-#ifndef VICKY
-assert(true==false);
-#endif
             break;
     }
 }
+
+
+void TabuBase::savingsStats(const Move &move) const{
+    move.dump();
+    if (move.getsavings() < 0) {
+        STATS->inc("neg savings applied");
+        switch  (move.getmtype()) {
+                case Move::Ins: STATS->inc("neg sav v_Ins applied");break;
+                case Move::IntraSw: STATS->inc("neg sav v_IntraSw applied"); break;
+                case Move::InterSw: STATS->inc("neg sav v_InterSw applied"); break;
+        }
+    } else {
+        STATS->inc("pos savings applied");
+        switch  (move.getmtype()) {
+                case Move::Ins: STATS->inc("pos sav v_Ins applied");break;
+                case Move::IntraSw: STATS->inc("pos sav v_IntraSw applied"); break;
+                case Move::InterSw: STATS->inc("pos sav v_InterSw applied"); break;
+        }
+    }
+};
+
+void TabuBase::addToStats(const Move &move) const {
+         switch ( move.getmtype()) {
+                    case Move::Ins:     STATS->inc("cnt Ins Applied");    break;
+                    case Move::IntraSw: STATS->inc("cnt IntraSw Applied"); break;
+                    case Move::InterSw: STATS->inc("cnt InterSw Applied"); break;
+         }
+        savingsStats(move);
+};
 
 
 /*
@@ -360,7 +386,7 @@ void TabuBase::addToStats(const Move &move) const {
                     case Move::IntraSw: STATS->inc("cnt IntraSw Applied"); break;
                     case Move::InterSw: STATS->inc("cnt InterSw Applied"); break;
          }
-	v_savingsStats(move);
+	savingsStats(move);
 };
 
 ///////////////////////////////////////////////////
@@ -792,35 +818,31 @@ void TabuBase::v_savingsStats(const Move &move) const{
     }
 };
 
+#endif
 	
-void TabuBase::v_computeCosts(OptSol &s) {
-        int removedTruck = s.v_computeCosts();
-        if (removedTruck==-1) return;
-	int vid1,vid2;
+void TabuBase::removeTruckFromTabuList(POS truckPos) {
+#ifndef TESTED
+std::cout<<"Entering TabuBase::removeTruckFromTabuList \n";
+#endif
+	int pos1,pos2;
         Move move;
 	int expires;
-        std::map<Move,int>::iterator it = TabuList.begin();
-        while (it != TabuList.end()) {
-	    vid1= it->first.getvid1();
-	    vid2= it->first.getvid2();
+        std::map<const Move, int> oldTabuList=TabuList;
+dumpTabuList();
+	TabuList.clear();
+
+        for (std::map<Move,int>::iterator it = oldTabuList.begin(); it!=oldTabuList.end(); ++it) {
+	    pos1= it->first.getvid1();
+	    pos2= it->first.getvid2();
 	    move=it->first;
 	    expires= it->second;
-move.dump();
-            if ( vid1 == removedTruck or vid2 == removedTruck ) {
-                TabuList.erase( it ); 
-		it=TabuList.begin();
-            } else {
-		if  ( vid1 > removedTruck)  move.setvid1( vid1-1 );
-            	if  ( vid2 > removedTruck)  move.setvid1( vid2-1 );
-		if ( vid1 > removedTruck or  vid2 > removedTruck) {
-		  TabuList.erase( it );
-		  TabuList[move]=expires;
-                }
-	    }
-
+            if ( pos1 == truckPos or pos2 == truckPos ) continue;
+	    if  ( pos1 > truckPos)  move.setvid1( pos1-1 ); //interface for position is with vid
+            if  ( pos2 > truckPos)  move.setvid2( pos2-1 ); //interface for position is with vid
+	    TabuList[move]=expires;
         }
+dumpTabuList();
 }
 
 
-#endif
 

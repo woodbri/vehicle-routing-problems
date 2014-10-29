@@ -1,4 +1,4 @@
-/*VRP*********************************************************************
+ /*VRP*********************************************************************
  *
  * vehicle routing problems
  *      A collection of C++ classes for developing VRP solutions
@@ -11,8 +11,8 @@
  * the terms of the MIT License. Please file LICENSE for details.
  *
  ********************************************************************VRP*/
-#ifndef TABUSEARCH_H
-#define TABUSEARCH_H
+#ifndef TABUBASE_H
+#define TABUBASE_H
 
 #include <map>
 #include <cassert>
@@ -28,6 +28,9 @@ class TabuBase {
 
   protected:
     typedef enum { Ins, IntraSw, InterSw } neighborMovesName;
+    typedef unsigned long int POS;
+    typedef unsigned long int UID;
+
     std::map<const Move, int> TabuList;
 
     int tabuLengthIns;
@@ -101,6 +104,7 @@ class TabuBase {
     void generateNeighborhoodStats(std::string mtype, double tm, int cnt) const;
     void addToStats (const Move &move) const ;
     void savingsStats (const Move &move) const;
+    void removeTruckFromTabuList(POS truckPos);
 
 #ifdef TESTED
     void search();

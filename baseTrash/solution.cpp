@@ -41,7 +41,7 @@ int Solution::v_computeCosts() {
     for (int i=0; i<fleet.size(); i++) {
         totalCost+=fleet[i].getcost(twc);
     }
-
+    return removedPos;
 }
 #endif
 

@@ -695,7 +695,6 @@ void OptSol::v_applyMove(const Move& m)  {
             }
             break;
     }
-    v_computeCosts();
 }
 
 

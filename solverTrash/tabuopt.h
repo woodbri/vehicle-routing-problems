@@ -11,8 +11,8 @@
  * the terms of the MIT License. Please file LICENSE for details.
  *
  ********************************************************************VRP*/
-#ifndef TABUSEARCH_H
-#define TABUSEARCH_H
+#ifndef TABUOPT_H
+#define TABUOPT_H
 
 #include <map>
 #include <cassert>
@@ -22,12 +22,14 @@
 #include "timer.h"
 #include "move.h"
 #include "optsol.h"
+#include "tabubase.h"
 
-class TabuOpt {
+class TabuOpt: public TabuBase {
 
-   typedef enum { Ins, IntraSw, InterSw } neighborMovesName;
+//   typedef enum { Ins, IntraSw, InterSw } neighborMovesName;
 
   private:
+#ifdef TESTED
     std::map<const Move, int> TabuList;
 
     int tabuLengthIns;
@@ -42,7 +44,7 @@ class TabuOpt {
     mutable int currentIterationIns;
     mutable int currentIterationIntraSw;
     mutable int currentIterationInterSw;
-
+#endif
     OptSol bestSolution;
     OptSol currentSolution;
 
@@ -51,7 +53,7 @@ class TabuOpt {
 
   public:
     TabuOpt(const OptSol &initialSolution) :
-        bestSolution(initialSolution), currentSolution(initialSolution)
+        bestSolution(initialSolution), currentSolution(initialSolution), TabuBase()
     {
 #ifdef VICKY
         bestSolution.v_computeCosts();
@@ -79,20 +81,20 @@ class TabuOpt {
 	limitIns=limitIntraSw ;
     };
 
+    Solution getBestSolution() const { return bestSolution; };
+    Solution getCurrentSolution() const {return currentSolution; };
+#ifdef TESTED
     void dumpTabuList() const;
     void dumpStats() const;
     void makeTabu(const Move &m);
     void cleanExpired();
     bool isTabu(const Move& m) const;
-    Solution getBestSolution() const { return bestSolution; };
 
-#ifdef TESTED
     int getCurrentIteration() const { return currentIteration; };
     int getMaxIteration() const { return maxIteration; };
     int getTabuLengthIns() const { return tabuLengthIns; };
     int getTabuLengthIntraSw() const { return tabuLengthIntraSw; };
     int getTabuLengthInterSw() const { return tabuLengthInterSw; };
-    Solution getCurrentSolution() const {return currentSolution; };
 
 
     void setMaxIteration(int n) { assert(n>0); maxIteration = n; };
@@ -103,9 +105,11 @@ class TabuOpt {
     void search();
     void generateNeighborhood(neighborMovesName whichNeighborhood, std::deque<Move>& neighborhood, const Move& lastMove) const;
     bool doNeighborhoodMoves(neighborMovesName whichNeighborhood, int maxStagnation);
+    void generateNeighborhoodStats(std::string mtype, double tm, int cnt) const;
+    void v_addToStats (const Move &move) const ;
+    void v_savingsStats (const Move &move) const;
 #endif
 
-    void generateNeighborhoodStats(std::string mtype, double tm, int cnt) const;
 
     void v_search();
     bool v_doNeighborhoodMoves(neighborMovesName whichNeighborhood, int maxCnt, std::deque<Move> &aspirationalTabu, std::deque<Move> &notTabu, std::deque<Move> &tabu);
@@ -116,8 +120,6 @@ class TabuOpt {
     bool v_applyNonTabu (std::deque<Move> &notTabu);
     bool v_applyTabu (std::deque<Move> &tabu);
     bool v_applyTabu (std::deque<Move> &tabu, int strategy);
-    void v_addToStats (const Move &move) const ;
-    void v_savingsStats (const Move &move) const;
     void v_computeCosts(OptSol &s) ;
     bool reachedMaxCycles(int,neighborMovesName);
 
