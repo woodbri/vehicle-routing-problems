@@ -1,4 +1,5 @@
-/* MD5
+/*! \file md5.h
+ MD5
  converted to C++ class by Frank Thilo (thilo@unix-ag.org)
  for bzflag (http://www.bzflag.org)
  
@@ -36,17 +37,19 @@ documentation and/or software.
 #include <cstring>
 #include <iostream>
  
- 
-// a small class for calculating MD5 hashes of strings or byte arrays
-// it is not meant to be fast or secure
-//
-// usage: 1) feed it blocks of uchars with update()
-//      2) finalize()
-//      3) get hexdigest() string
-//      or
-//      MD5(std::string).hexdigest()
-//
-// assumes that char is 8 bit and int is 32 bit
+/*!
+ * \class MD5
+ * \brief A small class for calculating MD5 hashes of strings or byte arrays it is not meant to be fast or secure
+ *
+ * usage: 1) feed it blocks of uchars with update()
+ *      2) finalize()
+ *      3) get hexdigest() string
+ *      or
+ *      MD5(std::string).hexdigest()
+ *
+ * assumes that char is 8 bit and int is 32 bit
+ *
+ */
 class MD5
 {
 public:
