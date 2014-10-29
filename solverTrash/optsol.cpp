@@ -14,11 +14,11 @@
 
 #include "timer.h"
 #include "trashstats.h"
-#include "neighborhoods.h"
+#include "optsol.h"
 
 
 // apply valid and feasable move to the current solution (this)
-void Neighborhoods::applyMove(const Move& m)  {
+void OptSol::applyMove(const Move& m)  {
     if (m.getsavings() < 0)
         STATS->inc("neg savings applied");
     switch (m.getmtype()) {
@@ -72,7 +72,7 @@ void Neighborhoods::applyMove(const Move& m)  {
 
 // make or simulate making the move and check if the modified
 // route(s) are feasable
-bool Neighborhoods::isNotFeasible(const Move& m) const {
+bool OptSol::isNotFeasible(const Move& m) const {
     switch (m.getmtype()) {
         case Move::Ins:
             {
@@ -115,7 +115,7 @@ bool Neighborhoods::isNotFeasible(const Move& m) const {
 // make or simulate making the move and return the savings
 // that it will generate. This would be equivalent to 
 // savings = oldsolution.getcost() - newsolution.getcost()
-double Neighborhoods::getMoveSavings(const Move& m)  const {
+double OptSol::getMoveSavings(const Move& m)  const {
     // TODO: improve this, this is probably very inefficient
     // for example IF we combined the savings calc with isNotFeasible()
     // we can get the savings from the new paths we made.
@@ -125,7 +125,7 @@ double Neighborhoods::getMoveSavings(const Move& m)  const {
 
     // make a copy of the current solution
     // we dont what to modify this as we are const
-    Neighborhoods newsol = *this;
+    OptSol newsol = *this;
     newsol.applyMove(m);
     double newCost = newsol.getCost();
 
@@ -133,7 +133,7 @@ double Neighborhoods::getMoveSavings(const Move& m)  const {
 }
 
 
-int Neighborhoods::clearRelatedMoves(std::deque<Move>& moves, const Move& lastMove)  const {
+int OptSol::clearRelatedMoves(std::deque<Move>& moves, const Move& lastMove)  const {
     int cnt = 0;
     int kept = 0;
 
@@ -170,7 +170,7 @@ std::cout << "clearRelatedMoves: cleared: " << cnt << ", kept: " << kept << std:
 }
 
 
-int Neighborhoods::addRelatedMovesIns(std::deque<Move>& moves, const Move& lastMove)  const {
+int OptSol::addRelatedMovesIns(std::deque<Move>& moves, const Move& lastMove)  const {
     int cnt = 0;
     bool all = lastMove.getmtype() == Move::Invalid;
     int va = lastMove.getvid1();
@@ -248,7 +248,7 @@ int Neighborhoods::addRelatedMovesIns(std::deque<Move>& moves, const Move& lastM
 }
 
 
-int Neighborhoods::addRelatedMovesIntraSw(std::deque<Move>& moves, const Move& lastMove)  const {
+int OptSol::addRelatedMovesIntraSw(std::deque<Move>& moves, const Move& lastMove)  const {
     int cnt = 0;
     bool all = lastMove.getmtype() == Move::Invalid or not moves.size();
     int va = lastMove.getvid1();
@@ -300,7 +300,7 @@ int Neighborhoods::addRelatedMovesIntraSw(std::deque<Move>& moves, const Move& l
 }
 
 
-int Neighborhoods::addRelatedMovesInterSw(std::deque<Move>& moves, const Move& lastMove)  const {
+int OptSol::addRelatedMovesInterSw(std::deque<Move>& moves, const Move& lastMove)  const {
     int cnt = 0;
     bool all = lastMove.getmtype() == Move::Invalid;
     int va = lastMove.getvid1();
@@ -378,7 +378,7 @@ int Neighborhoods::addRelatedMovesInterSw(std::deque<Move>& moves, const Move& l
 //      create Move objects for moving that node to every position
 //      in every other route if the Move would be feasable
 //
-void Neighborhoods::getInsNeighborhood(std::deque<Move>& moves, const Move& lastMove)  const {
+void OptSol::getInsNeighborhood(std::deque<Move>& moves, const Move& lastMove)  const {
     Timer t0;
     int removed = clearRelatedMoves(moves, lastMove);
     int added = addRelatedMovesIns(moves, lastMove);
@@ -422,7 +422,7 @@ lastMove.dump();
 //          try to swap that node to every other position
 //          within its original vehicle
 //
-void Neighborhoods::getIntraSwNeighborhood(std::deque<Move>& moves, const Move& lastMove)  const {
+void OptSol::getIntraSwNeighborhood(std::deque<Move>& moves, const Move& lastMove)  const {
     Timer t0;
     int removed = clearRelatedMoves(moves, lastMove);
     int added = addRelatedMovesIntraSw(moves, lastMove);
@@ -461,7 +461,7 @@ lastMove.dump();
 //      nid2 = node id in vehicle 2
 //      pos2 - position od nid2 in vid2
 //
-void Neighborhoods::getInterSwNeighborhood(std::deque<Move>& moves, const Move& lastMove)  const {
+void OptSol::getInterSwNeighborhood(std::deque<Move>& moves, const Move& lastMove)  const {
     Timer t0;
     int removed = clearRelatedMoves(moves, lastMove);
     int added = addRelatedMovesInterSw(moves, lastMove);
@@ -488,7 +488,7 @@ lastMove.dump();
     std::cout << "=========================\n";
 }
 
-bool Neighborhoods::applyInsMove( const Move &move) {
+bool OptSol::applyInsMove( const Move &move) {
         assert(move.getmtype() == Move::Ins);
         fleet[ move.getInsFromTruck() ].applyMoveINSerasePart(move.getnid1(), move.getpos1());
         fleet[ move.getInsToTruck() ].applyMoveINSinsertPart(datanodes[ move.getnid1() ], move.getpos2());
@@ -499,7 +499,7 @@ bool Neighborhoods::applyInsMove( const Move &move) {
 
 
 // 2 vehicles involved
-bool Neighborhoods::applyInterSwMove( const Move &move) {
+bool OptSol::applyInterSwMove( const Move &move) {
         assert(move.getmtype() == Move::InterSw);
         assert(not (move.getInterSwTruck1()==move.getInterSwTruck2()));
         assert(fleet[move.getInterSwTruck1()][ move.getpos1()].getnid()  == move.getnid1() );
@@ -513,7 +513,7 @@ bool Neighborhoods::applyInterSwMove( const Move &move) {
 }
 
 //1 vehichle involved
-bool Neighborhoods::applyIntraSwMove( const Move &move) {
+bool OptSol::applyIntraSwMove( const Move &move) {
         assert(move.getmtype() == Move::IntraSw);
         assert(fleet[move.getIntraSwTruck()][ move.getpos1()].getnid()  == move.getnid1() );
         assert(fleet[move.getIntraSwTruck()][ move.getpos2()].getnid()  == move.getnid2() );
@@ -527,7 +527,7 @@ bool Neighborhoods::applyIntraSwMove( const Move &move) {
 
 #ifdef VICKY
 ////////////////////VIcky's part of the file
-void Neighborhoods::v_getIntraSwNeighborhood(std::deque<Move>& moves, double factor)  const {
+void OptSol::v_getIntraSwNeighborhood(std::deque<Move>& moves, double factor)  const {
     moves.clear();
 
     // iterate through each vehicle (vi)
@@ -542,7 +542,7 @@ std::cout<<"working with truck "<<truckPos<<" intraSw neighborhood\n";
 }
 
 
-void Neighborhoods::v_getInterSwNeighborhood(std::deque<Move>& moves, double factor)  const {
+void OptSol::v_getInterSwNeighborhood(std::deque<Move>& moves, double factor)  const {
     assert (feasable());
     if (not fleet.size())  return;    
 
@@ -573,15 +573,15 @@ std::cout<<"working with truck "<<truckPos<<" and"<< otherTruckPos<<"interSw nei
 
 
 
-void Neighborhoods::v_getInsNeighborhood(std::deque<Move>& moves, double factor) const {
+void OptSol::v_getInsNeighborhood(std::deque<Move>& moves, double factor) const {
      v_getInsNeighborhood( moves, factor,0);
 };
 
 
-void Neighborhoods::v_getInsNeighborhood(std::deque<Move>& moves, double factor, int count) const  {
+void OptSol::v_getInsNeighborhood(std::deque<Move>& moves, double factor, int count) const  {
 
 #ifdef TESTED
-std::cout<<"Entering Neighborhoods::v_getInsNeighborhood for "<<fleet.size()<<" trucks \n";
+std::cout<<"Entering OptSol::v_getInsNeighborhood for "<<fleet.size()<<" trucks \n";
 #endif
 assert (feasable());
 
@@ -633,11 +633,11 @@ std::cout<<"\n\n\n\n**********************************working with truck "<<from
        // }
     //}
 #ifdef TESTED
-std::cout<<"EXIT Neighborhoods::v_getInsNeighborhood "<<moves.size()<<" MOVES found total \n";
+std::cout<<"EXIT OptSol::v_getInsNeighborhood "<<moves.size()<<" MOVES found total \n";
 #endif
 }
  
-bool Neighborhoods::v_applyInsMove( const Move &move) {
+bool OptSol::v_applyInsMove( const Move &move) {
 	assert(move.getmtype() == Move::Ins);
 	assert( fleet[ move.getInsFromTruck() ].feasable() );
 	assert( fleet[ move.getInsToTruck() ].feasable() );
@@ -671,7 +671,7 @@ assert(true==false);
 
 
 
-void Neighborhoods::v_applyMove(const Move& m)  {
+void OptSol::v_applyMove(const Move& m)  {
 
     switch (m.getmtype()) {
         case Move::Ins:
@@ -695,7 +695,6 @@ void Neighborhoods::v_applyMove(const Move& m)  {
             }
             break;
     }
-    v_computeCosts();
 }
 
 

@@ -11,8 +11,8 @@
  * the terms of the MIT License. Please file LICENSE for details.
  *
  ********************************************************************VRP*/
-#ifndef TABUSEARCH_H
-#define TABUSEARCH_H
+#ifndef TABUOPT_H
+#define TABUOPT_H
 
 #include <map>
 #include <cassert>
@@ -21,14 +21,15 @@
 #include "trashstats.h"
 #include "timer.h"
 #include "move.h"
-#include "neighborhoods.h"
+#include "optsol.h"
 #include "tabubase.h"
 
-class TabuSearch : public TabuBase<Neighborhoods> {
-/*
-   typedef enum { Ins, IntraSw, InterSw } neighborMovesName;
+class TabuOpt: public TabuBase<OptSol> {
+
+//   typedef enum { Ins, IntraSw, InterSw } neighborMovesName;
 
   private:
+#ifdef TESTED
     std::map<const Move, int> TabuList;
 
     int tabuLengthIns;
@@ -43,16 +44,16 @@ class TabuSearch : public TabuBase<Neighborhoods> {
     mutable int currentIterationIns;
     mutable int currentIterationIntraSw;
     mutable int currentIterationInterSw;
-    Neighborhoods bestSolution;
-    double bestSolutionCost;
+    OptSol bestSolution;
+    OptSol currentSolution;
 
-    Neighborhoods currentSolution;
-*/
+    double bestSolutionCost;
+#endif
+
 
   public:
-    TabuSearch(const Neighborhoods initialSolution) :
-        //bestSolution(initialSolution), currentSolution(initialSolution)
-	TabuBase(initialSolution)
+    TabuOpt(const OptSol &initialSolution) :
+         TabuBase(initialSolution)
     {
 #ifdef VICKY
         bestSolution.v_computeCosts();
@@ -75,37 +76,41 @@ class TabuSearch : public TabuBase<Neighborhoods> {
         // for repeatible results set this to a constant value
         // for more random results use: srand( time(NULL) );
         srand(37);
-	//limitIntraSw=bestSolution.getFleetSize();
-	//limitInterSw=limitIntraSw*(limitIntraSw-1) ;
-	//limitIns=limitIntraSw ;
+	limitIntraSw=bestSolution.getFleetSize();
+	limitInterSw=limitIntraSw*(limitIntraSw-1) ;
+	limitIns=limitIntraSw ;
     };
+
 #ifdef TESTED
+    Solution getBestSolution() const { return bestSolution; };
+    Solution getCurrentSolution() const {return currentSolution; };
+    void dumpTabuList() const;
+    void dumpStats() const;
+    void makeTabu(const Move &m);
+    void cleanExpired();
+    bool isTabu(const Move& m) const;
+
     int getCurrentIteration() const { return currentIteration; };
     int getMaxIteration() const { return maxIteration; };
     int getTabuLengthIns() const { return tabuLengthIns; };
     int getTabuLengthIntraSw() const { return tabuLengthIntraSw; };
     int getTabuLengthInterSw() const { return tabuLengthInterSw; };
-    void dumpTabuList() const;
-    void dumpStats() const;
-    bool isTabu(const Move& m) const;
 
-    void makeTabu(const Move &m);
-    void cleanExpired();
 
     void setMaxIteration(int n) { assert(n>0); maxIteration = n; };
     void settabuLengthIns(int n) { assert(n>0); tabuLengthIns = n; };
     void settabuLengthIntraSw(int n) { assert(n>0); tabuLengthIntraSw = n; };
     void settabuLengthInterSw(int n) { assert(n>0); tabuLengthInterSw = n; };
 
-    void generateNeighborhoodStats(std::string mtype, double tm, int cnt) const;
-    Solution getBestSolution() const { return bestSolution; };
-    Solution getCurrentSolution() const {return currentSolution; };
-#endif
     void search();
     void generateNeighborhood(neighborMovesName whichNeighborhood, std::deque<Move>& neighborhood, const Move& lastMove) const;
     bool doNeighborhoodMoves(neighborMovesName whichNeighborhood, int maxStagnation);
+    void generateNeighborhoodStats(std::string mtype, double tm, int cnt) const;
+    void v_addToStats (const Move &move) const ;
+    void v_savingsStats (const Move &move) const;
+#endif
 
-#ifdef VICKY
+
     void v_search();
     bool v_doNeighborhoodMoves(neighborMovesName whichNeighborhood, int maxCnt, std::deque<Move> &aspirationalTabu, std::deque<Move> &notTabu, std::deque<Move> &tabu);
     void v_getNeighborhood(neighborMovesName whichNeighborhood,std::deque<Move> &neighborhood,double factor) const;
@@ -115,16 +120,14 @@ class TabuSearch : public TabuBase<Neighborhoods> {
     bool v_applyNonTabu (std::deque<Move> &notTabu);
     bool v_applyTabu (std::deque<Move> &tabu);
     bool v_applyTabu (std::deque<Move> &tabu, int strategy);
-    void v_addToStats (const Move &move) const ;
-    void v_savingsStats (const Move &move) const;
-    void v_computeCosts(Neighborhoods &s) ;
+    void v_computeCosts(OptSol &s) ;
     bool reachedMaxCycles(int,neighborMovesName);
 
     private:
 	int limitIntraSw;
 	int limitInterSw;
 	int limitIns;
-#endif
+
 };
 
 #endif

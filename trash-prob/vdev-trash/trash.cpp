@@ -1,3 +1,16 @@
+/*VRP*********************************************************************
+ *
+ * vehicle routing problems
+ *      A collection of C++ classes for developing VRP solutions
+ *      and specific solutions developed using these classes.
+ *
+ * Copyright 2014 Stephen Woodbridge <woodbri@imaptools.com>
+ * Copyright 2014 Vicky Vergara <vicky_vergara@hotmail.com>
+ *
+ * This is free software; you can redistribute and/or modify it under
+ * the terms of the MIT License. Please file LICENSE for details.
+ *
+ ********************************************************************VRP*/
 
 #include <stdexcept>
 #include <algorithm>
@@ -16,7 +29,7 @@
 #include "trashnode.h"
 #include "twpath.h"
 #include "feasableSol.h"
-#include "tabusearch.h"
+#include "tabuopt.h"
 
 
 
@@ -41,7 +54,7 @@ int main(int argc, char **argv) {
     try {
 
         CONFIG->set("plotDir", "./logs/");
-        //CONFIG->set("osrmBaseUrl", "http://imaptools.com:5000/");
+//        CONFIG->set("osrmBaseUrl", "http://imaptools.com:5000/");
         CONFIG->dump("CONFIG");
 
        
@@ -49,7 +62,7 @@ int main(int argc, char **argv) {
         tp.setInitialValues();
         tp.dumpCostValues();
 
-        TabuSearch ts(tp);
+        TabuOpt ts(tp);
         ts.v_search();
         ts.dumpStats();
 
