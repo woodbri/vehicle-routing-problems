@@ -63,7 +63,7 @@ int main(int argc, char **argv) {
         tp.dumpCostValues();
 
         TabuOpt ts(tp);
-        ts.v_search();
+        ts.search();
         ts.dumpStats();
 
         Solution best = ts.getBestSolution();
