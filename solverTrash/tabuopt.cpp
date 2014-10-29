@@ -31,6 +31,7 @@ Before doing any optimization within the trucks, the truck number must be reduce
 void optimizeTruckNumber(){
 	std::deque<int> Z1_fullTrucks; /**< trucks with last trip completly full */
 	std::deque<int> Z2_fullTrucks; /**< trucks with extra trip completly full or cant be done */
+	
 
 }
 
