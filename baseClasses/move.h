@@ -17,23 +17,41 @@
 #include <limits>
 #include <cassert>
 
-// This class defines a move object that can be placed on the Tabu list
-// and/or can be applied to a given solution to transform it to a new state
-// setting attributes to -1 means they are undefined and should be ignored.
-//
-// We are contemplating three different moves Ins, InterSw, IntraSw
-// Ins (insert)
-//  - remove a nid from vid1 at pos1 and insert it into vid2 as pos2
-// InterSw (inter vehicle swap)
-//  - exchange a node with another node in another vehicle
-//    swap nid1 at pos1 in vid1 with nid2 at pos2 in vid2
-// IntraSw (intra vehicle swap)
-//  - exchange nid1 and nid2 in the same vehicle
-
-
+/*!
+ * \class Move
+ *
+ * \brief A class to define a neighborhood Move
+ *
+ * This class defines a move object that can be placed on the Tabu list
+ * and/or can be applied to a given solution to transform it to a new state
+ * setting attributes to -1 means they are undefined and should be ignored.
+ *
+ * We are contemplating three different moves Ins, InterSw, IntraSw
+ * Ins (insert)
+ *  - remove a nid from vid1 at pos1 and insert it into vid2 as pos2
+ * InterSw (inter vehicle swap)
+ *  - exchange a node with another node in another vehicle
+ *    swap nid1 at pos1 in vid1 with nid2 at pos2 in vid2
+ * IntraSw (intra vehicle swap)
+ *  - exchange nid1 and nid2 in the same vehicle
+ *
+ */
 class Move {
   public:
-    typedef enum { Invalid = -1, Ins = 0, IntraSw = 1, InterSw = 2 } Mtype;
+
+    /*! \enum Mtype
+     * Enumerated move type for Move
+     * \var Invalid an invalid or undefined move
+     * \var Ins an Ins move that removes a node from one truck and inserts it into another truck 
+     * \var IntraSw an IntraSw move that swaps two nodes in the same truck
+     * \var InterSw an InterSw move that swaps nodes between two trucks
+     */ 
+    typedef enum {
+        Invalid = -1,
+        Ins = 0,
+        IntraSw = 1,
+        InterSw = 2
+    } Mtype;
 
   private:
     Mtype mtype;      // type of move
