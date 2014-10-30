@@ -22,18 +22,6 @@
 #include "tabuopt.h"
 
 #ifdef VICKY
-/** 
-Before doing any optimization within the trucks, the truck number must be reduced as much as possible
-
-
-
-*/
-void optimizeTruckNumber(){
-	std::deque<int> Z1_fullTrucks; /**< trucks with last trip completly full */
-	std::deque<int> Z2_fullTrucks; /**< trucks with extra trip completly full or cant be done */
-	
-
-}
 
 /**
     This Tabu search algorithm was adapted from the paper:
@@ -68,10 +56,11 @@ std::cout<<"Entering TabuOpt::search() \n";
     bool improvedBest;
     int lastImproved = 0;
     bestSolution.optimizeTruckNumber();
+    std::cout << "TABUSEARCH: Removal of truck time: " << start.duration() << std::endl;
+    start.restart();
 
     do {
-        std::cout << "TABUSEARCH: Starting iteration: " << currentIteration
-            << std::endl;
+        std::cout << "TABUSEARCH: Starting iteration: " << currentIteration << std::endl;
 
         // this is a token ring search
         improvedBest  = doNeighborhoodMoves(Ins,     limitIns*50, aspirationalTabu, nonTabu,tabu);
@@ -112,20 +101,16 @@ std::cout<<"Entering TabuOpt::getNeighborhod() \n";
                 ++currentIterationIns;
                 currentSolution.v_getInsNeighborhood(neighborhood, factor);
                 generateNeighborhoodStats("Ins", getNeighborhoodTimer.duration(), neighborhood.size());
-//std::cout << "\tdoNeighborhoodMoves for Ins: " << neighborhood.size() << " moves generated" << std::endl;
-
                 break;
             case IntraSw:
                 ++currentIterationIntraSw;
                 currentSolution.v_getIntraSwNeighborhood(neighborhood, factor);
-
-//std::cout << "\tdoNeighborhoodMoves for IntraSw: " << neighborhood.size() << " moves generated" << std::endl;
+                generateNeighborhoodStats("IntraSw", getNeighborhoodTimer.duration(), neighborhood.size());
                 break;
             case InterSw:
                 ++currentIterationInterSw;
                 currentSolution.v_getInterSwNeighborhood(neighborhood, factor);
-
-//std::cout << "\tdoNeighborhoodMoves for InterSw: " << neighborhood.size() << " moves generated" << std::endl;
+                generateNeighborhoodStats("InterSw", getNeighborhoodTimer.duration(), neighborhood.size());
                 break;
         }
 #ifdef TESTED
@@ -133,14 +118,31 @@ std::cout<<"Exiting TabuOpt::getNeighborhod() \n";
 #endif
 }
 
+bool TabuOpt::applyAmove(const Move &move) {
+
+        currentSolution.v_applyMove(move); 
+        makeTabu(move);
+        computeCosts(currentSolution);
+        if (bestSolutionCost <currentSolution.getCost()) {
+        	bestSolution = currentSolution;
+        	bestSolutionCost = bestSolution.getCost();
+        	STATS->set("best Updated Last At", currentIteration);
+        	STATS->inc("best Updated Cnt");
+	}
+        return true;
+}
+
+
 
 bool TabuOpt::applyAspirationalTabu(std::deque<Move> & aspirationalTabu) {
 #ifdef TESTED
 std::cout<<"Entering TabuOpt::applyAspirationalTabu() \n";
 #endif
 	assert (aspirationalTabu.size());
-        std::sort(aspirationalTabu.begin(), aspirationalTabu.end(), Move::bySavings); //the list is short so not so yikes (1 per local neighborhood)
-
+        std::sort(aspirationalTabu.begin(), aspirationalTabu.end(), Move::bySavings); 
+	applyAmove(aspirationalTabu[0]);
+        STATS->inc("cnt Aspirational Tabu");
+/*
         STATS->set("best Updated Last At", currentIteration);
         STATS->inc("best Updated Cnt");
 
@@ -153,19 +155,10 @@ std::cout<<"Entering TabuOpt::applyAspirationalTabu() \n";
 #ifndef TESTED
 std::cout<<"Exiting TabuOpt::applyAspirationalTabu made \n"; aspirationalTabu[0].dump();
 #endif
+*/
         return true;
 }
 
-#ifdef TOBEDELETED
-void TabuOpt::addToStats(const Move &move) const {
-	 switch ( move.getmtype()) {
-                    case Move::Ins:     STATS->inc("cnt Ins Applied");    break;
-                    case Move::IntraSw: STATS->inc("cnt IntraSw Applied"); break;
-                    case Move::InterSw: STATS->inc("cnt InterSw Applied"); break;
-         }
-	savingsStats(move);
-};
-#endif
 
 bool TabuOpt::applyNonTabu (std::deque<Move> &notTabu) {
 #ifndef TESTED
