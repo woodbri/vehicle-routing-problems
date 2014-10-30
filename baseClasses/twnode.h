@@ -18,14 +18,23 @@
 
 #include "node.h"
 
+/*! \class Twnode
+ * \brief Extends the \ref Node class to create a Node with time window attributes
+ * A Time Window node is a Node with addition attributes and methods to
+ * to support Time Windows and to model a more complex Node need in many
+ * vehicle routing problems.
+ *
+ * Most application specific code will extend this class and define the specific
+ * values and requirements for \c type and \c streetid.
+ */
 class Twnode: public Node {
   protected:
-    int    type;
-    double demand;
-    double tw_open;
-    double tw_close;
-    double serviceTime;
-    int streetid;
+    int    type;        \\\< Defines what type of Twnode
+    double demand;      \\\< The demand for the Node
+    double tw_open;     \\\< When the time window opens (earliest arrival time)
+    double tw_close;    \\\< When the time window closes (latest arrival time)
+    double serviceTime; \\\< The length of time it takes to service the Node
+    int streetid;       \\\< The street id that the node is on (might be optional)
 
   public:
     // accessors

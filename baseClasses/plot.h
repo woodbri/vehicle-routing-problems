@@ -23,24 +23,53 @@
 #include "twbucket.h"
 #include "twpath.h"
 
+/*! \class Plot
+ * \brief A class for generating images of the locations and routes in these problems.
+ * This classes plots problem data into image files. It handles the things like
+ * scaling the data to fit on the image. Labeling the images and the nodes.
+ *
+ * The following is an example usage:
+ *
+ * \code
+    Plot<Trashnode>  plot(datanodes);
+    plot.setFile("p1.png");
+    plot.setTitle("initial Solution");
+    plot.drawInit();
+    for (int i=0; i<fleet.size(); i++)
+        plot.drawPath(fleet[i].getPath(), makeColor(i), 2, false);
+    plot.drawPoints(depotids, 0xff0000, 7, true);
+    plot.drawPoints(dumpids, 0x00ff00, 7, true);
+    plot.drawPoints(pickupids, 0x0000ff, 3, true);
+    plot.save();
+ *\endcode
+ *
+ * \def PGROUTING
+ * \brief Set this MACRO to eliminate the plotting code
+ * For integration into postgresql you can compile this with -DPGROUTING to
+ * eliminate the code and prevent plots from being written to the server file
+ * system.
+ */
 template <class knode> class Plot {
 private:
 
-    const TwBucket<knode> &pts;
-    std::string file;
-    std::string title;
-    int width;
-    int height;
-    double extents[4];
-    double dx;
-    double dy;
-    double cx;
-    double cy;
-    double scale;
-    gdImagePtr im;
-    std::string font;
+    const TwBucket<knode> &pts; ///< A Bucket on nodes
+    std::string file;       ///< The file name to write the plot image to
+    std::string title;      ///< The title to place on the image
+    int width;              ///< The width of the image in pixels
+    int height;             ///< The height of the image in pixels
+    double extents[4];      ///< Storage for the extents of the image in user units
+    double dx;              ///< The width in user units
+    double dy;              ///< The height in user units
+    double cx;              ///< The center x in user units
+    double cy;              ///< The center y in user units
+    double scale;           ///< The scale factor to apply to user values
+    gdImagePtr im;          ///< A pointer to the GD image
+    std::string font;       ///< The filesystem path to a ttf file
 
 public:
+    /*! \fn void calcExtents()
+     * \brief Compute the extents of the nodes in the Bucket pts
+     */
     void calcExtents(){//const TwBucket<knode>& pnts) {
 #ifndef PGROUTING
         double extents[4];
@@ -73,6 +102,9 @@ public:
     }
 
 
+    /*! \fn Plot(const TwBucket<knode> &_pts)
+     * \brief Construct a Plot object using the supplied pts and initialize important attributes.
+     */
     Plot(const TwBucket<knode> &_pts) : pts(_pts) {
 #ifndef PGROUTING
         file = "plot.png";
@@ -86,8 +118,14 @@ public:
 #endif
     }
 
+    /*! \fn void setFont(std::string _font)
+     * \brief Set the path to a ttf font file
+     */
     void setFont(std::string _font) { font = _font; };
 
+    /*! \fn void setPoints(const std::deque<knode> &_pts)
+     * \brief Provide a new set of points to the plot object.
+     */
     void setPoints(const std::deque<knode> &_pts) {
 #ifndef PGROUTING
         pts = _pts;
@@ -95,6 +133,9 @@ public:
 #endif
     };
 
+    /*! \fn int makeColor(int i) const
+     * \brief Make a valid color that can be used with the Plot object.
+     */
     int makeColor(int i) const {
 #ifndef PGROUTING
         int b = (i % 4 + 1) * 0x40 - 1;
@@ -107,22 +148,38 @@ public:
 #endif
     };
 
+    /*! \fn void setFile(std::string _file)
+     * \brief Set the output image file and path.
+     */
     void setFile(std::string _file) { file = _file; };
 
+    /*! \fn void setTitle(std::string _title)
+     * \brief Set the title to use on the image
+     */
     void setTitle(std::string _title) { title = _title; };
 
+    /*! \fn void setSize(int h, int w)
+     * \brief Set the image height and width.
+     */
     void setSize(int h, int w) { height = h; width = w; };
 
+    /*! \fn int scalex(double x) const
+     * \brief Scale an X value from user units into image units.
+     */
     inline int scalex(double x) const {
         return (int)((x - cx) * scale + (double) width/2.0);
     }
 
-
+    /*! \fn int scaley(double y) const
+     * \brief Scale an Y value from user units into image units.
+     */
     inline int scaley(double y) const {
         return (int) height - ((y - cy) * scale + (double) height/2.0);
     }
 
-
+    /*! \fn void drawInit()
+     * \brief Start the drawing process by creating an internal image structure and initializing it.
+     */
     void drawInit() {
 #ifndef PGROUTING
         if (im) gdImageDestroy(im);
@@ -131,8 +188,10 @@ public:
 #endif
     }
 
-
-
+    /*! \fn void drawPath(std::deque<int> ids, int color, int thick, bool label)
+     * \brief Draw a path from point to point using the ids
+     * \todo Need to add labels for paths
+     */
     void drawPath(std::deque<int> ids, int color, int thick, bool label) {
 #ifndef PGROUTING
         // make sure drawInit() has been called
@@ -166,7 +225,9 @@ public:
 #endif
     }
 
-
+    /*! \fn void drawPoints(std::deque<int> ids, int color, int size, bool label)
+     * \brief Label the nodes with their id's
+     */
     void drawPoints(std::deque<int> ids, int color, int size, bool label) {
 #ifndef PGROUTING
         // make sure drawInit() has been called
@@ -191,7 +252,10 @@ public:
     }
 
 
-
+    /*! \fn int save()
+     * \brief Save the image to the default file name.
+     * return 1 on failure, 0 on success
+     */
     int save() {
 #ifndef PGROUTING
         // use the object variable file
@@ -202,6 +266,11 @@ public:
     }
 
 
+    /*! \fn int save()
+     * \brief Save the image to the file argument.
+     * \param[in] _file File and path to save the image to.
+     * return 1 on failure, 0 on success
+     */
     int save(std::string _file) {
 #ifndef PGROUTING
         FILE *fp;
@@ -236,6 +305,13 @@ public:
 
 /* with this vehicle plot work and uses the class template */
 
+    /*! \fn void drawPoint(const knode &a, int color, int size, bool label)
+     * \brief Draw a point on the image.
+     * \param[in] a The point to draw
+     * \param[in] color A color defined as "0xRRGGBB" or \ref makeColor
+     * \param[in] size The radius of the point in pixels
+     * \param[in] label A boolean value if you want the point labeled
+     */
     void drawPoint(const knode &a, int color, int size, bool label) {
 #ifndef PGROUTING
         // make sure drawInit() has been called
@@ -255,7 +331,14 @@ public:
 #endif
     }
 
-
+/*! \fn void drawPath( TwBucket<knode> path, int color, int thick, bool label)
+ * \brief Draw a path given a Bucket of nodes.
+ * \param[in] path The order Bucket of nodes to be drawn as a path.
+ * \param[in] color A color defined as "0xRRGGBB" or \ref makeColor
+ * \param[in] thick The thickness of the path in pixels
+ * \param[in] label A boolean value if you want the path labeled.
+ * \todo Currently label is ignore and the path is not labeled.
+ */
     void drawPath( TwBucket<knode> path, int color, int thick, bool label) {
 #ifndef PGROUTING
 
@@ -301,9 +384,9 @@ plot.setFile("p1.png");
 plot.setTitle("initial Solution");
 plot.drawInit();
 for (int i=0; i<fleet.size(); i++)
-    plot.drawPath(fleet[i].getPath(), somecolors[i], false);
-plot.drawPoints(depotids, red, true);
-plot.drawPoints(dumpids, green, true);
-plot.drawPoints(pickupids, blue, true);
+    plot.drawPath(fleet[i].getPath(), makeColor(i), 2, false);
+plot.drawPoints(depotids, red, 7, true);
+plot.drawPoints(dumpids, green, 7, true);
+plot.drawPoints(pickupids, blue, 3, true);
 plot.save(); 
 */

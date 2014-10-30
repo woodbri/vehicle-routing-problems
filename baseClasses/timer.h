@@ -16,6 +16,12 @@
 
 #include <time.h>
 
+/*! \class Timer
+ * \brief Create a Timer object for measuring the time duration from the Timer creation.
+ * A simple Timer class that can be used to report the the duration of time
+ * since it was created. It is used to measure how long certain functions
+ * take to run and for collecting performance stats.
+ */
 class Timer {
 
 //  public:
@@ -25,14 +31,24 @@ class Timer {
 //    } Time;
 
   private:
-    struct timespec t0;    // start time
-    struct timespec t1;    // duration time
+    struct timespec t0;    ///< start time
+    struct timespec t1;    ///< duration time
 
   public:
+    /*! \fn Timer()
+     * \brief Construct a new Timer object and remember its time of creation
+     */
     Timer() { clock_gettime(CLOCK_MONOTONIC_RAW, &t0); };
 
+    /*! \fn void restart()
+     * \brief Reset the Timer start time to now.
+     */
     inline void restart() { clock_gettime(CLOCK_MONOTONIC_RAW, &t0); };
 
+    /*! \fn double duration()
+     * \brief Compute the duration of time since the Timer was set or reset.
+     * \return The number of second as a double since the Timer as set or reset.
+     */
     inline double duration() {
         clock_gettime(CLOCK_MONOTONIC_RAW, &t1);
         double dt0 = t0.tv_nsec / 1000000000.0 + t0.tv_sec;
