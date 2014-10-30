@@ -17,14 +17,22 @@
 #include <cmath>
 #include <string>
 
-
+/*! \class Node
+ * \brief The Node class defines a point in 2D space with an id.
+ *
+ * A Node is a point that defines a location in 2D space. It maintains
+ * a user \c id and an internal \c nid along with its \c x, \c y location.
+ * This is the base object that things like depots, customer locations, etc.
+ * are built upon.
+ *
+ */
 
 class Node {
   protected:
-    int nid;
-    int id;
-    double x;
-    double y;
+    int nid;    ///< internal node number
+    int id;     ///< user supplied node number
+    double x;   ///< x or longitude of the node's location
+    double y;   ///< y or latitude of the node's location
 
   public:
     // accessors
@@ -59,11 +67,11 @@ class Node {
     Node operator-( const Node &v ) const;
     Node operator*( double f ) const;
     double dotProduct( const Node &p ) const ;
-    double length( const Node &p ) const ;
+    double length() const ;
     double gradient( const Node &p ) const ;
     double distanceTo( const Node &p ) const ;
     double distanceToSquared( const Node &p ) const ;
-    Node unit( const Node &p ) const ;
+    Node unit() const ;
     double distanceToSegment( const Node &v, const Node &w) const ;
     double distanceToSegment( const Node &v, const Node &w, Node &q ) const;
     double distanceToSegment( double, double, double, double, double&, double&) const;

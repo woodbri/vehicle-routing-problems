@@ -53,12 +53,12 @@ bool Move::less(const Move& m) const {
  * - prohibition rules for IntraSw
  *   - This rules says that if we have swapped either the source
  *     or the destination nodes that they can not be moved again
- *     util the tabu length expires.
+ *     until the tabu length expires.
  *  
  * - prohibition rules for InterSw
  *   - This rules says that if we have swapped either the source
  *     or the destination nodes that they can not be moved again
- *     util the tabu length expires.
+ *     until the tabu length expires.
  */
 bool Move::isForbidden(const Move &tabu) const {
     if (*this == tabu) return true;
