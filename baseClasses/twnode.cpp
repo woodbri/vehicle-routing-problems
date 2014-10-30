@@ -18,6 +18,14 @@
 
 #include "twnode.h"
 
+/*! \fn bool Twnode::isvalid() const
+ * \brief Check if a Twnode is valid or not.
+ * For Twnode to be valid the following conditions must be true:
+ * - id \> -1
+ * - tw_open \< tw_close
+ * - tw_open \>= 0
+ * - serviceTime \>= 0
+ */
 bool Twnode::isvalid() const {
     return Node::isvalid() and tw_open < tw_close
                            and tw_open >= 0

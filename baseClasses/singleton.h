@@ -17,6 +17,58 @@
 #include <stddef.h>  // defines NULL
 #include <cassert>
 
+/*! \class Singleton
+ * \brief A template class for creating  singleton objects.
+ * This class if used by \ref Config class and  \ref TrashStats class.
+ *
+ * An example of how to use this class to create a simple Logger class:
+ *
+ * \code
+    // USAGE:
+    //   Here is an example of how to use this class to create a logger
+
+    #include "singleton.h"
+
+    class Logger
+    {
+    public:
+       Logger() {};
+       ~Logger() {};
+       bool openLogFile(string);
+       void writeToLogFile(string);
+       bool closeLogFile(string);
+    private:
+       ...
+       ...
+    };
+
+    bool Logger::openLogFile(std::string)
+    {
+       ...
+       ...
+    }
+
+    ...
+    ...
+
+    // create the singletons object in as a global
+    typedef Singleton<Logger> LoggerSingleton;   // Global declaration
+
+    main()
+    {
+        ...
+
+        // Use this to access the global object
+        // it is often convenient to
+        LoggerSingleton::Instance()->openLogFile("logFile.txt");
+
+        // #define LOG LoggerSingleton::Instance()
+        // LOG->openLogFile("logFile.txt");
+
+        ...
+    }
+ * \endcode
+ */
 template <class T>
 class Singleton
 {
@@ -40,41 +92,4 @@ template <class T> T* Singleton<T>::m_pInstance=NULL;
 #endif
 /*
 
-// USAGE:
-//   Here is an example of how to use this class to create a logger
-
-#include "singleton.h"
-
-class Logger
-{
-public:
-   Logger() {};
-   ~Logger() {};
-   bool openLogFile(string);
-   void writeToLogFile(string);
-   bool closeLogFile(string);
-private:
-   ...
-   ...
-};
-
-bool Logger::openLogFile(std::string)
-{
-   ...
-   ...
-}
-
-...
-...
-
-typedef Singleton<Logger> LoggerSingleton;   // Global declaration
-
-main()
-{
-    ...
-
-    LoggerSingleton::Instance()->openLogFile("logFile.txt");
-
-    ...
-}
 */
