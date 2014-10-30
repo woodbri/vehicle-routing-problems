@@ -222,7 +222,13 @@ dumpeval();
     // evaluation
     //--------------------------------------------------------------------
 
-    bool feasable() const { return endingSite.gettwvTot() == 0 and endingSite.getcvTot() == 0; };
+    /**
+	For the truck to be feasable the following stops must be feasable:
+	last node in path
+	dumpSite
+	endingSite
+    */
+    bool feasable() const { return path[size()-1].feasable() and dumpSite.feasable() and endingSite.feasable(); };
     bool hascv()const { return endingSite.getcvTot() != 0; };
     bool hastwv()const { return endingSite.gettwvTot() != 0; };
 

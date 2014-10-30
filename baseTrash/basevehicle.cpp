@@ -197,16 +197,17 @@ void BaseVehicle::dumppath() const {
    }
 
    void BaseVehicle::tau() const {
-      for (int i=0; i< path.size(); i++)
+/*      for (int i=0; i< path.size(); i++)
          std::cout<<getnid(i)<<" , ";
       std::cout<<dumpSite.getnid()<<" , ";
       std::cout<<endingSite.getnid()<<" , ";
-      std::cout<<" (";
+*/
+      std::cout<<" ";
       for (int i=0; i< path.size(); i++)
-         std::cout<<getid(i)<<" , ";
-      std::cout<<dumpSite.getid()<<" , ";
-      std::cout<<endingSite.getid()<<" , ";
-      std::cout<<" )";
+         std::cout<<getid(i)<<" ";
+      std::cout<<dumpSite.getid()<<" ";
+      std::cout<<endingSite.getid()<<" ";
+      std::cout<<" \n";
    }
 
 
