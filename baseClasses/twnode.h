@@ -29,22 +29,60 @@
  */
 class Twnode: public Node {
   protected:
-    int    type;        \\\< Defines what type of Twnode
-    double demand;      \\\< The demand for the Node
-    double tw_open;     \\\< When the time window opens (earliest arrival time)
-    double tw_close;    \\\< When the time window closes (latest arrival time)
-    double serviceTime; \\\< The length of time it takes to service the Node
-    int streetid;       \\\< The street id that the node is on (might be optional)
+    int    type;        ///< Defines what type of Twnode
+    double demand;      ///< The demand for the Node
+    double tw_open;     ///< When the time window opens (earliest arrival time)
+    double tw_close;    ///< When the time window closes (latest arrival time)
+    double serviceTime; ///< The length of time it takes to service the Node
+    int streetid;       ///< The street id that the node is on (might be optional)
 
   public:
     // accessors
+
+    /*! \fn double opens() const
+     * \brief Get the time window open time.
+     * \return The earliest arrival time.
+     */
     double opens() const {return tw_open;};
+
+    /*! \fn double closes() const
+     * \brief Get the time window close time.
+     * \return The latest arrival time.
+     */
     double closes() const {return tw_close;};
-    double getdemand() const{ return demand;};
-    double getservicetime() const{  return serviceTime;};
+
+    /*! \fn double getdemand() const
+     * \brief Get the demand associated with this node.
+     * \return The demand for this node.
+     */
+    double getdemand() const {return demand;};
+
+    /*! \fn double getservicetime() const
+     * \brief Get the service time for this node.
+     * \return The service time for this node.
+     */
+    double getservicetime() const { return serviceTime;};
+
+    /*! \fn double windowlength() const
+     * \brief Get the length of time between the time window open and close.
+     * \return the length of time that the time window is open.
+     */
     double windowlength() const { return  tw_close - tw_open; };
+
+    /*! \fn int ntype() const
+     * \brief Get the type of node this is. -1 is Invalid or undefined. Other values are defined by the application.
+     * \return The type of node.
+     */
     int ntype() const {return type;};
+
+    /*! \fn int streetId() const
+     * \brief Get the street id or -1 if it is not 
+     */
     int streetId() const {return streetid;};
+
+    /*! \fn 
+     * \brief 
+     */
     void dump() const;
 
     // state
@@ -68,6 +106,9 @@ class Twnode: public Node {
 
     // structors
 
+    /*! \fn Twnode()
+     * \brief Construct an undefined Twnode object.
+     */
     Twnode() {
         Node();
         type=-1;
