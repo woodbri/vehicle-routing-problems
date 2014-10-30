@@ -33,6 +33,9 @@ bool Twnode::isvalid() const {
 }
 
 
+/*! \fn void Twnode::dump() const
+ * \brief Print the contents of a Twnode object.
+ */
 void Twnode::dump() const {
     std::cout.precision(8);
     std::cout << nid
@@ -48,6 +51,21 @@ void Twnode::dump() const {
 }
 
 
+/*! \fn void Twnode::set(int _nid, int _id, double _x, double _y, int _demand, int _tw_open, int _tw_close, int _service)
+ * \brief Set the attributes of a Twnode object.
+ * \param[in] _nid Value for internal node id
+ * \param[in] _id Value for user node id
+ * \param[in] _x Value of the x or longitude coordinate
+ * \param[in] _y Value of the y or latitude coordinate
+ * \param[in] _demand Value of the demand for this node
+ * \param[in] _tw_open The earliest possible arrival time
+ * \param[in] _tw_close The latest possible arrivial time
+ * \param[in] _service The length of time to sevice this node
+ *
+ * It should be noted the times are normally defined by some amount of elapsed
+ * time from some problem start time of 0.0. The actual problem will specify
+ * what the time units are, like seconds, minutes, hours etc.
+ */
 void Twnode::set(int _nid, int _id, double _x, double _y, int _demand,
                  int _tw_open, int _tw_close, int _service) {
     nid = _nid;
@@ -61,6 +79,12 @@ void Twnode::set(int _nid, int _id, double _x, double _y, int _demand,
 }
 
 
+/*! \fn Twnode::Twnode(std::string line)
+ * \brief Create an new Twnode object and populate its attributes by parsing line
+ * \param[in] line A string with space separated values
+ *
+ * The \c line should be "nid x y tw_open tw_close demand servicetime streetid"
+ */
 Twnode::Twnode(std::string line) {
     std::istringstream buffer( line );
     demand = serviceTime = 0;

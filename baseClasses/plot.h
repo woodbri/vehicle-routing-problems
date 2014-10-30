@@ -266,7 +266,7 @@ public:
     }
 
 
-    /*! \fn int save()
+    /*! \fn int save(std::string _file)
      * \brief Save the image to the file argument.
      * \param[in] _file File and path to save the image to.
      * return 1 on failure, 0 on success

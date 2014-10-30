@@ -18,6 +18,7 @@
 
 /*! \class Timer
  * \brief Create a Timer object for measuring the time duration from the Timer creation.
+ *
  * A simple Timer class that can be used to report the the duration of time
  * since it was created. It is used to measure how long certain functions
  * take to run and for collecting performance stats.
