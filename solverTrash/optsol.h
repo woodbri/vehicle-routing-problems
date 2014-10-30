@@ -37,9 +37,11 @@ OptSol(const Solution &solution): Solution(solution){
     bool v_applyInsMove( const Move &move);
     void v_applyMove(const Move&);
     void optimizeTruckNumber();
-    bool emptyTheTruck(int fromTruck, std::deque<int> toThisOnes);
 
 private:
+    bool emptyAtruck(std::deque<int> from, std::deque<int> toThisOnes);
+    bool emptyTheTruck(int fromTruck, std::deque<int> toThisOnes);
+
    mutable int intraTruckPos;
    mutable int interTruckPos1;
    mutable int interTruckPos2;

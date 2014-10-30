@@ -250,6 +250,10 @@ class Twpath : public TwBucket<knode> {
 
     };
 
+    bool feasable() const {
+	return ( path[path.size()-1].feasable() );
+    };
+
     void evalLast(double maxcapacity) {
         assert (size()>0);
         evaluate(path.size()-1, maxcapacity);
@@ -322,6 +326,9 @@ std::cout<<"Entering twpath::createsViolation \n";
 std::cout<<"Entering twpath::e__insert \n";
 #endif
         assert ( at <= size() );
+        assert ( at > 0 );
+	evaluate (at,maxcapacity);
+        //if ( not path[size()-1].feasable() ) return false;
         assert ( path[size()-1].feasable() );
         path.insert(path.begin() + at, n);
         if ( createsViolation(at, maxcapacity) ){

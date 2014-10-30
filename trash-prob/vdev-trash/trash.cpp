@@ -56,6 +56,9 @@ int main(int argc, char **argv) {
         CONFIG->set("plotDir", "./logs/");
 //        CONFIG->set("osrmBaseUrl", "http://imaptools.com:5000/");
         CONFIG->dump("CONFIG");
+	//test that I can have a copy of the config, not that is usful but it cab be done
+	TrashConfig configCopy;
+	configCopy.dump("osrmBaseUrl");
 
        
         FeasableSol tp(infile);
