@@ -44,9 +44,9 @@ bool Move::less(const Move& m) const {
  * This test is used to determine if A would be tabu if B is on the tabu list
  *
  * - prohibition rules for Ins
- *   - Rule PR5 - move removing any order from tabu.vid2.
- *     This rule basically says if we remove a node from vid2
- *     then we are not allowed to add a node back to vid2 until
+ *   - Rule PR5 - move removing any order from tabu.vid1.
+ *     This rule basically says if we remove a node from vid1 
+ *     then we are not allowed to add a node back to vid1 until
  *     the tabu length expires.
  *     This rule is to promote the elimiation of vehicles
  *
@@ -64,7 +64,7 @@ bool Move::isForbidden(const Move &tabu) const {
     if (*this == tabu) return true;
 
     if (mtype == Ins) {
-        if (vid1 == tabu.vid2) return true;
+        if (vid2 == tabu.vid1) return true;
     }
     else if (mtype == IntraSw) {
         if (nid1==tabu.nid1 or nid2==tabu.nid2 or
