@@ -588,9 +588,7 @@ void loadAndProcess_distance(std::string infile, const Bucket &datanodes, const 
           if (i==j) travel_Time[i][i]=0;
           else {
 		travel_Time[i][j]=travel_Time[j][i]=original[i].distance(original[j])/250;
-#ifdef VICKY
 		if (not sameStreet(i,j)) travel_Time[i][j]=travel_Time[i][j] * ( std::abs(std::sin(gradient(i,j))) + std::abs(std::cos(gradient(i,j)))  );
-#endif
           }
     }
 

@@ -149,11 +149,6 @@ void cleanExpired() {
 
 
 void makeTabu(const Move &m) {
-#ifdef VICKY
-std::cout<<"makeTabu\n";
-m.dump();
-std::cout<<"endMove\n";
-#endif
     // generate a randon value between -2 and +2
     // to adjust the tabu length with
     int r = rand()%5-2;
@@ -171,24 +166,27 @@ std::cout<<"endMove\n";
             STATS->inc("tabu InterSw Moves Added");
             break;
     }
+    addToStats(m);
+#ifndef LOG
+dumpTabuList();
+#endif
 }
 
 
 void savingsStats(const Move &move) const{
-    move.dump();
     if (move.getsavings() < 0) {
         STATS->inc("neg savings applied");
         switch  (move.getmtype()) {
-                case Move::Ins: STATS->inc("neg sav v_Ins applied");break;
-                case Move::IntraSw: STATS->inc("neg sav v_IntraSw applied"); break;
-                case Move::InterSw: STATS->inc("neg sav v_InterSw applied"); break;
+                case Move::Ins: STATS->inc("neg sav Ins applied");break;
+                case Move::IntraSw: STATS->inc("neg sav IntraSw applied"); break;
+                case Move::InterSw: STATS->inc("neg sav InterSw applied"); break;
         }
     } else {
         STATS->inc("pos savings applied");
         switch  (move.getmtype()) {
-                case Move::Ins: STATS->inc("pos sav v_Ins applied");break;
-                case Move::IntraSw: STATS->inc("pos sav v_IntraSw applied"); break;
-                case Move::InterSw: STATS->inc("pos sav v_InterSw applied"); break;
+                case Move::Ins: STATS->inc("pos sav Ins applied");break;
+                case Move::IntraSw: STATS->inc("pos sav IntraSw applied"); break;
+                case Move::InterSw: STATS->inc("pos sav InterSw applied"); break;
         }
     }
 };

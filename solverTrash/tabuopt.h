@@ -48,13 +48,16 @@ class TabuOpt: public TabuBase<OptSol> {
     bool doNeighborhoodMoves(neighborMovesName whichNeighborhood, int maxCnt, std::deque<Move> &aspirationalTabu, std::deque<Move> &notTabu, std::deque<Move> &tabu);
     void getNeighborhood(neighborMovesName whichNeighborhood,std::deque<Move> &neighborhood,double factor) const;
     bool applyAspirationalTabu(std::deque<Move> &aspirationalTabu);
-    bool applyAspirational(std::deque<Move> &neighborhood, std::deque<Move> &notTabu,std::deque<Move> &tabu);
+    bool classifyMoves(std::deque<Move> &neighborhood, std::deque<Move> &aspirationalTabu ,std::deque<Move> &notTabu,std::deque<Move> &tabu);
     bool applyAspirationalNotTabu(std::deque<Move> &neighborhood, std::deque<Move> &aspirationalTabu,std::deque<Move> &notTabu,std::deque<Move> &tabu);
-    bool applyNonTabu (std::deque<Move> &notTabu);
-    bool applyTabu (std::deque<Move> &tabu);
-    bool applyTabu (std::deque<Move> &tabu, int strategy);
-    void computeCosts(OptSol &s) ;
+    bool applyNonTabu (std::deque<Move> &moves);
+    bool applyAmove (const Move &move);
+    bool applyAspirationalNotTabu (const Move &move);
+    bool applyTabu (std::deque<Move> &moves);
+    bool applyTabu (std::deque<Move> &moves, int strategy);
+    bool computeCosts(OptSol &s) ;
     bool reachedMaxCycles(int,neighborMovesName);
+    bool dumpMoves(std::string str, std::deque<Move> moves) const ;
 
     private:
 	int limitIntraSw;
