@@ -25,47 +25,52 @@
 //#include "twc.h"
 //#include "plot.h"
 
-/*
-Can be used as:
-
-Set like container,
-Twpath sections storage
-   --allows several un-evaluated path operations
-    
-none of the manipulation at this level is evaluated
+/*! \class TwBucket
+ * \brief A template class that provides deque like container with lots of additional functionality.
+ *
+ * TwBucket provides a set like container. It is used by \ref Twpath for
+ * storage. It also provides several un-evaluated path operations. None of
+ * the manipulation at this level is evaluated.
+ *
+ * The class provides:
+ * - basic deque container like operations
+ * - set operations
+ * - node id based tools
+ * - position based tools
+ * - other tools
 */
-
-
 template <class knode> 
 class TwBucket {
-/**  CLASS SUMMARY
-
-
---  other tools
---  set operations tools
---  NID base tools
-
--- deque like functions   POSITION based functions
-   make available the deques container function to any derived class
-   user can follow cpp deques container functions to see how they perform
-
-*/
 
   protected:
+    /*! \typedef typedef typename std::vector<std::vector<double> > TravelTimes
+     * \brief Define an NxN vector array for holding travel times between nodes.
+     */
     typedef typename std::vector<std::vector<double> > TravelTimes;
+
+    /*! \fn double _MIN() const
+     * \brief Define double -infinity
+     */
     inline double _MIN() const { return (-std::numeric_limits<double>::max());};
+
+    /*! \fn double _MAX() const
+     * \brief Define double +infinity
+     */
     inline double _MAX() const { return (std::numeric_limits<double>::max());};
 
-    static  TravelTimes TravelTime;
-    std::deque<knode> path;
+    static  TravelTimes TravelTime; ///< Defines the travel time matrix
+    std::deque<knode> path;         ///< Defines the bucket container
 
 
-class compNode{
-   public:
-   bool operator()(const knode &n1, const knode &n2) const {
-     return (n1.getnid() < n2.getnid() );
-   }
-};
+    /*! \class compNode
+     * \brief A node comparision class for ordering nodes in a set.
+     */
+    class compNode{
+       public:
+       bool operator()(const knode &n1, const knode &n2) const {
+         return (n1.getnid() < n2.getnid() );
+       }
+    };
 
 
     typedef unsigned long UID;
@@ -78,33 +83,36 @@ class compNode{
 
   public:
 
+    /*! \fn void setTravelTimes(const TravelTimes &_tt)
+     * \brief Assign a travel time matrix to the \ref TwBucket
+     */
+    void setTravelTimes(const TravelTimes &_tt) {
+        TravelTime=_tt;
+    }
 
-   void setTravelTimes(const TravelTimes &_tt) {
-      TravelTime=_tt;
-   }
+    /*! \fn double  timePCN(POS prev, POS curr, POS next) const
+     *
+      simulates the following contiguous containers in the path
+      prev curr next  
+      prev curr dump
 
-/**
-  simulates the following contiguous containers in the path
-  prev curr next  
-  prev curr dump
+      prev,curr,next are positions in the path
+      
+      returns ttpc + serv(c) + ttcn
+              ttpc + serv(c) + ttcd
+              infinity              if there is a TWV
+    */
+    double  timePCN(POS prev, POS curr, POS next) const {
+        assert ( prev < path.size() );
+        assert ( curr < path.size() );
+        assert ( next < path.size() );
+        double result = path[curr].getArrivalTime()+ travelTime(  path[prev] ,path[curr] );
 
-  prev,curr,next are positions in the path
-  
-  returns ttpc + serv(c) + ttcn
-          ttpc + serv(c) + ttcd
-          infinity              if there is a TWV
-*/
-  double  timePCN(POS prev, POS curr, POS next) const {
-	assert ( prev < path.size() );
-	assert ( curr < path.size() );
-	assert ( next < path.size() );
-	double result = path[curr].getArrivalTime()+ travelTime(  path[prev] ,path[curr] );
+        if ( result  > path[curr].closes() ) return _MAX();
+        if ( result  < path[curr].opens() ) result = path[curr].opens() - path[prev].getDepartureTime();
 
-	if ( result  > path[curr].closes() ) return _MAX();
-	if ( result  < path[curr].opens() ) result = path[curr].opens() - path[prev].getDepartureTime();
-
-	return result + path[curr].getservicetime() + travelTime(  path[curr] ,path[next] );
-  }
+        return result + path[curr].getservicetime() + travelTime(  path[curr] ,path[next] );
+    }
 
   double  timePCN(POS &prev, POS &curr, const knode &dump) const {
 	assert ( prev < path.size() );
