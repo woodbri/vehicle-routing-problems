@@ -66,6 +66,7 @@ int main(int argc, char **argv) {
         tp.dumpCostValues();
 
         TabuOpt ts(tp);
+        ts.setMaxIteration(1);      // Added this to remove hardcoding
         ts.search();
         ts.dumpStats();
 
