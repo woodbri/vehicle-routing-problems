@@ -218,7 +218,7 @@ class TwBucket {
 
 
     /*! \fn double getDeltaTimeSwap(UID pos1, UID pos2) const
-     * \brief Compute the change in time related to swapping nodes in pos1 and pos2
+     * \brief Compute the change in time when swapping nodes in pos1 and pos2
      *
      * Simulate swapping nodes in pos1 and pos2 in the path and compute
      * the delta time impact that would have on the path.
@@ -307,7 +307,7 @@ class TwBucket {
 
 
     /*! \fn double getDeltaTime(const knode &node, UID pos , UID pos1) const
-     * \brief Compute the delta time of swapping node with the node at pos
+     * \brief Compute the cange in time when swapping node with the node at pos
      *
      * If the current path looks like prev -\> pos -\> pos1 then compute the
      * the change in time of swapping node for the node at pos, so the new
@@ -316,7 +316,7 @@ class TwBucket {
      * \param[in] node The node to evaluate if swapped with node at pos.
      * \param[in] pos The position of the node to be swapped.
      * \param[in] pos1 The next node following pos.
-     * \return The change in cost or inifinty if a TWV would be generated.
+     * \return The change in cost or infinity if a TWV would be generated.
      */
     double getDeltaTime(const knode &node, UID pos , UID pos1) const {
         assert(pos1<=path.size() );
@@ -340,14 +340,21 @@ class TwBucket {
         return delta;
     }
 
-    /*! \fn 
-     * \brief 
+    /*! \fn double getDeltaTimeTVcheck(const knode &node, UID pos, UID pos1) const
+     * \brief Compute the change in time when swapping node into pos in the path and do additional time violation checks.
      *
+     * If the current path looks like prev -\> pos -\> pos1 then compute the
+     * the change in time of swapping node for the node at pos, so the new
+     * path would look like prev -\> node -\> pos1
      *
+     * \param[in] node The node to evaluate if swapped with node at pos.
+     * \param[in] pos The position of the node to be swapped.
+     * \param[in] pos1 The next node following pos.
+     * \return The change in cost or infinity if a TWV would be generated.
      */
     double getDeltaTimeTVcheck(const knode &node, UID pos, UID pos1) const {
-        assert(pos1<=path.size() );
-        assert(pos>0 and pos1==(pos+1));
+        assert( pos1<=path.size() );
+        assert( pos>0 and pos1==(pos+1));
 
         double delta = getDeltaTime(node,pos,pos1);
 
@@ -359,62 +366,116 @@ class TwBucket {
     }
 
 
+    /*! \fn double getDeltaTime(const knode &node, UID pos) const
+     * \brief Compute the change in time of inserting node before pos in the path.
+     *
+     * Simulate inserting node before pos in the path and compute the resulting
+     * change in time. No TW violations are checked.
+     *
+     * \param[in] node The node to be inserted in the simulation.
+     * \param[in] pos The position before which the node will be inserted.
+     * \return The change in travel time or infinity if the move is invalid.
+     */
+    double  getDeltaTime(const knode &node, UID pos) const {
+        assert( pos<path.size() );
+        if (pos==0 or path[pos].isdepot()) return _MAX();
+
+        int nid=path[pos].getnid();
+        int prev=path[pos-1].getnid();
+
+        if ( pos==size() )
+            return  TravelTime[prev][node.getnid()] + node.getservicetime();
+
+        return TravelTime[prev][node.getnid()]
+                + node.getservicetime()
+                + TravelTime[node.getnid()][nid]
+                - TravelTime[prev][nid];
+    }
 
 
-//to be used when inserting a node right before pos
-double  getDeltaTime(const knode &node, UID pos) const {
-     assert(pos<path.size() );
-     if (pos==0 or path[pos].isdepot()) return _MAX();
+    /*! \fn double getDeltaTimeTVcheck(const knode &node, UID pos) const
+     * \brief Compute the change in time of inserting node before pos in the path and check for TW violations..
+     *
+     * Simulate inserting node before pos in the path and compute the resulting
+     * change in time and check for TW violations.
+     *
+     * \param[in] node The node to be inserted in the simulation.
+     * \param[in] pos The position before which the node will be inserted.
+     * \return The change in travel time or infinity if the move is invalid.
+     */
+    double  getDeltaTimeTVcheck(const knode &node, UID pos) const {
+         assert(pos<=path.size() );
+         assert(pos>0);
 
-     int nid=path[pos].getnid();
-     int prev=path[pos-1].getnid();
-     
-     if (pos==size() ) return  TravelTime[prev][node.getnid()] + node.getservicetime();
-     return TravelTime[prev][node.getnid()] + node.getservicetime() + TravelTime[node.getnid()][nid]  -   TravelTime[prev][nid];
+         double delta = getDeltaTime(node,pos);
+         
+         // check for TWV
+         if ( path[pos-1].getDepartureTime() + TravelTime[ path[pos-1].getnid() ][ node.getnid()]  > node.closes() ) return _MAX();
 
-}
+         if ( pos == size() ) return delta;
 
+         // check for TWV
+         if (deltaGeneratesTV(delta,pos)) return _MAX();
 
-double  getDeltaTimeTVcheck(const knode &node, UID pos) const {
-     assert(pos<=path.size() );
-     assert(pos>0);
-
-     double delta = getDeltaTime(node,pos);
-     
-     if ( path[pos-1].getDepartureTime() + TravelTime[ path[pos-1].getnid() ][ node.getnid()]  > node.closes() ) return _MAX();
-     if (pos==size() ) return delta;
-     if (deltaGeneratesTV(delta,pos)) return _MAX();
-
-     return delta;
-}
-
-
+         return delta;
+    }
 
 
+    /*! \fn bool deltaGeneratesTVupTo(double delta, UID pos, UID upto) const
+     * \brief Check all nodes from pos to upto if adding delta would cause a violation.
+     *
+     * \param[in] delta The change in time to evaluate.
+     * \param[in] pos The position to start evaluating.
+     * \param[in] upto The position to stop evaluating.
+     * \return true if delta would generate a time violation.
+     */
+    bool deltaGeneratesTVupTo(double delta, UID pos, UID upto) const {
+        assert(pos<path.size() and upto < size() and pos <= upto);
+        bool flag = false;
 
+        // checking if the delta affects any node after it
+        for (int i=pos; i<=upto; i++)
+            if ( path[i].getArrivalTime()+delta > path[i].closes() ) {
+                flag = true;
+                break;
+            }
 
+        return flag;
+    }
 
-
-bool deltaGeneratesTVupTo(double delta, UID pos, UID upto) const {
-     assert(pos<path.size() and upto < size() and pos <= upto);
-     bool flag = false;
-     for (int i=pos;i<=upto;i++) // checking if the delta affects any node after it
-        if ( path[i].getArrivalTime()+delta>path[i].closes() ) {flag=true;break;}
-     return flag;
-}
-
+    /*! \fn bool deltaGeneratesTV(double delta, UID pos) const
+     * \brief Check all nodes forward from pos if adding delta would cause a violation.
+     *
+     * \param[in] delta The change in time to evaluate.
+     * \param[in] pos The position to start evaluating.
+     * \return true if delta would generate a time violation.
+     */
 bool deltaGeneratesTV(double delta, UID pos) const {
      if (pos<size()) return  deltaGeneratesTVupTo(delta,pos,size()-1);
      else return false;
 }
 
 
-// other tools
-    double segmentDistanceToPoint(UID i, const knode& n) const {
-        assert(i+1<path.size());
-        return n.distanceToSegment(path[i],path[i+1]);
+// ---------------- other tools ----------------------------------
+
+    /*! \fn double segmentDistanceToPoint(UID i, const knode& n) const
+     * \brief Compute the shortest distance from a line segment to a node.
+     *
+     *
+     *
+     * \param[in] pos Position of start of segment.
+     * \param[in] node The node to compute the distance to.
+     * \return The shortest distance from node to line segment.
+     */
+    double segmentDistanceToPoint(UID pos, const knode& node) const {
+        assert(pos+1 < path.size());
+        return node.distanceToSegment(path[pos], path[pos+1]);
     }
 
+    /*! \fn 
+     * \brief
+     *
+     */
     void swap(UID i, UID j) { std::iter_swap(this->path.begin()+i,this->path.begin()+j);}
     bool swap(UID i, TwBucket<knode> &rhs,UID j) {
         assert ( i<size() and j<rhs.size() );
@@ -423,6 +484,10 @@ bool deltaGeneratesTV(double delta, UID pos) const {
     }
 
 
+    /*! \fn 
+     * \brief
+     *
+     */
     void move(int fromi, int toj) {
         if (fromi == toj) return;
         if (fromi < toj){
@@ -435,7 +500,16 @@ bool deltaGeneratesTV(double delta, UID pos) const {
     };
 
 
+    /*! \fn void dumpid() const
+     * \brief Print the Twbucket using id as node identifiers with the title "Twbucket".
+     */
     void dumpid() const {dumpid("Twbucket");};
+
+
+    /*! \fn void dumpid(const std::string &title) const
+     * \brief Print the Twbucket using id as node identifiers with user defined title.
+     * \param[in] title Title to print with the output of the Twbucket.
+     */
     void dumpid(const std::string &title) const {
         std::cout << title; 
         const_iterator it = path.begin();
@@ -444,7 +518,16 @@ bool deltaGeneratesTV(double delta, UID pos) const {
         std::cout << std::endl;
     };
 
+    /*! \fn void dump() const
+     * \brief Print the Twbucket using nid as node identifiers with the title "Twbucket".
+     */
     void dump() const {dump("Twbucket");};
+
+
+    /*! \fn void dump(const std::string &title) const
+     * \brief Print the Twbucket using nid as node identifiers with user defined title.
+     * \param[in] title Title to print with the output of the Twbucket.
+     */
     void dump(const std::string &title) const {
         std::cout << title; 
         const_iterator it = path.begin();
@@ -453,8 +536,21 @@ bool deltaGeneratesTV(double delta, UID pos) const {
         std::cout << std::endl;
     };
 
-//  set operations tools
+// --------------- set operations tools -------------------------
+
+
+    /*! \fn bool hasId(const knode &node) const
+     * \brief Check if a node in the bucket has the same id as node.
+     * \param[in] node See if this node is in the bucket based on its id.
+     * \return true if a node with the same id was found.
+     */
     bool hasId(const knode &node) const { return hasid(node.getid()); };
+
+
+    /*! \fn bool hasId(UID id) const
+     * \brief Check if a node in the bucket has this id.
+     * \return true if a node with this id was found.
+     */
     bool hasId(UID id) const {
         const_reverse_iterator rit = path.rbegin();
         for (const_iterator it = path.begin(); it!=path.end() ;it++,++rit) {
@@ -465,7 +561,19 @@ bool deltaGeneratesTV(double delta, UID pos) const {
     };
 
 
+    /*! \fn bool has(const knode &node) const
+     * \brief Check if a node in the bucket has the same nid as node.
+     * \param[in] node See if this node is in the bucket based on its nid.
+     * \return true if a node with the same nid was found.
+     */
     bool has(const knode &node) const { return has(node.getnid()); };
+
+
+    /*! \fn bool has(UID nid) const
+     * \brief Check if a node in the bucket has this nid.
+     * \param[in] nid Check if a node in the bucket has this nid
+     * \return true if a node with the same nid was found.
+     */
     bool has(UID nid) const {
         const_reverse_iterator rit = path.rbegin();
         for (const_iterator it = path.begin(); it!=path.end() ;it++,++rit) {
@@ -475,68 +583,123 @@ bool deltaGeneratesTV(double delta, UID pos) const {
         return false;
     };
 
+
+    /*! \fn bool operator ==(const TwBucket<knode> &other) const
+     * \brief Compare two buckets and report of they are equal or not.
+     */
     bool operator ==(const TwBucket<knode> &other) const  {
-       if (size()!= other.size()) return false;
-       if (size()==other.size()==0) return true;
-       if ( ((*this)-other).size()!= 0) return false;
-       if ( (other-(*this)).size()!= 0) return false;
-       return true;
-   }
+        if (size()!= other.size()) return false;
+        if (size()==other.size()==0) return true;
+        if ( ((*this)-other).size()!= 0) return false;
+        if ( (other-(*this)).size()!= 0) return false;
+        return true;
+    }
 
+
+    /*! \fn TwBucket<knode>& operator =(const TwBucket<knode> &other)
+     * \brief Copy assignment of another bucket to this bucket.
+     *
+     * Clears the contents of the current bucket and copies the other
+     * bucket into the current bucket.
+     *
+     * \prarms[in] other Bucket that will get copy assigned to this bucket.
+     */
     TwBucket<knode>& operator =(const TwBucket<knode> &other)  {
-       TwBucket<knode> b=other;
-       path.clear();
-       path.insert(path.begin(),b.path.begin(),b.path.end());
-       return *this;
+        TwBucket<knode> b=other;
+        path.clear();
+        path.insert(path.begin(),b.path.begin(),b.path.end());
+        return *this;
     }
 
-       
 
-    // set doesnt mind order of nodes
-    // UNION
+// ----------- set doesnt mind order of nodes ---------------------
+
+    /*! \fn TwBucket<knode> operator +(const TwBucket<knode> &other) const
+     * \brief Perform a set UNION operation of two buckets.
+     *
+     * If A, B, and newBucket are TwBuckets then newBucket = A + B performs
+     * a set union of A and B.
+     *
+     * \warning Set union does not preserve order of node.
+     *
+     * \param[in] other The bucket to be unioned with this bucket.
+     * \return The set union of buckets this and other.
+     */
     TwBucket<knode> operator +(const TwBucket<knode> &other) const  {
-       std::set<knode,compNode> a;
-       a.insert(path.begin(),path.end());
-       a.insert(other.path.begin(),other.path.end());
-       TwBucket<knode> b;
-       b.path.insert(b.path.begin(),a.begin(),a.end());
-       return b;
+        std::set<knode,compNode> a;
+        a.insert(path.begin(), path.end());
+        a.insert(other.path.begin(), other.path.end());
+        TwBucket<knode> b;
+        b.path.insert(b.path.begin(),a.begin(),a.end());
+        return b;
     }
 
+    /*! \fn TwBucket<knode> operator +=(const TwBucket<knode> &other) const
+     * \brief Perform a set UNION operation of this bucket and another bucket.
+     *
+     * If A and B are TwBuckets then A += B is equivalent to A = A + B and
+     * performs a set union of A and B into A.
+     *
+     * \warning Set union does not preserve order of node.
+     *
+     * \param[in] other The other bucket to operate on.
+     * \return The set union of two buckets.
+     */
     TwBucket<knode>& operator +=(const TwBucket<knode> &other)  {
-       std::set<knode,compNode> a;
-       a.insert(path.begin(),path.end());
-       a.insert(other.path.begin(),other.path.end());
-       path.clear();
-       path.insert(path.begin(),a.begin(),a.end());
-       return *this;
+        std::set<knode,compNode> a;
+        a.insert(path.begin(),path.end());
+        a.insert(other.path.begin(),other.path.end());
+        path.clear();
+        path.insert(path.begin(),a.begin(),a.end());
+        return *this;
     }
 
-    // INTERSECTION
+    /*! \fn TwBucket<knode> operator *(const TwBucket<knode> &other) const
+     * \brief Perform a set INTERSECTION operation between two buckets.
+     *
+     * If A, B, and newBucket are TwBuckets then newBucket = A * B performs
+     * a set intersection of A and B.
+     *
+     * \warning Set intersection does not preserve order of node.
+     *
+     * \param[in] other The other bucket to operate on.
+     * \return The set intersection of two buckets.
+     */
     TwBucket<knode> operator *(const TwBucket<knode> &other) const  {
-       std::set<knode,compNode> s1;
-       std::set<knode,compNode> s2;
-       std::set<knode,compNode> intersect;
-       s1.insert(path.begin(),path.end());
-       s2.insert(other.path.begin(),other.path.end());
-       std::set_intersection( s1.begin(), s1.end(), s2.begin(), s2.end(),
-              std::inserter( intersect, intersect.begin() ) );
-       TwBucket<knode> b;
-       b.path.insert(b.path.begin(),intersect.begin(),intersect.end());
-       return b;
+        std::set<knode,compNode> s1;
+        std::set<knode,compNode> s2;
+        std::set<knode,compNode> intersect;
+        s1.insert(path.begin(),path.end());
+        s2.insert(other.path.begin(),other.path.end());
+        std::set_intersection( s1.begin(), s1.end(), s2.begin(), s2.end(),
+            std::inserter( intersect, intersect.begin() ) );
+        TwBucket<knode> b;
+        b.path.insert(b.path.begin(),intersect.begin(),intersect.end());
+        return b;
     }
 
+    /*! \fn TwBucket<knode>& operator *=(const TwBucket<knode> &other)
+     * \brief Perform a set INTERSECTION operation of this and another bucket.
+     *
+     * If A and B TwBuckets then A *= B is equivalent to A = A * B and performs
+     * a set intersection of A and B into A.
+     *
+     * \warning Set intersection does not preserve order of node.
+     *
+     * \param[in] other The other bucket to operate on.
+     * \return The set intersection of two buckets.
+     */
     TwBucket<knode>& operator *=(const TwBucket<knode> &other)  {
-       std::set<knode,compNode> s1;
-       std::set<knode,compNode> s2;
-       std::set<knode,compNode> intersect;
-       s1.insert(path.begin(),path.end());
-       s2.insert(other.path.begin(),other.path.end());
-       std::set_intersection( s1.begin(), s1.end(), s2.begin(), s2.end(),
-              std::inserter( intersect, intersect.begin() ) );
-       path.clear();
-       path.insert(path.begin(),intersect.begin(),intersect.end());
-       return *this;
+        std::set<knode,compNode> s1;
+        std::set<knode,compNode> s2;
+        std::set<knode,compNode> intersect;
+        s1.insert(path.begin(),path.end());
+        s2.insert(other.path.begin(),other.path.end());
+        std::set_intersection( s1.begin(), s1.end(), s2.begin(), s2.end(),
+            std::inserter( intersect, intersect.begin() ) );
+        path.clear();
+        path.insert(path.begin(),intersect.begin(),intersect.end());
+        return *this;
     }
 
     // DIFERENCE
