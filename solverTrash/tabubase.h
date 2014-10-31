@@ -92,6 +92,32 @@ class TabuBase  {
     void settabuLengthInterSw(int n) { assert(n>0); tabuLengthInterSw = n; };
 
 
+
+    std::set<int> tabuedForInsInsertionPart() const {
+	std::set<int> list;
+        std::map<const Move, int>::const_iterator it;
+	Move move;
+        for (it = TabuList.begin(); it!=TabuList.end(); ++it) {
+		move=it->first;
+		list.insert(move.getInsToTruck());
+	}
+dumpSet("Tabued for insertion",list);
+	return list;
+    }
+
+	
+void dumpSet(std::string title, std::set<int> info) const{
+        std::set<int>::const_iterator it;
+	std::cout<<"Title: ";
+        for (it = info.begin(); it!=info.end(); ++it) {
+		std::cout<<(*it)<<" ";
+        }
+	std::cout<<"\n";
+}
+
+
+
+
 void dumpTabuList() const {
     std::map<const Move, int>::const_iterator it;
 
