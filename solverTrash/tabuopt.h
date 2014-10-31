@@ -51,6 +51,7 @@ class TabuOpt: public TabuBase<OptSol> {
     bool applyAspirational(std::deque<Move> &neighborhood, std::deque<Move> &notTabu,std::deque<Move> &tabu);
     bool applyAspirationalNotTabu(std::deque<Move> &neighborhood, std::deque<Move> &aspirationalTabu,std::deque<Move> &notTabu,std::deque<Move> &tabu);
     bool applyNonTabu (std::deque<Move> &notTabu);
+    bool applyAmove (const Move &tabu);
     bool applyTabu (std::deque<Move> &tabu);
     bool applyTabu (std::deque<Move> &tabu, int strategy);
     void computeCosts(OptSol &s) ;

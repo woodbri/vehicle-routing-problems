@@ -21,7 +21,6 @@ assert(fleet.size());
 	return true;
 }
 
-#ifdef VICKY
 int Solution::v_computeCosts() {
     totalCost = 0.0;
     totalDistance = 0.0;
@@ -43,7 +42,6 @@ int Solution::v_computeCosts() {
     }
     return removedPos;
 }
-#endif
 
 
 

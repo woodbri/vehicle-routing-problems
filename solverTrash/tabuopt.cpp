@@ -21,7 +21,6 @@
 #include "optsol.h"
 #include "tabuopt.h"
 
-#ifdef VICKY
 
 /**
     This Tabu search algorithm was adapted from the paper:
@@ -431,4 +430,3 @@ std::cout<<"Entering TabuOpt::computeCosts \n";
 
 
 
-#endif

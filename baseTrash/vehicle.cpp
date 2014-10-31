@@ -82,7 +82,6 @@ std::cout<<"\n";
      return moves.size();
 }
 
-#ifdef VICKY
 /**
    prev curr next
    ttpc + serv(c) + ttcn
@@ -218,7 +217,6 @@ std::cout<<"Entering Vehicle::eval_interSwapMoveDumps \n";
 }
 
 
-#endif
 
 
 
@@ -318,7 +316,6 @@ std::cout<<"Entering Vehicle::eval_erase \n";
 	return truck.feasable();
 };
 	
-#ifdef VICKY
 //dont forget, negative savings is a higher cost
 bool Vehicle::eval_erase(int at, double &savings,const TWC<Trashnode> &twc) const {
 #ifdef TESTED
@@ -389,7 +386,6 @@ move.dump();
         }
         return moves.size();
 }
-#endif
 	
 	
 

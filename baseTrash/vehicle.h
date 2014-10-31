@@ -100,7 +100,6 @@ class Vehicle: public BaseVehicle {
                       _endtime, otherlocs) {};
 
 
-#ifdef VICKY
     double timePCN(POS prev, POS curr, POS next) const;
     long int eval_intraSwapMoveDumps( std::deque<Move> &moves, int  truckPos,  double factor, const TWC<Trashnode> &twc ) const;
     long int eval_interSwapMoveDumps( std::deque<Move> &moves, const Vehicle &otherTruck,int  truckPos,int  otherTruckPos, int fromPos,  double factor,const TWC<Trashnode> &twc ) const; 
@@ -438,7 +437,6 @@ void dumpCostValues(){
 			<<"arrivalEcloseslast\t"<<arrivalEcloseslast<<"\n";
 */
 	};
-#endif
 
 };
 
