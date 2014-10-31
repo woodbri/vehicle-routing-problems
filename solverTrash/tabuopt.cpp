@@ -57,12 +57,13 @@ std::cout<<"Entering TabuOpt::search() \n";
     bestSolution.optimizeTruckNumber();
     std::cout << "TABUSEARCH: Removal of truck time: " << start.duration() << std::endl;
     start.restart();
+    TabuList.clear();
 
     do {
         std::cout << "TABUSEARCH: Starting iteration: " << currentIteration << std::endl;
 
         // this is a token ring search
-        improvedBest  = doNeighborhoodMoves(Ins,     limitIns*50, aspirationalTabu, nonTabu,tabu);
+        improvedBest  = doNeighborhoodMoves(Ins,     limitIns*5, aspirationalTabu, nonTabu,tabu);
         //improvedBest |= doNeighborhoodMoves(InterSw, limitInterSw*5, aspirationalTabu, nonTabu, tabu);
         //improvedBest |= doNeighborhoodMoves(IntraSw, limitIntraSw*100, aspirationalTabu, nonTabu,tabu);
 
@@ -133,14 +134,27 @@ bool TabuOpt::applyAmove(const Move &move) {
 
 
 
-bool TabuOpt::applyAspirationalTabu(std::deque<Move> & aspirationalTabu) {
-#ifdef TESTED
-std::cout<<"Entering TabuOpt::applyAspirationalTabu() \n";
+bool TabuOpt::applyAspirationalNotTabu(const Move  &move) {
+	applyAmove(move); 			//has only one move
+        STATS->inc("cnt Aspirational Not Tabu");
+#ifndef TESTED
+std::cout<<"\nAspirational non Tabu aplied ";move.Dump();
 #endif
-	assert (aspirationalTabu.size());
-        std::sort(aspirationalTabu.begin(), aspirationalTabu.end(), Move::bySavings); 
-	applyAmove(aspirationalTabu[0]);
+	return true;
+}
+
+bool TabuOpt::applyAspirationalTabu(std::deque<Move> &moves) {
+#ifndef TESTED
+std::cout<<"Entering TabuOpt::applyAspirationalTabu \n";
+#endif
+	assert (moves.size());
+	if (not moves.size()) return false;
+        std::sort(moves.begin(), moves.end(), Move::bySavings); 
+	applyAmove(moves[0]);
         STATS->inc("cnt Aspirational Tabu");
+#ifndef TESTED
+std::cout<<"\nAspirational  Tabu aplied ";moves[0].Dump();
+#endif
 /*
         STATS->set("best Updated Last At", currentIteration);
         STATS->inc("best Updated Cnt");
@@ -151,10 +165,8 @@ std::cout<<"Entering TabuOpt::applyAspirationalTabu() \n";
         computeCosts(bestSolution);
         bestSolutionCost = bestSolution.getCost();
 	addToStats(aspirationalTabu[0]);
-#ifndef TESTED
-std::cout<<"Exiting TabuOpt::applyAspirationalTabu made \n"; aspirationalTabu[0].dump();
-#endif
 */
+	moves.clear();
         return true;
 }
 
@@ -265,59 +277,66 @@ std::cout<<" Reached end of cycle -No moves found- "<<Cnt<<" out of "<< maxMoves
         };
 
 	CntNoNeighborhood=0; 
-        std::sort(neighborhood.begin(), neighborhood.end(), Move::bySavings); //yikes
 
         std::string solAfter  = currentSolution.solutionAsText();
         assert (solBefore==solAfter);
 
-
-        if ( applyAspirationalNotTabu( neighborhood, aspirationalTabu, notTabu, tabu) ) {  //improved best & its not tabu
-                Cnt++;
-		CntNonAspirational=0;
-		improvedBest = true;
-		neighborhood.clear();
-		aspirationalTabu.clear();
-		notTabu.clear();
-		tabu.clear();
-                continue;
+	if ( classifyMoves(neighborhood, aspirationalTabu, notTabu, tabu) ) {
+		assert (not neighborhood.size());
+		assert (not aspirationalTabu.size());
+		assert (not notTabu.size());
+		assert (not tabu.size());
+		continue;
+        } else {
+		if (aspirationalTabu.size() ) 	assert ( not notTabu.size() and not tabu.size() );
+		if (notTabu.size() ) assert ( not aspirationalTabu.size() and not tabu.size() );
+		if (tabu.size() ) assert ( not aspirationalTabu.size() and not notTabu.size() );
 	}
 
-//std::cout<<" aspirationalTabu size "<<aspirationalTabu.size()<<" \n";
-//std::cout<<" notTabu size "<<notTabu.size()<<" \n";
-//std::cout<<" Tabu size "<< tabu.size()<<" \n";
+#ifndef LOG
+	dumpMoves("neighborhood",neighborhood);
+	dumpMoves("aspirationalTabu",aspirationalTabu);
+	dumpMoves("notTabu",notTabu);
+	std::cout<<" Tabu size:  "<< tabu.size() <<"\n";
+#endif
 
 	if ( reachedMaxCycles(aspirationalTabu.size(),whichNeighborhood) ) {
+		assert (not neighborhood.size());
+		assert (aspirationalTabu.size());
+		assert (not notTabu.size());
+		assert (not tabu.size());
+
                 Cnt++;
                 applyAspirationalTabu( aspirationalTabu );
-                CntNonAspirational=0;
-                neighborhood.clear();
-                aspirationalTabu.clear();
-                tabu.clear();
-                notTabu.clear();
+                //CntNonAspirational=0;
+                //neighborhood.clear();
+                //aspirationalTabu.clear();
+                //tabu.clear();
+                //notTabu.clear();
+
+		assert (not aspirationalTabu.size());
                 continue;
         }
 
-//std::cout<<" notTabu size "<<notTabu.size()<<" \n";
-//std::cout<<" Tabu size "<< tabu.size()<<" \n";
 
 	if ( reachedMaxCycles(notTabu.size(),whichNeighborhood) ) {
+		assert (not neighborhood.size());
+		assert (not aspirationalTabu.size());
+		assert (notTabu.size());
+		assert (not tabu.size());
                 Cnt++;
 		applyNonTabu( notTabu );
-		CntNonAspirational=0;
+		//CntNonAspirational=0;
 		neighborhood.clear();
-                aspirationalTabu.clear();
-		tabu.clear();	
-		notTabu.clear();	
+                //aspirationalTabu.clear();
+		//tabu.clear();	
+		//notTabu.clear();	
 		continue;
 	} 
-	CntNonAspirational++;
+	//CntNonAspirational++;
 	if (notTabu.size()) continue;
+assert(true==false);
 	
-        switch (whichNeighborhood) {
-                 case Ins: { limit = CntNonAspirational>limitIns; }
-                 case IntraSw: { limit = CntNonAspirational>limitIntraSw; }
-                 case InterSw: { limit = CntNonAspirational>limitInterSw; }
-        };
         solAfter  = currentSolution.solutionAsText();
         assert (solBefore==solAfter);
 	if ( tabu.size()>0 and reachedMaxCycles(CntNonAspirational ,whichNeighborhood) ) {
@@ -325,7 +344,7 @@ std::cout<<" Reached end of cycle -No moves found- "<<Cnt<<" out of "<< maxMoves
                 Cnt++;
 		applyTabu( tabu,0 ); //random
 
-		CntNonAspirational=0;
+		//CntNonAspirational=0;
 		neighborhood.clear();
                 aspirationalTabu.clear();
 		tabu.clear();
@@ -343,90 +362,108 @@ std::cout<<"Exiting TabuOpt::doNeighobrhoodMoves\n";
 }
 
 /**
-	
+  Classify the moves into:
+	aspirational Not tabu	(if found the buckets bellow are cleared)
+	aspirational tabu	(adds to the bucket the best move)
+	not Tabu		(adds to the bucket the best move) 
+	Tabu			(adds to the bucket all the moves)
+
+  if during the classification a truck is removed:
+	move is applied
+	all buckets are cleared
+
+
+	returns true: any kind of move was made
 */
-bool TabuOpt::applyAspirationalNotTabu (std::deque<Move> &neighborhood, std::deque<Move> &aspirationalTabu, std::deque<Move> &notTabu,std::deque<Move> &tabu) {
+bool TabuOpt::classifyMoves (std::deque<Move> &neighborhood,  std::deque<Move> &aspirationalTabu, std::deque<Move> &notTabu,std::deque<Move> &tabu) {
 #ifdef TESTED
-std::cout<<"Entering TabuOpt::applyAspirationalNotTabu() \n";
+std::cout<<"Entering TabuOpt::classifyMoves \n";
 #endif
-        Timer applyAspirationalNotTabuTimer;
+        Timer start;
 //        bool allTabu = true;
 	bool found = false;
 	bool foundAspTabu = false;
+	bool removedTruck = false;  
 	double newCost;
 	computeCosts(currentSolution);
         double actualCost= currentSolution.getCost();
         OptSol current=currentSolution;
+        std::sort(neighborhood.begin(), neighborhood.end(), Move::bySavings); 
 
         for (std::deque<Move>::iterator it=neighborhood.begin();
                 it!=neighborhood.end(); ++it) {
 	    current=currentSolution;
             current.v_applyMove(*it);
-	    computeCosts(current);
+	    removedTruck = computeCosts(current);
 	    newCost = current.getCost();
-
-	    if (not ( (std::abs( (actualCost - newCost)  -  it->getsavings())) <0.5) ) {
-		it->dump();
-		std::cout<<"something is wrong with the savings****** "<<it->getsavings()<< " ***** "<<actualCost - newCost<<"\n";
-            } 
-            // if the move is aspirational then we apply it
-
-            if (current.getcost()  < bestSolutionCost and not isTabu(*it) ) {  
-std::cout << "\tapplyAspirationalNotTabu:  "; it->dump();
-                currentSolution=current;
+	    if (removedTruck) {
+		currentSolution=current;
                 bestSolution = current;
                 computeCosts(bestSolution);
-                bestSolutionCost = bestSolution.getCost();
+                bestSolutionCost = newCost;
                 makeTabu(*it);
-                STATS->set("best Updated Last At", currentIteration);
+		STATS->set("best Updated Last At", currentIteration);
                 STATS->inc("best Updated Cnt");
-		addToStats(*it); // update stats
-
-                // ok we made a move, so now the neighborhood is no longer valid we discard the tabu and the nonTabu found and any other aspirational tabu 
-                   neighborhood.clear();
-		   aspirationalTabu.clear();
-	           notTabu.clear();
-	           tabu.clear();
-//assert(true==false);
-#ifndef TESTED
-std::cout<<"Exiting TabuOpt::applyAspirationalNotTabu  move made \n";
-#endif
-	           return true;
-		
+		//clear up all buckets
+                neighborhood.clear(); 
+                aspirationalTabu.clear(); notTabu.clear(); tabu.clear();
+		return true;
             }
 
+#ifndef LOG
+	    std::cout<<"isTabu??: "<<(isTabu(*it)?"YES\n":"NO\n");it->Dump();
+	    if (not ( (std::abs( (actualCost - newCost)  -  it->getsavings())) <0.5) ) {
+		it->Dump();
+		std::cout<<"something is wrong with the savings****** "<<it->getsavings()<< " ***** "<<actualCost - newCost<<"\n";
+            } 
+#endif
+            // if the move is aspirational and not tabu then we apply it
+            if (newCost  < bestSolutionCost and not isTabu(*it) ) {  
+		applyAspirationalNotTabu(*it);
+		//clear up all buckets
+                neighborhood.clear(); 
+                aspirationalTabu.clear(); notTabu.clear(); tabu.clear();
+	        return true;
+		
+            }
+	   // if the move is aspirational, but tabu, we save it
 	   if (newCost  < bestSolutionCost and not foundAspTabu) { //save only the best aspirational Tabu
 		aspirationalTabu.push_back(*it);
 		foundAspTabu = true;	
-std::cout << "\tapplyApsirationalNotTabu: apsirationalTabu Move found: "; it->dump();
-std::cout << "\tnewCost:"<<newCost<< "\tbestSolutionCost"<<bestSolutionCost<<"\n "; 
-std::cout<<"\n";
-
-		tabu.clear();  //no need to keep the tabus
-	   } else if (! isTabu(*it) and not found ) { 			//save only the best nonTabu move
+		//clear up remaining buckets 
+                notTabu.clear(); tabu.clear();
+	   } else if (not aspirationalTabu.size()  and not isTabu(*it) and not found ) { //save only the best nonTabu move when there is no aspirational tabu move
 		notTabu.push_back(*it); 
 		found = true;
-//std::cout << "\tapplyApsirational: nonTabu Move found: "; it->dump();
 		tabu.clear();  //no need to keep the tabus
-	    } else if ( not notTabu.size() ) { 
-		tabu.push_back(*it); //we dont have a nonTabu move from other local neighborhood, so we have to save all moves
+		if (it->getsavings()<0) {neighborhood.clear(); return false; }  //we can stop now, no possible aspirational move can exist in this neighborhood
+	    } else if (  not aspirationalTabu.size() and not notTabu.size() ) {  //all other buckets are empty so we save everything
+		tabu.push_back(*it); 
             }	
         };
-
-	return false;          
+	neighborhood.clear();
+	return false;         //we didnt make a move 
 };
 	
-void TabuOpt::computeCosts(OptSol &s) {
+bool TabuOpt::computeCosts(OptSol &s) {
 #ifdef TESTED
 std::cout<<"Entering TabuOpt::computeCosts \n";
 #endif
         int removedTruck = s.v_computeCosts();
-        if (removedTruck==-1) return;
+        if (removedTruck==-1) return false;
 	removeTruckFromTabuList(removedTruck) ;
-	return;
+	return true;
 }
 
 
 
 
+
+
+
+    bool TabuOpt::dumpMoves(std::string str, std::deque<Move> moves) const {
+	std::cout<<"Bucket: "<< str<<"\n";
+	for (int i=0;i<moves.size();i++)
+		moves[i].dump();
+    };
 

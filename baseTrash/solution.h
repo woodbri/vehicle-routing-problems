@@ -104,7 +104,7 @@ bool applyIntraSwMove( const Move &move) ;
 
 	void dumpCostValues() {
 		for (int i=0;i<fleet.size();i++) 
-			fleet[i].getcost(twc);
+			fleet[i].getCost(twc);
 		for (int i=0;i<fleet.size();i++) 
 			fleet[i].dumpCostValues();
 	}

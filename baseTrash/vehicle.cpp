@@ -122,7 +122,7 @@ std::cout<<"Entering Vehicle::eval_intraSwapMoveDumps \n";
         Vehicle truck = (*this);
 	std::deque<Move>  negSavingsMoves;
 
-        double originalCost= truck.getcost(twc);
+        double originalCost= truck.getCost(twc);
 
 	int originalMovesSize=moves.size();
 	int deltaMovesSize=0;
@@ -159,7 +159,7 @@ std::cout<<"Entering Vehicle::eval_intraSwapMoveDumps \n";
 		or path[size()-1].deltaGeneratesTWV(deltaTime) ) continue;  //Time Violation, not considered
 */
           if ( truck.applyMoveIntraSw(fromPos,  withPos) ) { //move can be done
-		newCost=truck.getcost(twc);
+		newCost=truck.getCost(twc);
 		savings= originalCost - newCost;
 		truck.applyMoveIntraSw(fromPos,  withPos) ; //roll back
                 Move move(Move::IntraSw, node.getnid(), path[withPos].getnid(), truckPos, truckPos, fromPos, withPos, savings   );
@@ -188,7 +188,7 @@ std::cout<<"Entering Vehicle::eval_interSwapMoveDumps \n";
         Trashnode node = path[fromPos]; //saved for roll back
         Vehicle truck = (*this);
         Vehicle other = otherTruck;
-        double originalCost= truck.getcost(twc)  + other.getcost(twc);
+        double originalCost= truck.getCost(twc)  + other.getCost(twc);
         double newCost,savings;
 	int deltaMovesSize=0;
 
@@ -201,7 +201,7 @@ std::cout<<"Entering Vehicle::eval_interSwapMoveDumps \n";
            for ( int j=1; j<other.size(); j++) {
 		if (other.path[j].isdump()) continue;
 		if ( truck.applyMoveInterSw(other, i, j)) {
-		   newCost=truck.getcost(twc) + other.getcost(twc);
+		   newCost=truck.getCost(twc) + other.getCost(twc);
 		   savings= originalCost - newCost;
                    Move move(Move::InterSw , node.getnid(), otherTruck.path[j].getnid() ,  truckPos , otherTruckPos ,  i, j, (originalCost-newCost)   );
                    if (savings>0) {
@@ -324,15 +324,15 @@ std::cout<<"Entering Vehicle::eval_erase \n";
         assert (at<size() and at>0 );
         if ( path[at].isdump() ) { savings=_MIN(); return false;}
         Vehicle truck = (*this);
-	double oldcost=truck.getcost(twc);
+	double oldcost=truck.getCost(twc);
 
         truck.path.erase(at);
 
         if ( not truck.e_makeFeasable(at) ) savings = _MIN(); // -infinity
-        else savings = oldcost - truck.getcost(twc);
+        else savings = oldcost - truck.getCost(twc);
 
 #ifdef TESTED
-std::cout<<"ERASE : oldcost"<<oldcost<<"\tnewcost"<<truck.getcost(twc)<<"\tsavings"<<oldcost - truck.getcost(twc)<<"\n";
+std::cout<<"ERASE : oldcost"<<oldcost<<"\tnewcost"<<truck.getCost(twc)<<"\tsavings"<<oldcost - truck.getCost(twc)<<"\n";
 std::cout<<"\n";
 #endif
         return truck.feasable();
@@ -347,7 +347,7 @@ std::cout<<"Entering Vehicle::eval_insertMoveDumps \n";
         std::deque<int> unfeasablePos;
         std::deque<int> impossiblePos;
         int currentPos,testingPos;
-	double oldcost=truck.getcost(twc);
+	double oldcost=truck.getCost(twc);
 	double newcost;
 #ifdef TESTED
 truck.dumpCostValues();
@@ -370,9 +370,9 @@ assert(true==false);
                 if ( path.size()*factor > impossiblePos.size() ) return moves.size();
              } else {
                 assert ( truck.feasable() );
-	        newcost=truck.getcost(twc);
+	        newcost=truck.getCost(twc);
 #ifdef TESTED
-std::cout<<"insert to "<<toTruck<<": oldcost"<<oldcost<<"\tnewcost"<<truck.getcost(twc)
+std::cout<<"insert to "<<toTruck<<": oldcost"<<oldcost<<"\tnewcost"<<truck.getCost(twc)
 	<<"\ninsert savings="<< (oldcost-newcost) <<"\teraseSavings"<<eraseSavings<<"\tsavings"<<oldcost - newcost + eraseSavings<<"\n";
 std::cout<<"\n";
 #endif

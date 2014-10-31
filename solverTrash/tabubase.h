@@ -167,6 +167,9 @@ void makeTabu(const Move &m) {
             break;
     }
     addToStats(m);
+#ifndef LOG
+dumpTabuList();
+#endif
 }
 
 

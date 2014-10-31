@@ -33,7 +33,6 @@ void OptSol::optimizeTruckNumber()   {
 	std::deque<int> notFullz2; /**< Trucks that CAN  receive a container in the next (non-existing) trip  */
 	std::deque<int> allTrucks; /**< All trucks  */
 
-	std::deque<Move> moves;    /**< moves storage */
 	int z1Tot=0;		   /**< total number of containers that can be picked in the current trip */
 	int z2Tot=0;		   /**< total number of containers that can be picked in the next (non-exisiting)  trip */
 	int minn=datanodes.size(); /**< setting a minimum to see if it is requiered to minimize */
@@ -42,10 +41,7 @@ void OptSol::optimizeTruckNumber()   {
 	int z2AtMin=0;      	   /**< the trucks that has the min number of containers has the most number of avaliable spots in the next (non-exisiting) trip*/
 
 	/** requiered by the evaluation of a move */
-	int fromTruck,fromPos; 		/**< truck & position from where a container is moved */
-	int toTruck; 			/**< truck to  where a container is moved */
-	double savings;			/**< savings of the move */
-	double factor=1;		/**< factor=1 making sure all feasable moves are returned */
+	int fromTruck; 		  /**< truck from where a container is moved */
 	bool emptiedTruck=false;
 
 	for (int i=0;i<fleet.size();i++) {
@@ -116,16 +112,13 @@ tau();
 	if (not emptiedTruck and ( minn<= (z2Tot-z2AtMin) or minn<= (z1Tot-z1AtMin) ) ) {
 		emptiedTruck = emptyAtruck(allTrucks,allTrucks);
 	}
-
-//if (emptiedTruck) {std::cout<<"Truck is empty now\n"; dumpCostValues();}
-
+#ifndef LOG
 std::cout<<"\n"; tau();
-
-assert(true==false);
+#endif
 }
 
 bool OptSol::emptyAtruck(std::deque<int> fromThis,std::deque<int> intoThis) {
-       int fromTruck;
+       int fromTruck; 				/**< truck & position from where a container is moved */
        for (int i=0;i<fromThis.size();i++) {
             fromTruck=fromThis[i];
             if (emptyTheTruck(fromTruck,intoThis)) {
@@ -136,12 +129,13 @@ bool OptSol::emptyAtruck(std::deque<int> fromThis,std::deque<int> intoThis) {
 			
 
 bool OptSol::emptyTheTruck(int fromTruck, std::deque<int> notFull) {
-	std::deque<Move> moves;
-	int fromPos=1;
-	int toTruck;
-        double savings, factor;
-            int count=fleet[fromTruck].getn();
-            for (int j=0;j<count;j++) {
+	std::deque<Move> moves;    	/**< moves storage */
+	int fromPos=1;			/**< postition of a container in the fromTruck */
+	int toTruck; 			/**< truck to  where a container is moved */
+	double savings;			/**< savings of the move */
+	double factor=1;		/**< factor=1 making sure all feasable moves are returned */
+        int count=fleet[fromTruck].getn(); /**< number of containers in truck */
+        for (int j=0;j<count;j++) {
                 moves.clear();
 
                 for (int i=0;i<notFull.size();i++) {
@@ -153,10 +147,8 @@ bool OptSol::emptyTheTruck(int fromTruck, std::deque<int> notFull) {
 
                 if (moves.size()) {
                   std::sort(moves.begin(), moves.end(), Move::bySavings);
-//moves[0].Dump();
                   v_applyMove(moves[0]);
                 } else {
-//std::cout<<"no feasable move found for "<<fromPos<<"\n";
                         fromPos++;
                 }
                 if (fromPos>=fleet[fromTruck].size()) break;
@@ -286,8 +278,8 @@ bool OptSol::v_applyInsMove( const Move &move) {
 	assert(move.getmtype() == Move::Ins);
 	assert( fleet[ move.getInsFromTruck() ].feasable() );
 	assert( fleet[ move.getInsToTruck() ].feasable() );
-	fleet[ move.getInsFromTruck() ].getcost(twc);
-	fleet[ move.getInsToTruck() ].getcost(twc);
+	fleet[ move.getInsFromTruck() ].getCost(twc);
+	fleet[ move.getInsToTruck() ].getCost(twc);
 #ifdef TESTED
 move.dump();
 fleet[ move.getInsFromTruck() ].dumpCostValues();
@@ -296,8 +288,8 @@ fleet[ move.getInsToTruck() ].dumpCostValues();
 	fleet[ move.getInsFromTruck() ].applyMoveINSerasePart(move.getnid1(), move.getpos1());
         fleet[ move.getInsToTruck() ].applyMoveINSinsertPart(datanodes[ move.getnid1() ], move.getpos2());
 
-	fleet[ move.getInsFromTruck() ].getcost(twc);
-	fleet[ move.getInsToTruck() ].getcost(twc);
+	fleet[ move.getInsFromTruck() ].getCost(twc);
+	fleet[ move.getInsToTruck() ].getCost(twc);
 
 #ifdef TESTED
 fleet[ move.getInsFromTruck() ].dumpCostValues();
@@ -321,7 +313,7 @@ void OptSol::v_applyMove(const Move& m)  {
     switch (m.getmtype()) {
         case Move::Ins:
             {
-                v_applyInsMove( m );
+                applyInsMove( m );
                 assert( fleet[m.getvid1()].feasable() ); //just in case
                 assert( fleet[m.getvid2()].feasable() );
             }
