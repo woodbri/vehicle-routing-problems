@@ -49,7 +49,7 @@ std::cout<<"Entering TabuOpt::search() \n";
     std::deque<Move> nonTabu;
     std::deque<Move> tabu;
     currentIteration = 0;
-    maxIteration = 1;
+    //maxIteration = 1;     // use ts.setMaxIteration(1) in trash.cpp
 
     Timer start;
     bool improvedBest;
