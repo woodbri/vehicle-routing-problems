@@ -185,6 +185,7 @@ dumpeval();
     int getcargo() const { return  path[path.size()-1].getcargo(); };
     double getduration() const { return (path.size()-1 == 0)?0.0:endingSite.getTotTime(); };
     double getcost() const { return cost; };
+    double getCostOSRM() const;
     double getTimeOSRM() const;
     double getw1() const { return w1; };
     double getw2() const { return w2; };

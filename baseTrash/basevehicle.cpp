@@ -28,6 +28,17 @@
 
 // getTimeOSRM() REQUIRES the main() to call cURLpp::Cleanup myCleanup; ONCE!
 
+double BaseVehicle::getCostOSRM() const {
+    double otime = getTimeOSRM();
+
+    // if OSRM failed, return -1.0 to indicate a failure
+    if (otime == -1) return otime;
+
+    return w1 * ( otime + path.getTotWaitTime() + path.getTotServiceTime() ) +
+           w2 * endingSite.getcvTot() +
+           w3 * endingSite.gettwvTot();
+}
+
 double BaseVehicle::getTimeOSRM() const {
     std::ostringstream url(std::ostringstream::ate);
     url.str(CONFIG->getString("osrmBaseUrl"));
@@ -121,30 +132,6 @@ std::cout<<"Entering BaseVehicle::findNearestNodeTo \n";
 
     return flag;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 void BaseVehicle::dump() const {
