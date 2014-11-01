@@ -24,16 +24,16 @@
  * the nodes x,y is loaded with longitude,latitude values.
  *
  */
-double Node::distance(const Node &n) const {
+double Node::distance( const Node &n ) const {
     // Haversine sphereical distance for lat/lon values
     const double deg2rad = 3.14159265358979323846 / 180.0;
     const double rad2deg = 180.0 / 3.14159265358979323846;
     const double radius = 6367000; // Earth radius 6367 Km in meters
-    double dlon = (n.x - x) * deg2rad;
-    double dlat = (n.y - y) * deg2rad;
-    double a = pow( sin(dlat/2.0), 2) + cos( y ) * cos( n.y ) *
-               pow( sin(dlon/2.0), 2);
-    double c = 2.0 * atan2( sqrt(a), sqrt( 1.0-a ) );
+    double dlon = ( n.x - x ) * deg2rad;
+    double dlat = ( n.y - y ) * deg2rad;
+    double a = pow( sin( dlat / 2.0 ), 2 ) + cos( y ) * cos( n.y ) *
+               pow( sin( dlon / 2.0 ), 2 );
+    double c = 2.0 * atan2( sqrt( a ), sqrt( 1.0 - a ) );
     double dist = radius * c;
     return dist;
 
@@ -47,10 +47,10 @@ double Node::distance(const Node &n) const {
 /*! \fn void Node::set(int _nid, double _x, double _y)
  * \brief Set attributes for this node.
  */
-void Node::set(int _nid, double _x, double _y) {
-        id = nid = _nid;
-        x = _x;
-        y = _y;
+void Node::set( int _nid, double _x, double _y ) {
+    id = nid = _nid;
+    x = _x;
+    y = _y;
 };
 
 /*! \fn void Node::dump() const
@@ -95,10 +95,10 @@ double Node::length() const { return sqrt( x * x + y * y ); };
  * \bug This is not safe as it can generate a divide by zero
  * \todo This needs to be fixed to avoid divide by zero errors
  */
-double Node::gradient( const Node &p ) const { 
-	double deltaY = p.y - y;
-	double deltaX= p.x - x+0.001;
-	return  deltaY/deltaX;
+double Node::gradient( const Node &p ) const {
+    double deltaY = p.y - y;
+    double deltaX = p.x - x + 0.001;
+    return  deltaY / deltaX;
 };
 
 /*! \fn double Node::distanceTo( const Node &p ) const
@@ -113,30 +113,31 @@ double Node::distanceTo( const Node &p ) const { return sqrt( distanceToSquared(
  * \sa Node::length, Node::distanceTo, Node::distance
  */
 double Node::distanceToSquared( const Node &p ) const {
-        const double dX = p.x - x;
-        const double dY = p.y - y;
+    const double dX = p.x - x;
+    const double dY = p.y - y;
 
-        return dX * dX + dY * dY;
+    return dX * dX + dY * dY;
 };
 
 /*! \fn Node Node::unit() const
  * \brief Create a new node where the location is a unit vector of the reference Node.
  */
 Node Node::unit() const {
-        double scale = 0.0;
-        double len = length();
+    double scale = 0.0;
+    double len = length();
 
-        if (len != 0.0)
-            scale = 1.0 / len;
-        return (*this) * scale;
+    if ( len != 0.0 )
+        scale = 1.0 / len;
+
+    return ( *this ) * scale;
 };
 
 /*! \fn double Node::distanceToSegment( const Node &v, const Node &w) const
  * \brief Compute the shortest distance from a Node to a line segment from Node \c v to Node \c w
  */
-double Node::distanceToSegment( const Node &v, const Node &w) const {
-      Node q;
-      return distanceToSegment(v,w,q);
+double Node::distanceToSegment( const Node &v, const Node &w ) const {
+    Node q;
+    return distanceToSegment( v, w, q );
 };
 
 /*! \fn double Node::distanceToSegment( const Node &v, const Node &w, Node &q ) const
@@ -156,7 +157,8 @@ double Node::distanceToSegment( const Node &v, const Node &w, Node &q ) const {
     // we find projection of point p onto the line
     // it falls where t = [(p-v) . (w-v)] / |w-v|^2
 
-    double t = ( (*this) - v ).dotProduct( w - v ) / distSq;
+    double t = ( ( *this ) - v ).dotProduct( w - v ) / distSq;
+
     if ( t < 0.0 ) { // beyond the v end of the segment
         q = v;
         return distanceTo( v );
@@ -178,10 +180,12 @@ double Node::distanceToSegment( const Node &v, const Node &w, Node &q ) const {
 /*! \fn double Node::distanceToSegment( double segmentX1, double segmentY1, double segmentX2, double segmentY2, double &qX, double &qY ) const
  * \brief Compute the shortest distance and Node \c q to a line segment defined by its x,y end points and return x,y position on the segment of the closest point.
  */
-double Node::distanceToSegment( double segmentX1, double segmentY1, double segmentX2, double segmentY2, double &qX, double &qY ) const {
+double Node::distanceToSegment( double segmentX1, double segmentY1,
+                                double segmentX2, double segmentY2, double &qX, double &qY ) const {
     Node q;
 
-    double distance = distanceToSegment( Node( segmentX1, segmentY1 ), Node( segmentX2, segmentY2 ), q );
+    double distance = distanceToSegment( Node( segmentX1, segmentY1 ),
+                                         Node( segmentX2, segmentY2 ), q );
 
     qX = q.x;
     qY = q.y;
@@ -196,47 +200,47 @@ double Node::distanceToSegment( double segmentX1, double segmentY1, double segme
  * \brief Construct a new Node that needs the user to set its attributes.
  */
 Node::Node() {
-        id=nid = -1;
-        x = 0.0;
-        y = 0.0;
+    id = nid = -1;
+    x = 0.0;
+    y = 0.0;
 };
 
 /*! \fn Node::Node(double _x, double _y)
  * \brief Construct a new Node and assign it \c x and \c y values.
  */
-Node::Node(double _x, double _y) {
-        id=nid = -1;
-        x = _x;
-        y = _y;
+Node::Node( double _x, double _y ) {
+    id = nid = -1;
+    x = _x;
+    y = _y;
 };
 
 /*! \fn Node::Node(int _nid, double _x, double _y)
  * \brief Construct a new Node and assign it \c nid, \c x and \c y values.
  */
-Node::Node(int _nid, double _x, double _y) {
-        id= -1;
-        nid = _nid;
-        x = _x;
-        y = _y;
+Node::Node( int _nid, double _x, double _y ) {
+    id = -1;
+    nid = _nid;
+    x = _x;
+    y = _y;
 };
 
 /*! \fn Node::Node(int _nid, int _id , double _x, double _y)
  * \brief Construct a new Node and assign it the associated values.
  */
-Node::Node(int _nid, int _id , double _x, double _y) {
-        id= _id;
-        nid = _nid;
-        x = _x;
-        y = _y;
+Node::Node( int _nid, int _id , double _x, double _y ) {
+    id = _id;
+    nid = _nid;
+    x = _x;
+    y = _y;
 };
 
 /*! \fn Node::Node(std::string line)
  * \brief Create a new Node by parsing a string.
  */
-Node::Node(std::string line) {
+Node::Node( std::string line ) {
     std::istringstream buffer( line );
     buffer >> nid;
     buffer >> x;
     buffer >> y;
-    id=nid;
+    id = nid;
 }

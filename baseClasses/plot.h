@@ -50,7 +50,7 @@
  * system.
  */
 template <class knode> class Plot {
-private:
+  private:
 
     const TwBucket<knode> &pts; ///< A Bucket on nodes
     std::string file;       ///< The file name to write the plot image to
@@ -66,12 +66,12 @@ private:
     gdImagePtr im;          ///< A pointer to the GD image
     std::string font;       ///< The filesystem path to a ttf file
 
-public:
+  public:
     /*! \fn void calcExtents()
      * \brief Compute the extents of the nodes in the Bucket pts
      */
-    void calcExtents(){//const TwBucket<knode>& pnts) {
-#ifndef PGROUTING
+    void calcExtents() { //const TwBucket<knode>& pnts) {
+        #ifndef PGROUTING
         double extents[4];
 
         extents[0] = std::numeric_limits<double>::max();
@@ -79,34 +79,37 @@ public:
         extents[2] = - std::numeric_limits<double>::max();
         extents[3] = - std::numeric_limits<double>::max();
 
-        for (int i=0; i<pts.size(); i++) {
-            if (pts[i].getx() < extents[0]) extents[0] = pts[i].getx();
-            if (pts[i].gety() < extents[1]) extents[1] = pts[i].gety();
-            if (pts[i].getx() > extents[2]) extents[2] = pts[i].getx();
-            if (pts[i].gety() > extents[3]) extents[3] = pts[i].gety();
+        for ( int i = 0; i < pts.size(); i++ ) {
+            if ( pts[i].getx() < extents[0] ) extents[0] = pts[i].getx();
+
+            if ( pts[i].gety() < extents[1] ) extents[1] = pts[i].gety();
+
+            if ( pts[i].getx() > extents[2] ) extents[2] = pts[i].getx();
+
+            if ( pts[i].gety() > extents[3] ) extents[3] = pts[i].gety();
         }
 
-        extents[0] -= (extents[2] - extents[0]) * 0.02;
-        extents[2] += (extents[2] - extents[0]) * 0.02;
-        extents[1] -= (extents[3] - extents[1]) * 0.02;
-        extents[3] += (extents[3] - extents[1]) * 0.02;
+        extents[0] -= ( extents[2] - extents[0] ) * 0.02;
+        extents[2] += ( extents[2] - extents[0] ) * 0.02;
+        extents[1] -= ( extents[3] - extents[1] ) * 0.02;
+        extents[3] += ( extents[3] - extents[1] ) * 0.02;
 
         dx =  extents[2] - extents[0];
         dy =  extents[3] - extents[1];
-        cx = (extents[2] + extents[0]) / 2.0;
-        cy = (extents[3] + extents[1]) / 2.0;
+        cx = ( extents[2] + extents[0] ) / 2.0;
+        cy = ( extents[3] + extents[1] ) / 2.0;
 
-        scale = fmin((double)width/dx, (double)height/dy);
+        scale = fmin( ( double )width / dx, ( double )height / dy );
 
-#endif
+        #endif
     }
 
 
     /*! \fn Plot(const TwBucket<knode> &_pts)
      * \brief Construct a Plot object using the supplied pts and initialize important attributes.
      */
-    Plot(const TwBucket<knode> &_pts) : pts(_pts) {
-#ifndef PGROUTING
+    Plot( const TwBucket<knode> &_pts ) : pts( _pts ) {
+        #ifndef PGROUTING
         file = "plot.png";
         title = file;
         width = 800;
@@ -115,140 +118,151 @@ public:
         im = NULL;
         // set the default to Vicky's recent ubuntu instalation font location :)
         font = "/usr/share/fonts/truetype/msttcorefonts/Verdana.ttf";
-#endif
+        #endif
     }
 
     /*! \fn void setFont(std::string _font)
      * \brief Set the path to a ttf font file
      */
-    void setFont(std::string _font) { font = _font; };
+    void setFont( std::string _font ) { font = _font; };
 
     /*! \fn void setPoints(const std::deque<knode> &_pts)
      * \brief Provide a new set of points to the plot object.
      */
-    void setPoints(const std::deque<knode> &_pts) {
-#ifndef PGROUTING
+    void setPoints( const std::deque<knode> &_pts ) {
+        #ifndef PGROUTING
         pts = _pts;
         calcExtents();
-#endif
+        #endif
     };
 
     /*! \fn int makeColor(int i) const
      * \brief Make a valid color that can be used with the Plot object.
      */
-    int makeColor(int i) const {
-#ifndef PGROUTING
-        int b = (i % 4 + 1) * 0x40 - 1;
-        int g = ((i /  4) % 4 + 1) * 0x40 - 1;
-        int r = ((i / 16) % 4 + 1) * 0x40 - 1;
+    int makeColor( int i ) const {
+        #ifndef PGROUTING
+        int b = ( i % 4 + 1 ) * 0x40 - 1;
+        int g = ( ( i /  4 ) % 4 + 1 ) * 0x40 - 1;
+        int r = ( ( i / 16 ) % 4 + 1 ) * 0x40 - 1;
 
-        return  r*256*256 + g*256 + b;
-#else
-	return 0;
-#endif
+        return  r * 256 * 256 + g * 256 + b;
+        #else
+        return 0;
+        #endif
     };
 
     /*! \fn void setFile(std::string _file)
      * \brief Set the output image file and path.
      */
-    void setFile(std::string _file) { file = _file; };
+    void setFile( std::string _file ) { file = _file; };
 
     /*! \fn void setTitle(std::string _title)
      * \brief Set the title to use on the image
      */
-    void setTitle(std::string _title) { title = _title; };
+    void setTitle( std::string _title ) { title = _title; };
 
     /*! \fn void setSize(int h, int w)
      * \brief Set the image height and width.
      */
-    void setSize(int h, int w) { height = h; width = w; };
+    void setSize( int h, int w ) { height = h; width = w; };
 
     /*! \fn int scalex(double x) const
      * \brief Scale an X value from user units into image units.
      */
-    inline int scalex(double x) const {
-        return (int)((x - cx) * scale + (double) width/2.0);
+    inline int scalex( double x ) const {
+        return ( int )( ( x - cx ) * scale + ( double ) width / 2.0 );
     }
 
     /*! \fn int scaley(double y) const
      * \brief Scale an Y value from user units into image units.
      */
-    inline int scaley(double y) const {
-        return (int) height - ((y - cy) * scale + (double) height/2.0);
+    inline int scaley( double y ) const {
+        return ( int ) height - ( ( y - cy ) * scale + ( double ) height / 2.0 );
     }
 
     /*! \fn void drawInit()
      * \brief Start the drawing process by creating an internal image structure and initializing it.
      */
     void drawInit() {
-#ifndef PGROUTING
-        if (im) gdImageDestroy(im);
-        im = gdImageCreateTrueColor(width, height);
-        gdImageFilledRectangle(im, 0, 0, width-1, height-1, 0x00ffffff);
-#endif
+        #ifndef PGROUTING
+
+        if ( im ) gdImageDestroy( im );
+
+        im = gdImageCreateTrueColor( width, height );
+        gdImageFilledRectangle( im, 0, 0, width - 1, height - 1, 0x00ffffff );
+        #endif
     }
 
     /*! \fn void drawPath(std::deque<int> ids, int color, int thick, bool label)
      * \brief Draw a path from point to point using the ids
      * \todo Need to add labels for paths
      */
-    void drawPath(std::deque<int> ids, int color, int thick, bool label) {
-#ifndef PGROUTING
+    void drawPath( std::deque<int> ids, int color, int thick, bool label ) {
+        #ifndef PGROUTING
+
         // make sure drawInit() has been called
-        if (!im) {
-            fprintf(stderr, "Plot::drawInit() has not been called!\n");
+        if ( !im ) {
+            fprintf( stderr, "Plot::drawInit() has not been called!\n" );
             return;
         }
 
         // set the line thickness for drawing
-        gdImageSetThickness(im, thick);
+        gdImageSetThickness( im, thick );
 
         // extract the color into RGB values and set the line draw color
         int blue = color % 256;
-        int green = (color / 256) % 256;
-        int red = (color / 65536) % 256;
-        gdImageSetAntiAliased(im, gdImageColorExactAlpha(im, red, green, blue, 0));
+        int green = ( color / 256 ) % 256;
+        int red = ( color / 65536 ) % 256;
+        gdImageSetAntiAliased( im,
+                               gdImageColorExactAlpha( im, red, green, blue, 0 ) );
 
         // draw the path based on a list of node ids
-        for (int i=0; i<ids.size()-1; i++) {
+        for ( int i = 0; i < ids.size() - 1; i++ ) {
             const knode &a = pts[ids[i]];
-            const knode &b = pts[ids[i+1]];
-            gdImageLine(im, scalex(a.getx()), scaley(a.gety()),
-                            scalex(b.getx()), scaley(b.gety()), gdAntiAliased);
+            const knode &b = pts[ids[i + 1]];
+            gdImageLine( im, scalex( a.getx() ), scaley( a.gety() ),
+                         scalex( b.getx() ), scaley( b.gety() ),
+                         gdAntiAliased );
         }
 
         // label the paths if requested
-        if (label) {
+        if ( label ) {
             // TODO pick midpoint of 2nd segment calc angle of segment
             //  and label along it
         }
-#endif
+
+        #endif
     }
 
     /*! \fn void drawPoints(std::deque<int> ids, int color, int size, bool label)
      * \brief Label the nodes with their id's
      */
-    void drawPoints(std::deque<int> ids, int color, int size, bool label) {
-#ifndef PGROUTING
+    void drawPoints( std::deque<int> ids, int color, int size, bool label ) {
+        #ifndef PGROUTING
+
         // make sure drawInit() has been called
-        if (!im) {
-            fprintf(stderr, "Plot::drawInit() has not been called!\n");
+        if ( !im ) {
+            fprintf( stderr, "Plot::drawInit() has not been called!\n" );
             return;
         }
 
         // draw the nodes as filled circles
-        for (int i=0; i<ids.size(); i++) {
+        for ( int i = 0; i < ids.size(); i++ ) {
             const knode &a = pts[ids[i]];
-            gdImageFilledEllipse(im, scalex(a.getx()), scaley(a.gety()), size, size, color);
+            gdImageFilledEllipse( im, scalex( a.getx() ), scaley( a.gety() ),
+                                  size, size, color );
+
             // label the nodes if requested
-            if (label) {
+            if ( label ) {
                 char str[80];
-                sprintf(str, "%d", a.getid());
-                gdImageStringFT(im, NULL, 0x00000000, (char*) font.c_str(), 6, 0,
-                                scalex(a.getx()), scaley(a.gety())-5, str);
+                sprintf( str, "%d", a.getid() );
+                gdImageStringFT( im, NULL, 0x00000000, ( char * ) font.c_str(),
+                                 6, 0, scalex( a.getx() ),
+                                 scaley( a.gety() ) - 5, str );
             }
         }
-#endif
+
+        #endif
     }
 
 
@@ -257,12 +271,12 @@ public:
      * return 1 on failure, 0 on success
      */
     int save() {
-#ifndef PGROUTING
+        #ifndef PGROUTING
         // use the object variable file
-        return save(file);
-#else
-	return 1;
-#endif
+        return save( file );
+        #else
+        return 1;
+        #endif
     }
 
 
@@ -271,39 +285,41 @@ public:
      * \param[in] _file File and path to save the image to.
      * return 1 on failure, 0 on success
      */
-    int save(std::string _file) {
-#ifndef PGROUTING
+    int save( std::string _file ) {
+        #ifndef PGROUTING
         FILE *fp;
 
         // make sure we have been initiallized correctly
-        if (!im) {
-            fprintf(stderr, "Plot::drawInit() has not been called!\n");
+        if ( !im ) {
+            fprintf( stderr, "Plot::drawInit() has not been called!\n" );
             return 1;
         }
 
         // oprn the file to write the image to
-        fp = fopen(_file.c_str(), "wb");
-        if (!fp) {
-            fprintf(stderr, "Can't save plot as png image.\n");
-            gdImageDestroy(im);
+        fp = fopen( _file.c_str(), "wb" );
+
+        if ( !fp ) {
+            fprintf( stderr, "Can't save plot as png image.\n" );
+            gdImageDestroy( im );
             return 1;
         }
 
         // draw the title
-        gdImageStringFT(im, NULL, 0x00000000, (char*) font.c_str(), 8, 0, 5, 20, (char *)(title.c_str()));
+        gdImageStringFT( im, NULL, 0x00000000, ( char * ) font.c_str(),
+                         8, 0, 5, 20, ( char * )( title.c_str() ) );
 
         // save the image and clean up
-        gdImagePng(im, fp);
-        fclose(fp);
-        gdImageDestroy(im);
+        gdImagePng( im, fp );
+        fclose( fp );
+        gdImageDestroy( im );
         im = NULL;
         return 0;
-#endif
+        #endif
     }
 
 
 
-/* with this vehicle plot work and uses the class template */
+    /* with this vehicle plot work and uses the class template */
 
     /*! \fn void drawPoint(const knode &a, int color, int size, bool label)
      * \brief Draw a point on the image.
@@ -312,64 +328,71 @@ public:
      * \param[in] size The radius of the point in pixels
      * \param[in] label A boolean value if you want the point labeled
      */
-    void drawPoint(const knode &a, int color, int size, bool label) {
-#ifndef PGROUTING
+    void drawPoint( const knode &a, int color, int size, bool label ) {
+        #ifndef PGROUTING
+
         // make sure drawInit() has been called
-        if (!im) {
-            fprintf(stderr, "Plot::drawInit() has not been called!\n");
+        if ( !im ) {
+            fprintf( stderr, "Plot::drawInit() has not been called!\n" );
             return;
         }
 
-        gdImageFilledEllipse(im, scalex(a.getx()), scaley(a.gety()), size, size, color);
+        gdImageFilledEllipse( im, scalex( a.getx() ), scaley( a.gety() ),
+                              size, size, color );
 
-        if (label) {
+        if ( label ) {
             char str[80];
-            sprintf(str, "%d", a.getid());
-            gdImageStringFT(im, NULL, 0x00000000, (char *)font.c_str(), 6, 0,
-                                scalex(a.getx()), scaley(a.gety())-5, str);
+            sprintf( str, "%d", a.getid() );
+            gdImageStringFT( im, NULL, 0x00000000, ( char * )font.c_str(),
+                             6, 0, scalex( a.getx() ),
+                             scaley( a.gety() ) - 5, str );
         }
-#endif
+
+        #endif
     }
 
-/*! \fn void drawPath( TwBucket<knode> path, int color, int thick, bool label)
- * \brief Draw a path given a Bucket of nodes.
- * \param[in] path The order Bucket of nodes to be drawn as a path.
- * \param[in] color A color defined as "0xRRGGBB" or \ref makeColor
- * \param[in] thick The thickness of the path in pixels
- * \param[in] label A boolean value if you want the path labeled.
- * \todo Currently label is ignore and the path is not labeled.
- */
-    void drawPath( TwBucket<knode> path, int color, int thick, bool label) {
-#ifndef PGROUTING
+    /*! \fn void drawPath( TwBucket<knode> path, int color, int thick, bool label)
+     * \brief Draw a path given a Bucket of nodes.
+     * \param[in] path The order Bucket of nodes to be drawn as a path.
+     * \param[in] color A color defined as "0xRRGGBB" or \ref makeColor
+     * \param[in] thick The thickness of the path in pixels
+     * \param[in] label A boolean value if you want the path labeled.
+     * \todo Currently label is ignore and the path is not labeled.
+     */
+    void drawPath( TwBucket<knode> path, int color, int thick, bool label ) {
+        #ifndef PGROUTING
 
         // make sure drawInit() has been called
-        if (!im) {
-            fprintf(stderr, "Plot::drawInit() has not been called!\n");
+        if ( !im ) {
+            fprintf( stderr, "Plot::drawInit() has not been called!\n" );
             return;
         }
 
         // set the line thickness for drawing
-        gdImageSetThickness(im, thick);
+        gdImageSetThickness( im, thick );
 
         // extract the color into RGB values and set the line draw color
         int blue = color % 256;
-        int green = (color / 256) % 256;
-        int red = (color / 65536) % 256;
-        gdImageSetAntiAliased(im, gdImageColorExactAlpha(im, red, green, blue, 0));
+        int green = ( color / 256 ) % 256;
+        int red = ( color / 65536 ) % 256;
+        gdImageSetAntiAliased( im,
+                               gdImageColorExactAlpha( im, red, green, blue, 0 ) );
 
         // draw the path based on a list of node ids
-        for (int i=0; i<path.size()-1; i++) {
+        for ( int i = 0; i < path.size() - 1; i++ ) {
             const knode &a = path[i];
-            const knode &b = path[i+1];
-            gdImageLine(im, scalex(a.getx()), scaley(a.gety()),
-                            scalex(b.getx()), scaley(b.gety()), gdAntiAliased);
+            const knode &b = path[i + 1];
+            gdImageLine( im, scalex( a.getx() ), scaley( a.gety() ),
+                         scalex( b.getx() ), scaley( b.gety() ),
+                         gdAntiAliased );
         }
 
-        if (label) {
+        if ( label ) {
             // TODO pick midpoint of 2nd segment calc angle of segment
             //  and label along it
         }
-#endif
+
+        #endif
     }
 
 
@@ -388,5 +411,5 @@ for (int i=0; i<fleet.size(); i++)
 plot.drawPoints(depotids, red, 7, true);
 plot.drawPoints(dumpids, green, 7, true);
 plot.drawPoints(pickupids, blue, 3, true);
-plot.save(); 
+plot.save();
 */

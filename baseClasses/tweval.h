@@ -21,15 +21,15 @@
 //to evaluate the vehicle at node level
 
 class Tweval: public Twnode {
-protected:
+  protected:
 
 
-public:
+  public:
     static std::vector<std::vector<double> > TravelTime;
 
     void dumpeval() const;
     void dump() const ;
-/*accessors*/
+    /*accessors*/
     int  gettwvTot() const { return twvTot; };
     int  getcvTot() const { return cvTot; };
     double getcargo() const { return cargo; };
@@ -46,49 +46,50 @@ public:
     double getTotWaitTime() const { return totWaitTime; };
     double getTotServiceTime() const { return totServiceTime; };
     double getDumpVisits() const { return dumpVisits; };
-    double deltaGeneratesTWV(double deltaTime) const;
-    
+    double deltaGeneratesTWV( double deltaTime ) const;
+
 
     bool hastwv() const { return twv; };
     bool hascv() const { return cv; };
 
-/* mutators */        
-    void evaluate (double cargoLimit);
-    void evaluate (const Tweval &pred, double cargoLimit);  
-    void setTravelTimes(const std::vector<std::vector<double> > &_tt) { 
+    /* mutators */
+    void evaluate ( double cargoLimit );
+    void evaluate ( const Tweval &pred, double cargoLimit );
+    void setTravelTimes( const std::vector<std::vector<double> > &_tt ) {
         assert ( _tt.size() );
-        TravelTime=_tt; 
+        TravelTime = _tt;
         assert ( TravelTime.size() );
     }
 
 
 
-/* Operators, to be discussed */
+    /* Operators, to be discussed */
 
 
-/* constructors &destructors */
+    /* constructors &destructors */
     Tweval();
-    Tweval(std::string line):Twnode(line) {
+    Tweval( std::string line ): Twnode( line ) {
         cv = twv = false;
         cvTot = twvTot = 0;
         cargo = 0;
-        arrivalTime = travelTime = waitTime = departureTime =0;
-        totWaitTime = totTravelTime = totServiceTime =0;
+        arrivalTime = travelTime = waitTime = departureTime = 0;
+        totWaitTime = totTravelTime = totServiceTime = 0;
     };
 
-    Tweval(int _id, double _x, double _y, int _open, int _close, int _service, int _demand, int _sid) : Twnode() {
-        set(_id, _id, _x, _y, _demand, _open, _close, _service);
-        setStreetId(_sid);
+    Tweval( int _id, double _x, double _y, int _open, int _close, int _service,
+            int _demand, int _sid ) : Twnode() {
+        set( _id, _id, _x, _y, _demand, _open, _close, _service );
+        setStreetId( _sid );
         cv = twv = false;
         cvTot = twvTot = 0;
         cargo = 0;
-        arrivalTime = travelTime = waitTime = departureTime =0;
-        totWaitTime = totTravelTime = totServiceTime =0;
+        arrivalTime = travelTime = waitTime = departureTime = 0;
+        totWaitTime = totTravelTime = totServiceTime = 0;
     };
 
-    ~Tweval(){};
+    ~Tweval() {};
 
-private:
+  private:
     bool twv;
     bool cv;
     int twvTot;
@@ -107,7 +108,7 @@ private:
     double dumpVisits;
 
 
-};    
+};
 
 
 #endif
