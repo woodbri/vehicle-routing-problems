@@ -34,7 +34,9 @@ class TabuOpt: public TabuBase<OptSol> {
         Timer start;
 bestSolution.tau();
     	bestSolution.optimizeTruckNumber();
-    	currentSolution=bestSolution;
+        setBestAsCurrent();
+currentSolution.tau();
+    	//currentSolution=bestSolution;
     	std::cout << "TABUSEARCH: Removal of truck time: " << start.duration() << std::endl;
     	TabuList.clear();
 bestSolution.tau();
