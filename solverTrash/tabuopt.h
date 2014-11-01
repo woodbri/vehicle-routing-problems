@@ -31,6 +31,15 @@ class TabuOpt: public TabuBase<OptSol> {
          TabuBase(initialSolution)
     {
         computeCosts(bestSolution);
+        Timer start;
+bestSolution.tau();
+    	bestSolution.optimizeTruckNumber();
+    	currentSolution=bestSolution;
+    	std::cout << "TABUSEARCH: Removal of truck time: " << start.duration() << std::endl;
+    	TabuList.clear();
+bestSolution.tau();
+
+        computeCosts(bestSolution);
         bestSolutionCost = bestSolution.getCost();
 	limitIntraSw=bestSolution.getFleetSize();
 	limitInterSw=limitIntraSw*(limitIntraSw-1) ;
