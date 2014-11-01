@@ -54,16 +54,12 @@ std::cout<<"Entering TabuOpt::search() \n";
     Timer start;
     bool improvedBest;
     int lastImproved = 0;
-    bestSolution.optimizeTruckNumber();
-    std::cout << "TABUSEARCH: Removal of truck time: " << start.duration() << std::endl;
-    start.restart();
-    TabuList.clear();
 
     do {
         std::cout << "TABUSEARCH: Starting iteration: " << currentIteration << std::endl;
 
         // this is a token ring search
-        improvedBest  = doNeighborhoodMoves(Ins,     limitIns*5, aspirationalTabu, nonTabu,tabu);
+        improvedBest  = doNeighborhoodMoves(Ins, limitIns*10, aspirationalTabu, nonTabu,tabu);
         //improvedBest |= doNeighborhoodMoves(InterSw, limitInterSw*5, aspirationalTabu, nonTabu, tabu);
         //improvedBest |= doNeighborhoodMoves(IntraSw, limitIntraSw*100, aspirationalTabu, nonTabu,tabu);
 
@@ -98,17 +94,14 @@ std::cout<<"Entering TabuOpt::getNeighborhod() \n";
         Timer getNeighborhoodTimer;
         switch (whichNeighborhood) {
             case Ins:
-                ++currentIterationIns;
                 currentSolution.v_getInsNeighborhood(neighborhood, factor);
                 generateNeighborhoodStats("Ins", getNeighborhoodTimer.duration(), neighborhood.size());
                 break;
             case IntraSw:
-                ++currentIterationIntraSw;
                 currentSolution.v_getIntraSwNeighborhood(neighborhood, factor);
                 generateNeighborhoodStats("IntraSw", getNeighborhoodTimer.duration(), neighborhood.size());
                 break;
             case InterSw:
-                ++currentIterationInterSw;
                 currentSolution.v_getInterSwNeighborhood(neighborhood, factor);
                 generateNeighborhoodStats("InterSw", getNeighborhoodTimer.duration(), neighborhood.size());
                 break;
@@ -308,11 +301,6 @@ std::cout<<" Reached end of cycle -No moves found- "<<Cnt<<" out of "<< maxMoves
 
                 Cnt++;
                 applyAspirationalTabu( aspirationalTabu );
-                //CntNonAspirational=0;
-                //neighborhood.clear();
-                //aspirationalTabu.clear();
-                //tabu.clear();
-                //notTabu.clear();
 
 		assert (not aspirationalTabu.size());
                 continue;
@@ -326,11 +314,7 @@ std::cout<<" Reached end of cycle -No moves found- "<<Cnt<<" out of "<< maxMoves
 		assert (not tabu.size());
                 Cnt++;
 		applyNonTabu( notTabu );
-		//CntNonAspirational=0;
 		neighborhood.clear();
-                //aspirationalTabu.clear();
-		//tabu.clear();	
-		//notTabu.clear();	
 		continue;
 	} 
 	//CntNonAspirational++;
@@ -432,6 +416,16 @@ std::cout<<"Entering TabuOpt::classifyMoves \n";
 		foundAspTabu = true;	
 		//clear up remaining buckets 
                 notTabu.clear(); tabu.clear();
+	        switch (it->getmtype()) {
+               		case Move::Ins: { 
+				    neighborhood.clear(); 
+				    return false; 
+				}; 
+               	//	case Move::IntraSw: { limit = number>limitIntraSw; }
+               	//	case Move::InterSw: { limit = number>limitInterSw; }
+        	};
+
+		
 	   } else if (not aspirationalTabu.size()  and not isTabu(*it) and not found ) { //save only the best nonTabu move when there is no aspirational tabu move
 		notTabu.push_back(*it); 
 		found = true;

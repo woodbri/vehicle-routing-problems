@@ -92,6 +92,11 @@ class TabuBase  {
     void settabuLengthInterSw(int n) { assert(n>0); tabuLengthInterSw = n; };
 
 
+    bool insForbidden( int truckPos ) {
+	std::set<int> list= tabuedForInsInsertionPart();
+	return ( list.find(truckPos)==list.end() );
+    };
+	
 
     std::set<int> tabuedForInsInsertionPart() const {
 	std::set<int> list;
@@ -99,7 +104,7 @@ class TabuBase  {
 	Move move;
         for (it = TabuList.begin(); it!=TabuList.end(); ++it) {
 		move=it->first;
-		list.insert(move.getInsToTruck());
+		list.insert(move.getInsFromTruck());
 	}
 dumpSet("Tabued for insertion",list);
 	return list;
@@ -166,6 +171,7 @@ bool isTabu(const Move& m) const {
     }
     return false;
 }
+
 void cleanExpired() {
     std::map<const Move, int>::iterator it;
     for (it = TabuList.begin(); it!=TabuList.end(); ++it)
@@ -180,18 +186,22 @@ void makeTabu(const Move &m) {
     int r = rand()%5-2;
     switch (m.getmtype()) {
         case Move::Ins:
+	    currentIterationIns++;
             TabuList[m] = currentIterationIns + tabuLengthIns + r;
             STATS->inc("tabu Ins Moves Added");
             break;
         case Move::IntraSw:
+	    currentIterationIntraSw++;
             TabuList[m] = currentIterationIntraSw + tabuLengthIntraSw + r;
             STATS->inc("tabu IntraSw Moves Added");
             break;
         case Move::InterSw:
+	    currentIterationInterSw++;
             TabuList[m] = currentIterationInterSw + tabuLengthInterSw + r;
             STATS->inc("tabu InterSw Moves Added");
             break;
     }
+    // cleanExpired();  //comented while it gets fixed
     addToStats(m);
 #ifndef LOG
 dumpTabuList();
