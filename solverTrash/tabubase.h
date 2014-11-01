@@ -54,6 +54,7 @@ class TabuBase  {
 
     Ksolution bestSolution;
     double bestSolutionCost;
+    std::map<const Move, int> bestTabuList;
   private:
     int bestIterationIns;
     int bestIterationIntraSw;
@@ -98,6 +99,7 @@ class TabuBase  {
      	bestIterationIns=currentIterationIns;
      	bestIterationIntraSw=currentIterationIntraSw;
      	bestIterationInterSw=currentIterationInterSw;
+        bestTabuList=TabuList;
     };
 
     void setBestAsCurrent() {
@@ -108,6 +110,7 @@ std::cout<<"bestIterationIns"<<bestIterationIns<<"\n";
         currentIterationIns=bestIterationIns;
         currentIterationIntraSw=bestIterationIntraSw;
         currentIterationInterSw=bestIterationInterSw;
+        TabuList=bestTabuList;
 std::cout<<"currentIterationIns"<<currentIterationIns<<"\n";
 std::cout<<"bestIterationIns"<<bestIterationIns<<"\n";
 
@@ -263,7 +266,7 @@ void cleanExpired() {
     std::map<const Move, int>::iterator it;
     std::map<const Move, int> oldTabuList=TabuList;
     Move move;
-    double expires;
+    int expires;
     TabuList.clear();
     for (it = oldTabuList.begin(); it!=oldTabuList.end(); it++) {
 	move = it->first;
