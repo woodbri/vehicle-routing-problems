@@ -31,8 +31,7 @@
 #include "trashnode.h"
 #include "twpath.h"
 #include "feasableSolLoop.h"
-#include "tabusearch.h"
-
+#include "tabuopt.h"
 
 
 void Usage() {
@@ -74,7 +73,7 @@ int main(int argc, char **argv) {
 
         Timer searchtime;
 
-        TabuSearch ts(tp);
+        TabuOpt ts(tp);
         ts.setMaxIteration(1000);
         ts.search();
 
