@@ -35,7 +35,7 @@
  * - IntraSw (intra vehicle swap)
  *   - exchange nid1 and nid2 in the same vehicle
  *
- * \warning The vid1 and vid2 members are \c NOT the vehicle ids, they are 
+ * \warning The vid1 and vid2 members are \c NOT the vehicle ids, they are
  *          the position of the vehicle in the fleet vector. Be careful to
  *          not change the order of the vehicles in the fleet array without
  *          updating the associated Move objects like on the TabuList or in
@@ -46,7 +46,7 @@ class Move {
 
     /*! \enum Mtype
      * Enumerated move type for Move
-     */ 
+     */
     typedef enum {
         Invalid = -1,   ///< an invalid or undefined move
         Ins = 0,        ///< an Ins move that removes a node from one truck and inserts it into another truck
@@ -73,7 +73,8 @@ class Move {
     /*! \fn Move(Mtype _mtype, int _nid1, int _nid2, int _vid1, int _vid2, int _pos1, int _pos2, double _sav)
      * \brief Construct a Move object and assign the appropriate values.
      */
-    Move(Mtype _mtype, int _nid1, int _nid2, int _vid1, int _vid2, int _pos1, int _pos2, double _sav) {
+    Move( Mtype _mtype, int _nid1, int _nid2, int _vid1, int _vid2, int _pos1,
+          int _pos2, double _sav ) {
         mtype = _mtype;
         nid1 = _nid1;
         nid2 = _nid2;
@@ -93,40 +94,40 @@ class Move {
     int getpos2() const { return pos2; };
     double getsavings() const { return savings; };
 
-    bool less(const Move& m) const;
-    bool operator==(const Move &rhs) const;
+    bool less( const Move &m ) const;
+    bool operator==( const Move &rhs ) const;
     /*! \fn bool operator<(const Move &rhs) const
      * \brief Create a \< operator for the less() function.
      */
-    bool operator<(const Move &rhs) const { return this->less(rhs); };
-    bool isForbidden(const Move &tabu) const;
+    bool operator<( const Move &rhs ) const { return this->less( rhs ); };
+    bool isForbidden( const Move &tabu ) const;
     void dump() const;
     void Dump() const;
 
-    void setmtype(Mtype _mtype) { mtype = _mtype; };
-    void setnid1(int nid) { nid1 = nid; };
-    void setnid2(int nid) { nid2 = nid; };
-    void setvid1(int vid) { vid1 = vid; };
-    void setvid2(int vid) { vid2 = vid; };
-    void setpos1(int pos) { pos1 = pos; };
-    void setpos2(int pos) { pos2 = pos; };
-    void setsavings(double save) { savings = save; };
+    void setmtype( Mtype _mtype ) { mtype = _mtype; };
+    void setnid1( int nid ) { nid1 = nid; };
+    void setnid2( int nid ) { nid2 = nid; };
+    void setvid1( int vid ) { vid1 = vid; };
+    void setvid2( int vid ) { vid2 = vid; };
+    void setpos1( int pos ) { pos1 = pos; };
+    void setpos2( int pos ) { pos2 = pos; };
+    void setsavings( double save ) { savings = save; };
 
     /*! \fn static bool bySavings(const Move& a, const Move& b)
      * \brief Function used to sort moves in by \c savings in decending order.
      */
-    static bool bySavings(const Move& a, const Move& b) { return (a.getsavings()==b.getsavings())?a<b:a.getsavings()>b.getsavings(); };
+    static bool bySavings( const Move &a, const Move &b ) { return ( a.getsavings() == b.getsavings() ) ? a<b: a.getsavings()>b.getsavings(); };
 
     /*! \fn static bool bySavingsA(const Move& a, const Move& b)
      * \brief Function used to sort moves in by \c savings in asecending order.
      */
-    static bool bySavingsA(const Move& a, const Move& b) { return a.getsavings()<b.getsavings(); };
+    static bool bySavingsA( const Move &a, const Move &b ) { return a.getsavings() < b.getsavings(); };
 
-    int getInsFromTruck() const { assert(mtype==Move::Ins); return vid1; };
-    int getInsToTruck() const { assert(mtype==Move::Ins); return vid2; };
-    int getIntraSwTruck() const { assert(mtype==Move::IntraSw); return vid1; };
-    int getInterSwTruck1() const { assert(mtype==Move::InterSw); return vid1; };
-    int getInterSwTruck2() const { assert(mtype==Move::InterSw); return vid2; };
+    int getInsFromTruck() const { assert( mtype == Move::Ins ); return vid1; };
+    int getInsToTruck() const { assert( mtype == Move::Ins ); return vid2; };
+    int getIntraSwTruck() const { assert( mtype == Move::IntraSw ); return vid1; };
+    int getInterSwTruck1() const { assert( mtype == Move::InterSw ); return vid1; };
+    int getInterSwTruck2() const { assert( mtype == Move::InterSw ); return vid2; };
 
 };
 

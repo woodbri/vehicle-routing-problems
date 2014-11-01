@@ -46,21 +46,21 @@ class OSRM {
      * \return true if there is an error.
      * \param[out] ttime The extracted travel time.
      */
-    bool getTravelTime(double& ttime) const;
+    bool getTravelTime( double &ttime ) const;
 
     /*! \fn bool bool getStatus(int& status) const
      * \brief Extract the OSRM request status from the request.
      * \return true if there is an error.
      * \param[out] status The extracted OSRM status value.
      */
-    bool getStatus(int& status) const;
+    bool getStatus( int &status ) const;
 
     /*! \fn bool callOSRM(const std::string url)
      * \brief Make an HTTP request to the OSRM url.
      * \return true if there is an error.
      * \param[in] url A URL for a viaroute request to an OSRM server.
      */
-    bool callOSRM(const std::string url);
+    bool callOSRM( const std::string url );
 
 };
 

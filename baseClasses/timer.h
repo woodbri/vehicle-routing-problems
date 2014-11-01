@@ -25,11 +25,11 @@
  */
 class Timer {
 
-//  public:
-//    typedef struct timespec {
-//        time_t tv_sec;
-//        long   tv_nsec;
-//    } Time;
+    //  public:
+    //    typedef struct timespec {
+    //        time_t tv_sec;
+    //        long   tv_nsec;
+    //    } Time;
 
   private:
     struct timespec t0;    ///< start time
@@ -39,19 +39,19 @@ class Timer {
     /*! \fn Timer()
      * \brief Construct a new Timer object and remember its time of creation
      */
-    Timer() { clock_gettime(CLOCK_MONOTONIC_RAW, &t0); };
+    Timer() { clock_gettime( CLOCK_MONOTONIC_RAW, &t0 ); };
 
     /*! \fn void restart()
      * \brief Reset the Timer start time to now.
      */
-    inline void restart() { clock_gettime(CLOCK_MONOTONIC_RAW, &t0); };
+    inline void restart() { clock_gettime( CLOCK_MONOTONIC_RAW, &t0 ); };
 
     /*! \fn double duration()
      * \brief Compute the duration of time since the Timer was set or reset.
      * \return The number of second as a double since the Timer as set or reset.
      */
     inline double duration() {
-        clock_gettime(CLOCK_MONOTONIC_RAW, &t1);
+        clock_gettime( CLOCK_MONOTONIC_RAW, &t1 );
         double dt0 = t0.tv_nsec / 1000000000.0 + t0.tv_sec;
         double dt1 = t1.tv_nsec / 1000000000.0 + t1.tv_sec;
         return dt1 - dt0;
