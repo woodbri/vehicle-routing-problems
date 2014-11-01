@@ -100,6 +100,10 @@ class Move {
      */
     bool operator<(const Move &rhs) const { return this->less(rhs); };
     bool isForbidden(const Move &tabu) const;
+    bool isIns() const {return mtype==Move::Ins;};
+    bool isIntraSw() const {return mtype==Move::Ins;};
+    bool isInterSw() const {return mtype==Move::Ins;};
+
     void dump() const;
     void Dump() const;
 
@@ -122,11 +126,28 @@ class Move {
      */
     static bool bySavingsA(const Move& a, const Move& b) { return a.getsavings()<b.getsavings(); };
 
+    int getInsNid() const { return nid1; }
     int getInsFromTruck() const { assert(mtype==Move::Ins); return vid1; };
     int getInsToTruck() const { assert(mtype==Move::Ins); return vid2; };
+
     int getIntraSwTruck() const { assert(mtype==Move::IntraSw); return vid1; };
     int getInterSwTruck1() const { assert(mtype==Move::InterSw); return vid1; };
     int getInterSwTruck2() const { assert(mtype==Move::InterSw); return vid2; };
+
+    bool isTabu(const Move &move) const;
+    bool isTabu(const Move &move,int rule) const;
+
+    private:
+    bool insForbidden(const Move &move_e, int rule) const;
+    bool insForbiddenRule0(const Move &other) const;
+    bool insForbiddenRule1(const Move &other) const;
+    bool insForbiddenRule2(const Move &other) const;
+    bool insForbiddenRule3(const Move &other) const;
+    bool insForbiddenRule4(const Move &other) const;
+    bool insForbiddenRule5(const Move &other) const;
+    bool insForbiddenRule6(const Move &other) const;
+
+
 
 };
 

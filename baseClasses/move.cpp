@@ -130,6 +130,212 @@ void Move::Dump() const {
 }
 
 
+bool Move::isTabu(const Move &move_e) const  {
+	if (not mtype==move_e.mtype) return false;
+	int rule;
+        switch ( mtype ) {
+                case Ins: rule=5; break;
+                case IntraSw: rule=0; break;
+                case InterSw: rule=0;break;
+        }
+	return isTabu(move_e,rule);
+};
+
+
+bool Move::isTabu(const Move &move_e, int rule) const  {
+	if (not mtype==move_e.mtype) return false;
+	switch ( mtype ) {
+		case Ins: return insForbidden(move_e,rule);
+		case IntraSw: return move_e.isForbidden(*this);
+		case InterSw: return move_e.isForbidden(*this);
+        }
+};
+
+
+
+// for the follwoing functions ARE PROHIBITION RULES for INS
+// always *this is the one in the tabu list
+
+bool Move::insForbidden(const Move &move_e, int rule) const {
+	assert (move_e.mtype==Ins);
+	switch (rule) {
+	  case 0: return insForbiddenRule0(move_e);
+	  case 1: return insForbiddenRule1(move_e);
+	  case 2: return insForbiddenRule2(move_e);
+	  case 3: return insForbiddenRule3(move_e);
+	  case 4: return insForbiddenRule4(move_e);
+	  case 5: return insForbiddenRule5(move_e);
+	  case 6: return insForbiddenRule6(move_e);
+	}
+}
+	
+	
+
+
+/** 
+  semi inverse Move is prohibited
+
+        M_t (Nid_t , fromTruck_t, fromPos_t, toTruck_t, toPos_t)
+        M_e (Nid_e , fromTruck_e, fromPos_e, toTruck_e, toPos_e)
+
+  True when:
+        ( Nid_e = Nid_t  \and fromTruck_e = toTruck_t 
+
+  Example:
+  (A, T1,i  T2,j)   is (*this)  move
+  (A, T2,j  T1,i)   is move to be evaluated
+
+  The evaluated move is moving back the container to the same position
+  as before
+
+  Therfore returns True
+*/
+bool Move::insForbiddenRule0 (const Move &move_e) const {
+        return (move_e.getInsNid()==getInsNid()  and move_e.getInsFromTruck()==getInsToTruck()
+		and move_e.getInsToTruck()==getInsFromTruck());
+}
+
+
+
+
+/** 
+  forbidding moving the container back to the original truck
+
+	M_t (Nid_t , fromTruck_t, fromPos_t, toTruck_t, toPos_t)
+	M_e (Nid_e , fromTruck_e, fromPos_e, toTruck_e, toPos_e)
+
+  True when:
+	( Nid_e = Nid_t  \and fromTruck_e = toTruck_t 
+
+  Example:
+  (A, T1,i  T2,j)   is (*this)  move
+  (A, T2,j  Tany,k)   is move to be evaluated
+
+  both have the same  A (Nid)
+  The evaluated move is taking out the contaier from a truck we placed it on
+	even when it comes from a different truck
+
+  Therfore returns True
+*/
+
+bool Move::insForbiddenRule1 (const Move &move_e) const {
+	return (move_e.getInsNid()==getInsNid()  and move_e.getInsFromTruck()==getInsToTruck() );
+}
+
+
+
+/** 
+  forbidding inserting a container to a truck when the truck it comes from is
+  a truck we inserted to
+
+        M_t (Nid_t , fromTruck_t, fromPos_t, toTruck_t, toPos_t)
+        M_e (Nid_e , fromTruck_e, fromPos_e, toTruck_e, toPos_e)
+
+  True when:
+        ( fromTruck_e = toTruck_t  \and toTruck_e = fromTruck_t 
+
+  Example:
+  (A, T1,i  T2,j)   is (*this) tabued  move
+  (B, T2,j  T1,k)   is move to be evaluated
+
+  The evaluating move is putting a contaier from T2 to T1
+
+  Therfore returns True
+*/
+
+bool Move::insForbiddenRule2(const Move &move_e) const {
+	return (move_e.getInsFromTruck()==getInsToTruck()  and move_e.getInsToTruck()==getInsFromTruck() );
+}
+
+
+
+/** 
+  forbidding reinserting a container back to the original truck
+
+        M_t (Nid_t , fromTruck_t, fromPos_t, toTruck_t, toPos_t)
+        M_e (Nid_e , fromTruck_e, fromPos_e, toTruck_e, toPos_e)
+
+  True when:
+        ( Nid_e = Nid_t  \and toTruck_e = fromTruck_t 
+
+  Example:
+  (A, T1,i  T2,j)   is (*this) tabued move
+  (A, Tany,j  T1,k)   is move to be evaluated
+
+  both have the same  A (Nid)
+  The evaluated move is putting back the contaier in the original truck
+        even when it comes from a different truck
+
+  Therfore returns True
+*/
+bool Move::insForbiddenRule3 (const Move &move_e) const {
+        return (move_e.getInsNid()==getInsNid()  and move_e.getInsToTruck()==getInsFromTruck() );
+}
+
+/** 
+  forbidding to move a container recently moved
+
+        M_t (Nid_t , fromTruck_t, fromPos_t, toTruck_t, toPos_t)
+        M_e (Nid_e , fromTruck_e, fromPos_e, toTruck_e, toPos_e)
+
+  True when:
+         Nid_e = Nid_t
+
+  Example:
+  (A, T1,i  T2,j)   is (*this)  tabued move
+  (A, Tx,k  Ty,l)   is move to be evaluated
+
+  both have the same  A (Nid)
+  we already moved A
+
+  Therfore returns True
+*/
+bool Move::insForbiddenRule4 (const Move &move_e) const {
+        return (move_e.getInsNid()==getInsNid());
+}
+
+
+/** 
+  forbidding to remove a container from a recently inserted Truck
+
+        M_t (Nid_t , fromTruck_t, fromPos_t, toTruck_t, toPos_t)
+        M_e (Nid_e , fromTruck_e, fromPos_e, toTruck_e, toPos_e)
+
+  True when:
+        fromTruck_e = toTruck_t 
+
+  Example:
+  (A, T1,i  T2,j)   is (*this)  tabued move
+  (B, T2,k  Ty,l)   is move to be evaluated
+
+  a move was recently inserted into T2 so we dont allow removing from T2
+
+  Therfore returns True
+*/
+bool Move::insForbiddenRule5 (const Move &move_e) const {
+        return (move_e.getInsFromTruck()==getInsToTruck());  
+} 
+
+/** 
+  forbidding to reinsert any order to a truck we used to remove from
+
+        M_t (Nid_t , fromTruck_t, fromPos_t, toTruck_t, toPos_t)
+        M_e (Nid_e , fromTruck_e, fromPos_e, toTruck_e, toPos_e)
+
+  True when:
+         toTruck_e = fromTruck_t 
+
+  Example:
+  (A, T1,i  T2,j)   is (*this)  tabued move
+  (B, Tx,k  T1,l)   is move to be evaluated
+
+  trying to insert an order to a truck we removed from
+  Therfore its frobidden
+  returns True
+*/
+bool Move::insForbiddenRule6 (const Move &move_e) const {
+        return (move_e.getInsToTruck()==getInsFromTruck());
+}
 
 
 
