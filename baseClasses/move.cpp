@@ -187,7 +187,7 @@ bool Move::insForbidden(const Move &move_e, int rule) const {
         M_e (Nid_e , fromTruck_e, fromPos_e, toTruck_e, toPos_e)
 
   True when:
-        ( Nid_e = Nid_t  \and fromTruck_e = toTruck_t 
+        ( Nid_e = Nid_t  and fromTruck_e = toTruck_t 
 
   Example:
   (A, T1,i  T2,j)   is (*this)  move
@@ -213,7 +213,7 @@ bool Move::insForbiddenRule0 (const Move &move_e) const {
 	M_e (Nid_e , fromTruck_e, fromPos_e, toTruck_e, toPos_e)
 
   True when:
-	( Nid_e = Nid_t  \and fromTruck_e = toTruck_t 
+	( Nid_e = Nid_t  and fromTruck_e = toTruck_t 
 
   Example:
   (A, T1,i  T2,j)   is (*this)  move
@@ -240,7 +240,7 @@ bool Move::insForbiddenRule1 (const Move &move_e) const {
         M_e (Nid_e , fromTruck_e, fromPos_e, toTruck_e, toPos_e)
 
   True when:
-        ( fromTruck_e = toTruck_t  \and toTruck_e = fromTruck_t 
+        ( fromTruck_e = toTruck_t  and toTruck_e = fromTruck_t 
 
   Example:
   (A, T1,i  T2,j)   is (*this) tabued  move
@@ -264,7 +264,7 @@ bool Move::insForbiddenRule2(const Move &move_e) const {
         M_e (Nid_e , fromTruck_e, fromPos_e, toTruck_e, toPos_e)
 
   True when:
-        ( Nid_e = Nid_t  \and toTruck_e = fromTruck_t 
+        ( Nid_e = Nid_t  and toTruck_e = fromTruck_t 
 
   Example:
   (A, T1,i  T2,j)   is (*this) tabued move

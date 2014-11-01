@@ -34,7 +34,6 @@
 #include "tabuopt.h"
 
 
-
 void Usage() {
     std::cout << "Usage: trash file (no extension)\n";
 }
