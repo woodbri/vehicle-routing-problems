@@ -31,7 +31,7 @@
 #include "trashnode.h"
 #include "twpath.h"
 #include "feasableSolLoop.h"
-#include "tabusearch.h"
+#include "tabuopt.h"
 
 
 
@@ -67,6 +67,7 @@ int main(int argc, char **argv) {
         std::cout << "FeasableSol time: " << starttime.duration() << std::endl;
         STATS->set("zzFeasableSol time", starttime.duration());
 
+        tp.setInitialValues();
         tp.computeCosts();
         STATS->set("zInitial cost", tp.getCost());
         STATS->set("yNode count", tp.getNodeCount());
@@ -74,7 +75,7 @@ int main(int argc, char **argv) {
 
         Timer searchtime;
 
-        TabuSearch ts(tp);
+        TabuOpt ts(tp);
         ts.setMaxIteration(1000);
         ts.search();
 
