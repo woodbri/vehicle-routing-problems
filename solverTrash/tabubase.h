@@ -93,26 +93,27 @@ class TabuBase  {
         srand(37);
     };
 
-    void setCurentAsBest() {
+    void setCurrentAsBest() {
+//bestSolution.dump();
+//bestSolution.dumpCostValues();
 	bestSolution=currentSolution;
     	bestSolutionCost=currentCost;
      	bestIterationIns=currentIterationIns;
      	bestIterationIntraSw=currentIterationIntraSw;
      	bestIterationInterSw=currentIterationInterSw;
         bestTabuList=TabuList;
+//bestSolution.dump();
+//bestSolution.dumpCostValues();
+//assert (true==false);
     };
 
     void setBestAsCurrent() {
         currentSolution=bestSolution;
         currentCost=bestSolutionCost;
-std::cout<<"currentIterationIns"<<currentIterationIns<<"\n";
-std::cout<<"bestIterationIns"<<bestIterationIns<<"\n";
         currentIterationIns=bestIterationIns;
         currentIterationIntraSw=bestIterationIntraSw;
         currentIterationInterSw=bestIterationInterSw;
         TabuList=bestTabuList;
-std::cout<<"currentIterationIns"<<currentIterationIns<<"\n";
-std::cout<<"bestIterationIns"<<bestIterationIns<<"\n";
 
     };
 
@@ -222,8 +223,6 @@ bool isTabu(const Move& m) const {
              ) continue;
         if (it->first.getmtype() != m.getmtype() ) continue;
         if (m.isForbidden(it->first)) {
-m.Dump();
-it->first.Dump();
 	    assert (myTabu==true);
             STATS->inc("tabu Moves Checked Tabu");
             return true;
