@@ -515,11 +515,17 @@ class TwBucket {
         return node.distanceToSegment( path[pos], path[pos + 1] );
     }
 
+    /*! \fn void swap( UID i, UID j )
+     * \brief Swap nodes in position i and j in the path
+     */
+    void swap( UID i, UID j ) {
+        std::iter_swap( this->path.begin() + i, this->path.begin() + j );
+    }
+
     /*! \fn
      * \brief
      *
      */
-    void swap( UID i, UID j ) { std::iter_swap( this->path.begin() + i, this->path.begin() + j );}
     bool swap( UID i, TwBucket<knode> &rhs, UID j ) {
         assert ( i < size() and j < rhs.size() );
         std::iter_swap( path.begin() + i, rhs.path.begin() + j );
