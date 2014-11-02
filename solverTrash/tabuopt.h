@@ -59,6 +59,7 @@ bestSolution.tau();
     bool doNeighborhoodMoves(neighborMovesName whichNeighborhood, int maxCnt, std::deque<Move> &aspirationalTabu, std::deque<Move> &notTabu, std::deque<Move> &tabu);
     void getNeighborhood(neighborMovesName whichNeighborhood,std::deque<Move> &neighborhood,double factor) const;
     bool applyAspirationalTabu(std::deque<Move> &aspirationalTabu);
+    void compareCostWithOSRM(std::deque<Move> &neighborhood);
     bool classifyMoves(std::deque<Move> &neighborhood, std::deque<Move> &aspirationalTabu ,std::deque<Move> &notTabu,std::deque<Move> &tabu);
     bool applyAspirationalNotTabu(std::deque<Move> &neighborhood, std::deque<Move> &aspirationalTabu,std::deque<Move> &notTabu,std::deque<Move> &tabu);
     bool applyNonTabu (std::deque<Move> &moves);

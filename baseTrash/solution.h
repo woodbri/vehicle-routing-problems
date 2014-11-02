@@ -61,6 +61,10 @@ typedef  TwBucket<Trashnode> Bucket;
     int getFleetSize() const { return fleet.size(); };
     double getAverageRouteDurationLength();
 
+    Vehicle operator[](int pos) const {
+        return fleet[pos];
+    }
+
     Solution& operator=( const Solution& rhs ) {
         if ( this != &rhs ) {
             totalDistance = rhs.totalDistance;
