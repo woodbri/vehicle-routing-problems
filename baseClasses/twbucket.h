@@ -229,7 +229,7 @@ class TwBucket {
     }
 
 
-    /*! \fn double getDeltaTimeSwap(UID pos1, UID pos2) const
+    /*! \fn double getDeltaTimeSwap(POS pos1, POS pos2) const
      * \brief Compute the change in time when swapping nodes in pos1 and pos2
      *
      * Simulate swapping nodes in pos1 and pos2 in the path and compute
@@ -239,7 +239,7 @@ class TwBucket {
      * \param[in] pos2 Position of the other node to be swapped.
      * \return The delta time or infinity if if creates a path violation.
     */
-    double getDeltaTimeSwap( UID pos1, UID pos2 ) const {
+    double getDeltaTimeSwap( POS pos1, POS pos2 ) const {
         assert( pos1 < path.size() - 1 and pos2 < path.size() );
         #ifdef TESTED
         std::cout << "Entering twBucket::getDeltaTimeSwap() \n";
@@ -333,7 +333,7 @@ class TwBucket {
     }
 
 
-    /*! \fn double getDeltaTime(const knode &node, UID pos , UID pos1) const
+    /*! \fn double getDeltaTime(const knode &node, POS pos , POS pos1) const
      * \brief Compute the cange in time when swapping node with the node at pos
      *
      * If the current path looks like prev -\> pos -\> pos1 then compute the
@@ -345,7 +345,7 @@ class TwBucket {
      * \param[in] pos1 The next node following pos.
      * \return The change in cost or infinity if a TWV would be generated.
      */
-    double getDeltaTime( const knode &node, UID pos , UID pos1 ) const {
+    double getDeltaTime( const knode &node, POS pos , POS pos1 ) const {
         assert( pos1 <= path.size() );
         assert( pos > 0 and pos1 == ( pos + 1 ) );
 
@@ -374,7 +374,7 @@ class TwBucket {
         return delta;
     }
 
-    /*! \fn double getDeltaTimeTVcheck(const knode &node, UID pos, UID pos1) const
+    /*! \fn double getDeltaTimeTVcheck(const knode &node, POS pos, POS pos1) const
      * \brief Compute the change in time when swapping node into pos in the path and do additional time violation checks.
      *
      * If the current path looks like prev -\> pos -\> pos1 then compute the
@@ -386,7 +386,7 @@ class TwBucket {
      * \param[in] pos1 The next node following pos.
      * \return The change in cost or infinity if a TWV would be generated.
      */
-    double getDeltaTimeTVcheck( const knode &node, UID pos, UID pos1 ) const {
+    double getDeltaTimeTVcheck( const knode &node, POS pos, POS pos1 ) const {
         assert( pos1 <= path.size() );
         assert( pos > 0 and pos1 == ( pos + 1 ) );
 
@@ -404,7 +404,7 @@ class TwBucket {
     }
 
 
-    /*! \fn double getDeltaTime(const knode &node, UID pos) const
+    /*! \fn double getDeltaTime(const knode &node, POS pos) const
      * \brief Compute the change in time of inserting node before pos in the path.
      *
      * Simulate inserting node before pos in the path and compute the resulting
@@ -414,7 +414,7 @@ class TwBucket {
      * \param[in] pos The position before which the node will be inserted.
      * \return The change in travel time or infinity if the move is invalid.
      */
-    double  getDeltaTime( const knode &node, UID pos ) const {
+    double  getDeltaTime( const knode &node, POS pos ) const {
         assert( pos < path.size() );
 
         if ( pos == 0 or path[pos].isdepot() ) return _MAX();
@@ -432,7 +432,7 @@ class TwBucket {
     }
 
 
-    /*! \fn double getDeltaTimeTVcheck(const knode &node, UID pos) const
+    /*! \fn double getDeltaTimeTVcheck(const knode &node, POS pos) const
      * \brief Compute the change in time of inserting node before pos in the path and check for TW violations..
      *
      * Simulate inserting node before pos in the path and compute the resulting
@@ -442,7 +442,7 @@ class TwBucket {
      * \param[in] pos The position before which the node will be inserted.
      * \return The change in travel time or infinity if the move is invalid.
      */
-    double  getDeltaTimeTVcheck( const knode &node, UID pos ) const {
+    double  getDeltaTimeTVcheck( const knode &node, POS pos ) const {
         assert( pos <= path.size() );
         assert( pos > 0 );
 
@@ -462,7 +462,7 @@ class TwBucket {
     }
 
 
-    /*! \fn bool deltaGeneratesTVupTo(double delta, UID pos, UID upto) const
+    /*! \fn bool deltaGeneratesTVupTo(double delta, POS pos, POS upto) const
      * \brief Check all nodes from pos to upto if adding delta would cause a violation.
      *
      * \param[in] delta The change in time to evaluate.
@@ -470,7 +470,7 @@ class TwBucket {
      * \param[in] upto The position to stop evaluating.
      * \return true if delta would generate a time violation.
      */
-    bool deltaGeneratesTVupTo( double delta, UID pos, UID upto ) const {
+    bool deltaGeneratesTVupTo( double delta, POS pos, POS upto ) const {
         assert( pos < path.size() and upto < size() and pos <= upto );
         bool flag = false;
 
@@ -484,14 +484,14 @@ class TwBucket {
         return flag;
     }
 
-    /*! \fn bool deltaGeneratesTV(double delta, UID pos) const
+    /*! \fn bool deltaGeneratesTV(double delta, POS pos) const
      * \brief Check all nodes forward from pos if adding delta would cause a violation.
      *
      * \param[in] delta The change in time to evaluate.
      * \param[in] pos The position to start evaluating.
      * \return true if delta would generate a time violation.
      */
-    bool deltaGeneratesTV( double delta, UID pos ) const {
+    bool deltaGeneratesTV( double delta, POS pos ) const {
         if ( pos < size() )
             return  deltaGeneratesTVupTo( delta, pos, size() - 1 );
         else
@@ -501,7 +501,7 @@ class TwBucket {
 
     // ---------------- other tools ----------------------------------
 
-    /*! \fn double segmentDistanceToPoint(UID i, const knode& n) const
+    /*! \fn double segmentDistanceToPoint(POS pos, const knode& n) const
      * \brief Compute the shortest distance from a line segment to a node.
      *
      *
@@ -510,31 +510,43 @@ class TwBucket {
      * \param[in] node The node to compute the distance to.
      * \return The shortest distance from node to line segment.
      */
-    double segmentDistanceToPoint( UID pos, const knode &node ) const {
+    double segmentDistanceToPoint( POS pos, const knode &node ) const {
         assert( pos + 1 < path.size() );
         return node.distanceToSegment( path[pos], path[pos + 1] );
     }
 
-    /*! \fn void swap( UID i, UID j )
+    /*! \fn void swap( POS i, POS j )
      * \brief Swap nodes in position i and j in the path
+     * \param[in] i First node position to swap.
+     * \param[in] j Second node position to swap.
      */
-    void swap( UID i, UID j ) {
+    void swap( POS i, POS j ) {
         std::iter_swap( this->path.begin() + i, this->path.begin() + j );
     }
 
-    /*! \fn
-     * \brief
+    /*! \fn bool swap( POS t1_pos, TwBucket<knode> &truck2, POS t2_pos )
+     * \brief Swap nodes between two paths.
      *
+     * Swap nodes nodes between two paths, like
+     * - truck.swap( t1_pos, truck2, t2_pos );
+     *
+     * The node in position t1_pos of truck1 will be swapped with the node
+     * in position t2_pos of truck2.
+     *
+     * \param[in] t1_pos Position of node in truck1
+     * \param[in] truck2 Truck2, a \ref TwBucket
+     * \param[in] t2_pos Position of node in truck2
+     * \return true
      */
-    bool swap( UID i, TwBucket<knode> &rhs, UID j ) {
-        assert ( i < size() and j < rhs.size() );
-        std::iter_swap( path.begin() + i, rhs.path.begin() + j );
+    bool swap( POS t1_pos, TwBucket<knode> &truck2, POS t2_pos ) {
+        assert ( t1_pos < size() and t2_pos < truck2.size() );
+        std::iter_swap( path.begin() + t1_pos, truck2.path.begin() + t2_pos );
         return true;
     }
 
 
-    /*! \fn
-     * \brief
+    /*! \fn void move( int fromi, int toj )
+     * \brief Move node fromi to the new position of toj in this TwBucket
      *
      */
     void move( int fromi, int toj ) {
