@@ -222,6 +222,8 @@ bool isTabu(const Move& m) const {
              ) continue;
         if (it->first.getmtype() != m.getmtype() ) continue;
         if (m.isForbidden(it->first)) {
+m.Dump();
+it->first.Dump();
 	    assert (myTabu==true);
             STATS->inc("tabu Moves Checked Tabu");
             return true;
@@ -248,7 +250,7 @@ bool v_isTabu(const Move &move_e) const {
              or (tabu.getmtype()==Move::InterSw and expires < currentIterationInterSw)
              ) continue;
 
-        if (tabu.isTabu(move_e,5)) {
+        if (tabu.isTabu(move_e,6)) {
             STATS->inc("tabu Moves resulted");
             return true;
         }
