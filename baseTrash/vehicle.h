@@ -125,9 +125,9 @@ class Vehicle: public BaseVehicle {
         double v_cost,workNotDonePerc;
         double getCost() const { return v_cost;};	
         double getCost(const TWC<Trashnode> &twc) {setCost(twc);  return v_cost;};	
-	int getz1() {return realz1;};
-	int getz2() {return realz2;};
-	int getn() {return n;};
+	int getz1() const  {return realz1;};
+	int getz2() const {return realz2;};
+	int getn() const {return n;};
 
         void setInitialValues( const Trashnode &node,const TWC<Trashnode> &twc, const Bucket &picks){
 

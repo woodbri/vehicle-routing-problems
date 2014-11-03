@@ -237,17 +237,14 @@ assert (feasable());
 #ifndef TESTED
 std::cout<<"\n\n\n\n**********************************working with truck "<<fromTruck<<" and "<< toTruck<<" insSw neighborhood\n";
 #endif
-    // iterate through the vechicles (vi, vj)
-//    for (int fromTruck=0; fromTruck<fleet.size(); fromTruck++) {
-//        for (int toTruck=0; toTruck<fleet.size(); toTruck++) {
+    if (fleet[toTruck].getz1() or fleet[toTruck].getz2()) { //only try if there is a possibility to insert a container
 
-  //          if (fromTruck==toTruck) continue;
           for (int fromPos=1; fromPos<fleet[fromTruck].size(); fromPos++) {
 		if(fleet[fromTruck][fromPos].isdump()) continue;   // skiping dump
         	if (fleet[ fromTruck ].size()==1) {
 			std::cout<<" A TRUCK WITHOUT CONTAINERS HAS BEING GENERATED";
-        		//trucks.push_back(fleet[ fromPos   ]);
-        		//fleet.erase(fleet.begin() + fromPos ); 
+        		//trucks.push_back(fleet[ fromTruck   ]);
+        		//fleet.erase(fleet.begin() + fromTruck ); 
 			interTruckPos1=insTruckPos1=fleet.size()-2;
 			interTruckPos2=insTruckPos2=0;
 			return;
@@ -256,19 +253,13 @@ std::cout<<"\n\n\n\n**********************************working with truck "<<from
 		//fleet[fromTruck].eval_erase(fromPos,savings,twc);
                 fleet[toTruck].eval_insertMoveDumps( fleet[fromTruck][fromPos], moves, fromTruck, fromPos, toTruck, savings, factor ,twc);
           }
-    //if (not moves.size())  {
+    }
     	insTruckPos2++;
     	if (insTruckPos1 == insTruckPos2) insTruckPos2++;
     	if (insTruckPos2 == fleet.size()) {insTruckPos1++; insTruckPos2=0;};
     	if (insTruckPos1 == fleet.size()) {insTruckPos1=0; insTruckPos2=1;};
 	assert(insTruckPos1 != insTruckPos2);
-    //}
-//        if (count>4) return;
-//	for (int i=0;i<moves.size();i++) 
-//		if (moves[i].getsavings()> (-count/20)) return;
-//        v_getInsNeighborhood( moves, factor+0.1,count+1);
-       // }
-    //}
+
 #ifdef TESTED
 std::cout<<"EXIT OptSol::v_getInsNeighborhood "<<moves.size()<<" MOVES found total \n";
 #endif
