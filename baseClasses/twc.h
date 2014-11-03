@@ -28,11 +28,28 @@
 #include "twpath.h"
 #include "pg_types_vrp.h"
 
-
+/*! \class TWC
+ * \brief Class TWC (Time Window Compatibility) provides tools for working with Twpath objects.
+ *
+ * Time windows on node can be narrow or wide. There is a lot of analysis and
+ * complexity and evaulating and manipulating node in a path when you need to
+ * consider time windows. When all time windows are infinitely wide then there
+ * are no time wondow constraints bacause any node can be place anywhere in
+ * the path without creating a time window violation. Conversely, the narrower
+ * the time windows the mode constrained the problem becomes.
+ *
+ * This class provides tools for manipulating and analysis of paths with
+ * respect to issues of time window compatibility.
+ *
+ * Many of the ideas in this class are taken from the paper "A sequential
+ * insertion heuristic for the initial solution to a constrained vehicle
+ * routing problem" by JW Joubert and SJ Claasen, 2004.
+ */
 template <class knode> class TWC {
   private:
     typedef TwBucket<knode> Bucket;
     typedef unsigned long int UID;
+    typedef unsigned long int POS;
 
 
     static TwBucket<knode> original;
@@ -43,13 +60,32 @@ template <class knode> class TWC {
     inline double _MAX() const { return std::numeric_limits<double>::max();};
 
 
-
-
   public:
 
-    // major tools
+    // -------------------  major tools  ----------------------------
+
+    /*!
+     * \brief Searches a bucket of unassigned nodes for one that is nearest to the exist path and compatible with time windows.
+     *
+     * For each node in the unassigned bucket, check the time window
+     * compatibility for each existing node in the path can compute the 
+     * shortest distance to that node. We save the node, position and
+     * distance for the node with the shortest distance and return them.
+     *
+     * The best node is returned if found, but it is not removed from 
+     * the unassigned bucket and it is not added to the truck.
+     *
+     * \param[in] truck The truck that we want to find the best node for.
+     * \param[in] unassigned The bucket of unassined nodes to look through.
+     * \param[out] pos The position in the truck to insert the best node.
+     * \param[out] bestNode The best node from the unassigned bucket.
+     * \param[out] bestDist The distance to the segment for the best node.
+     * \return True if it found a compatible node, False otherwise.
+     */
     bool  findNearestNodeTo( const TwBucket<knode> &truck,
-                             const  TwBucket<knode> &unassigned,  UID &pos, knode &bestNode,
+                             const  TwBucket<knode> &unassigned,
+                             POS &pos,
+                             knode &bestNode,
                              double &bestDist ) const {
         assert( unassigned.size() );
         int flag = false;
@@ -77,8 +113,22 @@ template <class knode> class TWC {
     }
 
 
-
-
+    /*!
+     * \brief Select all nodes in a bucket from which you can not reach node to.
+     *
+     * Given a bucket of nodes, return all the nodes from which you can not
+     * reach a given node because of time window compatibility.
+     *
+     * For example, if a node has a time window closes at 0800 then that node
+     * is unreachable from all nodes that have a time window that opens after
+     * that time. There are also other factors to consider like travel time
+     * between nodes, waiting time for early arrival, and service times at
+     * nodes.
+     *
+     * \param[in] nodes The source nodes from which we want to get to node \b to.
+     * \param[in] to The target node id we are trying to get to.
+     * \return A bucket of nodes from which you are unable to reach node to.
+     */
     TwBucket<knode> getUnreachable( const TwBucket<knode> &nodes, UID to ) const {
         assert( to < original.size() );
         Bucket unreachable;
@@ -90,6 +140,16 @@ template <class knode> class TWC {
         return unreachable;
     }
 
+    /*!
+     * \brief Select all nodes in a bucket that are not reachable from the given node.
+     *
+     * Given a bucket of nodes, return all the nodes that are not reachable
+     * from the input node because of time window violations.
+     *
+     * \param[in] from The source node id that we want to leave from to get to nodes in the bucket.
+     * \param[in] nodes The bucket of nodes we want to get to.
+     * \return A bucket of nodes that are not reachable from \b from
+     */
     TwBucket<knode> getUnreachable( UID from, const TwBucket<knode> &nodes ) const {
         assert( from < original.size() );
         Bucket unreachable;
@@ -101,6 +161,16 @@ template <class knode> class TWC {
         return unreachable;
     }
 
+    /*!
+     * \brief Select all nodes in a bucket from which we can reach node id \b to
+     *
+     * Given a bucket of nodes, return all the nodes from which we can reach
+     * node is \b to without createing time window violations.
+     *
+     * \param[in] nodes The bucket of nodes we want to test if we can get to node id \b to
+     * \param[in] to The target node id we want to get to.
+     * \return A bucket of nodes from which we can get to node id \b to
+     */
     TwBucket<knode> getReachable( const TwBucket<knode> &nodes, UID to ) const {
         assert( to < original.size() );
         Bucket reachable;
@@ -112,18 +182,31 @@ template <class knode> class TWC {
         return reachable;
     }
 
+    /*!
+     * \brief Select all the nodes in the bucket that we can get to from node id \b from
+     *
+     * Given a source node id and a bucket of nodes, return all the nodes in
+     * the bucket that are directly reachable from node id \b from.
+     *
+     * \param[in] from The node id for the source node.
+     * \param[in] nodes A bucket of potential target nodes.
+     * \return A bucket of nodes that are reachable from node if \b from
+     */
     TwBucket<knode> getReachable( UID from, const TwBucket<knode> &nodes ) const {
         assert( from < original.size() );
         Bucket reachable;
 
         for ( int i = 0; i < nodes.size(); i++ )
-            if ( iReachableIJ( from, nodes[i].getnid() ) )
+            if ( isReachableIJ( from, nodes[i].getnid() ) )
                 reachable.push_back( nodes[i] );
 
         return reachable;
     }
 
-
+    /*
+     * \brief 
+     *
+     */
     TwBucket<knode> getIncompatible( const TwBucket<knode> &nodes, UID to ) const {
         assert( to < original.size() );
         Bucket incompatible;
@@ -200,7 +283,7 @@ template <class knode> class TWC {
         return not ( twcij[fromNid][toNid]  == _MIN() );
     }
 
-    bool isiReachableIJ( UID fromNid, UID toNid ) const {
+    bool isReachableIJ( UID fromNid, UID toNid ) const {
         assert( fromNid < original.size() and toNid < original.size() );
         return not ( travel_Time[fromNid][toNid]  == _MIN() );
     }
