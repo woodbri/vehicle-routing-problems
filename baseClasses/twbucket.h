@@ -779,7 +779,17 @@ class TwBucket {
         return *this;
     }
 
-    // DIFERENCE
+    /*! \fn TwBucket<knode> operator -( const TwBucket<knode> &other ) const
+     * \brief Perform a set DIFFERENCE operation of this and another bucket.
+     *
+     * If A, B, and newBucket are TwBuckets then newBucket = A - B performs
+     * a set difference of A minus B.
+     *
+     * \warning Set difference does not preserve order of node.
+     *
+     * \param[in] other The other bucket to operate on.
+     * \return The set difference of two buckets.
+     */
     TwBucket<knode> operator -( const TwBucket<knode> &other ) const  {
         std::set<knode, compNode> s1;
         std::set<knode, compNode> s2;
@@ -793,6 +803,17 @@ class TwBucket {
         return b;
     }
 
+    /*! \fn TwBucket<knode> operator -=( const TwBucket<knode> &other )
+     * \brief Perform a set DIFFERENCE operation of this and another bucket.
+     *
+     * If A and B are TwBuckets then A -= B performs
+     * a set difference of A minus B on bucket A.
+     *
+     * \warning Set difference does not preserve order of node.
+     *
+     * \param[in] other The other bucket to operate on.
+     * \return The set difference of two buckets.
+     */
     TwBucket<knode> &operator -=( const TwBucket<knode> &other )  {
         std::set<knode, compNode> s1;
         std::set<knode, compNode> s2;
@@ -806,50 +827,131 @@ class TwBucket {
         return *this;
     }
 
-    //Last node on path data retreival
+    // -------------------- End of Path Tools ----------------------------
+
+    /*! \fn double getTotTravelTime() const
+     * \brief Get the total travel time of the path.
+     *
+     * The last node in the path contains some path statistics. This method
+     * fetches the total tavel time from start to end of path.
+     *
+     * \return The total travel time of the path.
+     * \sa Vehicle::getCost(), Vehicle::getCostOSRM()
+     */
     double getTotTravelTime() const {
         assert ( size() );
         return path[size() - 1].getTotTravelTime();
     };
 
+    /*! \fn double getTotWaitTime() const
+     * \brief Get the total wait time of the path.
+     *
+     * The last node in the path contains some path statistics. This method
+     * fetches the total wait time from start to end of path.
+     *
+     * \return The total wait time of the path.
+     */
     double getTotWaitTime() const {
         assert ( size() );
         return path[size() - 1].getTotWaitTime();
     };
 
+    /*! \fn double getTotServiceTime() const
+     * \brief Get the total service time of the path based on the last node in the path.
+     *
+     * The last node in the path contains some path statistics. This method
+     * fetches the total service time from start to end of path.
+     *
+     * \return The total service time of the path.
+     */
     double getTotServiceTime() const {
         assert ( size() );
         return path[size() - 1].getTotServiceTime();
     };
 
+    /*! \fn double getDumpVisits() const
+     * \brief Get the total number of dump visits of the path.
+     *
+     * The last node in the path contains some path statistics. This method
+     * fetches the total number of dump visits from start to end of path.
+     *
+     * \return The total number of dump visits of the path.
+     */
     double getDumpVisits() const {
         assert ( size() );
         return path[size() - 1].getDumpVisits();
     };
 
+    /*! \fn double getDepartureTime() const
+     * \brief Get the departure time of the last node in the path.
+     *
+     * The last node in the path contains some path statistics. This method
+     * fetches the departure time of the last node in the path.
+     *
+     * \return The departure time of the last node in the path.
+     */
     double getDepartureTime() const {
         assert ( size() );
         return path[size() - 1].getDepartureTime();
     };
 
+    /*! \fn int getTwvTot() const
+     * \brief Get the total number of time window violations in the path.
+     *
+     * The last node in the path contains some path statistics. This method
+     * fetches the total number of time window violations in the path.
+     *
+     * \return The total number of time window violations in the path.
+     */
     int getTwvTot() const {
         assert ( size() );
         return path[size() - 1].gettwvTot();
     };
 
+    /*! \fn int getCvTot() const
+     * \brief Get the total number of capacity violations in the path.
+     *
+     * The last node in the path contains some path statistics. This method
+     * fetches the total number of capacity violations in the path.
+     *
+     * The smart evaluation function will always have zero capacity violations
+     * because they automaticially place dump nodes as required to avoid
+     * capacity violations, but there are methods that do not do this so
+     * this method will report if they exist in the path.
+     *
+     * \return The total number of capacity violations in the path.
+     */
     int getCvTot() const {
         assert ( size() );
         return path[size() - 1].gettwvTot();
     };
 
+    /*! \fn double getTotCargo() const
+     * \brief Get the total cargo at the end of the route.
+     *
+     * The last node in the path contains some path statistics. This method
+     * fetches the total cargo at the end of the route.
+     *
+     * The smart evaluation function will always end the path with a final
+     * run to the dump to unload any cargo in the vehicle, but there are
+     * methods that do not do this so this method will report if there is
+     * cargo at the end of the path.
+     *
+     * \return The total cargo at the end of the route..
+     */
     double getTotCargo() const {
         assert ( size() );
         return path[size() - 1].getcargo();
     };
 
 
-    //  ID based tools  to NID tools
+    // ---------- ID based tools  to NID tools ---------------------------
 
+    /*! \fn long int getNidFromId( UID id ) const
+     * \brief Get the internal node id associated with the user id.
+     * \param[in] id The user id for the node.
+     * \return The internal node id or -1 if user id was not found.
+     */
     long int getNidFromId( UID id ) const {
         const_reverse_iterator rit = path.rbegin();
 
@@ -863,6 +965,11 @@ class TwBucket {
     };
 
 
+    /*! \fn long int posFromId( UID id ) const
+     * \brief Get the position in the path where id is located.
+     * \param[in] id The user id for the node.
+     * \return The position in the path or -1 if it is not found.
+     */
     long int posFromId( UID id ) const {
         for ( const_iterator it = path.begin(); it != path.end() ; it++ ) {
             if ( it->getid() == id ) return int( it - path.begin() );
@@ -872,8 +979,20 @@ class TwBucket {
     };
 
 
-    //  NID tools
+    // ------------------  NID tools  -------------------------------
+
+    /*! \fn long int pos( const knode &node ) const
+     * \brief Get the position of node in the path
+     * \param[in] node A node object that we want to locate in the path
+     * \return returns the position of node in the path or -1 if it's not found.
+     */
     long int pos( const knode &node ) const { return pos( node.getnid() ); };
+
+    /*! \fn long int pos( UID nid ) const
+     * \brief Get the position of node id in the path
+     * \param[in] nid The node id we want to locate in the path
+     * \return The position of node id in the path or -1 if it's not found.
+     */
     long int pos( UID nid ) const {
         for ( const_iterator it = path.begin(); it != path.end() ; it++ ) {
             if ( it->getnid() == nid ) return int( it - path.begin() );
@@ -882,6 +1001,11 @@ class TwBucket {
         return -1;
     };
 
+
+    /*! \fn std::deque<int> getpath() const
+     * \brief Get a deque of nids that are in the path.
+     * \return A deque of the nids in the path.
+     */
     std::deque<int> getpath() const {
         std::deque<int> p;
 
@@ -892,22 +1016,46 @@ class TwBucket {
     };
 
 
-    // deque like functions   POSITION based functions
+    // ------ deque like functions   POSITION based functions  -------
 
-    void insert( const knode &n, UID atPos ) {
+    /*! \fn void insert( const knode &node, UID atPos )
+     * \brief Insert node into path at position atPos
+     * \param[in] node The node to insert
+     * \param[in] atPos The position it should be inserted at
+     */
+    void insert( const knode &node, UID atPos ) {
         assert( atPos <= path.size() );
-        path.insert( path.begin() + atPos, n );
+        path.insert( path.begin() + atPos, node );
     };
+
+
+    /*! \fn void erase ( int atPos )
+     * \brief Erase the node at location atPos
+     * \param[in] atPos The position of the node to be erased.
+     */
     void erase ( int atPos ) {
         assert( atPos < path.size() );
         path.erase( path.begin() + atPos );
     };
+
+
+    /* \fn void erase ( const knode &node )
+     * \brief Erase node from within the path.
+     * \param[in] node The node to be erased.
+     */
     void erase ( const knode &node ) {
         int atPos = pos( node.getnid() );
         assert( atPos < path.size() );
         path.erase( path.begin() + atPos );
     };
 
+
+    /*! \fn void erase ( int fromPos, int toPos )
+     * \brief Erase all node between fromPos and toPos inclusive.
+     * \param[in] fromPos Position of the start of the range to be erased.
+     * \param[in] toPos Position of the last in the range to be erased.
+     * \warning If fromPos and toPos are reversed it will still erase the range.
+     */
     void erase ( int fromPos, int toPos ) {
         assert( fromPos < path.size() );
         assert( toPos < path.size() );
