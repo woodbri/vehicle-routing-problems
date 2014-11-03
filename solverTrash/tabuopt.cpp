@@ -362,9 +362,13 @@ void TabuOpt::compareCostWithOSRM(std::deque<Move> &neighborhood) {
         OptSol current=currentSolution;
         current.v_applyMove(*it);
         bool removedTruck = computeCosts(current);
-        double newCost = current.getCost();
-        std::cout << "currentSolution cost: " << currentSolution.getCost() << std::endl;
-        std::cout << "Applied move Sol cost: " << newCost << std::endl;
+        double newCost = current.getcost();
+        std::cout << "currentSolution cost: " << currentSolution.getcost()
+                  << " ( " << currentSolution.getCost() << " )"
+                  << std::endl;
+        std::cout << "Applied move Sol cost: " << newCost
+                  << " ( " << current.getCost() << " )"
+                  << std::endl;
         std::cout << "         \tbefore\t\tafter\t\tbefore\t\tafter\n";
         std::cout << "         \tcost  \t\tcost \t\tosrm  \t\tosrm\n";
         switch (it->getmtype()) {
@@ -373,12 +377,12 @@ void TabuOpt::compareCostWithOSRM(std::deque<Move> &neighborhood) {
                 truckTo   = currentSolution[it->getInsToTruck()];
                 truckFromAfter = current[it->getInsFromTruck()];
                 truckToAfter   = current[it->getInsToTruck()];
-                c_truckFrom       = truckFrom.getCost();
-                c_truckTo         = truckTo.getCost();
+                c_truckFrom       = truckFrom.getcost();
+                c_truckTo         = truckTo.getcost();
                 co_truckFrom      = truckFrom.getCostOSRM();
                 co_truckTo        = truckTo.getCostOSRM();
-                c_truckFromAfter  = truckFromAfter.getCost();
-                c_truckToAfter    = truckToAfter.getCost();
+                c_truckFromAfter  = truckFromAfter.getcost();
+                c_truckToAfter    = truckToAfter.getcost();
                 co_truckFromAfter = truckFromAfter.getCostOSRM();
                 co_truckToAfter   = truckToAfter.getCostOSRM();
                 std::cout << "truckFrom\t" << c_truckFrom
@@ -399,9 +403,9 @@ void TabuOpt::compareCostWithOSRM(std::deque<Move> &neighborhood) {
             case Move::IntraSw:
                 truck1      = currentSolution[it->getIntraSwTruck()];
                 truck1After = current[it->getIntraSwTruck()];
-                c_truck1       = truck1.getCost();
+                c_truck1       = truck1.getcost();
                 co_truck1      = truck1.getCostOSRM();
-                c_truck1After  = truck1After.getCost();
+                c_truck1After  = truck1After.getcost();
                 co_truck1After = truck1After.getCostOSRM();
                 std::cout << "truck1\t" << c_truck1
                           << "\t" << c_truck1After
@@ -417,12 +421,12 @@ void TabuOpt::compareCostWithOSRM(std::deque<Move> &neighborhood) {
                 truck2 = currentSolution[it->getInterSwTruck2()];
                 truck1After = current[it->getInterSwTruck1()];
                 truck2After = current[it->getInterSwTruck2()];
-                c_truck1       = truck1.getCost();
-                c_truck2       = truck2.getCost();
+                c_truck1       = truck1.getcost();
+                c_truck2       = truck2.getcost();
                 co_truck1      = truck1.getCostOSRM();
                 co_truck2      = truck2.getCostOSRM();
-                c_truck1After  = truck1After.getCost();
-                c_truck2After  = truck2After.getCost();
+                c_truck1After  = truck1After.getcost();
+                c_truck2After  = truck2After.getcost();
                 co_truck1After = truck1After.getCostOSRM();
                 co_truck2After = truck2After.getCostOSRM();
                 std::cout << "truck1\t" << c_truck1
