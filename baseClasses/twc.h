@@ -1323,10 +1323,11 @@ template <class knode> class TWC {
      */
     bool check_integrity() const {
         assert ( original.size() == twcij.size() );
+        if ( original.size() != twcij.size() ) return false;
 
         for ( int i = 0; i < original.size(); i++ ) {
             assert ( twcij[i].size() == original.size() );
-            return false;
+            if ( twcij[i].size() != original.size() ) return false;
         }
 
         return true;
