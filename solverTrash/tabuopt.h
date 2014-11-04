@@ -56,21 +56,21 @@ bestSolution.tau();
     void optimizeTruckNumber();
 
     void search();
-    bool doNeighborhoodMoves(neighborMovesName whichNeighborhood, int maxCnt, std::deque<Move> &aspirationalTabu, std::deque<Move> &notTabu, std::deque<Move> &tabu);
-    void getNeighborhood(neighborMovesName whichNeighborhood,std::deque<Move> &neighborhood,double factor) const;
-    bool applyAspirationalTabu(std::deque<Move> &aspirationalTabu);
-    void compareCostWithOSRM(std::deque<Move> &neighborhood);
-    bool classifyMoves(std::deque<Move> &neighborhood, std::deque<Move> &aspirationalTabu ,std::deque<Move> &notTabu,std::deque<Move> &tabu);
-    bool applyAspirationalNotTabu(std::deque<Move> &neighborhood, std::deque<Move> &aspirationalTabu,std::deque<Move> &notTabu,std::deque<Move> &tabu);
-    bool applyNonTabu (std::deque<Move> &moves);
+    bool doNeighborhoodMoves(neighborMovesName whichNeighborhood, int maxCnt);
+    void getNeighborhood(neighborMovesName whichNeighborhood,Moves &neighborhood,double factor) const;
+    bool applyAspirationalTabu(Moves &aspirationalTabu);
+    bool classifyMoves(Moves &neighborhood, Moves &aspirationalTabu ,Moves &notTabu,Moves &tabu);
+    bool applyNonTabu (Moves &moves);
     bool applyAmove (const Move &move);
     bool applyAspirationalNotTabu (const Move &move);
-    bool applyTabu (std::deque<Move> &moves);
-    bool applyTabu (std::deque<Move> &moves, int strategy);
+    bool applyTabu (Moves &moves);
+    bool applyTabu (Moves &moves, int strategy);
     bool computeCosts(OptSol &s) ;
     bool reachedMaxCycles(int,neighborMovesName);
-    bool dumpMoves(std::string str, std::deque<Move> moves) const ;
-
+    bool dumpMoves(std::string str, Moves moves) const ;
+#ifndef TESTED
+    void compareCostWithOSRM(Moves &neighborhood);
+#endif
     private:
 	int limitIntraSw;
 	int limitInterSw;

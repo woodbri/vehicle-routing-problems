@@ -43,6 +43,13 @@
  */
 class Move {
   public:
+    class compMove {
+      public:
+        bool operator()( const Move &move1, const Move &move2 ) const {
+            return ( Move::bySavings(move1,move2) );
+        }
+    };
+
 
     /*! \enum Mtype
      * Enumerated move type for Move

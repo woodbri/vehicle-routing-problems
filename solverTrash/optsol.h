@@ -18,6 +18,8 @@
 #include "move.h"
 
 class OptSol : public Solution {
+    typedef std::set<Move,Move::compMove> Moves;
+
 
 public:
 
@@ -29,10 +31,9 @@ OptSol(const Solution &solution): Solution(solution){
 	insTruckPos2=0;
  }; 
 
-    void v_getIntraSwNeighborhood(std::deque<Move>& moves, double factor) const;
-    void v_getInsNeighborhood(std::deque<Move>& moves,double factor) const ;
-    void v_getInsNeighborhood(std::deque<Move>& moves,double factor, int count) const;
-    void v_getInterSwNeighborhood(std::deque<Move>& moves, double factor) const;
+    void v_getIntraSwNeighborhood(Moves &moves, double factor) const;
+    void v_getInsNeighborhood(Moves &moves,double factor) const ;
+    void v_getInterSwNeighborhood(Moves &moves, double factor) const;
 
     bool v_applyInsMove( const Move &move);
     void v_applyMove(const Move&);
@@ -47,6 +48,7 @@ private:
    mutable int interTruckPos2;
    mutable int insTruckPos1;
    mutable int insTruckPos2;
+
 
 };
 
