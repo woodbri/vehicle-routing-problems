@@ -17,7 +17,7 @@
 
 #include "node.h"
 
-/*! \fn double Node::distance(const Node &n) const
+/*!
  * \brief Compute the Haversine spherical distance between two nodes.
  *
  * Haversine spherical distance between two nodes with lat/lon values when
@@ -44,7 +44,7 @@ double Node::distance( const Node &n ) const {
 };
 
 
-/*! \fn void Node::set(int _nid, double _x, double _y)
+/*!
  * \brief Set attributes for this node.
  */
 void Node::set( int _nid, double _x, double _y ) {
@@ -53,7 +53,7 @@ void Node::set( int _nid, double _x, double _y ) {
     y = _y;
 };
 
-/*! \fn void Node::dump() const
+/*!
  * \brief Print the contents of this node.
  */
 void Node::dump() const {
@@ -65,32 +65,32 @@ void Node::dump() const {
 
 // Vector Operations
 
-/*! \fn Node  Node::operator+( const Node &v ) const
+/*!
  * \brief Create a new Node by performing vector addition.
  */
 Node  Node::operator+( const Node &v ) const { return Node( x + v.x, y + v.y ); };
 
-/*! \fn Node  Node::operator-( const Node &v ) const
+/*!
  * \brief Create a new Node by performing vector subtraction.
  */
 Node  Node::operator-( const Node &v ) const { return Node( x - v.x, y - v.y ); };
 
-/*! \fn Node  Node::operator*( double f ) const
+/*!
  * \brief Create a new Node by scaling and existing node by a factor \c f.
  */
 Node  Node::operator*( double f ) const { return Node( x * f, y * f ); };
 
-/*! \fn double Node::dotProduct( const Node &p ) const
+/*!
  * \brief Compute the vector dot product between two Nodes where the location is considered a vector.
  */
 double Node::dotProduct( const Node &p ) const { return x * p.x + y * p.y; };
 
-/*! \fn double Node::length() const
+/*!
  * \brief Compute the Euclidean length of a vector
  */
 double Node::length() const { return sqrt( x * x + y * y ); };
 
-/*! \fn double Node::gradient( const Node &p ) const
+/*!
  * \brief Compute the gradient or slope of a vector defined by the vector n->p
  * \bug This is not safe as it can generate a divide by zero
  * \todo This needs to be fixed to avoid divide by zero errors
@@ -101,13 +101,13 @@ double Node::gradient( const Node &p ) const {
     return  deltaY / deltaX;
 };
 
-/*! \fn double Node::distanceTo( const Node &p ) const
+/*!
  * \brief Compute the Euclidean distance between to Nodes.
  * \sa Node::length, Node::distance, Node::distanceToSquared
  */
 double Node::distanceTo( const Node &p ) const { return sqrt( distanceToSquared( p ) ); };
 
-/*! \fn double Node::distanceToSquared( const Node &p ) const
+/*!
  * \brief Compute the Euclidean distance squared between two Nodes.
  *
  * \sa Node::length, Node::distanceTo, Node::distance
@@ -119,7 +119,7 @@ double Node::distanceToSquared( const Node &p ) const {
     return dX * dX + dY * dY;
 };
 
-/*! \fn Node Node::unit() const
+/*!
  * \brief Create a new node where the location is a unit vector of the reference Node.
  */
 Node Node::unit() const {
@@ -132,7 +132,7 @@ Node Node::unit() const {
     return ( *this ) * scale;
 };
 
-/*! \fn double Node::distanceToSegment( const Node &v, const Node &w) const
+/*!
  * \brief Compute the shortest distance from a Node to a line segment from Node \c v to Node \c w
  */
 double Node::distanceToSegment( const Node &v, const Node &w ) const {
@@ -140,7 +140,7 @@ double Node::distanceToSegment( const Node &v, const Node &w ) const {
     return distanceToSegment( v, w, q );
 };
 
-/*! \fn double Node::distanceToSegment( const Node &v, const Node &w, Node &q ) const
+/*!
  * \brief Compute the shortest distance and Node \c q from a Node to a line segment from Node \c v to Node \c w
  */
 double Node::distanceToSegment( const Node &v, const Node &w, Node &q ) const {
@@ -177,7 +177,7 @@ double Node::distanceToSegment( const Node &v, const Node &w, Node &q ) const {
     return distanceTo( projection );
 }
 
-/*! \fn double Node::distanceToSegment( double segmentX1, double segmentY1, double segmentX2, double segmentY2, double &qX, double &qY ) const
+/*!
  * \brief Compute the shortest distance and Node \c q to a line segment defined by its x,y end points and return x,y position on the segment of the closest point.
  */
 double Node::distanceToSegment( double segmentX1, double segmentY1,
@@ -196,7 +196,7 @@ double Node::distanceToSegment( double segmentX1, double segmentY1,
 
 // Constructors
 
-/*! \fn Node::Node()
+/*!
  * \brief Construct a new Node that needs the user to set its attributes.
  */
 Node::Node() {
@@ -205,7 +205,7 @@ Node::Node() {
     y = 0.0;
 };
 
-/*! \fn Node::Node(double _x, double _y)
+/*!
  * \brief Construct a new Node and assign it \c x and \c y values.
  */
 Node::Node( double _x, double _y ) {
@@ -214,7 +214,7 @@ Node::Node( double _x, double _y ) {
     y = _y;
 };
 
-/*! \fn Node::Node(int _nid, double _x, double _y)
+/*!
  * \brief Construct a new Node and assign it \c nid, \c x and \c y values.
  */
 Node::Node( int _nid, double _x, double _y ) {
@@ -224,7 +224,7 @@ Node::Node( int _nid, double _x, double _y ) {
     y = _y;
 };
 
-/*! \fn Node::Node(int _nid, int _id , double _x, double _y)
+/*!
  * \brief Construct a new Node and assign it the associated values.
  */
 Node::Node( int _nid, int _id , double _x, double _y ) {
@@ -234,7 +234,7 @@ Node::Node( int _nid, int _id , double _x, double _y ) {
     y = _y;
 };
 
-/*! \fn Node::Node(std::string line)
+/*!
  * \brief Create a new Node by parsing a string.
  */
 Node::Node( std::string line ) {
