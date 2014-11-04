@@ -45,9 +45,9 @@ void TabuOpt::search() {
 std::cout<<"Entering TabuOpt::search() \n";
 #endif
 
-    std::deque<Move> aspirationalTabu;
-    std::deque<Move> nonTabu;
-    std::deque<Move> tabu;
+    //std::deque<Move> aspirationalTabu;
+    //std::deque<Move> nonTabu;
+    //std::deque<Move> tabu;
     currentIteration = 0;
     //maxIteration = 1;     // use ts.setMaxIteration(1) in trash.cpp
 
@@ -59,7 +59,7 @@ std::cout<<"Entering TabuOpt::search() \n";
         std::cout << "TABUSEARCH: Starting iteration: " << currentIteration << std::endl;
 
         // this is a token ring search
-        improvedBest  = doNeighborhoodMoves(Ins, limitIns*10, aspirationalTabu, nonTabu,tabu);
+        improvedBest  = doNeighborhoodMoves(Ins, limitIns*10);//, aspirationalTabu, nonTabu,tabu);
         //improvedBest |= doNeighborhoodMoves(InterSw, limitInterSw*5, aspirationalTabu, nonTabu, tabu);
         //improvedBest |= doNeighborhoodMoves(IntraSw, limitIntraSw*100, aspirationalTabu, nonTabu,tabu);
 
@@ -86,7 +86,7 @@ std::cout<<"Entering TabuOpt::search() \n";
 
 
 
-void TabuOpt::getNeighborhood( neighborMovesName whichNeighborhood, std::deque<Move> &neighborhood,double factor) const {
+void TabuOpt::getNeighborhood( neighborMovesName whichNeighborhood, Moves &neighborhood,double factor) const {
         neighborhood.clear();
 #ifdef TESTED
 std::cout<<"Entering TabuOpt::getNeighborhod() \n";
@@ -139,60 +139,61 @@ std::cout<<"\nAspirational non Tabu aplied ";move.Dump();
 	return true;
 }
 
-bool TabuOpt::applyAspirationalTabu(std::deque<Move> &moves) {
+bool TabuOpt::applyAspirationalTabu(Moves &moves) {
 #ifndef TESTED
 std::cout<<"Entering TabuOpt::applyAspirationalTabu \n";
 #endif
 	assert (moves.size());
 	if (not moves.size()) return false;
-        std::sort(moves.begin(), moves.end(), Move::bySavings); 
+        //std::sort(moves.begin(), moves.end(), Move::bySavings); 
 #ifndef TESTED
-std::cout<<"\nAspirational  Tabu aplied ";moves[0].Dump();
+std::cout<<"\nAspirational  Tabu aplied ";moves.begin()->Dump();
 #endif
-	applyAmove(moves[0]);
+	applyAmove( *(moves.begin()) );
         STATS->inc("cnt Aspirational Tabu");
 	moves.clear();
         return true;
 }
 
 
-bool TabuOpt::applyNonTabu (std::deque<Move> &moves) {
+bool TabuOpt::applyNonTabu (Moves &moves) {
 #ifndef TESTED
 std::cout<<"Entering TabuOpt::applyNonTabu() \n";
 #endif
         assert (  moves.size() ) ;  //cant apply, there are non saved
 	if (not moves.size()) return false;
-        std::sort(moves.begin(), moves.end(), Move::bySavings); //the list is short so not so yikes (1 per local neighborhood)
+        //std::sort(moves.begin(), moves.end(), Move::bySavings); //the list is short so not so yikes (1 per local neighborhood)
 #ifndef TESTED
-std::cout<<"\nNon  Tabu aplied ";moves[0].Dump();
+std::cout<<"\nNon  Tabu aplied ";moves.begin()->Dump();
 #endif
-        applyAmove(moves[0]);
+        applyAmove( *(moves.begin()) );
         STATS->inc("cnt Non Tabu");
         moves.clear();
 	return true;
 }
 
-bool  TabuOpt::applyTabu (std::deque<Move> &tabu) {
+bool  TabuOpt::applyTabu (Moves &tabu) {
         assert ( tabu.size() );   //cant apply, there are non saved
 	return applyTabu(tabu,0);
 }
 
-bool TabuOpt::applyTabu (std::deque<Move> &moves, int strategy) {
+bool TabuOpt::applyTabu (Moves &moves, int strategy) {
 #ifndef TESTED
 std::cout<<"Entering TabuOpt::applyTabu #of possible moves:"<<moves.size()<<"\n";
 #endif
         assert( moves.size() );  //cant apply, there are non saved
 	if (not moves.size()) return false;
-        std::sort(moves.begin(), moves.end(), Move::bySavings); 
+        //std::sort(moves.begin(), moves.end(), Move::bySavings); 
 	
         if (strategy==0) {  //pick Best
-std::cout << "\tapplyTabu:  best: "; moves[0].dump();
-           applyAmove(moves[0]);
+std::cout << "\tapplyTabu:  best: "; moves.begin()->dump();
+           applyAmove( *(moves.begin()) );
            STATS->inc("cnt Tabu best");
 	} else {
           int pickWorse = rand()% ( moves.size()-1 );
-std::cout << "\tapplyTabu: pickworse"<<pickWorse<<"\n"; moves[pickWorse].dump();
-           applyAmove(moves[pickWorse]);
+std::cout << "\tapplyTabu: pickworse"<<pickWorse<<"\n";// (moves.begin()+pickWorse)->Dump();
+           applyAmove( *(moves.begin()) ); //until I find out how to get to the nth element
+           //applyAmove(moves.begin()+pickWorse);
            STATS->inc("cnt Tabu random");
 	}
 	moves.clear();
@@ -235,12 +236,14 @@ std::cout<<"Exit of TabuOpt::reachedMaxCycles"<<limit<<"\n";
     return an indicator that we improved the best move or not.
 */
 
-bool TabuOpt::doNeighborhoodMoves(neighborMovesName whichNeighborhood, int maxMoves, 
-    std::deque<Move> &aspirationalTabu, std::deque<Move> &notTabu, std::deque<Move> &tabu) { 
+bool TabuOpt::doNeighborhoodMoves(neighborMovesName whichNeighborhood, int maxMoves) {
 
 #ifndef TESTED
 std::cout<<"Entering TabuOpt::doNeighobrhoodMoves\n";
 #endif
+    Moves aspirationalTabu;
+    Moves notTabu;
+    Moves tabu;
     bool improvedBest = false;
     int Cnt = 0;
     int CntNonAspirational =0;
@@ -253,7 +256,7 @@ std::cout<<"Entering TabuOpt::doNeighobrhoodMoves\n";
     //currentSolution = bestSolution;
 
     STATS->set("factor", factor);
-    std::deque<Move> neighborhood;
+    Moves neighborhood;
 
     do {
 std::cout<<(getTotalMovesMade()-actualMoveCount)<<" > " <<maxMoves<<"***************************************************\n";
@@ -347,7 +350,8 @@ std::cout<<"Exiting TabuOpt::doNeighobrhoodMoves\n";
     return improvedBest;
 }
 
-void TabuOpt::compareCostWithOSRM(std::deque<Move> &neighborhood) {
+#ifndef TESTED
+void TabuOpt::compareCostWithOSRM(Moves &neighborhood) {
     int cnt = 0;
     Vehicle truckFrom, truckFromAfter;
     Vehicle truckTo, truckToAfter;
@@ -355,7 +359,7 @@ void TabuOpt::compareCostWithOSRM(std::deque<Move> &neighborhood) {
     Vehicle truck2, truck2After;
     double c_truckFrom,c_truckTo,co_truckFrom,co_truckTo,c_truckFromAfter,c_truckToAfter,co_truckFromAfter,co_truckToAfter,t_save,o_save,c_truck1,co_truck1,c_truck1After,co_truck1After,c_truck2,co_truck2,c_truck2After,co_truck2After;
 
-    for (std::deque<Move>::iterator it=neighborhood.begin();
+    for (MovesItr it=neighborhood.begin();
             it!=neighborhood.end(); ++it) {
         std::cout << "---------- compareWithCostOSRM ------------\n";
         it->Dump();
@@ -449,6 +453,7 @@ void TabuOpt::compareCostWithOSRM(std::deque<Move> &neighborhood) {
     }
     std::cout << "-------------------------------------------\n";
 }
+#endif
 
 /**
   Classify the moves into:
@@ -464,7 +469,7 @@ void TabuOpt::compareCostWithOSRM(std::deque<Move> &neighborhood) {
 
 	returns true: any kind of move was made
 */
-bool TabuOpt::classifyMoves (std::deque<Move> &neighborhood,  std::deque<Move> &aspirationalTabu, std::deque<Move> &notTabu,std::deque<Move> &tabu) {
+bool TabuOpt::classifyMoves (Moves &neighborhood,  Moves &aspirationalTabu, Moves &notTabu, Moves &tabu) {
 #ifdef TESTED
 std::cout<<"Entering TabuOpt::classifyMoves \n";
 #endif
@@ -476,13 +481,13 @@ std::cout<<"Entering TabuOpt::classifyMoves \n";
 	computeCosts(currentSolution);
         double actualCost= currentSolution.getCost();
         OptSol current=currentSolution;
-        std::sort(neighborhood.begin(), neighborhood.end(), Move::bySavings); 
+        //std::sort(neighborhood.begin(), neighborhood.end(), Move::bySavings); 
 
-#ifndef VICKY
+#ifdef VICKY
         compareCostWithOSRM(neighborhood);
 #endif
 
-        for (std::deque<Move>::iterator it=neighborhood.begin();
+        for (MovesItr it=neighborhood.begin();
                 it!=neighborhood.end(); ++it) {
 	    current=currentSolution;
             current.v_applyMove(*it);
@@ -523,7 +528,7 @@ std::cout<<"Entering TabuOpt::classifyMoves \n";
 std::cout<<"newCost: "<<newCost;
 std::cout<<"\tbestCost: "<<bestSolutionCost<<"\n";
 
-		aspirationalTabu.push_back(*it);
+		aspirationalTabu.insert(*it);
 		foundAspTabu = true;	
 		//clear up remaining buckets 
                 notTabu.clear(); tabu.clear();
@@ -538,12 +543,12 @@ std::cout<<"\tbestCost: "<<bestSolutionCost<<"\n";
 
 		
 	   } else if (not aspirationalTabu.size()  and not isTabu(*it) and not found ) { //save only the best nonTabu move when there is no aspirational tabu move
-		notTabu.push_back(*it); 
+		notTabu.insert(*it); 
 		found = true;
 		tabu.clear();  //no need to keep the tabus
 		if (it->getsavings()<0) {neighborhood.clear(); return false; }  //we can stop now, no possible aspirational move can exist in this neighborhood
 	    } else if (  not aspirationalTabu.size() and not notTabu.size() ) {  //all other buckets are empty so we save everything
-		tabu.push_back(*it); 
+		tabu.insert(*it); 
             }	
         };
 	neighborhood.clear();
@@ -566,9 +571,10 @@ std::cout<<"Entering TabuOpt::computeCosts \n";
 
 
 
-    bool TabuOpt::dumpMoves(std::string str, std::deque<Move> moves) const {
+    bool TabuOpt::dumpMoves(std::string str, Moves moves) const {
 	std::cout<<"Bucket: "<< str<<"\n";
-	for (int i=0;i<moves.size();i++)
-		moves[i].dump();
+	MovesItr movePtr;
+	for(movePtr=moves.begin(); movePtr!=moves.end();++movePtr)
+		movePtr->Dump();
     };
 

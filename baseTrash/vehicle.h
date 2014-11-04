@@ -29,16 +29,14 @@
 
 
 class Vehicle: public BaseVehicle {
-  private:
+
+  protected:
     typedef  TwBucket<Trashnode> Bucket;
     typedef  unsigned long int UID ;
     typedef  unsigned long int POS ;
     inline double _MAX() const { ( std::numeric_limits<double>::max() ); };
     inline double _MIN() const { ( - std::numeric_limits<double>::max() ); };
-
-/*
-*/
-  protected:
+    typedef std::set<Move,Move::compMove> Moves;
 
   public:
     // TODO LIST 
@@ -101,10 +99,10 @@ class Vehicle: public BaseVehicle {
 
 
     double timePCN(POS prev, POS curr, POS next) const;
-    long int eval_intraSwapMoveDumps( std::deque<Move> &moves, int  truckPos,  double factor, const TWC<Trashnode> &twc ) const;
-    long int eval_interSwapMoveDumps( std::deque<Move> &moves, const Vehicle &otherTruck,int  truckPos,int  otherTruckPos, int fromPos,  double factor,const TWC<Trashnode> &twc ) const; 
+    long int eval_intraSwapMoveDumps( Moves &moves, int  truckPos,  double factor, const TWC<Trashnode> &twc ) const;
+    long int eval_interSwapMoveDumps( Moves &moves, const Vehicle &otherTruck,int  truckPos,int  otherTruckPos, int fromPos,  double factor,const TWC<Trashnode> &twc ) const; 
+    long int eval_insertMoveDumps( const Trashnode &node, Moves &moves, int fromTruck, int formPos, int toTruck, double savings, double factor ,const TWC<Trashnode> &twc) const;
     bool eval_erase(int at, double &savings,const TWC<Trashnode> &twc) const;
-    long int eval_insertMoveDumps( const Trashnode &node, std::deque<Move> &moves, int fromTruck, int formPos, int toTruck, double savings, double factor ,const TWC<Trashnode> &twc) const;
 	//for cost function
 	Trashnode C , last;
 	double ttSC, ttDC, ttCD, ttDE, ttCC;

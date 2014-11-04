@@ -31,6 +31,9 @@ class TabuBase  {
     typedef enum { Ins, IntraSw, InterSw } neighborMovesName;
     typedef unsigned long int POS;
     typedef unsigned long int UID;
+    typedef std::set<Move,Move::compMove> Moves;
+    typedef std::set<Move,Move::compMove>::iterator MovesItr;
+
 
     std::map<const Move, int> TabuList;
 
@@ -94,17 +97,12 @@ class TabuBase  {
     };
 
     void setCurrentAsBest() {
-//bestSolution.dump();
-//bestSolution.dumpCostValues();
 	bestSolution=currentSolution;
     	bestSolutionCost=currentCost;
      	bestIterationIns=currentIterationIns;
      	bestIterationIntraSw=currentIterationIntraSw;
      	bestIterationInterSw=currentIterationInterSw;
         bestTabuList=TabuList;
-//bestSolution.dump();
-//bestSolution.dumpCostValues();
-//assert (true==false);
     };
 
     void setBestAsCurrent() {
@@ -285,7 +283,7 @@ void makeTabu(const Move &m) {
     // to adjust the tabu length with
     totalMovesMade++;
 STATS->dump("all");
-std::cout<<"currentIterationIns"<<currentIterationIns<<"\n";
+std::cout<<"*********currentIterationIns"<<currentIterationIns<<"\n";
     int r = rand()%5-2;
     switch (m.getmtype()) {
         case Move::Ins:

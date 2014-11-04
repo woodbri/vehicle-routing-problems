@@ -107,7 +107,7 @@ return the number of moves added to moves
 
 
 
-long int Vehicle::eval_intraSwapMoveDumps( std::deque<Move> &moves, int  truckPos,  double factor, const TWC<Trashnode> &twc ) const {
+long int Vehicle::eval_intraSwapMoveDumps( Moves &moves, int  truckPos,  double factor, const TWC<Trashnode> &twc ) const {
 #ifdef TESTED
 std::cout<<"Entering Vehicle::eval_intraSwapMoveDumps \n";
 #endif
@@ -164,7 +164,7 @@ std::cout<<"Entering Vehicle::eval_intraSwapMoveDumps \n";
 		truck.applyMoveIntraSw(fromPos,  withPos) ; //roll back
                 Move move(Move::IntraSw, node.getnid(), path[withPos].getnid(), truckPos, truckPos, fromPos, withPos, savings   );
 		if (savings>0) {
-                  moves.push_back(move);
+                  moves.insert(move);
 //move.dump();
 		  deltaMovesSize++;
 //		  if (deltaMovesSize > size()*factor) return deltaMovesSize;
@@ -178,7 +178,7 @@ std::cout<<"Entering Vehicle::eval_intraSwapMoveDumps \n";
 
 
 // from the second truck point of view
-long int Vehicle::eval_interSwapMoveDumps( std::deque<Move> &moves, const Vehicle &otherTruck,int  truckPos,int  otherTruckPos, int fromPos,  double factor,const TWC<Trashnode> &twc ) const {
+long int Vehicle::eval_interSwapMoveDumps( Moves &moves, const Vehicle &otherTruck,int  truckPos,int  otherTruckPos, int fromPos,  double factor,const TWC<Trashnode> &twc ) const {
 #ifdef TESTED
 std::cout<<"Entering Vehicle::eval_interSwapMoveDumps \n";
 #endif
@@ -205,7 +205,7 @@ std::cout<<"Entering Vehicle::eval_interSwapMoveDumps \n";
 		   savings= originalCost - newCost;
                    Move move(Move::InterSw , node.getnid(), otherTruck.path[j].getnid() ,  truckPos , otherTruckPos ,  i, j, (originalCost-newCost)   );
                    if (savings>0) {
-                     moves.push_back(move);
+                     moves.insert(move);
                      deltaMovesSize++;
                    } 
 		}
@@ -222,7 +222,7 @@ std::cout<<"Entering Vehicle::eval_interSwapMoveDumps \n";
 
 
 // from the second truck point of view
-long int Vehicle::eval_interSwapMoveDumps( std::deque<Move> &moves, const Vehicle &other,int  truckPos,int  otherTruckPos, int fromPos,  double factor) const {
+long int Vehicle::eval_interSwapMoveDumps(std::deque<Move> &moves, const Vehicle &other,int  truckPos,int  otherTruckPos, int fromPos,  double factor) const {
 #ifdef TESTED
 std::cout<<"Entering Vehicle::eval_interSwapMoveDumps \n";
 #endif
@@ -338,7 +338,7 @@ std::cout<<"\n";
         return truck.feasable();
 };
 
-long int Vehicle::eval_insertMoveDumps( const Trashnode &node,std::deque<Move> &moves, int fromTruck, int fromPos, int toTruck, double eraseSavings, double factor, const TWC<Trashnode> &twc) const {
+long int Vehicle::eval_insertMoveDumps( const Trashnode &node,Moves &moves, int fromTruck, int fromPos, int toTruck, double eraseSavings, double factor, const TWC<Trashnode> &twc) const {
 #ifdef TESTED
 std::cout<<"Entering Vehicle::eval_insertMoveDumps \n";
 #endif
@@ -377,7 +377,7 @@ std::cout<<"insert to "<<toTruck<<": oldcost"<<oldcost<<"\tnewcost"<<truck.getCo
 std::cout<<"\n";
 #endif
                 Move move(Move::Ins, node.getnid(),  -1,  fromTruck, toTruck,  fromPos, currentPos, (oldcost - newcost + eraseSavings)   );
-                moves.push_back(move);
+                moves.insert(move);
 #ifdef TESTED
 move.dump();
 #endif

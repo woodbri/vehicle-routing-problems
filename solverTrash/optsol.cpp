@@ -129,7 +129,7 @@ bool OptSol::emptyAtruck(std::deque<int> fromThis,std::deque<int> intoThis) {
 			
 
 bool OptSol::emptyTheTruck(int fromTruck, std::deque<int> notFull) {
-	std::deque<Move> moves;    	/**< moves storage */
+	Moves moves;    	/**< moves storage */
 	int fromPos=1;			/**< postition of a container in the fromTruck */
 	int toTruck; 			/**< truck to  where a container is moved */
 	double savings;			/**< savings of the move */
@@ -146,8 +146,8 @@ bool OptSol::emptyTheTruck(int fromTruck, std::deque<int> notFull) {
                 };
 
                 if (moves.size()) {
-                  std::sort(moves.begin(), moves.end(), Move::bySavings);
-                  v_applyMove(moves[0]);
+                  //std::sort(moves.begin(), moves.end(), Move::bySavings);
+                  v_applyMove( *(moves.begin()) );
                 } else {
                         fromPos++;
                 }
@@ -164,7 +164,7 @@ bool OptSol::emptyTheTruck(int fromTruck, std::deque<int> notFull) {
 	
 
 
-void OptSol::v_getIntraSwNeighborhood(std::deque<Move>& moves, double factor)  const {
+void OptSol::v_getIntraSwNeighborhood(Moves &moves, double factor)  const {
     moves.clear();
 
     // iterate through each vehicle (vi)
@@ -172,14 +172,14 @@ void OptSol::v_getIntraSwNeighborhood(std::deque<Move>& moves, double factor)  c
 
 std::cout<<"working with truck "<<truckPos<<" intraSw neighborhood\n";
     fleet[truckPos].eval_intraSwapMoveDumps( moves,  truckPos, factor, twc); 
-    moves[0].dump();    
-    if ( (moves.size()==0) or (moves[0].getsavings()<0))  
+    moves.begin()->Dump();    
+    if ( (moves.size()==0) or (moves.begin()->getsavings()<0))  
        if  (intraTruckPos==fleet.size()-1 ) intraTruckPos=0;
        else intraTruckPos++;
 }
 
 
-void OptSol::v_getInterSwNeighborhood(std::deque<Move>& moves, double factor)  const {
+void OptSol::v_getInterSwNeighborhood(Moves &moves, double factor)  const {
     assert (feasable());
     if (not fleet.size())  return;    
 
@@ -194,28 +194,17 @@ void OptSol::v_getInterSwNeighborhood(std::deque<Move>& moves, double factor)  c
     moves.clear();
 std::cout<<"working with truck "<<truckPos<<" and"<< otherTruckPos<<"interSw neighborhood\n";
 
-    // iterate through the vechicles (vi, vj)
-//    for (int truckPos=0; truckPos < fleet.size(); truckPos++) {  
-//        for (int otherTruckPos =truckPos + 1; otherTruckPos < fleet.size(); otherTruckPos++) { //testNeeded
-//            assert (not (truckPos == otherTruckPos) ); 
 
             for (int fromPos=1; fromPos<fleet[truckPos].size(); fromPos++) {
 		if(fleet[truckPos][fromPos].isdump()) continue;   // skiping dump
 		
-		fleet[truckPos].eval_interSwapMoveDumps( moves, fleet[otherTruckPos], truckPos, otherTruckPos, fromPos, factor); 
+		fleet[truckPos].eval_interSwapMoveDumps( moves, fleet[otherTruckPos], truckPos, otherTruckPos, fromPos, factor,twc); 
             }
-//        }
-//    }
 }
 
 
 
-void OptSol::v_getInsNeighborhood(std::deque<Move>& moves, double factor) const {
-     v_getInsNeighborhood( moves, factor,0);
-};
-
-
-void OptSol::v_getInsNeighborhood(std::deque<Move>& moves, double factor, int count) const  {
+void OptSol::v_getInsNeighborhood(Moves &moves, double factor) const {
 
 #ifdef TESTED
 std::cout<<"Entering OptSol::v_getInsNeighborhood for "<<fleet.size()<<" trucks \n";
@@ -299,27 +288,27 @@ assert(true==false);
 
 
 
-void OptSol::v_applyMove(const Move& m)  {
+void OptSol::v_applyMove(const Move &move)  {
 
-    switch (m.getmtype()) {
+    switch (move.getmtype()) {
         case Move::Ins:
             {
-                applyInsMove( m );
-                assert( fleet[m.getvid1()].feasable() ); //just in case
-                assert( fleet[m.getvid2()].feasable() );
+                applyInsMove( move );
+                assert( fleet[move.getvid1()].feasable() ); //just in case
+                assert( fleet[move.getvid2()].feasable() );
             }
             break;
         case Move::IntraSw:
             {
-                applyIntraSwMove( m );
-                assert( fleet[m.getvid1()].feasable() );
+                applyIntraSwMove( move );
+                assert( fleet[move.getvid1()].feasable() );
             }
             break;
         case Move::InterSw:
             {
-                applyInterSwMove( m );
-                assert( fleet[m.getvid1()].feasable() );
-                assert( fleet[m.getvid2()].feasable() );
+                applyInterSwMove( move );
+                assert( fleet[move.getvid1()].feasable() );
+                assert( fleet[move.getvid2()].feasable() );
             }
             break;
     }
