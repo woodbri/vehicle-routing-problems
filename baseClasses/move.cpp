@@ -15,7 +15,7 @@
 #include <iostream>
 #include "move.h"
 
-/*! \fn bool Move::operator==(const Move &rhs) const
+/*!
  * \brief Compare two moves and report if they are equal
  */
 bool Move::operator==( const Move &rhs ) const {
@@ -24,7 +24,7 @@ bool Move::operator==( const Move &rhs ) const {
            pos1 == rhs.pos1 and pos2 == rhs.pos2;
 }
 
-/*! \fn bool Move::less(const Move& m) const
+/*!
  * \brief Compare two moves and report if move \< rhs.move
  *
  * This less than comparision operator is used by the TabuList map function
@@ -42,7 +42,7 @@ bool Move::less( const Move &m ) const {
                          pos2 < m.pos2 ) ) ) ) ) ) );
 }
 
-/*! \fn bool Move::isForbidden(const Move &tabu) const
+/*!
  * \brief Check if a given move is forbidden based on the TabuList
  *
  * The isForbidden() test is not associative ( ie: A.equiv(B) != B.equiv(A) ).
@@ -84,7 +84,7 @@ bool Move::isForbidden( const Move &tabu ) const {
 }
 
 
-/*! \fn void Move::dump() const
+/*!
  * \brief Print the move.
  */
 void Move::dump() const {
@@ -99,6 +99,9 @@ void Move::dump() const {
               << std::endl;
 }
 
+/*!
+ * \brief Print the move in a more explict format.
+ */
 void Move::Dump() const {
     switch ( mtype ) {
         case Ins:

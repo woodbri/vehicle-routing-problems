@@ -36,17 +36,17 @@ class Timer {
     struct timespec t1;    ///< duration time
 
   public:
-    /*! \fn Timer()
+    /*!
      * \brief Construct a new Timer object and remember its time of creation
      */
     Timer() { clock_gettime( CLOCK_MONOTONIC_RAW, &t0 ); };
 
-    /*! \fn void restart()
+    /*!
      * \brief Reset the Timer start time to now.
      */
     inline void restart() { clock_gettime( CLOCK_MONOTONIC_RAW, &t0 ); };
 
-    /*! \fn double duration()
+    /*!
      * \brief Compute the duration of time since the Timer was set or reset.
      * \return The number of second as a double since the Timer as set or reset.
      */

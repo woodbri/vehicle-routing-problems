@@ -483,7 +483,7 @@ std::cout<<"Entering TabuOpt::classifyMoves \n";
         OptSol current=currentSolution;
         //std::sort(neighborhood.begin(), neighborhood.end(), Move::bySavings); 
 
-#ifdef VICKY
+#ifdef COMPARE_OSRM
         compareCostWithOSRM(neighborhood);
 #endif
 
