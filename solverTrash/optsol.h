@@ -19,6 +19,7 @@
 
 class OptSol : public Solution {
     typedef std::set<Move,Move::compMove> Moves;
+    typedef std::set<Move,Move::compMove>::iterator MovesItr;
 
 
 public:
@@ -35,7 +36,8 @@ OptSol(const Solution &solution): Solution(solution){
     void v_getInsNeighborhood(Moves &moves,double factor) const ;
     void v_getInterSwNeighborhood(Moves &moves, double factor) const;
 
-    bool v_applyInsMove( const Move &move);
+    bool v_applyInterSwMove( const Move &move);
+    bool testInterSwMove( const Move &move) const; 
     void v_applyMove(const Move&);
     void optimizeTruckNumber();
 

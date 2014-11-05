@@ -59,8 +59,8 @@ std::cout<<"Entering TabuOpt::search() \n";
         std::cout << "TABUSEARCH: Starting iteration: " << currentIteration << std::endl;
 
         // this is a token ring search
-        improvedBest  = doNeighborhoodMoves(Ins, limitIns*10);//, aspirationalTabu, nonTabu,tabu);
-        //improvedBest |= doNeighborhoodMoves(InterSw, limitInterSw*5, aspirationalTabu, nonTabu, tabu);
+        //improvedBest  = doNeighborhoodMoves(Ins, limitIns*10);//, aspirationalTabu, nonTabu,tabu);
+        improvedBest |= doNeighborhoodMoves(InterSw, limitInterSw*50);//, aspirationalTabu, nonTabu, tabu);
         //improvedBest |= doNeighborhoodMoves(IntraSw, limitIntraSw*100, aspirationalTabu, nonTabu,tabu);
 
         if (improvedBest) lastImproved = 0;
@@ -104,6 +104,11 @@ std::cout<<"Entering TabuOpt::getNeighborhod() \n";
             case InterSw:
                 currentSolution.v_getInterSwNeighborhood(neighborhood, factor);
                 generateNeighborhoodStats("InterSw", getNeighborhoodTimer.duration(), neighborhood.size());
+/*if (neighborhood.size()) {
+dumpMoves("interMoves",neighborhood);
+std::cout<<"END of interMoves\n";
+//assert(true==false);
+}*/
                 break;
         }
 #ifdef TESTED
@@ -517,16 +522,22 @@ std::cout<<"Entering TabuOpt::classifyMoves \n";
             // if the move is aspirational and not tabu then we apply it
             if (newCost  < bestSolutionCost and not isTabu(*it) ) {  
 		applyAspirationalNotTabu(*it);
+		cleanUpInterSwMoves( neighborhood, (*it) );
+		classifyMoves(neighborhood,aspirationalTabu,notTabu,tabu);
+std::cout<<"neighborhood size"<<neighborhood.size()<<"\n";
+std::cout<<"aspirationalTabu size"<<aspirationalTabu.size()<<"\n";
+std::cout<<"not Tabu size"<<notTabu.size()<<"\n";
+std::cout<<"Tabu size"<<tabu.size()<<"\n";
 		//clear up all buckets
-                neighborhood.clear(); 
-                aspirationalTabu.clear(); notTabu.clear(); tabu.clear();
+//                neighborhood.clear(); 
+//                aspirationalTabu.clear(); notTabu.clear(); tabu.clear();
 	        return true;
 		
             }
 	   // if the move is aspirational, but tabu, we save it
 	   if (newCost  < bestSolutionCost and not foundAspTabu) { //save only the best aspirational Tabu
-std::cout<<"newCost: "<<newCost;
-std::cout<<"\tbestCost: "<<bestSolutionCost<<"\n";
+//std::cout<<"newCost: "<<newCost;
+//std::cout<<"\tbestCost: "<<bestSolutionCost<<"\n";
 
 		aspirationalTabu.insert(*it);
 		foundAspTabu = true;	
@@ -566,7 +577,28 @@ std::cout<<"Entering TabuOpt::computeCosts \n";
 }
 
 
-
+void TabuOpt::cleanUpInterSwMoves(Moves &moves, const Move &guide ) const {
+	if (not moves.size() ) return;
+	if (not guide.getmtype()==Move::InterSw) return;
+	if (not moves.begin()->getmtype()==Move::InterSw) return;
+	int fromPos = guide.getInterSwFromPos();
+	int toPos = guide.getInterSwToPos();
+	Moves oldMoves=moves;
+	moves.clear();
+	Move move;
+	for(MovesItr movePtr=oldMoves.begin(); movePtr!=oldMoves.end();++movePtr) {
+		move = (*movePtr);
+		if (move.getsavings()<0) break;
+		if ( (move.getInterSwFromPos() < fromPos-1 or move.getInterSwFromPos() > fromPos+1) 
+		   and (move.getInterSwToPos() < toPos-1 or move.getInterSwToPos() > toPos+1) ) {
+			//insert only if feasable
+			if ( currentSolution.testInterSwMove(move) ) moves.insert(move);
+                }
+        }
+        std::cout<<"oldMoves size"<<oldMoves.size()<<"\n";
+        std::cout<<"newMoves size"<<moves.size()<<"\n";
+        //dumpMoves("newMoves",moves);
+}	
 
 
 
