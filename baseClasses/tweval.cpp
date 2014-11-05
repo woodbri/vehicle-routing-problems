@@ -21,7 +21,8 @@ std::vector<std::vector<double> > Tweval::TravelTime;
 
 
 /*!
- * \brief Evaluate a depot or starting node of a path
+ * \brief Evaluate a node at the start of a path od sub-path.
+ * \param[in] cargoLimit The cargo limit for the vehicle
  */
 void Tweval::evaluate ( double cargoLimit ) {
     cargo = demand;
@@ -31,12 +32,33 @@ void Tweval::evaluate ( double cargoLimit ) {
     totWaitTime = 0;
     totServiceTime = serviceTime;
     departureTime = arrivalTime + serviceTime;
-    dumpVisits = type == 1 ? 1 :  0;
     twvTot = cvTot = 0;
     twv = cv = false;
+    dumpVisits = 0;
+    switch (type) {
+        case 0: // depot or starting location
+            cv = cvTot = demand > cargoLimit ? 1 : 0;
+            cargo = 0;
+            break;
+        case 1: // dump
+            dumpVisits = 1;
+            break;
+        default:
+            cv = cvTot = demand > cargoLimit ? 1 : 0;
+    };
 }
 
-
+/*!
+ * \brief Evaluate a node in the path and update path totals from predecessor
+ *
+ * A path is a sequence of nodes and we maintain path statistics by keeping
+ * a running sum of path related variable on each node in the path. So the
+ * last node in the path will always reflect the total path. This method
+ * updates those path variables based on the predecssor node.
+ *
+ * \param[in] pred The node preceeding this node in the path.
+ * \param[in] cargoLimit The cargo limit for this vehicle.
+ */
 void Tweval::evaluate ( const Tweval &pred, double cargoLimit ) {
     assert( Tweval::TravelTime.size() );
 
@@ -75,12 +97,17 @@ void Tweval::evaluate ( const Tweval &pred, double cargoLimit ) {
 }
 
 
-
+/*!
+ * \brief Print the Twnode
+ */
 void Tweval::dump() const {
     Twnode::dump();
     std::cout << std::endl;
 }
 
+/*!
+ * \brief Print the Tweval attributes for the node.
+ */
 void Tweval::dumpeval() const  {
     std::cout << "twv=" << twv
               << ", cv=" << cv
@@ -96,7 +123,9 @@ void Tweval::dumpeval() const  {
 }
 
 
-
+/*!
+ * \brief Construct a default Twnode
+ */
 Tweval::Tweval(): Twnode() {
     arrivalTime = waitTime =  travelTime = 0;
     totTravelTime = totWaitTime = totServiceTime = 0;
@@ -105,8 +134,11 @@ Tweval::Tweval(): Twnode() {
 }
 
 
-
+/*!
+ * \brief Test if adding some delta time to its arraive causes it to violate its time window.
+ */
 double Tweval::deltaGeneratesTWV( double deltaTime ) const {
     return ( arrivalTime + deltaTime > closes() );
 }
+
 

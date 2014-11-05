@@ -27,6 +27,13 @@
  *
  * Most application specific code will extend this class and define the specific
  * values and requirements for \c type and \c streetid.
+ *
+ * Currently the trash collection problem is using node type values of:
+ * - -1: Invalid
+ * - 0: Depot or Start location
+ * - 1: Dump site
+ * - 2: Pickup location
+ * - 3: End site
  */
 class Twnode: public Node {
   protected:
