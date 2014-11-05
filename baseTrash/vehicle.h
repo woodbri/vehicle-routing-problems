@@ -69,7 +69,7 @@ class Vehicle: public BaseVehicle {
     bool e_makeFeasable(int currentPos);
     long int eval_insertMoveDumps( const Trashnode &node, std::deque<Move> &moves, int fromTruck, int formPos, int toTruck, double savings, double factor ) const;
     long int eval_intraSwapMoveDumps( std::deque<Move> &moves, int  truckPos, int fromPos,  double factor) const ;
-    long int eval_interSwapMoveDumps( std::deque<Move> &moves, const Vehicle &otherTruck,int  truckPos,int  otherTruckPos, int fromPos,  double factor) const;
+    //long int eval_interSwapMoveDumps( std::deque<Move> &moves, const Vehicle &otherTruck,int  truckPos,int  otherTruckPos, int fromPos,  double factor) const;
     bool e_insertDumpInPath( const Trashnode &going );
     bool deltaTimeGeneratesTV(const Trashnode &dump, const Trashnode &node) const; 
     bool deltaCargoGeneratesCV(const Trashnode &node, int pos) const;
@@ -100,7 +100,7 @@ class Vehicle: public BaseVehicle {
 
     double timePCN(POS prev, POS curr, POS next) const;
     long int eval_intraSwapMoveDumps( Moves &moves, int  truckPos,  double factor, const TWC<Trashnode> &twc ) const;
-    long int eval_interSwapMoveDumps( Moves &moves, const Vehicle &otherTruck,int  truckPos,int  otherTruckPos, int fromPos,  double factor,const TWC<Trashnode> &twc ) const; 
+    long int eval_interSwapMoveDumps( Moves &moves, const Vehicle &otherTruck,int  truckPos,int  otherTruckPos, double factor,  const TWC<Trashnode> &twc ) const; 
     long int eval_insertMoveDumps( const Trashnode &node, Moves &moves, int fromTruck, int formPos, int toTruck, double savings, double factor ,const TWC<Trashnode> &twc) const;
     bool eval_erase(int at, double &savings,const TWC<Trashnode> &twc) const;
 	//for cost function
@@ -117,7 +117,7 @@ class Vehicle: public BaseVehicle {
 	double idleTimeSCDE,idleTimeSDCDE;
 	double realIdleTimeSCDE,realIdleTimeSDCDE;
 	double sumIdle,penalty;
-	inline int  realN() { return ( path.getDumpVisits() + 1 ) ;}
+	inline int  realN() const { return ( path.getDumpVisits() + 1 ) ;}
 	inline double  totalServiceTime() { 
 		return ( path.getTotServiceTime()+  dumpSite.getservicetime() + endingSite.getservicetime() ) ;}  
         double v_cost,workNotDonePerc;
@@ -265,7 +265,7 @@ if (realArrivalEclosesLast < realTotalTime) { last.dumpeval(); dumpCostValues();
 		workNotDonePerc=(double (realz1 + realz2))  /(double (double(n) + double(realz1) +double(realz2) ));
 		double workDonePerc=1-workNotDonePerc;
 		
-		v_cost=   realTotalTime * (1 + workNotDonePerc) + sumIdle * ( 1 + workDonePerc);
+		v_cost=  /* realTotalTime * (1 + workNotDonePerc) + sumIdle * ( 1 + workDonePerc) +*/ getduration();
 	};
 
 	double getDeltaCost(double deltaTravelTime,int deltan, const TWC<Trashnode> &twc) {
@@ -288,7 +288,7 @@ if (realArrivalEclosesLast < realTotalTime) { last.dumpeval(); dumpCostValues();
 
 		
 
-void dumpCostValues(){
+void dumpCostValues() const{
 	std::cout<<" +++++++++++++++++++++  	 TRUCK #<<"<<vid<<"      +++++++++++++++++++++ \n\n\n"; 
 	std::cout<<" Average Container \t"; 
 	C.dump();

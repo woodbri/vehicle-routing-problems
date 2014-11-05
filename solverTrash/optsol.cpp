@@ -193,13 +193,21 @@ void OptSol::v_getInterSwNeighborhood(Moves &moves, double factor)  const {
 
     moves.clear();
 std::cout<<"working with truck "<<truckPos<<" and"<< otherTruckPos<<"interSw neighborhood\n";
+    fleet[truckPos].eval_interSwapMoveDumps( moves, fleet[otherTruckPos], truckPos, otherTruckPos, factor,twc); 
 
+#ifdef CHECK
+    Move move;
+    bool flag=true;
+    for(MovesItr movePtr=moves.begin(); movePtr!=moves.end();++movePtr) {
+           move = (*movePtr);
+           if ( not testInterSwMove(move) ) {
+			move.Dump();
+			flag=false;
+           }
+    }
+    assert(flag);
+#endif
 
-            for (int fromPos=1; fromPos<fleet[truckPos].size(); fromPos++) {
-		if(fleet[truckPos][fromPos].isdump()) continue;   // skiping dump
-		
-		fleet[truckPos].eval_interSwapMoveDumps( moves, fleet[otherTruckPos], truckPos, otherTruckPos, fromPos, factor,twc); 
-            }
 }
 
 
@@ -253,38 +261,44 @@ std::cout<<"\n\n\n\n**********************************working with truck "<<from
 std::cout<<"EXIT OptSol::v_getInsNeighborhood "<<moves.size()<<" MOVES found total \n";
 #endif
 }
+
+// 2 vehicles involved
+ bool OptSol::v_applyInterSwMove( const Move &move) {
+  assert(move.getmtype() == Move::InterSw);
+  assert(not (move.getInterSwTruck1()==move.getInterSwTruck2()));
+
+  if (not (fleet[move.getInterSwTruck1()][ move.getpos1()].getnid() == move.getnid1() )) {
+        move.Dump();
+	fleet[move.getInterSwTruck1()][ move.getpos1()].dump();
+	fleet[move.getInterSwTruck2()][ move.getpos2()].dump();
+	std::cout<<"\n";
+  }
+	
+  assert(fleet[move.getInterSwTruck1()][ move.getpos1()].getnid() == move.getnid1() );
+
+  assert(fleet[move.getInterSwTruck2()][ move.getpos2()].getnid() == move.getnid2() );
  
-bool OptSol::v_applyInsMove( const Move &move) {
-	assert(move.getmtype() == Move::Ins);
-	assert( fleet[ move.getInsFromTruck() ].feasable() );
-	assert( fleet[ move.getInsToTruck() ].feasable() );
-	fleet[ move.getInsFromTruck() ].getCost(twc);
-	fleet[ move.getInsToTruck() ].getCost(twc);
-#ifdef TESTED
-move.dump();
-fleet[ move.getInsFromTruck() ].dumpCostValues();
-fleet[ move.getInsToTruck() ].dumpCostValues();
-#endif
-	fleet[ move.getInsFromTruck() ].applyMoveINSerasePart(move.getnid1(), move.getpos1());
-        fleet[ move.getInsToTruck() ].applyMoveINSinsertPart(datanodes[ move.getnid1() ], move.getpos2());
+  fleet[move.getInterSwTruck1()].applyMoveInterSw( fleet[move.getInterSwTruck2()], move.getpos1(),move.getpos2() ) ;
+ 
+  assert( fleet[ move.getInterSwTruck1() ].feasable() );
+  assert( fleet[ move.getInterSwTruck2() ].feasable() );
+  return (fleet[ move.getInterSwTruck1() ].feasable() and fleet[ move.getInterSwTruck2() ].feasable() );
+ }
 
-	fleet[ move.getInsFromTruck() ].getCost(twc);
-	fleet[ move.getInsToTruck() ].getCost(twc);
+ bool OptSol::testInterSwMove( const Move &move) const {
+//move.Dump();
+  if (not move.getmtype() == Move::InterSw) return false;
+  if ( (move.getInterSwTruck1()==move.getInterSwTruck2())) return false;
+  if ( not (fleet[move.getInterSwTruck1()][ move.getpos1()].getnid() == move.getnid1() )) return false;
+  if ( not (fleet[move.getInterSwTruck2()][ move.getpos2()].getnid() == move.getnid2() ))return false;
 
-#ifdef TESTED
-fleet[ move.getInsFromTruck() ].dumpCostValues();
-fleet[ move.getInsToTruck() ].dumpCostValues();
-assert(true==false);
-#endif
+  Vehicle truck=fleet[move.getInterSwTruck1()];
+  Vehicle other=fleet[move.getInterSwTruck2()];
 
+  return truck.applyMoveInterSw( other, move.getpos1(),move.getpos2() )  ;
+  
+ }
 
-	assert( fleet[ move.getInsFromTruck() ].feasable() );
-	assert( fleet[ move.getInsToTruck() ].feasable() );
-
-
-
-	return (fleet[ move.getInsFromTruck() ].feasable() and  fleet[ move.getInsToTruck() ].feasable() );
-}
 
 
 
@@ -306,13 +320,13 @@ void OptSol::v_applyMove(const Move &move)  {
             break;
         case Move::InterSw:
             {
-                applyInterSwMove( move );
+//assert (testInterSwMove(move)) ;
+                v_applyInterSwMove( move );
                 assert( fleet[move.getvid1()].feasable() );
                 assert( fleet[move.getvid2()].feasable() );
             }
             break;
     }
 }
-
 
 

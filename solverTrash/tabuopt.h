@@ -44,7 +44,7 @@ bestSolution.tau();
         computeCosts(bestSolution);
         bestSolutionCost = bestSolution.getCost();
 	limitIntraSw=bestSolution.getFleetSize();
-	limitInterSw=limitIntraSw*(limitIntraSw-1) ;
+	limitInterSw=limitIntraSw*(limitIntraSw-1)-1 ;
 	limitIns    =limitInterSw ;
         STATS->set("limitIntraSw", limitIntraSw);
         STATS->set("limitInterSw", limitIntraSw);
@@ -68,6 +68,7 @@ bestSolution.tau();
     bool computeCosts(OptSol &s) ;
     bool reachedMaxCycles(int,neighborMovesName);
     bool dumpMoves(std::string str, Moves moves) const ;
+    void cleanUpInterSwMoves(Moves &moves, const Move &guide) const;
 #ifndef TESTED
     void compareCostWithOSRM(Moves &neighborhood);
 #endif
