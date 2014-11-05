@@ -20,6 +20,9 @@
 std::vector<std::vector<double> > Tweval::TravelTime;
 
 
+/*!
+ * \brief Evaluate a depot or starting node of a path
+ */
 void Tweval::evaluate ( double cargoLimit ) {
     cargo = demand;
     travelTime = 0;
