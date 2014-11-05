@@ -679,7 +679,7 @@ class TwBucket {
      * Clears the contents of the current bucket and copies the other
      * bucket into the current bucket.
      *
-     * \params[in] other Bucket that will get copy assigned to this bucket.
+     * \param[in] other Bucket that will get copy assigned to this bucket.
      */
     TwBucket<knode> &operator =( const TwBucket<knode> &other )  {
         TwBucket<knode> b = other;
