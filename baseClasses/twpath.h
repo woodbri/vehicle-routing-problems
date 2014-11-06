@@ -293,6 +293,14 @@ class Twpath : public TwBucket<knode> {
     };
 
     /*****   EVALUATION   ****/
+
+
+    void evaluate( double maxcapacity ) {
+        assert ( size() > 0 );
+        evaluate( 0, maxcapacity );
+    };
+
+
     void evaluate( UID from, double maxcapacity ) {
         // the equal just in case the last operation was erase
         assert ( from <= size() );
@@ -310,6 +318,38 @@ class Twpath : public TwBucket<knode> {
 
     };
 
+
+    void evaluateOsrm( const std::string osrmBaseUrl ) {
+        assert ( size() > 0 );
+        evaluateOsrm( 0, osrmBaseUrl );
+    }
+
+
+    void evaluateOsrm( UID from, const std::string osrmBaseUrl ) {
+        // the equal just in case the last operation was erase
+        assert ( from <= size() );
+
+        if ( from >= path.size() ) from = size() - 1;
+
+        iterator it = path.begin() + from;
+
+        while ( it != path.end() ) {
+            if ( it == path.begin() ) it->evaluateOsrm();
+            else it->evaluateOsrm( osrmBaseUrl, *( it - 1 ) );
+
+            ++it;
+        }
+    };
+
+    bool isOsrmTtimeValid() const {
+        return path[path.size() - 1].isOsrmTtimeValid();
+    };
+
+    double getTotTravelTimeOsrm() const {
+        return path[path.size() - 1].getTotTravelTimeOsrm();
+    }
+
+
     bool feasable() const {
         return ( path[path.size() - 1].feasable() );
     };
@@ -317,11 +357,6 @@ class Twpath : public TwBucket<knode> {
     void evalLast( double maxcapacity ) {
         assert ( size() > 0 );
         evaluate( path.size() - 1, maxcapacity );
-    };
-
-    void evaluate( double maxcapacity ) {
-        assert ( size() > 0 );
-        evaluate( 0, maxcapacity );
     };
 
     bool operator ==( const Twpath<knode> &other ) {

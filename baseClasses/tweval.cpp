@@ -15,6 +15,7 @@
 #include <iostream>
 #include <sstream>
 
+#include "osrm.h"
 #include "tweval.h"
 
 std::vector<std::vector<double> > Tweval::TravelTime;
@@ -131,7 +132,48 @@ Tweval::Tweval(): Twnode() {
     totTravelTime = totWaitTime = totServiceTime = 0;
     twvTot = cvTot = 0;
     twv = cv = false;
+    totTravelTimeOsrm = -1;
+    osrmUrlLocs = "";
 }
+
+
+/*!
+ * \brief Construct a Tweval node from a text string, typically read from a file.
+ */
+Tweval::Tweval( std::string line ): Twnode( line ) {
+    cv = twv = false;
+    cvTot = twvTot = 0;
+    cargo = 0;
+    arrivalTime = travelTime = waitTime = departureTime = 0;
+    totWaitTime = totTravelTime = totServiceTime = 0;
+    totTravelTimeOsrm = -1;
+    osrmUrlLocs = "";
+};
+
+/*!
+ * \brief Construct a Tweval node from arguments
+ * \param[in] _id The User node id
+ * \param[in] _x The X or longitude coordinate for its location
+ * \param[in] _y The Y or latitude coordinate for its location
+ * \param[in] _open The earliest arrival time (TW open)
+ * \param[in] _close The latest arrival time (TW close)
+ * \param[in] _service The service time
+ * \param[in] _demand The demand in units of vehicle capacity
+ * \param[in] _sid The street id this node is located
+ */
+Tweval::Tweval( int _id, double _x, double _y, int _open, int _close,
+                int _service, int _demand, int _sid ) : Twnode() {
+    set( _id, _id, _x, _y, _demand, _open, _close, _service );
+    setStreetId( _sid );
+    cv = twv = false;
+    cvTot = twvTot = 0;
+    cargo = 0;
+    arrivalTime = travelTime = waitTime = departureTime = 0;
+    totWaitTime = totTravelTime = totServiceTime = 0;
+    totTravelTimeOsrm = -1;
+    osrmUrlLocs = "";
+};
+
 
 
 /*!
@@ -139,6 +181,77 @@ Tweval::Tweval(): Twnode() {
  */
 double Tweval::deltaGeneratesTWV( double deltaTime ) const {
     return ( arrivalTime + deltaTime > closes() );
+}
+
+
+/*!
+ * \brief Return the location as an OSRM loc string
+ */
+std::string Tweval::getLoc() const {
+    std::ostringstream buf;
+    buf << "&loc=" << y << "," << x;
+    return buf.str();
+}
+
+/*!
+ * \brief Construct the OSRM Url needed to get the route from start to this node.
+ * \param[in] osrmBaseUrl This is the base URL for the OSRM server to use.
+ * \return A std::string as the full URL for the path to this node.
+ */
+std::string Tweval::getOsrmUrl( const std::string osrmBaseUrl ) const {
+    return osrmBaseUrl + "viaroute?z=18&instructions=false&alt=false" + osrmUrlLocs;
+}
+
+/*!
+ * \brief Evaluate OSRM attributes for the first node in a path
+ */
+void Tweval::evaluateOsrm () {
+    totTravelTimeOsrm = 0.0;
+    osrmUrlLocs = getLoc();
+}
+
+/*!
+ * \brief Evaluate OSRM attributes for all the successor nodes in the path
+ *
+ * Construct the OSRM URL based on the previous path components. Call OSRM and
+ * get the travel time for the path from start to this point and save it on
+ * this node. If there is an error this and all soccessor nodes will be set
+ * in an error state, IE: getTotTravelTimeOsrm() will return -1.0.
+ *
+ * \param[in] osrmBaseUrl The OSRm base URl passed in from application.
+ * \param[in] pred The previous node in the path.
+ */
+void Tweval::evaluateOsrm ( const std::string osrmBaseUrl, const Tweval &pred ) {
+    // if there was a previous error in the path computing OSRM time
+    // then we have already failed so just fail here and return
+    double ttimePred = pred.getTotTravelTimeOsrm();
+    if ( ttimePred == -1 ) {
+        totTravelTimeOsrm = -1.0;
+        return;
+    }
+
+    // append this nodes loc to the previous ones in the path
+    osrmUrlLocs = pred.getOsrmUrlLocs() + getLoc();
+
+    // construct the complete URL
+    std::string url = getOsrmUrl( osrmBaseUrl );
+    OSRM osrm;
+
+    // if we fail to get the OSRM time then set the error indicator and return
+    if ( osrm.callOSRM( url ) ) {
+        totTravelTimeOsrm = -1.0;
+        return;
+    }
+
+    // if we fail to get the OSRM time then set the error indicator and return
+    double ttime;
+    if ( osrm.getTravelTime( ttime ) ) {
+        totTravelTimeOsrm = -1.0;
+        return;
+    }
+
+    // set the total travel time for OSRM to this point in the path
+    totTravelTimeOsrm = ttime;
 }
 
 

@@ -185,8 +185,6 @@ dumpeval();
     int getcargo() const { return  path[path.size()-1].getcargo(); };
     double getduration() const { return (path.size()-1 == 0)?0.0:endingSite.getTotTime(); };
     double getcost() const { return cost; };
-    double getCostOSRM() const;
-    double getTimeOSRM() const;
     double getw1() const { return w1; };
     double getw2() const { return w2; };
     double getw3() const { return w3; };
@@ -201,6 +199,10 @@ dumpeval();
 
     double distancetodepot(int i) const { return path[i].distance(getdepot()); };
     double distancetodump(int i) const { return path[i].distance(getdumpSite()); };
+
+    double getCostOsrm() const;
+    double getTotTravelTimeOsrm() const;
+    void evaluateOsrm();
 
     const Trashnode& operator[](int i) const { return path[i]; };
     //Trashnode operator[](int i) const { return path[i]; };
