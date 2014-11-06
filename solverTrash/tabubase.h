@@ -264,17 +264,20 @@ bool v_isTabu(const Move &move_e) const {
 void cleanExpired() {
     std::map<const Move, int>::iterator it;
     std::map<const Move, int> oldTabuList=TabuList;
+
     Move move;
     int expires;
     TabuList.clear();
     for (it = oldTabuList.begin(); it!=oldTabuList.end(); it++) {
 	move = it->first;
 	expires= it->second;
-	if ( (move.isIns() and expires > currentIterationIns)
-	   or (move.isIntraSw() and expires > currentIterationIntraSw)
-	   or (move.isInterSw() and expires > currentIterationInterSw) )
-		TabuList[move]=expires;
+	
+	if ( (move.isIns()     and expires <= currentIterationIns) ) continue;
+	else if ( (move.isIntraSw() and expires <= currentIterationIntraSw) ) continue;
+	else if ( (move.isInterSw() and expires <= currentIterationInterSw) ) continue;
+	else TabuList[move]=expires;
     }
+
 }
 
 
@@ -282,8 +285,6 @@ void makeTabu(const Move &m) {
     // generate a randon value between -2 and +2
     // to adjust the tabu length with
     totalMovesMade++;
-STATS->dump("all");
-std::cout<<"*********currentIterationIns"<<currentIterationIns<<"\n";
     int r = rand()%5-2;
     switch (m.getmtype()) {
         case Move::Ins:
@@ -302,11 +303,9 @@ std::cout<<"*********currentIterationIns"<<currentIterationIns<<"\n";
             STATS->inc("tabu InterSw Moves Added");
             break;
     }
-    //cleanExpired();  
+    cleanExpired();  
     addToStats(m);
-#ifndef LOG
-dumpTabuList();
-#endif
+    savingsStats(m);
 }
 
 
@@ -336,7 +335,6 @@ void addToStats(const Move &move) const {
                     case Move::IntraSw: STATS->inc("cnt IntraSw Applied"); break;
                     case Move::InterSw: STATS->inc("cnt InterSw Applied"); break;
          }
-        savingsStats(move);
 };
 
 

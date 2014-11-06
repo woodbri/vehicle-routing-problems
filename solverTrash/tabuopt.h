@@ -44,7 +44,7 @@ bestSolution.tau();
         computeCosts(bestSolution);
         bestSolutionCost = bestSolution.getCost();
 	limitIntraSw=bestSolution.getFleetSize();
-	limitInterSw=limitIntraSw*(limitIntraSw-1)-1 ;
+	limitInterSw=limitIntraSw*(limitIntraSw-1)/2 ;
 	limitIns    =limitInterSw ;
         STATS->set("limitIntraSw", limitIntraSw);
         STATS->set("limitInterSw", limitIntraSw);
@@ -57,18 +57,21 @@ bestSolution.tau();
 
     void search();
     bool doNeighborhoodMoves(neighborMovesName whichNeighborhood, int maxCnt);
-    void getNeighborhood(neighborMovesName whichNeighborhood,Moves &neighborhood,double factor) const;
+    void getNeighborhood(neighborMovesName whichNeighborhood, Moves &neighborhood , double factor) const;
     bool applyAspirationalTabu(Moves &aspirationalTabu);
-    bool classifyMoves(Moves &neighborhood, Moves &aspirationalTabu ,Moves &notTabu,Moves &tabu);
+    bool classifyMoves(Moves &neighborhood);
     bool applyNonTabu (Moves &moves);
     bool applyAmove (const Move &move);
+    bool applyMoves (std::string type, Moves &moves);
     bool applyAspirationalNotTabu (const Move &move);
     bool applyTabu (Moves &moves);
     bool applyTabu (Moves &moves, int strategy);
     bool computeCosts(OptSol &s) ;
     bool reachedMaxCycles(int,neighborMovesName);
     bool dumpMoves(std::string str, Moves moves) const ;
-    void cleanUpInterSwMoves(Moves &moves, const Move &guide) const;
+    void cleanUpInterSwMoves(Moves &moves, const Move &guide) const ;
+    void cleanUpInsMoves(Moves &moves, const Move &guide) ;
+    void cleanUpMoves(const Move &guide) ;
 #ifndef TESTED
     void compareCostWithOSRM(Moves &neighborhood);
 #endif
@@ -76,6 +79,11 @@ bestSolution.tau();
 	int limitIntraSw;
 	int limitInterSw;
 	int limitIns;
+	//mutable Moves neighborhood;
+	mutable Moves aspirationalNotTabu;
+	mutable Moves aspirationalTabu;
+	mutable Moves notTabu;
+	mutable Moves tabu;
 
 };
 

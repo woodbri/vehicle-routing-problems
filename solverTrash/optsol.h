@@ -38,6 +38,7 @@ OptSol(const Solution &solution): Solution(solution){
 
     bool v_applyInterSwMove( const Move &move);
     bool testInterSwMove( const Move &move) const; 
+    bool testInsMove( const Move &move) const; 
     void v_applyMove(const Move&);
     void optimizeTruckNumber();
 
