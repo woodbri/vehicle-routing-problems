@@ -145,7 +145,6 @@ bool OptSol::emptyTheTruck(int fromTruck, std::deque<int> notFull) {
                 };
 
                 if (moves.size()) {
-                  //std::sort(moves.begin(), moves.end(), Move::bySavings);
                   v_applyMove( *(moves.begin()) );
                 } else {
                         fromPos++;

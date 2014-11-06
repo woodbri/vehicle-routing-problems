@@ -187,37 +187,48 @@ std::cout<<"Entering Vehicle::eval_interSwapMoveDumps \n";
 //        Trashnode node = path[fromPos]; //saved for roll back
         Vehicle truck = (*this);
         Vehicle other = otherTruck;
+bool inspect = (truckPos+otherTruckPos)==5 and (truckPos*otherTruckPos)==0; //inspect close combination 0,5
         double originalCost= truck.getCost(twc)  + other.getCost(twc);
         double originalDuration= truck.getduration()  + other.getduration();
         double newCost,savings,newDuration;
+if (inspect) {dumpCostValues();otherTruck.dumpCostValues();}
 	int deltaMovesSize=0;
         int fromNodeId,toNodeId;
 
         for ( int i=1; i<truck.size(); i++) {
 	   if (truck.path[i].isdump() ) continue;
+if (inspect) {
+   std::cout<<" this one"<<i<<":\t" ;truck.path[i].dumpeval();
+}
 	   fromNodeId=truck.path[i].getnid();
 	   //truck.e_makeFeasable(i-1);
            for ( int j=1; j<other.size(); j++) {
 	        //other.e_makeFeasable(j-1);
 		if (other.path[j].isdump()) continue;
+if (inspect) {
+   std::cout<<" with"<<j<<"\t";other.path[j].dumpeval();
+}
 	        toNodeId=other.path[j].getnid();
 
+if (inspect) { truck.tau(); other.tau(); }
 		if ( truck.applyMoveInterSw(other, i, j)) {
 		   newCost=truck.getCost(twc) + other.getCost(twc);
 		   newDuration=truck.getduration() + other.getduration();
 		   savings= originalCost - newCost;
 		   //savings= originalDuration - newDuration;
                    Move move(Move::InterSw , fromNodeId, toNodeId ,  truckPos , otherTruckPos ,  i, j, (savings)   );
-//move.dump();
                    //if (savings>0) {
                      moves.insert(move);
                      deltaMovesSize++;
                    //} 
 		}
-	        //truck.path.swap( i,  other.path, j);
-		truck= (*this);
-		other=otherTruck;
+if (inspect) { truck.tau(); other.tau(); }
+	        truck.path.swap( i,  other.path, j);
+		//truck= (*this);
+		//other=otherTruck;
 		//truck.applyMoveInterSw(other, i, j);
+if (inspect) { truck.tau(); other.tau(); }
+assert (not inspect);
             }
         }
 /*
