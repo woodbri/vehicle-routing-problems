@@ -109,8 +109,8 @@ class Move {
     bool operator<( const Move &rhs ) const { return this->less( rhs ); };
     bool isForbidden( const Move &tabu ) const;
     bool isIns() const {return mtype == Move::Ins;};
-    bool isIntraSw() const {return mtype == Move::Ins;};
-    bool isInterSw() const {return mtype == Move::Ins;};
+    bool isIntraSw() const {return mtype == Move::IntraSw;};
+    bool isInterSw() const {return mtype == Move::InterSw;};
 
     void dump() const;
     void Dump() const;
@@ -137,13 +137,15 @@ class Move {
     int getInsNid() const { return nid1; }
     int getInsFromTruck() const { assert( mtype == Move::Ins ); return vid1; };
     int getInsToTruck() const { assert( mtype == Move::Ins ); return vid2; };
+    int getInsFromPos() const { assert( mtype == Move::Ins ); return pos1; };
+    int getInsToPos() const { assert( mtype == Move::Ins ); return pos2; };
 
     int getIntraSwTruck() const { assert( mtype == Move::IntraSw ); return vid1; };
 
-    int getInterSwFromPos() const { assert( mtype == Move::InterSw ); return pos1; };
-    int getInterSwToPos() const { assert( mtype == Move::InterSw ); return pos2; };
     int getInterSwTruck1() const { assert( mtype == Move::InterSw ); return vid1; };
+    int getInterSwFromPos() const { assert( mtype == Move::InterSw ); return pos1; };
     int getInterSwTruck2() const { assert( mtype == Move::InterSw ); return vid2; };
+    int getInterSwToPos() const { assert( mtype == Move::InterSw ); return pos2; };
 
     bool isTabu( const Move &move ) const;
     bool isTabu( const Move &move, int rule ) const;

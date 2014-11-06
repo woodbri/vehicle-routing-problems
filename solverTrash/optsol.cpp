@@ -66,7 +66,7 @@ void OptSol::optimizeTruckNumber()   {
 	}
 	fromTruck=truckWithMinn;
 
-#ifndef LOG
+#ifdef LOG
 std::cout<<"fromTruck"<<fromTruck<<"\n";
 std::cout<<"need to fit "<<minn<<"containers into \t"<<(z1Tot-z1AtMin);
 std::cout<<"= z1Tot "<<z1Tot<<" - ";
@@ -95,7 +95,6 @@ for (int i=0;i<fullz2.size();i++)
 std::cout<<"\n";
 #endif
 
-tau();
 	if (minn<= (z1Tot-z1AtMin) ) { //a truck can be removed without extra trip in any other truck
 
             emptiedTruck=emptyTheTruck(fromTruck,notFullz1);  //first try to remove the smallest truck
@@ -112,7 +111,7 @@ tau();
 	if (not emptiedTruck and ( minn<= (z2Tot-z2AtMin) or minn<= (z1Tot-z1AtMin) ) ) {
 		emptiedTruck = emptyAtruck(allTrucks,allTrucks);
 	}
-#ifndef LOG
+#ifdef LOG
 std::cout<<"\n"; tau();
 #endif
 }
@@ -299,6 +298,21 @@ std::cout<<"EXIT OptSol::v_getInsNeighborhood "<<moves.size()<<" MOVES found tot
   
  }
 
+
+bool OptSol::testInsMove( const Move &move) const {
+//move.Dump();
+  if (not move.getmtype() == Move::Ins) return false;
+  if ( (move.getInsFromTruck()==move.getInsToTruck()) ) return false;
+  if ( not (fleet[move.getInsFromTruck()] [ move.getInsFromPos()].getnid() == move.getInsNid() )) return false;
+
+  Vehicle truck=fleet[move.getInsFromTruck()];
+  Vehicle other=fleet[move.getInsToTruck()];
+  truck.applyMoveINSerasePart(move.getnid1(), move.getpos1());
+  other.applyMoveINSinsertPart(datanodes[ move.getnid1() ], move.getpos2());
+
+  return truck.feasable() and other.feasable();
+
+}
 
 
 
