@@ -20,17 +20,27 @@
 #include "node.h"
 #include "twbucket.h"
 
-/*
-    Evaluation has to be done
+/*!
+ * \brief  Enumeration to indicate if evaluation has to be done
 */
-
 enum E_Ret {
-    OK        = 0,
-    NO_CHANGE = 1,
-    INVALID   = 2
+    OK        = 0,  ///< OK - the path was updated
+    NO_CHANGE = 1,  ///< NO_CHANGE - there was no need to change the path
+    INVALID   = 2   ///< INVALID - the requested move is not valid, no change was made
 };
 
-
+/*! \class Twpath
+ * \brief Twpath class provides a path container that is auto evaluating.
+ *
+ * A path is an ordered sequence of nodes from start to end. This class
+ * provides a self evaluating container for maintaining a path. The path has
+ * attributes that are maintained with \ref Tweval along the path on each
+ * node in the path such that the attributes on the last node in the path
+ * reflect the totals for the whle path. Twpath also inherits all the non
+ * evaluating methods as it extends \ref TwBucket.
+ *
+ * \sa \ref TwBucket a non evaluating container for nodes
+ */
 template <class knode>
 class Twpath : public TwBucket<knode> {
     // ------------------------------------------------------------------
@@ -45,12 +55,12 @@ class Twpath : public TwBucket<knode> {
     typedef typename std::deque<knode>::iterator iterator;
     typedef typename std::deque<knode>::reverse_iterator reverse_iterator;
     typedef typename std::deque<knode>::const_reverse_iterator
-    const_reverse_iterator;
+        const_reverse_iterator;
     typedef typename std::deque<knode>::const_iterator const_iterator;
 
   public:
     // ------------------------------------------------------------------
-    // methods from TwBcuket class used in the evaluating functions
+    // methods from TwBucket class used in the evaluating functions
     // If a new evaluationg funtion uses a method of Twbucket not listed here
     //     add a new line with the correspondig name
     // ------------------------------------------------------------------
@@ -61,7 +71,23 @@ class Twpath : public TwBucket<knode> {
     using TwBucket<knode>::path;
 
 
-    /* operations within two  paths */
+    /* ---------- operations within two  paths ------------------- */
+
+    /*!
+     * \brief Swap a node in path A with some node in path B
+     *
+     * Given two paths A and B and a position \b i in path A and position
+     * \b j in path B, swap the node A[i] with B[j]. Like:
+     *
+     *      A.e_swap(i, maxCapacityA, B, j, maxCapacityB)
+     *
+     * \param[in] i Position of node in path A
+     * \param[in] maxcap The maximum capacity of vehicle A
+     * \param[in] rhs Vehicle B
+     * \param[in] j Position of node in path B
+     * \param[in] rhs_maxcap The maximum capacity of vehicle B
+     * \return E_Ret to indicate status of the move request
+     */
     E_Ret e_swap( UID i, double maxcap, Twpath<knode> &rhs, UID j,
                   double rhs_maxcap ) {
         assert ( i < size() and j < rhs.size() );
@@ -267,6 +293,14 @@ class Twpath : public TwBucket<knode> {
     };
 
     /*****   EVALUATION   ****/
+
+
+    void evaluate( double maxcapacity ) {
+        assert ( size() > 0 );
+        evaluate( 0, maxcapacity );
+    };
+
+
     void evaluate( UID from, double maxcapacity ) {
         // the equal just in case the last operation was erase
         assert ( from <= size() );
@@ -284,6 +318,38 @@ class Twpath : public TwBucket<knode> {
 
     };
 
+
+    void evaluateOsrm( const std::string osrmBaseUrl ) {
+        assert ( size() > 0 );
+        evaluateOsrm( 0, osrmBaseUrl );
+    }
+
+
+    void evaluateOsrm( UID from, const std::string osrmBaseUrl ) {
+        // the equal just in case the last operation was erase
+        assert ( from <= size() );
+
+        if ( from >= path.size() ) from = size() - 1;
+
+        iterator it = path.begin() + from;
+
+        while ( it != path.end() ) {
+            if ( it == path.begin() ) it->evaluateOsrm();
+            else it->evaluateOsrm( osrmBaseUrl, *( it - 1 ) );
+
+            ++it;
+        }
+    };
+
+    bool isOsrmTtimeValid() const {
+        return path[path.size() - 1].isOsrmTtimeValid();
+    };
+
+    double getTotTravelTimeOsrm() const {
+        return path[path.size() - 1].getTotTravelTimeOsrm();
+    }
+
+
     bool feasable() const {
         return ( path[path.size() - 1].feasable() );
     };
@@ -291,11 +357,6 @@ class Twpath : public TwBucket<knode> {
     void evalLast( double maxcapacity ) {
         assert ( size() > 0 );
         evaluate( path.size() - 1, maxcapacity );
-    };
-
-    void evaluate( double maxcapacity ) {
-        assert ( size() > 0 );
-        evaluate( 0, maxcapacity );
     };
 
     bool operator ==( const Twpath<knode> &other ) {

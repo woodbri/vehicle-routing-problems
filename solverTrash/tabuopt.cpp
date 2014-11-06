@@ -408,17 +408,25 @@ void TabuOpt::compareCostWithOSRM(Moves &neighborhood) {
         switch (it->getmtype()) {
             case Move::Ins:
                 truckFrom = currentSolution[it->getInsFromTruck()];
+                truckFrom.evaluateOsrm();
+
                 truckTo   = currentSolution[it->getInsToTruck()];
+                truckTo.evaluateOsrm();
+
                 truckFromAfter = current[it->getInsFromTruck()];
+                truckFromAfter.evaluateOsrm();
+
                 truckToAfter   = current[it->getInsToTruck()];
+                truckToAfter.evaluateOsrm();
+
                 c_truckFrom       = truckFrom.getcost();
                 c_truckTo         = truckTo.getcost();
-                co_truckFrom      = truckFrom.getCostOSRM();
-                co_truckTo        = truckTo.getCostOSRM();
+                co_truckFrom      = truckFrom.getCostOsrm();
+                co_truckTo        = truckTo.getCostOsrm();
                 c_truckFromAfter  = truckFromAfter.getcost();
                 c_truckToAfter    = truckToAfter.getcost();
-                co_truckFromAfter = truckFromAfter.getCostOSRM();
-                co_truckToAfter   = truckToAfter.getCostOSRM();
+                co_truckFromAfter = truckFromAfter.getCostOsrm();
+                co_truckToAfter   = truckToAfter.getCostOsrm();
                 std::cout << "truckFrom\t" << c_truckFrom
                           << "\t" << c_truckFromAfter
                           << "\t" << co_truckFrom
@@ -436,11 +444,15 @@ void TabuOpt::compareCostWithOSRM(Moves &neighborhood) {
                 break;
             case Move::IntraSw:
                 truck1      = currentSolution[it->getIntraSwTruck()];
+                truck1.evaluateOsrm();
+
                 truck1After = current[it->getIntraSwTruck()];
+                truck1After.evaluateOsrm();
+
                 c_truck1       = truck1.getcost();
-                co_truck1      = truck1.getCostOSRM();
+                co_truck1      = truck1.getCostOsrm();
                 c_truck1After  = truck1After.getcost();
-                co_truck1After = truck1After.getCostOSRM();
+                co_truck1After = truck1After.getCostOsrm();
                 std::cout << "truck1\t" << c_truck1
                           << "\t" << c_truck1After
                           << "\t" << co_truck1
@@ -452,17 +464,25 @@ void TabuOpt::compareCostWithOSRM(Moves &neighborhood) {
                 break;
             case Move::InterSw:
                 truck1 = currentSolution[it->getInterSwTruck1()];
+                truck1.evaluateOsrm();
+
                 truck2 = currentSolution[it->getInterSwTruck2()];
+                truck2.evaluateOsrm();
+
                 truck1After = current[it->getInterSwTruck1()];
+                truck1After.evaluateOsrm();
+
                 truck2After = current[it->getInterSwTruck2()];
+                truck2After.evaluateOsrm();
+
                 c_truck1       = truck1.getcost();
                 c_truck2       = truck2.getcost();
-                co_truck1      = truck1.getCostOSRM();
-                co_truck2      = truck2.getCostOSRM();
+                co_truck1      = truck1.getCostOsrm();
+                co_truck2      = truck2.getCostOsrm();
                 c_truck1After  = truck1After.getcost();
                 c_truck2After  = truck2After.getcost();
-                co_truck1After = truck1After.getCostOSRM();
-                co_truck2After = truck2After.getCostOSRM();
+                co_truck1After = truck1After.getCostOsrm();
+                co_truck2After = truck2After.getCostOsrm();
                 std::cout << "truck1\t" << c_truck1
                           << "\t" << c_truck1After
                           << "\t" << co_truck1
@@ -514,7 +534,7 @@ std::cout<<"Entering TabuOpt::classifyMoves \n";
 	Move guide;
         //std::sort(neighborhood.begin(), neighborhood.end(), Move::bySavings); 
 
-#ifdef VICKY
+#ifdef COMPARE_OSRM
         compareCostWithOSRM(neighborhood);
 #endif
 

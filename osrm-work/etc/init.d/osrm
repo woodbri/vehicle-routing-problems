@@ -1,0 +1,65 @@
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides:          osrm-routed
+# Required-Start:    $remote_fs $syslog $network
+# Required-Stop:     $remote_fs $syslog $network
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# X-Interactive:     true
+# Short-Description: Start/Stop OSRM Server
+### END INIT INFO
+#
+# Get function from functions library
+. /lib/lsb/init-functions
+
+# Get our config info
+if [ -f etc/osrm.conf ] ; then
+    . etc/osrm.conf
+else
+    echo "Missing /etc/osrm.conf !"
+    exit 0
+fi
+
+# Start the service osrm
+start() {
+    initlog -c "echo -n Starting $OSRM server: "
+    args="--start --nicelevel $nice --quiet --oknodo"
+    if [ ! -z "$RUN_AS_USER" ] ; then
+        args="$args --chuid $RUN_AS_USER"
+    fi
+    /sbin/start-stop-daemon  $args --chdir $OSRM_DATA_DIR  --exec $OSRM_ROUTED --  "$OSRM_DATA_DIR/$OSRM_DATA"
+    ### Create the lock file 
+    touch /var/lock/subsys/$OSRM
+    success $"$OSRM server startup"
+    echo
+}
+
+# Stop the service osrm
+stop() {
+    initlog -c "echo -n Stopping $OSRM server: "
+    killproc $OSRM
+    ### Now, delete the lock file
+    rm -f /var/lock/subsys/$OSRM
+    echo
+}
+
+case "$1" in
+  start)
+    start
+    ;;
+  stop)
+    stop
+    ;;
+  status)
+    status $OSRM
+    ;;
+  restart|reload|condrestart)
+    stop
+    start
+    ;;
+  *)
+    echo $"Usage: $0 {start|stop|restart|reload|status}"
+    exit 1
+esac
+exit 0
+

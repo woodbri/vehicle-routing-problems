@@ -48,12 +48,12 @@ class TwBucket {
      */
     typedef typename std::vector<std::vector<double> > TravelTimes;
 
-    /*! \fn double _MIN() const
+    /*! 
      * \brief Define double -infinity
      */
     inline double _MIN() const { return ( -std::numeric_limits<double>::max() );};
 
-    /*! \fn double _MAX() const
+    /*! 
      * \brief Define double +infinity
      */
     inline double _MAX() const { return ( std::numeric_limits<double>::max() );};
@@ -84,14 +84,14 @@ class TwBucket {
 
   public:
 
-    /*! \fn void setTravelTimes(const TravelTimes &_tt)
+    /*! 
      * \brief Assign a travel time matrix to the \ref TwBucket
      */
     void setTravelTimes( const TravelTimes &_tt ) {
         TravelTime = _tt;
     }
 
-    /*! \fn double  timePCN(POS prev, POS curr, POS next) const
+    /*! 
      * \brief Evaluates the time from the previous to current to next container.
      * \param[in] prev Position of the previous node in the path
      * \param[in] curr Position of the current node in the path
@@ -119,7 +119,7 @@ class TwBucket {
                + travelTime(  path[curr], path[next] );
     }
 
-    /*! \fn double  timePCN(POS &prev, POS &curr, const knode &dump) const
+    /*! 
      * \brief Evaluates the time from the previous to current to the dump.
      * \param[in] prev Position of the previous node in the path
      * \param[in] curr Position of the current node in the path
@@ -143,7 +143,7 @@ class TwBucket {
                + travelTime( path[curr], dump );
     }
 
-    /*! \fn double travelTime( const knode &from, const knode &to) const
+    /*! 
      * \brief Fetch the travel time from Node to Node
      * \note Nodes do not need to be in the path.
     */
@@ -151,7 +151,7 @@ class TwBucket {
         return travelTime( from.getnid(), to.getnid()  );
     }
 
-    /*! \fn double travelTime(UID i, UID j) const
+    /*! 
      * \brief Fetch the travel time from nodeId to nodeId
      * \note Nodes do not need to be in the path.
     */
@@ -162,7 +162,7 @@ class TwBucket {
     }
 
 
-    /*! \fn double getDeltaTime(const knode &node, const knode &dump) const
+    /*! 
      * \brief Simulate changes of times within the path
      *
      * Simulates the following change of times within the path
@@ -195,7 +195,7 @@ class TwBucket {
         return delta;
     }
 
-    /*! \fn double getDeltaTimeAfterDump(const knode &dump, const knode &node ) const
+    /*! 
      * \brief Simulate changes in travel times within the path
      *
      * Simulates the following change of travelTimes within the path
@@ -229,7 +229,7 @@ class TwBucket {
     }
 
 
-    /*! \fn double getDeltaTimeSwap(POS pos1, POS pos2) const
+    /*! 
      * \brief Compute the change in time when swapping nodes in pos1 and pos2
      *
      * Simulate swapping nodes in pos1 and pos2 in the path and compute
@@ -333,7 +333,7 @@ class TwBucket {
     }
 
 
-    /*! \fn double getDeltaTime(const knode &node, POS pos , POS pos1) const
+    /*! 
      * \brief Compute the cange in time when swapping node with the node at pos
      *
      * If the current path looks like prev -\> pos -\> pos1 then compute the
@@ -374,7 +374,7 @@ class TwBucket {
         return delta;
     }
 
-    /*! \fn double getDeltaTimeTVcheck(const knode &node, POS pos, POS pos1) const
+    /*! 
      * \brief Compute the change in time when swapping node into pos in the path and do additional time violation checks.
      *
      * If the current path looks like prev -\> pos -\> pos1 then compute the
@@ -404,7 +404,7 @@ class TwBucket {
     }
 
 
-    /*! \fn double getDeltaTime(const knode &node, POS pos) const
+    /*! 
      * \brief Compute the change in time of inserting node before pos in the path.
      *
      * Simulate inserting node before pos in the path and compute the resulting
@@ -432,7 +432,7 @@ class TwBucket {
     }
 
 
-    /*! \fn double getDeltaTimeTVcheck(const knode &node, POS pos) const
+    /*! 
      * \brief Compute the change in time of inserting node before pos in the path and check for TW violations..
      *
      * Simulate inserting node before pos in the path and compute the resulting
@@ -462,7 +462,7 @@ class TwBucket {
     }
 
 
-    /*! \fn bool deltaGeneratesTVupTo(double delta, POS pos, POS upto) const
+    /*! 
      * \brief Check all nodes from pos to upto if adding delta would cause a violation.
      *
      * \param[in] delta The change in time to evaluate.
@@ -484,7 +484,7 @@ class TwBucket {
         return flag;
     }
 
-    /*! \fn bool deltaGeneratesTV(double delta, POS pos) const
+    /*!
      * \brief Check all nodes forward from pos if adding delta would cause a violation.
      *
      * \param[in] delta The change in time to evaluate.
@@ -501,7 +501,7 @@ class TwBucket {
 
     // ---------------- other tools ----------------------------------
 
-    /*! \fn double segmentDistanceToPoint(POS pos, const knode& n) const
+    /*!
      * \brief Compute the shortest distance from a line segment to a node.
      *
      *
@@ -515,7 +515,7 @@ class TwBucket {
         return node.distanceToSegment( path[pos], path[pos + 1] );
     }
 
-    /*! \fn void swap( POS i, POS j )
+    /*!
      * \brief Swap nodes in position i and j in the path
      * \param[in] i First node position to swap.
      * \param[in] j Second node position to swap.
@@ -524,7 +524,7 @@ class TwBucket {
         std::iter_swap( this->path.begin() + i, this->path.begin() + j );
     }
 
-    /*! \fn bool swap( POS t1_pos, TwBucket<knode> &truck2, POS t2_pos )
+    /*!
      * \brief Swap nodes between two paths.
      *
      * Swap nodes nodes between two paths, like
@@ -545,7 +545,7 @@ class TwBucket {
     }
 
 
-    /*! \fn void move( int fromi, int toj )
+    /*! 
      * \brief Move node fromi to the new position of toj in this TwBucket
      *
      */
@@ -563,13 +563,13 @@ class TwBucket {
     };
 
 
-    /*! \fn void dumpid() const
+    /*! 
      * \brief Print the Twbucket using id as node identifiers with the title "Twbucket".
      */
     void dumpid() const {dumpid( "Twbucket" );};
 
 
-    /*! \fn void dumpid(const std::string &title) const
+    /*! 
      * \brief Print the Twbucket using id as node identifiers with user defined title.
      * \param[in] title Title to print with the output of the Twbucket.
      */
@@ -583,13 +583,13 @@ class TwBucket {
         std::cout << std::endl;
     };
 
-    /*! \fn void dump() const
+    /*! 
      * \brief Print the Twbucket using nid as node identifiers with the title "Twbucket".
      */
     void dump() const {dump( "Twbucket" );};
 
 
-    /*! \fn void dump(const std::string &title) const
+    /*! 
      * \brief Print the Twbucket using nid as node identifiers with user defined title.
      * \param[in] title Title to print with the output of the Twbucket.
      */
@@ -606,7 +606,7 @@ class TwBucket {
     // --------------- set operations tools -------------------------
 
 
-    /*! \fn bool hasId(const knode &node) const
+    /*! 
      * \brief Check if a node in the bucket has the same id as node.
      * \param[in] node See if this node is in the bucket based on its id.
      * \return true if a node with the same id was found.
@@ -614,7 +614,7 @@ class TwBucket {
     bool hasId( const knode &node ) const { return hasid( node.getid() ); };
 
 
-    /*! \fn bool hasId(UID id) const
+    /*! 
      * \brief Check if a node in the bucket has this id.
      * \return true if a node with this id was found.
      */
@@ -631,7 +631,7 @@ class TwBucket {
     };
 
 
-    /*! \fn bool has(const knode &node) const
+    /*! 
      * \brief Check if a node in the bucket has the same nid as node.
      * \param[in] node See if this node is in the bucket based on its nid.
      * \return true if a node with the same nid was found.
@@ -639,7 +639,7 @@ class TwBucket {
     bool has( const knode &node ) const { return has( node.getnid() ); };
 
 
-    /*! \fn bool has(UID nid) const
+    /*! 
      * \brief Check if a node in the bucket has this nid.
      * \param[in] nid Check if a node in the bucket has this nid
      * \return true if a node with the same nid was found.
@@ -657,7 +657,7 @@ class TwBucket {
     };
 
 
-    /*! \fn bool operator ==(const TwBucket<knode> &other) const
+    /*! 
      * \brief Compare two buckets and report of they are equal or not.
      */
     bool operator ==( const TwBucket<knode> &other ) const  {
@@ -673,13 +673,13 @@ class TwBucket {
     }
 
 
-    /*! \fn TwBucket<knode>& operator =(const TwBucket<knode> &other)
+    /*! 
      * \brief Copy assignment of another bucket to this bucket.
      *
      * Clears the contents of the current bucket and copies the other
      * bucket into the current bucket.
      *
-     * \prarms[in] other Bucket that will get copy assigned to this bucket.
+     * \param[in] other Bucket that will get copy assigned to this bucket.
      */
     TwBucket<knode> &operator =( const TwBucket<knode> &other )  {
         TwBucket<knode> b = other;
@@ -691,7 +691,7 @@ class TwBucket {
 
     // ----------- set doesnt mind order of nodes ---------------------
 
-    /*! \fn TwBucket<knode> operator +(const TwBucket<knode> &other) const
+    /*! 
      * \brief Perform a set UNION operation of two buckets.
      *
      * If A, B, and newBucket are TwBuckets then newBucket = A + B performs
@@ -711,7 +711,7 @@ class TwBucket {
         return b;
     }
 
-    /*! \fn TwBucket<knode> operator +=(const TwBucket<knode> &other) const
+    /*! 
      * \brief Perform a set UNION operation of this bucket and another bucket.
      *
      * If A and B are TwBuckets then A += B is equivalent to A = A + B and
@@ -731,7 +731,7 @@ class TwBucket {
         return *this;
     }
 
-    /*! \fn TwBucket<knode> operator *(const TwBucket<knode> &other) const
+    /*! 
      * \brief Perform a set INTERSECTION operation between two buckets.
      *
      * If A, B, and newBucket are TwBuckets then newBucket = A * B performs
@@ -755,7 +755,7 @@ class TwBucket {
         return b;
     }
 
-    /*! \fn TwBucket<knode>& operator *=(const TwBucket<knode> &other)
+    /*! 
      * \brief Perform a set INTERSECTION operation of this and another bucket.
      *
      * If A and B TwBuckets then A *= B is equivalent to A = A * B and performs
@@ -779,7 +779,7 @@ class TwBucket {
         return *this;
     }
 
-    /*! \fn TwBucket<knode> operator -( const TwBucket<knode> &other ) const
+    /*! 
      * \brief Perform a set DIFFERENCE operation of this and another bucket.
      *
      * If A, B, and newBucket are TwBuckets then newBucket = A - B performs
@@ -803,7 +803,7 @@ class TwBucket {
         return b;
     }
 
-    /*! \fn TwBucket<knode> operator -=( const TwBucket<knode> &other )
+    /*! 
      * \brief Perform a set DIFFERENCE operation of this and another bucket.
      *
      * If A and B are TwBuckets then A -= B performs
@@ -829,7 +829,7 @@ class TwBucket {
 
     // -------------------- End of Path Tools ----------------------------
 
-    /*! \fn double getTotTravelTime() const
+    /*! 
      * \brief Get the total travel time of the path.
      *
      * The last node in the path contains some path statistics. This method
@@ -843,7 +843,7 @@ class TwBucket {
         return path[size() - 1].getTotTravelTime();
     };
 
-    /*! \fn double getTotWaitTime() const
+    /*! 
      * \brief Get the total wait time of the path.
      *
      * The last node in the path contains some path statistics. This method
@@ -856,7 +856,7 @@ class TwBucket {
         return path[size() - 1].getTotWaitTime();
     };
 
-    /*! \fn double getTotServiceTime() const
+    /*! 
      * \brief Get the total service time of the path based on the last node in the path.
      *
      * The last node in the path contains some path statistics. This method
@@ -869,7 +869,7 @@ class TwBucket {
         return path[size() - 1].getTotServiceTime();
     };
 
-    /*! \fn double getDumpVisits() const
+    /*! 
      * \brief Get the total number of dump visits of the path.
      *
      * The last node in the path contains some path statistics. This method
@@ -882,7 +882,7 @@ class TwBucket {
         return path[size() - 1].getDumpVisits();
     };
 
-    /*! \fn double getDepartureTime() const
+    /*! 
      * \brief Get the departure time of the last node in the path.
      *
      * The last node in the path contains some path statistics. This method
@@ -895,7 +895,7 @@ class TwBucket {
         return path[size() - 1].getDepartureTime();
     };
 
-    /*! \fn int getTwvTot() const
+    /*! 
      * \brief Get the total number of time window violations in the path.
      *
      * The last node in the path contains some path statistics. This method
@@ -908,7 +908,7 @@ class TwBucket {
         return path[size() - 1].gettwvTot();
     };
 
-    /*! \fn int getCvTot() const
+    /*! 
      * \brief Get the total number of capacity violations in the path.
      *
      * The last node in the path contains some path statistics. This method
@@ -926,7 +926,7 @@ class TwBucket {
         return path[size() - 1].gettwvTot();
     };
 
-    /*! \fn double getTotCargo() const
+    /*! 
      * \brief Get the total cargo at the end of the route.
      *
      * The last node in the path contains some path statistics. This method
@@ -947,7 +947,7 @@ class TwBucket {
 
     // ---------- ID based tools  to NID tools ---------------------------
 
-    /*! \fn long int getNidFromId( UID id ) const
+    /*! 
      * \brief Get the internal node id associated with the user id.
      * \param[in] id The user id for the node.
      * \return The internal node id or -1 if user id was not found.
@@ -965,7 +965,7 @@ class TwBucket {
     };
 
 
-    /*! \fn long int posFromId( UID id ) const
+    /*! 
      * \brief Get the position in the path where id is located.
      * \param[in] id The user id for the node.
      * \return The position in the path or -1 if it is not found.
@@ -981,14 +981,14 @@ class TwBucket {
 
     // ------------------  NID tools  -------------------------------
 
-    /*! \fn long int pos( const knode &node ) const
+    /*! 
      * \brief Get the position of node in the path
      * \param[in] node A node object that we want to locate in the path
      * \return returns the position of node in the path or -1 if it's not found.
      */
     long int pos( const knode &node ) const { return pos( node.getnid() ); };
 
-    /*! \fn long int pos( UID nid ) const
+    /*! 
      * \brief Get the position of node id in the path
      * \param[in] nid The node id we want to locate in the path
      * \return The position of node id in the path or -1 if it's not found.
@@ -1002,7 +1002,7 @@ class TwBucket {
     };
 
 
-    /*! \fn std::deque<int> getpath() const
+    /*! 
      * \brief Get a deque of nids that are in the path.
      * \return A deque of the nids in the path.
      */
@@ -1018,7 +1018,7 @@ class TwBucket {
 
     // ------ deque like functions   POSITION based functions  -------
 
-    /*! \fn void insert( const knode &node, UID atPos )
+    /*! 
      * \brief Insert node into path at position atPos
      * \param[in] node The node to insert
      * \param[in] atPos The position it should be inserted at
@@ -1029,7 +1029,7 @@ class TwBucket {
     };
 
 
-    /*! \fn void erase ( int atPos )
+    /*! 
      * \brief Erase the node at location atPos
      * \param[in] atPos The position of the node to be erased.
      */
@@ -1039,7 +1039,7 @@ class TwBucket {
     };
 
 
-    /* \fn void erase ( const knode &node )
+    /* 
      * \brief Erase node from within the path.
      * \param[in] node The node to be erased.
      */
@@ -1050,7 +1050,7 @@ class TwBucket {
     };
 
 
-    /*! \fn void erase ( int fromPos, int toPos )
+    /*! 
      * \brief Erase all node between fromPos and toPos inclusive.
      * \param[in] fromPos Position of the start of the range to be erased.
      * \param[in] toPos Position of the last in the range to be erased.

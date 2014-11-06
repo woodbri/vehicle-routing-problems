@@ -67,7 +67,7 @@ template <class knode> class Plot {
     std::string font;       ///< The filesystem path to a ttf file
 
   public:
-    /*! \fn void calcExtents()
+    /*!
      * \brief Compute the extents of the nodes in the Bucket pts
      */
     void calcExtents() { //const TwBucket<knode>& pnts) {
@@ -105,7 +105,7 @@ template <class knode> class Plot {
     }
 
 
-    /*! \fn Plot(const TwBucket<knode> &_pts)
+    /*!
      * \brief Construct a Plot object using the supplied pts and initialize important attributes.
      */
     Plot( const TwBucket<knode> &_pts ) : pts( _pts ) {
@@ -121,12 +121,12 @@ template <class knode> class Plot {
         #endif
     }
 
-    /*! \fn void setFont(std::string _font)
+    /*!
      * \brief Set the path to a ttf font file
      */
     void setFont( std::string _font ) { font = _font; };
 
-    /*! \fn void setPoints(const std::deque<knode> &_pts)
+    /*!
      * \brief Provide a new set of points to the plot object.
      */
     void setPoints( const std::deque<knode> &_pts ) {
@@ -136,7 +136,7 @@ template <class knode> class Plot {
         #endif
     };
 
-    /*! \fn int makeColor(int i) const
+    /*!
      * \brief Make a valid color that can be used with the Plot object.
      */
     int makeColor( int i ) const {
@@ -151,36 +151,36 @@ template <class knode> class Plot {
         #endif
     };
 
-    /*! \fn void setFile(std::string _file)
+    /*!
      * \brief Set the output image file and path.
      */
     void setFile( std::string _file ) { file = _file; };
 
-    /*! \fn void setTitle(std::string _title)
+    /*!
      * \brief Set the title to use on the image
      */
     void setTitle( std::string _title ) { title = _title; };
 
-    /*! \fn void setSize(int h, int w)
+    /*!
      * \brief Set the image height and width.
      */
     void setSize( int h, int w ) { height = h; width = w; };
 
-    /*! \fn int scalex(double x) const
+    /*!
      * \brief Scale an X value from user units into image units.
      */
     inline int scalex( double x ) const {
         return ( int )( ( x - cx ) * scale + ( double ) width / 2.0 );
     }
 
-    /*! \fn int scaley(double y) const
+    /*!
      * \brief Scale an Y value from user units into image units.
      */
     inline int scaley( double y ) const {
         return ( int ) height - ( ( y - cy ) * scale + ( double ) height / 2.0 );
     }
 
-    /*! \fn void drawInit()
+    /*!
      * \brief Start the drawing process by creating an internal image structure and initializing it.
      */
     void drawInit() {
@@ -193,7 +193,7 @@ template <class knode> class Plot {
         #endif
     }
 
-    /*! \fn void drawPath(std::deque<int> ids, int color, int thick, bool label)
+    /*!
      * \brief Draw a path from point to point using the ids
      * \todo Need to add labels for paths
      */
@@ -234,7 +234,7 @@ template <class knode> class Plot {
         #endif
     }
 
-    /*! \fn void drawPoints(std::deque<int> ids, int color, int size, bool label)
+    /*!
      * \brief Label the nodes with their id's
      */
     void drawPoints( std::deque<int> ids, int color, int size, bool label ) {
@@ -266,7 +266,7 @@ template <class knode> class Plot {
     }
 
 
-    /*! \fn int save()
+    /*!
      * \brief Save the image to the default file name.
      * return 1 on failure, 0 on success
      */
@@ -280,7 +280,7 @@ template <class knode> class Plot {
     }
 
 
-    /*! \fn int save(std::string _file)
+    /*!
      * \brief Save the image to the file argument.
      * \param[in] _file File and path to save the image to.
      * return 1 on failure, 0 on success
@@ -321,7 +321,7 @@ template <class knode> class Plot {
 
     /* with this vehicle plot work and uses the class template */
 
-    /*! \fn void drawPoint(const knode &a, int color, int size, bool label)
+    /*!
      * \brief Draw a point on the image.
      * \param[in] a The point to draw
      * \param[in] color A color defined as "0xRRGGBB" or \ref makeColor
@@ -351,7 +351,7 @@ template <class knode> class Plot {
         #endif
     }
 
-    /*! \fn void drawPath( TwBucket<knode> path, int color, int thick, bool label)
+    /*!
      * \brief Draw a path given a Bucket of nodes.
      * \param[in] path The order Bucket of nodes to be drawn as a path.
      * \param[in] color A color defined as "0xRRGGBB" or \ref makeColor

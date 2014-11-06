@@ -26,63 +26,47 @@
 #include "osrm.h"
 #include "move.h"
 
-// getTimeOSRM() REQUIRES the main() to call cURLpp::Cleanup myCleanup; ONCE!
+// *OSRM() REQUIRES the main() to call cURLpp::Cleanup myCleanup; ONCE!
 
-double BaseVehicle::getCostOSRM() const {
-    double otime = getTimeOSRM();
+
+void BaseVehicle::evaluateOsrm() {
+    double otime = path.getTotTravelTimeOsrm();
+    if ( otime == -1 ) {
+        Timer osrmtime;
+
+        std::string osrmBaseUrl = CONFIG->getString("osrmBaseUrl");
+        path.evaluateOsrm( osrmBaseUrl );
+        dumpSite.evaluateOsrm( osrmBaseUrl, path[path.size() - 1] );
+        endingSite.evaluateOsrm( osrmBaseUrl, dumpSite );
+
+        // stats collection
+        if ( otime == -1 )
+            STATS->inc("failed To Get Time OSRM");
+        STATS->addto("cum Time Get Time OSRM", osrmtime.duration());
+        STATS->inc("cnt Get Time OSRM");
+    }
+
+};
+
+
+double BaseVehicle::getCostOsrm() const {
+    double otime = getTotTravelTimeOsrm();
 
     // if OSRM failed, return -1.0 to indicate a failure
     if (otime == -1) return otime;
+
+    // WARNING: this is only an approximation because changes at a per
+    //          node level need to be evaluated for moving dumps and violations
 
     return w1 * ( otime + path.getTotWaitTime() + path.getTotServiceTime() ) +
            w2 * endingSite.getcvTot() +
            w3 * endingSite.gettwvTot();
 }
 
-double BaseVehicle::getTimeOSRM() const {
-    std::ostringstream url(std::ostringstream::ate);
-    url.str(CONFIG->getString("osrmBaseUrl"));
-    url << "viaroute?z=18&instructions=false&alt=false";
 
-    OSRM osrm;
-    int status;
-    double ttime;
-
-    Timer osrmtime;
-
-    for (int i=0; i<path.size(); i++)
-        url << "&loc=" << path[i].gety() << "," << path[i].getx();
-
-    url << "&loc=" << dumpSite.gety() << "," << dumpSite.getx();
-    url << "&loc=" << endingSite.gety() << "," << endingSite.getx();
-
-//std::cout << "OSRM: " << url.str() << std::endl;
-
-    if(osrm.callOSRM(url.str())) {
-        std::cout << "osrm.callOSRM: failed for url: " << url << std::endl;
-        STATS->inc("failed To Get Time OSRM");
-        return -1.0;
-    }
-
-    if(osrm.getStatus(status)) {
-        std::cout << "osrm.getStatus: reported: " << status << std::endl;
-        STATS->inc("failed To Get Time OSRM");
-        return -1.0;
-    }
-
-    if(osrm.getTravelTime(ttime)) {
-        std::cout << "osrm.getTravelTime failed to find the travel time!" << std::endl;
-        STATS->inc("failed To Get Time OSRM");
-        return -1.0;
-    }
-
-    STATS->addto("cum Time Get Time OSRM", osrmtime.duration());
-    STATS->inc("cnt Get Time OSRM");
-
-    ttime += path.getTotWaitTime() + path.getTotServiceTime();
-
-    return ttime;
-}
+double BaseVehicle::getTotTravelTimeOsrm() const {
+    return endingSite.getTotTravelTimeOsrm();
+};
 
 
 bool BaseVehicle::e_setPath(const Bucket &sol) {
@@ -140,7 +124,7 @@ void BaseVehicle::dump() const {
     std::cout << "cargo: " << getcargo() << std::endl;
     std::cout << "duration: " << getduration() << std::endl;
     std::cout << "cost: " << getcost() << std::endl;
-    std::cout << "OSRM time: " << getTimeOSRM() << std::endl;
+    std::cout << "OSRM time: " << getTotTravelTimeOsrm() << std::endl;
     std::cout << "TWV: " << getTWV() << std::endl;
     std::cout << "CV: " << getCV() << std::endl;
     std::cout << "w1: " << getw1() << std::endl;

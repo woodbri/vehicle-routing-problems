@@ -16,10 +16,17 @@
 
 #include <cassert>
 #include <vector>
+#include <string>
 #include "twnode.h"
 
-//to evaluate the vehicle at node level
 
+/*! \class Tweval
+ * \brief Extend Twnode to evaluate the vehicle at node level
+ *
+ * This class extends Twnode by adding attributes to store information
+ * about the node in a path and provides the tools evaluate the node
+ * and to set and get these attribute values.
+ */
 class Tweval: public Twnode {
   protected:
 
@@ -47,14 +54,30 @@ class Tweval: public Twnode {
     double getTotServiceTime() const { return totServiceTime; };
     double getDumpVisits() const { return dumpVisits; };
     double deltaGeneratesTWV( double deltaTime ) const;
+    double getTotTravelTimeOsrm() const { return totTravelTimeOsrm; };
+    std::string getOsrmUrlLocs() const { return osrmUrlLocs; };
+    std::string getLoc() const;
+    std::string getOsrmUrl( const std::string osrmBaseUrl ) const;
 
 
+    bool isOsrmTtimeValid() { return getTotTravelTimeOsrm()==-1 ? false : true; };
     bool hastwv() const { return twv; };
     bool hascv() const { return cv; };
 
     /* mutators */
     void evaluate ( double cargoLimit );
     void evaluate ( const Tweval &pred, double cargoLimit );
+    void evaluateOsrm ();
+    void evaluateOsrm ( const std::string osrmBaseUrl, const Tweval &pred );
+
+    /*!
+     * \brief Assign a travel time matrix to the class.
+     *
+     * The travel time matrix is a static class object that is shared
+     * between all the Tweval nodes.
+     *
+     * \param[in] _tt A reference to a travel time matrix.
+     */
     void setTravelTimes( const std::vector<std::vector<double> > &_tt ) {
         assert ( _tt.size() );
         TravelTime = _tt;
@@ -67,45 +90,35 @@ class Tweval: public Twnode {
 
 
     /* constructors &destructors */
-    Tweval();
-    Tweval( std::string line ): Twnode( line ) {
-        cv = twv = false;
-        cvTot = twvTot = 0;
-        cargo = 0;
-        arrivalTime = travelTime = waitTime = departureTime = 0;
-        totWaitTime = totTravelTime = totServiceTime = 0;
-    };
 
-    Tweval( int _id, double _x, double _y, int _open, int _close, int _service,
-            int _demand, int _sid ) : Twnode() {
-        set( _id, _id, _x, _y, _demand, _open, _close, _service );
-        setStreetId( _sid );
-        cv = twv = false;
-        cvTot = twvTot = 0;
-        cargo = 0;
-        arrivalTime = travelTime = waitTime = departureTime = 0;
-        totWaitTime = totTravelTime = totServiceTime = 0;
-    };
+    Tweval();
+
+    Tweval( std::string line );
+
+    Tweval( int _id, double _x, double _y, int _open, int _close,
+            int _service, int _demand, int _sid );
 
     ~Tweval() {};
 
   private:
-    bool twv;
-    bool cv;
-    int twvTot;
-    int cvTot;
-    double cargo;
+    bool twv;               ///< Has time window violations (TWV)
+    bool cv;                ///< Has capacity violations (CV)
+    int twvTot;             ///< Total count of TWV at this point in the path
+    int cvTot;              ///< Total count of CV at this point in the path
+    double cargo;           ///< Total accumulated cargo at this point in the path
 
-    double travelTime;
-    double arrivalTime;
-    double waitTime;
+    double travelTime;      ///< Travel time from last node
+    double arrivalTime;     ///< Arrival time at this node
+    double waitTime;        ///< Wait time at this node is early arrival
     //double serviceTime  already in twnode
-    double departureTime;
+    double departureTime;   ///< Departure time from this node
 
-    double totWaitTime;
-    double totTravelTime;
-    double totServiceTime;
-    double dumpVisits;
+    double totWaitTime;     ///< Total accumulated wait time at this point in the path
+    double totTravelTime;   ///< Total accumulated travel time at this point in the path
+    double totServiceTime;  ///< Total accumulated service time at this point in the path
+    double dumpVisits;      ///< Total count of dump visits at this point in the path
+    double totTravelTimeOsrm;   ///< Total accumulated travel time at this point in the path based on the OSRM path
+    std::string osrmUrlLocs;    ///< The partial URL string to get OSRM traveltime to this position in the path
 
 
 };

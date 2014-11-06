@@ -18,7 +18,7 @@
 
 #include "twnode.h"
 
-/*! \fn bool Twnode::isvalid() const
+/*!
  * \brief Check if a Twnode is valid or not.
  * For Twnode to be valid the following conditions must be true:
  * - id \> -1
@@ -33,7 +33,7 @@ bool Twnode::isvalid() const {
 }
 
 
-/*! \fn void Twnode::dump() const
+/*!
  * \brief Print the contents of a Twnode object.
  */
 void Twnode::dump() const {
@@ -51,7 +51,7 @@ void Twnode::dump() const {
 }
 
 
-/*! \fn void Twnode::set(int _nid, int _id, double _x, double _y, int _demand, int _tw_open, int _tw_close, int _service)
+/*!
  * \brief Set the attributes of a Twnode object.
  * \param[in] _nid Value for internal node id
  * \param[in] _id Value for user node id
@@ -79,7 +79,7 @@ void Twnode::set( int _nid, int _id, double _x, double _y, int _demand,
 }
 
 
-/*! \fn Twnode::Twnode(std::string line)
+/*!
  * \brief Create an new Twnode object and populate its attributes by parsing line
  * \param[in] line A string with space separated values
  *
