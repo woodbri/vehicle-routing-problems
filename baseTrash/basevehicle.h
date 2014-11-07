@@ -120,7 +120,7 @@ class BaseVehicle  {
             endingSite.setType(3);
             push_back(depot);
             evalLast();
-dumpeval();
+//dumpeval();
 
         }
         else
@@ -165,7 +165,7 @@ dumpeval();
 	  endingSite.setType(3);
           push_back(depot);
           evalLast();
-dumpeval();
+//dumpeval();
 
        } else vid=-1;  //truck is rejected
    }

@@ -110,13 +110,17 @@ void Prob_trash::plot(Plot<Trashnode> &graph) {
 
 Prob_trash::Prob_trash(const char *infile)
      {
+#ifdef LOG
 std::cout << "---- char * Constructor --------------\n";
+#endif
         std::string file = infile;
         loadProblem(file);
      } 
 
 Prob_trash::Prob_trash(const std::string &infile) {
+#ifdef LOG
 std::cout << "Prob_trash---- string Constructor --------------\n";
+#endif
     loadProblem(infile);
 }
 
@@ -127,7 +131,9 @@ void Prob_trash::loadProblem(const std::string &infile)
     datafile=infile;
     Bucket nodes;
     Bucket intersection;
+#ifdef LOG
 std::cout << "Prob_trash LoadProblem --------------"<< datafile<< "--------\n";
+#endif
 
 
     // read the nodes
@@ -143,8 +149,9 @@ std::cout << "Prob_trash LoadProblem --------------"<< datafile<< "--------\n";
     pickups -= intersection;
     nodes -= intersection;
 
-intersection.dump("intersection");
+#ifndef LOG
 invalid.dump("invalid");
+#endif
 
 
     nodes = pickups+otherlocs;
@@ -174,13 +181,11 @@ invalid.dump("invalid");
 
     load_trucks(datafile+".vehicles.txt");
     assert(trucks.size() and depots.size() and dumps.size() and endings.size());
-#ifdef VICKY
     for (int i=0;i<trucks.size();i++) {
 	trucks[i].setInitialValues(C,twc,pickups);
     }
-#endif
     
-#ifdef TESTED
+#ifdef LOG
 C.dump();
 nodes.dump("nodes");
 dumps.dump("dumps");
@@ -189,8 +194,6 @@ pickups.dump("pickups");
 endings.dump("endings");
 datanodes.dump("datanodes");
 invalid.dump("invalid");
-#endif
-
 std::cout<<"TRUCKS\n";
 for (int i=0;i<trucks.size();i++)
    trucks[i].tau();
@@ -199,7 +202,6 @@ std::cout<<"INVALID TRUCKS\n";
 for (int i=0;i<invalidTrucks.size();i++)
    invalidTrucks[i].tau();
 std::cout<<"\n";
-#ifdef TESTED
 twc.dump();
 #endif
 }

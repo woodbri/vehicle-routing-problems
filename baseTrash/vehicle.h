@@ -99,6 +99,8 @@ class Vehicle: public BaseVehicle {
 
 
     double timePCN(POS prev, POS curr, POS next) const;
+    double timePCN(Trashnode &prev, Trashnode &curr, Trashnode &next) const;
+
     long int eval_intraSwapMoveDumps( Moves &moves, int  truckPos,  double factor, const TWC<Trashnode> &twc ) const;
     long int eval_interSwapMoveDumps( Moves &moves, const Vehicle &otherTruck,int  truckPos,int  otherTruckPos, double factor,  const TWC<Trashnode> &twc ) const; 
     long int eval_insertMoveDumps( const Trashnode &node, Moves &moves, int fromTruck, int formPos, int toTruck, double savings, double factor ,const TWC<Trashnode> &twc) const;
