@@ -58,6 +58,7 @@ class Tweval: public Twnode {
     std::string getOsrmUrlLocs() const { return osrmUrlLocs; };
     std::string getLoc() const;
     std::string getOsrmUrl( const std::string osrmBaseUrl ) const;
+    double getTT(const Tweval &other) const {return TravelTime[nid][other.nid];};
 
 
     bool isOsrmTtimeValid() { return getTotTravelTimeOsrm()==-1 ? false : true; };

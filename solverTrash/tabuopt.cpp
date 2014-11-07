@@ -80,6 +80,7 @@ std::cout<<"Entering TabuOpt::search() \n";
     while (lastImproved < 1 and ++currentIteration < maxIteration);
 
     std::cout << "TABUSEARCH: Total time: " << start.duration() << std::endl;
+    bestSolution.tau();
 }
 
 
@@ -268,7 +269,7 @@ std::cout<<"Entering TabuOpt::doNeighobrhoodMoves\n";
     int Cnt = 0;
     int CntNonAspirational =0;
     int CntNoNeighborhood =0;
-    double factor = 0.5;
+    double factor = 0.01;
     bool limit;
     int actualMoveCount=getTotalMovesMade();
 
@@ -279,13 +280,17 @@ std::cout<<"Entering TabuOpt::doNeighobrhoodMoves\n";
     Moves neighborhood;
 
     do {
+	std::cout<<"Factor:"<<factor<<"\n";
 std::cout<<(getTotalMovesMade()-actualMoveCount)<<" > " <<maxMoves<<"***************************************************\n";
 	if ((getTotalMovesMade()-actualMoveCount) > maxMoves) break;
         std::string solBefore = currentSolution.solutionAsText();
 
-	getNeighborhood(whichNeighborhood,neighborhood,factor); 
+	if (CntNoNeighborhood==0 and notTabu.size()==0 and tabu.size()==0)
+		getNeighborhood(whichNeighborhood,neighborhood,1); 
+	else
+		getNeighborhood(whichNeighborhood,neighborhood,factor); 
         Cnt++;
-#ifndef LOG
+#ifdef LOG
 std::cout<<"Just got a new neighborhood\n";
 std::cout<<"neighborhood size"<<neighborhood.size()<<"\n";
 std::cout<<"aspirationalNotTabu size"<<aspirationalNotTabu.size()<<"\n";
@@ -295,9 +300,12 @@ std::cout<<"Tabu size"<<tabu.size()<<"\n";
 #endif
 
 	if (not neighborhood.size()) { 
+	        //factor=std::min(factor+0.05,1.0); //need to increase the search space
+	        factor=std::min(factor+1.0/limitInterSw,0.99); //need to increase the search space
+
 		CntNoNeighborhood++; 
 std::cout<<" No Moves are found  "<< CntNoNeighborhood <<"\n";
-		if ( reachedMaxCycles(CntNoNeighborhood,whichNeighborhood) ) {
+		if ( factor > 0.99 and reachedMaxCycles(CntNoNeighborhood,whichNeighborhood) ) {
 std::cout<<" Reached end of cycle -No moves found- "<<Cnt<<" out of "<< maxMoves<<"\n";
 		   return improvedBest; //we cycled and no neighborhood moves were found
                 }; 
@@ -330,6 +338,9 @@ std::cout<<"not Tabu size"<<notTabu.size()<<"\n";
 std::cout<<"Tabu size"<<tabu.size()<<"\n";
 #endif
 	if ( aspirationalNotTabu.size() ) {
+		// factor=std::max(factor-0.05,0.1); //found non tabu & aspirational  I am optimistic
+		//factor=std::max(factor-0.01,0.01); //found non tabu & aspirational  I am optimistic
+		factor=0.01; //trully tryllu optimistic
 		while (aspirationalNotTabu.size()) {
 			aspirationalTabu.clear();notTabu.clear(); tabu.clear();
 			applyMoves("aspirational non tabu",aspirationalNotTabu);
@@ -338,8 +349,10 @@ std::cout<<"Tabu size"<<tabu.size()<<"\n";
 		continue;
 	}	
 
+	
 
 	if ( aspirationalTabu.size() ) {
+		factor=std::max(factor-0.01,0.01); //found non tabu & aspirational  I am optimistic
 		while ( aspirationalTabu.size() ) {
 			notTabu.clear(); tabu.clear();
                 	applyMoves("aspirational Tabu",  aspirationalTabu );
@@ -347,6 +360,8 @@ std::cout<<"Tabu size"<<tabu.size()<<"\n";
 		}
 		continue;
         }
+	//factor=std::min(factor+0.05,1.0); //otherwise I am pesimistic & need to increase the search space
+	factor=std::min(factor+1.0/limitInterSw,0.99); //need to increase the search space
 
         if (not reachedMaxCycles(Cnt,whichNeighborhood)) continue;
 
@@ -354,7 +369,9 @@ std::cout<<"Tabu size"<<tabu.size()<<"\n";
 	if ( notTabu.size() ) {
 		while ( notTabu.size() ) {
 			tabu.clear();
+dumpMoves("notTabu",notTabu);
 			applyMoves("not Tabu",  notTabu );
+			if (notTabu.begin()->getsavings()<0) notTabu.clear(); //after aplying 1, only apply positives 
 			Cnt=0;
 		}
 		continue;
@@ -569,7 +586,7 @@ std::cout<<"Entering TabuOpt::classifyMoves \n";
 	    else tabu.insert(*it); 
             	
         };
-#ifndef LOG
+#ifdef LOG
 	std::cout<<" Neighborhood size:  "<< neighborhood.size() <<"\n";
 	std::cout<<" aspirational not Tabu size:  "<< aspirationalNotTabu.size() <<"\n";
 	std::cout<<" aspirational Tabu size:  "<< aspirationalTabu.size() <<"\n";

@@ -145,7 +145,6 @@ bool OptSol::emptyTheTruck(int fromTruck, std::deque<int> notFull) {
                 };
 
                 if (moves.size()) {
-                  //std::sort(moves.begin(), moves.end(), Move::bySavings);
                   v_applyMove( *(moves.begin()) );
                 } else {
                         fromPos++;
@@ -182,17 +181,19 @@ void OptSol::v_getInterSwNeighborhood(Moves &moves, double factor)  const {
     assert (feasable());
     if (not fleet.size())  return;    
 
+    if (factor < 0.996) { //factor greater than 0.996 means to stay in the same neighborhood as last time
+    	if  (interTruckPos1==fleet.size()-2 and interTruckPos2==fleet.size()-1) {interTruckPos1=0; interTruckPos2=1;}
+    	else if (interTruckPos1<fleet.size()-2 and interTruckPos2==fleet.size()-1) { interTruckPos1++; interTruckPos2=interTruckPos1+1;}
+    	else if (interTruckPos2<fleet.size()-1) interTruckPos2++;
+    }
+
     int truckPos=interTruckPos1;
     int otherTruckPos=interTruckPos2;
     
-    if  (interTruckPos1==fleet.size()-2 and interTruckPos2==fleet.size()-1) {interTruckPos1=0; interTruckPos2=1;}
-    else if (interTruckPos1<fleet.size()-2 and interTruckPos2==fleet.size()-1) { interTruckPos1++; interTruckPos2=interTruckPos1+1;}
-    else if (interTruckPos2<fleet.size()-1) interTruckPos2++;
-
-
     moves.clear();
 std::cout<<"working with truck "<<truckPos<<" and"<< otherTruckPos<<"interSw neighborhood\n";
     fleet[truckPos].eval_interSwapMoveDumps( moves, fleet[otherTruckPos], truckPos, otherTruckPos, factor,twc); 
+
 
 #ifdef CHECK
     Move move;
@@ -274,7 +275,6 @@ std::cout<<"EXIT OptSol::v_getInsNeighborhood "<<moves.size()<<" MOVES found tot
   }
 	
   assert(fleet[move.getInterSwTruck1()][ move.getpos1()].getnid() == move.getnid1() );
-
   assert(fleet[move.getInterSwTruck2()][ move.getpos2()].getnid() == move.getnid2() );
  
   fleet[move.getInterSwTruck1()].applyMoveInterSw( fleet[move.getInterSwTruck2()], move.getpos1(),move.getpos2() ) ;

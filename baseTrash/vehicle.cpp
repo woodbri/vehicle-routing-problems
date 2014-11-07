@@ -92,6 +92,13 @@ double Vehicle::timePCN(POS prev, POS curr, POS next) const  {
 	else return path.timePCN(prev,curr,next);
 }
 
+/* no tw checks */
+double Vehicle::timePCN(Trashnode &prev, Trashnode &curr, Trashnode &next) const  {
+	double time= prev.getTT(curr)+curr.getservicetime()+curr.getTT(next);
+	return time;
+}
+
+
 /**
 
 For a truck with n containers, \f$ testedMoves= n * (n +1) / 2\f$ 
@@ -177,49 +184,129 @@ std::cout<<"Entering Vehicle::eval_intraSwapMoveDumps \n";
 }
 
 
-long int Vehicle::eval_interSwapMoveDumps( Moves &moves, const Vehicle &otherTruck,int  truckPos,int  otherTruckPos,  double factor,const TWC<Trashnode> &twc ) const {
+long int Vehicle::eval_interSwapMoveDumps( Moves &moves, const Vehicle &otherTruck,int  truckPos,int  otherTruckPos,  double factor,  const TWC<Trashnode> &twc ) const {
 #ifdef TESTED
 std::cout<<"Entering Vehicle::eval_interSwapMoveDumps \n";
 #endif
-
+double minSavings=-5;
 //        if ( path[fromPos].isdump() ) return moves.size();
 
 //        Trashnode node = path[fromPos]; //saved for roll back
         Vehicle truck = (*this);
         Vehicle other = otherTruck;
+	Trashnode tLast= path[size()-1];
+	Trashnode oLast= other.path[other.path.size()-1];
+	double truckDelta,otherDelta;
+	int numNotFeasable=0;
+bool inspect = (truckPos+otherTruckPos)==5 and (truckPos*otherTruckPos)==0; //inspect close combination 0,5
         double originalCost= truck.getCost(twc)  + other.getCost(twc);
         double originalDuration= truck.getduration()  + other.getduration();
         double newCost,savings,newDuration;
+//if (inspect) {dumpCostValues();otherTruck.dumpCostValues();}
 	int deltaMovesSize=0;
         int fromNodeId,toNodeId;
 
-        for ( int i=1; i<truck.size(); i++) {
+	int inc=5;
+	for ( int m=1;m<6;m++) { 
+        for ( int i=m; i<truck.size(); i+=inc) {
 	   if (truck.path[i].isdump() ) continue;
+	   //if (inspect) { std::cout<<" this one"<<i<<":\t" ;truck.path[i].dumpeval(); }
+std::cout<<"(i)=("<<i<<")\n";
+
 	   fromNodeId=truck.path[i].getnid();
-	   //truck.e_makeFeasable(i-1);
-           for ( int j=1; j<other.size(); j++) {
-	        //other.e_makeFeasable(j-1);
+	   for ( int k=1; k<inc+1; k++) {
+           for ( int j=k; j<other.size(); j+=inc) {
 		if (other.path[j].isdump()) continue;
+		if (numNotFeasable > factor * ( truck.getn() * other.getn()) ) {
+   			std::cout<<"\n LEAVING WITH numNotFeasable"<<numNotFeasable;
+   			std::cout<<"\n LEAVING WITH moves"<<deltaMovesSize;
+			return deltaMovesSize;
+		}
+		if (deltaMovesSize > factor * ( truck.getn() * other.getn()) ) {
+   			std::cout<<"\n LEAVING WITH moves"<<deltaMovesSize;
+   			std::cout<<"\n LEAVING WITH numNotFeasable"<<numNotFeasable;
+			return deltaMovesSize;
+		}
+
+		if (j==other.size()-1) {
+   		    otherDelta=	 timePCN(other.path[j-1],truck.path[i],other.dumpSite)
+  			- timePCN(other.path[j-1],other.path[j],other.dumpSite);
+		} else {
+   		    otherDelta= timePCN(other.path[j-1],truck.path[i],other.path[j+1])
+			- timePCN(other.path[j-1],other.path[j],other.path[j+1]);
+		}
+		if (i==truck.size()-1) {
+   		    truckDelta= timePCN(truck.path[i-1],other.path[j],truck.dumpSite)
+   			- timePCN(truck.path[i-1],truck.path[i],truck.dumpSite);
+		} else {
+   		    truckDelta= timePCN(truck.path[i-1],other.path[j],truck.path[i+1])
+   			- timePCN(truck.path[i-1],truck.path[i],truck.path[i+1]);
+		}
+
+		if ((tLast.getArrivalTime()+truckDelta) > tLast.closes() 
+		   or  (oLast.getArrivalTime()+otherDelta) > oLast.closes() 
+		   or (minSavings > -(truckDelta+otherDelta)) ) {
+			numNotFeasable++;
+			continue;
+		}
+
+#ifdef LOG
+if (inspect) {
+   std::cout<<" with"<<j<<"\t";other.path[j].dumpeval();
+   //std::cout<<"old timePCN"<<timePCN(other.path[j-1],other.path[j],other.path[j+1])<<"\n";
+   //std::cout<<"new timePCN"<<timePCN(other.path[j-1],truck.path[i],other.path[j+1])<<"\n";
+   std::cout<<"delta timePCN"<<otherDelta<<"\n";
+   std::cout<<"last container:"; other.path[other.path.size()-1].dumpeval();
+   std::cout<<"last new arrival time"<<oLast.getArrivalTime()+otherDelta;
+
+   //std::cout<<"\n\nnew timePCN"<<timePCN(truck.path[i-1],other.path[j],truck.path[i+1])<<"\n";
+   //std::cout<<"old timePCN"<<timePCN(truck.path[i-1],truck.path[i],truck.path[i+1])<<"\n";
+   std::cout<<"delta timePCN"<<truckDelta<<"\n";
+   std::cout<<"last container:"; truck.path[truck.path.size()-1].dumpeval();
+   std::cout<<"last new arrival time"<<tLast.getArrivalTime()+truckDelta;
+   std::cout<<"\n";
+}
+#endif	
 	        toNodeId=other.path[j].getnid();
 
+		if (inspect) { truck.tau(); other.tau(); }
+
+		savings=_MIN();
 		if ( truck.applyMoveInterSw(other, i, j)) {
 		   newCost=truck.getCost(twc) + other.getCost(twc);
 		   newDuration=truck.getduration() + other.getduration();
 		   savings= originalCost - newCost;
-		   //savings= originalDuration - newDuration;
+		   savings= originalDuration - newDuration;
                    Move move(Move::InterSw , fromNodeId, toNodeId ,  truckPos , otherTruckPos ,  i, j, (savings)   );
+                   moves.insert(move);
 //move.dump();
-                   //if (savings>0) {
-                     moves.insert(move);
-                     deltaMovesSize++;
+                   deltaMovesSize++;
                    //} 
+		} else numNotFeasable++;
+ 
+		/*else if (inspect) {
+			truck.dumpCostValues();other.dumpCostValues();
+			truck.tau(); other.tau(); 
+			//if (not truck.e_makeFeasable( truckPos )) truck.dumpeval();
+			//if (not other.e_makeFeasable( truckPos )) other.dumpeval();
+   			
+			assert (not inspect);
 		}
+		*/
+		//if (inspect) { truck.tau(); other.tau(); }
 	        //truck.path.swap( i,  other.path, j);
-		truck= (*this);
-		other=otherTruck;
+		//if (not inspect) {
+			truck= (*this);
+			other=otherTruck;
+                   if (savings>0 and inc!=1) {i=std::max(1,i-inc);inc=1;break;}
+		//}
 		//truck.applyMoveInterSw(other, i, j);
+		//if (inspect) { truck.tau(); other.tau(); }
+		//assert (not inspect);
             }
+	    }
         }
+	}
 /*
 if (moves.size()) {
 path[path.size()-1].dumpeval();
@@ -227,6 +314,9 @@ dumpCostValues();
 otherTruck.path[otherTruck.path.size()-1].dumpeval();
 otherTruck.dumpCostValues();
 }*/
+   	std::cout<<"\n NORMAL WITH moves"<<deltaMovesSize;
+   	std::cout<<"\n NORMAL WITH numNotFeasable"<<numNotFeasable;
+	std::cout<<"\n limit was"<<(factor * ( getn() * otherTruck.getn()) ) <<"\n";
 	if ( deltaMovesSize ) return deltaMovesSize;
         return 0;
 }
