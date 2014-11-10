@@ -11,8 +11,8 @@
  * the terms of the MIT License. Please file LICENSE for details.
  *
  ********************************************************************VRP*/
-#ifndef OSRM_H
-#define OSRM_H
+#ifndef VRP_OSRM_H
+#define VRP_OSRM_H
 
 #define OSRMCURL_GET 1
 #define OSRMCURL_PUT 2
@@ -27,14 +27,14 @@
 // json-c lib headers
 #include <json/json.h>
 
-/*! \class OSRM
+/*! \class VrpOSRM
  * \brief Simple interface class to OSRM server.
  *
  * The OSRM class functions take a URL with a viaroute request to an OSRM
  * server and and assists with the extraction of the travel time for
  * the requested route.
  */
-class OSRM {
+class VrpOSRM {
 
   private:
     std::string json;   ///< local storage for the json response string.

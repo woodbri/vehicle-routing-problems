@@ -235,7 +235,7 @@ void Tweval::evaluateOsrm ( const std::string osrmBaseUrl, const Tweval &pred ) 
 
     // construct the complete URL
     std::string url = getOsrmUrl( osrmBaseUrl );
-    OSRM osrm;
+    VrpOSRM osrm;
 
     // if we fail to get the OSRM time then set the error indicator and return
     if ( osrm.callOSRM( url ) ) {

@@ -623,7 +623,7 @@ bool test_osrm() {
         "http://localhost:5000/viaroute?z=18&instructions=false&alt=false&loc=-34.89773,-56.1241&loc=-34.848845,-56.21662&loc=-34.848821,-56.094837&loc=-34.89773,-56.1241";
 
     cURLpp::Cleanup myCleanup;
-    OSRM osrm;
+    VrpOSRM osrm;
 
     if ( osrm.callOSRM( url ) )
         return false;

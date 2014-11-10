@@ -19,7 +19,7 @@
 #include "osrm.h"
 
 
-bool OSRM::getTravelTime( double &ttime ) const {
+bool VrpOSRM::getTravelTime( double &ttime ) const {
     struct json_object *jtree;
     struct json_object *jobj;
 
@@ -55,7 +55,7 @@ bool OSRM::getTravelTime( double &ttime ) const {
 }
 
 
-bool OSRM::getStatus( int &status ) const {
+bool VrpOSRM::getStatus( int &status ) const {
     struct json_object *jtree;
     struct json_object *jobj;
 
@@ -89,7 +89,7 @@ bool OSRM::getStatus( int &status ) const {
 }
 
 
-bool OSRM::callOSRM( const std::string url ) {
+bool VrpOSRM::callOSRM( const std::string url ) {
     std::stringstream result;
 
     //std::cout << "callOSRM: url: " << url << std::endl;

@@ -25,8 +25,9 @@
 #include "timer.h"
 #include "trashconfig.h"
 #include "trashstats.h"
-#include "osrm.h"
 #include "node.h"
+#include "osrmclient.h"
+#include "osrm.h"
 #include "twnode.h"
 #include "trashnode.h"
 #include "twpath.h"
@@ -39,6 +40,31 @@ void Usage() {
 }
 
 static std::string font = "/usr/share/fonts/truetype/ttf-dejavu/DejaVuSans.ttf";
+
+int testOsrmClient() {
+    Timer t0;
+    OsrmClient oc;
+    if (oc.getStatus() == -1) {
+        std::cout << oc.getErrorMsg() << std::endl;
+        oc.dump();
+        return -1;
+    }
+    oc.addViaPoint(-34.88124, -56.19048);
+    oc.addViaPoint(-34.89743, -56.12447);
+    if (oc.getOsrmViaroute( false )) {
+        oc.dump();
+        return -1;
+    }
+    double time;
+    if (oc.getOsrmTime( time )) {
+        oc.dump();
+        return -1;
+    }
+    std::cout << "getOsrmTime: " << time << std::endl;
+    std::cout << "duration: " << t0.duration() << std::endl;
+    return 0;
+}
+
 
 int main(int argc, char **argv) {
 
@@ -53,6 +79,9 @@ int main(int argc, char **argv) {
     cURLpp::Cleanup myCleanup;
 
     try {
+
+        testOsrmClient();
+
         Timer starttime;
 
         CONFIG->set("plotDir", "./logs/");
