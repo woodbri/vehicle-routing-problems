@@ -179,9 +179,10 @@ std::cout<<"working with truck "<<truckPos<<" intraSw neighborhood\n";
 
 void OptSol::v_getInterSwNeighborhood(Moves &moves, double factor)  const {
     assert (feasable());
-    if (not fleet.size())  return;    
+    if (not fleet.size())  return;   //no trucks in solution 
+    if (fleet.size()==1)  return;   //no intersw in 1 truck solution 
 
-    if (factor < 0.996) { //factor greater than 0.996 means to stay in the same neighborhood as last time
+    if (factor < 0.996 and fleet.size()>2) { //factor greater than 0.996 means to stay in the same neighborhood as last time
     	if  (interTruckPos1==fleet.size()-2 and interTruckPos2==fleet.size()-1) {interTruckPos1=0; interTruckPos2=1;}
     	else if (interTruckPos1<fleet.size()-2 and interTruckPos2==fleet.size()-1) { interTruckPos1++; interTruckPos2=interTruckPos1+1;}
     	else if (interTruckPos2<fleet.size()-1) interTruckPos2++;
@@ -303,6 +304,8 @@ bool OptSol::testInsMove( const Move &move) const {
 //move.Dump();
   if (not move.getmtype() == Move::Ins) return false;
   if ( (move.getInsFromTruck()==move.getInsToTruck()) ) return false;
+  if ( move.getInsFromPos() >= fleet[move.getInsFromTruck()].size() ) return false;
+  if ( not move.getInsFromTruck() < fleet.size() ) return false;
   if ( not (fleet[move.getInsFromTruck()] [ move.getInsFromPos()].getnid() == move.getInsNid() )) return false;
 
   Vehicle truck=fleet[move.getInsFromTruck()];
