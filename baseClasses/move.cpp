@@ -105,7 +105,7 @@ void Move::dump() const {
 void Move::Dump() const {
     switch ( mtype ) {
         case Ins:
-            std::cout << "Move: INS"
+            std::cout << "Move: Ins"
                       << "\t    NodeID:" << nid1
                       << "\tFrom Truck:" << vid1
                       << "\t  From Pos:" << pos1
@@ -154,11 +154,11 @@ bool Move::isTabu(const Move &move_e) const  {
 
 
 bool Move::isTabu(const Move &move_e, int rule) const  {
-	if (not mtype==move_e.mtype) return false;
+	if (not (mtype==move_e.mtype))  return false;
 	switch ( mtype ) {
-		case Ins: return insForbidden(move_e,rule);
-		case IntraSw: return move_e.isForbidden(*this);
-		case InterSw: return move_e.isForbidden(*this);
+		case Move::Ins: return insForbidden(move_e,rule);
+		case Move::IntraSw: return move_e.isForbidden(*this);
+		case Move::InterSw: return move_e.isForbidden(*this);
         }
 };
 
@@ -168,7 +168,7 @@ bool Move::isTabu(const Move &move_e, int rule) const  {
 // always *this is the one in the tabu list
 
 bool Move::insForbidden(const Move &move_e, int rule) const {
-	assert (move_e.mtype==Ins);
+	assert (move_e.mtype==Move::Ins);
 	switch (rule) {
 	  case 0: return insForbiddenRule0(move_e);
 	  case 1: return insForbiddenRule1(move_e);
