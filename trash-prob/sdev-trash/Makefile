@@ -114,7 +114,7 @@ callgrind-8: ./bin/trash ./montevideo/muni-b.*
 .PHONY: clean
 
 clean:
-	rm -f trash $(OBJS) $(BASECLASSES_OBJS) $(BASETRASH_OBJS) $(INITTRASH_OBJS)
+	rm -rf $(BIN_DIR)/trash $(BUILD_DIR)/*
 	find . -name "*.d" -type f -delete
 	find . -name "*.png" -type f -delete
 	mkdir -p $(BIN_DIR)

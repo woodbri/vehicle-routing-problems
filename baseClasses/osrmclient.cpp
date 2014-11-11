@@ -1,12 +1,13 @@
 
+#include "Library/OSRM.h"
 #include "osrmclient.h"
 
 
 OsrmClient::OsrmClient() {
     try {
         // create shared memory connection to the server
-        ServerPaths server_paths;
-        routing_machine = OSRM( server_paths, true );
+        //ServerPaths server_paths;
+        //routing_machine = new OSRM( server_paths, true );
 
         route_parameters.zoomLevel = 18;
         route_parameters.printInstructions = false;
@@ -56,17 +57,25 @@ void OsrmClient::addViaPoints( const std::deque<Node> &path ) {
 }
 
 
-bool OsrmClient::getOsrmViaroute( bool wantGeom ) {
-    if ( viaPoints.size() < 2 ) {
+bool OsrmClient::getOsrmViaroute() {
+    if ( route_parameters.coordinates.size() < 2 ) {
         err_msg = "OsrmClient: getOsrmViaroute must be called with two ro more viapoints!";
-        return false;
+        return true;
+    }
+    if ( status == -1 ) {
+        err_msg = "OsrmClient: Failed to connect to server!";
+        return true;
     }
 
     try {
+        // create shared memory connection to the server
+        ServerPaths server_paths;
+        OSRM routing_machine( server_paths, true );
+
         err_msg = "";
         http::Reply osrm_reply;
 
-        routing_machine->RunQuery( route_parameters, osrm_reply );
+        routing_machine.RunQuery( route_parameters, osrm_reply );
 
         httpContent = "";
         std::vector<std::string>::iterator sit;

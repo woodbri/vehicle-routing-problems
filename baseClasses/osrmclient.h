@@ -1,7 +1,8 @@
 #ifndef VRP_OSRMCLIENT_H
 #define VRP_OSRMCLIENT_H
 
-#include "Library/OSRM.h"
+#include "DataStructures/Coordinate.h"
+#include "Server/DataStructures/RouteParameters.h"
 #include "node.h"
 
 #include <string>
@@ -13,23 +14,20 @@ class OsrmClient {
 
   private:
 
-    OSRM * routing_machine;
     RouteParameters route_parameters;
     int status;
     std::string err_msg;
     std::string httpContent;
-    std::vector<FixedPointCoordinate> viaPoints;
 
   public:
 
     OsrmClient();
-    //~OsrmClient() { if (routing_machine) delete routing_machine; };
     void clear();
     void addViaPoint( double lat, double lon );
     void addViaPoint( const Node &node );
     void addViaPoints( const std::deque<Node> &path );
     void setWantGeometry( bool want ) { route_parameters.geometry = want; };
-    bool getOsrmViaroute( bool wantGeom );
+    bool getOsrmViaroute();
     bool getOsrmTime( double &time );
     bool getOsrmGeometry( std::deque<Node> &geom );
     int getStatus() const { return status; };
@@ -44,7 +42,7 @@ class OsrmClient {
         std::cout << "----- OsrmClient ----------"
                   << "\nstatus: " << status
                   << "\nerr_msg: " << err_msg
-                  << "\nviaPoints.size(): " << viaPoints.size()
+                  << "\ncoordinates.size(): " << route_parameters.coordinates.size()
                   << "\nhttpContent: " << httpContent
                   << "\n";
     };

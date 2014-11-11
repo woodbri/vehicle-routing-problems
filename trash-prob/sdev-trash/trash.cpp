@@ -44,20 +44,25 @@ static std::string font = "/usr/share/fonts/truetype/ttf-dejavu/DejaVuSans.ttf";
 int testOsrmClient() {
     Timer t0;
     OsrmClient oc;
+    oc.dump();
     if (oc.getStatus() == -1) {
         std::cout << oc.getErrorMsg() << std::endl;
-        oc.dump();
         return -1;
     }
+    oc.setWantGeometry( true );
     oc.addViaPoint(-34.88124, -56.19048);
     oc.addViaPoint(-34.89743, -56.12447);
-    if (oc.getOsrmViaroute( false )) {
-        oc.dump();
+    oc.dump();
+    if (oc.getOsrmViaroute()) {
+        std::cout << "getOsrmViaroute: Failed!\n";
+        std::cout << oc.getErrorMsg() << std::endl;
         return -1;
     }
+    oc.dump();
     double time;
     if (oc.getOsrmTime( time )) {
-        oc.dump();
+        std::cout << "getOsrmTime Failed!\n";
+        std::cout << oc.getErrorMsg() << std::endl;
         return -1;
     }
     std::cout << "getOsrmTime: " << time << std::endl;
