@@ -32,9 +32,9 @@ OptSol(const Solution &solution): Solution(solution){
 	insTruckPos2=0;
  }; 
 
-    void v_getIntraSwNeighborhood(Moves &moves, double factor) const;
-    void v_getInsNeighborhood(Moves &moves,double factor) const ;
-    void v_getInterSwNeighborhood(Moves &moves, double factor) const;
+    void getIntraSwNeighborhood(Move::Mtype mtype, Moves &moves, double factor) const;
+    void getInsNeighborhood(Moves &moves,double factor) const ;
+    void getInterSwNeighborhood(Moves &moves, double factor) const;
 
     bool v_applyInterSwMove( const Move &move);
     bool testInterSwMove( const Move &move) const; 

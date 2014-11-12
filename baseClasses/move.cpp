@@ -120,6 +120,7 @@ void Move::Dump() const {
                       << "\t    NodeID:" << nid1
                       << "\t  At Truck:" << vid1
                       << "\t  From Pos:" << pos1
+                      << "\t  with NID:" << nid2
                       << "\t    To Pos:" << pos2
                       << "\t   savings:" << savings
                       << std::endl;
@@ -139,6 +140,33 @@ void Move::Dump() const {
     }
 
 }
+
+    void Move::setInsMove( int fromTruck, int fromPos, int fromId, int toTruck, int toPos,double save) {
+	#ifdef DOSTATS
+ 	STATS->inc("Move::setInsMove ");
+	#endif
+	vid1=fromTruck; pos1=fromPos; nid1=fromId;
+	vid2=toTruck;   pos2=toPos;   nid2=fromId;
+	savings=save; mtype=Ins;
+	};
+
+    void Move::setIntraSwMove( int fromTruck, int fromPos, int fromId, int withPos, int withId,double save){ 
+        #ifdef DOSTATS
+        STATS->inc("Move::setIntraSwMove ");
+        #endif
+	vid1=fromTruck; pos1=fromPos; nid1=fromId;
+	vid2=fromTruck; pos2=withPos; nid2=withId;
+	savings=save; mtype=IntraSw;
+	};
+
+    void Move::setInterSwMove( int fromTruck, int fromPos, int fromId, int withTruck, int withPos, int withId,double save){
+        #ifdef DOSTATS
+        STATS->inc("Move::setInterSwMove ");
+        #endif
+	vid1=fromTruck; pos1=fromPos; nid1=fromId;
+	vid2=withTruck; pos2=withPos; nid2=withId;
+	savings=save; mtype=InterSw;
+	};
 
 
 bool Move::isTabu(const Move &move_e) const  {
