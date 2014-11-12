@@ -417,20 +417,30 @@ bool Solution::applyInsMove( const Move &move) {
 
 // 2 vehicles involved
 bool Solution::applyInterSwMove( const Move &move) {
-        assert(move.getmtype() == Move::InterSw);
-        assert(not (move.getInterSwTruck1()==move.getInterSwTruck2()));
-        assert(fleet[move.getInterSwTruck1()][ move.getpos1()].getnid()  == move.getnid1() );
-        assert(fleet[move.getInterSwTruck2()][ move.getpos2()].getnid()  == move.getnid2() );
+  assert(move.getmtype() == Move::InterSw);
+  assert(not (move.getInterSwTruck1()==move.getInterSwTruck2()));
 
-        fleet[move.getInterSwTruck1()].applyMoveInterSw( fleet[move.getInterSwTruck2()],  move.getpos1(),move.getpos2() )  ;
+  if (not (fleet[move.getInterSwTruck1()][ move.getpos1()].getnid() == move.getnid1() )) {
+	std::cout<<"ERROR APPLYING INTERSW ";
+        move.Dump();
+        fleet[move.getInterSwTruck1()][ move.getpos1()].dump();
+        fleet[move.getInterSwTruck2()][ move.getpos2()].dump();
+        std::cout<<"\n";
+  }
 
-        assert( fleet[ move.getInterSwTruck1() ].feasable() );
-        assert( fleet[ move.getInterSwTruck2() ].feasable() );
-        return (fleet[ move.getInterSwTruck1() ].feasable() and  fleet[ move.getInterSwTruck2() ].feasable() );
+  assert(fleet[move.getInterSwTruck1()][ move.getpos1()].getnid() == move.getnid1() );
+  assert(fleet[move.getInterSwTruck2()][ move.getpos2()].getnid() == move.getnid2() );
+
+  fleet[move.getInterSwTruck1()].applyMoveInterSw( fleet[move.getInterSwTruck2()], move.getpos1(),move.getpos2() ) ;
+
+  assert( fleet[ move.getInterSwTruck1() ].feasable() );
+  assert( fleet[ move.getInterSwTruck2() ].feasable() );
+  return (fleet[ move.getInterSwTruck1() ].feasable() and fleet[ move.getInterSwTruck2() ].feasable() );
 }
 
 //1 vehichle involved
 bool Solution::applyIntraSwMove( const Move &move) {
+
         assert(move.getmtype() == Move::IntraSw);
         assert(fleet[move.getIntraSwTruck()][ move.getpos1()].getnid()  == move.getnid1() );
         assert(fleet[move.getIntraSwTruck()][ move.getpos2()].getnid()  == move.getnid2() );

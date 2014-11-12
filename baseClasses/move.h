@@ -16,6 +16,10 @@
 
 #include <limits>
 #include <cassert>
+#include <iostream>
+
+#include "trashstats.h" 
+
 
 /*!
  * \class Move
@@ -75,13 +79,23 @@ class Move {
     /*!
      * \brief Construct a Move object where the move is not defined and mtype is Invalid
      */
-    Move() { mtype = Invalid; nid1 = nid2 = vid1 = vid2 = pos1 = pos2 = -1; savings = -std::numeric_limits<double>::max(); };
+
+    Move() { 
+ 	STATS->inc("Move::Move (it has an assert invalid) ");
+	std::cout<<"IM HERE\n";
+	assert(true==false);
+	mtype = Invalid; nid1 = nid2 = vid1 = vid2 = pos1 = pos2 = -1; savings = -std::numeric_limits<double>::max();
+	 };
+
 
     /*!
      * \brief Construct a Move object and assign the appropriate values.
      */
     Move( Mtype _mtype, int _nid1, int _nid2, int _vid1, int _vid2, int _pos1,
           int _pos2, double _sav ) {
+	#ifdef DOSTATS
+ 	STATS->inc("Move::Move (valid) ");
+	#endif
         mtype = _mtype;
         nid1 = _nid1;
         nid2 = _nid2;
@@ -91,6 +105,9 @@ class Move {
         pos2 = _pos2;
         savings = _sav;
     };
+    void setInsMove( int fromTruck, int fromPos, int fromId, int toTruck, int toPos, double save); 
+    void setIntraSwMove( int fromTruck, int fromPos, int fromId, int withPos, int withId, double save); 
+    void setInterSwMove( int fromTruck, int fromPos, int fromId, int withTruck, int withPos, int withId, double save); 
 
     int getmtype() const { return mtype; };
     int getnid1() const { return nid1; };
@@ -143,6 +160,8 @@ class Move {
     void setInsToPos(int newPos) { assert( mtype == Move::Ins ); pos2=newPos; };
 
     int getIntraSwTruck() const { assert( mtype == Move::IntraSw ); return vid1; };
+    int getIntraSwNid1() const { return nid1; }
+    int getIntraSwNid2() const { return nid2; }
 
     int getInterSwTruck1() const { assert( mtype == Move::InterSw ); return vid1; };
     int getInterSwFromPos() const { assert( mtype == Move::InterSw ); return pos1; };

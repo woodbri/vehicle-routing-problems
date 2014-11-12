@@ -28,7 +28,6 @@ class TabuBase  {
 
 
   protected:
-    typedef enum { Ins, IntraSw, InterSw } neighborMovesName;
     typedef unsigned long int POS;
     typedef unsigned long int UID;
     typedef std::set<Move,Move::compMove> Moves;

@@ -30,25 +30,32 @@ class TabuOpt: public TabuBase<OptSol> {
     TabuOpt(const OptSol &initialSolution) :
          TabuBase(initialSolution)
     {
+	#ifdef DOSTATS
+	STATS->inc("TabuOpt::TabuOpt");
+	#endif
         computeCosts(bestSolution);
         Timer start;
+#ifndef LOG
 bestSolution.tau();
+#endif
     	bestSolution.optimizeTruckNumber();
     	bestTabuList.clear();
-        setBestAsCurrent();
-currentSolution.tau();
-    	//currentSolution=bestSolution;
-    	std::cout << "TABUSEARCH: Removal of truck time: " << start.duration() << std::endl;
-bestSolution.tau();
-
         computeCosts(bestSolution);
         bestSolutionCost = bestSolution.getCost();
+        setBestAsCurrent();
+#ifndef LOG
+std::cout << "TABUSEARCH: Removal of truck time: " << start.duration() << std::endl;
+bestSolution.tau();
+#endif
+
 	limitIntraSw=bestSolution.getFleetSize();
 	limitInterSw=limitIntraSw*(limitIntraSw-1)/2 ;
-	limitIns    =limitInterSw ;
+	limitIns    =limitInterSw;
+	#ifdef DOSTATS
         STATS->set("limitIntraSw", limitIntraSw);
         STATS->set("limitInterSw", limitIntraSw);
         STATS->set("limitIns", limitIntraSw);
+	#endif
     };
 
 
@@ -56,8 +63,8 @@ bestSolution.tau();
     void optimizeTruckNumber();
 
     void search();
-    bool doNeighborhoodMoves(neighborMovesName whichNeighborhood, int maxCnt);
-    void getNeighborhood(neighborMovesName whichNeighborhood, Moves &neighborhood , double factor) const;
+    bool doNeighborhoodMoves( Move::Mtype whichNeighborhood, int maxCnt,Move::Mtype mtype);
+    void getNeighborhood( Move::Mtype whichNeighborhood, Moves &neighborhood , double factor, Move::Mtype mtype) const;
     bool applyAspirationalTabu(Moves &aspirationalTabu);
     bool classifyMoves(Moves &neighborhood);
     bool applyNonTabu (Moves &moves);
@@ -67,11 +74,12 @@ bestSolution.tau();
     bool applyTabu (Moves &moves);
     bool applyTabu (Moves &moves, int strategy);
     bool computeCosts(OptSol &s) ;
-    bool reachedMaxCycles(int,neighborMovesName);
+    bool reachedMaxCycles(int, Move::Mtype);
     bool dumpMoves(std::string str, Moves moves) const ;
     void cleanUpInterSwMoves(Moves &moves, const Move &guide) const ;
+    void cleanUpIntraSwMoves(Moves &moves, const Move &guide) const ;
     void cleanUpInsMoves(Moves &moves, const Move &guide) ;
-    void cleanUpMoves(const Move &guide) ;
+    void cleanUpMoves(const Move guide) ;
 #ifndef TESTED
     void compareCostWithOSRM(Moves &neighborhood);
 #endif
