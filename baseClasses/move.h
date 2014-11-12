@@ -18,7 +18,7 @@
 #include <cassert>
 #include <iostream>
 
-#include "trashstats.h" 
+#include "stats.h" 
 
 
 /*!

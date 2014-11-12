@@ -11,8 +11,8 @@
  * the terms of the MIT License. Please file LICENSE for details.
  *
  ********************************************************************VRP*/
-#ifndef TRASHSTATS_H
-#define TRASHSTATS_H
+#ifndef STATS_H
+#define STATS_H
 
 #include <string>
 #include <vector>
@@ -20,14 +20,14 @@
 
 #include "singleton.h"
 
-class TrashStats {
+class Stats {
   private:
     std::map<std::string, double> stats;
 
   public:
 
-    TrashStats() { stats.clear(); };
-    ~TrashStats() {};
+    Stats() { stats.clear(); };
+    ~Stats() {};
 
     double getval(const std::string key) const;
     std::vector<std::string> getkeys() const;
@@ -39,9 +39,9 @@ class TrashStats {
     void clear() { stats.clear(); };
 };
 
-typedef Singleton<TrashStats> Stats; // Global declaration
+typedef Singleton<Stats> VrpStats; // Global declaration
 
-#define STATS Stats::Instance()
+#define STATS VrpStats::Instance()
 
 #endif
 /*

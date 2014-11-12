@@ -17,7 +17,7 @@
 #include <sstream>
 #include <deque>
 
-#include "trashstats.h"
+#include "stats.h"
 #include "timer.h"
 
 #include "trashconfig.h"
