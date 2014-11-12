@@ -68,8 +68,9 @@ class Tweval: public Twnode {
     /* mutators */
     void evaluate ( double cargoLimit );
     void evaluate ( const Tweval &pred, double cargoLimit );
+    /* Osrm stuff */
     void evaluateOsrm ();
-    void evaluateOsrm ( const std::string osrmBaseUrl, const Tweval &pred );
+    void evaluateOsrm ( const Tweval &pred, const std::string &osrmBaseUrl );
 
     /*!
      * \brief Assign a travel time matrix to the class.

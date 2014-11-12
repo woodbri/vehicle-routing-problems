@@ -15,6 +15,51 @@
 #include <iostream>
 #include "move.h"
 
+    /*!
+     * \brief Construct a Move object where the move is not defined and mtype is Invalid
+     */
+    Move::Move() {
+        #ifdef DOSTATS
+        STATS->inc("Move::Move (invalid) ");
+        #endif
+        mtype = Invalid; nid1 = nid2 = vid1 = vid2 = pos1 = pos2 = -1; savings = -std::numeric_limits<double>::max();
+         };
+
+    /*!
+     * \brief Construct a Move object and assign the appropriate values.
+     */
+    Move::Move( Mtype _mtype, int _nid1, int _nid2, int _vid1, int _vid2, int _pos1,
+          int _pos2, double _sav ) {
+        #ifdef DOSTATS
+        STATS->inc("Move::Move (valid 8 arguments) ");
+        #endif
+        mtype = _mtype;
+        nid1 = _nid1;
+        nid2 = _nid2;
+        vid1 = _vid1;
+        vid2 = _vid2;
+        pos1 = _pos1;
+        pos2 = _pos2;
+        savings = _sav;
+    };
+
+    Move::Move( const Move &move) {
+        #ifdef DOSTATS
+        STATS->inc("Move::Move (copy) ");
+        #endif
+        mtype = move.mtype;
+        nid1 = move.nid1;
+        nid2 = move.nid2;
+        vid1 = move.vid1;
+        vid2 = move.vid2;
+        pos1 = move.pos1;
+        pos2 = move.pos2;
+        savings = move.savings;
+    };
+
+
+
+
 /*!
  * \brief Compare two moves and report if they are equal
  */

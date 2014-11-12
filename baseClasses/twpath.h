@@ -363,20 +363,19 @@ class Twpath : public TwBucket<knode> {
         while ( it != path.end() ) {
             if ( it == path.begin() ) it->evaluate( maxcapacity );
             else it->evaluate( *( it - 1 ), maxcapacity );
-
             it++;
         }
 
     };
 
 
-    void evaluateOsrm( const std::string osrmBaseUrl ) {
+    void evaluateOsrm( const std::string &osrmBaseUrl ) {
         assert ( size() > 0 );
         evaluateOsrm( 0, osrmBaseUrl );
     }
 
 
-    void evaluateOsrm( UID from, const std::string osrmBaseUrl ) {
+    void evaluateOsrm( UID from, const std::string &osrmBaseUrl ) {
         // the equal just in case the last operation was erase
         assert ( from <= size() );
 
@@ -386,8 +385,7 @@ class Twpath : public TwBucket<knode> {
 
         while ( it != path.end() ) {
             if ( it == path.begin() ) it->evaluateOsrm();
-            else it->evaluateOsrm( osrmBaseUrl, *( it - 1 ) );
-
+            else it->evaluateOsrm( *( it - 1 ) , osrmBaseUrl);
             ++it;
         }
     };
