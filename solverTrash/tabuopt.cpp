@@ -20,7 +20,7 @@
 #include "optsol.h"
 #include "tabuopt.h"
 #ifdef DOSTATS
-#include "trashstats.h"
+#include "stats.h"
 #endif
 
 /**

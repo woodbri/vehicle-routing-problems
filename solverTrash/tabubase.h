@@ -18,7 +18,7 @@
 #include <cassert>
 #include <cstdlib>
 
-#include "trashstats.h"
+#include "stats.h"
 #include "timer.h"
 #include "move.h"
 #include "optsol.h"

@@ -19,7 +19,7 @@
 
 /*! \class Singleton
  * \brief A template class for creating  singleton objects.
- * This class if used by \ref Config class and  \ref TrashStats class.
+ * This class if used by \ref Config class and  \ref Stats class.
  *
  * An example of how to use this class to create a simple Logger class:
  *

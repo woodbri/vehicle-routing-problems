@@ -14,10 +14,10 @@
 
 #include <iostream>
 
-#include "trashstats.h"
+#include "stats.h"
 
 
-double TrashStats::getval(const std::string key) const {
+double Stats::getval(const std::string key) const {
     std::map<const std::string, double>::const_iterator it;
     it = stats.find(key);
     if (it == stats.end())
@@ -27,7 +27,7 @@ double TrashStats::getval(const std::string key) const {
 }
 
 
-std::vector<std::string> TrashStats::getkeys() const {
+std::vector<std::string> Stats::getkeys() const {
     std::vector<std::string> keys;
     std::map<std::string, double>::const_iterator it;
 
@@ -38,10 +38,10 @@ std::vector<std::string> TrashStats::getkeys() const {
 }
 
 
-void TrashStats::dump(const std::string title) const {
+void Stats::dump(const std::string title) const {
     std::map<std::string, double>::const_iterator it;
 
-    std::cout << "---------- TrashStats: " << title
+    std::cout << "---------- Stats: " << title
               << " --------------" << std::endl;
     for (it = stats.begin(); it!=stats.end(); ++it)
         std::cout << it->first << ":\t" << it->second << std::endl;
@@ -50,7 +50,7 @@ void TrashStats::dump(const std::string title) const {
 }
 
 
-void TrashStats::inc(const std::string key) {
+void Stats::inc(const std::string key) {
     std::map<std::string, double>::iterator it;
     it = stats.find(key);
     if (it == stats.end())
@@ -60,12 +60,12 @@ void TrashStats::inc(const std::string key) {
 }
 
 
-void TrashStats::set(const std::string key, double val) {
+void Stats::set(const std::string key, double val) {
     stats[key] = val;
 }
 
 
-void TrashStats::addto(const std::string key, double val) {
+void Stats::addto(const std::string key, double val) {
     std::map<std::string, double>::iterator it;
     it = stats.find(key);
     if (it == stats.end())

@@ -17,7 +17,7 @@
 #include <algorithm>
 #include <cstdlib>
 
-#include "trashstats.h"
+#include "stats.h"
 #include "neighborhoods.h"
 #include "tabusearch.h"
 

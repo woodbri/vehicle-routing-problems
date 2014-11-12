@@ -13,7 +13,7 @@
  ********************************************************************VRP*/
 
 #include "timer.h"
-#include "trashstats.h"
+#include "stats.h"
 #include "optsol.h"
 
 
