@@ -102,11 +102,18 @@ class Twpath : public TwBucket<knode> {
 
 
 
-    // nodes handling within the same path
+// ----------  nodes handling within the same path --------------------
 
-    //  path with size 10:  (0......9) retsriction   0 <= i,j <= size-1
-    // i.e. if the path has 10 nodes we can't move from
-    // position 5000 OR can't move to position 5000
+    /*!
+     * \brief Evaluated: Move a node in a path to a new location.
+     *
+     * Move a node in a path to a new location and evaluate the resulting path.
+     *
+     * \param[in] fromi Position of node to move.
+     * \param[in] toDest New position for the node in the path.
+     * \param[in] maxcapacity The maximum capacity of vehicle for this path.
+     * \return Status of whether or not the move was made.
+     */
     E_Ret e_move( UID fromi, UID toDest, double maxcapacity ) {
         assert ( fromi < size() and toDest < size() );
 
@@ -117,7 +124,8 @@ class Twpath : public TwBucket<knode> {
 
         if ( fromi < toDest ) {
             if ( toDest + 1 > path.size() )
-                path.push_back( path[fromi] ); //I think this will never be executed
+                //I think this will never be executed
+                path.push_back( path[fromi] );
             else
                 insert( path[fromi], toDest + 1 );
 
@@ -133,6 +141,17 @@ class Twpath : public TwBucket<knode> {
         return OK;
     };
 
+
+    /*!
+     * \brief Evaluated: Resize a path by trucating it.
+     *
+     * This resize will only trucate a path as a fast way to remove nodes
+     * from the end of the path. The resulting path is evaluated.
+     *
+     * \param[in] numb The number of to retain in the path.
+     * \param[in] maxcapacity The maximum capacity of vehicle for this path.
+     * \return Status of whether or not the move was made.
+     */
     E_Ret e_resize( UID numb, double maxcapacity ) {
         assert ( numb <= size() );
 
@@ -144,6 +163,18 @@ class Twpath : public TwBucket<knode> {
         return OK;
     };
 
+
+    /*!
+     * \brief Evaluated: Swap two nodes in the path.
+     *
+     * This method exchanges two nodes without a given path for the other
+     * swapping them and then evaluating the resultant path.
+     *
+     * \param[in] i The position of the first node to swap.
+     * \param[in] j The position of the second node to swap.
+     * \param[in] maxcapacity The maximum capacity of vehicle for this path.
+     * \return Status of whether or not the move was made.
+     */
     E_Ret e_swap( UID i, UID j, double maxcapacity ) {
         if ( i == j ) return NO_CHANGE;
 
@@ -154,10 +185,19 @@ class Twpath : public TwBucket<knode> {
     };
 
 
-
-    // moves a range of nodes (i-j) to position k without reversing them
-    // probably more efficient with iterators....
-    // but this works
+    /*!
+     * \brief Evaluated: Move a range of nodes to a new position.
+     *
+     * Moves a range of nodes (i-j) to position k without reversing them
+     * and evaluate the resultant path.
+     *
+     * \todo Probably more efficient with iterators
+     * \param[in] i First node position in range to move.
+     * \param[in] j Last node position in range to move.
+     * \param[in] k Destination position to move range to.
+     * \param[in] maxcapacity The maximum capacity of vehicle for this path.
+     * \return Status of whether or not the move was made.
+     */
     E_Ret e_move( UID i, UID j, UID k, double maxcapacity ) {
         if ( ! ( i <= j and ( k > j or k < i ) ) ) return INVALID;
 
@@ -200,8 +240,19 @@ class Twpath : public TwBucket<knode> {
     }
 
 
-
-    // moves a range of nodes (i-j) to position k and reverses those nodes
+    /*!
+     * \brief Evaluated: Move a range of nodes to a new position and reverse the order of the moved range of nodes.
+     *
+     * Moves a range of nodes (i-j) to position k and reverses the order of
+     * the nodes in the range getting moved and evaluate the resultant path.
+     *
+     * \todo Probably more efficient with iterators
+     * \param[in] i First node position in range to move.
+     * \param[in] j Last node position in range to move.
+     * \param[in] k Destination position to move range to.
+     * \param[in] maxcapacity The maximum capacity of vehicle for this path.
+     * \return Status of whether or not the move was made.
+     */
     E_Ret e_movereverse( UID i, UID j, int k, double maxcapacity ) {
         // path: 0 1 2 [3 4 5] 6 7 8 9
         // invalid moves are:
