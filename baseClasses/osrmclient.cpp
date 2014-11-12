@@ -25,7 +25,7 @@ OsrmClient::OsrmClient() {
     catch ( std::exception & e ) {
         status = -1;
         //routing_machine = NULL;
-        err_msg = std::string("OsrmClient: cauth exception: ") + e.what();
+        err_msg = std::string("OsrmClient: caught exception: ") + e.what();
     };
 }
 
