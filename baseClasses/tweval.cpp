@@ -221,7 +221,7 @@ void Tweval::evaluateOsrm () {
  * \param[in] osrmBaseUrl The OSRm base URl passed in from application.
  * \param[in] pred The previous node in the path.
  */
-void Tweval::evaluateOsrm ( const std::string osrmBaseUrl, const Tweval &pred ) {
+void Tweval::evaluateOsrm ( const Tweval &pred, const std::string &osrmBaseUrl ) {
     // if there was a previous error in the path computing OSRM time
     // then we have already failed so just fail here and return
     double ttimePred = pred.getTotTravelTimeOsrm();

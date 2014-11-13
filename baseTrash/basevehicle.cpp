@@ -36,8 +36,8 @@ void BaseVehicle::evaluateOsrm() {
 
         std::string osrmBaseUrl = CONFIG->getString("osrmBaseUrl");
         path.evaluateOsrm( osrmBaseUrl );
-        dumpSite.evaluateOsrm( osrmBaseUrl, path[path.size() - 1] );
-        endingSite.evaluateOsrm( osrmBaseUrl, dumpSite );
+        dumpSite.evaluateOsrm( path[path.size() - 1] , osrmBaseUrl);
+        endingSite.evaluateOsrm( dumpSite, osrmBaseUrl );
 
         // stats collection
         if ( otime == -1 )

@@ -73,8 +73,8 @@ std::cout<<"Entering TabuOpt::search() \n";
         // this is a token ring search
 	setBestAsCurrent();
 	
-//        improvedBest = doNeighborhoodMoves(Move::InterSw, 1 , Move::InterSw );
-//        improvedBest |= doNeighborhoodMoves(Move::IntraSw, 1, Move::InterSw);
+        improvedBest = doNeighborhoodMoves(Move::InterSw, 1 , Move::InterSw );
+        improvedBest |= doNeighborhoodMoves(Move::IntraSw, 1, Move::InterSw);
         improvedBest |= doNeighborhoodMoves(Move::Ins, 1 ,    Move::Ins);
         improvedBest |= doNeighborhoodMoves(Move::IntraSw, 1, Move::Ins);
 
@@ -226,11 +226,13 @@ std::cout<<"Entering TabuOpt::doNeighobrhoodMoves\n";
     STATS->set("factor", factor);
     Moves neighborhood;
 
+currentSolution.tau();
     do {
 #ifndef LOG
 std::cout<<(getTotalMovesMade()-actualMoveCount)<<" > " <<maxMoves<<"***************************************************\n";
 #endif
 	if ((getTotalMovesMade()-actualMoveCount) > maxMoves) break;
+
         std::string solBefore = currentSolution.solutionAsText();
 
 	if (factor==0.01 and CntNoNeighborhood==0 and notTabu.size()==0 and tabu.size()==0)
@@ -313,7 +315,7 @@ std::cout<<" Reached end of cycle - for No moves found- "<<Cnt<<" out of "<< max
     }	
     while (  (getTotalMovesMade()-actualMoveCount) < maxMoves );
 
-#ifndef TESTED
+#ifndef LOG
 std::cout<<" Moves made "<<Cnt<<" out of "<< maxMoves<<"\n";
 #endif
     return improvedBest;

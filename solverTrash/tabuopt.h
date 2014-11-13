@@ -80,13 +80,11 @@ bestSolution.tau();
     void cleanUpIntraSwMoves(Moves &moves, const Move &guide) const ;
     void cleanUpInsMoves(Moves &moves, const Move &guide) ;
     void cleanUpMoves(const Move guide) ;
-#ifndef TESTED
-    void compareCostWithOSRM(Moves &neighborhood);
-#endif
     private:
 	int limitIntraSw;
 	int limitInterSw;
 	int limitIns;
+
 	//mutable Moves neighborhood;
 	mutable Moves aspirationalNotTabu;
 	mutable Moves aspirationalTabu;

@@ -140,6 +140,7 @@ std::cout << "Solution::getSolutionForPg: seq: " << seq <<", count: " << count <
 // each vehicle is separated with a -1
 
 std::string Solution::solutionAsText() const {
+//std::cout<<"fleets size"<<fleet.size()<<"\n";
     std::stringstream ss;;
     const std::vector<int> sol = solutionAsVector();
     for (int i=0; i<sol.size(); i++) {
