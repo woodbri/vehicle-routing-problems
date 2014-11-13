@@ -24,7 +24,7 @@
 
 #include "timer.h"
 #include "trashconfig.h"
-#include "trashstats.h"
+#include "stats.h"
 #include "node.h"
 #include "osrmclient.h"
 #include "osrm.h"

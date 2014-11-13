@@ -13,7 +13,7 @@
  ********************************************************************VRP*/
 
 #include "timer.h"
-#include "trashstats.h"
+#include "stats.h"
 #include "optsol.h"
 
 
@@ -161,8 +161,9 @@ bool OptSol::emptyTheTruck(int fromTruck, std::deque<int> notFull) {
 
 	
 
-
+/*
 void OptSol::v_getIntraSwNeighborhood(Moves &moves, double factor)  const {
+std::cout<<"THIS SHOULDNT BE CALLED ";
     moves.clear();
 
     // iterate through each vehicle (vi)
@@ -175,9 +176,34 @@ std::cout<<"working with truck "<<truckPos<<" intraSw neighborhood\n";
        if  (intraTruckPos==fleet.size()-1 ) intraTruckPos=0;
        else intraTruckPos++;
 }
+*/
+void OptSol::getIntraSwNeighborhood(Move::Mtype mtype,  Moves &moves, double factor)  const {
+    moves.clear();
+
+    switch (mtype) {
+	case Move::InterSw:
+std::cout<<"IntraSw working with truck "<<interTruckPos1<<" intraSw neighborhood\n";
+	    fleet[interTruckPos1].eval_intraSwapMoveDumps( moves,  interTruckPos1, factor, twc);
+std::cout<<"IntraSw working with truck "<<interTruckPos2<<" intraSw neighborhood\n";
+	    fleet[interTruckPos2].eval_intraSwapMoveDumps( moves,  interTruckPos2, factor, twc);
+	    moves.begin()->Dump();
+	    break;
+	case Move::Ins:
+std::cout<<"IntraSw working with truck "<<insTruckPos1<<" intraSw neighborhood\n";
+	    fleet[insTruckPos1].eval_intraSwapMoveDumps( moves,  insTruckPos1, factor, twc);
+std::cout<<"IntraSw working with truck "<<insTruckPos2<<" intraSw neighborhood\n";
+	    fleet[insTruckPos2].eval_intraSwapMoveDumps( moves,  insTruckPos2, factor, twc);
+	    moves.begin()->Dump();
+	    break;
+    }
+}
 
 
-void OptSol::v_getInterSwNeighborhood(Moves &moves, double factor)  const {
+
+
+
+
+void OptSol::getInterSwNeighborhood(Moves &moves, double factor)  const {
     assert (feasable());
     if (not fleet.size())  return;   //no trucks in solution 
     if (fleet.size()==1)  return;   //no intersw in 1 truck solution 
@@ -186,13 +212,16 @@ void OptSol::v_getInterSwNeighborhood(Moves &moves, double factor)  const {
     	if  (interTruckPos1==fleet.size()-2 and interTruckPos2==fleet.size()-1) {interTruckPos1=0; interTruckPos2=1;}
     	else if (interTruckPos1<fleet.size()-2 and interTruckPos2==fleet.size()-1) { interTruckPos1++; interTruckPos2=interTruckPos1+1;}
     	else if (interTruckPos2<fleet.size()-1) interTruckPos2++;
+	if (interTruckPos1==interTruckPos2) {interTruckPos1=0; interTruckPos2=1;}
     }
 
     int truckPos=interTruckPos1;
     int otherTruckPos=interTruckPos2;
     
     moves.clear();
-std::cout<<"working with truck "<<truckPos<<" and"<< otherTruckPos<<"interSw neighborhood\n";
+#ifndef LOG
+std::cout<<"InterSw working with truck "<<truckPos<<" and"<< otherTruckPos<<"interSw neighborhood\n";
+#endif
     fleet[truckPos].eval_interSwapMoveDumps( moves, fleet[otherTruckPos], truckPos, otherTruckPos, factor,twc); 
 
 
@@ -213,7 +242,7 @@ std::cout<<"working with truck "<<truckPos<<" and"<< otherTruckPos<<"interSw nei
 
 
 
-void OptSol::v_getInsNeighborhood(Moves &moves, double factor) const {
+void OptSol::getInsNeighborhood(Moves &moves, double factor) const {
 
 #ifdef TESTED
 std::cout<<"Entering OptSol::v_getInsNeighborhood for "<<fleet.size()<<" trucks \n";
@@ -223,8 +252,8 @@ assert (feasable());
     moves.clear();
     double savings;
     if ((insTruckPos1>= fleet.size()) or (insTruckPos2>= fleet.size())) {
-           interTruckPos1=insTruckPos1=fleet.size()-1;
-           interTruckPos2=insTruckPos2=0;
+           insTruckPos1=insTruckPos1=fleet.size()-1;
+           insTruckPos2=insTruckPos2=0;
     };
     if (insTruckPos1 == insTruckPos2) return;
 
@@ -287,8 +316,12 @@ std::cout<<"EXIT OptSol::v_getInsNeighborhood "<<moves.size()<<" MOVES found tot
 
  bool OptSol::testInterSwMove( const Move &move) const {
 //move.Dump();
-  if (not move.getmtype() == Move::InterSw) return false;
+  if ( not (move.getmtype() == Move::InterSw) ) return false;
   if ( (move.getInterSwTruck1()==move.getInterSwTruck2())) return false;
+  if ( not ( move.getInterSwTruck1() < fleet.size()) ) return false;
+  if ( not ( move.getInterSwTruck2() < fleet.size()) ) return false;
+  if ( not ( move.getpos1() < fleet[move.getInterSwTruck1()].size()) ) return false;
+  if ( not ( move.getpos2() < fleet[move.getInterSwTruck2()].size()) ) return false;
   if ( not (fleet[move.getInterSwTruck1()][ move.getpos1()].getnid() == move.getnid1() )) return false;
   if ( not (fleet[move.getInterSwTruck2()][ move.getpos2()].getnid() == move.getnid2() ))return false;
 
@@ -338,7 +371,7 @@ void OptSol::v_applyMove(const Move &move)  {
         case Move::InterSw:
             {
 //assert (testInterSwMove(move)) ;
-                v_applyInterSwMove( move );
+                applyInterSwMove( move );
                 assert( fleet[move.getvid1()].feasable() );
                 assert( fleet[move.getvid2()].feasable() );
             }

@@ -18,7 +18,7 @@
 #include <cassert>
 #include <cstdlib>
 
-#include "trashstats.h"
+#include "stats.h"
 #include "timer.h"
 #include "move.h"
 #include "optsol.h"
@@ -28,7 +28,6 @@ class TabuBase  {
 
 
   protected:
-    typedef enum { Ins, IntraSw, InterSw } neighborMovesName;
     typedef unsigned long int POS;
     typedef unsigned long int UID;
     typedef std::set<Move,Move::compMove> Moves;
@@ -46,7 +45,7 @@ class TabuBase  {
 
   protected:
     bool allTabu;
-    Move bestMoveAllTabu;
+    //Move bestMoveAllTabu;
 
     int maxIteration;     // limit for token ring cycles
     int currentIteration; // counter for token ring cycles
@@ -58,6 +57,7 @@ class TabuBase  {
     Ksolution bestSolution;
     double bestSolutionCost;
     std::map<const Move, int> bestTabuList;
+
   private:
     int bestIterationIns;
     int bestIterationIntraSw;
@@ -86,17 +86,20 @@ class TabuBase  {
         tabuLengthIns     = std::max(5, std::min(ncnt, 40));
         tabuLengthIntraSw = std::max(5, std::min(ncnt, 15));
         tabuLengthInterSw = std::max(5, std::min(ncnt, 10));
-
+	#ifdef DOSTATS
         STATS->set("tabu Length Ins", tabuLengthIns);
         STATS->set("tabu Length IntraSw", tabuLengthIntraSw);
         STATS->set("tabu Length InterSw", tabuLengthInterSw);
-
+	#endif
         // for repeatible results set this to a constant value
         // for more random results use: srand( time(NULL) );
         srand(37);
     };
 
     void setCurrentAsBest() {
+	#ifdef DOSTATS
+        STATS->inc("Tabubase::setCurrentAsBest");
+	#endif
 	bestSolution=currentSolution;
     	bestSolutionCost=currentCost;
      	bestIterationIns=currentIterationIns;
@@ -106,6 +109,9 @@ class TabuBase  {
     };
 
     void setBestAsCurrent() {
+	#ifdef DOSTATS
+        STATS->inc("Tabubase::setBestAsCurrent");
+	#endif
         currentSolution=bestSolution;
         currentCost=bestSolutionCost;
         currentIterationIns=bestIterationIns;
@@ -144,7 +150,7 @@ class TabuBase  {
     void setTabuLengthIntraSw(int n) { assert(n>0); tabuLengthIntraSw = n; };
     void setTabuLengthInterSw(int n) { assert(n>0); tabuLengthInterSw = n; };
 
-
+/*
     bool insForbidden( int truckPos ) {
 	std::set<int> list= tabuedForInsInsertionPart();
 	return ( list.find(truckPos)==list.end() );
@@ -152,6 +158,9 @@ class TabuBase  {
 	
 
     std::set<int> tabuedForInsInsertionPart() const {
+	#ifdef DOSTATS
+        STATS->inc("Tabubase::tabuedForInsInsertionPart");
+	#endif
 	std::set<int> list;
         std::map<const Move, int>::const_iterator it;
 	Move move;
@@ -162,9 +171,12 @@ class TabuBase  {
 dumpSet("Tabued for insertion",list);
 	return list;
     };
-
+*/
 	
 void dumpSet(std::string title, std::set<int> info) const{
+	#ifdef DOSTATS
+        STATS->inc("Tabubase::dumpTabuList");
+	#endif
         std::set<int>::const_iterator it;
 	std::cout<<"Title: ";
         for (it = info.begin(); it!=info.end(); ++it) {
@@ -177,6 +189,10 @@ void dumpSet(std::string title, std::set<int> info) const{
 
 
 void dumpTabuList() const {
+	#ifdef DOSTATS
+        STATS->inc("Tabubase::dumpTabuList");
+	#endif
+
     std::map<const Move, int>::const_iterator it;
 
     std::cout << "TabuList at iteration: " << currentIteration <<"\t";
@@ -190,22 +206,35 @@ void dumpTabuList() const {
 
 
 void dumpStats() const {
-    std::cout << "TabuList Stats at iteration: " << currentIteration << std::endl;
-    STATS->dump("");
+	#ifdef DOSTATS
+        STATS->inc("Tabubase::dumpStats");
+	#ifndef LOG
+    	std::cout << "TabuList Stats at iteration: " << currentIteration << std::endl;
+	#endif
+    	STATS->dump("");
+	#endif
 };
 
 
 void generateNeighborhoodStats(std::string mtype, double tm, int cnt) const {
+    #ifdef DOSTATS
+    STATS->inc("Tabubase::generateNeighborhoodStats");
     STATS->addto("time Gen "+mtype, tm);
     STATS->inc("cnt Calls Gen "+mtype);
     STATS->addto("cum Moves "+mtype, cnt);
+    #endif
+    #ifndef LOG
 std::cout << "\tdoNeighborhoodMoves for " << mtype << ": " << cnt
 << " moves generated" << std::endl;
+    #endif
 };
 
 
-
+/*
 bool isTabu(const Move& m) const {
+	#ifdef DOSTATS
+        STATS->inc("Tabubase::isTabu");
+	#endif
     std::map<const Move, int>::const_iterator it;
 
     bool myTabu=v_isTabu(m);
@@ -229,14 +258,16 @@ bool isTabu(const Move& m) const {
     assert (myTabu==false);
     return false;
 };
+*/
 
-
-bool v_isTabu(const Move &move_e) const {
+bool isTabu(const Move &move_e) const {
+	#ifdef DOSTATS
+        STATS->inc("Tabubase::isTabu");
+	#endif
 
     std::map<const Move, int>::const_iterator it;
     Move tabu;
     int expires;
-    STATS->inc("tabu Moves Checked");
     for (it = TabuList.begin(); it!=TabuList.end(); ++it) {
 	tabu=(it->first);
 	expires= it->second;
@@ -262,6 +293,9 @@ bool v_isTabu(const Move &move_e) const {
 
 
 void cleanExpired() {
+	#ifdef DOSTATS
+        STATS->inc("Tabubase::cleanExpired");
+	#endif
     std::map<const Move, int>::iterator it;
     std::map<const Move, int> oldTabuList=TabuList;
 
@@ -272,7 +306,7 @@ void cleanExpired() {
 	move = it->first;
 	expires= it->second;
 	
-	if ( (move.isIns()     and expires <= currentIterationIns) ) continue;
+	if ( (it->first.isIns()     and expires <= currentIterationIns) ) continue;
 	else if ( (move.isIntraSw() and expires <= currentIterationIntraSw) ) continue;
 	else if ( (move.isInterSw() and expires <= currentIterationInterSw) ) continue;
 	else TabuList[move]=expires;
@@ -281,35 +315,48 @@ void cleanExpired() {
 }
 
 
-void makeTabu(const Move &m) {
+void makeTabu(const Move &move) {
+	#ifdef DOSTATS
+        STATS->inc("Tabubase::makeTabu");
+	#endif
     // generate a randon value between -2 and +2
     // to adjust the tabu length with
     totalMovesMade++;
     int r = rand()%5-2;
-    switch (m.getmtype()) {
+    switch (move.getmtype()) {
         case Move::Ins:
 	    currentIterationIns++;
-            TabuList[m] = currentIterationIns + tabuLengthIns + r;
+            TabuList[move] = currentIterationIns + tabuLengthIns + r;
+	    #ifdef DOSTATS
             STATS->inc("tabu Ins Moves Added");
+	    #endif
             break;
         case Move::IntraSw:
 	    currentIterationIntraSw++;
-            TabuList[m] = currentIterationIntraSw + tabuLengthIntraSw + r;
+            TabuList[move] = currentIterationIntraSw + tabuLengthIntraSw + r;
+	    #ifdef DOSTATS
             STATS->inc("tabu IntraSw Moves Added");
+	    #endif
             break;
         case Move::InterSw:
 	    currentIterationInterSw++;
-            TabuList[m] = currentIterationInterSw + tabuLengthInterSw + r;
+            TabuList[move] = currentIterationInterSw + tabuLengthInterSw + r;
+	    #ifdef DOSTATS
             STATS->inc("tabu InterSw Moves Added");
+	    #endif
             break;
     }
     cleanExpired();  
-    addToStats(m);
-    savingsStats(m);
+	#ifdef DOSTATS
+    addToStats(move);
+    savingsStats(move);
+	#endif
 }
 
 
 void savingsStats(const Move &move) const{
+	#ifdef DOSTATS
+        STATS->inc("Tabubase::savingsStats");
     if (move.getsavings() < 0) {
         STATS->inc("neg savings applied");
         switch  (move.getmtype()) {
@@ -325,20 +372,27 @@ void savingsStats(const Move &move) const{
                 case Move::InterSw: STATS->inc("pos sav InterSw applied"); break;
         }
     }
+	#endif
 };
                                             
 
 
 void addToStats(const Move &move) const {
+	#ifdef DOSTATS
+        STATS->inc("Tabubase::removeTruckFromTabuList");
          switch ( move.getmtype()) {
                     case Move::Ins:     STATS->inc("cnt Ins Applied");    break;
                     case Move::IntraSw: STATS->inc("cnt IntraSw Applied"); break;
                     case Move::InterSw: STATS->inc("cnt InterSw Applied"); break;
          }
+	#endif
 };
 
 
 void removeTruckFromTabuList(POS truckPos) {
+	#ifdef DOSTATS
+        STATS->inc("Tabubase::removeTruckFromTabuList");
+	#endif
 #ifndef TESTED
 std::cout<<"Entering TabuBase::removeTruckFromTabuList \n";
 #endif
@@ -346,7 +400,6 @@ std::cout<<"Entering TabuBase::removeTruckFromTabuList \n";
         Move move;
         int expires;
         std::map<const Move, int> oldTabuList=TabuList;
-dumpTabuList();
         TabuList.clear();
 
         for (std::map<Move,int>::iterator it = oldTabuList.begin(); it!=oldTabuList.end(); ++it) {
@@ -359,7 +412,6 @@ dumpTabuList();
             if  ( pos2 > truckPos)  move.setvid2( pos2-1 ); //interface for position is with vid
             TabuList[move]=expires;
         }
-dumpTabuList();
 }
 
 
