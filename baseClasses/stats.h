@@ -20,6 +20,29 @@
 
 #include "singleton.h"
 
+/*! \class Stats
+ * \brief Provides a general purpose statistics collection class.
+ *
+ * This class provides a central collection point for statistics collection
+ * while the application code is running. This includes counting events,
+ * accumulating sums of values during the execution, and a simple dump
+ * of the the collected stats as required.
+ *
+ * All stats are double values associated with std::string keys.
+ *
+ * When combined with \ref Timer we can for example, sum the duration of
+ * time spend it a function and count the number of time the function
+ * called.
+ *
+ * Access to this facility requires:
+ *
+ * \code
+ * #include "stats.h"
+ * STATS->method();
+ * \endcode
+ *
+ * where method is one of the various methods documented for the class.
+ */
 class Stats {
   private:
     std::map<std::string, double> stats;
@@ -44,8 +67,3 @@ typedef Singleton<Stats> VrpStats; // Global declaration
 #define STATS VrpStats::Instance()
 
 #endif
-/*
-    Then you can access parameters via:
-
-    STATS->method();
-*/
