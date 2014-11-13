@@ -179,7 +179,10 @@ std::cout<<"working with truck "<<truckPos<<" intraSw neighborhood\n";
 */
 void OptSol::getIntraSwNeighborhood(Move::Mtype mtype,  Moves &moves, double factor)  const {
     moves.clear();
-
+    if (fleet.size()==1)  {
+       fleet[0].eval_intraSwapMoveDumps( moves,  0, factor, twc);
+       return; 
+    }
     switch (mtype) {
 	case Move::InterSw:
 std::cout<<"IntraSw working with truck "<<interTruckPos1<<" intraSw neighborhood\n";
@@ -248,7 +251,7 @@ void OptSol::getInsNeighborhood(Moves &moves, double factor) const {
 std::cout<<"Entering OptSol::v_getInsNeighborhood for "<<fleet.size()<<" trucks \n";
 #endif
 assert (feasable());
-
+    if (fleet.size()==1)  return;   //no ins in 1 truck solution 
     moves.clear();
     double savings;
     if ((insTruckPos1>= fleet.size()) or (insTruckPos2>= fleet.size())) {
