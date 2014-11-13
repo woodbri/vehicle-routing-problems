@@ -5,7 +5,7 @@ all:
 
 start: prep
 	@rm -f nohup.out
-	osrm-datastore /home/stevew/vehicle-routing-problems/osrm-work/uruguay/montevideo.osrm
+	osrm-datastore /home/stevew/work/vehicle-routing-problems/osrm-work/uruguay/montevideo.osrm
 	nohup osrm-routed --sharedmemory=1 &
 #	./run-test-server ./montevideo.osrm -i 0.0.0.0 -p 5000 -t 3
 

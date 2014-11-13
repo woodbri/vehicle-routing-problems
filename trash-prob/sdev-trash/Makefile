@@ -22,7 +22,7 @@ ifeq ($(WITH_OSRMCLIENT), "")
 OSRM_CFLAGS =
 OSRM_LIBS =
 else
-OSRM_CFLAGS = -DOSRMCLIENT -I/home/woodbri/work/osrm-backend/
+OSRM_CFLAGS = -DOSRMCLIENT -I$(HOME)/work/osrm-backend/
 OSRM_LIBS = -L/usr/local/lib -lboost_filesystem -lboost_iostreams -lboost_program_options -lboost_regex -lboost_system -lboost_thread -lpthread -lOSRM -lUUID -lGITDESCRIPTION -lz -lrt -lboost_filesystem -lboost_iostreams -lboost_program_options -lboost_regex -lboost_system -lboost_thread -lpthread -lstxxl
 endif
 
