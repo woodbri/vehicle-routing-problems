@@ -5,10 +5,13 @@ all:
 
 start: prep
 	@rm -f nohup.out
-	./run-test-server ./montevideo.osrm -i 0.0.0.0 -p 5000 -t 3
+	osrm-datastore /home/stevew/vehicle-routing-problems/osrm-work/uruguay/montevideo.osrm
+	nohup osrm-routed --sharedmemory=1 &
+#	./run-test-server ./montevideo.osrm -i 0.0.0.0 -p 5000 -t 3
 
 kill:
 	! sudo killall osrm-routed
+	! osrm-datastore --sharedmemory=0
 	sudo rm -f /run/shm/*
 
 prep: montevideo.osrm
