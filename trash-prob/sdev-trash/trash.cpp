@@ -41,6 +41,14 @@ void Usage() {
 
 static std::string font = "/usr/share/fonts/truetype/ttf-dejavu/DejaVuSans.ttf";
 
+void analyzeOsrmPath(Solution &sol) {
+    Vehicle &t1 = sol[0];
+    int num = t1.size();
+    Trashnode dump = t1.dumpSite();
+    Trashnode end  = t1.endingSite();
+
+}
+
 int testOsrmClient() {
     Timer t0;
     OsrmClient oc;
