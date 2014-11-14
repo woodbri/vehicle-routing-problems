@@ -3,6 +3,9 @@
 #include "osrmclient.h"
 
 
+/*!
+ * \brief The OsrmClient constructor.
+ */
 OsrmClient::OsrmClient() {
     try {
         // create shared memory connection to the server
@@ -30,14 +33,23 @@ OsrmClient::OsrmClient() {
 }
 
 
+/*!
+ * \brief Clear out any old points and reset the OsrmClient to a clean state.
+ */
 void OsrmClient::clear() {
     route_parameters.coordinates.clear();
+    route_parameters.geometry = false;
     httpContent = "";
     err_msg = "";
     if (status > 0) status = 0;
 }
 
 
+/*!
+ * \brief Add a location in WGS84 to the OSRM request.
+ * \param[in] lat The latitude of the location you want to add.
+ * \param[in] lon The Longitude of the location you want to add.
+ */
 void OsrmClient::addViaPoint( double lat, double lon ) {
     FixedPointCoordinate p( lat * COORDINATE_PRECISION,
                             lon * COORDINATE_PRECISION );
@@ -45,11 +57,19 @@ void OsrmClient::addViaPoint( double lat, double lon ) {
 }
 
 
+/*!
+ * \brief Add a \ref Node as a location to the OSRM request.
+ * \param[in] node The Node to add, assumed to be in WGS84.
+ */
 void OsrmClient::addViaPoint( const Node &node ) {
     addViaPoint( node.gety(), node.getx() );
 }
 
 
+/*!
+ * \brief Add a path of \ref Node as locations to a the OSRM request.
+ * \param[in] path A std::deque<Node> that you want to add.
+ */
 void OsrmClient::addViaPoints( const std::deque<Node> &path ) {
     std::deque<Node>::const_iterator it;
     for ( it = path.begin(); it != path.end(); ++it )
@@ -57,6 +77,10 @@ void OsrmClient::addViaPoints( const std::deque<Node> &path ) {
 }
 
 
+/*!
+ * \brief Connect to the OSRM engine, issue the request and save the json response back in the object.
+ * \return True if an error happened and err_msg will be set. False if ok.
+ */
 bool OsrmClient::getOsrmViaroute() {
     if ( route_parameters.coordinates.size() < 2 ) {
         err_msg = "OsrmClient: getOsrmViaroute must be called with two ro more viapoints!";
@@ -96,6 +120,11 @@ bool OsrmClient::getOsrmViaroute() {
 }
 
 
+/*!
+ * \brief Get the OSRM travel time for the requested route.
+ * \param[out] time The OSRM travel time in decimal minutes.
+ * \return True if an error was encountered and err_msg will be set. False if ok.
+ */
 bool OsrmClient::getOsrmTime( double &time ) {
     if ( status != 1 or httpContent.size() == 0 ) {
         err_msg = "OsrmClient: does not have a valid OSRM response!";
@@ -119,6 +148,11 @@ bool OsrmClient::getOsrmTime( double &time ) {
 }
 
 
+/*!
+ * \brief Extract the geometry from the OSRM response if it was requested.
+ * \param[out] geom A std::deque<Node> with each point in the path set as a \ref Node.
+ * \return True if an error was encountered and err_msg will be set. False if ok.
+ */
 bool OsrmClient::getOsrmGeometry( std::deque<Node> &geom ) {
     if ( status != 1 or httpContent.size() == 0 ) {
         err_msg = "OsrmClient: does not have a valid OSRM response!";
@@ -143,6 +177,12 @@ bool OsrmClient::getOsrmGeometry( std::deque<Node> &geom ) {
 
 // --------- private ----------------
 
+
+/*!
+ * \brief Parse the actual json document and extract the OSRM Travel time.
+ * \param[out] time The OSRM travel time as decimal minutes.
+ * \return True if an error and err_msg will be set. False otherwise.
+ */
 bool OsrmClient::getTime( struct json_object *jtree, double &time ) {
     struct json_object * jobj;
 
@@ -166,6 +206,11 @@ bool OsrmClient::getTime( struct json_object *jtree, double &time ) {
 }
 
 
+/*!
+ * \brief Parse the actual json document and extract the geometry Nodes
+ * \param[out] A std::deque<Node> with each point in the path.
+ * \return True if an error and err_msg will be set. False otherwise.
+ */
 bool OsrmClient::getGeom( struct json_object *jtree, std::deque<Node> &geom ) {
     struct json_object * jobj;
 

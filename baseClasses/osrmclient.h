@@ -10,14 +10,26 @@
 #include <vector>
 #include <json/json.h>
 
+/*! \class OsrmClient
+ * \brief This class provides a shared memory connection to OSRM.
+ *
+ * This class interfaces with OSRM via a shared memory connection and wraps
+ * the interface into a simple class to abstract the features we need
+ * access to. This interface is approximately 50 time faster than using
+ * the URL based interface.
+ *
+ * \todo This iterface style receives OSRM results as json text documents
+ *       and we have to parse them. I might be worth the effort to dig deeper
+ *       into the OSRM code to avoid this step.
+ */
 class OsrmClient {
 
   private:
 
-    RouteParameters route_parameters;
-    int status;
-    std::string err_msg;
-    std::string httpContent;
+    RouteParameters route_parameters;   ///< The OSRM request structure
+    int status;                         ///< Current state of the object
+    std::string err_msg;                ///< An error message if an error is reported.
+    std::string httpContent;            ///< the json response document
 
   public:
 
@@ -26,6 +38,15 @@ class OsrmClient {
     void addViaPoint( double lat, double lon );
     void addViaPoint( const Node &node );
     void addViaPoints( const std::deque<Node> &path );
+
+    /*!
+     * \brief Set whether you want the path geometry returned.
+     *
+     * This should be left as False because it is much faster it you
+     * do not need the geometry. It defaults to false.
+     *
+     * \param[in] want True or False if you want the geometry returned.
+     */
     void setWantGeometry( bool want ) { route_parameters.geometry = want; };
     bool getOsrmViaroute();
     bool getOsrmTime( double &time );
