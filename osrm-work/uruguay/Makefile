@@ -1,18 +1,20 @@
-
+#DATADIR = /var/www/osrm-data/uruguay
+DATADIR = /home/stevew/work/vehicle-routing-problems/osrm-work/uruguay/
 
 all:
 	@echo "make start|kill|prep|uruguay|montevideo|clean-data|clean-logs|clean-all"
 
 start: prep
-	@rm -f nohup.out
-	osrm-datastore /home/stevew/work/vehicle-routing-problems/osrm-work/uruguay/montevideo.osrm
+	-rm -f nohup.out
+	osrm-datastore $(DATADIR)/montevideo.osrm
 	nohup osrm-routed --sharedmemory=1 &
 #	./run-test-server ./montevideo.osrm -i 0.0.0.0 -p 5000 -t 3
 
 kill:
-	! sudo killall osrm-routed
+	-sudo rm -f /tmp/osrm.lock
+	-sudo rm -f /run/shm/*
 	! osrm-datastore --sharedmemory=0
-	sudo rm -f /run/shm/*
+	! sudo killall osrm-routed
 
 prep: montevideo.osrm
 
