@@ -67,6 +67,17 @@ int testOsrmClient() {
     }
     std::cout << "getOsrmTime: " << time << std::endl;
     std::cout << "duration: " << t0.duration() << std::endl;
+
+    std::deque<Node> geom;
+    if (oc.getOsrmGeometry( geom )) {
+        std::cout << "getOsrmGeometry Failed!\n";
+        std::cout << oc.getErrorMsg() << std::endl;
+        return -1;
+    }
+    for (int i=0; i<geom.size(); ++i) {
+        std::cout << "geom[" << i << "]: ";
+        geom[i].dump();
+    }
     return 0;
 }
 
@@ -86,6 +97,8 @@ int main(int argc, char **argv) {
     try {
 
         testOsrmClient();
+
+        return 0;
 
         Timer starttime;
 

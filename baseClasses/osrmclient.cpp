@@ -173,18 +173,36 @@ bool OsrmClient::getGeom( struct json_object *jtree, std::deque<Node> &geom ) {
     geom.clear();
 
     // find the route 'geometry' key in the response
-    jobj = json_object_object_get( jtree, "geometry" );
+    jobj = json_object_object_get( jtree, "route_geometry" );
     if ( not jobj ) {
         err_msg = "OsrmClient: failed to find 'geometry' key in OSRM response!";
         return true;
     }
 
-    // parse geometry into path
+    int numPnts = json_object_array_length( jobj );
 
+    //std::cout << "route_geometry: type: " << json_object_get_type(jobj)
+    //          << ", size: " << numPnts << "\n";
 
-    // dummy error return until implemented
-    err_msg = "OsrmClient::getGeom() has not been implemented!";
-    return true; 
+    json_object * jval;
+    for (int i=0; i<numPnts; ++i) {
+        jval = json_object_array_get_idx(jobj, i);
+        //std::cout << "jval: type: " << json_object_get_type(jval)
+        //          << ", size: " << json_object_array_length(jval) << "\n";
+
+        json_object * j0 = json_object_array_get_idx(jval, 0);
+        //std::cout << "j0: type: " << json_object_get_type(j0) << "\n";
+
+        json_object * j1 = json_object_array_get_idx(jval, 1);
+        //std::cout << "j1: type: " << json_object_get_type(j1) << "\n";
+
+        double x = json_object_get_double( j0 );
+        double y = json_object_get_double( j1 );
+        Node n(x, y);
+        geom.push_back( n );
+    }
+
+    return false;
 }
 
 
