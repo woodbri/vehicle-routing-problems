@@ -180,6 +180,7 @@ bool OsrmClient::getOsrmGeometry( std::deque<Node> &geom ) {
 
 /*!
  * \brief Parse the actual json document and extract the OSRM Travel time.
+ * \param[in] jtree The json parse tree pointer.
  * \param[out] time The OSRM travel time as decimal minutes.
  * \return True if an error and err_msg will be set. False otherwise.
  */
@@ -208,7 +209,8 @@ bool OsrmClient::getTime( struct json_object *jtree, double &time ) {
 
 /*!
  * \brief Parse the actual json document and extract the geometry Nodes
- * \param[out] A std::deque<Node> with each point in the path.
+ * \param[in] jtree The json parse tree pointer.
+ * \param[out] geom A std::deque<Node> with each point in the path.
  * \return True if an error and err_msg will be set. False otherwise.
  */
 bool OsrmClient::getGeom( struct json_object *jtree, std::deque<Node> &geom ) {
