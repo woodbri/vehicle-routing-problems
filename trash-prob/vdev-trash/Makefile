@@ -13,9 +13,24 @@ SOLVERTRASH = solverTrash
 BUILD_DIR = ./build
 BIN_DIR = ./bin
 
+# set WITH_OSRMCLIENT = "1" to include this code
+# you will also need to define additional related variables
+
+WITH_OSRMCLIENT = "1"
+
+ifeq ($(WITH_OSRMCLIENT), "")
+OSRM_CFLAGS =
+OSRM_LIBS =
+else
+OSRM_CFLAGS = -DOSRMCLIENT -I$(HOME)/work/osrm-backend/
+OSRM_LIBS = -L/usr/local/lib -lboost_filesystem -lboost_iostreams -lboost_program_options -lboost_regex -lboost_system -lboost_thread -lpthread -lOSRM -lUUID -lGITDESCRIPTION -lz -lrt -lboost_filesystem -lboost_iostreams -lboost_program_options -lboost_regex -lboost_system -lboost_thread -lpthread -lstxxl
+endif
+
+
+
 INCLUDES = -I../../$(BASECLASSES) -I../../$(BASETRASH) -I../../$(INITTRASH) -I../../$(SOLVERTRASH) -I.
-CPPFLAGS = -g -O0 -MMD  -MP $(CURL_CFLAGS) -DDOSTATS
-LDFLAGS = -lgd $(INCLUDES) -L$(BASECLASSES) -L$(BASETRASH) -L$(INITTRASH) $(CURL_LIBS) $(JSON_LIBS) -DDOSTATS
+CPPFLAGS = -g -O0 -MMD  -MP $(CURL_CFLAGS) $(OSRM_CFLAGS) $(DEFINES)
+LDFLAGS = -lgd $(INCLUDES) -L$(BASECLASSES) -L$(BASETRASH) -L$(INITTRASH) $(CURL_LIBS) $(JSON_LIBS) $(OSRM_LIBS)
 
 SRCS =  
 OBJS = $(addprefix $(BUILD_DIR)/,$(SRCS:.cpp=.o))
@@ -24,9 +39,17 @@ HEADS = $(SRCS:.cpp=.h)
 
 
 BASECLASSES_SRCS = $(wildcard ../../$(BASECLASSES)/*.cpp)
+
+# filter out baseClasses/osrmclient.cpp unless
+# WITH_OSRMCLIENT=1 has been set
+
+ifeq ($(WITH_OSRMCLIENT), "")
+BASECLASSES_SRCS := $(filter-out ../../$(BASECLASSES)/osrmclient.cpp, $(BASECLASSES_SRCS))
+endif
+
 BASECLASSES_HDS = $(UTIL_SRCS:.cpp=.h)
 BASECLASSES_OBJS = $(addprefix $(BUILD_DIR)/$(BASECLASSES)/,$(notdir $(BASECLASSES_SRCS:.cpp=.o)))
-BASECLASSES_HEADS = ../../$(BASECLASSES)/twpath.h ../../$(BASECLASSES)/twc.h ../../$(BASECLASSES)/twbucket.h ../../$(BASECLASSES)/plot.h ../../$(BASECLASSES)/singleton.h $(BASECLASSES_HDS)
+BASECLASSES_HEADS = ../../$(BASECLASSES)/twpath.h ../../$(BASECLASSES)/twc.h ../../$(BASECLASSES)/twbucket.h ../../$(BASECLASSES)/plot.h ../../$(BASECLASSES)/singleton.h ../../$(BASECLASSES)/timer.h $(BASECLASSES_HDS)
 
 
 BASETRASH_SRCS = $(wildcard ../../$(BASETRASH)/*.cpp)
@@ -42,7 +65,7 @@ INITTRASH_HEADS = $(INITTRASH_HDS)  $(BASECLASSES_HEADS)
 SOLVERTRASH_SRCS = $(wildcard ../../$(SOLVERTRASH)/*.cpp)
 SOLVERTRASH_HDS = $(SOLVERTRASH_SRCS:.cpp=.h)
 SOLVERTRASH_OBJS = $(addprefix $(BUILD_DIR)/$(SOLVERTRASH)/,$(notdir $(SOLVERTRASH_SRCS:.cpp=.o)))
-SOLVERTRASH_HEADS = $(SOLVERTRASH_HDS)  $(BASECLASSES_HEADS) ../../$(SOLVERTRASH)/tabubase.h
+SOLVERTRASH_HEADS = $(SOLVERTRASH_HDS)  $(BASECLASSES_HEADS)
 
 
 
@@ -78,20 +101,20 @@ bin/trash: build/trash.o $(OBJS) $(BASECLASSES_OBJS) $(BASETRASH_OBJS) $(INITTRA
 	$(CPP) $^ -o $@ $(LDFLAGS)
 
 test: ./bin/trash ./montevideo/muni-b.containers.txt ./montevideo/muni-b.otherlocs.txt ./montevideo/muni-b.dmatrix-time.txt ./montevideo/muni-b.vehicles.txt
-	./bin/trash ./montevideo/muni-b >./montevideo/muni-b.out
+	./bin/trash ./montevideo/muni-b >./logs/muni-b.out
 
-valgrind: ./bin/trash ./data/p10a.txt
+valgrind: ./bin/trash ./montevideo/muni-b.containers.txt ./montevideo/muni-b.otherlocs.txt ./montevideo/muni-b.dmatrix-time.txt ./montevideo/muni-b.vehicles.txt
 	valgrind -v --track-origins=yes --leak-check=full ./bin/trash montevideo/muni-b
 
-callgrind-8: ./bin/trash ./data/p10.txt
-	valgrind --tool=callgrind --callgrind-out-file=callgrind-008.out ./bin/trash montevideo/muni-b
-	callgrind_annotate callgrind-8.out | tee callgrind-8.txt
+callgrind-8: ./bin/trash ./montevideo/muni-b.*
+	valgrind --tool=callgrind --callgrind-out-file=logs/callgrind-008.out ./bin/trash montevideo/muni-b
+	callgrind_annotate logs/callgrind-008.out | tee logs/callgrind-008.txt
 
 
 .PHONY: clean
 
 clean:
-	rm -f trash $(OBJS) $(BASECLASSES_OBJS) $(BASETRASH_OBJS) $(INITTRASH_OBJS)
+	rm -rf $(BIN_DIR)/trash $(BUILD_DIR)/*
 	find . -name "*.d" -type f -delete
 	find . -name "*.png" -type f -delete
 	mkdir -p $(BIN_DIR)
