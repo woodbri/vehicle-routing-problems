@@ -35,7 +35,6 @@ typedef  TwBucket<Trashnode> Bucket;
 
 //    Trashnode depot;
 
-    TWC<Trashnode> twc;
     Twpath<Trashnode> datanodes; //dissallowing set operations
     Bucket otherlocs;
     Bucket dumps;

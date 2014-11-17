@@ -61,7 +61,6 @@ class Vehicle: public BaseVehicle {
     bool e_insertTight(const Trashnode &node, int at) { return  e_insertMoveDumpsTight(node, at); };
     // END TODO LIST
     
-    bool eval_erase(int at, double &savings) const;
     bool applyMoveINSerasePart(int nodeNid, int pos);
     bool applyMoveINSinsertPart(const Trashnode &node, int pos);
     bool applyMoveInterSw(Vehicle &otherTruck, int truckPos, int otherTruckPos);
@@ -101,10 +100,10 @@ class Vehicle: public BaseVehicle {
     double timePCN(POS prev, POS curr, POS next) const;
     double timePCN(Trashnode &prev, Trashnode &curr, Trashnode &next) const;
 
-    long int eval_intraSwapMoveDumps( Moves &moves, int  truckPos,  double factor, const TWC<Trashnode> &twc ) const;
-    long int eval_interSwapMoveDumps( Moves &moves, const Vehicle &otherTruck,int  truckPos,int  otherTruckPos, double factor,  const TWC<Trashnode> &twc ) const; 
-    long int eval_insertMoveDumps( const Trashnode &node, Moves &moves, int fromTruck, int formPos, int toTruck, double savings, double factor ,const TWC<Trashnode> &twc) const;
-    bool eval_erase(int at, double &savings,const TWC<Trashnode> &twc) const;
+    long int eval_intraSwapMoveDumps( Moves &moves, int  truckPos,  double factor ) const;
+    long int eval_interSwapMoveDumps( Moves &moves, const Vehicle &otherTruck,int  truckPos,int  otherTruckPos, double factor   ) const; 
+    long int eval_insertMoveDumps( const Trashnode &node, Moves &moves, int fromTruck, int formPos, int toTruck, double savings, double factor ) const;
+    bool eval_erase(int at, double &savings) const;
 	//for cost function
 	Trashnode C , last;
 	double ttSC, ttDC, ttCD, ttDE, ttCC;
@@ -124,19 +123,19 @@ class Vehicle: public BaseVehicle {
 		return ( path.getTotServiceTime()+  dumpSite.getservicetime() + endingSite.getservicetime() ) ;}  
         double v_cost,workNotDonePerc;
         double getCost() const { return v_cost;};	
-        double getCost(const TWC<Trashnode> &twc) {setCost(twc);  return v_cost;};	
+        double getCost() {setCost();  return v_cost;};	
 	int getz1() const  {return realz1;};
 	int getz2() const {return realz2;};
 	int getn() const {return n;};
 
-        void setInitialValues( const Trashnode &node,const TWC<Trashnode> &twc, const Bucket &picks){
+        void setInitialValues( const Trashnode &node, const Bucket &picks){
 
 		C = node;
-		ttSC=twc.getAverageTime(depot,picks);
-		ttDC=twc.getAverageTime(dumpSite,picks);
-		ttCD=twc.getAverageTime(picks,dumpSite);
-		ttDE=twc.travelTime(dumpSite,endingSite);
-		ttCC=twc.travelTime(C,C);
+		ttSC=twc->getAverageTime(depot,picks);
+		ttDC=twc->getAverageTime(dumpSite,picks);
+		ttCD=twc->getAverageTime(picks,dumpSite);
+		ttDE=twc->travelTime(dumpSite,endingSite);
+		ttCC=twc->travelTime(C,C);
 		serviceE=endingSite.getservicetime();
                 shiftLength=endTime-startTime;
 		e_makeFeasable(0);
@@ -161,7 +160,7 @@ class Vehicle: public BaseVehicle {
                 idleTime= totalWaitTime-forcedWaitTime;
 	};
 
-	void setCost(const TWC<Trashnode> &twc) {
+	void setCost() {
 		last=(size()>1)? path[size()-1] : C ;
 		realttSC=path.size()>1? path[1].getTotTravelTime()  :ttSC;
 		double deltattSC=realttSC-ttSC; // >0 viaja mas lejos para llegar al primer contenedor
@@ -177,11 +176,11 @@ class Vehicle: public BaseVehicle {
 		if ( path.getDumpVisits() ) {
 			for (int i=1;i<path.size()-1;i++) {
 			    realZ++;
-			    if (path[i-1].isdump()) realttCD+= twc.travelTime( path[i-1], path[i]);
-			    if (path[i].isdump()) realttDC+= twc.travelTime( path[i], path[i+1]);
+			    if (path[i-1].isdump()) realttCD+= twc->travelTime( path[i-1], path[i]);
+			    if (path[i].isdump()) realttDC+= twc->travelTime( path[i], path[i+1]);
                         }
                 } else realttDC=ttDC;
-                realttCD= (realttCD+ twc.travelTime(last,dumpSite)) /(path.getDumpVisits()+1.0);
+                realttCD= (realttCD+ twc->travelTime(last,dumpSite)) /(path.getDumpVisits()+1.0);
 		double deltattDC=realttDC-ttDC; // >0 el viaje del dump al contenedor es mas largo que lo esperado (worse)
 		double deltattCD=realttCD-ttCD; // >0 el viaje del contenedor al dump es mar largo que lo esperado
 
@@ -190,7 +189,7 @@ class Vehicle: public BaseVehicle {
 
 		realttDE=ttDE;
 
-		realArrivalEclosesLast = last.closes() +  last.getservicetime() + twc.travelTime(last,dumpSite) + dumpSite.getservicetime() + realttDE;
+		realArrivalEclosesLast = last.closes() +  last.getservicetime() + twc->travelTime(last,dumpSite) + dumpSite.getservicetime() + realttDE;
 		double deltaArrivalEclosesLast= realArrivalEclosesLast - arrivalEclosesLast; //>0 the latest the truck can arrive is better
 		arrivalEclosesLast= std::max(realArrivalEclosesLast, arrivalEclosesLast); //>0 the latest the truck can arrive
 		
@@ -270,7 +269,7 @@ if (realArrivalEclosesLast < realTotalTime) { last.dumpeval(); dumpCostValues();
 		v_cost=  /* realTotalTime * (1 + workNotDonePerc) + sumIdle * ( 1 + workDonePerc) +*/ getduration();
 	};
 
-	double getDeltaCost(double deltaTravelTime,int deltan, const TWC<Trashnode> &twc) {
+	double getDeltaCost(double deltaTravelTime,int deltan) {
 		double newrealTotalTime=realTotalTime+deltaTravelTime;
 		double newrealIdleTime= realArrivalEclosesLast - newrealTotalTime;
 		int newn=n+deltan;

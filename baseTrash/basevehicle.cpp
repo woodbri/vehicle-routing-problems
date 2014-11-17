@@ -93,7 +93,7 @@ std::cout<<"Entering BaseVehicle::e_setPath \n";
 }     
 
 
-bool  BaseVehicle::findNearestNodeTo(Bucket &unassigned, const TWC<Trashnode> &twc,UID &pos, Trashnode &bestNode) {
+bool  BaseVehicle::findNearestNodeTo(Bucket &unassigned,UID &pos, Trashnode &bestNode) {
 #ifdef TESTED
 std::cout<<"Entering BaseVehicle::findNearestNodeTo \n";
 #endif
@@ -104,10 +104,10 @@ std::cout<<"Entering BaseVehicle::findNearestNodeTo \n";
     double bestDist;
     double d;
     
-    flag = twc.findNearestNodeTo(path, unassigned,  pos , bestNode, bestDist);
+    flag = twc->findNearestNodeTo(path, unassigned,  pos , bestNode, bestDist);
     
     for (int i=0; i<unassigned.size(); i++) {
-       if ( twc.isCompatibleIAJ( path[size()-1]  , unassigned[i], dumpSite ) ) { 
+       if ( twc->isCompatibleIAJ( path[size()-1]  , unassigned[i], dumpSite ) ) { 
           d = unassigned[i].distanceToSegment( path[size()-1], dumpSite );
           if ( d < bestDist) {
             bestDist = d;

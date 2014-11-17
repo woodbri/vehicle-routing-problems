@@ -64,7 +64,7 @@ class BaseVehicle  {
   public:
 
     bool isvalid() const {return vid>=0;};  //
-    bool findNearestNodeTo(Bucket &unassigned,const TWC<Trashnode> &twc,  UID &pos,  Trashnode &bestNode);
+    bool findNearestNodeTo(Bucket &unassigned,  UID &pos,  Trashnode &bestNode);
     double getCurrentCapacity() const {return maxcapacity - path[size()-1].getcargo();}
     bool e_setPath(const Bucket &sol);
     //--------------------------------------------------------------------

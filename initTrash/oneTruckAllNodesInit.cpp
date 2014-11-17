@@ -29,7 +29,7 @@ void OneTruckAllNodesInit::stepOne(Vehicle &truck, Bucket &unassigned, Bucket &a
     if (not unassigned.size()) return;
     Trashnode bestNode;
     UID bestPos;
-    if (truck.findNearestNodeTo( unassigned, twc,  bestPos,  bestNode) ) {
+    if (truck.findNearestNodeTo( unassigned,   bestPos,  bestNode) ) {
         truck.insert(bestNode,bestPos);
         assigned.push_back(bestNode);
         unassigned.erase(bestNode);

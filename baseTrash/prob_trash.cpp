@@ -169,11 +169,11 @@ invalid.dump("invalid");
 
 
 
-    twc.loadAndProcess_distance(datafile+".dmatrix-time.txt", datanodes,invalid);  
-    twc.settCC(C,pickups);
+    twc->loadAndProcess_distance(datafile+".dmatrix-time.txt", datanodes,invalid);  
+    twc->settCC(C,pickups);
     Bucket dummy;
-    dummy.setTravelTimes(twc.TravelTime());
-    C.setTravelTimes(twc.TravelTime());
+    dummy.setTravelTimes(twc->TravelTime());
+    C.setTravelTimes(twc->TravelTime());
 
     assert( Tweval::TravelTime.size() );
 
@@ -182,7 +182,7 @@ invalid.dump("invalid");
     load_trucks(datafile+".vehicles.txt");
     assert(trucks.size() and depots.size() and dumps.size() and endings.size());
     for (int i=0;i<trucks.size();i++) {
-	trucks[i].setInitialValues(C,twc,pickups);
+	trucks[i].setInitialValues(C,pickups);
     }
     
 #ifdef LOG
@@ -202,7 +202,7 @@ std::cout<<"INVALID TRUCKS\n";
 for (int i=0;i<invalidTrucks.size();i++)
    invalidTrucks[i].tau();
 std::cout<<"\n";
-twc.dump();
+twc->dump();
 #endif
 }
 

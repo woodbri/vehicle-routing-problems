@@ -68,7 +68,7 @@ return the number of moves added to moves
 
 
 
-long int Vehicle::eval_intraSwapMoveDumps( Moves &moves, int  truckPos,  double factor, const TWC<Trashnode> &twc ) const {
+long int Vehicle::eval_intraSwapMoveDumps( Moves &moves, int  truckPos,  double factor ) const {
 #ifdef DOSTATS
  STATS->inc("Vehicle::eval_intraSwapMoveDumps ");
 #endif
@@ -85,7 +85,7 @@ std::cout<<"Entering Vehicle::eval_intraSwapMoveDumps \n";
         Vehicle truck = (*this);
 	std::deque<Move>  negSavingsMoves;
 
-        double originalCost= truck.getCost(twc);
+        double originalCost= truck.getCost();
 
 	int originalMovesSize=moves.size();
 	int deltaMovesSize=0;
@@ -100,7 +100,7 @@ std::cout<<"Entering Vehicle::eval_intraSwapMoveDumps \n";
 	  if (isdump(withPos)) continue; //skiping dump
 	  otherNid=path[withPos].getnid();
           if ( truck.applyMoveIntraSw(fromPos,  withPos) ) { //move can be done
-		newCost=truck.getCost(twc);
+		newCost=truck.getCost();
 		savings= originalCost - newCost;
 		truck=(*this);
                 move.setIntraSwMove(truckPos, fromPos,  node.getnid(), withPos, otherNid, savings );
@@ -120,7 +120,7 @@ std::cout<<"Entering Vehicle::eval_intraSwapMoveDumps \n";
     void setIntraSwMove( int fromTruck, int fromPos, int fromId, int withPos, int withId); 
 */
 
-long int Vehicle::eval_interSwapMoveDumps( Moves &moves, const Vehicle &otherTruck,int  truckPos,int  otherTruckPos,  double factor,  const TWC<Trashnode> &twc ) const {
+long int Vehicle::eval_interSwapMoveDumps( Moves &moves, const Vehicle &otherTruck,int  truckPos,int  otherTruckPos,  double factor ) const {
 #ifdef DOSTATS
  STATS->inc("Vehicle::eval_interSwapMoveDumps ");
 #endif
@@ -138,7 +138,7 @@ double minSavings=-5;
 	double truckDelta,otherDelta;
 	int numNotFeasable=0;
 bool inspect = (truckPos+otherTruckPos)==5 and (truckPos*otherTruckPos)==0; //inspect close combination 0,5
-        double originalCost= truck.getCost(twc)  + other.getCost(twc);
+        double originalCost= truck.getCost()  + other.getCost();
         double originalDuration= truck.getduration()  + other.getduration();
         double newCost,savings,newDuration;
 	int deltaMovesSize=0;
@@ -218,7 +218,7 @@ if (inspect) {
 
 		savings=_MIN();
 		if ( truck.applyMoveInterSw(other, i, j)) {
-		   newCost=truck.getCost(twc) + other.getCost(twc);
+		   newCost=truck.getCost() + other.getCost();
 		   newDuration=truck.getduration() + other.getduration();
 		   savings= originalCost - newCost;
     		   move.setInterSwMove( truckPos,  i,  fromNodeId,  otherTruckPos, j, toNodeId, savings); 
@@ -293,7 +293,7 @@ std::cout<<"Entering Vehicle::eval_erase \n";
 };
 */	
 //dont forget, negative savings is a higher cost
-bool Vehicle::eval_erase(int at, double &savings,const TWC<Trashnode> &twc) const {
+bool Vehicle::eval_erase(int at, double &savings) const {
 #ifdef DOSTATS
  STATS->inc("Vehicle::eval_erase ");
 #endif
@@ -303,21 +303,21 @@ std::cout<<"Entering Vehicle::eval_erase \n";
         assert (at<size() and at>0 );
         if ( path[at].isdump() ) { savings=_MIN(); return false;}
         Vehicle truck = (*this);
-	double oldcost=truck.getCost(twc);
+	double oldcost=truck.getCost();
 
         truck.path.erase(at);
 
         if ( not truck.e_makeFeasable(at) ) savings = _MIN(); // -infinity
-        else savings = oldcost - truck.getCost(twc);
+        else savings = oldcost - truck.getCost();
 
 #ifdef TESTED
-std::cout<<"ERASE : oldcost"<<oldcost<<"\tnewcost"<<truck.getCost(twc)<<"\tsavings"<<oldcost - truck.getCost(twc)<<"\n";
+std::cout<<"ERASE : oldcost"<<oldcost<<"\tnewcost"<<truck.getCost()<<"\tsavings"<<oldcost - truck.getCost()<<"\n";
 std::cout<<"\n";
 #endif
         return truck.feasable();
 };
 
-long int Vehicle::eval_insertMoveDumps( const Trashnode &node,Moves &moves, int fromTruck, int fromPos, int toTruck, double eraseSavings, double factor, const TWC<Trashnode> &twc) const {
+long int Vehicle::eval_insertMoveDumps( const Trashnode &node,Moves &moves, int fromTruck, int fromPos, int toTruck, double eraseSavings, double factor ) const {
 #ifdef DOSTATS
  STATS->inc("Vehicle::eval_insertMoveDumps ");
 #endif
@@ -329,7 +329,7 @@ std::cout<<"Entering Vehicle::eval_insertMoveDumps \n";
         std::deque<int> unfeasablePos;
         std::deque<int> impossiblePos;
         int currentPos,testingPos;
-	double oldcost=truck.getCost(twc);
+	double oldcost=truck.getCost();
 	double newcost;
 	Move move;
 #ifdef TESTED
@@ -353,9 +353,9 @@ assert(true==false);
                 if ( path.size()*factor > impossiblePos.size() ) return moves.size();
              } else {
                 assert ( truck.feasable() );
-	        newcost=truck.getCost(twc);
+	        newcost=truck.getCost();
 #ifdef TESTED
-std::cout<<"insert to "<<toTruck<<": oldcost"<<oldcost<<"\tnewcost"<<truck.getCost(twc)
+std::cout<<"insert to "<<toTruck<<": oldcost"<<oldcost<<"\tnewcost"<<truck.getCost()
 	<<"\ninsert savings="<< (oldcost-newcost) <<"\teraseSavings"<<eraseSavings<<"\tsavings"<<oldcost - newcost + eraseSavings<<"\n";
 std::cout<<"\n";
 #endif
@@ -371,55 +371,6 @@ move.dump();
 }
 	
 	
-/*
-long int Vehicle::eval_insertMoveDumps( const Trashnode &node,std::deque<Move> &moves, int fromTruck, int fromPos, int toTruck, double eraseSavings, double factor) const {
-#ifdef DOSTATS
- STATS->inc("Vehicle::eval_insertMoveDumps ");
-#endif
-#ifdef TESTED
-std::cout<<"Entering Vehicle::eval_insertMoveDumps \n";
-#endif
-	Vehicle truck = (*this);
-	std::deque<int> unTestedPos;
-	std::deque<int> unfeasablePos;
-	std::deque<int> impossiblePos;
-	int currentPos,testingPos;
-	Move move;
-
-
-
-        for ( int i=1; i<=size(); i++) unTestedPos.push_back(i); 
-        while (unTestedPos.size()) {
-             currentPos=unTestedPos.back();
-	     unTestedPos.pop_back();
-	     truck.insert(node,currentPos);
-             if ( not truck.e_makeFeasable(currentPos) ) {
-		impossiblePos.push_back(currentPos);
-                if ( path.size()*factor > impossiblePos.size() ) return moves.size(); 
-             } else {
-		assert ( truck.feasable() );
-    		move.setInsMove( fromTruck, fromPos, node.getnid(), toTruck, currentPos, (cost-truck.cost + eraseSavings)    ); 
-		moves.push_back(move);
-
-                truck.remove(currentPos);
-		//unknown state of truck here
-                while ( unTestedPos.size()>0 ) {
-                   testingPos= unTestedPos.back();
-	           unTestedPos.pop_back();
-		   if ( testingPos<path.size() and  path[ testingPos ].isdump()) continue; //skipping dumps
-        	   if ( truck.e_insertIntoFeasableTruck( node, testingPos) ) {
-    			move.setInsMove( fromTruck, fromPos, node.getnid(), toTruck, testingPos, (cost-truck.cost + eraseSavings)    ); 
-			moves.push_back(move);
-                   } else unfeasablePos.push_back( testingPos);
-		   truck.remove( testingPos );
-		}
-		unTestedPos=unfeasablePos;
-             }
-             truck=(*this);
-        }
-	return moves.size();
-}
-*/
 
 bool Vehicle::e_makeFeasable(int currentPos) {
 #ifdef DOSTATS

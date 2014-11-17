@@ -38,7 +38,7 @@ int Solution::v_computeCosts() {
         };
     }
     for (int i=0; i<fleet.size(); i++) {
-        totalCost+=fleet[i].getCost(twc);
+        totalCost+=fleet[i].getCost();
     }
     return removedPos;
 }

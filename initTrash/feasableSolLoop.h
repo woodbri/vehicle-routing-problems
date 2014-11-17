@@ -18,7 +18,6 @@
 #include <iostream>
 #include <vector>
 
-#include "twc.h"
 #include "trashnode.h"
 #include "prob_trash.h"
 #include "solution.h"

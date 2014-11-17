@@ -19,7 +19,6 @@
 #include <sstream>
 #include <string>
 #include <math.h>
-
 #include <stdio.h>
 
 #ifdef DOSTATS
@@ -27,17 +26,18 @@
 #include "stats.h"
 #endif
 
-#include "trashconfig.h"
-#include "node.h"
+
+#ifndef LOG
+#ifdef OSRMCLIENT
 #include "osrmclient.h"
+#endif
+#endif
 
 #ifdef WITHOSRM
 #include "osrm.h"
 #endif
 
-#include "twnode.h"
-#include "trashnode.h"
-#include "twpath.h"
+#include "trashconfig.h"
 #include "feasableSolLoop.h"
 #include "tabuopt.h"
 
@@ -46,8 +46,9 @@ void Usage() {
     std::cout << "Usage: trash file (no extension)\n";
 }
 
+#ifdef DOPLOT
 static std::string font = "/usr/share/fonts/truetype/ttf-dejavu/DejaVuSans.ttf";
-
+#endif
 
 int main(int argc, char **argv) {
 
@@ -58,18 +59,24 @@ int main(int argc, char **argv) {
 
     std::string infile = argv[1];
 
+    #ifdef WITHOSRM
     // MUST call this once to initial communications via cURL
-    //cURLpp::Cleanup myCleanup;
+    cURLpp::Cleanup myCleanup;
+    #endif
 
     try {
+	#ifndef LOG
+	#ifdef OSRMCLIENT
 	OsrmClient oc;
 	oc.testOsrmClient();
+	#endif
+	#endif
 
 	#ifdef DOSTATS
         Timer starttime;
 	#endif
 
-        #ifdef PLOT
+        #ifdef DOPLOT 
         CONFIG->set("plotDir", "./logs/");
 	#endif
         CONFIG->dump("CONFIG");

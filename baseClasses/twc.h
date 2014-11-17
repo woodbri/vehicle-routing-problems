@@ -27,6 +27,17 @@
 #include "node.h"
 #include "twpath.h"
 #include "pg_types_vrp.h"
+#include "singleton.h"
+
+#ifdef OSRMCLIENT
+	#include "osrmclient.h"
+#endif
+
+#ifdef DOSTATS                                                                                                                                                                                                                   
+	#include "timer.h"
+	#include "stats.h"
+#endif 
+
 
 /*! \class TWC
  * \brief Class TWC (Time Window Compatibility) provides tools for working with Twpath objects.
@@ -65,20 +76,38 @@
  */
 template <class knode> class TWC {
   private:
+
     typedef TwBucket<knode> Bucket;
     typedef unsigned long int UID;
     typedef unsigned long int POS;
 
+    #ifdef OSRMCLIENT
+	/*! \todo */
+	typedef struct { //all are ids
+	UID from;
+	UID middle;
+	UID last;
+        } TTindex;
+        typedef std::map<TTindex,double> TT3;
+        typedef typename std::map<TTindex,double>::iterator p_TT3;
+   #endif
+	
+
 
     static TwBucket<knode> original;
     static std::vector<std::vector<double> > twcij;
-    std::vector<std::vector<double> > travel_Time;
+    mutable std::vector<std::vector<double> > travel_Time;
 
     inline double _MIN() const { return -std::numeric_limits<double>::max();};
     inline double _MAX() const { return std::numeric_limits<double>::max();};
 
+    #ifdef OSRMCLIENT
+    mutable TT3 travel_Time3;
+    #endif
 
   public:
+    
+
 
     // -------------------  major tools  ----------------------------
 
@@ -306,8 +335,35 @@ template <class knode> class TWC {
     }
 
 
+    /*! \todo when bug is removed travelTime with 2 parameters   */
+    private:
+    double getTravelTime( UID from, UID to ) const { //this one does all the work gets &sets if needed
+
+        assert( from < original.size() and to < original.size() );
+	double time;
+	if (travel_Time[from][to]==-1) {
+	    #ifdef OSRMCLIENT
+            OsrmClient osrm;
+	    if (not osrm.getOsrmTime(original[from],original[to],time)) { //when flag is false we are doing the euclidean fill
+	    #endif
+                time=original[from].distance( original[to] ) / 250;
+                if ( not sameStreet( from, to ) ) {
+                    time = time *
+                            ( std::abs( std::sin( gradient( from, to ) ) ) +
+                              std::abs( std::cos( gradient( from, to ) ) )
+                            );
+                }
+	    #ifdef OSRMCLIENT
+            };
+	    #endif 
+	    travel_Time[from][to]=time;
+        }
+        return travel_Time[from][to];
+    }
+
+    public: 
     /*!
-     * \brief Fetch the travel time from node id \b from to node id \b to.
+     * \brief Fetch the travel time from node id \b from to node id \b to. (interface)
      *
      * The travel time matrix is and N x N containter that holds the travel
      * times. This caching in a matrix provides a performance boost, but
@@ -322,12 +378,11 @@ template <class knode> class TWC {
      * \return The value from the travel time matrix.
      */
     double travelTime( UID from, UID to ) const {
-        assert( from < original.size() and to < original.size() );
-        return travel_Time[from][to];
+        return getTravelTime(from,to);
     }
 
     /*!
-     * \brief Fetch the travel time from node \b from to node \b to.
+     * \brief Fetch the travel time from node \b from to node \b to (interface).
      *
      * Fetch results from a preloaded travel time matrix.
      *
@@ -338,8 +393,65 @@ template <class knode> class TWC {
      * \return The travel time or plus infinity if the node is not reachable.
      */
     double travelTime( const knode &from, const knode &to ) const {
-        return travelTime( from.getnid(), to.getnid() );
+        return getTravelTime( from.getnid(), to.getnid() );
     }
+
+
+    /*! \todo commnts when bug is removed travelTime with 3 parameters */
+    /*! \bug add the stuff when using osrm */
+    private:
+	//this one does all the work
+	double getTravelTime( UID from, UID middle, UID to ) const{ 
+            assert( from < original.size() and middle<original.size() and to < original.size() );
+	    #ifndef OSRMCLIENT
+		return  getTravelTime(from,middle)+ getTravelTime(middle,to);
+            #else
+	    TTindex index={from,middle,to};
+ 	    p_TT3 it;	    
+	    if (it=travel_Time3.find(index)) return (*it)->second;
+	    double time;
+            OsrmClient osrm;
+	    if (osrm.getOsrmTime(original[from],original[middle],original[to],time)) {
+		travel_Time3.insert(index,time);
+//std::cout<<"OSRM TIME 3"<< time<<"\n";
+		return time;
+            }
+	    else  {
+		time=  getTravelTime(from,middle)+ getTravelTime(middle,to);
+		//it doesnt get inserted because wasnt calculated with osrm
+	    }
+	    return time;
+            #endif
+	}
+		
+
+    public:
+//this one is an interface , the previous one is the one that does all the work
+    double travelTime( UID from, UID middle, UID to ) const {
+        return getTravelTime(from,middle,to);
+    }
+
+//this one is an interface, the other one is the one that does all the work
+    double travelTime( const knode &from, const knode &middle, const knode &to ) const {
+        return getTravelTime( from.getnid(), middle.getnid(), to.getnid() );
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     /*!
      * \brief Fetch the time window compatibility value traveling from fromNid to toNid.
@@ -982,64 +1094,6 @@ template <class knode> class TWC {
     }
 
 
-    /*!
-     * \brief Assign the travel time matrix to TWC from Pg
-     *
-     * This method is specific for PostgreSQL integration. It receives a 
-     * ttime_t structure array containing the travel time matrix values passed
-     * from the database and loads them into the problem and does some
-     * additional needed computations.
-     *
-     * \param[in] ttimes The travel time data array from PosgreSQL
-     * \param[in] count The count of entries in \b ttimes
-     * \param[in] datanodes The data nodes Bucket previous loaded from PostgreSQL
-     * \param[in] invalid The bucket of invalid nodes generated when load the data nodes.
-     */
-    void loadAndProcess_distance( ttime_t *ttimes, int count,
-                                  const Bucket &datanodes, const Bucket &invalid ) {
-        assert( datanodes.size() );
-        original.clear();
-        original = datanodes;
-        int siz = original.size();
-
-        travel_Time.resize( siz );
-
-        for ( int i = 0; i < siz; i++ )
-            travel_Time[i].resize( siz );
-
-        //travel_Time default value is 250m/min
-        for ( int i = 0; i < siz; i++ )
-            for ( int j = i; j < siz; j++ ) {
-                if ( i == j )
-                    travel_Time[i][i] = 0;
-                else
-                    travel_Time[i][j]
-                        = travel_Time[j][i]
-                        = original[i].distance( original[j] ) / 250;
-            }
-
-        std::cout << siz << "<---- size\n";
-
-        for ( int i = 0; i < count; ++i ) {
-            int from    = ttimes[i].from_id;
-            int to      = ttimes[i].to_id;
-            double time = ttimes[i].ttime;
-
-            if ( invalid.hasId( from ) or invalid.hasId( to ) ) continue;
-
-            int fromId = getNidFromId( from );
-            int toId = getNidFromId( to );
-
-            if ( fromId == -1 or toId == -1 ) continue;
-
-            travel_Time[fromId][toId] = time;
-        }
-
-        twcij_calculate();
-        assert ( original == datanodes );
-        assert ( check_integrity() );
-    }
-
 
     /*!
      * \brief Compute the average travel time to a given node.
@@ -1102,7 +1156,8 @@ template <class knode> class TWC {
      * \param[in] j Node id 2
      * \return True if both nodes are on the same street.
      */
-    bool sameStreet( int i, int j ) {
+    bool sameStreet( UID i, UID j ) const{
+        assert( i < original.size() and j < original.size() );
         return original[i].sameStreet( original[j] );
     }
 
@@ -1115,10 +1170,78 @@ template <class knode> class TWC {
      * \param[in] j Node id 2
      * \return The gradient of the line.
      */
-    double gradient( int i, int j ) {
+    double gradient( UID i, UID j ) const {
+        assert( i < original.size() and j < original.size() );
         return original[i].gradient( original[j] );
     }
 
+private:
+    void prepareTravelTime(){
+        int siz = original.size();
+        travel_Time.resize( siz );
+
+        for ( int i = 0; i < siz; i++ )
+            travel_Time[i].resize( siz );
+
+        //travel_Time default value is 250m/min
+        for ( int i = 0; i < siz; i++ )
+            for ( int j = i; j < siz; j++ ) {
+                if ( i == j ) travel_Time[i][i] = 0;
+                else {
+			travel_Time[i][j]=travel_Time[j][i]=-1;
+			#ifndef OSRMCLIENT
+                	getTravelTime(i,j);
+                	getTravelTime(j,i);
+			#endif
+                }
+            }
+    }
+
+
+public: 
+    /*!
+     * \brief Assign the travel time matrix to TWC from Pg
+     * \bug TODO needs to be tested when conected to the database
+     * This method is specific for PostgreSQL integration. It receives a 
+     * ttime_t structure array containing the travel time matrix values passed
+     * from the database and loads them into the problem and does some
+     * additional needed computations.
+     *
+     * \param[in] ttimes The travel time data array from PosgreSQL
+     * \param[in] count The count of entries in \b ttimes
+     * \param[in] datanodes The data nodes Bucket previous loaded from PostgreSQL
+     * \param[in] invalid The bucket of invalid nodes generated when load the data nodes.
+     */
+    void loadAndProcess_distance( ttime_t *ttimes, int count,
+                                  const Bucket &datanodes, const Bucket &invalid ) {
+        std::cout <<"POSTGRES: loadAndProcess_distance needs to be TESTED\n";
+        assert( datanodes.size() );
+        original.clear();
+        original = datanodes;
+
+	prepareTravelTime();
+
+        for ( int i = 0; i < count; ++i ) {
+            int from    = ttimes[i].from_id;
+            int to      = ttimes[i].to_id;
+            double time = ttimes[i].ttime;
+
+            if ( invalid.hasId( from ) or invalid.hasId( to ) ) continue;
+
+            int fromId = getNidFromId( from );
+            int toId = getNidFromId( to );
+
+            if ( fromId == -1 or toId == -1 ) continue;
+
+            travel_Time[fromId][toId] = time;
+        }
+
+        twcij_calculate();
+        assert ( original == datanodes );
+        assert ( check_integrity() );
+    }
+
+    
     /*!
      * \brief Load the travel time matrix from a text file and process the results.
      *
@@ -1135,37 +1258,19 @@ template <class knode> class TWC {
     void loadAndProcess_distance( std::string infile, const Bucket &datanodes,
                                   const Bucket &invalid ) {
         assert( datanodes.size() );
+        std::cout <<"VICKYS: loadAndProcess_distance\n";
+
         original.clear();
         original = datanodes;
         int siz = original.size();
 
         std::ifstream in( infile.c_str() );
         std::string line;
+
+	prepareTravelTime();
+
         int fromId;
         int toId;
-        travel_Time.resize( siz );
-
-        for ( int i = 0; i < siz; i++ )
-            travel_Time[i].resize( siz );
-
-        //travel_Time default value is 250m/min
-        for ( int i = 0; i < siz; i++ )
-            for ( int j = i; j < siz; j++ ) {
-                if ( i == j ) travel_Time[i][i] = 0;
-                else {
-                    travel_Time[i][j]
-                        = travel_Time[j][i]
-                        = original[i].distance( original[j] ) / 250;
-
-                    if ( not sameStreet( i, j ) )
-                        travel_Time[i][j]
-                            = travel_Time[i][j] *
-                                ( std::abs( std::sin( gradient( i, j ) ) ) +
-                                  std::abs( std::cos( gradient( i, j ) ) )
-                                );
-                }
-            }
-
         int from, to;
         double time;
         int cnt = 0;
@@ -1218,12 +1323,25 @@ template <class knode> class TWC {
     }
 
 
+    static TWC<knode> *p_twc;
+    static TWC<knode>* Instance()
+	{
+	   if (!p_twc)   // Only allow one instance of class to be generated.
+	      p_twc = new TWC<knode>;
+	   return p_twc;
+	}
+
+
+
+
     // constructors
-    TWC() {};
 
     /* private are indexed */
 
   private:
+    TWC() {};
+    TWC(const TWC&) {};
+    TWC& operator=(const TWC&) {};
     /*!
      * \brief Fetch the time window compatibility value traveling from nids i to j.
      *
@@ -1337,11 +1455,19 @@ template <class knode> class TWC {
 
 }; // end of class
 
+
+
 template <class knode>
 TwBucket<knode> TWC<knode>::original;
 
 template <class knode>
 std::vector<std::vector<double> >  TWC<knode>::twcij;
+
+template <class knode>
+TWC<knode>*  TWC<knode>::p_twc=NULL;
+
+#define twc TWC<Trashnode>::Instance()
+
 /*
 template <class knode>
 std::vector<std::vector<double> >  TWC<knode>::travel_Time;

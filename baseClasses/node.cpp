@@ -17,6 +17,7 @@
 
 #include "node.h"
 
+
 /*!
  * \brief Compute the Haversine spherical distance between two nodes.
  *
@@ -97,8 +98,11 @@ double Node::length() const { return sqrt( x * x + y * y ); };
  */
 double Node::gradient( const Node &p ) const {
     double deltaY = p.y - y;
-    double deltaX = p.x - x + 0.001;
-    return  deltaY / deltaX;
+    double deltaX = p.x - x;
+    if (deltaX==0) 
+        if (deltaY>=0) return std::numeric_limits<double>::max();
+        else return -std::numeric_limits<double>::max();
+    else return  deltaY / deltaX;
 };
 
 /*!

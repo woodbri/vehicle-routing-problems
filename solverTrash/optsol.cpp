@@ -140,8 +140,8 @@ bool OptSol::emptyTheTruck(int fromTruck, std::deque<int> notFull) {
                 for (int i=0;i<notFull.size();i++) {
                    toTruck=notFull[i];
                    if (toTruck==fromTruck) continue;
-		   if ( not fleet[fromTruck].eval_erase(fromPos,savings,twc) ) continue; //for whatever reason erasing a node makes the truck infeasable 
-                   fleet[toTruck].eval_insertMoveDumps( fleet[fromTruck][fromPos], moves, fromTruck, fromPos, toTruck, savings, factor, twc );
+		   if ( not fleet[fromTruck].eval_erase(fromPos,savings) ) continue; //for whatever reason erasing a node makes the truck infeasable 
+                   fleet[toTruck].eval_insertMoveDumps( fleet[fromTruck][fromPos], moves, fromTruck, fromPos, toTruck, savings, factor );
                 };
 
                 if (moves.size()) {
@@ -180,22 +180,22 @@ std::cout<<"working with truck "<<truckPos<<" intraSw neighborhood\n";
 void OptSol::getIntraSwNeighborhood(Move::Mtype mtype,  Moves &moves, double factor)  const {
     moves.clear();
     if (fleet.size()==1)  {
-       fleet[0].eval_intraSwapMoveDumps( moves,  0, factor, twc);
+       fleet[0].eval_intraSwapMoveDumps( moves,  0, factor);
        return; 
     }
     switch (mtype) {
 	case Move::InterSw:
 std::cout<<"IntraSw working with truck "<<interTruckPos1<<" intraSw neighborhood\n";
-	    fleet[interTruckPos1].eval_intraSwapMoveDumps( moves,  interTruckPos1, factor, twc);
+	    fleet[interTruckPos1].eval_intraSwapMoveDumps( moves,  interTruckPos1, factor);
 std::cout<<"IntraSw working with truck "<<interTruckPos2<<" intraSw neighborhood\n";
-	    fleet[interTruckPos2].eval_intraSwapMoveDumps( moves,  interTruckPos2, factor, twc);
+	    fleet[interTruckPos2].eval_intraSwapMoveDumps( moves,  interTruckPos2, factor);
 	    moves.begin()->Dump();
 	    break;
 	case Move::Ins:
 std::cout<<"IntraSw working with truck "<<insTruckPos1<<" intraSw neighborhood\n";
-	    fleet[insTruckPos1].eval_intraSwapMoveDumps( moves,  insTruckPos1, factor, twc);
+	    fleet[insTruckPos1].eval_intraSwapMoveDumps( moves,  insTruckPos1, factor);
 std::cout<<"IntraSw working with truck "<<insTruckPos2<<" intraSw neighborhood\n";
-	    fleet[insTruckPos2].eval_intraSwapMoveDumps( moves,  insTruckPos2, factor, twc);
+	    fleet[insTruckPos2].eval_intraSwapMoveDumps( moves,  insTruckPos2, factor);
 	    moves.begin()->Dump();
 	    break;
     }
@@ -225,7 +225,7 @@ void OptSol::getInterSwNeighborhood(Moves &moves, double factor)  const {
 #ifndef LOG
 std::cout<<"InterSw working with truck "<<truckPos<<" and"<< otherTruckPos<<"interSw neighborhood\n";
 #endif
-    fleet[truckPos].eval_interSwapMoveDumps( moves, fleet[otherTruckPos], truckPos, otherTruckPos, factor,twc); 
+    fleet[truckPos].eval_interSwapMoveDumps( moves, fleet[otherTruckPos], truckPos, otherTruckPos, factor); 
 
 
 #ifdef CHECK
@@ -279,9 +279,9 @@ std::cout<<"\n\n\n\n**********************************working with truck "<<from
 			interTruckPos2=insTruckPos2=0;
 			return;
 		};
-		if ( not fleet[fromTruck].eval_erase(fromPos,savings,twc) ) continue; //for whatever reason erasing a node makes the truck infeasable 
+		if ( not fleet[fromTruck].eval_erase(fromPos,savings) ) continue; //for whatever reason erasing a node makes the truck infeasable 
 		//fleet[fromTruck].eval_erase(fromPos,savings,twc);
-                fleet[toTruck].eval_insertMoveDumps( fleet[fromTruck][fromPos], moves, fromTruck, fromPos, toTruck, savings, factor ,twc);
+                fleet[toTruck].eval_insertMoveDumps( fleet[fromTruck][fromPos], moves, fromTruck, fromPos, toTruck, savings, factor );
           }
     }
     	insTruckPos2++;

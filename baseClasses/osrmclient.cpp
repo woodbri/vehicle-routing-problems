@@ -96,6 +96,16 @@ bool OsrmClient::getOsrmTime( const Node &node1, const Node &node2, double &time
     return false;
 }
 
+bool OsrmClient::getOsrmTime( const Node &node1, const Node &node2, const Node &node3, double &time ) {
+    clear();
+    addViaPoint(node1);
+    addViaPoint(node2);
+    addViaPoint(node3);
+    if (getOsrmViaroute()) return getOsrmTime(time);
+    return false;
+}
+
+
 /*!
  * \brief Connect to the OSRM engine, issue the request and save the json response back in the object.
  * \return True if an error happened and err_msg will be set. False if ok.

@@ -16,6 +16,7 @@
 
 #include <cmath>
 #include <string>
+#include <limits>
 
 /*! \class Node
  * \brief The Node class defines a point in 2D space with an id.
