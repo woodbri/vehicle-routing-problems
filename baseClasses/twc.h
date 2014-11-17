@@ -413,8 +413,8 @@ template <class knode> class TWC {
 		return  getTravelTime(from,middle)+ getTravelTime(middle,to);
             #else
 	    TTindex index={from,middle,to};
- 	    p_TT3 it;	    
-	    if (it=travel_Time3.find(index)) return (*it)->second;
+ 	    p_TT3 it = travel_Time3.find(index);
+	    if (it != travel_Time3.end()) return it->second;
 	    double time;
             OsrmClient osrm;
 	    if (osrm.getOsrmTime(original[from],original[middle],original[to],time)) {
