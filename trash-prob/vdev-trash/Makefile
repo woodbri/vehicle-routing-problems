@@ -16,21 +16,48 @@ BIN_DIR = ./bin
 # set WITH_OSRMCLIENT = "1" to include this code
 # you will also need to define additional related variables
 
-WITH_OSRMCLIENT = "1"
+WITH_OSRMCLIENT = yes
+WITH_STATS = yes
+WITH_LOG =
+WITH_MD5 =
+WITH_OSRM =
 
-ifeq ($(WITH_OSRMCLIENT), "")
-OSRM_CFLAGS =
-OSRM_LIBS =
+
+
+ifeq ("$(WITH_STATS)", "")
+STATS_CFLAGS = 
 else
-OSRM_CFLAGS = -DOSRMCLIENT -I$(HOME)/work/osrm-backend/
-OSRM_LIBS = -L/usr/local/lib -lboost_filesystem -lboost_iostreams -lboost_program_options -lboost_regex -lboost_system -lboost_thread -lpthread -lOSRM -lUUID -lGITDESCRIPTION -lz -lrt -lboost_filesystem -lboost_iostreams -lboost_program_options -lboost_regex -lboost_system -lboost_thread -lpthread -lstxxl
+STATS_CFLAGS = -DDOSTATS 
+endif
+
+ifeq ("$(WITH_OSRM)", "")
+OSRM_CFLAGS = 
+else
+OSRM_CFLAGS = -DWITHOSRM $(CURL_CFLAGS)
+endif
+
+ifeq ("$(WITH_MD5)", "")
+MD5_CFLAGS = 
+else
+MD5_CFLAGS = -DWITHMD5 
+endif
+
+
+ifeq ("$(WITH_OSRMCLIENT)", "")
+OSRMCLIENT_CFLAGS =
+OSRMCLIENT_LIBS =
+OSRMCLIENT_HEADER =
+else
+OSRMCLIENT_HEADER =../../$(BASECLASSES)/osrmclient.h
+OSRMCLIENT_CFLAGS = -DOSRMCLIENT -I$(HOME)/work/osrm-backend/
+OSRMCLIENT_LIBS = -L/usr/local/lib -lboost_filesystem -lboost_iostreams -lboost_program_options -lboost_regex -lboost_system -lboost_thread -lpthread -lOSRM -lUUID -lGITDESCRIPTION -lz -lrt -lboost_filesystem -lboost_iostreams -lboost_program_options -lboost_regex -lboost_system -lboost_thread -lpthread -lstxxl
 endif
 
 
 
 INCLUDES = -I../../$(BASECLASSES) -I../../$(BASETRASH) -I../../$(INITTRASH) -I../../$(SOLVERTRASH) -I.
-CPPFLAGS = -g -O0 -MMD  -MP $(CURL_CFLAGS) $(OSRM_CFLAGS) $(DEFINES)
-LDFLAGS = -lgd $(INCLUDES) -L$(BASECLASSES) -L$(BASETRASH) -L$(INITTRASH) $(CURL_LIBS) $(JSON_LIBS) $(OSRM_LIBS)
+CPPFLAGS = -g -O0 -MMD  -MP  $(OSRMCLIENT_CFLAGS) $(DEFINES) $(STATS_CFLAGS) 
+LDFLAGS = -lgd $(INCLUDES) -L$(BASECLASSES) -L$(BASETRASH) -L$(INITTRASH)  $(JSON_LIBS) $(OSRMCLIENT_LIBS)
 
 SRCS =  
 OBJS = $(addprefix $(BUILD_DIR)/,$(SRCS:.cpp=.o))
@@ -43,9 +70,23 @@ BASECLASSES_SRCS = $(wildcard ../../$(BASECLASSES)/*.cpp)
 # filter out baseClasses/osrmclient.cpp unless
 # WITH_OSRMCLIENT=1 has been set
 
-ifeq ($(WITH_OSRMCLIENT), "")
+ifeq ("$(WITH_OSRMCLIENT)", "")
 BASECLASSES_SRCS := $(filter-out ../../$(BASECLASSES)/osrmclient.cpp, $(BASECLASSES_SRCS))
 endif
+
+ifeq ("$(WITH_STATS)", "")
+BASECLASSES_SRCS := $(filter-out ../../$(BASECLASSES)/stats.cpp, $(BASECLASSES_SRCS))
+endif
+
+ifeq ("$(WITH_MD5)", "")
+BASECLASSES_SRCS := $(filter-out ../../$(BASECLASSES)/md5.cpp, $(BASECLASSES_SRCS))
+endif
+
+ifeq ("$(WITH_OSRM)", "")
+BASECLASSES_SRCS := $(filter-out ../../$(BASECLASSES)/osrm.cpp, $(BASECLASSES_SRCS))
+endif
+
+
 
 BASECLASSES_HDS = $(UTIL_SRCS:.cpp=.h)
 BASECLASSES_OBJS = $(addprefix $(BUILD_DIR)/$(BASECLASSES)/,$(notdir $(BASECLASSES_SRCS:.cpp=.o)))
@@ -78,7 +119,7 @@ all:   $(OBJS) $(BASECLASSES_OBJS) $(BASETRASH_OBJS) $(INITTRASH_OBJS) $(SOLVERT
 
 
 
-build/trash.o: trash.cpp $(BASECLASSES_HEADS) $(BASETRASH_HEADS) $(INITTRASH_HEADS) $(SOLVERTRASH_HDS) $(HEADS)
+build/trash.o: trash.cpp $(OSRMCLIENT_HEADER) $(BASECLASSES_HEADS) $(BASETRASH_HEADS) $(INITTRASH_HEADS) $(SOLVERTRASH_HDS) $(HEADS)
 	$(CPP) $(CPPFLAGS) $(INCLUDES) -c $< -o $@
 
 build/baseClasses/%.o: ../../$(BASECLASSES)/%.cpp  ../../$(BASECLASSES)/%.h $(BASECLASSES_HEADS)

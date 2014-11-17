@@ -2,6 +2,10 @@
 #include "Library/OSRM.h"
 #include "osrmclient.h"
 
+#ifdef DOSTATS
+#include "timer.h"
+#endif
+
 
 /*!
  * \brief The OsrmClient constructor.
@@ -76,6 +80,21 @@ void OsrmClient::addViaPoints( const std::deque<Node> &path ) {
         addViaPoint( *it );
 }
 
+bool OsrmClient::getOsrmTime( double lat1, double lon1 ,double lat2, double lon2, double &time ) {
+    clear();
+    addViaPoint(lat1,lon1);
+    addViaPoint(lat2,lon2);
+    if (getOsrmViaroute()) return getOsrmTime(time);
+    return false;
+}
+
+bool OsrmClient::getOsrmTime( const Node &node1, const Node &node2, double &time ) {
+    clear();
+    addViaPoint(node1);
+    addViaPoint(node2);
+    if (getOsrmViaroute()) return getOsrmTime(time);
+    return false;
+}
 
 /*!
  * \brief Connect to the OSRM engine, issue the request and save the json response back in the object.
@@ -84,11 +103,11 @@ void OsrmClient::addViaPoints( const std::deque<Node> &path ) {
 bool OsrmClient::getOsrmViaroute() {
     if ( route_parameters.coordinates.size() < 2 ) {
         err_msg = "OsrmClient: getOsrmViaroute must be called with two ro more viapoints!";
-        return true;
+        return false;
     }
     if ( status == -1 ) {
         err_msg = "OsrmClient: Failed to connect to server!";
-        return true;
+        return false;
     }
 
     try {
@@ -110,12 +129,12 @@ bool OsrmClient::getOsrmViaroute() {
 
         status = 1;
 
-        return false;
+        return true;
     }
     catch ( std::exception & e ) {
         err_msg = std::string("OsrmClient: caught exception: ")
                 + e.what();
-        return true;
+        return false;
     }
 }
 
@@ -128,23 +147,23 @@ bool OsrmClient::getOsrmViaroute() {
 bool OsrmClient::getOsrmTime( double &time ) {
     if ( status != 1 or httpContent.size() == 0 ) {
         err_msg = "OsrmClient: does not have a valid OSRM response!";
-        return true;
+        return false;
     }
 
     struct json_object * jtree = NULL;
     jtree = json_tokener_parse( httpContent.c_str() );
     if ( not jtree ) {
         err_msg = "OsrmClient: invalid json document in OSRM response!";
-        return true;
+        return false;
     }
 
     if ( getTime( jtree, time ) ) {
         json_object_put( jtree );
-        return true;
+        return false;
     }
 
     json_object_put( jtree );
-    return false;
+    return true;
 }
 
 
@@ -156,24 +175,43 @@ bool OsrmClient::getOsrmTime( double &time ) {
 bool OsrmClient::getOsrmGeometry( std::deque<Node> &geom ) {
     if ( status != 1 or httpContent.size() == 0 ) {
         err_msg = "OsrmClient: does not have a valid OSRM response!";
-        return true;
+        return false;
     }
 
     struct json_object * jtree = NULL;
     jtree = json_tokener_parse( httpContent.c_str() );
     if ( not jtree ) {
         err_msg = "OsrmClient: invalid json document in OSRM response!";
-        return true;
+        return false;
     }
 
     if ( getGeom( jtree, geom ) ) {
         json_object_put( jtree );
-        return true;
+        return false;
     }
 
     json_object_put( jtree );
-    return false;
+    return true;
 }
+
+
+int OsrmClient::testOsrmClient() {
+    Timer t0;
+    double time;
+    dump();
+    if (getStatus() == -1) {
+        std::cout << getErrorMsg() << std::endl;
+        return -1;
+    }
+    if (getOsrmTime(-34.88124, -56.19048,-34.89743, -56.12447,time) )
+         std::cout << "SUCCESSSSS  getOsrmTime: " << time << std::endl;
+    dump();
+    std::cout << "duration: " << t0.duration() << std::endl;
+    return 0;
+};
+
+
+
 
 // --------- private ----------------
 
@@ -191,19 +229,19 @@ bool OsrmClient::getTime( struct json_object *jtree, double &time ) {
     jobj = json_object_object_get( jtree, "route_summary" );
     if ( not jobj ) {
         err_msg = "OsrmClient: failed to find 'route_summary' key in OSRM response!";
-        return true;
+        return false;
     }
 
     // find the 'total_time' in the 'route_summary'
     jobj = json_object_object_get( jobj, "total_time" );
     if ( not jobj ) {
         err_msg = "OsrmClient: failed to find 'total_time' key in OSRM response!";
-        return true;
+        return false;
     }
 
     // extract the total_time and convert to seconds
     time = (double) json_object_get_int( jobj ) / 60.0;
-    return false;
+    return true;
 }
 
 
@@ -223,7 +261,7 @@ bool OsrmClient::getGeom( struct json_object *jtree, std::deque<Node> &geom ) {
     jobj = json_object_object_get( jtree, "route_geometry" );
     if ( not jobj ) {
         err_msg = "OsrmClient: failed to find 'geometry' key in OSRM response!";
-        return true;
+        return false;
     }
 
     int numPnts = json_object_array_length( jobj );
@@ -249,7 +287,7 @@ bool OsrmClient::getGeom( struct json_object *jtree, std::deque<Node> &geom ) {
         geom.push_back( n );
     }
 
-    return false;
+    return true;
 }
 
 

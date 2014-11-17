@@ -10,6 +10,9 @@
 #include <vector>
 #include <json/json.h>
 
+#include "timer.h"
+#include "stats.h"
+
 /*! \class OsrmClient
  * \brief This class provides a shared memory connection to OSRM.
  *
@@ -49,10 +52,13 @@ class OsrmClient {
      */
     void setWantGeometry( bool want ) { route_parameters.geometry = want; };
     bool getOsrmViaroute();
+    bool getOsrmTime( double lat1, double lon1 ,double lat2, double lon2, double &time );
+    bool getOsrmTime( const Node &node1, const Node &node2, double &time );
     bool getOsrmTime( double &time );
     bool getOsrmGeometry( std::deque<Node> &geom );
     int getStatus() const { return status; };
     std::string getErrorMsg() const { return err_msg; };
+    int testOsrmClient();
 
   private:
     bool getTime( struct json_object *jtree, double &time );

@@ -54,14 +54,10 @@ class Tweval: public Twnode {
     double getTotServiceTime() const { return totServiceTime; };
     double getDumpVisits() const { return dumpVisits; };
     double deltaGeneratesTWV( double deltaTime ) const;
-    double getTotTravelTimeOsrm() const { return totTravelTimeOsrm; };
-    std::string getOsrmUrlLocs() const { return osrmUrlLocs; };
     std::string getLoc() const;
-    std::string getOsrmUrl( const std::string osrmBaseUrl ) const;
     double getTT(const Tweval &other) const {return TravelTime[nid][other.nid];};
 
 
-    bool isOsrmTtimeValid() { return getTotTravelTimeOsrm()==-1 ? false : true; };
     bool hastwv() const { return twv; };
     bool hascv() const { return cv; };
 
@@ -71,6 +67,10 @@ class Tweval: public Twnode {
     /* Osrm stuff */
     void evaluateOsrm ();
     void evaluateOsrm ( const Tweval &pred, const std::string &osrmBaseUrl );
+    bool isOsrmTtimeValid() { return getTotTravelTimeOsrm()==-1 ? false : true; };
+    double getTotTravelTimeOsrm() const { return totTravelTimeOsrm; };
+    std::string getOsrmUrlLocs() const { return osrmUrlLocs; };
+    std::string getOsrmUrl( const std::string osrmBaseUrl ) const;
 
     /*!
      * \brief Assign a travel time matrix to the class.
@@ -94,12 +94,9 @@ class Tweval: public Twnode {
     /* constructors &destructors */
 
     Tweval();
-
     Tweval( std::string line );
-
     Tweval( int _id, double _x, double _y, int _open, int _close,
             int _service, int _demand, int _sid );
-
     ~Tweval() {};
 
   private:
