@@ -18,7 +18,9 @@
 #include <vector>
 #include <string>
 #include "twnode.h"
-
+#ifdef WITHOSRM
+#include "vrposrm.h"
+#endif
 
 /*! \class Tweval
  * \brief Extend Twnode to evaluate the vehicle at node level
@@ -65,13 +67,14 @@ class Tweval: public Twnode {
     void evaluate ( double cargoLimit );
     void evaluate ( const Tweval &pred, double cargoLimit );
     /* Osrm stuff */
+#ifdef WITHOSRM
     void evaluateOsrm ();
     void evaluateOsrm ( const Tweval &pred, const std::string &osrmBaseUrl );
     bool isOsrmTtimeValid() { return getTotTravelTimeOsrm()==-1 ? false : true; };
     double getTotTravelTimeOsrm() const { return totTravelTimeOsrm; };
     std::string getOsrmUrlLocs() const { return osrmUrlLocs; };
     std::string getOsrmUrl( const std::string osrmBaseUrl ) const;
-
+#endif
     /*!
      * \brief Assign a travel time matrix to the class.
      *
@@ -116,9 +119,10 @@ class Tweval: public Twnode {
     double totTravelTime;   ///< Total accumulated travel time at this point in the path
     double totServiceTime;  ///< Total accumulated service time at this point in the path
     double dumpVisits;      ///< Total count of dump visits at this point in the path
+#ifdef WITHOSRM
     double totTravelTimeOsrm;   ///< Total accumulated travel time at this point in the path based on the OSRM path
     std::string osrmUrlLocs;    ///< The partial URL string to get OSRM traveltime to this position in the path
-
+#endif
 
 };
 
