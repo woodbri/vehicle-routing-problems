@@ -22,9 +22,11 @@
 
 #include "trashconfig.h"
 #include "twpath.h"
+
 #ifdef WITHOSRM
 #include "osrm.h"
 #endif
+
 #include "move.h"
 #include "vehicle.h"
 #include "basevehicle.h"
@@ -48,7 +50,7 @@ double Vehicle::timePCN(Trashnode &prev, Trashnode &curr, Trashnode &next) const
 #ifdef DOSTATS
  STATS->inc("Vehicle::timePCN nodes ");
 #endif
-	double time= prev.getTT(curr)+curr.getservicetime()+curr.getTT(next);
+	double time= twc->travelTime(prev,curr,next)+curr.getservicetime();
 	return time;
 }
 

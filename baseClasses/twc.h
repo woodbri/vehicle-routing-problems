@@ -88,8 +88,14 @@ template <class knode> class TWC {
 	UID middle;
 	UID last;
         } TTindex;
-        typedef std::map<TTindex,double> TT3;
+	struct classcomp {
+  		bool operator() (const TTindex &lhs, const TTindex &rhs) const {
+  		return lhs.from<rhs.from? true:  lhs.middle<rhs.middle? true: lhs.last<rhs.last;
+		};
+        };
+        typedef std::map<TTindex,double,classcomp>  TT3;
         typedef typename std::map<TTindex,double>::iterator p_TT3;
+
    #endif
 	
 
@@ -412,8 +418,9 @@ template <class knode> class TWC {
 	    double time;
             OsrmClient osrm;
 	    if (osrm.getOsrmTime(original[from],original[middle],original[to],time)) {
-		travel_Time3.insert(index,time);
-//std::cout<<"OSRM TIME 3"<< time<<"\n";
+		//travel_Time3.insert(index,time);
+		travel_Time3[index]=time;
+std::cout<<"OSRM TIME 3"<< time<<"\n";
 		return time;
             }
 	    else  {

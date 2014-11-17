@@ -122,6 +122,13 @@ all:   $(OBJS) $(BASECLASSES_OBJS) $(BASETRASH_OBJS) $(INITTRASH_OBJS) $(SOLVERT
 build/trash.o: trash.cpp $(OSRMCLIENT_HEADER) $(BASECLASSES_HEADS) $(BASETRASH_HEADS) $(INITTRASH_HEADS) $(SOLVERTRASH_HDS) $(HEADS)
 	$(CPP) $(CPPFLAGS) $(INCLUDES) -c $< -o $@
 
+build/baseClasses/config.o: ../../$(BASECLASSES)/config.cpp ../../$(BASECLASSES)/config.h ../../baseClasses/singleton.h
+	$(CPP) $(CPPFLAGS) $(INCLUDES) -c $< -o $@
+
+build/baseClasses/move.o: ../../$(BASECLASSES)/move.cpp ../../$(BASECLASSES)/move.h ../../baseClasses/singleton.h ../../baseClasses/stats.h
+	$(CPP) $(CPPFLAGS) $(INCLUDES) -c $< -o $@
+
+
 build/baseClasses/%.o: ../../$(BASECLASSES)/%.cpp  ../../$(BASECLASSES)/%.h $(BASECLASSES_HEADS)
 	$(CPP) $(CPPFLAGS) $(INCLUDES) -c $< -o $@
 
