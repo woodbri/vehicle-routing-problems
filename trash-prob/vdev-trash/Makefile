@@ -83,7 +83,7 @@ BASECLASSES_SRCS := $(filter-out ../../$(BASECLASSES)/md5.cpp, $(BASECLASSES_SRC
 endif
 
 ifeq ("$(WITH_OSRM)", "")
-BASECLASSES_SRCS := $(filter-out ../../$(BASECLASSES)/osrm.cpp, $(BASECLASSES_SRCS))
+BASECLASSES_SRCS := $(filter-out ../../$(BASECLASSES)/vrposrm.cpp, $(BASECLASSES_SRCS))
 endif
 
 

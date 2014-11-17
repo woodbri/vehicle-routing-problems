@@ -20,7 +20,6 @@
 
 std::vector<std::vector<double> > Tweval::TravelTime;
 
-
 /*!
  * \brief Evaluate a node at the start of a path od sub-path.
  * \param[in] cargoLimit The cargo limit for the vehicle
@@ -115,8 +114,10 @@ Tweval::Tweval(): Twnode() {
     totTravelTime = totWaitTime = totServiceTime = 0;
     twvTot = cvTot = 0;
     twv = cv = false;
+    #ifdef WITHOSRM
     totTravelTimeOsrm = -1;
     osrmUrlLocs = "";
+    #endif
 }
 
 
@@ -129,8 +130,10 @@ Tweval::Tweval( std::string line ): Twnode( line ) {
     cargo = 0;
     arrivalTime = travelTime = waitTime = departureTime = 0;
     totWaitTime = totTravelTime = totServiceTime = 0;
+    #ifdef WITHOSRM
     totTravelTimeOsrm = -1;
     osrmUrlLocs = "";
+    #endif
 };
 
 /*!
@@ -153,8 +156,10 @@ Tweval::Tweval( int _id, double _x, double _y, int _open, int _close,
     cargo = 0;
     arrivalTime = travelTime = waitTime = departureTime = 0;
     totWaitTime = totTravelTime = totServiceTime = 0;
+    #ifdef WITHOSRM
     totTravelTimeOsrm = -1;
     osrmUrlLocs = "";
+    #endif
 };
 
 
@@ -167,6 +172,25 @@ double Tweval::deltaGeneratesTWV( double deltaTime ) const {
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#ifdef WITHOSRM
 /*!
  * \brief Return the location as an OSRM loc string
  */
@@ -237,4 +261,4 @@ void Tweval::evaluateOsrm ( const Tweval &pred, const std::string &osrmBaseUrl )
     totTravelTimeOsrm = ttime;
 }
 
-
+#endif

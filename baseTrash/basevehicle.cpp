@@ -23,12 +23,16 @@
 #include "trashconfig.h"
 #include "twpath.h"
 #include "basevehicle.h"
-#include "osrm.h"
+#ifdef WITHOSRM
+#include "vrposrm.h"
+#endif
 #include "move.h"
 
+
+
+#ifdef WITHOSRM
+
 // *OSRM() REQUIRES the main() to call cURLpp::Cleanup myCleanup; ONCE!
-
-
 void BaseVehicle::evaluateOsrm() {
     double otime = path.getTotTravelTimeOsrm();
     if ( otime == -1 ) {
@@ -67,7 +71,7 @@ double BaseVehicle::getCostOsrm() const {
 double BaseVehicle::getTotTravelTimeOsrm() const {
     return endingSite.getTotTravelTimeOsrm();
 };
-
+#endif
 
 bool BaseVehicle::e_setPath(const Bucket &sol) {
 #ifdef TESTED
@@ -124,7 +128,9 @@ void BaseVehicle::dump() const {
     std::cout << "cargo: " << getcargo() << std::endl;
     std::cout << "duration: " << getduration() << std::endl;
     std::cout << "cost: " << getcost() << std::endl;
+    #ifdef WITHOSRM
     std::cout << "OSRM time: " << getTotTravelTimeOsrm() << std::endl;
+    #endif
     std::cout << "TWV: " << getTWV() << std::endl;
     std::cout << "CV: " << getCV() << std::endl;
     std::cout << "w1: " << getw1() << std::endl;

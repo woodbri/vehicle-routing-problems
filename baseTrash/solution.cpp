@@ -398,10 +398,12 @@ void Solution::dump() const {
     std::cout << "Total count of TWV: " << getTWV() << std::endl;
     std::cout << "Total count of CV: " << getCV() << std::endl;
     std::cout << "Solution: " << solutionAsText() << std::endl;
+    #ifdef WITHOSRM
     for (int i=0; i<fleet.size(); i++) {
         std::cout << "V" << i << " Total OSRM Time: "
                   << fleet[i].getTotTravelTimeOsrm() << std::endl;
     }
+    #endif
 
 }
 

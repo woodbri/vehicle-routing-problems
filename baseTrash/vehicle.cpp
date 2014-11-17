@@ -22,7 +22,9 @@
 
 #include "trashconfig.h"
 #include "twpath.h"
+#ifdef WITHOSRM
 #include "osrm.h"
+#endif
 #include "move.h"
 #include "vehicle.h"
 #include "basevehicle.h"

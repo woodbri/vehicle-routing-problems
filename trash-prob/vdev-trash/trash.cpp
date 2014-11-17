@@ -30,7 +30,11 @@
 #include "trashconfig.h"
 #include "node.h"
 #include "osrmclient.h"
+
+#ifdef WITHOSRM
 #include "osrm.h"
+#endif
+
 #include "twnode.h"
 #include "trashnode.h"
 #include "twpath.h"

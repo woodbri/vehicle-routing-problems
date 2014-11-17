@@ -200,9 +200,14 @@ class BaseVehicle  {
     double distancetodepot(int i) const { return path[i].distance(getdepot()); };
     double distancetodump(int i) const { return path[i].distance(getdumpSite()); };
 
+    #ifdef WITHOSRM
+    //--------------------------------------------------------------------
+    // OSRM stuff
+    //--------------------------------------------------------------------
     double getCostOsrm() const;
     double getTotTravelTimeOsrm() const;
     void evaluateOsrm();
+    #endif
 
     const Trashnode& operator[](int i) const { return path[i]; };
     //Trashnode operator[](int i) const { return path[i]; };
