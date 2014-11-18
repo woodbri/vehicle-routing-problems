@@ -100,8 +100,8 @@ template <class knode> class TWC {
 	
 
 
-    static TwBucket<knode> original;
-    static std::vector<std::vector<double> > twcij;
+    TwBucket<knode> original;
+    mutable std::vector<std::vector<double> > twcij;
     mutable std::vector<std::vector<double> > travel_Time;
 
     inline double _MIN() const { return -std::numeric_limits<double>::max();};
@@ -350,7 +350,9 @@ template <class knode> class TWC {
 	if (travel_Time[from][to]==-1) {
 	    #ifdef OSRMCLIENT
             OsrmClient osrm;
-	    if (not osrm.getOsrmTime(original[from],original[to],time)) { //when flag is false we are doing the euclidean fill
+std::cout<<"travelTime calculating for"<<from<<","<<to<<"\n";
+	    if (not osrm.getOsrmTime(original[from],original[to],time)) { 
+std::cout<<osrm.getErrorMsg()<<"<------ error\n";
 	    #endif
                 time=original[from].distance( original[to] ) / 250;
                 if ( not sameStreet( from, to ) ) {
@@ -359,10 +361,13 @@ template <class knode> class TWC {
                               std::abs( std::cos( gradient( from, to ) ) )
                             );
                 }
+std::cout<<"OSRM TIME 2 euclidean"<< time<<"\n";
 	    #ifdef OSRMCLIENT
-            };
+            } 
+else std::cout<<"OSRM TIME 2 OSRM"<< time<<"\n";
 	    #endif 
 	    travel_Time[from][to]=time;
+	    getTwcij(from,to,time);
         }
         return travel_Time[from][to];
     }
@@ -383,7 +388,7 @@ template <class knode> class TWC {
      * \param[in] to Node id of the to node.
      * \return The value from the travel time matrix.
      */
-    double travelTime( UID from, UID to ) const {
+    double TravelTime( UID from, UID to ) const {
         return getTravelTime(from,to);
     }
 
@@ -398,7 +403,7 @@ template <class knode> class TWC {
      * \param[in] to Node of the to node.
      * \return The travel time or plus infinity if the node is not reachable.
      */
-    double travelTime( const knode &from, const knode &to ) const {
+    double TravelTime( const knode &from, const knode &to ) const {
         return getTravelTime( from.getnid(), to.getnid() );
     }
 
@@ -425,6 +430,7 @@ std::cout<<"OSRM TIME 3"<< time<<"\n";
             }
 	    else  {
 		time=  getTravelTime(from,middle)+ getTravelTime(middle,to);
+std::cout<<"OSRM TIME 3 calculated"<< time<<"\n";
 		//it doesnt get inserted because wasnt calculated with osrm
 	    }
 	    return time;
@@ -434,12 +440,12 @@ std::cout<<"OSRM TIME 3"<< time<<"\n";
 
     public:
 //this one is an interface , the previous one is the one that does all the work
-    double travelTime( UID from, UID middle, UID to ) const {
+    double TravelTime( UID from, UID middle, UID to ) const {
         return getTravelTime(from,middle,to);
     }
 
 //this one is an interface, the other one is the one that does all the work
-    double travelTime( const knode &from, const knode &middle, const knode &to ) const {
+    double TravelTime( const knode &from, const knode &middle, const knode &to ) const {
         return getTravelTime( from.getnid(), middle.getnid(), to.getnid() );
     }
 
@@ -474,7 +480,7 @@ std::cout<<"OSRM TIME 3"<< time<<"\n";
      */
     double compatibleIJ( UID fromNid, UID toNid ) const {
         assert( fromNid < original.size() and toNid < original.size() );
-        return  twcij[fromNid][toNid] ;
+        return  getTwcij(fromNid,toNid) ;
     }
 
     /*!
@@ -510,7 +516,7 @@ std::cout<<"OSRM TIME 3"<< time<<"\n";
      */
     bool isCompatibleIJ( UID fromNid, UID toNid ) const {
         assert( fromNid < original.size() and toNid < original.size() );
-        return not ( twcij[fromNid][toNid]  == _MIN() );
+        return not ( getTwcij(fromNid,toNid)  == _MIN() );
     }
 
     /*!
@@ -522,7 +528,7 @@ std::cout<<"OSRM TIME 3"<< time<<"\n";
      */
     bool isReachableIJ( UID fromNid, UID toNid ) const {
         assert( fromNid < original.size() and toNid < original.size() );
-        return not ( travel_Time[fromNid][toNid]  == _MAX() );
+        return not ( TravelTime(fromNid,toNid)  == _MAX() );
     }
 
 
@@ -536,10 +542,13 @@ std::cout<<"OSRM TIME 3"<< time<<"\n";
      * \param[in] middleNid Second node id in three node sequence to be checked.
      * \param[in] toNid Third node id in three node sequence to be checked.
      * \return True if it is compatible to travel fromNid to middleNid to toNid.
+     * \bug I (vicky)  dont think transitivity applies, and I think the process is more complex
      */
     bool isCompatibleIAJ( UID fromNid, UID middleNid, UID toNid ) const {
         assert( fromNid < original.size() and middleNid < original.size()
                 and toNid < original.size() );
+        isCompatibleIJ( fromNid, middleNid );
+        isCompatibleIJ( middleNid, toNid );
         return isCompatibleIJ( fromNid, middleNid )
                and isCompatibleIJ( middleNid, toNid );
     }
@@ -745,8 +754,8 @@ std::cout<<"OSRM TIME 3"<< time<<"\n";
      */
     int  getBestCompatible( UID fromNid, const Bucket &nodes ) const {
         assert( fromNid < original.size() );
-        int bestId;
-        int toId;
+        UID bestId;
+        UID toId;
 
         if ( nodes.empty() ) return -1;
 
@@ -755,7 +764,7 @@ std::cout<<"OSRM TIME 3"<< time<<"\n";
         for ( int j = 0; j < nodes.size(); j++ ) {
             toId = nodes[j].getnid();
 
-            if ( twcij[fromNid][toId] > twcij[fromNid][bestId] ) {
+            if ( getTwcij(fromNid,toId) > getTwcij(fromNid,bestId) ) {
                 bestId = toId;
             }
         }
@@ -785,12 +794,12 @@ std::cout<<"OSRM TIME 3"<< time<<"\n";
         double ec2_tot = 0;
 
         for ( int j = 0; j < nodes.size(); j++ ) {
-            if ( not ( twcij[at][j]  == _MIN() ) ) ec2_tot += twcij[at][j];
+            if ( not ( getTwcij(at,j)  == _MIN() ) ) ec2_tot += getTwcij(at,j);
 
-            if ( not ( twcij[j][at]  == _MIN() ) ) ec2_tot += twcij[j][at];
+            if ( not ( getTwcij(j,at)  == _MIN() ) ) ec2_tot += getTwcij(j,at);
         };
 
-        if ( twcij[at][at] == _MIN() ) ec2_tot -= twcij[at][at];
+        if ( getTwcij(at,at) == _MIN() ) ec2_tot -= getTwcij(at,at);
 
         return ec2_tot;
     }
@@ -806,12 +815,12 @@ std::cout<<"OSRM TIME 3"<< time<<"\n";
      * \param[in] nodes A bucket that is to be used in counting.
      * \return The number of nodes that are incompatible from node id \b at.
      */
-    int countIncompatibleFrom( int at, const Bucket &nodes ) {
+    int countIncompatibleFrom( UID at, const Bucket &nodes ) {
         assert( at < original.size() );
         int count = 0;
 
-        for ( int j = 0; j < nodes.size(); j++ ) {
-            if ( twcij[at][j]  == _MIN() ) count++;
+        for ( UID j = 0; j < nodes.size(); j++ ) {
+            if ( getTwcij(at,j)  == _MIN() ) count++;
         }
 
         return count;
@@ -824,11 +833,11 @@ std::cout<<"OSRM TIME 3"<< time<<"\n";
      * \param[in] nodes A bucket that is to be used in counting.
      * \return The number of nodes that are incompatibleas sucessors to node id \b at.
      */
-    int countIncompatibleTo( int at, const Bucket &nodes ) {
+    int countIncompatibleTo( UID at, const Bucket &nodes ) {
         int count = 0;
 
-        for ( int j = 0; j < nodes.size(); j++ ) {
-            if ( twcij[j][at]  == _MIN() ) count++;
+        for ( UID j = 0; j < nodes.size(); j++ ) {
+            if ( getTwcij(j,at)  == _MIN() ) count++;
         }
 
         return count;
@@ -1009,7 +1018,7 @@ std::cout<<"OSRM TIME 3"<< time<<"\n";
 
 
     /*!
-     * \brief Set TWC from fromNid to toNid to be incompatible.
+     * \brief Set TWC from fromNid to toNid to be incompatible & unreachable.
      *
      * \param[in] fromNid The predecessor node id.
      * \param[in] toNid The successor node id.
@@ -1017,11 +1026,12 @@ std::cout<<"OSRM TIME 3"<< time<<"\n";
     void setIncompatible( UID fromNid, UID toNid ) {
         assert( fromNid < original.size() and toNid < original.size() );
         twcij[fromNid][toNid] = _MIN();
+	travel_Time[fromNid][toNid] =  _MAX();
     }
 
 
     /*!
-     * \brief Set TWC incompatible from nid to all nodes in the bucket.
+     * \brief Set TWC incompatible  & unreachable from nid to all nodes in the bucket.
      *
      * \param[in] nid The from node id that we want set as incompatible.
      * \param[in] nodes A bucket of successor nodes that are incompatible from \b nid.
@@ -1029,8 +1039,11 @@ std::cout<<"OSRM TIME 3"<< time<<"\n";
     void setIncompatible( UID nid, const Bucket &nodes ) {
         assert( nid < original.size() );
 
-        for ( int j = 0; j < nodes.size(); j++ )
+        for ( int j = 0; j < nodes.size(); j++ ) {
             twcij[nid][nodes[j].getnid()] =  _MIN();
+	    travel_Time[nid][nodes[j].getnid()] =  _MAX();
+	}
+
     }
 
 
@@ -1043,8 +1056,10 @@ std::cout<<"OSRM TIME 3"<< time<<"\n";
     void setIncompatible( const Bucket &nodes, UID &nid ) {
         assert( nid < original.size() );
 
-        for ( int i = 0; i < nodes.size(); i++ )
+        for ( int i = 0; i < nodes.size(); i++ ) {
             twcij[nodes[i].getnid()][nid] =  _MIN();
+	    travel_Time[nodes[i].getnid()][nid] =  _MAX();
+	}
     }
 
 
@@ -1115,7 +1130,7 @@ std::cout<<"OSRM TIME 3"<< time<<"\n";
         int j = to.getnid();
 
         for ( int i = 0; i < from.size(); i++ ) {
-            time += travelTime( from[i].getnid() , j ) ;
+            time += TravelTime( from[i].getnid() , j ) ;
         }
 
         time = time / from.size();
@@ -1197,6 +1212,8 @@ private:
                 else {
 			travel_Time[i][j]=travel_Time[j][i]=-1;
 			#ifndef OSRMCLIENT
+
+std::cout <<"OSRMCLIENT is not defined: we need to calculate the travelTime table\n";
                 	getTravelTime(i,j);
                 	getTravelTime(j,i);
 			#endif
@@ -1341,14 +1358,16 @@ public:
 
 
 
-    // constructors
 
-    /* private are indexed */
 
   private:
+    // constructors
     TWC() {};
     TWC(const TWC&) {};
     TWC& operator=(const TWC&) {};
+
+
+
     /*!
      * \brief Fetch the time window compatibility value traveling from nids i to j.
      *
@@ -1366,6 +1385,7 @@ public:
         return twcij[i][j];
     };
 
+
     /*!
      * \brief The earliest arrival time at \b nj from the latest departure from \b ni
      *
@@ -1377,8 +1397,8 @@ public:
      * \param[in] nj The node we arrived at.
      * \return The earliest arrival time at \b nj
      */
-    double ajli( const knode &ni, const knode &nj ) {
-        return ni.closes() + ni.getservicetime() + travelTime( ni, nj );
+    double ajli( const knode &ni, const knode &nj ) const{
+        return ni.closes() + ni.getservicetime() + TravelTime( ni, nj );
     }
 
     /*!
@@ -1392,8 +1412,8 @@ public:
      * \param[in] nj The node we arrived at.
      * \return The earliest arrival time at \b nj
      */
-    double ajei( const knode &ni, const knode &nj ) {
-        return ni.opens() + ni.getservicetime() + travelTime( ni, nj );
+    double ajei( const knode &ni, const knode &nj ) const {
+        return ni.opens() + ni.getservicetime() + TravelTime( ni, nj );
     }
 
 
@@ -1404,12 +1424,14 @@ public:
      * \param[in] nj To this node
      * \return The TWC value traveling from node \b ni directly to \b nj
      */
-    double twc_for_ij( const knode &ni, const knode &nj ) {
+    double twc_for_ij( const knode &ni, const knode &nj ) const{
         double result;
+	int i=ni.getnid();
+	int j=nj.getnid();
+        if ( travel_Time[i][j]==-1 ) return  _MIN();
+	if (TravelTime( i, j ) == _MAX() ) return  _MIN();
 
-        if ( travelTime( ni, nj ) == _MAX() )
-            result = _MIN();
-        else if ( ( nj.closes() - ajei( ni, nj ) ) > 0 ) {
+        if ( ( nj.closes() - ajei( ni, nj ) ) > 0 ) {
             result = std::min ( ajli( ni, nj ) , nj.closes() )
                      - std::max ( ajei( ni, nj ) , nj.opens()  ) ;
         }
@@ -1420,6 +1442,19 @@ public:
     }
 
 
+    double getTwcij(UID i, UID j) const { //this one makes twcij dynamical
+	if  ( travel_Time[i][j]==-1 ) {
+		TravelTime( i, j);
+		twcij[i][j] = twc_for_ij( original[i], original[j] );
+        }
+        return twcij[i][j];
+    }
+
+    double getTwcij(UID i, UID j, double time) const {
+	twcij[i][j] = twc_for_ij( original[i], original[j] );
+        return twcij[i][j];
+    }
+	
 
     /* public functions That are id based */
 
@@ -1464,21 +1499,12 @@ public:
 
 
 
-template <class knode>
-TwBucket<knode> TWC<knode>::original;
-
-template <class knode>
-std::vector<std::vector<double> >  TWC<knode>::twcij;
 
 template <class knode>
 TWC<knode>*  TWC<knode>::p_twc=NULL;
 
 #define twc TWC<Trashnode>::Instance()
 
-/*
-template <class knode>
-std::vector<std::vector<double> >  TWC<knode>::travel_Time;
-*/
 
 
 #endif

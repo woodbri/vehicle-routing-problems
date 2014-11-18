@@ -38,7 +38,7 @@
 #endif
 
 #include "trashconfig.h"
-#include "feasableSolLoop.h"
+#include "feasableSol.h"
 #include "tabuopt.h"
 
 
@@ -82,7 +82,8 @@ int main(int argc, char **argv) {
         CONFIG->dump("CONFIG");
 
        
-        FeasableSolLoop tp(infile);
+        FeasableSol tp(infile);
+	
 
 	#ifndef LOG
         tp.dump();

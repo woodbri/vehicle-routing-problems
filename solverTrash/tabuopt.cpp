@@ -74,9 +74,9 @@ std::cout<<"Entering TabuOpt::search() \n";
 	setBestAsCurrent();
 	
         improvedBest = doNeighborhoodMoves(Move::InterSw, 1 , Move::InterSw );
-        improvedBest |= doNeighborhoodMoves(Move::IntraSw, 1, Move::InterSw);
-        improvedBest |= doNeighborhoodMoves(Move::Ins, 1 ,    Move::Ins);
-        improvedBest |= doNeighborhoodMoves(Move::IntraSw, 1, Move::Ins);
+//        improvedBest |= doNeighborhoodMoves(Move::IntraSw, 1, Move::InterSw);
+//        improvedBest |= doNeighborhoodMoves(Move::Ins, 1 ,    Move::Ins);
+//        improvedBest |= doNeighborhoodMoves(Move::IntraSw, 1, Move::Ins);
 
         if (improvedBest) lastImproved = 0;
         else ++lastImproved;

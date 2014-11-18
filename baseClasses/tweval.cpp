@@ -15,7 +15,10 @@
 #include <iostream>
 #include <sstream>
 
+#ifdef OSRMCLIENT
 #include "osrmclient.h"
+#endif
+
 #include "tweval.h"
 
 std::vector<std::vector<double> > Tweval::TravelTime;

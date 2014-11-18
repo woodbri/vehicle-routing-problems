@@ -100,8 +100,9 @@ std::cout<<"Entering BaseVehicle::findNearestNodeTo \n";
     assert (unassigned.size());
     if (not unassigned.size()) return false;
 
+std::cout<<"BaseVehicle::findNearestNodeTo passed assert\n";
     bool flag= false;
-    double bestDist;
+    double bestDist=-1;
     double d;
     
     flag = twc->findNearestNodeTo(path, unassigned,  pos , bestNode, bestDist);
@@ -115,7 +116,8 @@ std::cout<<"Entering BaseVehicle::findNearestNodeTo \n";
             pos = size();
             flag= true;
           };
-       };
+       }
+else std::cout<<"BaseVehicle::findNearestNodeTo not compatible"<<twc->isCompatibleIAJ( path[size()-1]  , unassigned[i], dumpSite )<<"\n";
     }
 
     return flag;

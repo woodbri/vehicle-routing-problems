@@ -10,6 +10,7 @@ BASECLASSES = baseClasses
 INITTRASH = initTrash
 SOLVERTRASH = solverTrash
 
+BASECLASSES_DIR = ../../$(BASECLASSES)/
 BUILD_DIR = ./build
 BIN_DIR = ./bin
 
@@ -21,19 +22,32 @@ WITH_STATS = yes
 WITH_LOG =
 WITH_MD5 =
 WITH_OSRM =
+WITH_PLOT =
 
 
 
 ifeq ("$(WITH_STATS)", "")
 STATS_CFLAGS = 
+STATS_HEADER =
 else
+STATS_HEADER = $(BASECLASSES_DIR)/stats.h $(BASECLASSES_DIR)/timer.h $(BASECLASSES_DIR)/singleton.h
 STATS_CFLAGS = -DDOSTATS 
 endif
 
 ifeq ("$(WITH_OSRM)", "")
 OSRM_CFLAGS = 
+OSRM_HEADER = 
 else
+OSRM_HEADER = $(BASECLASSES_DIR)/vrposrm.h
 OSRM_CFLAGS = -DWITHOSRM $(CURL_CFLAGS)
+endif
+
+ifeq ("$(WITH_STATS)", "")
+PLOT_HEADER = 
+PLOT_CFLAGS = 
+else
+PLOT_HEADER = $(BASECLASSES_DIR)/plot.h
+PLOT_CFLAGS = -DDOPLOT 
 endif
 
 ifeq ("$(WITH_MD5)", "")
@@ -56,7 +70,7 @@ endif
 
 
 INCLUDES = -I../../$(BASECLASSES) -I../../$(BASETRASH) -I../../$(INITTRASH) -I../../$(SOLVERTRASH) -I.
-CPPFLAGS = -g -O0 -MMD  -MP  $(OSRMCLIENT_CFLAGS) $(DEFINES) $(STATS_CFLAGS) 
+CPPFLAGS = -g -O0 -MMD  -MP  $(OSRMCLIENT_CFLAGS) $(DEFINES) $(STATS_CFLAGS) $(PLOT_CFLAGS)
 LDFLAGS = -lgd $(INCLUDES) -L$(BASECLASSES) -L$(BASETRASH) -L$(INITTRASH)  $(JSON_LIBS) $(OSRMCLIENT_LIBS)
 
 SRCS =  
@@ -65,32 +79,33 @@ HEADS = $(SRCS:.cpp=.h)
 
 
 
-BASECLASSES_SRCS = $(wildcard ../../$(BASECLASSES)/*.cpp)
+BASECLASSES_SRCS = $(wildcard $(BASECLASSES_DIR)/*.cpp)
 
 # filter out baseClasses/osrmclient.cpp unless
 # WITH_OSRMCLIENT=1 has been set
 
 ifeq ("$(WITH_OSRMCLIENT)", "")
-BASECLASSES_SRCS := $(filter-out ../../$(BASECLASSES)/osrmclient.cpp, $(BASECLASSES_SRCS))
+BASECLASSES_SRCS := $(filter-out $(BASECLASSES_DIR)/osrmclient.cpp, $(BASECLASSES_SRCS))
 endif
 
 ifeq ("$(WITH_STATS)", "")
-BASECLASSES_SRCS := $(filter-out ../../$(BASECLASSES)/stats.cpp, $(BASECLASSES_SRCS))
+BASECLASSES_SRCS := $(filter-out $(BASECLASSES_DIR)/stats.cpp, $(BASECLASSES_SRCS))
+BASECLASSES_SRCS := $(filter-out $(BASECLASSES_DIR)/timer.cpp, $(BASECLASSES_SRCS))
 endif
 
 ifeq ("$(WITH_MD5)", "")
-BASECLASSES_SRCS := $(filter-out ../../$(BASECLASSES)/md5.cpp, $(BASECLASSES_SRCS))
+BASECLASSES_SRCS := $(filter-out $(BASECLASSES_DIR)/md5.cpp, $(BASECLASSES_SRCS))
 endif
 
 ifeq ("$(WITH_OSRM)", "")
-BASECLASSES_SRCS := $(filter-out ../../$(BASECLASSES)/vrposrm.cpp, $(BASECLASSES_SRCS))
+BASECLASSES_SRCS := $(filter-out $(BASECLASSES_DIR)/vrposrm.cpp, $(BASECLASSES_SRCS))
 endif
 
 
 
 BASECLASSES_HDS = $(UTIL_SRCS:.cpp=.h)
 BASECLASSES_OBJS = $(addprefix $(BUILD_DIR)/$(BASECLASSES)/,$(notdir $(BASECLASSES_SRCS:.cpp=.o)))
-BASECLASSES_HEADS = ../../$(BASECLASSES)/twpath.h ../../$(BASECLASSES)/twc.h ../../$(BASECLASSES)/twbucket.h ../../$(BASECLASSES)/plot.h ../../$(BASECLASSES)/singleton.h ../../$(BASECLASSES)/timer.h $(BASECLASSES_HDS)
+BASECLASSES_HEADS = ../../$(BASECLASSES)/twpath.h ../../$(BASECLASSES)/twc.h ../../$(BASECLASSES)/twbucket.h  ../../$(BASECLASSES)/singleton.h ../../$(BASECLASSES)/timer.h $(BASECLASSES_HDS) $(PLOT_HEADER)
 
 
 BASETRASH_SRCS = $(wildcard ../../$(BASETRASH)/*.cpp)
@@ -122,15 +137,24 @@ all:   $(OBJS) $(BASECLASSES_OBJS) $(BASETRASH_OBJS) $(INITTRASH_OBJS) $(SOLVERT
 build/trash.o: trash.cpp $(OSRMCLIENT_HEADER) $(BASECLASSES_HEADS) $(BASETRASH_HEADS) $(INITTRASH_HEADS) $(SOLVERTRASH_HDS) $(HEADS)
 	$(CPP) $(CPPFLAGS) $(INCLUDES) -c $< -o $@
 
-build/baseClasses/config.o: ../../$(BASECLASSES)/config.cpp ../../$(BASECLASSES)/config.h ../../baseClasses/singleton.h
+
+build/baseClasses/config.o: $(BASECLASSES_DIR)/config.cpp $(BASECLASSES_DIR)/config.h $(BASECLASSES_DIR)/singleton.h
 	$(CPP) $(CPPFLAGS) $(INCLUDES) -c $< -o $@
 
-build/baseClasses/move.o: ../../$(BASECLASSES)/move.cpp ../../$(BASECLASSES)/move.h ../../baseClasses/singleton.h ../../baseClasses/stats.h
+build/baseClasses/move.o: $(BASECLASSES_DIR)/move.cpp $(BASECLASSES_DIR)/move.h $(BASECLASSES_DIR)/singleton.h $(STATS_HEADER)
+	$(CPP) $(CPPFLAGS) $(INCLUDES) -c $< -o $@
+
+build/baseClasses/node.o: $(BASECLASSES_DIR)/node.cpp $(BASECLASSES_DIR)/node.h 
+	$(CPP) $(CPPFLAGS) $(INCLUDES) -c $< -o $@
+
+build/baseClasses/stats.o: $(BASECLASSES_DIR)/stats.cpp $(STATS_HEADER) 
 	$(CPP) $(CPPFLAGS) $(INCLUDES) -c $< -o $@
 
 
 build/baseClasses/%.o: ../../$(BASECLASSES)/%.cpp  ../../$(BASECLASSES)/%.h $(BASECLASSES_HEADS)
 	$(CPP) $(CPPFLAGS) $(INCLUDES) -c $< -o $@
+
+
 
 build/baseTrash/%.o: ../../$(BASETRASH)/%.cpp ../../$(BASETRASH)/%.h  $(BASECLASSES_HEADS) $(BASETRASH_HEADS)
 	$(CPP) $(CPPFLAGS) $(INCLUDES) -c $< -o $@
