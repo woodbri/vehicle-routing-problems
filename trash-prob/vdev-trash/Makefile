@@ -175,8 +175,8 @@ bin/trash: build/trash.o $(OBJS) $(BASECLASSES_OBJS) $(BASETRASH_OBJS) $(INITTRA
 test: ./bin/trash ./montevideo/muni-b.containers.txt ./montevideo/muni-b.otherlocs.txt ./montevideo/muni-b.dmatrix-time.txt ./montevideo/muni-b.vehicles.txt
 	./bin/trash ./montevideo/muni-b >./logs/muni-b.out
 
-valgrind: ./bin/trash ./montevideo/muni-b.containers.txt ./montevideo/muni-b.otherlocs.txt ./montevideo/muni-b.dmatrix-time.txt ./montevideo/muni-b.vehicles.txt
-	valgrind -v --track-origins=yes --leak-check=full ./bin/trash montevideo/muni-g
+valgrind: 
+	valgrind -v --track-origins=yes --leak-check=full ./bin/trash montevideo/muni-b
 
 callgrind-8: ./bin/trash ./montevideo/muni-b.*
 	valgrind --tool=callgrind --callgrind-out-file=logs/callgrind-008.out ./bin/trash montevideo/muni-b

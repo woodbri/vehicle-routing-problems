@@ -33,6 +33,7 @@ class OsrmClient {
     int status;                         ///< Current state of the object
     std::string err_msg;                ///< An error message if an error is reported.
     std::string httpContent;            ///< the json response document
+    static bool connectionAvailable;           ///< once set to false, it doesnt try to make a connection
 
   public:
 
@@ -75,4 +76,5 @@ class OsrmClient {
                   << "\n";
     };
 };
+
 #endif

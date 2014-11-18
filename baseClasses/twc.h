@@ -350,7 +350,7 @@ template <class knode> class TWC {
 	if (travel_Time[from][to]==-1) {
 	    #ifdef OSRMCLIENT
             OsrmClient osrm;
-std::cout<<"travelTime calculating for"<<from<<","<<to<<"\n";
+std::cout<<"travelTime calculating for"<<from<<","<<to<<"and limit is"<<original.size()<<"\n";
 	    if (not osrm.getOsrmTime(original[from],original[to],time)) { 
 std::cout<<osrm.getErrorMsg()<<"<------ error\n";
 	    #endif
