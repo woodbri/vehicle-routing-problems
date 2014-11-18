@@ -33,7 +33,10 @@ OsrmClient::OsrmClient() {
     catch ( std::exception & e ) {
         status = -1;
         //routing_machine = NULL;
-        err_msg = std::string("OsrmClient: caught exception: ") + e.what();
+        err_msg = std::string("OsrmClient::OsrmClient caught exception: ") + e.what();
+	#ifdef DOSTATS 
+ 	STATS->inc(err_msg);
+	#endif
     };
 }
 
@@ -169,7 +172,7 @@ bool OsrmClient::getOsrmViaroute() {
         return true;
     }
     catch ( std::exception & e ) {
-        err_msg = std::string("OsrmClient: caught exception: ")
+        err_msg = std::string("OsrmClient:getOsrmViaRoute caught exception: ")
                 + e.what();
 	#ifdef DOSTATS 
  	STATS->inc(err_msg);
