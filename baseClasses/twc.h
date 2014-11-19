@@ -341,16 +341,18 @@ template <class knode> class TWC {
     }
 
 
-    /*! \todo when bug is removed travelTime with 2 parameters   */
+    /*! \todo comments   */
     private:
     double getTravelTime( UID from, UID to ) const { //this one does all the work gets &sets if needed
 
         assert( from < original.size() and to < original.size() );
 	double time;
 	if (travel_Time[from][to]==-1) {
+            #ifdef DOSTATS
+            STATS->inc("TWC::getTravelTime(2 parameters) travel_time==-1");
+	    #endif
+
 	    #ifdef OSRMCLIENT
-            //OsrmClient osrm;
-std::cout<<"travelTime calculating for"<<from<<","<<to<<"and limit is"<<original.size()<<"\n";
 	    if (not osrm->getOsrmTime(original[from],original[to],time)) { 
 	    #endif
                 time=original[from].distance( original[to] ) / 250;
@@ -360,10 +362,16 @@ std::cout<<"travelTime calculating for"<<from<<","<<to<<"and limit is"<<original
                               std::abs( std::cos( gradient( from, to ) ) )
                             );
                 }
-std::cout<<"OSRM TIME 2 euclidean"<< time<<"\n";
+	    	#ifdef DOSTATS
+        	STATS->inc("TWC::getTravelTime(2 parameters) euclidean calculated");
+        	#endif
 	    #ifdef OSRMCLIENT
             } 
-else std::cout<<"OSRM TIME 2 OSRM"<< time<<"\n";
+	    else {
+            	#ifdef DOSTATS
+            	STATS->inc("TWC::getTravelTime(2 parameters) osrm calculated");
+	    	#endif
+            }
 	    #endif 
 	    travel_Time[from][to]=time;
 	    getTwcij(from,to,time);
@@ -407,8 +415,7 @@ else std::cout<<"OSRM TIME 2 OSRM"<< time<<"\n";
     }
 
 
-    /*! \todo commnts when bug is removed travelTime with 3 parameters */
-    /*! \bug add the stuff when using osrm */
+    /*! \todo comments   */
     private:
 	//this one does all the work
 	double getTravelTime( UID from, UID middle, UID to ) const{ 
@@ -423,12 +430,10 @@ else std::cout<<"OSRM TIME 2 OSRM"<< time<<"\n";
 	    if (osrm->getOsrmTime(original[from],original[middle],original[to],time)) {
 		//travel_Time3.insert(index,time);
 		travel_Time3[index]=time;
-std::cout<<"OSRM TIME 3"<< time<<"\n";
 		return time;
             }
 	    else  {
 		time=  getTravelTime(from,middle)+ getTravelTime(middle,to);
-std::cout<<"OSRM TIME 3 calculated"<< time<<"\n";
 		//it doesnt get inserted because wasnt calculated with osrm
 	    }
 	    return time;

@@ -17,6 +17,9 @@ bool OsrmClient::connectionAvailable=true;
  */
 OsrmClient::OsrmClient(){
     if (not connectionAvailable) return;
+    #ifdef DOSTATS 
+    Timer timer;
+    #endif
     try {
         ServerPaths server_paths;
 	OsrmClient::routing_machine = new OSRM(server_paths, true);
@@ -26,6 +29,7 @@ OsrmClient::OsrmClient(){
         err_msg = std::string("OsrmClient::OsrmClient caught exception: ") + e.what();
 	#ifdef DOSTATS 
  	STATS->inc(err_msg);
+        STATS->addto("OsrmClient::OsrmClient Cumulative time", timer.duration());
 	#endif
 	connectionAvailable=false;
 	return;
@@ -45,6 +49,9 @@ OsrmClient::OsrmClient(){
 	#ifndef LOG
 	testOsrmClient();
 	#endif
+	#ifdef DOSTATS 
+        STATS->addto("OsrmClient::OsrmClient Cumulative time", timer.duration());
+	#endif
     }
 
 
@@ -54,11 +61,18 @@ OsrmClient::OsrmClient(){
  */
 void OsrmClient::clear() {
     if (not connectionAvailable) return;
+    #ifdef DOSTATS 
+    Timer timer;
+    #endif
     route_parameters.coordinates.clear();
+    route_parameters.hints.clear();
     route_parameters.geometry = false;
     httpContent = "";
     err_msg = "";
     if (status > 0) status = 0;
+    #ifdef DOSTATS 
+    STATS->addto("OsrmClient::Clear Cumulative time", timer.duration());
+    #endif
 }
 
 
@@ -69,9 +83,15 @@ void OsrmClient::clear() {
  */
 void OsrmClient::addViaPoint( double lat, double lon ) {
     if (not connectionAvailable) return;
+    #ifdef DOSTATS 
+    Timer timer;
+    #endif
     FixedPointCoordinate p( lat * COORDINATE_PRECISION,
                             lon * COORDINATE_PRECISION );
     route_parameters.coordinates.push_back( p );
+    #ifdef DOSTATS 
+    STATS->addto("OsrmClient::addViaPoint Cumulative time", timer.duration());
+    #endif
 }
 
 
@@ -81,7 +101,13 @@ void OsrmClient::addViaPoint( double lat, double lon ) {
  */
 void OsrmClient::addViaPoint( const Node &node ) {
     if (not connectionAvailable) return;
+    #ifdef DOSTATS 
+    Timer timer;
+    #endif
     addViaPoint( node.gety(), node.getx() );
+    #ifdef DOSTATS 
+    STATS->addto("OsrmClient::addViaPoint Cumulative time", timer.duration());
+    #endif
 }
 
 
@@ -97,9 +123,9 @@ void OsrmClient::addViaPoints( const std::deque<Node> &path ) {
 }
 
 bool OsrmClient::getOsrmTime( double lat1, double lon1 ,double lat2, double lon2, double &time ) {
-#ifdef DOSTATS 
- STATS->inc("OsrmClient::getOsrmTime (2 points) ");
-#endif
+    #ifdef DOSTATS 
+    STATS->inc("OsrmClient::getOsrmTime (2 points) ");
+    #endif
     if (not connectionAvailable) return false;
     clear();
     addViaPoint(lat1,lon1);
@@ -108,24 +134,37 @@ bool OsrmClient::getOsrmTime( double lat1, double lon1 ,double lat2, double lon2
     return false;
 }
 
-bool OsrmClient::getOsrmTime( const Node &node1, const Node &node2, double &time ) {
-#ifdef DOSTATS 
- STATS->inc("OsrmClient::getOsrmTime (2 nodes) ");
-#endif
+bool OsrmClient::getOsrmTime( double lat1, double lon1 ,double lat2, double lon2,const  std::string &hint1,const std::string &hint2, double &time ) {
+    #ifdef DOSTATS 
+    STATS->inc("OsrmClient::getOsrmTime (2 points) ");
+    #endif
     if (not connectionAvailable) return false;
+    clear();
+    addViaPoint(lat1,lon1);
+    addViaPoint(lat2,lon2);
+    route_parameters.hints.push_back( hint1 );
+    route_parameters.hints.push_back( hint2 );
+    if (getOsrmViaroute()) return getOsrmTime(time);
+    return false;
+}
+
+bool OsrmClient::getOsrmTime( const Node &node1, const Node &node2, double &time ) {
+    if (not connectionAvailable) return false;
+    #ifdef DOSTATS 
+    STATS->inc("OsrmClient::getOsrmTime (2 nodes) ");
+    #endif
     clear();
     addViaPoint(node1);
     addViaPoint(node2);
     if (getOsrmViaroute()) return  getOsrmTime(time);
-    }
     return false;
 }
 
 bool OsrmClient::getOsrmTime( const Node &node1, const Node &node2, const Node &node3, double &time ) {
-#ifdef DOSTATS 
- STATS->inc("OsrmClient::getOsrmTime (3 nodes) ");
-#endif
     if (not connectionAvailable) return false;
+    #ifdef DOSTATS 
+    STATS->inc("OsrmClient::getOsrmTime (3 nodes) ");
+    #endif
     clear();
     addViaPoint(node1);
     addViaPoint(node2);
@@ -140,23 +179,26 @@ bool OsrmClient::getOsrmTime( const Node &node1, const Node &node2, const Node &
  * \return True if an error happened and err_msg will be set. False if ok.
  */
 bool OsrmClient::getOsrmViaroute() {
-#ifdef DOSTATS 
- STATS->inc("OsrmClient::getOsrmViaroute ");
-#endif
     if (not connectionAvailable) return false;
+    #ifdef DOSTATS 
+    Timer timer;
+    STATS->inc("OsrmClient::getOsrmViaRoute (does the work) ");
+    #endif
 
     if ( route_parameters.coordinates.size() < 2 ) {
         err_msg = "OsrmClient:getOsrmViaroute must be called with two ro more viapoints!";
 	#ifdef DOSTATS 
  	STATS->inc(err_msg);
+        STATS->addto("OsrmClient::getOsrmViaRoute (does the work) Cumulative time", timer.duration());
 	#endif
         return false;
     }
     if ( status == -1 ) {
+        err_msg = "OsrmClient:getOsrmViaroute Failed to connect to server!";
 	#ifdef DOSTATS 
  	STATS->inc(err_msg);
+        STATS->addto("OsrmClient::getOsrmViaRoute (does the work) Cumulative time", timer.duration());
 	#endif
-        err_msg = "OsrmClient:getOsrmViaroute Failed to connect to server!";
         return false;
     }
     err_msg = "";
@@ -168,10 +210,11 @@ bool OsrmClient::getOsrmViaroute() {
     catch ( std::exception & e ) {
         err_msg = std::string("OsrmClient:getOsrmViaRoute caught exception: ")
                 + e.what();
+	connectionAvailable=false;
 	#ifdef DOSTATS 
  	STATS->inc(err_msg);
+        STATS->addto("OsrmClient::getOsrmViaRoute (does the work) Cumulative time", timer.duration());
 	#endif
-	connectionAvailable=false;
         return false;
     }
 
@@ -186,6 +229,9 @@ bool OsrmClient::getOsrmViaroute() {
             httpContent += *sit;
 
         status = 1;
+	#ifdef DOSTATS 
+        STATS->addto("OsrmClient::getOsrmViaRoute (does the work) Cumulative time", timer.duration());
+	#endif
         return true;
 }
 
@@ -197,10 +243,15 @@ bool OsrmClient::getOsrmViaroute() {
  */
 bool OsrmClient::getOsrmTime( double &time ) {
     if (not connectionAvailable) return false;
+    #ifdef DOSTATS 
+    Timer timer;
+    STATS->inc("OsrmClient::getOsrmTime (does the work) ");
+    #endif
     if ( status != 1 or httpContent.size() == 0 ) {
         err_msg = "OsrmClient:getOsrmTime does not have a valid OSRM response!";
 	#ifdef DOSTATS 
  	STATS->inc(err_msg);
+        STATS->addto("OsrmClient::getOsrmTime (does the work) Cumultaive time:", timer.duration());
 	#endif
         return false;
     }
@@ -211,16 +262,23 @@ bool OsrmClient::getOsrmTime( double &time ) {
         err_msg = "OsrmClient:getOsrmTime invalid json document in OSRM response!";
 	#ifdef DOSTATS 
  	STATS->inc(err_msg);
+        STATS->addto("OsrmClient::getOsrmTime (does the work) Cumultaive time:", timer.duration());
 	#endif
         return false;
     }
 
     if ( not getTime( jtree, time ) ) {
         json_object_put( jtree );
+	#ifdef DOSTATS 
+        STATS->addto("OsrmClient::getOsrmTime (does the work) Cumultaive time:", timer.duration());
+	#endif
         return false;
     }
 
     json_object_put( jtree );
+    #ifdef DOSTATS 
+    STATS->addto("Cumulative OsrmClient::getOsrmTime (does the work) time:", timer.duration());
+    #endif
     return true;
 }
 
@@ -232,6 +290,10 @@ bool OsrmClient::getOsrmTime( double &time ) {
  */
 bool OsrmClient::getOsrmGeometry( std::deque<Node> &geom ) {
     if (not connectionAvailable) return false;
+    #ifdef DOSTATS 
+    Timer timer;
+    STATS->inc("OsrmClient::getOsrmGeometry (does the work) ");
+    #endif
     if ( status != 1 or httpContent.size() == 0 ) {
         err_msg = "OsrmClient::getOsrmGeometry does not have a valid OSRM response!";
 	#ifdef DOSTATS 
@@ -259,20 +321,66 @@ bool OsrmClient::getOsrmGeometry( std::deque<Node> &geom ) {
     return true;
 }
 
+bool OsrmClient::getOsrmHints( std::deque<std::string> &hints ) {
+    if (not connectionAvailable) return false;
+    #ifdef DOSTATS 
+    Timer timer;
+    STATS->inc("OsrmClient::getOsrmHint (interface) ");
+    #endif
+    if ( status != 1 or httpContent.size() == 0 ) {
+        err_msg = "OsrmClient::getOsrmHint (interface) does not have a valid OSRM response!";
+        #ifdef DOSTATS 
+        STATS->inc(err_msg);
+        #endif
+        return false;
+    }
+
+    struct json_object * jtree = NULL;
+    jtree = json_tokener_parse( httpContent.c_str() );
+    if ( not jtree ) {
+        err_msg = "OsrmClient:getOsrmHint (interface) invalid json document in OSRM response!";
+        #ifdef DOSTATS 
+        STATS->inc(err_msg);
+        #endif
+        return false;
+    }
+
+    if ( not getHints( jtree, hints ) ) {
+        json_object_put( jtree );
+        return false;
+    }
+
+    json_object_put( jtree );
+    return true;
+}
+
 
 int OsrmClient::testOsrmClient() {
     if (not connectionAvailable) return 0;
     Timer t0;
     double time;
+    std::deque<std::string> hints;
     dump();
     if (getStatus() == -1) {
         std::cout << getErrorMsg() << std::endl;
         return -1;
     }
-    if (getOsrmTime(-34.88124, -56.19048,-34.89743, -56.12447,time) )
-         std::cout << "SUCCESSSSS  getOsrmTime: " << time << std::endl;
+    for(int j=0;j<100;j++) {
+    	t0.restart();
+    	if (getOsrmTime(-34.88124, -56.19048,-34.89743, -56.12447,time) )
+          std::cout << "SUCCESSSSS  getOsrmTime: " << time << std::endl;
+    	STATS->addto("OsrmClient::testOsrmClient (no hints) time:", t0.duration());
+    	if (getOsrmHints(hints)) {
+	//for (int i=0;i<hints.size();i++) std::cout<<"hint "<<i<<": "<<hints[i]<<"\n";
+	  std::string hint1= hints[0];
+	  std::string hint2= hints[1];
+          t0.restart();
+          if (getOsrmTime(-34.88124, -56.19048,-34.89743, -56.12447,hint1,hint2,time) )
+               std::cout << "YET ANOTHER SUCCESSSSS  getOsrmTime: " << time << std::endl;
+    	STATS->addto("OsrmClient::testOsrmClient (whit hints) time:", t0.duration());
+    }
+    }
     dump();
-    std::cout << "duration: " << t0.duration() << std::endl;
     return 0;
 };
 
@@ -380,4 +488,48 @@ bool OsrmClient::getGeom( struct json_object *jtree, std::deque<Node> &geom ) {
     return true;
 }
 
+bool OsrmClient::getHints( struct json_object *jtree, std::deque<std::string> &hints ) {
+    if (not connectionAvailable) return false;
+    struct json_object *jHintData;
+    struct json_object *jLocations;
+    hints.clear();
+
+    // find the route 'hint_data' key in the response
+    jHintData = json_object_object_get( jtree, "hint_data" );
+    if ( not jHintData ) {
+        err_msg = "OsrmClient:getHints (private)  failed to find 'hint_data' key in OSRM response!";
+        #ifdef DOSTATS 
+        STATS->inc(err_msg);
+        #endif
+        return false;
+    }
+
+    jLocations = json_object_object_get( jHintData, "locations" );
+    if ( not jHintData ) {
+        err_msg = "OsrmClient:getHints (private)  failed to find 'locations' key in OSRM response!";
+        #ifdef DOSTATS 
+        STATS->inc(err_msg);
+        #endif
+        json_object_put( jHintData );
+        return false;
+    }
+
+
+    json_object *jHint;
+    std::string hint;
+    //int i=0;
+    int numPnts=2;
+    for (int i=0; i<numPnts; ++i) {
+        jHint = json_object_array_get_idx(jLocations, i);
+
+        hint = json_object_get_string (jHint);
+        hints.push_back( hint );
+
+        json_object_put( jHint );
+    }
+
+    json_object_put( jLocations );
+    json_object_put( jHintData );
+    return true;
+}
 
