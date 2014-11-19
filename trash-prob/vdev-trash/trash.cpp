@@ -27,15 +27,8 @@
 #endif
 
 
-#ifndef LOG
-#ifdef OSRMCLIENT
-#include "osrmclient.h"
-#endif
-#endif
 
-#ifdef WITHOSRM
-#include "osrm.h"
-#endif
+//#include "Library/OSRM.h"
 
 #include "trashconfig.h"
 #include "feasableSol.h"
@@ -67,8 +60,9 @@ int main(int argc, char **argv) {
     try {
 	#ifndef LOG
 	#ifdef OSRMCLIENT
-	OsrmClient oc;
-	oc.testOsrmClient();
+	//ServerPaths server_paths;
+	//OSRM routing_machine(server_paths, true); 
+	osrm->testOsrmClient();
 	#endif
 	#endif
 

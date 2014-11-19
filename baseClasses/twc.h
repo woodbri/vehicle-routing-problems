@@ -349,10 +349,9 @@ template <class knode> class TWC {
 	double time;
 	if (travel_Time[from][to]==-1) {
 	    #ifdef OSRMCLIENT
-            OsrmClient osrm;
+            //OsrmClient osrm;
 std::cout<<"travelTime calculating for"<<from<<","<<to<<"and limit is"<<original.size()<<"\n";
-	    if (not osrm.getOsrmTime(original[from],original[to],time)) { 
-std::cout<<osrm.getErrorMsg()<<"<------ error\n";
+	    if (not osrm->getOsrmTime(original[from],original[to],time)) { 
 	    #endif
                 time=original[from].distance( original[to] ) / 250;
                 if ( not sameStreet( from, to ) ) {
@@ -421,8 +420,7 @@ else std::cout<<"OSRM TIME 2 OSRM"<< time<<"\n";
  	    p_TT3 it = travel_Time3.find(index);
 	    if (it != travel_Time3.end()) return it->second;
 	    double time;
-            OsrmClient osrm;
-	    if (osrm.getOsrmTime(original[from],original[middle],original[to],time)) {
+	    if (osrm->getOsrmTime(original[from],original[middle],original[to],time)) {
 		//travel_Time3.insert(index,time);
 		travel_Time3[index]=time;
 std::cout<<"OSRM TIME 3"<< time<<"\n";

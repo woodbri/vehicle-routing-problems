@@ -1,5 +1,5 @@
-
 #include "Library/OSRM.h"
+
 #include "osrmclient.h"
 
 #ifdef DOSTATS
@@ -8,19 +8,28 @@
 #endif
 
 
+OsrmClient *OsrmClient::p_osrm=NULL;
+OSRM * OsrmClient::routing_machine= NULL;
 bool OsrmClient::connectionAvailable=true;
-
-
 
 /*!
  * \brief The OsrmClient constructor.
  */
-OsrmClient::OsrmClient() {
-	if (not connectionAvailable) return;
-//    try {
-        // create shared memory connection to the server
-        //ServerPaths server_paths;
-        //routing_machine = new OSRM( server_paths, true );
+OsrmClient::OsrmClient(){
+    if (not connectionAvailable) return;
+    try {
+        ServerPaths server_paths;
+	OsrmClient::routing_machine = new OSRM(server_paths, true);
+    }
+    catch ( std::exception & e ) {
+        status = -1;
+        err_msg = std::string("OsrmClient::OsrmClient caught exception: ") + e.what();
+	#ifdef DOSTATS 
+ 	STATS->inc(err_msg);
+	#endif
+	connectionAvailable=false;
+	return;
+    };
 
         route_parameters.zoomLevel = 18;
         route_parameters.printInstructions = false;
@@ -32,20 +41,12 @@ OsrmClient::OsrmClient() {
         route_parameters.outputFormat = "json";
         route_parameters.jsonpParameter = "";
         route_parameters.language = "";
-
         status = 0;
-/*
-    }
-    catch ( std::exception & e ) {
-        status = -1;
-        //routing_machine = NULL;
-        err_msg = std::string("OsrmClient::OsrmClient caught exception: ") + e.what();
-	#ifdef DOSTATS 
- 	STATS->inc(err_msg);
+	#ifndef LOG
+	testOsrmClient();
 	#endif
-    };
-*/
-}
+    }
+
 
 
 /*!
@@ -115,13 +116,8 @@ bool OsrmClient::getOsrmTime( const Node &node1, const Node &node2, double &time
     clear();
     addViaPoint(node1);
     addViaPoint(node2);
-    if (getOsrmViaroute()) {
-		bool flag= getOsrmTime(time);
-std::cout<<err_msg<<"<----- ERROR with "<<flag<<"\n";
-		return flag;
+    if (getOsrmViaroute()) return  getOsrmTime(time);
     }
-	
-std::cout<<err_msg<<"<----- ERROR \n";
     return false;
 }
 
@@ -135,7 +131,6 @@ bool OsrmClient::getOsrmTime( const Node &node1, const Node &node2, const Node &
     addViaPoint(node2);
     addViaPoint(node3);
     if (getOsrmViaroute()) return getOsrmTime(time);
-std::cout<<err_msg<<"\n";
     return false;
 }
 
@@ -168,20 +163,15 @@ bool OsrmClient::getOsrmViaroute() {
     http::Reply osrm_reply;
 
     try {
-        // create shared memory connection to the server
-        ServerPaths server_paths;
-        OSRM routing_machine( server_paths, true );
-        routing_machine.RunQuery( route_parameters, osrm_reply );
-        }
+        routing_machine->RunQuery( route_parameters, osrm_reply );
+    }
     catch ( std::exception & e ) {
         err_msg = std::string("OsrmClient:getOsrmViaRoute caught exception: ")
                 + e.what();
 	#ifdef DOSTATS 
  	STATS->inc(err_msg);
 	#endif
-std::cout<<err_msg<<"<----- ERROR with "<<connectionAvailable<<"\n";
 	connectionAvailable=false;
-std::cout<<err_msg<<"<----- ERROR with "<<connectionAvailable<<"\n";
         return false;
     }
 

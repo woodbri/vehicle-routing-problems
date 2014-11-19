@@ -3,6 +3,8 @@
 
 #include "DataStructures/Coordinate.h"
 #include "Server/DataStructures/RouteParameters.h"
+//#include "Library/OSRM.h"
+
 #include "node.h"
 
 #include <string>
@@ -25,6 +27,8 @@
  *       and we have to parse them. I might be worth the effort to dig deeper
  *       into the OSRM code to avoid this step.
  */
+
+class OSRM;
 class OsrmClient {
 
   private:
@@ -34,10 +38,21 @@ class OsrmClient {
     std::string err_msg;                ///< An error message if an error is reported.
     std::string httpContent;            ///< the json response document
     static bool connectionAvailable;           ///< once set to false, it doesnt try to make a connection
+    //ServerPaths server_paths;
+    static OSRM  *routing_machine;
+    static OsrmClient *p_osrm;
+    OsrmClient();
+//    OsrmClient(const OsrmClient& other):server_paths(other.server_paths),routing_machine(other.server_paths,true) {};
+//    OsrmClient &operator=(const OsrmClient&) {};
 
   public:
+    static OsrmClient *Instance() {
+           if (!p_osrm)   // Only allow one instance of class to be generated.
+              p_osrm = new OsrmClient;
+           return p_osrm;
+    }
 
-    OsrmClient();
+    void noConnectionAvailable() { connectionAvailable=false;};
     void clear();
     void addViaPoint( double lat, double lon );
     void addViaPoint( const Node &node );
@@ -76,5 +91,7 @@ class OsrmClient {
                   << "\n";
     };
 };
+
+#define osrm OsrmClient::Instance()
 
 #endif
