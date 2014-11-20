@@ -105,6 +105,7 @@ void OsrmClient::addViaPoint( const Node &node ) {
     Timer timer;
     #endif
     addViaPoint( node.gety(), node.getx() );
+    route_parameters.hints.push_back( node.getHint() );
     #ifdef DOSTATS 
     STATS->addto("OsrmClient::addViaPoint Cumulative time", timer.duration());
     #endif
@@ -156,6 +157,8 @@ bool OsrmClient::getOsrmTime( const Node &node1, const Node &node2, double &time
     clear();
     addViaPoint(node1);
     addViaPoint(node2);
+    route_parameters.hints.push_back( node1.getHint() );
+    route_parameters.hints.push_back( node2.getHint() );
     if (getOsrmViaroute()) return  getOsrmTime(time);
     return false;
 }
@@ -169,6 +172,9 @@ bool OsrmClient::getOsrmTime( const Node &node1, const Node &node2, const Node &
     addViaPoint(node1);
     addViaPoint(node2);
     addViaPoint(node3);
+    route_parameters.hints.push_back( node1.getHint() );
+    route_parameters.hints.push_back( node2.getHint() );
+    route_parameters.hints.push_back( node3.getHint() );
     if (getOsrmViaroute()) return getOsrmTime(time);
     return false;
 }
@@ -377,7 +383,7 @@ int OsrmClient::testOsrmClient() {
           t0.restart();
           if (getOsrmTime(-34.88124, -56.19048,-34.89743, -56.12447,hint1,hint2,time) )
                std::cout << "YET ANOTHER SUCCESSSSS  getOsrmTime: " << time << std::endl;
-    	STATS->addto("OsrmClient::testOsrmClient (whit hints) time:", t0.duration());
+    	STATS->addto("OsrmClient::testOsrmClient ( with hints) time:", t0.duration());
     }
     }
     dump();
@@ -517,9 +523,8 @@ bool OsrmClient::getHints( struct json_object *jtree, std::deque<std::string> &h
 
     json_object *jHint;
     std::string hint;
-    //int i=0;
-    int numPnts=2;
-    for (int i=0; i<numPnts; ++i) {
+
+    for (int i=0; i<route_parameters.coordinates.size(); i++) {
         jHint = json_object_array_get_idx(jLocations, i);
 
         hint = json_object_get_string (jHint);

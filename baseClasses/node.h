@@ -34,6 +34,7 @@ class Node {
     int id;     ///< user supplied node number
     double x;   ///< x or longitude of the node's location
     double y;   ///< y or latitude of the node's location
+    std::string hint;
 
   public:
     // accessors
@@ -41,6 +42,7 @@ class Node {
     int getid() const { return id; };
     double getx() const { return x; };
     double gety() const { return y; };
+    std::string getHint() const { return hint; };
 
     double distance( const Node &n ) const ;
 
@@ -56,6 +58,7 @@ class Node {
     void setid( int _id ) { id = _id; };
     void setx( double _x ) { x = _x; };
     void sety( double _y ) {y = _y; };
+    void setHint( const std::string &_hint ) {hint = _hint; };
 
     // operators
     bool operator<( const Node &n ) const { return nid < n.nid; };

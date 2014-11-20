@@ -165,6 +165,39 @@ template <class knode> class TWC {
         return flag;
     }
 
+    bool  findNearestNodeUseExistingData( const TwBucket<knode> &truck,
+                             const  TwBucket<knode> &unassigned,
+                             POS &pos,
+                             knode &bestNode,
+                             double &bestDist ) const {
+        assert( unassigned.size() );
+        int flag = false;
+        bestDist = _MAX();   // dist to minimize
+        pos = 0;        // position in path to insert
+        double d;
+
+
+        for ( int i = 0; i < unassigned.size(); i++ ) {
+            for ( int j = 0; j < truck.size() - 1; j++ ) {
+		if ( not (j == 0) // all nodes from the depot that are missing should be calculated
+		     and (   (travel_Time[ truck[j].getnid() ][ unassigned[i].getnid() ] == -1 )
+		          or (travel_Time[ unassigned[i].getnid() ][ truck[j+1].getnid() ] == -1) ) ) continue;
+                if ( isCompatibleIAJ( truck[j], unassigned[i], truck[j + 1] ) ) {
+                    d = truck.segmentDistanceToPoint( j , unassigned[i] );
+
+                    if ( d < bestDist ) {
+                        bestDist = d;
+                        pos = j + 1;
+                        bestNode = unassigned[i];
+                        flag = true;
+                    }
+                }
+            }
+        }
+
+        if (not flag) return findNearestNodeTo( truck, unassigned, pos, bestNode, bestDist ) ;
+        return flag;
+    }
 
     /*!
      * \brief Select all nodes in a bucket from which you can not reach node id \b to.
@@ -1225,6 +1258,35 @@ std::cout <<"OSRMCLIENT is not defined: we need to calculate the travelTime tabl
     }
 
 
+   void getAllHints() {
+      #ifdef OSRMCLIENT	
+      #ifdef DOSTATS 
+      Timer timer;
+      #endif
+
+      std::deque<std::string> hints;
+      int total = original.size();
+      int from, to;
+      int i,j,k;
+      for (i=0; (i*100) < total;i++) {
+	from = i*100;
+	to = std::min ( (i+1)*100 , total ) ;
+	hints.clear();
+        osrm->clear();
+        for (j=from; j< to ;j++) osrm->addViaPoint( original[j] );
+	if ( osrm->getOsrmViaroute() and osrm->getOsrmHints(hints) )
+           for (j=from, k=0; j< to ;j++,k++) {
+		original[j].setHint(hints[k]);
+           }
+      }
+      #ifdef DOSTATS 
+      STATS->addto("TWC::getAllHints Cumultaive time:", timer.duration());
+      #endif
+
+      #endif
+  }
+
+
 public: 
     /*!
      * \brief Assign the travel time matrix to TWC from Pg
@@ -1245,6 +1307,8 @@ public:
         assert( datanodes.size() );
         original.clear();
         original = datanodes;
+
+        getAllHints();
 
 	prepareTravelTime();
 
@@ -1294,6 +1358,7 @@ public:
         std::ifstream in( infile.c_str() );
         std::string line;
 
+        getAllHints();
 	prepareTravelTime();
 
         int fromId;
