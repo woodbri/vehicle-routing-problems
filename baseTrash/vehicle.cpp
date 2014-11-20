@@ -35,22 +35,21 @@
 /**
    prev curr next
    ttpc + serv(c) + ttcn
-   inf when TWV
+   no tw checks 
 */
 double Vehicle::timePCN(POS prev, POS curr, POS next) const  {
 #ifdef DOSTATS
  STATS->inc("Vehicle::timePCN positions ");
 #endif
-	if ( next==size() ) return path.timePCN(prev,curr,dumpSite);
-	else return path.timePCN(prev,curr,next);
+	if ( next==size() ) return twc->TravelTime(path[prev],path[curr],dumpSite)+ path[curr].getservicetime();
+	else return twc->TravelTime(path[prev],path[curr],path[next]) + path[curr].getservicetime();
 }
 
-/* no tw checks */
 double Vehicle::timePCN(Trashnode &prev, Trashnode &curr, Trashnode &next) const  {
 #ifdef DOSTATS
  STATS->inc("Vehicle::timePCN nodes ");
 #endif
-	double time= twc->travelTime(prev,curr,next)+curr.getservicetime();
+	double time= twc->TravelTime(prev,curr,next)+curr.getservicetime();
 	return time;
 }
 
@@ -157,13 +156,17 @@ bool inspect = (truckPos+otherTruckPos)==5 and (truckPos*otherTruckPos)==0; //in
            for ( int j=k; j<other.size(); j+=inc) {
 		if (other.path[j].isdump()) continue;
 		if (numNotFeasable > factor * ( truck.getn() * other.getn()) ) {
+			#ifdef LOG
    			std::cout<<"\n LEAVING WITH numNotFeasable"<<numNotFeasable;
    			std::cout<<"\n LEAVING WITH moves"<<deltaMovesSize;
+			#endif
 			return deltaMovesSize;
 		}
 		if (deltaMovesSize > factor * ( truck.getn() * other.getn()) ) {
+			#ifdef LOG
    			std::cout<<"\n LEAVING WITH moves"<<deltaMovesSize;
    			std::cout<<"\n LEAVING WITH numNotFeasable"<<numNotFeasable;
+			#endif
 			return deltaMovesSize;
 		}
 

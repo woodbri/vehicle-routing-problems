@@ -16,7 +16,7 @@
 #include <sstream>
 #include <string>
 
-#include "osrm.h"
+#include "vrposrm.h"
 
 
 bool VrpOSRM::getTravelTime( double &ttime ) const {

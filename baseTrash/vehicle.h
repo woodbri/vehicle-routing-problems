@@ -134,8 +134,8 @@ class Vehicle: public BaseVehicle {
 		ttSC=twc->getAverageTime(depot,picks);
 		ttDC=twc->getAverageTime(dumpSite,picks);
 		ttCD=twc->getAverageTime(picks,dumpSite);
-		ttDE=twc->travelTime(dumpSite,endingSite);
-		ttCC=twc->travelTime(C,C);
+		ttDE=twc->TravelTime(dumpSite,endingSite);
+		ttCC=twc->TravelTime(C,C);
 		serviceE=endingSite.getservicetime();
                 shiftLength=endTime-startTime;
 		e_makeFeasable(0);
@@ -176,11 +176,11 @@ class Vehicle: public BaseVehicle {
 		if ( path.getDumpVisits() ) {
 			for (int i=1;i<path.size()-1;i++) {
 			    realZ++;
-			    if (path[i-1].isdump()) realttCD+= twc->travelTime( path[i-1], path[i]);
-			    if (path[i].isdump()) realttDC+= twc->travelTime( path[i], path[i+1]);
+			    if (path[i-1].isdump()) realttCD+= twc->TravelTime( path[i-1], path[i]);
+			    if (path[i].isdump()) realttDC+= twc->TravelTime( path[i], path[i+1]);
                         }
                 } else realttDC=ttDC;
-                realttCD= (realttCD+ twc->travelTime(last,dumpSite)) /(path.getDumpVisits()+1.0);
+                realttCD= (realttCD+ twc->TravelTime(last,dumpSite)) /(path.getDumpVisits()+1.0);
 		double deltattDC=realttDC-ttDC; // >0 el viaje del dump al contenedor es mas largo que lo esperado (worse)
 		double deltattCD=realttCD-ttCD; // >0 el viaje del contenedor al dump es mar largo que lo esperado
 
@@ -189,7 +189,7 @@ class Vehicle: public BaseVehicle {
 
 		realttDE=ttDE;
 
-		realArrivalEclosesLast = last.closes() +  last.getservicetime() + twc->travelTime(last,dumpSite) + dumpSite.getservicetime() + realttDE;
+		realArrivalEclosesLast = last.closes() +  last.getservicetime() + twc->TravelTime(last,dumpSite) + dumpSite.getservicetime() + realttDE;
 		double deltaArrivalEclosesLast= realArrivalEclosesLast - arrivalEclosesLast; //>0 the latest the truck can arrive is better
 		arrivalEclosesLast= std::max(realArrivalEclosesLast, arrivalEclosesLast); //>0 the latest the truck can arrive
 		

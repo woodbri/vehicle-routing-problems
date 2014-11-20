@@ -207,6 +207,7 @@ Node::Node() {
     id = nid = -1;
     x = 0.0;
     y = 0.0;
+    hint="";
 };
 
 /*!
@@ -216,6 +217,7 @@ Node::Node( double _x, double _y ) {
     id = nid = -1;
     x = _x;
     y = _y;
+    hint="";
 };
 
 /*!
@@ -226,6 +228,7 @@ Node::Node( int _nid, double _x, double _y ) {
     nid = _nid;
     x = _x;
     y = _y;
+    hint="";
 };
 
 /*!
@@ -236,6 +239,7 @@ Node::Node( int _nid, int _id , double _x, double _y ) {
     nid = _nid;
     x = _x;
     y = _y;
+    hint="";
 };
 
 /*!
@@ -247,4 +251,5 @@ Node::Node( std::string line ) {
     buffer >> x;
     buffer >> y;
     id = nid;
+    hint="";
 }
