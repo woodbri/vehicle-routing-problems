@@ -46,7 +46,7 @@ OsrmClient::OsrmClient(){
         route_parameters.jsonpParameter = "";
         route_parameters.language = "";
         status = 0;
-	#ifndef LOG
+	#ifdef LOG
 	testOsrmClient();
 	#endif
 	#ifdef DOSTATS 

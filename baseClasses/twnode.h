@@ -34,6 +34,12 @@
  * - 1: Dump site
  * - 2: Pickup location
  * - 3: End site
+ * Currently the pick & delivery problem is using node type values of:
+ * - -1: Invalid
+ * - 0: Depot or Start location also as ending site
+ * - was using 1 as delivery, but the trash collection problem is more urgent
+ * \todo use something else as deliver TODO
+ * - 2: Pickup location
  */
 class Twnode: public Node {
   protected:
@@ -63,19 +69,19 @@ class Twnode: public Node {
      * \brief Get the demand associated with this node.
      * \return The demand for this node.
      */
-    double getdemand() const {return demand;};
+    double getDemand() const {return demand;};
 
     /*!
      * \brief Get the service time for this node.
      * \return The service time for this node.
      */
-    double getservicetime() const { return serviceTime;};
+    double getServiceTime() const { return serviceTime;};
 
     /*!
      * \brief Get the length of time between the time window open and close.
      * \return the length of time that the time window is open.
      */
-    double windowlength() const { return  tw_close - tw_open; };
+    double windowLength() const { return  tw_close - tw_open; };
 
     /*!
      * \brief Get the type of node this is. -1 is Invalid or undefined. Other values are defined by the application.
@@ -101,33 +107,33 @@ class Twnode: public Node {
      * \brief Determine whether or not the \ref Twnode has demand.
      * \return true if the node has positive demand.
      */
-    bool hasdemand() const { return getdemand() > 0; };
+    bool hasDemand() const { return demand > 0; };
 
     /*!
      * \brief Determine whether or not the \ref Twnode as supply (ie: negative demand).
      * \return true if the node has negative demand
      */
-    bool hassupply() const { return getdemand() < 0; };
+    bool hasSupply() const { return demand < 0; };
 
     /*!
      * \brief Determine whether or not the \ref Twnode is empty (ie: demand equals zero).
      * \return true if the node has zero demand.
      */
-    bool hasnogoods() const { return getdemand() == 0; };
+    bool hasNoGoods() const { return demand == 0; };
 
     /*!
      * \brief Determine if \b arrivalTime is before \b tw_open
      * \param[in] arrivalTime the time we expect to arrive at this node
      * \return true if \b arrivalTime is before \b tw_open
      */
-    bool earlyarrival( const double arrivalTime ) const { return arrivalTime < tw_open; };
+    bool earlyArrival( const double arrivalTime ) const { return arrivalTime < tw_open; };
 
     /*!
      * \brief Determine if \b arrivalTime is after \b tw_close
      * \param[in] arrivalTime the time we expect to arrive at this node
      * \return true if \b arrivalTime is after \b tw_close
      */
-    bool latearrival( const double arrivalTime ) const { return arrivalTime > tw_close; };
+    bool lateArrival( const double arrivalTime ) const { return arrivalTime > tw_close; };
 
     /*!
      * \brief Check if this node is on the same street as another node

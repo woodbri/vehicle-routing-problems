@@ -125,8 +125,8 @@ std::cout<<"Entering BaseVehicle::findNearestNodeTo \n";
 void BaseVehicle::dump() const {
     std::cout << "---------- BaseVehicle ---------------" << std::endl;
     std::cout << "maxcapacity: " << getmaxcapacity() << std::endl;
-    std::cout << "cargo: " << getcargo() << std::endl;
-    std::cout << "duration: " << getduration() << std::endl;
+    std::cout << "cargo: " << getCargo() << std::endl;
+    std::cout << "duration: " << getDuration() << std::endl;
     std::cout << "cost: " << getcost() << std::endl;
     #ifdef WITHOSRM
     std::cout << "OSRM time: " << getTotTravelTimeOsrm() << std::endl;
@@ -191,9 +191,9 @@ void BaseVehicle::dumppath() const {
 std::deque<int> BaseVehicle::getpath() const {
       std::deque<int> p;
       p = path.getpath();
-      p.push_front(getdepot().getnid());
-      p.push_back(getdumpSite().getnid());
-      p.push_back(getdepot().getnid());
+      p.push_front(getDepot().getnid());
+      p.push_back(getDumpSite().getnid());
+      p.push_back(getDepot().getnid());
       return p;
 }
 
@@ -291,7 +291,7 @@ void BaseVehicle::restorePath(Twpath<Trashnode> oldpath) {
 
 void BaseVehicle::evalLast() {
     Trashnode last = path[path.size()-1];
-    dumpSite.setDemand(-last.getcargo());
+    dumpSite.setDemand(-last.getCargo());
     dumpSite.evaluate(last, getmaxcapacity());
     endingSite.evaluate(dumpSite, getmaxcapacity());
     // if a vehcile has no containers to pickup it is empty
@@ -979,9 +979,9 @@ trace.dumpid("Path");
     graph.setTitle( title+extra );
     graph.drawInit();
     for (int i=0; i<trace.size(); i++){
-        if (trace[i].ispickup())  {
+        if (trace[i].isPickup())  {
              graph.drawPoint(trace[i], 0x0000ff, 9, true);
-        } else if (trace[i].isdepot()) {
+        } else if (trace[i].isDepot()) {
              graph.drawPoint(trace[i], 0x00ff00, 5, true);
         } else  {
              graph.drawPoint(trace[i], 0xff0000, 7, true);

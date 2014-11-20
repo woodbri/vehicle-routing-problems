@@ -1233,6 +1233,25 @@ template <class knode> class TWC {
         return original[i].gradient( original[j] );
     }
 
+
+
+   void setHints( Bucket &nodes ) {
+      #ifdef OSRMCLIENT 
+      #ifdef DOSTATS 
+      Timer timer;
+      #endif
+
+      for (int i=0; i < nodes.size();i++) {
+          nodes[i].setHint( original[ nodes[i].getnid() ].getHint() );
+      }
+      #ifdef DOSTATS 
+      STATS->addto("TWC::setHints Cumultaive time:", timer.duration());
+      #endif
+
+      #endif
+  }
+
+
 private:
     void prepareTravelTime(){
         int siz = original.size();
@@ -1466,7 +1485,7 @@ public:
      * \return The earliest arrival time at \b nj
      */
     double ajli( const knode &ni, const knode &nj ) const{
-        return ni.closes() + ni.getservicetime() + TravelTime( ni, nj );
+        return ni.closes() + ni.getServiceTime() + TravelTime( ni, nj );
     }
 
     /*!
@@ -1481,7 +1500,7 @@ public:
      * \return The earliest arrival time at \b nj
      */
     double ajei( const knode &ni, const knode &nj ) const {
-        return ni.opens() + ni.getservicetime() + TravelTime( ni, nj );
+        return ni.opens() + ni.getServiceTime() + TravelTime( ni, nj );
     }
 
 
