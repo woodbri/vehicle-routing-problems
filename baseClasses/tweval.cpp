@@ -68,8 +68,8 @@ void Tweval::evaluate ( const Tweval &pred, double cargoLimit ) {
     travelTime    = TravelTime[pred.nid][nid]; 		// Travel Time from previous node to this node
     totTravelTime = pred.totTravelTime + travelTime; 	// tot length travel from 1st node
     arrivalTime   = pred.departureTime + travelTime;
-    twv = latearrival( arrivalTime ); 			// Time Window Violation
-    waitTime      = earlyarrival( arrivalTime ) ? opens() - arrivalTime : 0; // truck arrives before node opens, so waits
+    twv = lateArrival( arrivalTime ); 			// Time Window Violation
+    waitTime      = earlyArrival( arrivalTime ) ? opens() - arrivalTime : 0; // truck arrives before node opens, so waits
     totWaitTime   = pred.totWaitTime + waitTime;
     totServiceTime = pred.totServiceTime + serviceTime;
     departureTime  = arrivalTime + waitTime + serviceTime;

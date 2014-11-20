@@ -270,7 +270,7 @@ std::cout<<"\n\n\n\n**********************************working with truck "<<from
     if (fleet[toTruck].getz1() or fleet[toTruck].getz2()) { //only try if there is a possibility to insert a container
 
           for (int fromPos=1; fromPos<fleet[fromTruck].size(); fromPos++) {
-		if(fleet[fromTruck][fromPos].isdump()) continue;   // skiping dump
+		if(fleet[fromTruck][fromPos].isDump()) continue;   // skiping dump
         	if (fleet[ fromTruck ].size()==1) {
 			std::cout<<" A TRUCK WITHOUT CONTAINERS HAS BEING GENERATED";
         		//trucks.push_back(fleet[ fromTruck   ]);

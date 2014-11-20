@@ -32,26 +32,39 @@
 #include "basevehicle.h"
 
 
-/**
+/** \todo comments (see comments of twbucket is the same thing)
+   the ifs are for: if just by traveling we get a twv why bother inspecting with more detail
+
    prev curr next
    ttpc + serv(c) + ttcn
-   no tw checks 
+   tw checks 
+   infinity when twc
+   no cv checks
 */
 double Vehicle::timePCN(POS prev, POS curr, POS next) const  {
 #ifdef DOSTATS
  STATS->inc("Vehicle::timePCN positions ");
 #endif
-	if ( next==size() ) return twc->TravelTime(path[prev],path[curr],dumpSite)+ path[curr].getservicetime();
-	else return twc->TravelTime(path[prev],path[curr],path[next]) + path[curr].getservicetime();
+	if ( next==size() ) if (dumpSite.lateArrival( twc->TravelTime(path[prev],path[curr],dumpSite) ) ) return _MAX();
+	     else return path.timePCN(prev,curr,dumpSite);
+	else if ( path[next].lateArrival( twc->TravelTime(path[prev],path[curr],path[next]) ) ) return _MAX();
+             else return path.timePCN(prev,curr,next);
 }
 
 double Vehicle::timePCN(Trashnode &prev, Trashnode &curr, Trashnode &next) const  {
 #ifdef DOSTATS
  STATS->inc("Vehicle::timePCN nodes ");
 #endif
-	double time= twc->TravelTime(prev,curr,next)+curr.getservicetime();
-	return time;
+	if ( next.lateArrival( twc->TravelTime(prev,curr,next) ) ) return _MAX();
+        else return path.timePCN(prev,curr,next);
 }
+
+
+
+
+
+
+
 
 
 /**
@@ -95,10 +108,10 @@ std::cout<<"Entering Vehicle::eval_intraSwapMoveDumps \n";
 
 
     for (fromPos=1;fromPos<path.size()-1; fromPos++) {
-	if (isdump(fromPos)) continue; //skiping dump
+	if (isDump(fromPos)) continue; //skiping dump
         Trashnode node = path[fromPos]; //saved for roll back
 	for(withPos=fromPos+1; withPos<path.size();withPos++ ){
-	  if (isdump(withPos)) continue; //skiping dump
+	  if (isDump(withPos)) continue; //skiping dump
 	  otherNid=path[withPos].getnid();
           if ( truck.applyMoveIntraSw(fromPos,  withPos) ) { //move can be done
 		newCost=truck.getCost();
@@ -140,7 +153,7 @@ double minSavings=-5;
 	int numNotFeasable=0;
 bool inspect = (truckPos+otherTruckPos)==5 and (truckPos*otherTruckPos)==0; //inspect close combination 0,5
         double originalCost= truck.getCost()  + other.getCost();
-        double originalDuration= truck.getduration()  + other.getduration();
+        double originalDuration= truck.getDuration()  + other.getDuration();
         double newCost,savings,newDuration;
 	int deltaMovesSize=0;
         int fromNodeId,toNodeId;
@@ -149,12 +162,12 @@ bool inspect = (truckPos+otherTruckPos)==5 and (truckPos*otherTruckPos)==0; //in
 	int inc=5;
 	for ( int m=1;m<6;m++) { 
         for ( int i=m; i<truck.size(); i+=inc) {
-	   if (truck.path[i].isdump() ) continue;
+	   if (truck.path[i].isDump() ) continue;
 
 	   fromNodeId=truck.path[i].getnid();
 	   for ( int k=1; k<inc+1; k++) {
            for ( int j=k; j<other.size(); j+=inc) {
-		if (other.path[j].isdump()) continue;
+		if (other.path[j].isDump()) continue;
 		if (numNotFeasable > factor * ( truck.getn() * other.getn()) ) {
 			#ifdef LOG
    			std::cout<<"\n LEAVING WITH numNotFeasable"<<numNotFeasable;
@@ -224,7 +237,7 @@ if (inspect) {
 		savings=_MIN();
 		if ( truck.applyMoveInterSw(other, i, j)) {
 		   newCost=truck.getCost() + other.getCost();
-		   newDuration=truck.getduration() + other.getduration();
+		   newDuration=truck.getDuration() + other.getDuration();
 		   savings= originalCost - newCost;
     		   move.setInterSwMove( truckPos,  i,  fromNodeId,  otherTruckPos, j, toNodeId, savings); 
                    moves.insert(move);
@@ -306,7 +319,7 @@ bool Vehicle::eval_erase(int at, double &savings) const {
 std::cout<<"Entering Vehicle::eval_erase \n";
 #endif
         assert (at<size() and at>0 );
-        if ( path[at].isdump() ) { savings=_MIN(); return false;}
+        if ( path[at].isDump() ) { savings=_MIN(); return false;}
         Vehicle truck = (*this);
 	double oldcost=truck.getCost();
 
@@ -506,7 +519,7 @@ std::cout<<"Entering Vehicle::e_insertDumpInPath \n";
     //we arrived here because of CV
     if ( deltaTimeGeneratesTV( dumpSite,lonelyNodeAfterDump ) ) return false;
     Trashnode dump=dumpSite;
-    dump.setDemand(-getcargo());
+    dump.setDemand(-getCargo());
     path.e_push_back(dump,maxcapacity);
     path.e_push_back(lonelyNodeAfterDump,maxcapacity);
     evalLast();
@@ -533,14 +546,14 @@ std::cout<<"Entering Vehicle::deltaCargoGeneratesCV \n";
 #endif
      //cycle until a dump is found
      int i;
-     for (i=pos; i<size() and not isdump(i); i++) {};
+     for (i=pos; i<size() and not isDump(i); i++) {};
      // two choices i points to a dump or i == size() 
      // in any case the i-1 node has the truck's cargo
 #ifdef TESTED
 path[i-1].dumpeval();
-std::cout<<getCargo(i-1)<<"+"<<node.getdemand()<<" ¿? " <<getmaxcapacity()<<" \n";
+std::cout<<getCargo(i-1)<<"+"<<node.getDemand()<<" ¿? " <<getmaxcapacity()<<" \n";
 #endif
-     return  ( path[i-1].getcargo() + node.getdemand() > maxcapacity  ) ;
+     return  ( path[i-1].getCargo() + node.getDemand() > maxcapacity  ) ;
 };
 
 
@@ -553,10 +566,10 @@ bool Vehicle::deltaTimeGeneratesTV(const Trashnode &dump, const Trashnode &node)
 #endif
 #ifdef TESTED
 std::cout<<"Entering Vehicle::deltaTimeGeneratesTV  ";
-std::cout<<" (S 1 2 3 D E )  (S 1 2 3 D N D E)"<<path.getDeltaTimeAfterDump(dumpSite,node)<<" + "<< getduration()<<" ¿? "<<  endingSite.closes();
+std::cout<<" (S 1 2 3 D E )  (S 1 2 3 D N D E)"<<path.getDeltaTimeAfterDump(dumpSite,node)<<" + "<< getDuration()<<" ¿? "<<  endingSite.closes();
 std::cout<<"\n";
 #endif
-     return  ( path.getDeltaTimeAfterDump(dumpSite,node) + getduration()  > endingSite.closes() ) ;
+     return  ( path.getDeltaTimeAfterDump(dumpSite,node) + getDuration()  > endingSite.closes() ) ;
 }
 
 
@@ -571,14 +584,14 @@ bool Vehicle::deltaTimeGeneratesTV(const Trashnode &node, int pos) const {
 std::cout<<"Entering Vehicle::deltaTimeGeneratesTV \n";
 if (pos>path.size()) std::cout<<"CANT work with this pos:"<<pos<<"\n";
 std::cout<<"\n";
-if (pos==path.size()) std::cout<<" (S 1 2 3 D E )  (S 1 2 3 N D E)" << path.getDeltaTime(node,dumpSite)<<" + "<< getduration()<<" ¿? "<<  endingSite.closes()<<"\n";
-else std::cout<<" (S 1 2 3 D E )  (S 1 2 N 3 D E) "<< path.getDeltaTime(node,pos)<<" + "<< getduration()<<" ¿? "<<  endingSite.closes()<<"\n";
+if (pos==path.size()) std::cout<<" (S 1 2 3 D E )  (S 1 2 3 N D E)" << path.getDeltaTime(node,dumpSite)<<" + "<< getDuration()<<" ¿? "<<  endingSite.closes()<<"\n";
+else std::cout<<" (S 1 2 3 D E )  (S 1 2 N 3 D E) "<< path.getDeltaTime(node,pos)<<" + "<< getDuration()<<" ¿? "<<  endingSite.closes()<<"\n";
 std::cout<<"\n";
 endingSite.dump();
 #endif
      assert(pos<=path.size());
-     if (pos==path.size()) return path.getDeltaTime(node,dumpSite) + getduration()  > endingSite.closes();
-     else return  ( path.getDeltaTime(node,pos) + getduration()  > endingSite.closes() ) ;
+     if (pos==path.size()) return path.getDeltaTime(node,dumpSite) + getDuration()  > endingSite.closes();
+     else return  ( path.getDeltaTime(node,pos) + getDuration()  > endingSite.closes() ) ;
 }
 //////////////
 

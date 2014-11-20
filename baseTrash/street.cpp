@@ -192,7 +192,7 @@ void Street::restorePath(Twpath<Trashnode> oldpath) {
 
 void Street::evalLast() {
     Trashnode last = path[path.size()-1];
-    _reqCapacity=last.getcargo();
+    _reqCapacity=last.getCargo();
     _reqTime=last.getTotTime();
 }
 
@@ -208,9 +208,9 @@ void Street::plot(std::string file,std::string title){
     graph.setTitle( title+extra );
     graph.drawInit();
     for (int i=0; i<trace.size(); i++){
-        if (trace[i].ispickup())  {
+        if (trace[i].isPickup())  {
              graph.drawPoint(trace[i], 0x0000ff, 9, true);
-        } else if (trace[i].isdepot()) {
+        } else if (trace[i].isDepot()) {
              graph.drawPoint(trace[i], 0x00ff00, 5, true);
         } else  {
              graph.drawPoint(trace[i], 0xff0000, 7, true);

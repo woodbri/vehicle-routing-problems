@@ -42,8 +42,8 @@ class Tweval: public Twnode {
     /*accessors*/
     int  gettwvTot() const { return twvTot; };
     int  getcvTot() const { return cvTot; };
-    double getcargo() const { return cargo; };
-    double getdistPrev() const { return travelTime; };
+    double getCargo() const { return cargo; };
+    double getDistPrev() const { return travelTime; };
     bool feasable() const { return twvTot == 0 and cvTot == 0;};
 
 

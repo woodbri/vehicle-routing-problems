@@ -58,10 +58,8 @@ int main(int argc, char **argv) {
     #endif
 
     try {
-	#ifndef LOG
+	#ifdef LOG
 	#ifdef OSRMCLIENT
-	//ServerPaths server_paths;
-	//OSRM routing_machine(server_paths, true); 
 	osrm->testOsrmClient();
 	#endif
 	#endif

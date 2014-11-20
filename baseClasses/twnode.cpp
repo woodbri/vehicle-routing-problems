@@ -99,7 +99,6 @@ Twnode::Twnode( std::string line ) {
     buffer >> streetid;
     id = nid;
     type = ( tw_open < tw_close and tw_open >= 0 and serviceTime >= 0 ) ? 0 : -1;
-    //dump();std::cout<<"\n";
 }
 
 
