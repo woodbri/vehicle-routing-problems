@@ -25,8 +25,9 @@
 #include "timer.h"
 #include "trashconfig.h"
 #include "stats.h"
-#include "osrm.h"
 #include "node.h"
+#include "osrmclient.h"
+#include "osrm.h"
 #include "twnode.h"
 #include "trashnode.h"
 #include "twpath.h"
@@ -39,6 +40,55 @@ void Usage() {
 }
 
 static std::string font = "/usr/share/fonts/truetype/ttf-dejavu/DejaVuSans.ttf";
+
+void analyzeOsrmPath(Solution &sol) {
+    Vehicle &t1 = sol[0];
+    int num = t1.size();
+    Trashnode dump = t1.dumpSite();
+    Trashnode end  = t1.endingSite();
+
+}
+
+int testOsrmClient() {
+    Timer t0;
+    OsrmClient oc;
+    oc.dump();
+    if (oc.getStatus() == -1) {
+        std::cout << oc.getErrorMsg() << std::endl;
+        return -1;
+    }
+    oc.setWantGeometry( true );
+    oc.addViaPoint(-34.88124, -56.19048);
+    oc.addViaPoint(-34.89743, -56.12447);
+    oc.dump();
+    if (oc.getOsrmViaroute()) {
+        std::cout << "getOsrmViaroute: Failed!\n";
+        std::cout << oc.getErrorMsg() << std::endl;
+        return -1;
+    }
+    oc.dump();
+    double time;
+    if (oc.getOsrmTime( time )) {
+        std::cout << "getOsrmTime Failed!\n";
+        std::cout << oc.getErrorMsg() << std::endl;
+        return -1;
+    }
+    std::cout << "getOsrmTime: " << time << std::endl;
+    std::cout << "duration: " << t0.duration() << std::endl;
+
+    std::deque<Node> geom;
+    if (oc.getOsrmGeometry( geom )) {
+        std::cout << "getOsrmGeometry Failed!\n";
+        std::cout << oc.getErrorMsg() << std::endl;
+        return -1;
+    }
+    for (int i=0; i<geom.size(); ++i) {
+        std::cout << "geom[" << i << "]: ";
+        geom[i].dump();
+    }
+    return 0;
+}
+
 
 int main(int argc, char **argv) {
 
@@ -53,6 +103,10 @@ int main(int argc, char **argv) {
     cURLpp::Cleanup myCleanup;
 
     try {
+
+        testOsrmClient();
+
+
         Timer starttime;
 
         CONFIG->set("plotDir", "./logs/");
@@ -61,7 +115,9 @@ int main(int argc, char **argv) {
 
        
         FeasableSolLoop tp(infile);
-        //tp.dump();
+        tp.dump();
+
+        return 0;
 
         std::cout << "FeasableSol time: " << starttime.duration() << std::endl;
         STATS->set("zzFeasableSol time", starttime.duration());

@@ -19,6 +19,9 @@
 #include <string>
 #include "twnode.h"
 
+#ifdef WITHOSRM
+#include "vrposrm.h"
+#endif
 
 /*! \class Tweval
  * \brief Extend Twnode to evaluate the vehicle at node level
@@ -39,8 +42,8 @@ class Tweval: public Twnode {
     /*accessors*/
     int  gettwvTot() const { return twvTot; };
     int  getcvTot() const { return cvTot; };
-    double getcargo() const { return cargo; };
-    double getdistPrev() const { return travelTime; };
+    double getCargo() const { return cargo; };
+    double getDistPrev() const { return travelTime; };
     bool feasable() const { return twvTot == 0 and cvTot == 0;};
 
 
@@ -54,14 +57,10 @@ class Tweval: public Twnode {
     double getTotServiceTime() const { return totServiceTime; };
     double getDumpVisits() const { return dumpVisits; };
     double deltaGeneratesTWV( double deltaTime ) const;
-    double getTotTravelTimeOsrm() const { return totTravelTimeOsrm; };
-    std::string getOsrmUrlLocs() const { return osrmUrlLocs; };
     std::string getLoc() const;
-    std::string getOsrmUrl( const std::string osrmBaseUrl ) const;
     double getTT(const Tweval &other) const {return TravelTime[nid][other.nid];};
 
 
-    bool isOsrmTtimeValid() { return getTotTravelTimeOsrm()==-1 ? false : true; };
     bool hastwv() const { return twv; };
     bool hascv() const { return cv; };
 
@@ -69,9 +68,14 @@ class Tweval: public Twnode {
     void evaluate ( double cargoLimit );
     void evaluate ( const Tweval &pred, double cargoLimit );
     /* Osrm stuff */
+#ifdef WITHOSRM
     void evaluateOsrm ();
     void evaluateOsrm ( const Tweval &pred, const std::string &osrmBaseUrl );
-
+    bool isOsrmTtimeValid() { return getTotTravelTimeOsrm()==-1 ? false : true; };
+    double getTotTravelTimeOsrm() const { return totTravelTimeOsrm; };
+    std::string getOsrmUrlLocs() const { return osrmUrlLocs; };
+    std::string getOsrmUrl( const std::string osrmBaseUrl ) const;
+#endif
     /*!
      * \brief Assign a travel time matrix to the class.
      *
@@ -94,12 +98,9 @@ class Tweval: public Twnode {
     /* constructors &destructors */
 
     Tweval();
-
     Tweval( std::string line );
-
     Tweval( int _id, double _x, double _y, int _open, int _close,
             int _service, int _demand, int _sid );
-
     ~Tweval() {};
 
   private:
@@ -119,9 +120,10 @@ class Tweval: public Twnode {
     double totTravelTime;   ///< Total accumulated travel time at this point in the path
     double totServiceTime;  ///< Total accumulated service time at this point in the path
     double dumpVisits;      ///< Total count of dump visits at this point in the path
+#ifdef WITHOSRM
     double totTravelTimeOsrm;   ///< Total accumulated travel time at this point in the path based on the OSRM path
     std::string osrmUrlLocs;    ///< The partial URL string to get OSRM traveltime to this position in the path
-
+#endif
 
 };
 

@@ -38,7 +38,7 @@ int Solution::v_computeCosts() {
         };
     }
     for (int i=0; i<fleet.size(); i++) {
-        totalCost+=fleet[i].getCost(twc);
+        totalCost+=fleet[i].getCost();
     }
     return removedPos;
 }
@@ -59,7 +59,7 @@ assert(true==false);
         // and hence has no cost
         if (fleet[i].size()-1 == 0) continue;
         totalCost += fleet[i].getcost();
-        totalDistance += fleet[i].getduration();
+        totalDistance += fleet[i].getDuration();
     }
 }
 
@@ -101,8 +101,8 @@ vehicle_path_t *Solution::getSolutionForPg(int& count) const {
             results[seq].ntype     = map[fleet[i][j].ntype()];
             results[seq].deltatime = (j==0)?0: fleet[i][j].getDepartureTime() -
                                                fleet[i][j-1].getDepartureTime();
-            results[seq].cargo     = (j==0)?0: fleet[i][j].getcargo() -
-                                               fleet[i][j-1].getcargo();
+            results[seq].cargo     = (j==0)?0: fleet[i][j].getCargo() -
+                                               fleet[i][j-1].getCargo();
             // at a dump and the following node we report that nodes cargo
             //if (results[seq].cargo <= 0)
             //    results[seq].cargo = fleet[i][j].getcargo();
@@ -112,21 +112,21 @@ vehicle_path_t *Solution::getSolutionForPg(int& count) const {
         // add the final dump
         results[seq].seq       = seq+1;
         results[seq].vid       = fleet[i].getVid();
-        results[seq].nid       = fleet[i].getdumpSite().getid();
+        results[seq].nid       = fleet[i].getDumpSite().getid();
         results[seq].ntype     = 2;
-        results[seq].deltatime = fleet[i].getdumpSite().getDepartureTime() -
+        results[seq].deltatime = fleet[i].getDumpSite().getDepartureTime() -
                                  fleet[i][fleet[i].size()-1].getDepartureTime();
-        results[seq].cargo     = -fleet[i][fleet[i].size()-1].getcargo();
+        results[seq].cargo     = -fleet[i][fleet[i].size()-1].getCargo();
         ++seq;
 
         // add the ending location
         results[seq].seq       = seq+1;
         results[seq].vid       = fleet[i].getVid();
-        results[seq].nid       = fleet[i].getdepot().getid();
+        results[seq].nid       = fleet[i].getDepot().getid();
         results[seq].ntype     = 3;
-        results[seq].deltatime = fleet[i].getdepot().getDepartureTime() -
-                                 fleet[i].getdumpSite().getDepartureTime();
-        results[seq].cargo     = fleet[i].getdepot().getcargo();
+        results[seq].deltatime = fleet[i].getDepot().getDepartureTime() -
+                                 fleet[i].getDumpSite().getDepartureTime();
+        results[seq].cargo     = fleet[i].getDepot().getCargo();
         ++seq;
     }
 
@@ -178,8 +178,8 @@ std::vector<int>  Solution::solutionAsVectorID() const {
         for (int j=0; j<fleet[i].size(); j++) {
             sol.push_back(fleet[i][j].getid());
         }
-        sol.push_back(fleet[i].getdumpSite().getid());
-        sol.push_back(fleet[i].getdepot().getid());
+        sol.push_back(fleet[i].getDumpSite().getid());
+        sol.push_back(fleet[i].getDepot().getid());
         sol.push_back(-1);
     }
     return sol;
@@ -196,8 +196,8 @@ std::vector<int>  Solution::solutionAsVector() const {
         for (int j=0; j<fleet[i].size(); j++) {
             sol.push_back(fleet[i][j].getnid());
         }
-        sol.push_back(fleet[i].getdumpSite().getnid());
-        sol.push_back(fleet[i].getdepot().getnid());
+        sol.push_back(fleet[i].getDumpSite().getnid());
+        sol.push_back(fleet[i].getDepot().getnid());
         sol.push_back(-2);
     }
     return sol;
@@ -278,7 +278,7 @@ double Solution::getAverageRouteDurationLength() {
     int n = 0;
     for (int i=0; i<fleet.size(); i++) {
       if (fleet[i].size()>0) {
-        len += fleet[i].getduration();
+        len += fleet[i].getDuration();
         n++;
       }
     }
@@ -342,7 +342,7 @@ solPath.dumpid("solPath");
 double Solution::getduration() const {
     double d = 0;
     for (int i=0; i<fleet.size(); i++)
-        d += fleet[i].getduration();
+        d += fleet[i].getDuration();
     return d;
 }
 
@@ -398,10 +398,12 @@ void Solution::dump() const {
     std::cout << "Total count of TWV: " << getTWV() << std::endl;
     std::cout << "Total count of CV: " << getCV() << std::endl;
     std::cout << "Solution: " << solutionAsText() << std::endl;
+    #ifdef WITHOSRM
     for (int i=0; i<fleet.size(); i++) {
         std::cout << "V" << i << " Total OSRM Time: "
                   << fleet[i].getTotTravelTimeOsrm() << std::endl;
     }
+    #endif
 
 }
 

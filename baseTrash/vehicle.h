@@ -61,7 +61,6 @@ class Vehicle: public BaseVehicle {
     bool e_insertTight(const Trashnode &node, int at) { return  e_insertMoveDumpsTight(node, at); };
     // END TODO LIST
     
-    bool eval_erase(int at, double &savings) const;
     bool applyMoveINSerasePart(int nodeNid, int pos);
     bool applyMoveINSinsertPart(const Trashnode &node, int pos);
     bool applyMoveInterSw(Vehicle &otherTruck, int truckPos, int otherTruckPos);
@@ -98,13 +97,13 @@ class Vehicle: public BaseVehicle {
                       _endtime, otherlocs) {};
 
 
-    double timePCN(POS prev, POS curr, POS next) const;
-    double timePCN(Trashnode &prev, Trashnode &curr, Trashnode &next) const;
+    double timePCN(POS from, POS middle, POS to) const;
+    double timePCN(POS from, Trashnode &middle) const;
 
-    long int eval_intraSwapMoveDumps( Moves &moves, int  truckPos,  double factor, const TWC<Trashnode> &twc ) const;
-    long int eval_interSwapMoveDumps( Moves &moves, const Vehicle &otherTruck,int  truckPos,int  otherTruckPos, double factor,  const TWC<Trashnode> &twc ) const; 
-    long int eval_insertMoveDumps( const Trashnode &node, Moves &moves, int fromTruck, int formPos, int toTruck, double savings, double factor ,const TWC<Trashnode> &twc) const;
-    bool eval_erase(int at, double &savings,const TWC<Trashnode> &twc) const;
+    long int eval_intraSwapMoveDumps( Moves &moves, int  truckPos,  double factor ) const;
+    long int eval_interSwapMoveDumps( Moves &moves, const Vehicle &otherTruck,int  truckPos,int  otherTruckPos, double factor   ) const; 
+    long int eval_insertMoveDumps( const Trashnode &node, Moves &moves, int fromTruck, int formPos, int toTruck, double savings, double factor ) const;
+    bool eval_erase(int at, double &savings) const;
 	//for cost function
 	Trashnode C , last;
 	double ttSC, ttDC, ttCD, ttDE, ttCC;
@@ -121,47 +120,47 @@ class Vehicle: public BaseVehicle {
 	double sumIdle,penalty;
 	inline int  realN() const { return ( path.getDumpVisits() + 1 ) ;}
 	inline double  totalServiceTime() { 
-		return ( path.getTotServiceTime()+  dumpSite.getservicetime() + endingSite.getservicetime() ) ;}  
+		return ( path.getTotServiceTime()+  dumpSite.getServiceTime() + endingSite.getServiceTime() ) ;}  
         double v_cost,workNotDonePerc;
         double getCost() const { return v_cost;};	
-        double getCost(const TWC<Trashnode> &twc) {setCost(twc);  return v_cost;};	
+        double getCost() {setCost();  return v_cost;};	
 	int getz1() const  {return realz1;};
 	int getz2() const {return realz2;};
 	int getn() const {return n;};
 
-        void setInitialValues( const Trashnode &node,const TWC<Trashnode> &twc, const Bucket &picks){
+        void setInitialValues( const Trashnode &node, const Bucket &picks){
 
 		C = node;
-		ttSC=twc.getAverageTime(depot,picks);
-		ttDC=twc.getAverageTime(dumpSite,picks);
-		ttCD=twc.getAverageTime(picks,dumpSite);
-		ttDE=twc.travelTime(dumpSite,endingSite);
-		ttCC=twc.travelTime(C,C);
-		serviceE=endingSite.getservicetime();
+		ttSC=twc->getAverageTime(depot,picks);
+		ttDC=twc->getAverageTime(dumpSite,picks);
+		ttCD=twc->getAverageTime(picks,dumpSite);
+		ttDE=twc->TravelTime(dumpSite,endingSite);
+		ttCC=twc->TravelTime(C,C);
+		serviceE=endingSite.getServiceTime();
                 shiftLength=endTime-startTime;
 		e_makeFeasable(0);
-		Z= floor( maxcapacity/C.getdemand());
-		arrivalEclosesLast = C.closes() + ttCD + dumpSite.getservicetime() + ttDE;
+		Z= floor( maxcapacity/C.getDemand());
+		arrivalEclosesLast = C.closes() + ttCD + dumpSite.getServiceTime() + ttDE;
 		totalTime=0;
 		
 		N =-1; 
 		do {
 		N++;
-		totalTime=depot.getservicetime()  + ttSC + ttDE + endingSite.getservicetime() 
-			+ N * Z * C.getservicetime() + N * (Z - 1) * ttCC + (N -1) * ttDC
-			+ N * ( dumpSite.getservicetime() + ttCD );
+		totalTime=depot.getServiceTime()  + ttSC + ttDE + endingSite.getServiceTime() 
+			+ N * Z * C.getServiceTime() + N * (Z - 1) * ttCC + (N -1) * ttDC
+			+ N * ( dumpSite.getServiceTime() + ttCD );
 		}
 		while ( totalTime < arrivalEclosesLast + serviceE );
 		forcedWaitTime=endTime-( arrivalEclosesLast  +  serviceE );
                 totalWaitTime=endTime- (endingSite.getArrivalTime() +serviceE);
-		idleTimeSCDE= C.closes() - (depot.getservicetime() + ttSC );
-		z1 = idleTimeSCDE / (C.getservicetime() + ttCC);
+		idleTimeSCDE= C.closes() - (depot.getServiceTime() + ttSC );
+		z1 = idleTimeSCDE / (C.getServiceTime() + ttCC);
 		idleTimeSDCDE= C.closes() - (dumpSite.getDepartureTime() + ttDC );
-		z2 = idleTimeSDCDE / (C.getservicetime() + ttCC);
+		z2 = idleTimeSDCDE / (C.getServiceTime() + ttCC);
                 idleTime= totalWaitTime-forcedWaitTime;
 	};
 
-	void setCost(const TWC<Trashnode> &twc) {
+	void setCost() {
 		last=(size()>1)? path[size()-1] : C ;
 		realttSC=path.size()>1? path[1].getTotTravelTime()  :ttSC;
 		double deltattSC=realttSC-ttSC; // >0 viaja mas lejos para llegar al primer contenedor
@@ -177,11 +176,11 @@ class Vehicle: public BaseVehicle {
 		if ( path.getDumpVisits() ) {
 			for (int i=1;i<path.size()-1;i++) {
 			    realZ++;
-			    if (path[i-1].isdump()) realttCD+= twc.travelTime( path[i-1], path[i]);
-			    if (path[i].isdump()) realttDC+= twc.travelTime( path[i], path[i+1]);
+			    if (path[i-1].isDump()) realttCD+= twc->TravelTime( path[i-1], path[i]);
+			    if (path[i].isDump()) realttDC+= twc->TravelTime( path[i], path[i+1]);
                         }
                 } else realttDC=ttDC;
-                realttCD= (realttCD+ twc.travelTime(last,dumpSite)) /(path.getDumpVisits()+1.0);
+                realttCD= (realttCD+ twc->TravelTime(last,dumpSite)) /(path.getDumpVisits()+1.0);
 		double deltattDC=realttDC-ttDC; // >0 el viaje del dump al contenedor es mas largo que lo esperado (worse)
 		double deltattCD=realttCD-ttCD; // >0 el viaje del contenedor al dump es mar largo que lo esperado
 
@@ -190,7 +189,7 @@ class Vehicle: public BaseVehicle {
 
 		realttDE=ttDE;
 
-		realArrivalEclosesLast = last.closes() +  last.getservicetime() + twc.travelTime(last,dumpSite) + dumpSite.getservicetime() + realttDE;
+		realArrivalEclosesLast = last.closes() +  last.getServiceTime() + twc->TravelTime(last,dumpSite) + dumpSite.getServiceTime() + realttDE;
 		double deltaArrivalEclosesLast= realArrivalEclosesLast - arrivalEclosesLast; //>0 the latest the truck can arrive is better
 		arrivalEclosesLast= std::max(realArrivalEclosesLast, arrivalEclosesLast); //>0 the latest the truck can arrive
 		
@@ -219,12 +218,12 @@ class Vehicle: public BaseVehicle {
 if (realArrivalEclosesLast < realTotalTime) { last.dumpeval(); dumpCostValues();};
 		assert (realArrivalEclosesLast > realTotalTime); //otherwise we are in a TWV and something is wrong on the calculation
 		realIdleTime =  realArrivalEclosesLast -  realTotalTime ;
-		realIdleTimeSCDE =  ( Zmissing>0 )?  (C.getservicetime() + realttCC ) * Zmissing :
+		realIdleTimeSCDE =  ( Zmissing>0 )?  (C.getServiceTime() + realttCC ) * Zmissing :
                 		            C.closes() - ( depot.getDepartureTime() +  realttSC) ;
 
-		realz1 = std::min ( (int) (floor(realIdleTime / ( C.getservicetime() + realttCC ) )) ,Zmissing ) ;
+		realz1 = std::min ( (int) (floor(realIdleTime / ( C.getServiceTime() + realttCC ) )) ,Zmissing ) ;
 		realIdleTimeSDCDE =  std::max ( (C.closes() - ( dumpSite.getDepartureTime() +  realttDC )) , 0.0 ); //cant have negative idleTime
-		realz2 = floor(realIdleTimeSDCDE / ( C.getservicetime() +  realttCC ));
+		realz2 = floor(realIdleTimeSDCDE / ( C.getServiceTime() +  realttCC ));
 		sumIdle=realIdleTimeSCDE+realIdleTimeSDCDE+realIdleTime;
 
 		//tengo z contenedores en el utimo viaje 
@@ -267,20 +266,20 @@ if (realArrivalEclosesLast < realTotalTime) { last.dumpeval(); dumpCostValues();
 		workNotDonePerc=(double (realz1 + realz2))  /(double (double(n) + double(realz1) +double(realz2) ));
 		double workDonePerc=1-workNotDonePerc;
 		
-		v_cost=  /* realTotalTime * (1 + workNotDonePerc) + sumIdle * ( 1 + workDonePerc) +*/ getduration();
+		v_cost=  /* realTotalTime * (1 + workNotDonePerc) + sumIdle * ( 1 + workDonePerc) +*/ getDuration();
 	};
 
-	double getDeltaCost(double deltaTravelTime,int deltan, const TWC<Trashnode> &twc) {
+	double getDeltaCost(double deltaTravelTime,int deltan) {
 		double newrealTotalTime=realTotalTime+deltaTravelTime;
 		double newrealIdleTime= realArrivalEclosesLast - newrealTotalTime;
 		int newn=n+deltan;
 		int newz= (realN()==1)?  newn  : newn % Z ;
 		int newZmissing= (Z>newz)? Z-newz:0;
-		double newrealIdleTimeSCDE =  ( newz )? newrealIdleTime - (C.getservicetime() + realttCC ) * newZmissing :
+		double newrealIdleTimeSCDE =  ( newz )? newrealIdleTime - (C.getServiceTime() + realttCC ) * newZmissing :
                                            C.closes() - ( depot.getDepartureTime() +  realttSC);
-		double newrealz1 = std::min ( (int) (floor(newrealIdleTime / ( C.getservicetime() + realttCC ) )) ,newZmissing ) ;
+		double newrealz1 = std::min ( (int) (floor(newrealIdleTime / ( C.getServiceTime() + realttCC ) )) ,newZmissing ) ;
                 double newrealIdleTimeSDCDE =  C.closes() - ( dumpSite.getDepartureTime() + deltaTravelTime + realttDC );
-                double  newrealz2 = newrealIdleTimeSDCDE / ( C.getservicetime() +  realttCC );
+                double  newrealz2 = newrealIdleTimeSDCDE / ( C.getServiceTime() +  realttCC );
 
                 double newv_cost= newrealTotalTime + (newrealz1+newrealz2)*newn + newrealIdleTimeSCDE + newrealIdleTimeSDCDE;
 		double deltacost= newv_cost-v_cost;
@@ -311,11 +310,11 @@ void dumpCostValues() const{
                 <<"                   realttDE\t"<<realttDE<<"\n"
 		<<"                 service(E)\t"<<serviceE<<"\n"
 		<<"                maxcapacity\t"<<maxcapacity<<"\n"
-		<<"              C.getdemand()\t"<<C.getdemand()<<"\n"
-		<<"         C.getservicetime()\t"<<C.getservicetime()  <<"\n"
+		<<"              C.getdemand()\t"<<C.getDemand()<<"\n"
+		<<"         C.getservicetime()\t"<<C.getServiceTime()  <<"\n"
 		<<"                 C.closes()\t"<<C.closes()<<"\n"
 		<<"    path[size()-1].closes()\t"<< path[size()-1].closes() <<"\n"
-		<<"  dumpSite.getservicetime()\t"<<dumpSite.getservicetime()  <<"\n"
+		<<"  dumpSite.getservicetime()\t"<<dumpSite.getServiceTime()  <<"\n"
 		<<"dumpSite.getDepartureTime()\t"<< dumpSite.getDepartureTime() <<"\n"
 		<<"                      realN\t"<<realN()  <<"\n"
 		<<"endingSite.getArrivalTime()\t"<<endingSite.getArrivalTime()  <<"\n"

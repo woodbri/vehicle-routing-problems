@@ -23,12 +23,16 @@
 #include "trashconfig.h"
 #include "twpath.h"
 #include "basevehicle.h"
-#include "osrm.h"
+#ifdef WITHOSRM
+#include "vrposrm.h"
+#endif
 #include "move.h"
 
+
+
+#ifdef WITHOSRM
+
 // *OSRM() REQUIRES the main() to call cURLpp::Cleanup myCleanup; ONCE!
-
-
 void BaseVehicle::evaluateOsrm() {
     double otime = path.getTotTravelTimeOsrm();
     if ( otime == -1 ) {
@@ -67,7 +71,7 @@ double BaseVehicle::getCostOsrm() const {
 double BaseVehicle::getTotTravelTimeOsrm() const {
     return endingSite.getTotTravelTimeOsrm();
 };
-
+#endif
 
 bool BaseVehicle::e_setPath(const Bucket &sol) {
 #ifdef TESTED
@@ -89,7 +93,7 @@ std::cout<<"Entering BaseVehicle::e_setPath \n";
 }     
 
 
-bool  BaseVehicle::findNearestNodeTo(Bucket &unassigned, const TWC<Trashnode> &twc,UID &pos, Trashnode &bestNode) {
+bool  BaseVehicle::findNearestNodeTo(Bucket &unassigned,UID &pos, Trashnode &bestNode) {
 #ifdef TESTED
 std::cout<<"Entering BaseVehicle::findNearestNodeTo \n";
 #endif
@@ -97,13 +101,13 @@ std::cout<<"Entering BaseVehicle::findNearestNodeTo \n";
     if (not unassigned.size()) return false;
 
     bool flag= false;
-    double bestDist;
+    double bestDist=-1;
     double d;
     
-    flag = twc.findNearestNodeTo(path, unassigned,  pos , bestNode, bestDist);
+    flag = twc->findNearestNodeUseExistingData(path, unassigned,  pos , bestNode, bestDist);
     
     for (int i=0; i<unassigned.size(); i++) {
-       if ( twc.isCompatibleIAJ( path[size()-1]  , unassigned[i], dumpSite ) ) { 
+       if ( twc->isCompatibleIAJ( path[size()-1]  , unassigned[i], dumpSite ) ) { 
           d = unassigned[i].distanceToSegment( path[size()-1], dumpSite );
           if ( d < bestDist) {
             bestDist = d;
@@ -111,7 +115,7 @@ std::cout<<"Entering BaseVehicle::findNearestNodeTo \n";
             pos = size();
             flag= true;
           };
-       };
+       }
     }
 
     return flag;
@@ -121,10 +125,12 @@ std::cout<<"Entering BaseVehicle::findNearestNodeTo \n";
 void BaseVehicle::dump() const {
     std::cout << "---------- BaseVehicle ---------------" << std::endl;
     std::cout << "maxcapacity: " << getmaxcapacity() << std::endl;
-    std::cout << "cargo: " << getcargo() << std::endl;
-    std::cout << "duration: " << getduration() << std::endl;
+    std::cout << "cargo: " << getCargo() << std::endl;
+    std::cout << "duration: " << getDuration() << std::endl;
     std::cout << "cost: " << getcost() << std::endl;
+    #ifdef WITHOSRM
     std::cout << "OSRM time: " << getTotTravelTimeOsrm() << std::endl;
+    #endif
     std::cout << "TWV: " << getTWV() << std::endl;
     std::cout << "CV: " << getCV() << std::endl;
     std::cout << "w1: " << getw1() << std::endl;
@@ -185,9 +191,9 @@ void BaseVehicle::dumppath() const {
 std::deque<int> BaseVehicle::getpath() const {
       std::deque<int> p;
       p = path.getpath();
-      p.push_front(getdepot().getnid());
-      p.push_back(getdumpSite().getnid());
-      p.push_back(getdepot().getnid());
+      p.push_front(getDepot().getnid());
+      p.push_back(getDumpSite().getnid());
+      p.push_back(getDepot().getnid());
       return p;
 }
 
@@ -285,7 +291,7 @@ void BaseVehicle::restorePath(Twpath<Trashnode> oldpath) {
 
 void BaseVehicle::evalLast() {
     Trashnode last = path[path.size()-1];
-    dumpSite.setDemand(-last.getcargo());
+    dumpSite.setDemand(-last.getCargo());
     dumpSite.evaluate(last, getmaxcapacity());
     endingSite.evaluate(dumpSite, getmaxcapacity());
     // if a vehcile has no containers to pickup it is empty
@@ -973,9 +979,9 @@ trace.dumpid("Path");
     graph.setTitle( title+extra );
     graph.drawInit();
     for (int i=0; i<trace.size(); i++){
-        if (trace[i].ispickup())  {
+        if (trace[i].isPickup())  {
              graph.drawPoint(trace[i], 0x0000ff, 9, true);
-        } else if (trace[i].isdepot()) {
+        } else if (trace[i].isDepot()) {
              graph.drawPoint(trace[i], 0x00ff00, 5, true);
         } else  {
              graph.drawPoint(trace[i], 0xff0000, 7, true);

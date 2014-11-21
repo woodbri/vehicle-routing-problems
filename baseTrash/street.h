@@ -111,13 +111,13 @@ typedef  unsigned long int UID ;
     int getid(int i) const { return path[i].getid(); };
     double getx(const int i) const { path[i].getx(); };
     double gety(const int i) const { path[i].gety(); };
-    bool hasdemand(int i) const { return path[i].hasdemand(); };
-    bool hassupply(int i) const { return path[i].hassupply(); };
-    bool hasnogoods(int i) const { return path[i].hasnogoods(); };
-    bool earlyarrival(int i, const double D) const { return path[i].earlyarrival(D); };
-    bool latearrival(int i, const double D) const { return path[i].latearrival(D); };
-    bool ontime(int i, const double D) const { return not earlyarrival(i, D) and not latearrival(i, D); };
-    bool ispickup(int i) const { return path[i].ispickup(); };
+    bool hasDemand(int i) const { return path[i].hasDemand(); };
+    bool hasSupply(int i) const { return path[i].hasSupply(); };
+    bool hasNoGoods(int i) const { return path[i].hasNoGoods(); };
+    bool earlyArrival(int i, const double D) const { return path[i].earlyArrival(D); };
+    bool lateArrival(int i, const double D) const { return path[i].lateArrival(D); };
+    bool onTime(int i, const double D) const { return not earlyArrival(i, D) and not lateArrival(i, D); };
+    bool isPickup(int i) const { return path[i].isPickup(); };
 
     Trashnode operator[](int i) const { return path[i]; };
 

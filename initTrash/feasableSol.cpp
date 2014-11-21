@@ -47,7 +47,7 @@ void FeasableSol::stepOne(Vehicle &truck) {
           
     Trashnode bestNode;
     UID bestPos;
-    if (truck.findNearestNodeTo( unassigned, twc,  bestPos,  bestNode) ) {
+    if (truck.findNearestNodeTo( unassigned,   bestPos,  bestNode) ) {
         if(  not  truck.e_insertIntoFeasableTruck(bestNode,bestPos) ) { 
                 fleet.push_back(truck);
 

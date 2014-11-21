@@ -529,7 +529,7 @@ class Twpath : public TwBucket<knode> {
                 if ( not it->feasable() ) return true;
             }
 
-            if ( it->isdump() ) break;
+            if ( it->isDump() ) break;
 
             it++;
         }
@@ -574,18 +574,15 @@ class Twpath : public TwBucket<knode> {
         int i = currentPos;
 
         while ( i < path.size() ) {
-            if ( path[i].isdump() ) erase( i );
+            if ( path[i].isDump() ) erase( i );
             else i++;
         };
 
-        //make sure everything is evaluated
-        evaluate( currentPos, maxcapacity );
+        evaluate( currentPos, maxcapacity ); //make sure everything is evaluated
 
-        // no need to add a dump
-        if ( path[size() - 1].feasable() ) return true;
+        if ( path[size() - 1].feasable() ) return true; // no need to add a dump
 
-        // without dumps its unfeasable
-        if (  path[size() - 1].gettwvTot() ) return false;
+        if (  path[size() - 1].gettwvTot() ) return false; // without dumps its unfeasable
 
         //the path is dumpless from the currentpos
         //add dumps because of CV

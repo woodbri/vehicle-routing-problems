@@ -16,6 +16,7 @@
 
 #include <cmath>
 #include <string>
+#include <limits>
 
 /*! \class Node
  * \brief The Node class defines a point in 2D space with an id.
@@ -33,6 +34,7 @@ class Node {
     int id;     ///< user supplied node number
     double x;   ///< x or longitude of the node's location
     double y;   ///< y or latitude of the node's location
+    std::string hint;
 
   public:
     // accessors
@@ -40,6 +42,7 @@ class Node {
     int getid() const { return id; };
     double getx() const { return x; };
     double gety() const { return y; };
+    std::string getHint() const { return hint; };
 
     double distance( const Node &n ) const ;
 
@@ -48,6 +51,7 @@ class Node {
     bool isvalid() const { return id > -1; };
     bool isSamePos( const Node &n ) const { return distance( n ) == 0; };
     bool isSamePos( const Node &n, double tol ) const { return distance( n ) < tol; };
+    bool hasHint() const {return not (hint=="");};
 
     // mutators
     void set( int _nid, double _x, double _y );
@@ -55,6 +59,7 @@ class Node {
     void setid( int _id ) { id = _id; };
     void setx( double _x ) { x = _x; };
     void sety( double _y ) {y = _y; };
+    void setHint( const std::string &_hint ) {hint = _hint; };
 
     // operators
     bool operator<( const Node &n ) const { return nid < n.nid; };

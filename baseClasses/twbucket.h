@@ -22,8 +22,7 @@
 #include <limits>
 #include <cassert>
 #include "node.h"
-//#include "twc.h"
-//#include "plot.h"
+
 
 /*! \class TwBucket
  * \brief A template class that provides deque like container with lots of additional functionality.
@@ -39,26 +38,26 @@
  * - position based tools
  * - other tools
 */
+
+template <class knode>
+class TWC;
+
 template <class knode>
 class TwBucket {
 
   protected:
     /*! \typedef typedef typename std::vector<std::vector<double> > TravelTimes
      * \brief Define an NxN vector array for holding travel times between nodes.
-     */
     typedef typename std::vector<std::vector<double> > TravelTimes;
-
-    /*! 
-     * \brief Define double -infinity
      */
+
+    /*!  \brief Define double -infinity */
     inline double _MIN() const { return ( -std::numeric_limits<double>::max() );};
 
-    /*! 
-     * \brief Define double +infinity
-     */
+    /*! \brief Define double +infinity */
     inline double _MAX() const { return ( std::numeric_limits<double>::max() );};
 
-    static  TravelTimes TravelTime; ///< Defines the travel time matrix
+    //static  TravelTimes TravelTime; ///< Defines the travel time matrix
     std::deque<knode> path;         ///< Defines the bucket container
 
 
@@ -85,83 +84,115 @@ class TwBucket {
   public:
 
     /*! 
-     * \brief Assign a travel time matrix to the \ref TwBucket
-     */
-    void setTravelTimes( const TravelTimes &_tt ) {
-        TravelTime = _tt;
-    }
+     * \brief simulates the following order of nodes in the path:  - prev from middle to
+     * \param[in] prev:   prev node 
+     * \param[in] from:   from node 
+     * \param[in] middle: middle node 
+     * \param[in] to:     to node 
+     * \param[in] ttpf:   travel time from "prev" to "from" nodes
+     * 
+     * \return  the time that takes to depart from "from" and arrive to "to" passing thru "middle"
+     *
+     * \return    ttfm + serv(m) + ttmt = arrivalTime(next) - departureTime(prev) when passing thru curr
+     * \return infinity              if there is a TWV (time window violation)
+     * 
+     * use when:
+         prev from   is a section of the path and "prev" is the previous container of "from"
+         from from   there is no previous container of from
 
-    /*! 
-     * \brief Evaluates the time from the previous to current to next container.
-     * \param[in] prev Position of the previous node in the path
-     * \param[in] curr Position of the current node in the path
-     * \param[in] next Position of the next node in the path
-     *
-     * simulates the following contiguous containers in the path
-     * - prev curr next
-     *
-     * \return travel time previous + service time current + travel time to next
-     * \return infinity              if there is a TWV (timw window violation)
+	the first one does all the work
+        the other two are variations on the parameters
     */
-    double  timePCN( POS prev, POS curr, POS next ) const {
-        assert ( prev < path.size() );
-        assert ( curr < path.size() );
-        assert ( next < path.size() );
-        double result = path[curr].getArrivalTime()
-                        + travelTime( path[prev], path[curr] );
 
-        if ( result > path[curr].closes() ) return _MAX();
 
-        if ( result < path[curr].opens() )
-            result = path[curr].opens() - path[prev].getDepartureTime();
+    double  timePCN( const knode &prev, const knode &from, const knode &middle, const knode &to, double ttpf ) const {
+        // prefixes: tt= travel time   	arrive 	depart
+	// suffixes:  p=prev   f=from   m=middle t=to
 
-        return result + path[curr].getservicetime()
-               + travelTime(  path[curr], path[next] );
+        double ttpfm = TravelTime( prev, from , middle ) ;
+	double ttfm = ttpfm - ttpf;
+	double ttpfmt = TravelTime( prev, from , middle, to ) ;
+	double ttmt = ttpfmt - ttpfm;
+	double ttfmt = ttfm + ttmt;
+	
+        //starting to check twv
+
+        double arrive_f = prev.getDepartureTime() +  ttpf;
+        if ( from.lateArrival(arrive_f) ) return _MAX(); 
+        if ( from.earlyArrival(arrive_f) ) arrive_f = from.opens() ;
+	double depart_f= arrive_f+ from.getServiceTime();
+
+        double arrive_m = arrive_f + from.getServiceTime() + ttfm;
+        if ( middle.lateArrival(arrive_m) ) return _MAX(); 
+        if ( middle.earlyArrival(arrive_m) ) arrive_m = middle.opens() ;
+
+        double arrive_t = arrive_m + middle.getServiceTime() + ttmt;
+        if ( to.lateArrival(arrive_t) ) return _MAX(); 
+        if ( to.earlyArrival(arrive_t) ) arrive_t = to.opens() ;
+
+        return arrive_t-depart_f;
     }
 
-    /*! 
-     * \brief Evaluates the time from the previous to current to the dump.
-     * \param[in] prev Position of the previous node in the path
-     * \param[in] curr Position of the current node in the path
-     * \param[in] dump A reference to a dump node.
-     *
-     * simulates the following contiguous containers in the path
-     * - prev curr dump
-     *
-     * \return travel time previous + service time current + travel time to dump
-     * \return infinity              if there is a TWV (timw window violation)
-    */
-    double  timePCN( POS &prev, POS &curr, const knode &dump ) const {
-        assert ( prev < path.size() );
-        assert ( curr < path.size() );
-        double result = path[curr].getArrivalTime()
-                        + travelTime( path[prev], path[curr] );
 
-        if ( result  > path[curr].closes() ) return _MAX();
+    double  timePCN( POS from, POS middle, POS to ) const {
+        assert ( from < path.size() );
+        assert ( middle < path.size() );
+        assert ( to < path.size() );
+	assert ( middle != from-1);
+	assert ( middle != from);
+	assert ( middle != to);
 
-        return result + path[curr].getservicetime()
-               + travelTime( path[curr], dump );
+        if (from==0) return timePCN(path[from],path[from],path[middle], path[to],0 );
+        else return timePCN(path[from-1],path[from],path[middle], path[to], path[from].getTravelTime());
     }
 
+    double  timePCN( POS from, POS middle, const knode &dump ) const {
+        assert ( from < path.size() );
+        assert ( middle < path.size() );
+	assert ( middle != from-1);
+	assert ( middle != from);
+
+        if (from==0) return timePCN(path[from],path[from],path[middle], dump,0 );
+        else return timePCN(path[from-1],path[from],path[middle], dump, path[from].getTravelTime());
+    }
+
+    double  timePCN( POS from, const knode &middle, const knode &dump ) const {
+        assert ( (from+1) < path.size() );
+
+        if (from==0) return timePCN(path[from],path[from],middle, dump,0 );
+        else return timePCN(path[from-1],path[from], middle , dump, path[from].getTravelTime());
+    }
+
+    double  timePCN( POS from, const knode &middle ) const {
+        assert ( (from+2) < path.size() );
+
+        if (from==0) return timePCN(path[from],path[from],middle, path[from+2], 0 );
+        else return timePCN( path[from-1], path[from], middle , path[from+2], path[from].getTravelTime());
+    }
+
+
+
+
+
+
+    private:
     /*! 
      * \brief Fetch the travel time from Node to Node
      * \note Nodes do not need to be in the path.
     */
-    double travelTime( const knode &from, const knode &to ) const {
-        return travelTime( from.getnid(), to.getnid()  );
-    }
+    double TravelTime( const knode &from, const knode &to ) const { return TravelTime( from.getnid(), to.getnid() ); }
+    double TravelTime( const knode &from, const knode &middle, const knode &to ) const { return TravelTime( from.getnid(), middle.getnid() , to.getnid() ); }
+    double TravelTime( const knode &prev, const knode &from, const knode &middle, const knode &to ) const { return TravelTime( prev.getnid(), from.getnid(), middle.getnid() , to.getnid() ); }
 
     /*! 
      * \brief Fetch the travel time from nodeId to nodeId
      * \note Nodes do not need to be in the path.
     */
-    double travelTime( UID i, UID j ) const {
-        assert ( i < TravelTime.size() );
-        assert ( j < TravelTime.size() );
-        return TravelTime[i][j];
-    }
+    double TravelTime( UID i, UID j ) const { return TWC<knode>::Instance()->TravelTime(i,j); }
+    double TravelTime( UID i, UID j, UID k ) const { return TWC<knode>::Instance()->TravelTime(i,j,k); }
+    double TravelTime( UID i, UID j, UID k, UID l ) const { return TWC<knode>::Instance()->TravelTime(i,j,k,l); }
 
-
+    public:
     /*! 
      * \brief Simulate changes of times within the path
      *
@@ -178,18 +209,18 @@ class TwBucket {
     */
     double getDeltaTime( const knode &node, const knode &dump ) const {
         knode last = path[path.size() - 1];
-        double nodeArrival = last.getDepartureTime() + travelTime( last, node );
+        double nodeArrival = last.getDepartureTime() + TravelTime( last, node );
 
-        if (  node.latearrival( nodeArrival ) ) return _MAX();
+        if (  node.lateArrival( nodeArrival ) ) return _MAX();
 
-        if (  node.earlyarrival( nodeArrival ) ) nodeArrival = node.opens();
+        if (  node.earlyArrival( nodeArrival ) ) nodeArrival = node.opens();
 
-        double dumpArrival = nodeArrival + node.getservicetime() +
-                             travelTime( node, dump );
+        double dumpArrival = nodeArrival + node.getServiceTime() +
+                             TravelTime( node, dump );
 
-        if (  dump.latearrival( dumpArrival ) ) return _MAX();
+        if (  dump.lateArrival( dumpArrival ) ) return _MAX();
 
-        if (  dump.earlyarrival( dumpArrival ) ) dumpArrival = dump.opens();
+        if (  dump.earlyArrival( dumpArrival ) ) dumpArrival = dump.opens();
 
         double delta = dumpArrival - last.getDepartureTime();
         return delta;
@@ -210,20 +241,21 @@ class TwBucket {
      * \return infinity when there is a TWV
     */
     double getDeltaTimeAfterDump( const knode &dump, const knode &node ) const {
-        double nodeArrival = dump.getDepartureTime() + travelTime( dump, node );
 
-        if (  node.latearrival( nodeArrival ) ) return _MAX();
+        double nodeArrival = dump.getDepartureTime() + TravelTime( dump, node );
 
-        if (  node.earlyarrival( nodeArrival ) ) nodeArrival = node.opens();
+        if (  node.lateArrival( nodeArrival ) ) return _MAX();
 
-        double dumpArrival =  nodeArrival + node.getservicetime() +
-                              travelTime( node, dump );
+        if (  node.earlyArrival( nodeArrival ) ) nodeArrival = node.opens();
 
-        if (  dump.latearrival( dumpArrival ) ) return _MAX();
+        double dumpArrival =  nodeArrival + node.getServiceTime() +
+                              TravelTime( node, dump );
 
-        if (  dump.earlyarrival( dumpArrival ) ) dumpArrival = dump.opens();
+        if (  dump.lateArrival( dumpArrival ) ) return _MAX();
 
-        double delta = dumpArrival + dump.getservicetime() -
+        if (  dump.earlyArrival( dumpArrival ) ) dumpArrival = dump.opens();
+
+        double delta = dumpArrival + dump.getServiceTime() -
                        dump.getDepartureTime();
         return delta;
     }
@@ -270,7 +302,7 @@ class TwBucket {
                 return _MAX();
 
             if ( path[pos1 - 1].getDepartureTime()
-                 + TravelTime[nidPrev][nid2] + path[pos1].getservicetime()
+                 + TravelTime[nidPrev][nid2] + path[pos1].getServiceTime()
                  + TravelTime[nid2][nid1] > path[pos1].closes() )
                 return _MAX();
 
@@ -360,14 +392,14 @@ class TwBucket {
 
         if ( pos1 == size() )
             return  TravelTime[prev][node.getnid()]
-                    + node.getservicetime()
+                    + node.getServiceTime()
                     - ( path[pos].getDepartureTime()
                         - path[pos - 1].getDepartureTime() );
 
         int next = path[pos1].getnid();
 
         double delta  =  TravelTime[prev][node.getnid()]
-                         + node.getservicetime()
+                         + node.getServiceTime()
                          + TravelTime[node.getnid()][next]
                          - ( path[pos1].getArrivalTime()
                              - path[pos - 1].getDepartureTime() ) ;
@@ -417,18 +449,18 @@ class TwBucket {
     double  getDeltaTime( const knode &node, POS pos ) const {
         assert( pos < path.size() );
 
-        if ( pos == 0 or path[pos].isdepot() ) return _MAX();
+        if ( pos == 0 or path[pos].isDepot() ) return _MAX();
 
         int nid = path[pos].getnid();
         int prev = path[pos - 1].getnid();
 
         if ( pos == size() )
-            return  TravelTime[prev][node.getnid()] + node.getservicetime();
+            return  TravelTime(prev,node.getnid()) + node.getServiceTime();
 
-        return TravelTime[prev][node.getnid()]
-               + node.getservicetime()
-               + TravelTime[node.getnid()][nid]
-               - TravelTime[prev][nid];
+        return TravelTime(prev,node.getnid() )
+               + node.getServiceTime()
+               + TravelTime(node.getnid(),nid)
+               - TravelTime(prev,nid);
     }
 
 
@@ -1111,10 +1143,10 @@ class TwBucket {
 
 
 };
-
+/*
 template <class knode>
 std::vector<std::vector<double> > TwBucket<knode>::TravelTime ;
-
+*/
 
 #endif
 

@@ -15,11 +15,13 @@
 #include <iostream>
 #include <sstream>
 
-#include "osrm.h"
+#ifdef OSRMCLIENT
+#include "osrmclient.h"
+#endif
+
 #include "tweval.h"
 
 std::vector<std::vector<double> > Tweval::TravelTime;
-
 
 /*!
  * \brief Evaluate a node at the start of a path od sub-path.
@@ -33,8 +35,8 @@ void Tweval::evaluate ( double cargoLimit ) {
     totWaitTime = 0;
     totServiceTime = serviceTime;
     departureTime = arrivalTime + serviceTime;
-    twvTot = cvTot = 0;
-    twv = cv = false;
+    twvTot = cvTot = 0; //TODO same as bellow
+    twv = cv = false;  //TODO  if its the begining of a subpath... and it already has a violation why put it as false?
     dumpVisits = 0;
     switch (type) {
         case 0: // depot or starting location
@@ -63,35 +65,18 @@ void Tweval::evaluate ( double cargoLimit ) {
 void Tweval::evaluate ( const Tweval &pred, double cargoLimit ) {
     assert( Tweval::TravelTime.size() );
 
-    // Travel Time from previous node to this node
-    travelTime    = TravelTime[pred.nid][nid];
-
-    // tot length travel from 1st node
-    totTravelTime = pred.totTravelTime + travelTime;
-
-    // Time Window Violation
+    travelTime    = TravelTime[pred.nid][nid]; 		// Travel Time from previous node to this node
+    totTravelTime = pred.totTravelTime + travelTime; 	// tot length travel from 1st node
     arrivalTime   = pred.departureTime + travelTime;
-    twv = latearrival( arrivalTime );
-
-    // truck arrives before node opens, so waits
-    waitTime      = earlyarrival( arrivalTime ) ? opens() - arrivalTime : 0;
-
+    twv = lateArrival( arrivalTime ); 			// Time Window Violation
+    waitTime      = earlyArrival( arrivalTime ) ? opens() - arrivalTime : 0; // truck arrives before node opens, so waits
     totWaitTime   = pred.totWaitTime + waitTime;
-
     totServiceTime = pred.totServiceTime + serviceTime;
     departureTime  = arrivalTime + waitTime + serviceTime;
-
-    // type 1 empties the truck (aka dumpSite)
-    if ( type == 1 and pred.cargo >= 0 ) demand = - pred.cargo;
-
+    if ( type == 1 and pred.cargo >= 0 ) demand = - pred.cargo; 	// type 1 empties the truck (aka dumpSite)
     dumpVisits = ( type == 1 ) ? pred.dumpVisits + 1 :  pred.dumpVisits;
-
-    // loading truck demand>0 or unloading demand<0
-    cargo = pred.cargo + demand;
-
-    // capacity Violation
-    cv = cargo > cargoLimit or cargo < 0;
-
+    cargo = pred.cargo + demand; 			// loading truck demand>0 or unloading demand<0
+    cv = cargo > cargoLimit or cargo < 0; 		// capacity Violation
     // keep a total of violations
     twvTot = ( twv ) ? pred.twvTot + 1 : pred.twvTot;
     cvTot =  ( cv ) ?  pred.cvTot + 1 : pred.cvTot;
@@ -132,8 +117,10 @@ Tweval::Tweval(): Twnode() {
     totTravelTime = totWaitTime = totServiceTime = 0;
     twvTot = cvTot = 0;
     twv = cv = false;
+    #ifdef WITHOSRM
     totTravelTimeOsrm = -1;
     osrmUrlLocs = "";
+    #endif
 }
 
 
@@ -146,8 +133,10 @@ Tweval::Tweval( std::string line ): Twnode( line ) {
     cargo = 0;
     arrivalTime = travelTime = waitTime = departureTime = 0;
     totWaitTime = totTravelTime = totServiceTime = 0;
+    #ifdef WITHOSRM
     totTravelTimeOsrm = -1;
     osrmUrlLocs = "";
+    #endif
 };
 
 /*!
@@ -170,8 +159,10 @@ Tweval::Tweval( int _id, double _x, double _y, int _open, int _close,
     cargo = 0;
     arrivalTime = travelTime = waitTime = departureTime = 0;
     totWaitTime = totTravelTime = totServiceTime = 0;
+    #ifdef WITHOSRM
     totTravelTimeOsrm = -1;
     osrmUrlLocs = "";
+    #endif
 };
 
 
@@ -184,6 +175,25 @@ double Tweval::deltaGeneratesTWV( double deltaTime ) const {
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#ifdef WITHOSRM
 /*!
  * \brief Return the location as an OSRM loc string
  */
@@ -235,7 +245,7 @@ void Tweval::evaluateOsrm ( const Tweval &pred, const std::string &osrmBaseUrl )
 
     // construct the complete URL
     std::string url = getOsrmUrl( osrmBaseUrl );
-    OSRM osrm;
+    VrpOSRM osrm;
 
     // if we fail to get the OSRM time then set the error indicator and return
     if ( osrm.callOSRM( url ) ) {
@@ -254,4 +264,4 @@ void Tweval::evaluateOsrm ( const Tweval &pred, const std::string &osrmBaseUrl )
     totTravelTimeOsrm = ttime;
 }
 
-
+#endif

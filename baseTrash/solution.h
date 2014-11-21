@@ -108,14 +108,14 @@ bool applyIntraSwMove( const Move &move) ;
 
 	void dumpCostValues() {
 		for (int i=0;i<fleet.size();i++) 
-			fleet[i].getCost(twc);
+			fleet[i].getCost();
 		for (int i=0;i<fleet.size();i++) 
 			fleet[i].dumpCostValues();
 	}
 
 	void setInitialValues() {
 		for (int i=0;i<fleet.size();i++) 
-			fleet[i].setInitialValues(C,twc,pickups);
+			fleet[i].setInitialValues(C,pickups);
 	}
 
 // code moved from OLD CODE TO BE INTEGRATED
