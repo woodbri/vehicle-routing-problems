@@ -80,6 +80,7 @@ void OsrmClient::clear() {
  * \brief Add a location in WGS84 to the OSRM request.
  * \param[in] lat The latitude of the location you want to add.
  * \param[in] lon The Longitude of the location you want to add.
+ * \note route_parameters.coordinates is defined as std::vector<FixedPointCoordinate> in OSRM.h. COORDINATE_PRECISION is also defined in OSRM.h.
  */
 void OsrmClient::addViaPoint( double lat, double lon ) {
     if (not connectionAvailable) return;
