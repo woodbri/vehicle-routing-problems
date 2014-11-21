@@ -34,6 +34,7 @@
 
 /** \todo comments (see comments of twbucket is the same thing)
    the ifs are for: if just by traveling we get a twv why bother inspecting with more detail
+   to be used with intraSw
 
    prev curr next
    ttpc + serv(c) + ttcn
@@ -41,24 +42,34 @@
    infinity when twc
    no cv checks
 */
-double Vehicle::timePCN(POS prev, POS curr, POS next) const  {
+double Vehicle::timePCN(POS from, POS middle, POS to) const  {
 #ifdef DOSTATS
  STATS->inc("Vehicle::timePCN positions ");
 #endif
-	if ( next==size() ) if (dumpSite.lateArrival( twc->TravelTime(path[prev],path[curr],dumpSite) ) ) return _MAX();
-	     else return path.timePCN(prev,curr,dumpSite);
-	else if ( path[next].lateArrival( twc->TravelTime(path[prev],path[curr],path[next]) ) ) return _MAX();
-             else return path.timePCN(prev,curr,next);
+	if ( to==size() ) { 
+	     if ( (middle==(from+1)) and (to==(middle+1)) ) return dumpSite.getArrivalTime() - path[from].getDepartureTime();
+	     if (dumpSite.lateArrival(  path[from].getDepartureTime() + twc->TravelTime(path[from],path[middle],dumpSite) ) ) return _MAX();
+	     else return path.timePCN(from,middle,dumpSite);
+        }
+	else {
+	     if ( (middle==(from+1)) and (to==(middle+1)) ) return path[to].getArrivalTime() - path[from].getDepartureTime();
+	     if ( path[to].lateArrival( path[from].getDepartureTime()+ twc->TravelTime(path[from],path[middle],path[to]) ) ) return _MAX();
+             else return path.timePCN(from,middle,to);
+	}
 }
 
-double Vehicle::timePCN(Trashnode &prev, Trashnode &curr, Trashnode &next) const  {
+/*! to be used with interSw */
+double Vehicle::timePCN(POS from, Trashnode &middle) const  {
 #ifdef DOSTATS
  STATS->inc("Vehicle::timePCN nodes ");
 #endif
-	if ( next.lateArrival( twc->TravelTime(prev,curr,next) ) ) return _MAX();
-        else return path.timePCN(prev,curr,next);
+	assert ( (from+2)<=size() );
+	if ( (from+2) ==size() ) 
+	     if (dumpSite.lateArrival(  path[from].getDepartureTime() + twc->TravelTime(path[from], middle, dumpSite) ) ) return _MAX();
+	     else return path.timePCN(from,middle,dumpSite);
+	else if ( path[from+2].lateArrival( path[from].getDepartureTime()+ twc->TravelTime(path[from],middle,path[from+2]) ) ) return _MAX();
+             else return path.timePCN(from,middle);
 }
-
 
 
 
@@ -183,20 +194,11 @@ bool inspect = (truckPos+otherTruckPos)==5 and (truckPos*otherTruckPos)==0; //in
 			return deltaMovesSize;
 		}
 
-		if (j==other.size()-1) {
-   		    otherDelta=	 timePCN(other.path[j-1],truck.path[i],other.dumpSite)
-  			- timePCN(other.path[j-1],other.path[j],other.dumpSite);
-		} else {
-   		    otherDelta= timePCN(other.path[j-1],truck.path[i],other.path[j+1])
-			- timePCN(other.path[j-1],other.path[j],other.path[j+1]);
-		}
-		if (i==truck.size()-1) {
-   		    truckDelta= timePCN(truck.path[i-1],other.path[j],truck.dumpSite)
-   			- timePCN(truck.path[i-1],truck.path[i],truck.dumpSite);
-		} else {
-   		    truckDelta= timePCN(truck.path[i-1],other.path[j],truck.path[i+1])
-   			- timePCN(truck.path[i-1],truck.path[i],truck.path[i+1]);
-		}
+		if (j==other.size()-1) otherDelta= other.timePCN( j-1, truck.path[i] ) - other.timePCN(j-1,j,j+1);
+		else otherDelta= other.timePCN(j-1,truck.path[i]) - other.timePCN(j-1,j,j+1);
+		
+		if (i==truck.size()-1) truckDelta= truck.timePCN( i-1, other.path[j] ) - truck.timePCN(i-1,i,i+1);
+		else truckDelta= truck.timePCN(i-1,other.path[j]) - truck.timePCN(i-1,i,i+1);
 
 	       //basic checking for time violation
 	       if (other.dumpSite.deltaGeneratesTWV(otherDelta) 

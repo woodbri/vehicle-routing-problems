@@ -97,8 +97,8 @@ class Vehicle: public BaseVehicle {
                       _endtime, otherlocs) {};
 
 
-    double timePCN(POS prev, POS curr, POS next) const;
-    double timePCN(Trashnode &prev, Trashnode &curr, Trashnode &next) const;
+    double timePCN(POS from, POS middle, POS to) const;
+    double timePCN(POS from, Trashnode &middle) const;
 
     long int eval_intraSwapMoveDumps( Moves &moves, int  truckPos,  double factor ) const;
     long int eval_interSwapMoveDumps( Moves &moves, const Vehicle &otherTruck,int  truckPos,int  otherTruckPos, double factor   ) const; 

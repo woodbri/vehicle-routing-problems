@@ -83,18 +83,19 @@ template <class knode> class TWC {
 
     #ifdef OSRMCLIENT
 	/*! \todo */
-	typedef struct { //all are ids
+	typedef struct { //all are ids when prev==from its a 3 node call
+	UID prev;
 	UID from;
 	UID middle;
 	UID last;
         } TTindex;
 	struct classcomp {
   		bool operator() (const TTindex &lhs, const TTindex &rhs) const {
-  		return lhs.from<rhs.from? true:  lhs.middle<rhs.middle? true: lhs.last<rhs.last;
+  		return lhs.prev<rhs.prev? true: lhs.from<rhs.from? true:  lhs.middle<rhs.middle? true: lhs.last<rhs.last;
 		};
         };
-        typedef std::map<TTindex,double,classcomp>  TT3;
-        typedef typename std::map<TTindex,double>::iterator p_TT3;
+        typedef std::map<TTindex,double,classcomp>  TT4;
+        typedef typename std::map<TTindex,double>::iterator p_TT4;
 
    #endif
 	
@@ -108,7 +109,7 @@ template <class knode> class TWC {
     inline double _MAX() const { return std::numeric_limits<double>::max();};
 
     #ifdef OSRMCLIENT
-    mutable TT3 travel_Time3;
+    mutable TT4 travel_Time4;
     #endif
 
   public:
@@ -451,22 +452,29 @@ template <class knode> class TWC {
     /*! \todo comments   */
     private:
 	//this one does all the work
-	double getTravelTime( UID from, UID middle, UID to ) const{ 
+	double getTravelTime( UID prev, UID from, UID middle, UID to ) const{ 
             assert( from < original.size() and middle<original.size() and to < original.size() );
 	    #ifndef OSRMCLIENT
 		return  getTravelTime(from,middle)+ getTravelTime(middle,to);
             #else
-	    TTindex index={from,middle,to};
- 	    p_TT3 it = travel_Time3.find(index);
-	    if (it != travel_Time3.end()) return it->second;
+	    TTindex index={prev,from,middle,to};
+ 	    p_TT4 it = travel_Time4.find(index);
+	    if (it != travel_Time4.end()) {
+            	#ifdef DOSTATS
+            	STATS->inc("TWC::getTravelTime(4 parameters) 4 dim Table access");
+	    	#endif
+		return it->second;
+	    }
 	    double time;
-	    if (osrm->getOsrmTime(original[from],original[middle],original[to],time)) {
-		//travel_Time3.insert(index,time);
-		travel_Time3[index]=time;
+	    if (osrm->getOsrmTime(original[prev],original[from],original[middle],original[to],time)) {
+		travel_Time4[index]=time;
 		return time;
             }
 	    else  {
-		time=  getTravelTime(from,middle)+ getTravelTime(middle,to);
+		time=  getTravelTime(prev,from) + getTravelTime(from,middle)+ getTravelTime(middle,to);
+            	#ifdef DOSTATS
+            	STATS->inc("TWC::getTravelTime(4 parameters) 2 dim Table access");
+	    	#endif
 		//it doesnt get inserted because wasnt calculated with osrm
 	    }
 	    return time;
@@ -477,12 +485,22 @@ template <class knode> class TWC {
     public:
 //this one is an interface , the previous one is the one that does all the work
     double TravelTime( UID from, UID middle, UID to ) const {
-        return getTravelTime(from,middle,to);
+        return getTravelTime(from,from,middle,to);
     }
 
 //this one is an interface, the other one is the one that does all the work
     double TravelTime( const knode &from, const knode &middle, const knode &to ) const {
-        return getTravelTime( from.getnid(), middle.getnid(), to.getnid() );
+        return getTravelTime( from.getnid(),from.getnid(), middle.getnid(), to.getnid() );
+    }
+
+//this one is an interface, the other one is the one that does all the work
+    double TravelTime( const knode &prev, const knode &from, const knode &middle, const knode &to ) const {
+        return getTravelTime( prev.getnid(),from.getnid(), middle.getnid(), to.getnid() );
+    }
+
+//this one is an interface, the other one is the one that does all the work
+    double TravelTime( UID prev, UID from, UID middle, UID to ) const {
+        return getTravelTime(prev,from,middle,to);
     }
 
 
