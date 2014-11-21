@@ -68,8 +68,9 @@ class OsrmClient {
     bool getOsrmViaroute();
     bool getOsrmTime( double lat1, double lon1 ,double lat2, double lon2, double &time );
     bool getOsrmTime( double lat1, double lon1 ,double lat2, double lon2, const std::string &hint1, const std::string &hint2, double &time );
-    bool getOsrmTime( const Node &node1, const Node &node2, const Node &node3, double &time );
     bool getOsrmTime( const Node &node1, const Node &node2, double &time );
+    bool getOsrmTime( const Node &node1, const Node &node2, const Node &node3, double &time );
+    bool getOsrmTime( const Node &node1, const Node &node2, const Node &node3, const Node &node4, double &time );
     bool getOsrmTime( double &time );
     bool getOsrmGeometry( std::deque<Node> &geom );
     bool getOsrmHints( std::deque<std::string> &hints );

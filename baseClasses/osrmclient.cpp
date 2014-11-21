@@ -180,6 +180,25 @@ bool OsrmClient::getOsrmTime( const Node &node1, const Node &node2, const Node &
     return false;
 }
 
+bool OsrmClient::getOsrmTime( const Node &node1, const Node &node2, const Node &node3, const Node &node4,double &time ) {
+    if (not connectionAvailable) return false;
+    #ifdef DOSTATS 
+    STATS->inc("OsrmClient::getOsrmTime (3 nodes) ");
+    #endif
+    clear();
+    addViaPoint(node1);
+    addViaPoint(node2);
+    addViaPoint(node3);
+    addViaPoint(node4);
+    route_parameters.hints.push_back( node1.getHint() );
+    route_parameters.hints.push_back( node2.getHint() );
+    route_parameters.hints.push_back( node3.getHint() );
+    route_parameters.hints.push_back( node4.getHint() );
+    if (getOsrmViaroute()) return getOsrmTime(time);
+    return false;
+}
+
+
 
 /*!
  * \brief Connect to the OSRM engine, issue the request and save the json response back in the object.
