@@ -21,34 +21,26 @@
 
 #include "tweval.h"
 
-std::vector<std::vector<double> > Tweval::TravelTime;
+//std::vector<std::vector<double> > Tweval::TravelTime;
 
 /*!
- * \brief Evaluate a node at the start of a path od sub-path.
+ * \brief Evaluate a node at the start of a path. (has to be a depot)
  * \param[in] cargoLimit The cargo limit for the vehicle
  */
 void Tweval::evaluate ( double cargoLimit ) {
-    cargo = demand;
+    assert(type==0);
+    
+    cargo = demand;  
     travelTime = 0;
     arrivalTime = opens();
     totTravelTime = 0;
     totWaitTime = 0;
     totServiceTime = serviceTime;
     departureTime = arrivalTime + serviceTime;
-    twvTot = cvTot = 0; //TODO same as bellow
-    twv = cv = false;  //TODO  if its the begining of a subpath... and it already has a violation why put it as false?
+    twvTot = cvTot = 0; 
+    twv = cv = false;  
     dumpVisits = 0;
-    switch (type) {
-        case 0: // depot or starting location
-            cv = cvTot = demand > cargoLimit ? 1 : 0;
-            cargo = 0;
-            break;
-        case 1: // dump
-            dumpVisits = 1;
-            break;
-        default:
-            cv = cvTot = demand > cargoLimit ? 1 : 0;
-    };
+    cv = cvTot = demand > cargoLimit ? 1 : 0;
 }
 
 /*!
@@ -63,9 +55,9 @@ void Tweval::evaluate ( double cargoLimit ) {
  * \param[in] cargoLimit The cargo limit for this vehicle.
  */
 void Tweval::evaluate ( const Tweval &pred, double cargoLimit ) {
-    assert( Tweval::TravelTime.size() );
+    //assert( Tweval::TravelTime.size() );
 
-    travelTime    = TravelTime[pred.nid][nid]; 		// Travel Time from previous node to this node
+    travelTime    = twc->TravelTime(pred.nid,nid); 		// Travel Time from previous node to this node
     totTravelTime = pred.totTravelTime + travelTime; 	// tot length travel from 1st node
     arrivalTime   = pred.departureTime + travelTime;
     twv = lateArrival( arrivalTime ); 			// Time Window Violation

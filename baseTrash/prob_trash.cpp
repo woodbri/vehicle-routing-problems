@@ -31,7 +31,7 @@ bool Prob_trash::checkIntegrity() const {
    else std::cout << "# of Nodes:"<<nodesCant<<"\n";
 
    for (int i=1;i<nodesCant-1;i++) {
-     flag= flag and datanodes[i].isvalid();
+     flag= flag and datanodes[i].isValid();
    }
 }
 
@@ -163,7 +163,8 @@ invalid.dump("invalid");
         else if ( otherlocs.hasId( id ) ) otherlocs[ otherlocs.posFromId( id ) ].setnid(i);
     };
     C=nodes.back();
-    assert( pickups.size() and otherlocs.size() );
+    assert( pickups.size() );
+    assert( otherlocs.size() );
 
     datanodes=nodes;
 
@@ -179,9 +180,9 @@ invalid.dump("invalid");
     twc->settCC(C,pickups);
 //    Bucket dummy;
 //    dummy.setTravelTimes(twc->TravelTime());
-    C.setTravelTimes(twc->TravelTime());
+//    C.setTravelTimes(twc->TravelTime());
 
-    assert( Tweval::TravelTime.size() );
+//    assert( Tweval::TravelTime.size() );
 
 //    buildStreets(pickups);
 
@@ -305,7 +306,7 @@ std::cout<<"Prob_trash:Load_otherlocs"<<infile<<"\n";
         if (line[0] == '#') continue;
 
         Trashnode node(line);  
-        if ( not node.isvalid() ) {
+        if ( not node.isValid() ) {
            std::cout << "ERROR: line: " << cnt << ": " << line << std::endl;
            invalid.push_back(node);
         } else {

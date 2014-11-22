@@ -175,7 +175,7 @@ class TwBucket {
 
 
 
-    private:
+    protected:
     /*! 
      * \brief Fetch the travel time from Node to Node
      * \note Nodes do not need to be in the path.

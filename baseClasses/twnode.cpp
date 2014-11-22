@@ -26,10 +26,29 @@
  * - tw_open \>= 0
  * - serviceTime \>= 0
  */
-bool Twnode::isvalid() const {
-    return Node::isvalid() and tw_open < tw_close
-           and tw_open >= 0
-           and serviceTime >= 0;
+bool Twnode::isValid() const {
+    if (not  Node::isValid() ) return false;
+    if (not (tw_open < tw_close
+            and tw_open >= 0
+            and serviceTime >= 0) ) return false;
+    switch  (type) {
+	case 0: //depot
+	    if (not demand==0) return false;
+	    break;
+	case 1: //dump
+	    if ( demand>0) return false;
+	    break;
+	case 2: //pickup
+	    if ( demand<=0 ) return false;
+	    break;
+	case 3: //ending site
+	    if (not demand==0) return false;
+            break;
+	case 4: //delivery site
+	    if (demand>=0) return false;
+            break;
+    }
+    return true;
 }
 
 

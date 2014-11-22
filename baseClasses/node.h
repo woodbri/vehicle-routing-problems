@@ -48,7 +48,7 @@ class Node {
 
 
     // state
-    bool isvalid() const { return id > -1; };
+    bool isValid() const { return id > -1; };
     bool isSamePos( const Node &n ) const { return distance( n ) == 0; };
     bool isSamePos( const Node &n, double tol ) const { return distance( n ) < tol; };
     bool hasHint() const {return not (hint=="");};

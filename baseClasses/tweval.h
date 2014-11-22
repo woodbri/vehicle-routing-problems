@@ -19,6 +19,8 @@
 #include <string>
 #include "twnode.h"
 
+#include "twc.h"
+
 #ifdef WITHOSRM
 #include "vrposrm.h"
 #endif
@@ -30,12 +32,14 @@
  * about the node in a path and provides the tools evaluate the node
  * and to set and get these attribute values.
  */
+
+
 class Tweval: public Twnode {
   protected:
 
 
   public:
-    static std::vector<std::vector<double> > TravelTime;
+    //static std::vector<std::vector<double> > TravelTime;
 
     void dumpeval() const;
     void dump() const ;
@@ -58,7 +62,7 @@ class Tweval: public Twnode {
     double getDumpVisits() const { return dumpVisits; };
     double deltaGeneratesTWV( double deltaTime ) const;
     std::string getLoc() const;
-    double getTT(const Tweval &other) const {return TravelTime[nid][other.nid];};
+    //double getTT(const Tweval &other) const {return TravelTime[nid][other.nid];};
 
 
     bool hastwv() const { return twv; };
@@ -83,12 +87,12 @@ class Tweval: public Twnode {
      * between all the Tweval nodes.
      *
      * \param[in] _tt A reference to a travel time matrix.
-     */
     void setTravelTimes( const std::vector<std::vector<double> > &_tt ) {
         assert ( _tt.size() );
         TravelTime = _tt;
         assert ( TravelTime.size() );
     }
+    */
 
 
 
@@ -113,7 +117,6 @@ class Tweval: public Twnode {
     double travelTime;      ///< Travel time from last node
     double arrivalTime;     ///< Arrival time at this node
     double waitTime;        ///< Wait time at this node is early arrival
-    //double serviceTime  already in twnode
     double departureTime;   ///< Departure time from this node
 
     double totWaitTime;     ///< Total accumulated wait time at this point in the path

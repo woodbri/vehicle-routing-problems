@@ -183,7 +183,7 @@ bool OsrmClient::getOsrmTime( const Node &node1, const Node &node2, const Node &
 bool OsrmClient::getOsrmTime( const Node &node1, const Node &node2, const Node &node3, const Node &node4,double &time ) {
     if (not connectionAvailable) return false;
     #ifdef DOSTATS 
-    STATS->inc("OsrmClient::getOsrmTime (3 nodes) ");
+    STATS->inc("OsrmClient::getOsrmTime (4 nodes) ");
     #endif
     clear();
     addViaPoint(node1);

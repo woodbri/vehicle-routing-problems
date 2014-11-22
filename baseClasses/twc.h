@@ -1608,7 +1608,7 @@ public:
 template <class knode>
 TWC<knode>*  TWC<knode>::p_twc=NULL;
 
-#define twc TWC<Trashnode>::Instance()
+#define twc TWC<Tweval>::Instance()
 
 
 
