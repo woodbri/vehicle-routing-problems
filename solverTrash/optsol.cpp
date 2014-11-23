@@ -220,11 +220,10 @@ void OptSol::getInterSwNeighborhood(Moves &moves, double factor)  const {
 
     int truckPos=interTruckPos1;
     int otherTruckPos=interTruckPos2;
-    
+    #ifdef DOSTATS
+    Timer timer;
+    #endif
     moves.clear();
-#ifndef LOG
-std::cout<<"InterSw working with truck "<<truckPos<<" and"<< otherTruckPos<<"interSw neighborhood\n";
-#endif
     fleet[truckPos].eval_interSwapMoveDumps( moves, fleet[otherTruckPos], truckPos, otherTruckPos, factor); 
 
 
@@ -240,6 +239,13 @@ std::cout<<"InterSw working with truck "<<truckPos<<" and"<< otherTruckPos<<"int
     }
     assert(flag);
 #endif
+
+    #ifdef DOSTATS
+    //STATS->inc("OptSol::getInterSwNeighborhood ",timer.duration());
+    #ifndef LOG
+    std::cout<<"InterSw working with truck "<<truckPos<<" and"<< otherTruckPos<<"interSw neighborhood"<<timer.duration()<<"\n";
+    #endif
+    #endif
 
 }
 

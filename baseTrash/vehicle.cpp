@@ -145,6 +145,75 @@ std::cout<<"Entering Vehicle::eval_intraSwapMoveDumps \n";
     void setIntraSwMove( int fromTruck, int fromPos, int fromId, int withPos, int withId); 
 */
 
+
+//does all the combinations in a 10 limit window
+long int Vehicle::eval_interSwapMoveDumps( Moves &moves, const Vehicle &otherTruck,int  truckPos,int  otherTruckPos,  int fromPos, int toPos ) const {
+#ifdef DOSTATS
+ STATS->inc("Vehicle::eval_interSwapMoveDumps (10 limit window)");
+#endif
+#ifdef TESTED
+std::cout<<"Entering Vehicle::eval_interSwapMoveDumps (10 limit window) \n";
+#endif
+	assert (fromPos<size());
+	assert (toPos< otherTruck.size());
+
+        Vehicle truck = (*this);
+        Vehicle other = otherTruck;
+
+	Trashnode tLast= path[size()-1];
+	Trashnode oLast= other.path[other.path.size()-1];
+	double truckDelta,otherDelta;
+//	int numNotFeasable=0;
+//bool inspect = (truckPos+otherTruckPos)==5 and (truckPos*otherTruckPos)==0; //inspect close combination 0,5
+        double originalCost= truck.getCost()  + other.getCost();
+        double originalDuration= truck.getDuration()  + other.getDuration();
+        double newCost,savings,newDuration;
+	int oldMovesSize=0;
+        int fromNodeId,toNodeId;
+	Move move;
+
+	int iLowLimit= std::max(1,fromPos-5);
+	int iHighLimit= std::min( size(), fromPos+5 );
+	int jLowLimit= std::max(1,toPos-5);
+	int jHighLimit= std::min( other.size(), toPos+5 );
+	
+        for ( int i=iLowLimit; i<iHighLimit; i++) {
+	   assert(not (i==0));
+	   if (truck.path[i].isDump() ) continue;
+
+	   fromNodeId=truck.path[i].getnid();
+           for ( int j=jLowLimit; j<jHighLimit; j++) {
+	   	assert(not (j==0));
+		if (other.path[j].isDump()) continue;
+
+		otherDelta= other.timePCN( j-1, truck.path[i] ) - other.timePCN(j-1,j,j+1);
+		truckDelta= truck.timePCN( i-1, other.path[j] ) - truck.timePCN(i-1,i,i+1);
+
+	       //basic checking for time violation
+	       if (other.dumpSite.deltaGeneratesTWV(otherDelta) 
+		or other.endingSite.deltaGeneratesTWV(otherDelta)
+		or other.path[other.size()-1].deltaGeneratesTWV(otherDelta) ) continue;  //Time Violation, not considered
+	       if (truck.dumpSite.deltaGeneratesTWV(truckDelta) 
+		or truck.endingSite.deltaGeneratesTWV(truckDelta)
+		or truck.path[truck.size()-1].deltaGeneratesTWV(truckDelta) ) continue;  //Time Violation, not considered
+
+	        toNodeId=other.path[j].getnid();
+
+		savings=_MIN();
+		if ( truck.applyMoveInterSw(other, i, j)) {
+		   newCost=truck.getCost() + other.getCost();
+		   newDuration=truck.getDuration() + other.getDuration();
+		   savings= originalCost - newCost;
+    		   move.setInterSwMove( truckPos,  i,  fromNodeId,  otherTruckPos, j, toNodeId, savings); 
+                   moves.insert(move);
+		} 
+		truck= (*this);
+		other=otherTruck;
+            }
+	}
+        return moves.size() - oldMovesSize;
+}
+
 long int Vehicle::eval_interSwapMoveDumps( Moves &moves, const Vehicle &otherTruck,int  truckPos,int  otherTruckPos,  double factor ) const {
 #ifdef DOSTATS
  STATS->inc("Vehicle::eval_interSwapMoveDumps ");
@@ -173,11 +242,13 @@ bool inspect = (truckPos+otherTruckPos)==5 and (truckPos*otherTruckPos)==0; //in
 	int inc=5;
 	for ( int m=1;m<6;m++) { 
         for ( int i=m; i<truck.size(); i+=inc) {
+	   assert(not (i==0));
 	   if (truck.path[i].isDump() ) continue;
 
 	   fromNodeId=truck.path[i].getnid();
 	   for ( int k=1; k<inc+1; k++) {
            for ( int j=k; j<other.size(); j+=inc) {
+	   	assert(not (j==0));
 		if (other.path[j].isDump()) continue;
 		if (numNotFeasable > factor * ( truck.getn() * other.getn()) ) {
 			#ifdef LOG
@@ -194,11 +265,8 @@ bool inspect = (truckPos+otherTruckPos)==5 and (truckPos*otherTruckPos)==0; //in
 			return deltaMovesSize;
 		}
 
-		if (j==other.size()-1) otherDelta= other.timePCN( j-1, truck.path[i] ) - other.timePCN(j-1,j,j+1);
-		else otherDelta= other.timePCN(j-1,truck.path[i]) - other.timePCN(j-1,j,j+1);
-		
-		if (i==truck.size()-1) truckDelta= truck.timePCN( i-1, other.path[j] ) - truck.timePCN(i-1,i,i+1);
-		else truckDelta= truck.timePCN(i-1,other.path[j]) - truck.timePCN(i-1,i,i+1);
+		otherDelta= other.timePCN( j-1, truck.path[i] ) - other.timePCN(j-1,j,j+1);
+		truckDelta= truck.timePCN( i-1, other.path[j] ) - truck.timePCN(i-1,i,i+1);
 
 	       //basic checking for time violation
 	       if (other.dumpSite.deltaGeneratesTWV(otherDelta) 
@@ -207,25 +275,13 @@ bool inspect = (truckPos+otherTruckPos)==5 and (truckPos*otherTruckPos)==0; //in
 	       if (truck.dumpSite.deltaGeneratesTWV(truckDelta) 
 		or truck.endingSite.deltaGeneratesTWV(truckDelta)
 		or truck.path[truck.size()-1].deltaGeneratesTWV(truckDelta) ) continue;  //Time Violation, not considered
-/*
-		if ((tLast.getArrivalTime()+truckDelta) > tLast.closes() 
-		   or  (oLast.getArrivalTime()+otherDelta) > oLast.closes() 
-		   or (minSavings > -(truckDelta+otherDelta)) ) {
-			numNotFeasable++;
-			continue;
-		}
-*/
 #ifdef LOG
 if (inspect) {
    std::cout<<" with"<<j<<"\t";other.path[j].dumpeval();
-   //std::cout<<"old timePCN"<<timePCN(other.path[j-1],other.path[j],other.path[j+1])<<"\n";
-   //std::cout<<"new timePCN"<<timePCN(other.path[j-1],truck.path[i],other.path[j+1])<<"\n";
    std::cout<<"delta timePCN"<<otherDelta<<"\n";
    std::cout<<"last container:"; other.path[other.path.size()-1].dumpeval();
    std::cout<<"last new arrival time"<<oLast.getArrivalTime()+otherDelta;
 
-   //std::cout<<"\n\nnew timePCN"<<timePCN(truck.path[i-1],other.path[j],truck.path[i+1])<<"\n";
-   //std::cout<<"old timePCN"<<timePCN(truck.path[i-1],truck.path[i],truck.path[i+1])<<"\n";
    std::cout<<"delta timePCN"<<truckDelta<<"\n";
    std::cout<<"last container:"; truck.path[truck.path.size()-1].dumpeval();
    std::cout<<"last new arrival time"<<tLast.getArrivalTime()+truckDelta;
@@ -248,7 +304,8 @@ if (inspect) {
  
 		truck= (*this);
 		other=otherTruck;
-                if (savings>0 and inc!=1) {i=std::max(1,i-inc);inc=1;break;}
+                if (savings>0) deltaMovesSize+=	eval_interSwapMoveDumps( moves, otherTruck, truckPos, otherTruckPos, i,j);
+                //if (savings>0 and inc!=1) {i=std::max(1,i-inc);inc=1;break;}
             }
 	    }
         }

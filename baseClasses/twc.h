@@ -452,25 +452,44 @@ template <class knode> class TWC {
     /*! \todo comments   */
     private:
 	//this one does all the work
-	double getTravelTime( UID prev, UID from, UID middle, UID to ) const{ 
-            assert( from < original.size() and middle<original.size() and to < original.size() );
+	double getTravelTime( UID prev, UID from, UID middle, UID to ) const { 
+            assert( prev<original.size() and from < original.size() and middle<original.size() and to < original.size() );
 	    #ifndef OSRMCLIENT
-		return  getTravelTime(from,middle)+ getTravelTime(middle,to);
+		if (prev==from) return  getTravelTime(from,middle)+ getTravelTime(middle,to);
+		else return getTravelTime(prev,from) + getTravelTime(from,middle) + getTravelTime(middle,to);
             #else
+
 	    TTindex index={prev,from,middle,to};
  	    p_TT4 it = travel_Time4.find(index);
 	    if (it != travel_Time4.end()) {
             	#ifdef DOSTATS
-            	STATS->inc("TWC::getTravelTime(4 parameters) 4 dim Table access");
+		if (prev==from) STATS->inc("TWC::getTravelTime(3 parameters) 4 dim Table access");
+		else  STATS->inc("TWC::getTravelTime(4 parameters) 4 dim Table access");
 	    	#endif
 		return it->second;
 	    }
 	    double time;
+	    if (prev==from) {
+	       if (osrm->getOsrmTime(original[from],original[middle],original[to],time)) {
+            		#ifdef DOSTATS
+			STATS->inc("TWC::getTravelTime(3 parameters) osrm Calculated");
+	    		#endif
+			travel_Time4[index]=time;
+			return time;
+	       	} else {
+            		#ifdef DOSTATS
+            		STATS->inc("TWC::getTravelTime(3 parameters) 2 dim Table access");
+	    		#endif
+			return getTravelTime(from,middle)+ getTravelTime(middle,to);
+		}
+            }
 	    if (osrm->getOsrmTime(original[prev],original[from],original[middle],original[to],time)) {
+            	#ifdef DOSTATS
+		STATS->inc("TWC::getTravelTime(4 parameters) osrm Calculated");
+	    	#endif
 		travel_Time4[index]=time;
 		return time;
-            }
-	    else  {
+            }  else  {
 		time=  getTravelTime(prev,from) + getTravelTime(from,middle)+ getTravelTime(middle,to);
             	#ifdef DOSTATS
             	STATS->inc("TWC::getTravelTime(4 parameters) 2 dim Table access");

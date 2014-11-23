@@ -66,7 +66,8 @@ void Twnode::dump() const {
               << ",\tclose " << tw_close
               << ",\tdemand " << demand
               << ",\tserviceT " << serviceTime
-              << ",\t street:" << streetid;
+              << ",\t street:" << streetid
+              << ",\t hint:" << hint;
 }
 
 

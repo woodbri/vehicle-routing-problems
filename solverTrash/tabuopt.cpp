@@ -230,6 +230,7 @@ currentSolution.tau();
     do {
 #ifndef LOG
 std::cout<<(getTotalMovesMade()-actualMoveCount)<<" > " <<maxMoves<<"***************************************************\n";
+std::cout<<" Factor  "<< factor <<"\n";
 #endif
 	if ((getTotalMovesMade()-actualMoveCount) > maxMoves) break;
 
@@ -242,7 +243,7 @@ std::cout<<(getTotalMovesMade()-actualMoveCount)<<" > " <<maxMoves<<"***********
         Cnt++;
 
 	if (not neighborhood.size()) { 
-	        factor=std::min(factor+1.0/limitInterSw,0.98); //need to increase the search space
+	        factor=std::min(factor+1.0/limitInterSw,factor+0.1); //need to increase the search space
 
 		CntNoNeighborhood++; 
 #ifndef LOG
@@ -291,7 +292,7 @@ std::cout<<" Reached end of cycle - for No moves found- "<<Cnt<<" out of "<< max
 		}
         }
 
-	factor=std::min(factor+1.0/limitInterSw,0.98); //need to increase the search space
+	factor=std::min(factor+1.0/limitInterSw,factor+0.1); //need to increase the search space
 
 	if (notTabu.size() and ( (notTabu.begin()->getsavings()>=0) or reachedMaxCycles(Cnt,whichNeighborhood) ) ) {
 		while ( notTabu.size() ) {
