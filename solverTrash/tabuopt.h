@@ -49,7 +49,7 @@ bestSolution.tau();
 #endif
 
 	limitIntraSw=bestSolution.getFleetSize();
-	limitInterSw=limitIntraSw*(limitIntraSw-1)/2 ;
+	limitInterSw=limitIntraSw*(limitIntraSw-1)/2 +1;
 	limitIns    =limitInterSw;
 	#ifdef DOSTATS
         STATS->set("limitIntraSw", limitIntraSw);

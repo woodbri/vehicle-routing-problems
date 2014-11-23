@@ -183,6 +183,9 @@ void OptSol::getIntraSwNeighborhood(Move::Mtype mtype,  Moves &moves, double fac
        fleet[0].eval_intraSwapMoveDumps( moves,  0, factor);
        return; 
     }
+    for (int i=0;i<fleet.size();i++) 
+	fleet[i].eval_intraSwapMoveDumps( moves,  i, factor);
+/*
     switch (mtype) {
 	case Move::InterSw:
 std::cout<<"IntraSw working with truck "<<interTruckPos1<<" intraSw neighborhood\n";
@@ -199,7 +202,9 @@ std::cout<<"IntraSw working with truck "<<insTruckPos2<<" intraSw neighborhood\n
 	    moves.begin()->Dump();
 	    break;
     }
+*/
 }
+
 
 
 

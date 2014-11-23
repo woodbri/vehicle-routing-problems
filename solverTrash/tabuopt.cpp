@@ -218,9 +218,11 @@ std::cout<<"Entering TabuOpt::doNeighobrhoodMoves\n";
     int Cnt = 0;
     int CntNonAspirational =0;
     int CntNoNeighborhood =0;
-    double factor = 0.01;
+    double factor = 0.02;
     bool limit;
     int actualMoveCount=getTotalMovesMade();
+    bool moveMade=false;
+    bool intraSwMoveMade=false;
 
 
     STATS->set("factor", factor);
@@ -234,7 +236,6 @@ std::cout<<" Factor  "<< factor <<"\n";
 #endif
 	if ((getTotalMovesMade()-actualMoveCount) > maxMoves) break;
 
-        std::string solBefore = currentSolution.solutionAsText();
 
 	if (factor==0.01 and CntNoNeighborhood==0 and notTabu.size()==0 and tabu.size()==0)
 		getNeighborhood(whichNeighborhood,neighborhood,1,mtype); 
@@ -260,7 +261,6 @@ std::cout<<" Reached end of cycle - for No moves found- "<<Cnt<<" out of "<< max
         } else 	CntNoNeighborhood=0; 
 
         std::string solAfter  = currentSolution.solutionAsText();
-        assert (solBefore==solAfter);
 
 	if ( classifyMoves(neighborhood)) {
 		assert (not neighborhood.size());
@@ -268,12 +268,14 @@ std::cout<<" Reached end of cycle - for No moves found- "<<Cnt<<" out of "<< max
 		assert (not notTabu.size());
 		assert (not tabu.size());
 		improvedBest=true;
+		moveMade=true;
 		Cnt=0; //a move was made and it reduced the number of trucks
 		continue;
         }
 
 	if ( aspirationalNotTabu.size() ) {
 		improvedBest=true;
+		moveMade=true;
 		factor=0.01; //trully tryllu optimistic
 		while (aspirationalNotTabu.size()) { //do as many as the bookkeeping allows
 			applyMoves("aspirational non tabu",aspirationalNotTabu);
@@ -285,6 +287,7 @@ std::cout<<" Reached end of cycle - for No moves found- "<<Cnt<<" out of "<< max
 
 	if ( aspirationalTabu.size() ) {
 		improvedBest=true;
+		moveMade=true;
 		factor=0.01; //trully tryllu optimistic
 		while ( aspirationalTabu.size() ) { //do as many as the bookkeping allows
                 	applyMoves("aspirational Tabu",  aspirationalTabu );
@@ -294,27 +297,54 @@ std::cout<<" Reached end of cycle - for No moves found- "<<Cnt<<" out of "<< max
 
 	factor=std::min(factor+1.0/limitInterSw,factor+0.1); //need to increase the search space
 
-	if (notTabu.size() and ( (notTabu.begin()->getsavings()>=0) or reachedMaxCycles(Cnt,whichNeighborhood) ) ) {
+	if (notTabu.size() and  notTabu.begin()->getsavings()>=0)   {
+		improvedBest=true;
+		moveMade=true;
+		while ( notTabu.size() ) {
+			applyMoves("not Tabu with pos savings",  notTabu );
+			if (notTabu.begin()->getsavings()<0) notTabu.clear(); // only apply positives 
+			Cnt=0;
+		}
+	} 
+
+	if (moveMade==true) break;
+std::cout<<"1\n";
+	if (not (whichNeighborhood==Move::IntraSw)) {
+std::cout<<"2\n";
+        improvedBest =  doNeighborhoodMoves(Move::IntraSw, 1, Move::InterSw);
+	intraSwMoveMade=true;
+	if (improvedBest)  actualMoveCount=getTotalMovesMade();
+	std::cout<<"aspirational not Tabu size"<<aspirationalNotTabu.size()<<"\n";dumpMoves("aspirationalNotTabu",aspirationalNotTabu);
+	std::cout<<"aspirationalTabu size"<<aspirationalTabu.size()<<"\n";dumpMoves("aspirationalTabu",aspirationalTabu);
+	std::cout<<"not Tabu size"<<notTabu.size()<<"\n";dumpMoves("notTabu",notTabu);
+	std::cout<<"Tabu size"<<tabu.size()<<"\n";dumpMoves("tabu",tabu);
+	//assert(true==false);
+	}
+std::cout<<"3\n";
+
+	if (notTabu.size() and factor>0.9 and reachedMaxCycles(Cnt,whichNeighborhood) )  {
 		while ( notTabu.size() ) {
 			applyMoves("not Tabu",  notTabu );
 			if (notTabu.begin()->getsavings()<0) notTabu.clear(); //after aplying 1, only apply positives 
 			Cnt=0;
 		}
+		moveMade=true;
 		continue;
 	} 
 
-        if (not reachedMaxCycles(Cnt,whichNeighborhood)) continue;
+        if (factor<= 0.9  and not reachedMaxCycles(Cnt,whichNeighborhood)) continue;
 
-        solAfter  = currentSolution.solutionAsText();
-        assert (solBefore==solAfter);
-
+	if (intraSwMoveMade) break;
 	while ( tabu.size() ) {
 		applyMoves("tabu", tabu ); //best
+		if (tabu.begin()->getsavings()<0) tabu.clear(); //after aplying 1, only apply positives 
 		Cnt=0;
+		moveMade=true;
         }
          
     }	
-    while (  (getTotalMovesMade()-actualMoveCount) < maxMoves );
+    while ( not moveMade );
+//or (getTotalMovesMade()-actualMoveCount) < maxMoves );
 
 #ifndef LOG
 std::cout<<" Moves made "<<Cnt<<" out of "<< maxMoves<<"\n";

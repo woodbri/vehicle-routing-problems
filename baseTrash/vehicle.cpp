@@ -116,30 +116,61 @@ std::cout<<"Entering Vehicle::eval_intraSwapMoveDumps \n";
 	int deltaMovesSize=0;
 	int otherNid;
 	Move move;
+	double fromDelta,withDelta;
 
 
     for (fromPos=1;fromPos<path.size()-1; fromPos++) {
 	if (isDump(fromPos)) continue; //skiping dump
         Trashnode node = path[fromPos]; //saved for roll back
 	for(withPos=fromPos+1; withPos<path.size();withPos++ ){
-	  if (isDump(withPos)) continue; //skiping dump
-	  otherNid=path[withPos].getnid();
-          if ( truck.applyMoveIntraSw(fromPos,  withPos) ) { //move can be done
-		newCost=truck.getCost();
-		savings= originalCost - newCost;
-		truck=(*this);
-                move.setIntraSwMove(truckPos, fromPos,  node.getnid(), withPos, otherNid, savings );
-		if (savings>0) {
-                  moves.insert(move);
-		  deltaMovesSize++;
-		} else negSavingsMoves.push_back(move);
-	  } else truck=(*this);
-	}
+		if (isDump(withPos)) continue; //skiping dump
+	  	otherNid=path[withPos].getnid();
+	  	if (withPos == fromPos+1 or fromPos == withPos+1 or withPos==fromPos-1 or fromPos==withPos-1) {
+	        	if ( truck.applyMoveIntraSw(fromPos,  withPos) ) { //move can be done
+				newCost=truck.getCost();
+				savings= originalCost - newCost;
+				truck=(*this);
+	                	move.setIntraSwMove(truckPos, fromPos,  node.getnid(), withPos, otherNid, savings );
+				if (savings>0) {
+	                  		moves.insert(move);
+			  		return 1;
+				} 
+	  		} else truck=(*this);
+	  	} else {
+			fromDelta =  timePCN( fromPos-1, withPos, fromPos+1) - timePCN( fromPos-1, fromPos, fromPos+1);
+			withDelta =  timePCN( withPos-1, fromPos, withPos+1) - timePCN( withPos-1, withPos, withPos+1);
+			
+			if (fromDelta<0 or withDelta<0) {
+				#ifdef LOG
+				std::cout<<"timePCN( "<<fromPos-1<<","<< withPos<<","<< fromPos+1<<")="<<timePCN( fromPos-1, withPos, fromPos+1)<<"\n";
+				std::cout<<"timePCN( "<<fromPos-1<<","<< fromPos<<","<< fromPos+1<<")="<<timePCN( fromPos-1, fromPos, fromPos+1)<<"\n";
+				std::cout<<"detlaTime"<<  fromDelta <<"\n";
+				std::cout<<"timePCN( "<<withPos-1<<","<< fromPos<<","<< withPos+1<<")="<<timePCN( withPos-1, fromPos, withPos+1)<<"\n";
+				std::cout<<"timePCN( "<<withPos-1<<","<< withPos<<","<< withPos+1<<")="<<timePCN( withPos-1, withPos, withPos+1)<<"\n";
+				std::cout<<"deltatime "<< withDelta <<"\n";
+				std::cout<<"totalDeltaTimes "<< fromDelta + withDelta <<"\n";
+				#endif
+	        		if ( truck.applyMoveIntraSw(fromPos,  withPos) ) { //move can be done
+					newCost=truck.getCost();
+					savings= originalCost - newCost;
+					truck=(*this);
+	                		move.setIntraSwMove(truckPos, fromPos,  node.getnid(), withPos, otherNid, savings );
+					if (savings>0) {
+	                  			moves.insert(move);
+			  			return 1;
+					} 
+	  			} else truck=(*this);
+			}
+	  	}
+       	}
     }
-    if ( deltaMovesSize ) return deltaMovesSize;
-    moves.insert(negSavingsMoves.begin(),negSavingsMoves.end());
-    return negSavingsMoves.size();
+    return deltaMovesSize;
 }
+
+
+
+
+
 
 /*
     void setIntraSwMove( int fromTruck, int fromPos, int fromId, int withPos, int withId); 

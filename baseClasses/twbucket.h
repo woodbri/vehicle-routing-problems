@@ -138,7 +138,6 @@ class TwBucket {
         assert ( from < path.size() );
         assert ( middle < path.size() );
         assert ( to < path.size() );
-	assert ( middle != from-1);
 	assert ( middle != from);
 	assert ( middle != to);
 
@@ -149,7 +148,6 @@ class TwBucket {
     double  timePCN( POS from, POS middle, const knode &dump ) const {
         assert ( from < path.size() );
         assert ( middle < path.size() );
-	assert ( middle != from-1);
 	assert ( middle != from);
 
         if (from==0) return timePCN(path[from],path[from],path[middle], dump,0 );
