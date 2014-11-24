@@ -174,6 +174,9 @@ std::cout<<"Entering Vehicle::eval_intraSwapMoveDumps \n";
 
 /*
     void setIntraSwMove( int fromTruck, int fromPos, int fromId, int withPos, int withId); 
+	what about, first try to find all positive savings
+	then find one that in one truck has positive savings and the other truck has negative savings
+	dont return moves where in both trucks have negative savings
 */
 
 
@@ -194,8 +197,6 @@ std::cout<<"Entering Vehicle::eval_interSwapMoveDumps (10 limit window) \n";
 	Trashnode tLast= path[size()-1];
 	Trashnode oLast= other.path[other.path.size()-1];
 	double truckDelta,otherDelta;
-//	int numNotFeasable=0;
-//bool inspect = (truckPos+otherTruckPos)==5 and (truckPos*otherTruckPos)==0; //inspect close combination 0,5
         double originalCost= truck.getCost()  + other.getCost();
         double originalDuration= truck.getDuration()  + other.getDuration();
         double newCost,savings,newDuration;
@@ -220,26 +221,20 @@ std::cout<<"Entering Vehicle::eval_interSwapMoveDumps (10 limit window) \n";
 		otherDelta= other.timePCN( j-1, truck.path[i] ) - other.timePCN(j-1,j,j+1);
 		truckDelta= truck.timePCN( i-1, other.path[j] ) - truck.timePCN(i-1,i,i+1);
 
-	       //basic checking for time violation
-	       if (other.dumpSite.deltaGeneratesTWV(otherDelta) 
-		or other.endingSite.deltaGeneratesTWV(otherDelta)
-		or other.path[other.size()-1].deltaGeneratesTWV(otherDelta) ) continue;  //Time Violation, not considered
-	       if (truck.dumpSite.deltaGeneratesTWV(truckDelta) 
-		or truck.endingSite.deltaGeneratesTWV(truckDelta)
-		or truck.path[truck.size()-1].deltaGeneratesTWV(truckDelta) ) continue;  //Time Violation, not considered
-
 	        toNodeId=other.path[j].getnid();
 
-		savings=_MIN();
-		if ( truck.applyMoveInterSw(other, i, j)) {
-		   newCost=truck.getCost() + other.getCost();
-		   newDuration=truck.getDuration() + other.getDuration();
-		   savings= originalCost - newCost;
-    		   move.setInterSwMove( truckPos,  i,  fromNodeId,  otherTruckPos, j, toNodeId, savings); 
-                   moves.insert(move);
-		} 
-		truck= (*this);
-		other=otherTruck;
+		if (otherDelta < 0 or truckDelta<0) {
+			savings=_MIN();
+			if ( truck.applyMoveInterSw(other, i, j)) {
+		   		newCost=truck.getCost() + other.getCost();
+		   		newDuration=truck.getDuration() + other.getDuration();
+		   		savings= originalCost - newCost;
+    		   		move.setInterSwMove( truckPos,  i,  fromNodeId,  otherTruckPos, j, toNodeId, savings); 
+                   		moves.insert(move);
+			} 
+			truck= (*this);
+			other=otherTruck;
+            	}
             }
 	}
         return moves.size() - oldMovesSize;
@@ -299,46 +294,26 @@ bool inspect = (truckPos+otherTruckPos)==5 and (truckPos*otherTruckPos)==0; //in
 		otherDelta= other.timePCN( j-1, truck.path[i] ) - other.timePCN(j-1,j,j+1);
 		truckDelta= truck.timePCN( i-1, other.path[j] ) - truck.timePCN(i-1,i,i+1);
 
-	       //basic checking for time violation
-	       if (other.dumpSite.deltaGeneratesTWV(otherDelta) 
-		or other.endingSite.deltaGeneratesTWV(otherDelta)
-		or other.path[other.size()-1].deltaGeneratesTWV(otherDelta) ) continue;  //Time Violation, not considered
-	       if (truck.dumpSite.deltaGeneratesTWV(truckDelta) 
-		or truck.endingSite.deltaGeneratesTWV(truckDelta)
-		or truck.path[truck.size()-1].deltaGeneratesTWV(truckDelta) ) continue;  //Time Violation, not considered
-#ifdef LOG
-if (inspect) {
-   std::cout<<" with"<<j<<"\t";other.path[j].dumpeval();
-   std::cout<<"delta timePCN"<<otherDelta<<"\n";
-   std::cout<<"last container:"; other.path[other.path.size()-1].dumpeval();
-   std::cout<<"last new arrival time"<<oLast.getArrivalTime()+otherDelta;
-
-   std::cout<<"delta timePCN"<<truckDelta<<"\n";
-   std::cout<<"last container:"; truck.path[truck.path.size()-1].dumpeval();
-   std::cout<<"last new arrival time"<<tLast.getArrivalTime()+truckDelta;
-   std::cout<<"\n";
-   truck.tau(); other.tau(); 
-}
-#endif	
 	        toNodeId=other.path[j].getnid();
 
 
 		savings=_MIN();
-		if ( truck.applyMoveInterSw(other, i, j)) {
-		   newCost=truck.getCost() + other.getCost();
-		   newDuration=truck.getDuration() + other.getDuration();
-		   savings= originalCost - newCost;
-    		   move.setInterSwMove( truckPos,  i,  fromNodeId,  otherTruckPos, j, toNodeId, savings); 
-                   moves.insert(move);
-                   deltaMovesSize++;
-		} else numNotFeasable++;
+		if (otherDelta < 0 or truckDelta<0) {
+			if ( truck.applyMoveInterSw(other, i, j)) {
+		   		newCost=truck.getCost() + other.getCost();
+		   		newDuration=truck.getDuration() + other.getDuration();
+		   		savings= originalCost - newCost;
+    		   		move.setInterSwMove( truckPos,  i,  fromNodeId,  otherTruckPos, j, toNodeId, savings); 
+                   		moves.insert(move);
+                   		deltaMovesSize++;
+			} else numNotFeasable++;
  
-		truck= (*this);
-		other=otherTruck;
-                if (savings>0) deltaMovesSize+=	eval_interSwapMoveDumps( moves, otherTruck, truckPos, otherTruckPos, i,j);
-                //if (savings>0 and inc!=1) {i=std::max(1,i-inc);inc=1;break;}
-            }
+			truck= (*this);
+			other=otherTruck;
+                	if (savings>0) deltaMovesSize+=	eval_interSwapMoveDumps( moves, otherTruck, truckPos, otherTruckPos, i,j);
+            	}
 	    }
+            }
         }
 	}
 	#ifdef LOG

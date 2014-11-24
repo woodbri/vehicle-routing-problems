@@ -95,7 +95,7 @@ std::cout<<"Entering TabuOpt::search() \n";
         std::cout << "--------------------------------------------\n";
 	#endif
 	currentIteration++;
-	if (not improvedBest) break; //propably we need to shake a little and restart all over
+	//if (not improvedBest) break; //propably we need to shake a little and restart all over
     }
 
     std::cout << "TABUSEARCH: Total time: " << start.duration() << std::endl;
@@ -334,7 +334,7 @@ std::cout<<"3\n";
 
         if (factor<= 0.9  and not reachedMaxCycles(Cnt,whichNeighborhood)) continue;
 
-	if (intraSwMoveMade) break;
+	if (factor > 0.9 and intraSwMoveMade) break;
 	while ( tabu.size() ) {
 		applyMoves("tabu", tabu ); //best
 		if (tabu.begin()->getsavings()<0) tabu.clear(); //after aplying 1, only apply positives 

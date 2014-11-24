@@ -475,6 +475,25 @@ template <class knode> class TWC {
 			STATS->inc("TWC::getTravelTime(3 parameters) osrm Calculated");
 	    		#endif
 			travel_Time4[index]=time;
+			if (TravelTime(from,middle)==TravelTime(middle,from) or TravelTime(middle,to)==TravelTime(to,middle) or TravelTime(from,to)==TravelTime(to,from)) { }
+			else {
+				//assuming that if single way street all times are the best to avoid calls to ORSM
+				TTindex index1={from,from,to,middle};
+				travel_Time4[index1]=TravelTime(from,to)+TravelTime(to,middle);
+
+				TTindex index2={to,to,from,middle};
+				travel_Time4[index2]=TravelTime(to,from)+TravelTime(from,middle);
+				TTindex index3={to,to,middle,from};
+				travel_Time4[index3]=TravelTime(to,middle)+TravelTime(middle,from);
+
+				TTindex index4={middle,middle,to,from};
+				travel_Time4[index4]=TravelTime(middle,to)+TravelTime(to,from);
+				TTindex index5={middle,middle,from,to};
+				travel_Time4[index5]=TravelTime(middle,from)+TravelTime(from,to);
+            			#ifdef DOSTATS
+				STATS->inc("TWC::getTravelTime(3 parameters) added all combinations");
+				#endif
+			}
 			return time;
 	       	} else {
             		#ifdef DOSTATS
