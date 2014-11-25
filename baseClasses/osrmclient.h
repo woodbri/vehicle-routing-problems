@@ -43,6 +43,7 @@ class OsrmClient {
     OsrmClient();
     OsrmClient(const OsrmClient& other){};
     OsrmClient &operator=(const OsrmClient&) {};
+    bool use;
 
   public:
     static OsrmClient *Instance() {
@@ -65,6 +66,8 @@ class OsrmClient {
      * \param[in] want True or False if you want the geometry returned.
      */
     void setWantGeometry( bool want ) { route_parameters.geometry = want; };
+    void useOsrm( ) { use = true; };
+    void dontUseOsrm( ) { use = false; };
     bool getOsrmViaroute();
     bool getOsrmTime( double lat1, double lon1 ,double lat2, double lon2, double &time );
     bool getOsrmTime( double lat1, double lon1 ,double lat2, double lon2, const std::string &hint1, const std::string &hint2, double &time );

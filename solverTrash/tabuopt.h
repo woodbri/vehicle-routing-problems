@@ -49,12 +49,12 @@ bestSolution.tau();
 #endif
 
 	limitIntraSw=bestSolution.getFleetSize();
-	limitInterSw=limitIntraSw*(limitIntraSw-1)/2 +1;
+	limitInterSw=limitIntraSw*(limitIntraSw-1)/2 ;
 	limitIns    =limitInterSw;
 	#ifdef DOSTATS
         STATS->set("limitIntraSw", limitIntraSw);
         STATS->set("limitInterSw", limitIntraSw);
-        STATS->set("limitIns", limitIntraSw);
+        STATS->set("limitIns", limitInterSw);
 	#endif
     };
 
@@ -78,7 +78,7 @@ bestSolution.tau();
     bool dumpMoves(std::string str, Moves moves) const ;
     void cleanUpInterSwMoves(Moves &moves, const Move &guide) const ;
     void cleanUpIntraSwMoves(Moves &moves, const Move &guide) const ;
-    void cleanUpInsMoves(Moves &moves, const Move &guide) ;
+    void cleanUpInsMoves(Moves &moves, const Move &guide,bool &reverseFound) ;
     void cleanUpMoves(const Move guide) ;
     private:
 	int limitIntraSw;
@@ -90,6 +90,7 @@ bestSolution.tau();
 	mutable Moves aspirationalTabu;
 	mutable Moves notTabu;
 	mutable Moves tabu;
+	mutable Moves reverseMoves;
 
 };
 

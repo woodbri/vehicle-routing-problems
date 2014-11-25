@@ -185,24 +185,6 @@ void OptSol::getIntraSwNeighborhood(Move::Mtype mtype,  Moves &moves, double fac
     }
     for (int i=0;i<fleet.size();i++) 
 	fleet[i].eval_intraSwapMoveDumps( moves,  i, factor);
-/*
-    switch (mtype) {
-	case Move::InterSw:
-std::cout<<"IntraSw working with truck "<<interTruckPos1<<" intraSw neighborhood\n";
-	    fleet[interTruckPos1].eval_intraSwapMoveDumps( moves,  interTruckPos1, factor);
-std::cout<<"IntraSw working with truck "<<interTruckPos2<<" intraSw neighborhood\n";
-	    fleet[interTruckPos2].eval_intraSwapMoveDumps( moves,  interTruckPos2, factor);
-	    moves.begin()->Dump();
-	    break;
-	case Move::Ins:
-std::cout<<"IntraSw working with truck "<<insTruckPos1<<" intraSw neighborhood\n";
-	    fleet[insTruckPos1].eval_intraSwapMoveDumps( moves,  insTruckPos1, factor);
-std::cout<<"IntraSw working with truck "<<insTruckPos2<<" intraSw neighborhood\n";
-	    fleet[insTruckPos2].eval_intraSwapMoveDumps( moves,  insTruckPos2, factor);
-	    moves.begin()->Dump();
-	    break;
-    }
-*/
 }
 
 
@@ -265,40 +247,69 @@ assert (feasable());
     if (fleet.size()==1)  return;   //no ins in 1 truck solution 
     moves.clear();
     double savings;
+    int fromTruck;
+    int toTruck;
+
+
+
     if ((insTruckPos1>= fleet.size()) or (insTruckPos2>= fleet.size())) {
            insTruckPos1=insTruckPos1=fleet.size()-1;
            insTruckPos2=insTruckPos2=0;
     };
-    if (insTruckPos1 == insTruckPos2) return;
 
-    int fromTruck=insTruckPos1;
-    int toTruck=insTruckPos2;
+   if  (insTruckPos1==fleet.size()-2 and insTruckPos2==fleet.size()-1) {insTruckPos1=0; insTruckPos2=1;}
+   else if (insTruckPos1<fleet.size()-2 and insTruckPos2==fleet.size()-1) { insTruckPos1++; insTruckPos2=insTruckPos1+1;}
+   else if (insTruckPos2<fleet.size()-1) insTruckPos2++;
+   if (insTruckPos1==insTruckPos2) {insTruckPos1=0; insTruckPos2=1;}
+
+    fromTruck=insTruckPos1;
+    toTruck=insTruckPos2;
+
+
+    //if (insTruckPos1 == insTruckPos2) return;
 
 
 #ifndef TESTED
-std::cout<<"\n\n\n\n**********************************working with truck "<<fromTruck<<" and "<< toTruck<<" insSw neighborhood\n";
+std::cout<<"**********************************working with truck "<<fromTruck<<" and "<< toTruck<<" insSw neighborhood\n";
 #endif
-    if (fleet[toTruck].getz1() or fleet[toTruck].getz2()) { //only try if there is a possibility to insert a container
 
+    if (fleet[toTruck].getz1() or fleet[toTruck].getz2()) { //only try if there is a possibility to insert a container
           for (int fromPos=1; fromPos<fleet[fromTruck].size(); fromPos++) {
 		if(fleet[fromTruck][fromPos].isDump()) continue;   // skiping dump
         	if (fleet[ fromTruck ].size()==1) {
 			std::cout<<" A TRUCK WITHOUT CONTAINERS HAS BEING GENERATED";
-        		//trucks.push_back(fleet[ fromTruck   ]);
-        		//fleet.erase(fleet.begin() + fromTruck ); 
 			interTruckPos1=insTruckPos1=fleet.size()-2;
 			interTruckPos2=insTruckPos2=0;
 			return;
 		};
 		if ( not fleet[fromTruck].eval_erase(fromPos,savings) ) continue; //for whatever reason erasing a node makes the truck infeasable 
-		//fleet[fromTruck].eval_erase(fromPos,savings,twc);
                 fleet[toTruck].eval_insertMoveDumps( fleet[fromTruck][fromPos], moves, fromTruck, fromPos, toTruck, savings, factor );
           }
     }
-    	insTruckPos2++;
-    	if (insTruckPos1 == insTruckPos2) insTruckPos2++;
-    	if (insTruckPos2 == fleet.size()) {insTruckPos1++; insTruckPos2=0;};
-    	if (insTruckPos1 == fleet.size()) {insTruckPos1=0; insTruckPos2=1;};
+
+    int tmp=fromTruck;
+    fromTruck=toTruck;
+    toTruck=tmp;
+
+#ifndef TESTED
+std::cout<<"**********************************working with truck "<<fromTruck<<" and "<< toTruck<<" insSw neighborhood\n";
+#endif
+    if (fleet[toTruck].getz1() or fleet[toTruck].getz2()) { //only try if there is a possibility to insert a container
+          for (int fromPos=1; fromPos<fleet[fromTruck].size(); fromPos++) {
+                if(fleet[fromTruck][fromPos].isDump()) continue;   // skiping dump
+                if (fleet[ fromTruck ].size()==1) {
+                        std::cout<<" A TRUCK WITHOUT CONTAINERS HAS BEING GENERATED";
+                        interTruckPos1=insTruckPos1=fleet.size()-2;
+                        interTruckPos2=insTruckPos2=0;
+                        return;
+                };
+                if ( not fleet[fromTruck].eval_erase(fromPos,savings) ) continue; //for whatever reason erasing a node makes the truck infeasable 
+                fleet[toTruck].eval_insertMoveDumps( fleet[fromTruck][fromPos], moves, fromTruck, fromPos, toTruck, savings, factor );
+          }
+    }
+
+
+
 	assert(insTruckPos1 != insTruckPos2);
 
 #ifdef TESTED
@@ -348,11 +359,25 @@ std::cout<<"EXIT OptSol::v_getInsNeighborhood "<<moves.size()<<" MOVES found tot
 
 
 bool OptSol::testInsMove( const Move &move) const {
-//move.Dump();
+#ifdef TESTED
+std::cout<<"OptSol::testInsMove \n";
+#endif
+
+	//move.Dump();
   if (not move.getmtype() == Move::Ins) return false;
-  if ( (move.getInsFromTruck()==move.getInsToTruck()) ) return false;
-  if ( move.getInsFromPos() >= fleet[move.getInsFromTruck()].size() ) return false;
-  if ( not move.getInsFromTruck() < fleet.size() ) return false;
+
+  if ( not (move.getInsFromTruck() < fleet.size()) ) return false;
+  if ( not (move.getInsToTruck() < fleet.size() ) ) return false;
+
+  if ( (move.getInsFromTruck()== move.getInsToTruck()) ) return false;
+
+  if ( not (move.getInsFromPos() < fleet[move.getInsFromTruck()].size()-1 ) ) return false;
+
+  if ( not (move.getInsToPos() < fleet[move.getInsToTruck()].size()-1 ) ) return false;
+
+
+
+
   if ( not (fleet[move.getInsFromTruck()] [ move.getInsFromPos()].getnid() == move.getInsNid() )) return false;
 
   Vehicle truck=fleet[move.getInsFromTruck()];

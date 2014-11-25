@@ -46,6 +46,7 @@ OsrmClient::OsrmClient(){
         route_parameters.jsonpParameter = "";
         route_parameters.language = "";
         status = 0;
+	use=false;
 	#ifdef LOG
 	testOsrmClient();
 	#endif
@@ -61,6 +62,7 @@ OsrmClient::OsrmClient(){
  */
 void OsrmClient::clear() {
     if (not connectionAvailable) return;
+    if (not use) return;
     #ifdef DOSTATS 
     Timer timer;
     #endif
@@ -84,6 +86,7 @@ void OsrmClient::clear() {
  */
 void OsrmClient::addViaPoint( double lat, double lon ) {
     if (not connectionAvailable) return;
+    if (not use) return;
     #ifdef DOSTATS 
     Timer timer;
     #endif
@@ -102,6 +105,7 @@ void OsrmClient::addViaPoint( double lat, double lon ) {
  */
 void OsrmClient::addViaPoint( const Node &node ) {
     if (not connectionAvailable) return;
+    if (not use) return;
     #ifdef DOSTATS 
     Timer timer;
     #endif
@@ -119,16 +123,18 @@ void OsrmClient::addViaPoint( const Node &node ) {
  */
 void OsrmClient::addViaPoints( const std::deque<Node> &path ) {
     if (not connectionAvailable) return;
+    if (not use) return;
     std::deque<Node>::const_iterator it;
     for ( it = path.begin(); it != path.end(); ++it )
         addViaPoint( *it );
 }
 
 bool OsrmClient::getOsrmTime( double lat1, double lon1 ,double lat2, double lon2, double &time ) {
+    if (not connectionAvailable) return false;
+    if (not use) return false;
     #ifdef DOSTATS 
     STATS->inc("OsrmClient::getOsrmTime (2 points) ");
     #endif
-    if (not connectionAvailable) return false;
     clear();
     addViaPoint(lat1,lon1);
     addViaPoint(lat2,lon2);
@@ -137,10 +143,11 @@ bool OsrmClient::getOsrmTime( double lat1, double lon1 ,double lat2, double lon2
 }
 
 bool OsrmClient::getOsrmTime( double lat1, double lon1 ,double lat2, double lon2,const  std::string &hint1,const std::string &hint2, double &time ) {
+    if (not connectionAvailable) return false;
+    if (not use) return false;
     #ifdef DOSTATS 
     STATS->inc("OsrmClient::getOsrmTime (2 points) ");
     #endif
-    if (not connectionAvailable) return false;
     clear();
     addViaPoint(lat1,lon1);
     addViaPoint(lat2,lon2);
@@ -152,6 +159,7 @@ bool OsrmClient::getOsrmTime( double lat1, double lon1 ,double lat2, double lon2
 
 bool OsrmClient::getOsrmTime( const Node &node1, const Node &node2, double &time ) {
     if (not connectionAvailable) return false;
+    if (not use) return false;
     #ifdef DOSTATS 
     STATS->inc("OsrmClient::getOsrmTime (2 nodes) ");
     #endif
@@ -166,6 +174,7 @@ bool OsrmClient::getOsrmTime( const Node &node1, const Node &node2, double &time
 
 bool OsrmClient::getOsrmTime( const Node &node1, const Node &node2, const Node &node3, double &time ) {
     if (not connectionAvailable) return false;
+    if (not use) return false;
     #ifdef DOSTATS 
     STATS->inc("OsrmClient::getOsrmTime (3 nodes) ");
     #endif
@@ -182,6 +191,7 @@ bool OsrmClient::getOsrmTime( const Node &node1, const Node &node2, const Node &
 
 bool OsrmClient::getOsrmTime( const Node &node1, const Node &node2, const Node &node3, const Node &node4,double &time ) {
     if (not connectionAvailable) return false;
+    if (not use) return false;
     #ifdef DOSTATS 
     STATS->inc("OsrmClient::getOsrmTime (4 nodes) ");
     #endif
@@ -206,6 +216,7 @@ bool OsrmClient::getOsrmTime( const Node &node1, const Node &node2, const Node &
  */
 bool OsrmClient::getOsrmViaroute() {
     if (not connectionAvailable) return false;
+    if (not use) return false;
     #ifdef DOSTATS 
     Timer timer;
     STATS->inc("OsrmClient::getOsrmViaRoute (does the work) ");
@@ -269,6 +280,7 @@ bool OsrmClient::getOsrmViaroute() {
  */
 bool OsrmClient::getOsrmTime( double &time ) {
     if (not connectionAvailable) return false;
+    if (not use) return false;
     #ifdef DOSTATS 
     Timer timer;
     STATS->inc("OsrmClient::getOsrmTime (does the work) ");
@@ -316,6 +328,7 @@ bool OsrmClient::getOsrmTime( double &time ) {
  */
 bool OsrmClient::getOsrmGeometry( std::deque<Node> &geom ) {
     if (not connectionAvailable) return false;
+    if (not use) return false;
     #ifdef DOSTATS 
     Timer timer;
     STATS->inc("OsrmClient::getOsrmGeometry (does the work) ");
@@ -349,6 +362,7 @@ bool OsrmClient::getOsrmGeometry( std::deque<Node> &geom ) {
 
 bool OsrmClient::getOsrmHints( std::deque<std::string> &hints ) {
     if (not connectionAvailable) return false;
+    if (not use) return false;
     #ifdef DOSTATS 
     Timer timer;
     STATS->inc("OsrmClient::getOsrmHint (interface) ");
@@ -382,6 +396,7 @@ bool OsrmClient::getOsrmHints( std::deque<std::string> &hints ) {
 
 
 int OsrmClient::testOsrmClient() {
+    if (not use) return 0;
     if (not connectionAvailable) return 0;
     Timer t0;
     double time;

@@ -248,16 +248,13 @@ long int Vehicle::eval_interSwapMoveDumps( Moves &moves, const Vehicle &otherTru
 std::cout<<"Entering Vehicle::eval_interSwapMoveDumps \n";
 #endif
 double minSavings=-5;
-//        if ( path[fromPos].isdump() ) return moves.size();
 
-//        Trashnode node = path[fromPos]; //saved for roll back
         Vehicle truck = (*this);
         Vehicle other = otherTruck;
 	Trashnode tLast= path[size()-1];
 	Trashnode oLast= other.path[other.path.size()-1];
 	double truckDelta,otherDelta;
 	int numNotFeasable=0;
-bool inspect = (truckPos+otherTruckPos)==5 and (truckPos*otherTruckPos)==0; //inspect close combination 0,5
         double originalCost= truck.getCost()  + other.getCost();
         double originalDuration= truck.getDuration()  + other.getDuration();
         double newCost,savings,newDuration;
@@ -294,6 +291,12 @@ bool inspect = (truckPos+otherTruckPos)==5 and (truckPos*otherTruckPos)==0; //in
 		otherDelta= other.timePCN( j-1, truck.path[i] ) - other.timePCN(j-1,j,j+1);
 		truckDelta= truck.timePCN( i-1, other.path[j] ) - truck.timePCN(i-1,i,i+1);
 
+/*
+if (otherDelta < 0 or truckDelta<0) {
+std::cout<<"otherDelta"<<otherDelta<<"\n";
+std::cout<<"truckDelta"<<truckDelta<<"\n";
+}
+*/
 	        toNodeId=other.path[j].getnid();
 
 
