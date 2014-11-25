@@ -80,6 +80,9 @@ bestSolution.tau();
     void cleanUpIntraSwMoves(Moves &moves, const Move &guide) const ;
     void cleanUpInsMoves(Moves &moves, const Move &guide,bool &reverseFound) ;
     void cleanUpMoves(const Move guide) ;
+
+
+    bool inRange(int center, int data, int step ) const;
     private:
 	int limitIntraSw;
 	int limitInterSw;

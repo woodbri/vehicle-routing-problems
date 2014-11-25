@@ -381,12 +381,16 @@ template <class knode> class TWC {
 
         assert( from < original.size() and to < original.size() );
 	double time;
+	#ifdef OSRMCLIENT
+	bool oldStateOsrm=osrm->getUse();
+	#endif
 	if (travel_Time[from][to]==-1) {
             #ifdef DOSTATS
             STATS->inc("TWC::getTravelTime(2 parameters) travel_time==-1");
 	    #endif
 
 	    #ifdef OSRMCLIENT
+	    osrm->useOsrm(true);
 	    if (not osrm->getOsrmTime(original[from],original[to],time)) { 
 	    #endif
                 time=original[from].distance( original[to] ) / 250;
@@ -406,6 +410,7 @@ template <class knode> class TWC {
             	STATS->inc("TWC::getTravelTime(2 parameters) osrm calculated");
 	    	#endif
             }
+	    osrm->useOsrm( oldStateOsrm );
 	    #endif 
 	    travel_Time[from][to]=time;
 	    getTwcij(from,to,time);

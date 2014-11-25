@@ -57,6 +57,10 @@ std::cout<<"Entering TabuOpt::search() \n";
     int lastImproved = 0;
     double oldCost=currentSolution.getCost();
     double newCost;
+    #ifdef OSRMCLIENT
+    bool oldStateOsrm=osrm->getUse();
+    #endif
+
 
     for (int i=0; i< maxIteration; i++) {
         oldCost=currentSolution.getCost();
@@ -94,6 +98,12 @@ std::cout<<"Entering TabuOpt::search() \n";
 	currentIteration++;
 	if (oldCost==newCost) {
 		std::cout<<"costs didnt change";
+ 	        #ifdef OSRMCLIENT
+        	osrm->useOsrm ( not oldStateOsrm );
+		oldStateOsrm= not oldStateOsrm;
+		//continue;
+        	#endif
+
 		break;
 	}
     }
@@ -236,7 +246,7 @@ std::cout<<" Factor  "<< factor <<"\n";
 #endif
 	if ((getTotalMovesMade()-actualMoveCount) > maxMoves) break;
 
-	if (whichNeighborhood==Move::Ins) factor=1;
+	//if (whichNeighborhood==Move::Ins) factor=1;
 	if (factor==0.01 and CntNoNeighborhood==0 and notTabu.size()==0 and tabu.size()==0)
 		getNeighborhood(whichNeighborhood,neighborhood,1,mtype); 
 	else
@@ -309,7 +319,7 @@ std::cout<<" Reached end of cycle - for No moves found- "<<Cnt<<" out of "<< max
 
 	if (moveMade==true) break;
 
-	if (not (whichNeighborhood==Move::IntraSw) and intraSwMoveMade ) {
+	if ((not (whichNeighborhood==Move::IntraSw) and intraSwMoveMade )) {
         	improvedBest =  doNeighborhoodMoves(Move::IntraSw, 1, Move::InterSw);
 		if (improvedBest) {
 		 	actualMoveCount=getTotalMovesMade();
@@ -317,10 +327,9 @@ std::cout<<" Reached end of cycle - for No moves found- "<<Cnt<<" out of "<< max
 		}
 	} else intraSwMoveMade=false;
 
-	if (notTabu.size() and factor>0.9 and reachedMaxCycles(Cnt,whichNeighborhood) )  {
+	if (notTabu.size() and factor>0.9 and not intraSwMoveMade and reachedMaxCycles(Cnt,whichNeighborhood) )  {
 		while ( notTabu.size() ) {
 			applyMoves("not Tabu",  notTabu );
-			//if (notTabu.begin()->getsavings()<0) notTabu.clear(); //after aplying 1, only apply positives 
 			Cnt=0;
 		}
 		moveMade=true;
@@ -332,16 +341,11 @@ std::cout<<" Reached end of cycle - for No moves found- "<<Cnt<<" out of "<< max
 	if (factor > 0.9 and intraSwMoveMade) break;
 	while ( tabu.size() ) {
 		applyMoves("tabu", tabu ); 
-		tabu.clear();
 		moveMade=true;
         }
     }	
     while ( not moveMade );
-//or (getTotalMovesMade()-actualMoveCount) < maxMoves );
 
-#ifndef LOG
-std::cout<<" Moves made "<<Cnt<<" out of "<< maxMoves<<"\n";
-#endif
     return improvedBest;
 }
 
@@ -438,16 +442,77 @@ void TabuOpt::cleanUpInterSwMoves(Moves &moves, const Move &guide ) const  {
 	Move move;
 	for(MovesItr movePtr=oldMoves.begin(); movePtr!=oldMoves.end();++movePtr) {
 		move = (*movePtr);
-		if ( guide.isTabu(move) ) continue;
-		else if ( guide.getnid1() == move.getnid1() or  guide.getnid1() == move.getnid2()
-		     or guide.getnid2() == move.getnid2() or  guide.getnid2() == move.getnid1() )
-			continue;
-		else if (not (move.getmtype()==Move::InterSw)) continue; //TODO keep based on the truck & position????
-		else if ( (move.getInterSwFromPos() < fromPos-1 or move.getInterSwFromPos() > fromPos+1) 
-		   and (move.getInterSwToPos() < toPos-1 or move.getInterSwToPos() > toPos+1) ) {
-			//reinsert only if feasable
-			//if ( currentSolution.testInterSwMove(move) ) 
-			moves.insert(move);
+		//nothing changes position when an interswp move is done, except for the containers
+		//that where changed, and probably at the end of the route because of the moving dumps
+
+		if (	(move.getvid1()!=guide.getInterSwTruck1()) 
+			and (move.getvid1()!=guide.getInterSwTruck2()) 
+			and (move.getvid2()!=guide.getInterSwTruck1()) 
+			and (move.getvid2()!=guide.getInterSwTruck2()) ) {
+			//moves that dont have the trucks involved in the interSw move are ok
+			assert (currentSolution.testInterSwMove(move));
+                        if ( not currentSolution.testInterSwMove(move) ) continue;
+                        moves.insert(move);
+		}
+
+		//only moves that invlove the trucks of the intraswp move are analyzed
+
+
+
+		//moves with nodes involved on move done are discarded
+		if ( move.getnid1() == guide.getnid1() ) continue;
+		if ( move.getnid1() == guide.getnid2() ) continue;
+		if ( move.getnid2() == guide.getnid1() ) continue;
+		if ( move.getnid2() == guide.getnid2() ) continue;
+
+		//avoid changes because of moving dumps
+		//all moves involving the "end" of the path are discarded
+                if (currentSolution[move.getvid1()].size()-5 <= move.getpos1()) continue;
+                if (currentSolution[move.getvid2()].size()-5 <= move.getpos2()) continue;
+
+                switch (move.getmtype()){
+                        case Move::InterSw: { 
+				//get rid of neighboring moves, savigs have being changed
+                                if (move.getInterSwTruck1()== guide.getInterSwTruck1()) {
+                                        if (inRange( fromPos, move.getInterSwFromPos(),2)) continue;
+				} 
+                                if (move.getInterSwTruck1()== guide.getInterSwTruck2()) {
+                                       	if (inRange( toPos, move.getInterSwFromPos(),2)) continue;
+				}
+                                if (move.getInterSwTruck2()== guide.getInterSwTruck1()) {
+                                        if (inRange( fromPos, move.getInterSwToPos(),2)) continue;
+				} 
+                                if (move.getInterSwTruck2()== guide.getInterSwTruck2()) {
+                                       	if (inRange( toPos, move.getInterSwToPos(),2)) continue;
+				}
+                                //moves that survived maybe are not feasable now becuase of moving dumps
+                                if ( not currentSolution.testInterSwMove(move) ) continue;
+                                moves.insert(move);
+                                break;
+                        }
+                        case Move::Ins: {
+                                //get rid of neighboring moves, savigs have being changed
+                                if (move.getInsFromTruck()== guide.getInterSwTruck1()) {
+                                        if (inRange( fromPos, move.getInsFromPos(),2)) continue;
+                                }
+                                if (move.getInsFromTruck()== guide.getInterSwTruck2()) {
+                                        if (inRange( toPos, move.getInsFromPos(),2)) continue;
+                                }
+                                if (move.getInsToTruck()== guide.getInterSwTruck1()) {
+                                        if (inRange( fromPos, move.getInsToPos(),2)) continue;
+                                }
+                                if (move.getInsToTruck()== guide.getInterSwTruck2()) {
+                                        if (inRange( toPos, move.getInsToPos(),2)) continue;
+                                }
+                                //moves that survived maybe are not feasable now becuase of moving dumps
+                                if ( not currentSolution.testInterSwMove(move) ) continue;
+                                moves.insert(move);
+                                break;
+                        }
+                        case (Move::IntraSw): {
+				//in theory no intraSw is here, so skip them
+				continue;
+                        }
 		
                 }
         }
@@ -504,6 +569,10 @@ std::cout<<"REVERSE done \n";
 
 
 
+bool TabuOpt::inRange(int center, int data, int step ) const {
+	return ( ((center-step) <= data) and (data <= (center+step))) ;
+}
+
 void TabuOpt::cleanUpIntraSwMoves(Moves &moves, const Move &guide ) const  {
 #ifdef DOSTATS
  STATS->inc("TabuOpt::cleanUpIntraSwMoves ");
@@ -517,11 +586,54 @@ void TabuOpt::cleanUpIntraSwMoves(Moves &moves, const Move &guide ) const  {
         int truckPos = guide.getIntraSwTruck();
         for(MovesItr movePtr=oldMoves.begin(); movePtr!=oldMoves.end();++movePtr) {
                 move = (*movePtr);
-                if (not (move.getmtype()==Move::IntraSw)) continue;
-                if ( truckPos == move.getIntraSwTruck() ) continue;
-		if ( move.getIntraSwNid1() == guide.getIntraSwNid1() ) continue;
-		if ( move.getIntraSwNid2() == guide.getIntraSwNid2() ) continue;
-                moves.insert(move);
+		switch (move.getmtype()){
+			case Move::InterSw: {
+
+				if (move.getInterSwTruck1()== truckPos) {
+					if (inRange(guide.getIntraSwFromPos(), move.getInterSwFromPos(),2)) continue;
+					if (inRange(guide.getIntraSwToPos(), move.getInterSwFromPos(),2)) continue;
+					if (currentSolution[truckPos].size()-5 <= move.getInterSwFromPos()) continue;
+					if ( not currentSolution.testInterSwMove(move) ) continue;
+
+                			moves.insert(move);
+				}
+				if (move.getInterSwTruck2()==truckPos) {
+					//The sorrounding Positions structure of the truck are not the same
+					if (inRange(guide.getIntraSwFromPos(), move.getInterSwToPos(),2)) continue;
+					if (inRange(guide.getIntraSwToPos(), move.getInterSwToPos(),2)) continue;
+					if (currentSolution[truckPos].size()-5 <= move.getInterSwToPos()) continue;
+					if ( not currentSolution.testInterSwMove(move) ) continue;
+
+                			moves.insert(move);
+				}
+				break;
+			}
+			case Move::Ins: {
+
+				if (move.getInsFromTruck()== truckPos) {
+					//The sorrounding Positions structure of the truck are not the same
+					if (inRange(guide.getIntraSwFromPos(), move.getInsFromPos(),2)) continue;
+					if (inRange(guide.getIntraSwToPos(), move.getInsFromPos(),2)) continue;
+					if (currentSolution[truckPos].size()-3 <= move.getInsFromPos()) continue;
+                			moves.insert(move);
+				}
+				if (move.getInsToTruck()== truckPos) {
+					//The sorrounding Positions structure of the truck are not the same
+					if (inRange(guide.getIntraSwFromPos(), move.getInsToPos(),2)) continue;
+					if (inRange(guide.getIntraSwToPos(), move.getInsToPos(),2)) continue;
+					if (currentSolution[truckPos].size()-3 <= move.getInsToPos()) continue;
+                			moves.insert(move);
+				}
+				break;
+			}
+			case (Move::IntraSw): {
+
+                		if ( truckPos == move.getIntraSwTruck() ) continue;
+				if ( move.getIntraSwNid1() == guide.getIntraSwNid1() ) continue;
+				if ( move.getIntraSwNid2() == guide.getIntraSwNid2() ) continue;
+                		moves.insert(move);
+			}	
+		}
         }
 }
 
