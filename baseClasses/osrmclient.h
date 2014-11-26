@@ -79,7 +79,7 @@ class OsrmClient {
     bool getOsrmHints( std::deque<std::string> &hints );
     int getStatus() const { return status; };
     std::string getErrorMsg() const { return err_msg; };
-    int testOsrmClient();
+    bool testOsrmClient();
 
   private:
     bool getTime( struct json_object *jtree, double &time );

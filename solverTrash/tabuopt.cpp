@@ -57,27 +57,43 @@ std::cout<<"Entering TabuOpt::search() \n";
     int lastImproved = 0;
     double oldCost=currentSolution.getCost();
     double newCost;
-    #ifdef OSRMCLIENT
-    bool oldStateOsrm=osrm->getUse();
-    #endif
+    int cycleLimit;
 
+    //first cycle with osrm
+    osrm->useOsrm( true );
+    if (osrm->getUse()) std::cout<<"OSRM set to be used\n";
+    else std::cout<<"OSRM set to be not used\n";
 
     for (int i=0; i< maxIteration; i++) {
+
+	if ( osrm->testOsrmClient() ) std::cout<<"Using OSRM\n"; 
+	else std::cout<<"Not Using Osrm\n";
+if (osrm->getUse()) std::cout<<"OSRM set to be used\n";
+else std::cout<<"OSRM set to be not used\n";
         oldCost=currentSolution.getCost();
 	#ifndef LOG
 	start.restart();
         std::cout << "TABUSEARCH: Starting iteration: " << currentIteration << std::endl;
 	#endif
+
+	if (osrm->getUse()) cycleLimit=1;
+	else cycleLimit=5;
+
+	improvedBest=doNeighborhoodMoves(Move::IntraSw, 1 , Move::InterSw );
 	
-    	for (int i=0;i<10;i++) {
-        	std::cout << "\n\n\n----------------------------------------------------------------------------------------- TABUSEARCH: InterSw: " << i;
+    	for (int j=0;j<cycleLimit;j++) {
+        	std::cout << "\n\n\n----------------------------------------------------------------------------------------- TABUSEARCH: InterSw: " << j <<"\n";
         	improvedBest |= doNeighborhoodMoves(Move::InterSw, 1 , Move::InterSw );
 	}
+currentSolution.tau();
 
-    	for (int i=0;i<10;i++) {
-        	std::cout << "\n\n\n------------------------------------------------------------------------------------------TABUSEARCH: Ins: " << i;
+    	for (int j=0;j<cycleLimit;j++) {
+        	std::cout << "\n\n\n------------------------------------------------------------------------------------------TABUSEARCH: Ins: " << j <<"\n";
         	improvedBest |= doNeighborhoodMoves(Move::Ins, 1 ,    Move::Ins);
 	}
+currentSolution.tau();
+
+	//TODO I would like to make the tabu moves here
 	
 	newCost = currentSolution.getCost();
 
@@ -96,16 +112,28 @@ std::cout<<"Entering TabuOpt::search() \n";
         std::cout << "--------------------------------------------\n";
 	#endif
 	currentIteration++;
-	if (oldCost==newCost) {
-		std::cout<<"costs didnt change";
- 	        #ifdef OSRMCLIENT
-        	osrm->useOsrm ( not oldStateOsrm );
-		oldStateOsrm= not oldStateOsrm;
-		//continue;
-        	#endif
 
+ 	#ifndef OSRMCLIENT
+	if (std::abs(newCost-oldCost) < 0.1  ) {
+		std::cout<<"costs didnt change";
 		break;
 	}
+	#else
+	std::cout<<"old cost"<<oldCost<<"\n";
+	std::cout<<"new cost"<<newCost<<"\n";
+	std::cout<<"diference"<< std::abs(newCost-oldCost) <<"\n";
+	
+	if (std::abs(newCost-oldCost) > 1.0 ) 	osrm->useOsrm ( false );
+	else {
+		if (osrm->getUse()==true) {
+			std::cout<<"costs didnt change quiting\n";
+		} else {
+			std::cout<<"costs didnt change TRYING with OSRM";
+        		osrm->useOsrm ( true );
+			continue;
+		}
+	}
+	#endif
     }
 
     std::cout << "TABUSEARCH: Total time: " << start.duration() << std::endl;
@@ -235,11 +263,11 @@ std::cout<<"Entering TabuOpt::doNeighobrhoodMoves\n";
     bool intraSwMoveMade=true;
 
 
-    STATS->set("factor", factor);
     Moves neighborhood;
 
-currentSolution.tau();
     do {
+	
+	
 #ifndef LOG
 std::cout<<(getTotalMovesMade()-actualMoveCount)<<" > " <<maxMoves<<"***************************************************\n";
 std::cout<<" Factor  "<< factor <<"\n";
@@ -252,6 +280,15 @@ std::cout<<" Factor  "<< factor <<"\n";
 	else
 		getNeighborhood(whichNeighborhood,neighborhood,factor,mtype); 
         Cnt++;
+
+	if (whichNeighborhood==Move::IntraSw) {
+                while (neighborhood.size()) { //do as many as the bookkeeping allows
+			applyMoves("IntraSw", neighborhood );
+			neighborhood.erase( neighborhood.begin());
+                }
+		return true;
+	}
+
 
 	if (not neighborhood.size()) { 
 	        factor=std::min(factor+1.0/limitInterSw,factor+0.3); //need to increase the search space
@@ -267,10 +304,11 @@ std::cout<<" Reached end of cycle - for No moves found- "<<Cnt<<" out of "<< max
 #endif
 		   return improvedBest; //we cycled and no neighborhood moves were found
                 }; 
-		if (not notTabu.size() and not tabu.size() ) continue;
+		//if (not notTabu.size() and not tabu.size() ) break;
         } else 	CntNoNeighborhood=0; 
 
         std::string solAfter  = currentSolution.solutionAsText();
+
 
 	if ( classifyMoves(neighborhood)) {
 		assert (not neighborhood.size());
@@ -324,10 +362,11 @@ std::cout<<" Reached end of cycle - for No moves found- "<<Cnt<<" out of "<< max
 		if (improvedBest) {
 		 	actualMoveCount=getTotalMovesMade();
 			intraSwMoveMade=true;
-		}
-	} else intraSwMoveMade=false;
+		}  else intraSwMoveMade=false;
+	}
 
-	if (notTabu.size() and factor>0.9 and not intraSwMoveMade and reachedMaxCycles(Cnt,whichNeighborhood) )  {
+	//if ( (whichNeighborhood==Move::Ins and (currentSolution.getFleetSize()==2) ) 
+	if (   (notTabu.size() and factor>0.9 and not intraSwMoveMade and reachedMaxCycles(Cnt,whichNeighborhood) ) )  {
 		while ( notTabu.size() ) {
 			applyMoves("not Tabu",  notTabu );
 			Cnt=0;
@@ -336,15 +375,17 @@ std::cout<<" Reached end of cycle - for No moves found- "<<Cnt<<" out of "<< max
 		continue;
 	} 
 
-        if (factor<= 0.9  and not reachedMaxCycles(Cnt,whichNeighborhood)) continue;
-
-	if (factor > 0.9 and intraSwMoveMade) break;
-	while ( tabu.size() ) {
-		applyMoves("tabu", tabu ); 
-		moveMade=true;
+        if ( (whichNeighborhood==Move::Ins and (currentSolution.getFleetSize()==2)) 
+	     or  (factor > 0.9  and  reachedMaxCycles(Cnt,whichNeighborhood)) ) { 
+			while ( tabu.size() ) {
+				applyMoves("tabu", tabu ); 
+				moveMade=true;
+			}
         }
     }	
     while ( not moveMade );
+
+    if (not intraSwMoveMade) improvedBest |= doNeighborhoodMoves(Move::IntraSw, 1, Move::InterSw);
 
     return improvedBest;
 }

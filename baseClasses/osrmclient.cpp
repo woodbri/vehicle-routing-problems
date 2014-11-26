@@ -395,34 +395,24 @@ bool OsrmClient::getOsrmHints( std::deque<std::string> &hints ) {
 }
 
 
-int OsrmClient::testOsrmClient() {
-    if (not use) return 0;
-    if (not connectionAvailable) return 0;
-    Timer t0;
-    double time;
+bool OsrmClient::testOsrmClient() {
+    if (not use) return false;
+    if (not connectionAvailable) return false;
     std::deque<std::string> hints;
-    dump();
     if (getStatus() == -1) {
         std::cout << getErrorMsg() << std::endl;
-        return -1;
+        return false;
     }
-    for(int j=0;j<100;j++) {
-    	t0.restart();
-    	if (getOsrmTime(-34.88124, -56.19048,-34.89743, -56.12447,time) )
-          std::cout << "SUCCESSSSS  getOsrmTime: " << time << std::endl;
-    	STATS->addto("OsrmClient::testOsrmClient (no hints) time:", t0.duration());
-    	if (getOsrmHints(hints)) {
-	//for (int i=0;i<hints.size();i++) std::cout<<"hint "<<i<<": "<<hints[i]<<"\n";
+    double time;
+    if (getOsrmTime(-34.88124, -56.19048,-34.89743, -56.12447,time) ) std::cout<<"test time:"<<time<<"\n";
+    else return false;
+    if ( getOsrmHints(hints)) {
 	  std::string hint1= hints[0];
 	  std::string hint2= hints[1];
-          t0.restart();
-          if (getOsrmTime(-34.88124, -56.19048,-34.89743, -56.12447,hint1,hint2,time) )
-               std::cout << "YET ANOTHER SUCCESSSSS  getOsrmTime: " << time << std::endl;
-    	STATS->addto("OsrmClient::testOsrmClient ( with hints) time:", t0.duration());
-    }
-    }
-    dump();
-    return 0;
+          if (getOsrmTime(-34.88124, -56.19048,-34.89743, -56.12447,hint1,hint2,time) ) std::cout<<"test time:"<<time<<"\n";
+    	  else return false;
+    } else return false;
+    return true;
 };
 
 
