@@ -43,7 +43,7 @@ class OsrmClient {
     OsrmClient();
     OsrmClient(const OsrmClient& other){};
     OsrmClient &operator=(const OsrmClient&) {};
-    bool use;
+    bool use,addPenalty;
 
   public:
     static OsrmClient *Instance() {
@@ -66,6 +66,8 @@ class OsrmClient {
      * \param[in] want True or False if you want the geometry returned.
      */
     void setWantGeometry( bool want ) { route_parameters.geometry = want; };
+    void usePenalty(bool desition ) { addPenalty = desition; };
+    bool getPenalty() const { return addPenalty; };
     void useOsrm(bool desition ) { use = desition; };
     bool getUse( ) const { return use; };
     bool getOsrmViaroute();
@@ -85,6 +87,8 @@ class OsrmClient {
     bool getTime( struct json_object *jtree, double &time );
     bool getGeom( struct json_object *jtree, std::deque<Node> &geom );
     bool getHints( struct json_object *jtree, std::deque<std::string> &hints );
+    bool getOsrmPenalty( double &penalty );
+    bool getPenalty( struct json_object *jtree, double &penalty );
 
   public:
     void dump() {

@@ -58,9 +58,11 @@ int main(int argc, char **argv) {
     #endif
 
     try {
-	#ifdef LOG
+	#ifndef LOG
 	#ifdef OSRMCLIENT
+	osrm->useOsrm(true);
 	osrm->testOsrmClient();
+	osrm->useOsrm(false);
 	#endif
 	#endif
 
