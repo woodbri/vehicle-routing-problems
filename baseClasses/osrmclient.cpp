@@ -36,7 +36,7 @@ OsrmClient::OsrmClient(){
     };
 
         route_parameters.zoomLevel = 18;
-        route_parameters.printInstructions = false;
+        route_parameters.printInstructions = true;
         route_parameters.alternateRoute = false;
         route_parameters.geometry = false;
         route_parameters.compression = false;
@@ -47,6 +47,7 @@ OsrmClient::OsrmClient(){
         route_parameters.language = "";
         status = 0;
 	use=false;
+	addPenalty=false;
 	#ifdef LOG
 	testOsrmClient();
 	#endif
@@ -320,6 +321,52 @@ bool OsrmClient::getOsrmTime( double &time ) {
     return true;
 }
 
+bool OsrmClient::getOsrmPenalty( double &penalty ) {
+    if (not connectionAvailable) return false;
+    if (not use) return false;
+    #ifdef DOSTATS 
+    Timer timer;
+    STATS->inc("OsrmClient::getOsrmTurns  ");
+    #endif
+    if ( status != 1 or httpContent.size() == 0 ) {
+        err_msg = "OsrmClient:getOsrmTurns does not have a valid OSRM response!";
+        #ifdef DOSTATS 
+        STATS->inc(err_msg);
+        STATS->addto("OsrmClient::getOsrmTurns (interface) Cumultaive time:", timer.duration());
+        #endif
+        return false;
+    }
+
+    struct json_object * jtree = NULL;
+    jtree = json_tokener_parse( httpContent.c_str() );
+    if ( not jtree ) {
+        err_msg = "OsrmClient:getOsrmTurns (interface) invalid json document in OSRM response!";
+        #ifdef DOSTATS 
+        STATS->inc(err_msg);
+        STATS->addto("OsrmClient::getOsrmTurns (interface) Cumultaive time:", timer.duration());
+        #endif
+        return false;
+    }
+
+    if ( not getPenalty( jtree, penalty ) ) {
+        json_object_put( jtree );
+        #ifdef DOSTATS 
+        STATS->addto("OsrmClient::getOsrmTurns (interface) Cumultaive time:", timer.duration());
+        #endif
+        return false;
+    }
+
+    json_object_put( jtree );
+    #ifdef DOSTATS 
+    STATS->addto("OsrmClient::getOsrmTurns (interface) Cumulative time:", timer.duration());
+    #endif
+    return true;
+}
+
+
+
+
+
 
 /*!
  * \brief Extract the geometry from the OSRM response if it was requested.
@@ -403,15 +450,32 @@ bool OsrmClient::testOsrmClient() {
         std::cout << getErrorMsg() << std::endl;
         return false;
     }
+    double penalty;
+    bool oldPenalty=addPenalty;
     double time;
-    if (getOsrmTime(-34.88124, -56.19048,-34.89743, -56.12447,time) ) std::cout<<"test time:"<<time<<"\n";
+//34.890816,-56.165529
+    if (getOsrmTime( -34.8917,-56.167694,-34.890816,-56.165529,time) ) std::cout<<"test time:"<<time<<"\n";
     else return false;
+    getOsrmPenalty(penalty);
     if ( getOsrmHints(hints)) {
 	  std::string hint1= hints[0];
 	  std::string hint2= hints[1];
-          if (getOsrmTime(-34.88124, -56.19048,-34.89743, -56.12447,hint1,hint2,time) ) std::cout<<"test time:"<<time<<"\n";
+    	  if (getOsrmTime( -34.8917,-56.167694,-34.890816,-56.165529,hint1,hint2,time) ) std::cout<<"test time:"<<time<<"\n";
     	  else return false;
     } else return false;
+    if (not getOsrmPenalty(penalty) ) return false;
+    addPenalty=true;
+    if (getOsrmTime( -34.8917,-56.167694,-34.890816,-56.165529,time) ) std::cout<<"test time:"<<time<<"\n";
+    else return false;
+    getOsrmPenalty(penalty);
+    if ( getOsrmHints(hints)) {
+          std::string hint1= hints[0];
+          std::string hint2= hints[1];
+          if (getOsrmTime( -34.8917,-56.167694,-34.890816,-56.165529,hint1,hint2,time) ) std::cout<<"test time:"<<time<<"\n";
+          else return false;
+    } else return false;
+    addPenalty=oldPenalty;
+ 
     return true;
 };
 
@@ -453,8 +517,10 @@ bool OsrmClient::getTime( struct json_object *jtree, double &time ) {
         return false;
     }
 
-    // extract the total_time and convert to seconds
+    // extract the total_time and convert from seconds to minutes 
     time = (double) json_object_get_int( jTime ) / 60.0;
+    double penalty;
+    if (addPenalty and getPenalty(jtree,penalty) ) time +=penalty;
     json_object_put( jRouteSummary );
     json_object_put( jTime );
     return true;
@@ -560,6 +626,64 @@ bool OsrmClient::getHints( struct json_object *jtree, std::deque<std::string> &h
 
     json_object_put( jLocations );
     json_object_put( jHintData );
+    return true;
+}
+
+bool OsrmClient::getPenalty( struct json_object *jtree, double &penalty ) { //in munutes
+    if (not connectionAvailable) return false;
+    struct json_object *jInstructionsArray;
+    struct json_object *jInstructionData;
+    struct json_object *jInstruction;
+    //json_object *jTurn;
+    int turn;
+
+    std::string  trace;
+
+    penalty=0;
+
+    // find the route 'hint_data' key in the response
+    jInstructionsArray = json_object_object_get( jtree, "route_instructions" );
+    if ( not jInstructionsArray ) {
+        err_msg = "OsrmClient:getTurns (private) failed to find 'route_instructions' key in OSRM response!";
+        #ifdef DOSTATS 
+        STATS->inc(err_msg);
+        #endif
+        return false;
+    }
+
+    	trace = json_object_get_string (jInstructionsArray);
+    	std::cout<<"InstructionsArray "<<trace<<"\n";
+
+    jInstructionData = json_object_array_get_idx( jInstructionsArray, 0);
+    int i=0;
+    while (jInstructionData) {
+
+    	trace = json_object_get_string (jInstructionData);
+    	std::cout<<"InstructionsData "<<trace<<"\n";
+
+        jInstruction = json_object_array_get_idx( jInstructionData, 0);
+
+    	turn = json_object_get_int (jInstruction);
+    	std::cout<<"Instruction "<<turn<<"\n";
+	switch (turn) {
+		case 2: penalty += 0.05; break; //slight right
+		case 3: penalty += 0.10; break; //right
+		case 4: penalty += 0.3 ; break; //sharp right
+
+		case 5: penalty += 1;  break; //uturn
+
+		case 8: penalty += 0.05; break; //slight left
+		case 7: penalty += 0.10; break; //left
+		case 6: penalty += 0.3 ; break; //sharp left
+	}
+        json_object_put( jInstruction );
+        json_object_put( jInstructionData );
+	i++;
+        jInstructionData = json_object_array_get_idx( jInstructionsArray, i);
+    }
+
+    std::cout<<"Penalty"<<penalty<<"\n"; 
+    json_object_put( jInstructionsArray );
     return true;
 }
 
