@@ -127,6 +127,7 @@ currentSolution.tau();
 	else {
 		if (osrm->getUse()==true) {
 			std::cout<<"costs didnt change quiting\n";
+			break;
 		} else {
 			std::cout<<"costs didnt change TRYING with OSRM";
         		osrm->useOsrm ( true );
