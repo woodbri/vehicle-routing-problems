@@ -66,8 +66,6 @@ std::cout<<"Entering TabuOpt::search() \n";
 
     for (int i=0; i< maxIteration; i++) {
 
-	if ( osrm->testOsrmClient() ) std::cout<<"Using OSRM\n"; 
-	else std::cout<<"Not Using Osrm\n";
 if (osrm->getUse()) std::cout<<"OSRM set to be used\n";
 else std::cout<<"OSRM set to be not used\n";
         oldCost=currentSolution.getCost();
@@ -127,6 +125,7 @@ currentSolution.tau();
 	else {
 		if (osrm->getUse()==true) {
 			std::cout<<"costs didnt change quiting\n";
+			break;
 		} else {
 			std::cout<<"costs didnt change TRYING with OSRM";
         		osrm->useOsrm ( true );
