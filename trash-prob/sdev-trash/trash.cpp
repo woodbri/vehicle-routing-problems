@@ -27,7 +27,7 @@
 #include "stats.h"
 #include "node.h"
 #include "osrmclient.h"
-#include "osrm.h"
+//#include "vrposrm.h"
 #include "twnode.h"
 #include "trashnode.h"
 #include "twpath.h"
@@ -41,45 +41,37 @@ void Usage() {
 
 static std::string font = "/usr/share/fonts/truetype/ttf-dejavu/DejaVuSans.ttf";
 
-void analyzeOsrmPath(Solution &sol) {
-    Vehicle &t1 = sol[0];
-    int num = t1.size();
-    Trashnode dump = t1.dumpSite();
-    Trashnode end  = t1.endingSite();
-
-}
-
 int testOsrmClient() {
     Timer t0;
-    OsrmClient oc;
-    oc.dump();
-    if (oc.getStatus() == -1) {
-        std::cout << oc.getErrorMsg() << std::endl;
+    OsrmClient* oc = OsrmClient::Instance();
+    oc->dump();
+    if (oc->getStatus() == -1) {
+        std::cout << oc->getErrorMsg() << std::endl;
         return -1;
     }
-    oc.setWantGeometry( true );
-    oc.addViaPoint(-34.88124, -56.19048);
-    oc.addViaPoint(-34.89743, -56.12447);
-    oc.dump();
-    if (oc.getOsrmViaroute()) {
+    oc->setWantGeometry( true );
+    oc->addViaPoint(-34.88124, -56.19048);
+    oc->addViaPoint(-34.89743, -56.12447);
+    oc->dump();
+    if (oc->getOsrmViaroute()) {
         std::cout << "getOsrmViaroute: Failed!\n";
-        std::cout << oc.getErrorMsg() << std::endl;
+        std::cout << oc->getErrorMsg() << std::endl;
         return -1;
     }
-    oc.dump();
+    oc->dump();
     double time;
-    if (oc.getOsrmTime( time )) {
+    if (oc->getOsrmTime( time )) {
         std::cout << "getOsrmTime Failed!\n";
-        std::cout << oc.getErrorMsg() << std::endl;
+        std::cout << oc->getErrorMsg() << std::endl;
         return -1;
     }
     std::cout << "getOsrmTime: " << time << std::endl;
     std::cout << "duration: " << t0.duration() << std::endl;
 
     std::deque<Node> geom;
-    if (oc.getOsrmGeometry( geom )) {
+    if (oc->getOsrmGeometry( geom )) {
         std::cout << "getOsrmGeometry Failed!\n";
-        std::cout << oc.getErrorMsg() << std::endl;
+        std::cout << oc->getErrorMsg() << std::endl;
         return -1;
     }
     for (int i=0; i<geom.size(); ++i) {
@@ -100,7 +92,7 @@ int main(int argc, char **argv) {
     std::string infile = argv[1];
 
     // MUST call this once to initial communications via cURL
-    cURLpp::Cleanup myCleanup;
+    //cURLpp::Cleanup myCleanup;
 
     try {
 
