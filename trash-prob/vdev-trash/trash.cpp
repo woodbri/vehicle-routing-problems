@@ -19,25 +19,29 @@
 #include <sstream>
 #include <string>
 #include <math.h>
-
 #include <stdio.h>
 
+#ifdef DOSTATS
+#include "timer.h"
+#include "stats.h"
+#endif
+
+
+
+//#include "Library/OSRM.h"
+
 #include "trashconfig.h"
-#include "osrm.h"
-#include "node.h"
-#include "twnode.h"
-#include "trashnode.h"
-#include "twpath.h"
 #include "feasableSol.h"
 #include "tabuopt.h"
-
 
 
 void Usage() {
     std::cout << "Usage: trash file (no extension)\n";
 }
 
+#ifdef DOPLOT
 static std::string font = "/usr/share/fonts/truetype/ttf-dejavu/DejaVuSans.ttf";
+#endif
 
 int main(int argc, char **argv) {
 
@@ -48,26 +52,76 @@ int main(int argc, char **argv) {
 
     std::string infile = argv[1];
 
+    #ifdef WITHOSRM
     // MUST call this once to initial communications via cURL
     cURLpp::Cleanup myCleanup;
+    #endif
 
     try {
+	#ifdef LOG
+	#ifdef OSRMCLIENT
+	osrm->useOsrm(true);
+	osrm->testOsrmClient();
+	osrm->useOsrm(false);
+	#endif
+	#endif
 
+	#ifdef DOSTATS
+        Timer starttime;
+	#endif
+
+        #ifdef DOPLOT 
         CONFIG->set("plotDir", "./logs/");
-//        CONFIG->set("osrmBaseUrl", "http://imaptools.com:5000/");
+	#endif
         CONFIG->dump("CONFIG");
 
        
         FeasableSol tp(infile);
+	
+
+	#ifndef LOG
+        tp.dump();
+        std::cout << "FeasableSol time: " << starttime.duration() << std::endl;
+	#endif
+	#ifdef DOSTATS
+        STATS->set("zzFeasableSol time", starttime.duration());
+	#endif
+
         tp.setInitialValues();
-        tp.dumpCostValues();
+        tp.computeCosts();
+	#ifdef DOSTATS
+        STATS->set("zInitial cost", tp.getCost());
+        STATS->set("yNode count", tp.getNodeCount());
+        STATS->set("yVehicle count", tp.getFleetSize());
+
+        Timer searchtime;
+	#endif
 
         TabuOpt ts(tp);
-        ts.v_search();
-        ts.dumpStats();
+        ts.setMaxIteration(1000);
+        ts.search();
+
+	#ifdef DOSTATS
+        STATS->set("zzSearch time", searchtime.duration());
+	#endif
 
         Solution best = ts.getBestSolution();
-        best.dumpCostValues();
+        best.computeCosts();
+
+	#ifdef DOSTATS
+        STATS->set("zzTotal time", starttime.duration());
+	#endif
+
+	#ifndef LOG
+        best.dump();
+	#endif
+
+	#ifdef DOSTATS
+        STATS->set("zBest cost", best.getCost());
+        STATS->set("zBest distance", best.getDistance());
+
+        STATS->dump("Final");
+	#endif
 
     }
     catch (const std::exception &e) {

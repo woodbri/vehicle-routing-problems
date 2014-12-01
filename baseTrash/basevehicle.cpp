@@ -17,62 +17,61 @@
 #include <sstream>
 #include <deque>
 
-#include "trashstats.h"
+#include "stats.h"
 #include "timer.h"
 
 #include "trashconfig.h"
 #include "twpath.h"
 #include "basevehicle.h"
-#include "osrm.h"
+#ifdef WITHOSRM
+#include "vrposrm.h"
+#endif
 #include "move.h"
 
-// getTimeOSRM() REQUIRES the main() to call cURLpp::Cleanup myCleanup; ONCE!
 
-double BaseVehicle::getTimeOSRM() const {
-    std::ostringstream url(std::ostringstream::ate);
-    url.str(CONFIG->getString("osrmBaseUrl"));
-    url << "viaroute?z=18&instructions=false&alt=false";
 
-    OSRM osrm;
-    int status;
-    double ttime;
+#ifdef WITHOSRM
 
-    Timer osrmtime;
+// *OSRM() REQUIRES the main() to call cURLpp::Cleanup myCleanup; ONCE!
+void BaseVehicle::evaluateOsrm() {
+    double otime = path.getTotTravelTimeOsrm();
+    if ( otime == -1 ) {
+        Timer osrmtime;
 
-    for (int i=0; i<path.size(); i++)
-        url << "&loc=" << path[i].gety() << "," << path[i].getx();
+        std::string osrmBaseUrl = CONFIG->getString("osrmBaseUrl");
+        path.evaluateOsrm( osrmBaseUrl );
+        dumpSite.evaluateOsrm( path[path.size() - 1] , osrmBaseUrl);
+        endingSite.evaluateOsrm( dumpSite, osrmBaseUrl );
 
-    url << "&loc=" << dumpSite.gety() << "," << dumpSite.getx();
-    url << "&loc=" << endingSite.gety() << "," << endingSite.getx();
-
-//std::cout << "OSRM: " << url.str() << std::endl;
-
-    if(osrm.callOSRM(url.str())) {
-        std::cout << "osrm.callOSRM: failed for url: " << url << std::endl;
-        STATS->inc("failed To Get Time OSRM");
-        return -1.0;
+        // stats collection
+        if ( otime == -1 )
+            STATS->inc("failed To Get Time OSRM");
+        STATS->addto("cum Time Get Time OSRM", osrmtime.duration());
+        STATS->inc("cnt Get Time OSRM");
     }
 
-    if(osrm.getStatus(status)) {
-        std::cout << "osrm.getStatus: reported: " << status << std::endl;
-        STATS->inc("failed To Get Time OSRM");
-        return -1.0;
-    }
+};
 
-    if(osrm.getTravelTime(ttime)) {
-        std::cout << "osrm.getTravelTime failed to find the travel time!" << std::endl;
-        STATS->inc("failed To Get Time OSRM");
-        return -1.0;
-    }
 
-    STATS->addto("cum Time Get Time OSRM", osrmtime.duration());
-    STATS->inc("cnt Get Time OSRM");
+double BaseVehicle::getCostOsrm() const {
+    double otime = getTotTravelTimeOsrm();
 
-    ttime += path.getTotWaitTime() + path.getTotServiceTime();
+    // if OSRM failed, return -1.0 to indicate a failure
+    if (otime == -1) return otime;
 
-    return ttime;
+    // WARNING: this is only an approximation because changes at a per
+    //          node level need to be evaluated for moving dumps and violations
+
+    return w1 * ( otime + path.getTotWaitTime() + path.getTotServiceTime() ) +
+           w2 * endingSite.getcvTot() +
+           w3 * endingSite.gettwvTot();
 }
 
+
+double BaseVehicle::getTotTravelTimeOsrm() const {
+    return endingSite.getTotTravelTimeOsrm();
+};
+#endif
 
 bool BaseVehicle::e_setPath(const Bucket &sol) {
 #ifdef TESTED
@@ -94,7 +93,7 @@ std::cout<<"Entering BaseVehicle::e_setPath \n";
 }     
 
 
-bool  BaseVehicle::findNearestNodeTo(Bucket &unassigned, const TWC<Trashnode> &twc,UID &pos, Trashnode &bestNode) {
+bool  BaseVehicle::findNearestNodeTo(Bucket &unassigned,UID &pos, Trashnode &bestNode) {
 #ifdef TESTED
 std::cout<<"Entering BaseVehicle::findNearestNodeTo \n";
 #endif
@@ -102,13 +101,13 @@ std::cout<<"Entering BaseVehicle::findNearestNodeTo \n";
     if (not unassigned.size()) return false;
 
     bool flag= false;
-    double bestDist;
+    double bestDist=-1;
     double d;
     
-    flag = twc.findNearestNodeTo(path, unassigned,  pos , bestNode, bestDist);
+    flag = twc->findNearestNodeUseExistingData(path, unassigned,  pos , bestNode, bestDist);
     
     for (int i=0; i<unassigned.size(); i++) {
-       if ( twc.isCompatibleIAJ( path[size()-1]  , unassigned[i], dumpSite ) ) { 
+       if ( twc->isCompatibleIAJ( path[size()-1]  , unassigned[i], dumpSite ) ) { 
           d = unassigned[i].distanceToSegment( path[size()-1], dumpSite );
           if ( d < bestDist) {
             bestDist = d;
@@ -116,44 +115,22 @@ std::cout<<"Entering BaseVehicle::findNearestNodeTo \n";
             pos = size();
             flag= true;
           };
-       };
+       }
     }
 
     return flag;
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 void BaseVehicle::dump() const {
     std::cout << "---------- BaseVehicle ---------------" << std::endl;
     std::cout << "maxcapacity: " << getmaxcapacity() << std::endl;
-    std::cout << "cargo: " << getcargo() << std::endl;
-    std::cout << "duration: " << getduration() << std::endl;
+    std::cout << "cargo: " << getCargo() << std::endl;
+    std::cout << "duration: " << getDuration() << std::endl;
     std::cout << "cost: " << getcost() << std::endl;
-    std::cout << "OSRM time: " << getTimeOSRM() << std::endl;
+    #ifdef WITHOSRM
+    std::cout << "OSRM time: " << getTotTravelTimeOsrm() << std::endl;
+    #endif
     std::cout << "TWV: " << getTWV() << std::endl;
     std::cout << "CV: " << getCV() << std::endl;
     std::cout << "w1: " << getw1() << std::endl;
@@ -197,25 +174,26 @@ void BaseVehicle::dumppath() const {
    }
 
    void BaseVehicle::tau() const {
-      for (int i=0; i< path.size(); i++)
+/*      for (int i=0; i< path.size(); i++)
          std::cout<<getnid(i)<<" , ";
       std::cout<<dumpSite.getnid()<<" , ";
       std::cout<<endingSite.getnid()<<" , ";
-      std::cout<<" (";
+*/
+      std::cout<<" ";
       for (int i=0; i< path.size(); i++)
-         std::cout<<getid(i)<<" , ";
-      std::cout<<dumpSite.getid()<<" , ";
-      std::cout<<endingSite.getid()<<" , ";
-      std::cout<<" )";
+         std::cout<<getid(i)<<" ";
+      std::cout<<dumpSite.getid()<<" ";
+      std::cout<<endingSite.getid()<<" ";
+      std::cout<<" \n";
    }
 
 
 std::deque<int> BaseVehicle::getpath() const {
       std::deque<int> p;
       p = path.getpath();
-      p.push_front(getdepot().getnid());
-      p.push_back(getdumpSite().getnid());
-      p.push_back(getdepot().getnid());
+      p.push_front(getDepot().getnid());
+      p.push_back(getDumpSite().getnid());
+      p.push_back(getDepot().getnid());
       return p;
 }
 
@@ -313,7 +291,7 @@ void BaseVehicle::restorePath(Twpath<Trashnode> oldpath) {
 
 void BaseVehicle::evalLast() {
     Trashnode last = path[path.size()-1];
-    dumpSite.setDemand(-last.getcargo());
+    dumpSite.setDemand(-last.getCargo());
     dumpSite.evaluate(last, getmaxcapacity());
     endingSite.evaluate(dumpSite, getmaxcapacity());
     // if a vehcile has no containers to pickup it is empty
@@ -1001,9 +979,9 @@ trace.dumpid("Path");
     graph.setTitle( title+extra );
     graph.drawInit();
     for (int i=0; i<trace.size(); i++){
-        if (trace[i].ispickup())  {
+        if (trace[i].isPickup())  {
              graph.drawPoint(trace[i], 0x0000ff, 9, true);
-        } else if (trace[i].isdepot()) {
+        } else if (trace[i].isDepot()) {
              graph.drawPoint(trace[i], 0x00ff00, 5, true);
         } else  {
              graph.drawPoint(trace[i], 0xff0000, 7, true);

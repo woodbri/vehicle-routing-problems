@@ -18,7 +18,7 @@
 #include <cassert>
 #include <cstdlib>
 
-#include "trashstats.h"
+#include "stats.h"
 #include "timer.h"
 #include "move.h"
 #include "optsol.h"
@@ -26,107 +26,74 @@
 
 class TabuOpt: public TabuBase<OptSol> {
 
-//   typedef enum { Ins, IntraSw, InterSw } neighborMovesName;
-
-  private:
-#ifdef TESTED
-    std::map<const Move, int> TabuList;
-
-    int tabuLengthIns;
-    int tabuLengthIntraSw;
-    int tabuLengthInterSw;
-
-    bool allTabu;
-    Move bestMoveAllTabu;
-
-    int maxIteration;
-    int currentIteration;
-    mutable int currentIterationIns;
-    mutable int currentIterationIntraSw;
-    mutable int currentIterationInterSw;
-    OptSol bestSolution;
-    OptSol currentSolution;
-
-    double bestSolutionCost;
-#endif
-
-
   public:
     TabuOpt(const OptSol &initialSolution) :
          TabuBase(initialSolution)
     {
-#ifdef VICKY
-        bestSolution.v_computeCosts();
-#else
-        bestSolution.computeCosts();
+	#ifdef DOSTATS
+	STATS->inc("TabuOpt::TabuOpt");
+	#endif
+        computeCosts(bestSolution);
+        Timer start;
+#ifndef LOG
+bestSolution.tau();
 #endif
-        bestSolution.dump();
+    	bestSolution.optimizeTruckNumber();
+    	bestTabuList.clear();
+        computeCosts(bestSolution);
         bestSolutionCost = bestSolution.getCost();
-        currentIteration = currentIterationIns = currentIterationIntraSw = currentIterationInterSw = 0;
-        maxIteration = 1000;
-        int ncnt = initialSolution.getNodeCount() / 5;
-        tabuLengthIns     = std::max(5, std::min(ncnt, 40));
-        tabuLengthIntraSw = std::max(5, std::min(ncnt, 15));
-        tabuLengthInterSw = std::max(5, std::min(ncnt, 10));
+        setBestAsCurrent();
+#ifndef LOG
+std::cout << "TABUSEARCH: Removal of truck time: " << start.duration() << std::endl;
+bestSolution.tau();
+#endif
 
-        STATS->set("tabu Length Ins", tabuLengthIns);
-        STATS->set("tabu Length IntraSw", tabuLengthIntraSw);
-        STATS->set("tabu Length InterSw", tabuLengthInterSw);
-
-        // for repeatible results set this to a constant value
-        // for more random results use: srand( time(NULL) );
-        srand(37);
 	limitIntraSw=bestSolution.getFleetSize();
-	limitInterSw=limitIntraSw*(limitIntraSw-1) ;
-	limitIns=limitIntraSw ;
+	limitInterSw=limitIntraSw*(limitIntraSw-1)/2 ;
+	limitIns    =limitInterSw;
+	#ifdef DOSTATS
+        STATS->set("limitIntraSw", limitIntraSw);
+        STATS->set("limitInterSw", limitIntraSw);
+        STATS->set("limitIns", limitInterSw);
+	#endif
     };
 
-#ifdef TESTED
-    Solution getBestSolution() const { return bestSolution; };
-    Solution getCurrentSolution() const {return currentSolution; };
-    void dumpTabuList() const;
-    void dumpStats() const;
-    void makeTabu(const Move &m);
-    void cleanExpired();
-    bool isTabu(const Move& m) const;
-
-    int getCurrentIteration() const { return currentIteration; };
-    int getMaxIteration() const { return maxIteration; };
-    int getTabuLengthIns() const { return tabuLengthIns; };
-    int getTabuLengthIntraSw() const { return tabuLengthIntraSw; };
-    int getTabuLengthInterSw() const { return tabuLengthInterSw; };
 
 
-    void setMaxIteration(int n) { assert(n>0); maxIteration = n; };
-    void settabuLengthIns(int n) { assert(n>0); tabuLengthIns = n; };
-    void settabuLengthIntraSw(int n) { assert(n>0); tabuLengthIntraSw = n; };
-    void settabuLengthInterSw(int n) { assert(n>0); tabuLengthInterSw = n; };
+    void optimizeTruckNumber();
 
     void search();
-    void generateNeighborhood(neighborMovesName whichNeighborhood, std::deque<Move>& neighborhood, const Move& lastMove) const;
-    bool doNeighborhoodMoves(neighborMovesName whichNeighborhood, int maxStagnation);
-    void generateNeighborhoodStats(std::string mtype, double tm, int cnt) const;
-    void v_addToStats (const Move &move) const ;
-    void v_savingsStats (const Move &move) const;
-#endif
+    bool doNeighborhoodMoves( Move::Mtype whichNeighborhood, int maxCnt,Move::Mtype mtype);
+    void getNeighborhood( Move::Mtype whichNeighborhood, Moves &neighborhood , double factor, Move::Mtype mtype) const;
+    bool applyAspirationalTabu(Moves &aspirationalTabu);
+    bool classifyMoves(Moves &neighborhood);
+    bool applyNonTabu (Moves &moves);
+    bool applyAmove (const Move &move);
+    bool applyMoves (std::string type, Moves &moves);
+    bool applyAspirationalNotTabu (const Move &move);
+    bool applyTabu (Moves &moves);
+    bool applyTabu (Moves &moves, int strategy);
+    bool computeCosts(OptSol &s) ;
+    bool reachedMaxCycles(int, Move::Mtype);
+    bool dumpMoves(std::string str, Moves moves) const ;
+    void cleanUpInterSwMoves(Moves &moves, const Move &guide) const ;
+    void cleanUpIntraSwMoves(Moves &moves, const Move &guide) const ;
+    void cleanUpInsMoves(Moves &moves, const Move &guide,bool &reverseFound) ;
+    void cleanUpMoves(const Move guide) ;
 
 
-    void v_search();
-    bool v_doNeighborhoodMoves(neighborMovesName whichNeighborhood, int maxCnt, std::deque<Move> &aspirationalTabu, std::deque<Move> &notTabu, std::deque<Move> &tabu);
-    void v_getNeighborhood(neighborMovesName whichNeighborhood,std::deque<Move> &neighborhood,double factor) const;
-    bool v_applyAspirationalTabu(std::deque<Move> &aspirationalTabu);
-    bool v_applyAspirational(std::deque<Move> &neighborhood, std::deque<Move> &notTabu,std::deque<Move> &tabu);
-    bool v_applyAspirationalNotTabu(std::deque<Move> &neighborhood, std::deque<Move> &aspirationalTabu,std::deque<Move> &notTabu,std::deque<Move> &tabu);
-    bool v_applyNonTabu (std::deque<Move> &notTabu);
-    bool v_applyTabu (std::deque<Move> &tabu);
-    bool v_applyTabu (std::deque<Move> &tabu, int strategy);
-    void v_computeCosts(OptSol &s) ;
-    bool reachedMaxCycles(int,neighborMovesName);
-
+    bool inRange(int center, int data, int step ) const;
     private:
 	int limitIntraSw;
 	int limitInterSw;
 	int limitIns;
+
+	//mutable Moves neighborhood;
+	mutable Moves aspirationalNotTabu;
+	mutable Moves aspirationalTabu;
+	mutable Moves notTabu;
+	mutable Moves tabu;
+	mutable Moves reverseMoves;
 
 };
 

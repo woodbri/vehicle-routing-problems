@@ -14,6 +14,17 @@
 #ifndef PG_TYPES_VRP_H
 #define PG_TYPES_VRP_H
 
+/*! \file pg_types_vrp.h
+ * \brief Defines the structure types for integration with postgresql
+ *
+ * This file contains the type definitions for integrating the code with
+ * postgresql. The interface with postgresql consists of passing data via
+ * structures containing containers, other locations, vehicles, and a travel
+ * time matrix, then returning results via a vehicle path structure.
+ *
+ * The structures defined in this file define the data structures being passed.
+ */
+
 // input data model
 
 typedef struct container_ {

@@ -25,14 +25,16 @@
 #include "logger.h"
 #include "timer.h"
 #include "trashconfig.h"
-#include "trashstats.h"
-#include "osrm.h"
+#include "stats.h"
 #include "node.h"
+#include "osrmclient.h"
+//#include "vrposrm.h"
 #include "twnode.h"
 #include "trashnode.h"
 #include "twpath.h"
 #include "feasableSolLoop.h"
 #include "tabusearch.h"
+#include "tabuopt.h"
 
 /* Logging Severity Levels
     0   INFO
@@ -53,6 +55,47 @@ void Usage() {
 
 static std::string font = "/usr/share/fonts/truetype/ttf-dejavu/DejaVuSans.ttf";
 
+int testOsrmClient() {
+    Timer t0;
+    OsrmClient* oc = OsrmClient::Instance();
+    oc->dump();
+    if (oc->getStatus() == -1) {
+        std::cout << oc->getErrorMsg() << std::endl;
+        return -1;
+    }
+    oc->setWantGeometry( true );
+    oc->addViaPoint(-34.88124, -56.19048);
+    oc->addViaPoint(-34.89743, -56.12447);
+    oc->dump();
+    if (oc->getOsrmViaroute()) {
+        std::cout << "getOsrmViaroute: Failed!\n";
+        std::cout << oc->getErrorMsg() << std::endl;
+        return -1;
+    }
+    oc->dump();
+    double time;
+    if (oc->getOsrmTime( time )) {
+        std::cout << "getOsrmTime Failed!\n";
+        std::cout << oc->getErrorMsg() << std::endl;
+        return -1;
+    }
+    std::cout << "getOsrmTime: " << time << std::endl;
+    std::cout << "duration: " << t0.duration() << std::endl;
+
+    std::deque<Node> geom;
+    if (oc->getOsrmGeometry( geom )) {
+        std::cout << "getOsrmGeometry Failed!\n";
+        std::cout << oc->getErrorMsg() << std::endl;
+        return -1;
+    }
+    for (int i=0; i<geom.size(); ++i) {
+        std::cout << "geom[" << i << "]: ";
+        geom[i].dump();
+    }
+    return 0;
+}
+
+
 int main(int argc, char **argv) {
 
     FLAGS_log_dir = "./logs/";
@@ -69,9 +112,13 @@ int main(int argc, char **argv) {
     std::string infile = argv[1];
 
     // MUST call this once to initial communications via cURL
-    cURLpp::Cleanup myCleanup;
+    //cURLpp::Cleanup myCleanup;
 
     try {
+
+        testOsrmClient();
+
+
         Timer starttime;
 
         CONFIG->set("plotDir", "./logs/");
@@ -80,11 +127,14 @@ int main(int argc, char **argv) {
 
        
         FeasableSolLoop tp(infile);
-        //tp.dump();
+        tp.dump();
+
+        return 0;
 
         DLOG(INFO) << "FeasableSol time: " << starttime.duration();
         STATS->set("zzFeasableSol time", starttime.duration());
 
+        tp.setInitialValues();
         tp.computeCosts();
         STATS->set("zInitial cost", tp.getCost());
         STATS->set("yNode count", tp.getNodeCount());
@@ -92,7 +142,7 @@ int main(int argc, char **argv) {
 
         Timer searchtime;
 
-        TabuSearch ts(tp);
+        TabuOpt ts(tp);
         ts.setMaxIteration(1000);
         ts.search();
 

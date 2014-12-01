@@ -20,6 +20,7 @@
 #include <sstream>
 #include <fstream>
 
+#include "timer.h"
 #include "plot.h"
 #include "feasableSol.h"
 
@@ -46,12 +47,12 @@ void FeasableSol::stepOne(Vehicle &truck) {
           
     Trashnode bestNode;
     UID bestPos;
-    if (truck.findNearestNodeTo( unassigned, twc,  bestPos,  bestNode) ) {
+    if (truck.findNearestNodeTo( unassigned,   bestPos,  bestNode) ) {
         if(  not  truck.e_insertIntoFeasableTruck(bestNode,bestPos) ) { 
                 fleet.push_back(truck);
-truck.plot("Feasable-","",truck.getVid());
 
-                truck=unusedTrucks[0];
+                if (unusedTrucks.size()==0) return;
+		truck=unusedTrucks[0];
                 unusedTrucks.erase(unusedTrucks.begin());
                 usedTrucks.push_back(truck);
 
@@ -76,6 +77,8 @@ truck.plot("Feasable-","",truck.getVid());
 
 
 Vehicle  FeasableSol::getTruck() {
+	assert(unusedTrucks[0].size());
+
         Vehicle truck=unusedTrucks[0];
         unusedTrucks.erase(unusedTrucks.begin());
         usedTrucks.push_back(truck);
@@ -96,14 +99,13 @@ void FeasableSol::process() {
     assert( not (unassigned * assigned).size()  ) ;
     assert( not (problematic * assigned).size()  ) ;
 //END INVARIANT
+    Timer start;
 
     Vehicle truck;
-
     truck=getTruck();
-
     stepOne(truck);        
     fleet.push_back(truck); //need to save the last truck
 
-truck.plot("Feasable-","",truck.getVid());
+    std::cout << "FEASABLESOL: Total time: " << start.duration() << std::endl;
 return;
 }

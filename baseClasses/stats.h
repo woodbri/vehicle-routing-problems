@@ -11,23 +11,47 @@
  * the terms of the MIT License. Please file LICENSE for details.
  *
  ********************************************************************VRP*/
-#ifndef TRASHSTATS_H
-#define TRASHSTATS_H
+#ifndef STATS_H
+#define STATS_H
 
 #include <string>
 #include <vector>
 #include <map>
 
 #include "singleton.h"
+#include "timer.h"
 
-class TrashStats {
+/*! \class Stats
+ * \brief Provides a general purpose statistics collection class.
+ *
+ * This class provides a central collection point for statistics collection
+ * while the application code is running. This includes counting events,
+ * accumulating sums of values during the execution, and a simple dump
+ * of the the collected stats as required.
+ *
+ * All stats are double values associated with std::string keys.
+ *
+ * When combined with \ref Timer we can for example, sum the duration of
+ * time spend it a function and count the number of time the function
+ * called.
+ *
+ * Access to this facility requires:
+ *
+ * \code
+ * #include "stats.h"
+ * STATS->method();
+ * \endcode
+ *
+ * where method is one of the various methods documented for the class.
+ */
+class Stats {
   private:
     std::map<std::string, double> stats;
 
   public:
 
-    TrashStats() { stats.clear(); };
-    ~TrashStats() {};
+    Stats() { stats.clear(); };
+    ~Stats() {};
 
     double getval(const std::string key) const;
     std::vector<std::string> getkeys() const;
@@ -39,13 +63,8 @@ class TrashStats {
     void clear() { stats.clear(); };
 };
 
-typedef Singleton<TrashStats> Stats; // Global declaration
+typedef Singleton<Stats> VrpStats; // Global declaration
 
-#define STATS Stats::Instance()
+#define STATS VrpStats::Instance()
 
 #endif
-/*
-    Then you can access parameters via:
-
-    STATS->method();
-*/

@@ -31,7 +31,7 @@ bool Prob_trash::checkIntegrity() const {
    else std::cout << "# of Nodes:"<<nodesCant<<"\n";
 
    for (int i=1;i<nodesCant-1;i++) {
-     flag= flag and datanodes[i].isvalid();
+     flag= flag and datanodes[i].isValid();
    }
 }
 
@@ -98,9 +98,9 @@ void Prob_trash::dumpPickups() const {
 
 void Prob_trash::plot(Plot<Trashnode> &graph) {
     for (int i=0; i<datanodes.size(); i++){
-        if (datanodes[i].ispickup())  {
+        if (datanodes[i].isPickup())  {
              graph.drawPoint(datanodes[i], 0x0000ff, 9, true);
-        } else if (datanodes[i].isdump()) {
+        } else if (datanodes[i].isDump()) {
              graph.drawPoint(datanodes[i], 0x00ff00, 5, true);
         } else  {
              graph.drawPoint(datanodes[i], 0xff0000, 7, true);
@@ -110,13 +110,17 @@ void Prob_trash::plot(Plot<Trashnode> &graph) {
 
 Prob_trash::Prob_trash(const char *infile)
      {
+#ifdef LOG
 std::cout << "---- char * Constructor --------------\n";
+#endif
         std::string file = infile;
         loadProblem(file);
      } 
 
 Prob_trash::Prob_trash(const std::string &infile) {
+#ifdef LOG
 std::cout << "Prob_trash---- string Constructor --------------\n";
+#endif
     loadProblem(infile);
 }
 
@@ -127,7 +131,9 @@ void Prob_trash::loadProblem(const std::string &infile)
     datafile=infile;
     Bucket nodes;
     Bucket intersection;
+#ifdef LOG
 std::cout << "Prob_trash LoadProblem --------------"<< datafile<< "--------\n";
+#endif
 
 
     // read the nodes
@@ -143,8 +149,9 @@ std::cout << "Prob_trash LoadProblem --------------"<< datafile<< "--------\n";
     pickups -= intersection;
     nodes -= intersection;
 
-intersection.dump("intersection");
+#ifndef LOG
 invalid.dump("invalid");
+#endif
 
 
     nodes = pickups+otherlocs;
@@ -156,31 +163,36 @@ invalid.dump("invalid");
         else if ( otherlocs.hasId( id ) ) otherlocs[ otherlocs.posFromId( id ) ].setnid(i);
     };
     C=nodes.back();
-    assert( pickups.size() and otherlocs.size() );
+    assert( pickups.size() );
+    assert( otherlocs.size() );
 
     datanodes=nodes;
 
 
 
-    twc.loadAndProcess_distance(datafile+".dmatrix-time.txt", datanodes,invalid);  
-    twc.settCC(C,pickups);
-    Bucket dummy;
-    dummy.setTravelTimes(twc.TravelTime());
-    C.setTravelTimes(twc.TravelTime());
+    twc->loadAndProcess_distance(datafile+".dmatrix-time.txt", datanodes,invalid);  
+    twc->setHints(dumps);
+    twc->setHints(nodes);
+    twc->setHints(depots);
+    twc->setHints(pickups);
+    twc->setHints(endings);
 
-    assert( Tweval::TravelTime.size() );
+    twc->settCC(C,pickups);
+//    Bucket dummy;
+//    dummy.setTravelTimes(twc->TravelTime());
+//    C.setTravelTimes(twc->TravelTime());
+
+//    assert( Tweval::TravelTime.size() );
 
 //    buildStreets(pickups);
 
     load_trucks(datafile+".vehicles.txt");
     assert(trucks.size() and depots.size() and dumps.size() and endings.size());
-#ifdef VICKY
     for (int i=0;i<trucks.size();i++) {
-	trucks[i].setInitialValues(C,twc,pickups);
+	trucks[i].setInitialValues(C,pickups);
     }
-#endif
     
-#ifdef TESTED
+#ifdef LOG
 C.dump();
 nodes.dump("nodes");
 dumps.dump("dumps");
@@ -189,8 +201,6 @@ pickups.dump("pickups");
 endings.dump("endings");
 datanodes.dump("datanodes");
 invalid.dump("invalid");
-#endif
-
 std::cout<<"TRUCKS\n";
 for (int i=0;i<trucks.size();i++)
    trucks[i].tau();
@@ -199,8 +209,7 @@ std::cout<<"INVALID TRUCKS\n";
 for (int i=0;i<invalidTrucks.size();i++)
    invalidTrucks[i].tau();
 std::cout<<"\n";
-#ifdef TESTED
-twc.dump();
+twc->dump();
 #endif
 }
 
@@ -252,7 +261,7 @@ std::cout<<"Prob_trash:LoadTrucks"<<infile<<"\n";
         if (truck.isvalid()) {
             trucks.push_back(truck);
             depots.push_back(truck.getStartingSite());
-            dumps.push_back(truck.getdumpSite());
+            dumps.push_back(truck.getDumpSite());
             endings.push_back(truck.getEndingSite());
         }
         else { invalidTrucks.push_back(truck);
@@ -274,7 +283,7 @@ std::cout<<"Prob_trash:Load_depots"<<infile<<"\n";
         if (line[0] == '#') continue;
 
         Trashnode node(line);  
-        if ( not node.isvalid() or not node.isdepot()) {
+        if ( not node.isValid() or not node.isDepot()) {
            std::cout << "ERROR: line: " << cnt << ": " << line << std::endl;
            invalid.push_back(node);
         } else {
@@ -297,7 +306,7 @@ std::cout<<"Prob_trash:Load_otherlocs"<<infile<<"\n";
         if (line[0] == '#') continue;
 
         Trashnode node(line);  
-        if ( not node.isvalid() ) {
+        if ( not node.isValid() ) {
            std::cout << "ERROR: line: " << cnt << ": " << line << std::endl;
            invalid.push_back(node);
         } else {
@@ -319,7 +328,7 @@ void Prob_trash::load_dumps(std::string infile) { //1 dump problem
         if (line[0] == '#') continue;
 
         Trashnode node(line);  
-        if ( not node.isvalid() or not node.isdump()) {
+        if ( not node.isValid() or not node.isDump()) {
            std::cout << "ERROR: line: " << cnt << ": " << line << std::endl;
            invalid.push_back(node);
         } else {
@@ -342,17 +351,17 @@ void Prob_trash::load_pickups(std::string infile) {
         if (line[0] == '#') continue;
         Trashnode node(line);  
         node.setType(2);
-        if ( not node.isvalid() ) {
+        if ( not node.isValid() ) {
 #ifdef TESTED
            std::cout << "ERROR: line: " << cnt << ": " << line << std::endl;
 #endif
            invalid.push_back(node);
         } else {
           pickups.push_back(node);
-	  st+=node.getservicetime();
+	  st+=node.getServiceTime();
 	  op+=node.opens();
 	  cl+=node.closes();
-	  dm+=node.getdemand();
+	  dm+=node.getDemand();
 	  x+=node.getx();
 	  y+=node.gety();
         }

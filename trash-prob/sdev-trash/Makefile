@@ -13,9 +13,24 @@ SOLVERTRASH = solverTrash
 BUILD_DIR = ./build
 BIN_DIR = ./bin
 
+# set WITH_OSRMCLIENT = "1" to include this code
+# you will also need to define additional related variables
+
+WITH_OSRMCLIENT = "1"
+
+ifeq ($(WITH_OSRMCLIENT), "")
+OSRM_CFLAGS =
+OSRM_LIBS =
+else
+OSRM_CFLAGS = -DOSRMCLIENT -I$(HOME)/work/osrm-backend/
+OSRM_LIBS = -L/usr/local/lib -lboost_filesystem -lboost_iostreams -lboost_program_options -lboost_regex -lboost_system -lboost_thread -lpthread -lOSRM -lUUID -lGITDESCRIPTION -lz -lrt -lboost_filesystem -lboost_iostreams -lboost_program_options -lboost_regex -lboost_system -lboost_thread -lpthread -lstxxl
+endif
+
+
+
 INCLUDES = -I../../$(BASECLASSES) -I../../$(BASETRASH) -I../../$(INITTRASH) -I../../$(SOLVERTRASH) -I.
-CPPFLAGS = -g -O0 -MMD  -MP $(CURL_CFLAGS) $(DEFINES) -I/usr/local/include
-LDFLAGS = -lgd $(INCLUDES) -L$(BASECLASSES) -L$(BASETRASH) -L$(INITTRASH) $(CURL_LIBS) $(JSON_LIBS) -L/usr/local/lib -lglog
+CPPFLAGS = -g -O0 -MMD  -MP $(CURL_CFLAGS) $(OSRM_CFLAGS) $(DEFINES) -I/usr/local/include
+LDFLAGS = -lgd $(INCLUDES) -L$(BASECLASSES) -L$(BASETRASH) -L$(INITTRASH) $(CURL_LIBS) $(JSON_LIBS) $(OSRM_LIBS) -L/usr/local/lib -lglog
 
 SRCS =  
 OBJS = $(addprefix $(BUILD_DIR)/,$(SRCS:.cpp=.o))
@@ -24,6 +39,14 @@ HEADS = $(SRCS:.cpp=.h)
 
 
 BASECLASSES_SRCS = $(wildcard ../../$(BASECLASSES)/*.cpp)
+
+# filter out baseClasses/osrmclient.cpp unless
+# WITH_OSRMCLIENT=1 has been set
+
+ifeq ($(WITH_OSRMCLIENT), "")
+BASECLASSES_SRCS := $(filter-out ../../$(BASECLASSES)/osrmclient.cpp, $(BASECLASSES_SRCS))
+endif
+
 BASECLASSES_HDS = $(UTIL_SRCS:.cpp=.h)
 BASECLASSES_OBJS = $(addprefix $(BUILD_DIR)/$(BASECLASSES)/,$(notdir $(BASECLASSES_SRCS:.cpp=.o)))
 BASECLASSES_HEADS = ../../$(BASECLASSES)/twpath.h ../../$(BASECLASSES)/twc.h ../../$(BASECLASSES)/twbucket.h ../../$(BASECLASSES)/plot.h ../../$(BASECLASSES)/singleton.h ../../$(BASECLASSES)/timer.h ../../$(BASECLASSES)/logger.h $(BASECLASSES_HDS)
@@ -91,7 +114,7 @@ callgrind-8: ./bin/trash ./montevideo/muni-b.*
 .PHONY: clean
 
 clean:
-	rm -f trash $(OBJS) $(BASECLASSES_OBJS) $(BASETRASH_OBJS) $(INITTRASH_OBJS)
+	rm -rf $(BIN_DIR)/trash $(BUILD_DIR)/*
 	find . -name "*.d" -type f -delete
 	find . -name "*.png" -type f -delete
 	mkdir -p $(BIN_DIR)

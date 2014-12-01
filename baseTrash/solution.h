@@ -23,7 +23,7 @@
 #include "pg_types_vrp.h"
 #include "vehicle.h"
 #include "plot.h"
-//#include "orders.h"
+#include "move.h"
 
 const double EPSILON = 0.001;
 
@@ -61,6 +61,10 @@ typedef  TwBucket<Trashnode> Bucket;
     int getFleetSize() const { return fleet.size(); };
     double getAverageRouteDurationLength();
 
+    Vehicle operator[](int pos) const {
+        return fleet[pos];
+    }
+
     Solution& operator=( const Solution& rhs ) {
         if ( this != &rhs ) {
             totalDistance = rhs.totalDistance;
@@ -88,23 +92,31 @@ typedef  TwBucket<Trashnode> Bucket;
     };
 
 
+bool applyInsMove( const Move &move) ;
+bool applyInterSwMove( const Move &move) ;
+bool applyIntraSwMove( const Move &move) ;
+
+
+
+
+
+
+
 // Cost related
 
-#ifdef VICKY
     int v_computeCosts();
 
 	void dumpCostValues() {
 		for (int i=0;i<fleet.size();i++) 
-			fleet[i].getcost(twc);
+			fleet[i].getCost();
 		for (int i=0;i<fleet.size();i++) 
 			fleet[i].dumpCostValues();
 	}
 
 	void setInitialValues() {
 		for (int i=0;i<fleet.size();i++) 
-			fleet[i].setInitialValues(C,twc,pickups);
+			fleet[i].setInitialValues(C,pickups);
 	}
-#endif
 
 // code moved from OLD CODE TO BE INTEGRATED
 bool feasable() const;

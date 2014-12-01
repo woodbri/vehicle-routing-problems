@@ -41,17 +41,17 @@ class Config {
     Config() { data.clear(); };
     ~Config() {};
 
-    double getDouble(const std::string key) const;
-    int getInt(const std::string key) const;
-    const std::string getString(const std::string key) const;
+    double getDouble( const std::string key ) const;
+    int getInt( const std::string key ) const;
+    const std::string getString( const std::string key ) const;
     std::vector<std::string> getKeys() const;
-    void dump(const std::string title) const;
-    bool keyExists(const std::string key) const;
+    void dump( const std::string title ) const;
+    bool keyExists( const std::string key ) const;
 
-    void set(std::string key, double val);
-    void set(std::string key, int val);
-    void set(std::string key, std::string val);
-    void deleteKey(const std::string key);
+    void set( std::string key, double val );
+    void set( std::string key, int val );
+    void set( std::string key, std::string val );
+    void deleteKey( const std::string key );
 
 };
 
@@ -66,7 +66,7 @@ typedef Singleton<Config> OurConfig;
 /*! \def CONFIG
  *  \brief A marco to make it easier to access the our Config object.
  *
- *  The Config object is instanciated as a global static object and 
+ *  The Config object is instanciated as a global static object and
  *  can be referenced use the CONFIG macro like:
  *  \code
     CONFIG->method();

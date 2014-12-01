@@ -38,7 +38,7 @@
 
 class Testnode : public Tweval {
   public:
-    Testnode( std::string& line ) : Tweval() {
+    Testnode( std::string &line ) : Tweval() {
         std::istringstream buffer( line );
         buffer >> nid;
         buffer >> x;
@@ -61,8 +61,8 @@ class Vehicle {
     double w3;          // weight for CV in cost
 
   public:
-    Vehicle(){};
-    Vehicle( const Twpath<Testnode>& datanodes, std::string& line ) {
+    Vehicle() {};
+    Vehicle( const Twpath<Testnode> &datanodes, std::string &line ) {
         int id;
         int nid;
         maxcapacity = 0;
@@ -70,6 +70,7 @@ class Vehicle {
         w1 = w2 = w3 = 1.0;
         std::istringstream buffer( line );
         buffer >> id;
+
         while ( ! buffer.eof() ) {
             buffer >> nid;
             path.push_back( datanodes[nid] );
@@ -82,16 +83,19 @@ class Vehicle {
 
     // return true on error
     bool compareNid( std::vector<int> nids ) const {
-        if (path.size() != nids.size())
+        if ( path.size() != nids.size() )
             return true;
-        for (int i=0; i<path.size(); i++)
-            if (path[i].getnid() != nids[i]) return true;
+
+        for ( int i = 0; i < path.size(); i++ )
+            if ( path[i].getnid() != nids[i] ) return true;
+
         return false;
     }
 
     void dumpnids() const {
-        for (int i=0; i<path.size(); i++)
+        for ( int i = 0; i < path.size(); i++ )
             std::cout << path[i].getnid() << ", ";
+
         std::cout << std::endl;
     }
 
@@ -131,7 +135,7 @@ class Test {
     int getid() const { return test_id; };
 
     void dumpnids() const {
-        for (int i=0; i<path_result.size(); i++)
+        for ( int i = 0; i < path_result.size(); i++ )
             std::cout << path_result[i] << ", ";
 
         std::cout << std::endl;
@@ -143,8 +147,10 @@ class Test {
                   << "path_id: " << path_id << std::endl
                   << "test_name: " << test_name << std::endl
                   << "args: ";
-        for (int i=0; i<args.size(); i++)
+
+        for ( int i = 0; i < args.size(); i++ )
             std::cout << args[i] << ", ";
+
         std::cout << std::endl;
         std::cout << "path_result: "; dumpnids();
         std::cout << "cost: " << cost << std::endl
