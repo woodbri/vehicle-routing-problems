@@ -381,12 +381,16 @@ template <class knode> class TWC {
 
         assert( from < original.size() and to < original.size() );
 	double time;
+	#ifdef OSRMCLIENT
+	bool oldStateOsrm=osrm->getUse();
+	#endif
 	if (travel_Time[from][to]==-1) {
             #ifdef DOSTATS
             STATS->inc("TWC::getTravelTime(2 parameters) travel_time==-1");
 	    #endif
 
 	    #ifdef OSRMCLIENT
+	    osrm->useOsrm(true);
 	    if (not osrm->getOsrmTime(original[from],original[to],time)) { 
 	    #endif
                 time=original[from].distance( original[to] ) / 250;
@@ -406,9 +410,11 @@ template <class knode> class TWC {
             	STATS->inc("TWC::getTravelTime(2 parameters) osrm calculated");
 	    	#endif
             }
+	    osrm->useOsrm( oldStateOsrm );
 	    #endif 
 	    travel_Time[from][to]=time;
 	    getTwcij(from,to,time);
+		//TODO if is not compatible set travel_time as infinity
         }
         return travel_Time[from][to];
     }
@@ -452,32 +458,75 @@ template <class knode> class TWC {
     /*! \todo comments   */
     private:
 	//this one does all the work
-	double getTravelTime( UID prev, UID from, UID middle, UID to ) const{ 
-            assert( from < original.size() and middle<original.size() and to < original.size() );
+	double getTravelTime( UID prev, UID from, UID middle, UID to ) const { 
+            assert( prev<original.size() and from < original.size() and middle<original.size() and to < original.size() );
 	    #ifndef OSRMCLIENT
-		return  getTravelTime(from,middle)+ getTravelTime(middle,to);
+		if (prev==from) return  getTravelTime(from,middle)+ getTravelTime(middle,to);
+		else return getTravelTime(prev,from) + getTravelTime(from,middle) + getTravelTime(middle,to);
             #else
+	    if (prev==from and from==middle) return TravelTime(middle,to);
 	    TTindex index={prev,from,middle,to};
  	    p_TT4 it = travel_Time4.find(index);
 	    if (it != travel_Time4.end()) {
             	#ifdef DOSTATS
-            	STATS->inc("TWC::getTravelTime(4 parameters) 4 dim Table access");
+		if (prev==from) STATS->inc("TWC::getTravelTime(3 parameters) 4 dim Table access");
+		else  STATS->inc("TWC::getTravelTime(4 parameters) 4 dim Table access");
 	    	#endif
 		return it->second;
 	    }
 	    double time;
-	    if (osrm->getOsrmTime(original[prev],original[from],original[middle],original[to],time)) {
-		travel_Time4[index]=time;
-		return time;
+	    if (prev==from) {
+		if (TravelTime(from,middle)==TravelTime(middle,from) or TravelTime(middle,to)==TravelTime(to,middle) or TravelTime(from,to)==TravelTime(to,from)) { 
+		       if (osrm->getOsrmTime(original[from],original[middle],original[to],time)) {
+            			#ifdef DOSTATS
+				STATS->inc("TWC::getTravelTime(3 parameters) osrm Calculated");
+	    			#endif
+				travel_Time4[index]=time;
+				return time;
+			} else {
+			
+            			#ifdef DOSTATS
+            			STATS->inc("TWC::getTravelTime(3 parameters) 2 dim Table access");
+	    			#endif
+				return getTravelTime(from,middle)+ getTravelTime(middle,to);
+ 			} 
+		} else {
+            		#ifdef DOSTATS
+			STATS->inc("TWC::getTravelTime(3 parameters) combination based on 1 way streets");
+			#endif
+			//assuming that all 3 nodes are in single way street all times are the best (to avoid calls to ORSM)
+			//no need to make all combinations
+			time =  getTravelTime(from,middle)+ getTravelTime(middle,to);
+			travel_Time4[index] =  time;
+			return time;
+		}
             }
-	    else  {
-		time=  getTravelTime(prev,from) + getTravelTime(from,middle)+ getTravelTime(middle,to);
-            	#ifdef DOSTATS
-            	STATS->inc("TWC::getTravelTime(4 parameters) 2 dim Table access");
-	    	#endif
-		//it doesnt get inserted because wasnt calculated with osrm
-	    }
-	    return time;
+
+	    if (TravelTime(prev,from)==TravelTime(from,prev) or TravelTime(from,middle)==TravelTime(middle,from) or TravelTime(middle,to)==TravelTime(to,middle) or TravelTime(from,to)==TravelTime(to,from)) { 
+		    if (osrm->getOsrmTime(original[prev],original[from],original[middle],original[to],time)) {
+        	    	#ifdef DOSTATS
+			STATS->inc("TWC::getTravelTime(4 parameters) osrm Calculated");
+	    		#endif
+			travel_Time4[index]=time;
+			return time;
+	            }  else  {
+			time=  getTravelTime(prev,from) + getTravelTime(from,middle)+ getTravelTime(middle,to);
+            		#ifdef DOSTATS
+            		STATS->inc("TWC::getTravelTime(4 parameters) 2 dim Table access");
+	    		#endif
+		        return time;
+	    	    }
+	    } else {
+                        #ifdef DOSTATS
+                        STATS->inc("TWC::getTravelTime(4 parameters) combination based on 1 way streets");
+                        #endif
+                        //assuming that all 3 nodes are in single way street all times are the best (to avoid calls to ORSM)
+                        //no need to make all combinations
+                        time =  getTravelTime(prev,prev,from,middle)+ getTravelTime(middle,to);
+                        travel_Time4[index] =  time;
+                        return time;
+            }
+
             #endif
 	}
 		
@@ -1608,7 +1657,7 @@ public:
 template <class knode>
 TWC<knode>*  TWC<knode>::p_twc=NULL;
 
-#define twc TWC<Trashnode>::Instance()
+#define twc TWC<Tweval>::Instance()
 
 
 

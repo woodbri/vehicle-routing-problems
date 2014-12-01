@@ -68,7 +68,6 @@ class Vehicle: public BaseVehicle {
     bool e_makeFeasable(int currentPos);
     long int eval_insertMoveDumps( const Trashnode &node, std::deque<Move> &moves, int fromTruck, int formPos, int toTruck, double savings, double factor ) const;
     long int eval_intraSwapMoveDumps( std::deque<Move> &moves, int  truckPos, int fromPos,  double factor) const ;
-    //long int eval_interSwapMoveDumps( std::deque<Move> &moves, const Vehicle &otherTruck,int  truckPos,int  otherTruckPos, int fromPos,  double factor) const;
     bool e_insertDumpInPath( const Trashnode &going );
     bool deltaTimeGeneratesTV(const Trashnode &dump, const Trashnode &node) const; 
     bool deltaCargoGeneratesCV(const Trashnode &node, int pos) const;
@@ -102,6 +101,7 @@ class Vehicle: public BaseVehicle {
 
     long int eval_intraSwapMoveDumps( Moves &moves, int  truckPos,  double factor ) const;
     long int eval_interSwapMoveDumps( Moves &moves, const Vehicle &otherTruck,int  truckPos,int  otherTruckPos, double factor   ) const; 
+    long int eval_interSwapMoveDumps( Moves &moves, const Vehicle &otherTruck,int  truckPos,int  otherTruckPos, int fromPos, int toPos   ) const; 
     long int eval_insertMoveDumps( const Trashnode &node, Moves &moves, int fromTruck, int formPos, int toTruck, double savings, double factor ) const;
     bool eval_erase(int at, double &savings) const;
 	//for cost function

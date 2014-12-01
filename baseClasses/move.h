@@ -138,6 +138,8 @@ class Move {
     void setInsToPos(int newPos) { assert( mtype == Move::Ins ); pos2=newPos; };
 
     int getIntraSwTruck() const { assert( mtype == Move::IntraSw ); return vid1; };
+    int getIntraSwFromPos() const { assert( mtype == Move::IntraSw ); return pos1; };
+    int getIntraSwToPos() const { assert( mtype == Move::IntraSw ); return pos2; };
     int getIntraSwNid1() const { return nid1; }
     int getIntraSwNid2() const { return nid2; }
 

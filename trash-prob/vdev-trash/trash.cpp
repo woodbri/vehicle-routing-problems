@@ -60,7 +60,9 @@ int main(int argc, char **argv) {
     try {
 	#ifdef LOG
 	#ifdef OSRMCLIENT
+	osrm->useOsrm(true);
 	osrm->testOsrmClient();
+	osrm->useOsrm(false);
 	#endif
 	#endif
 

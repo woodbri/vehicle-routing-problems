@@ -54,7 +54,7 @@ bestSolution.tau();
 	#ifdef DOSTATS
         STATS->set("limitIntraSw", limitIntraSw);
         STATS->set("limitInterSw", limitIntraSw);
-        STATS->set("limitIns", limitIntraSw);
+        STATS->set("limitIns", limitInterSw);
 	#endif
     };
 
@@ -78,8 +78,11 @@ bestSolution.tau();
     bool dumpMoves(std::string str, Moves moves) const ;
     void cleanUpInterSwMoves(Moves &moves, const Move &guide) const ;
     void cleanUpIntraSwMoves(Moves &moves, const Move &guide) const ;
-    void cleanUpInsMoves(Moves &moves, const Move &guide) ;
+    void cleanUpInsMoves(Moves &moves, const Move &guide,bool &reverseFound) ;
     void cleanUpMoves(const Move guide) ;
+
+
+    bool inRange(int center, int data, int step ) const;
     private:
 	int limitIntraSw;
 	int limitInterSw;
@@ -90,6 +93,7 @@ bestSolution.tau();
 	mutable Moves aspirationalTabu;
 	mutable Moves notTabu;
 	mutable Moves tabu;
+	mutable Moves reverseMoves;
 
 };
 

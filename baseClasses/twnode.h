@@ -95,6 +95,16 @@ class Twnode: public Node {
      */
     int streetId() const {return streetid;};
 
+    
+    /*! \brief True when node is depot*/
+    bool isDepot() const {return type==0;};
+    bool isStarting() const {return type==0;};
+    bool isDump() const {return type==1;};
+    bool isPickup() const {return type==2;};
+    bool isEnding() const {return type==3;};
+    bool isValid() const;
+
+
     // doc in cpp
     void dump() const;
 

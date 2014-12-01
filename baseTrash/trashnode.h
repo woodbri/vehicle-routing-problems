@@ -14,8 +14,11 @@
 #ifndef TRASHNODE_H
 #define TRASHNODE_H
 
+
 #include "tweval.h"
 
+#define Trashnode Tweval
+/*
 class Trashnode : public Tweval {
   protected:
 
@@ -38,5 +41,6 @@ class Trashnode : public Tweval {
     Trashnode() : Tweval() { }; 
 
 };
+*/
 
 #endif

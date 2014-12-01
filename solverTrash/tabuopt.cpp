@@ -49,37 +49,52 @@ void TabuOpt::search() {
 std::cout<<"Entering TabuOpt::search() \n";
 #endif
 
-    //std::deque<Move> aspirationalTabu;
-    //std::deque<Move> nonTabu;
-    //std::deque<Move> tabu;
     currentIteration = 0;
     maxIteration = 1000;     // use ts.setMaxIteration(1) in trash.cpp
 
     Timer start;
     bool improvedBest;
     int lastImproved = 0;
-    //first do a bunch of intersw/Intrasw  moves
-/*
-    for (int i=0;i<limitInterSw*3;i++) {
-        doNeighborhoodMoves(Move::InterSw, 1, Move::InterSw);
-        doNeighborhoodMoves(Move::IntraSw, 1, Move::InterSw);
-    }
-*/
+    double oldCost=currentSolution.getCost();
+    double newCost;
+    int cycleLimit;
+
+    //first cycle with osrm
+    osrm->useOsrm( true );
+    if (osrm->getUse()) std::cout<<"OSRM set to be used\n";
+    else std::cout<<"OSRM set to be not used\n";
+
     for (int i=0; i< maxIteration; i++) {
+
+if (osrm->getUse()) std::cout<<"OSRM set to be used\n";
+else std::cout<<"OSRM set to be not used\n";
+        oldCost=currentSolution.getCost();
 	#ifndef LOG
 	start.restart();
         std::cout << "TABUSEARCH: Starting iteration: " << currentIteration << std::endl;
 	#endif
-        // this is a token ring search
-	setBestAsCurrent();
-	
-        improvedBest = doNeighborhoodMoves(Move::InterSw, 1 , Move::InterSw );
-//        improvedBest |= doNeighborhoodMoves(Move::IntraSw, 1, Move::InterSw);
-//        improvedBest |= doNeighborhoodMoves(Move::Ins, 1 ,    Move::Ins);
-//        improvedBest |= doNeighborhoodMoves(Move::IntraSw, 1, Move::Ins);
 
-        if (improvedBest) lastImproved = 0;
-        else ++lastImproved;
+	if (osrm->getUse()) cycleLimit=1;
+	else cycleLimit=5;
+
+	improvedBest=doNeighborhoodMoves(Move::IntraSw, 1 , Move::InterSw );
+	
+    	for (int j=0;j<cycleLimit;j++) {
+        	std::cout << "\n\n\n----------------------------------------------------------------------------------------- TABUSEARCH: InterSw: " << j <<"\n";
+        	improvedBest |= doNeighborhoodMoves(Move::InterSw, 1 , Move::InterSw );
+	}
+currentSolution.tau();
+
+    	for (int j=0;j<cycleLimit;j++) {
+        	std::cout << "\n\n\n------------------------------------------------------------------------------------------TABUSEARCH: Ins: " << j <<"\n";
+        	improvedBest |= doNeighborhoodMoves(Move::Ins, 1 ,    Move::Ins);
+	}
+currentSolution.tau();
+
+	//TODO I would like to make the tabu moves here
+	
+	newCost = currentSolution.getCost();
+
 
 	#ifndef LOG
         std::cout << "TABUSEARCH: Finished iteration: " << currentIteration
@@ -95,7 +110,29 @@ std::cout<<"Entering TabuOpt::search() \n";
         std::cout << "--------------------------------------------\n";
 	#endif
 	currentIteration++;
-	if (not improvedBest) break; //propably we need to shake a little and restart all over
+
+ 	#ifndef OSRMCLIENT
+	if (std::abs(newCost-oldCost) < 0.1  ) {
+		std::cout<<"costs didnt change";
+		break;
+	}
+	#else
+	std::cout<<"old cost"<<oldCost<<"\n";
+	std::cout<<"new cost"<<newCost<<"\n";
+	std::cout<<"diference"<< std::abs(newCost-oldCost) <<"\n";
+	
+	if (std::abs(newCost-oldCost) > 1.0 ) 	osrm->useOsrm ( false );
+	else {
+		if (osrm->getUse()==true) {
+			std::cout<<"costs didnt change quiting\n";
+			break;
+		} else {
+			std::cout<<"costs didnt change TRYING with OSRM";
+        		osrm->useOsrm ( true );
+			continue;
+		}
+	}
+	#endif
     }
 
     std::cout << "TABUSEARCH: Total time: " << start.duration() << std::endl;
@@ -218,31 +255,42 @@ std::cout<<"Entering TabuOpt::doNeighobrhoodMoves\n";
     int Cnt = 0;
     int CntNonAspirational =0;
     int CntNoNeighborhood =0;
-    double factor = 0.01;
+    double factor = 0.02;
     bool limit;
     int actualMoveCount=getTotalMovesMade();
+    bool moveMade=false;
+    bool intraSwMoveMade=true;
 
 
-    STATS->set("factor", factor);
     Moves neighborhood;
 
-currentSolution.tau();
     do {
+	
+	
 #ifndef LOG
 std::cout<<(getTotalMovesMade()-actualMoveCount)<<" > " <<maxMoves<<"***************************************************\n";
+std::cout<<" Factor  "<< factor <<"\n";
 #endif
 	if ((getTotalMovesMade()-actualMoveCount) > maxMoves) break;
 
-        std::string solBefore = currentSolution.solutionAsText();
-
+	//if (whichNeighborhood==Move::Ins) factor=1;
 	if (factor==0.01 and CntNoNeighborhood==0 and notTabu.size()==0 and tabu.size()==0)
 		getNeighborhood(whichNeighborhood,neighborhood,1,mtype); 
 	else
 		getNeighborhood(whichNeighborhood,neighborhood,factor,mtype); 
         Cnt++;
 
+	if (whichNeighborhood==Move::IntraSw) {
+                while (neighborhood.size()) { //do as many as the bookkeeping allows
+			applyMoves("IntraSw", neighborhood );
+			neighborhood.erase( neighborhood.begin());
+                }
+		return true;
+	}
+
+
 	if (not neighborhood.size()) { 
-	        factor=std::min(factor+1.0/limitInterSw,0.98); //need to increase the search space
+	        factor=std::min(factor+1.0/limitInterSw,factor+0.3); //need to increase the search space
 
 		CntNoNeighborhood++; 
 #ifndef LOG
@@ -255,11 +303,11 @@ std::cout<<" Reached end of cycle - for No moves found- "<<Cnt<<" out of "<< max
 #endif
 		   return improvedBest; //we cycled and no neighborhood moves were found
                 }; 
-		if (not notTabu.size() and not tabu.size() ) continue;
+		//if (not notTabu.size() and not tabu.size() ) break;
         } else 	CntNoNeighborhood=0; 
 
         std::string solAfter  = currentSolution.solutionAsText();
-        assert (solBefore==solAfter);
+
 
 	if ( classifyMoves(neighborhood)) {
 		assert (not neighborhood.size());
@@ -267,12 +315,14 @@ std::cout<<" Reached end of cycle - for No moves found- "<<Cnt<<" out of "<< max
 		assert (not notTabu.size());
 		assert (not tabu.size());
 		improvedBest=true;
+		moveMade=true;
 		Cnt=0; //a move was made and it reduced the number of trucks
 		continue;
         }
 
 	if ( aspirationalNotTabu.size() ) {
 		improvedBest=true;
+		moveMade=true;
 		factor=0.01; //trully tryllu optimistic
 		while (aspirationalNotTabu.size()) { //do as many as the bookkeeping allows
 			applyMoves("aspirational non tabu",aspirationalNotTabu);
@@ -284,6 +334,7 @@ std::cout<<" Reached end of cycle - for No moves found- "<<Cnt<<" out of "<< max
 
 	if ( aspirationalTabu.size() ) {
 		improvedBest=true;
+		moveMade=true;
 		factor=0.01; //trully tryllu optimistic
 		while ( aspirationalTabu.size() ) { //do as many as the bookkeping allows
                 	applyMoves("aspirational Tabu",  aspirationalTabu );
@@ -291,33 +342,50 @@ std::cout<<" Reached end of cycle - for No moves found- "<<Cnt<<" out of "<< max
 		}
         }
 
-	factor=std::min(factor+1.0/limitInterSw,0.98); //need to increase the search space
+	factor=std::min(factor+1.0/limitInterSw,factor+0.3); //need to increase the search space
 
-	if (notTabu.size() and ( (notTabu.begin()->getsavings()>=0) or reachedMaxCycles(Cnt,whichNeighborhood) ) ) {
+	if (notTabu.size() and  notTabu.begin()->getsavings()>0)   {
+		improvedBest=true;
+		moveMade=true;
 		while ( notTabu.size() ) {
-			applyMoves("not Tabu",  notTabu );
-			if (notTabu.begin()->getsavings()<0) notTabu.clear(); //after aplying 1, only apply positives 
+			applyMoves("not Tabu with pos savings",  notTabu );
+			if (notTabu.begin()->getsavings()<0) notTabu.clear(); // only apply positives 
 			Cnt=0;
 		}
+	} 
+
+	if (moveMade==true) break;
+
+	if ((not (whichNeighborhood==Move::IntraSw) and intraSwMoveMade )) {
+        	improvedBest =  doNeighborhoodMoves(Move::IntraSw, 1, Move::InterSw);
+		if (improvedBest) {
+		 	actualMoveCount=getTotalMovesMade();
+			intraSwMoveMade=true;
+		}  else intraSwMoveMade=false;
+	}
+
+	//if ( (whichNeighborhood==Move::Ins and (currentSolution.getFleetSize()==2) ) 
+	if (   (notTabu.size() and factor>0.9 and not intraSwMoveMade and reachedMaxCycles(Cnt,whichNeighborhood) ) )  {
+		while ( notTabu.size() ) {
+			applyMoves("not Tabu",  notTabu );
+			Cnt=0;
+		}
+		moveMade=true;
 		continue;
 	} 
 
-        if (not reachedMaxCycles(Cnt,whichNeighborhood)) continue;
-
-        solAfter  = currentSolution.solutionAsText();
-        assert (solBefore==solAfter);
-
-	while ( tabu.size() ) {
-		applyMoves("tabu", tabu ); //best
-		Cnt=0;
+        if ( (whichNeighborhood==Move::Ins and (currentSolution.getFleetSize()==2)) 
+	     or  (factor > 0.9  and  reachedMaxCycles(Cnt,whichNeighborhood)) ) { 
+			while ( tabu.size() ) {
+				applyMoves("tabu", tabu ); 
+				moveMade=true;
+			}
         }
-         
     }	
-    while (  (getTotalMovesMade()-actualMoveCount) < maxMoves );
+    while ( not moveMade );
 
-#ifndef LOG
-std::cout<<" Moves made "<<Cnt<<" out of "<< maxMoves<<"\n";
-#endif
+    if (not intraSwMoveMade) improvedBest |= doNeighborhoodMoves(Move::IntraSw, 1, Move::InterSw);
+
     return improvedBest;
 }
 
@@ -407,7 +475,6 @@ void TabuOpt::cleanUpInterSwMoves(Moves &moves, const Move &guide ) const  {
 #endif
 	if (not moves.size() ) return;
 	if (not guide.getmtype()==Move::InterSw) return;
-	if (not moves.begin()->getmtype()==Move::InterSw) return;
 	int fromPos = guide.getInterSwFromPos();
 	int toPos = guide.getInterSwToPos();
 	Moves oldMoves=moves;
@@ -415,46 +482,136 @@ void TabuOpt::cleanUpInterSwMoves(Moves &moves, const Move &guide ) const  {
 	Move move;
 	for(MovesItr movePtr=oldMoves.begin(); movePtr!=oldMoves.end();++movePtr) {
 		move = (*movePtr);
-		if ( guide.isTabu(move) ) continue;
-		else if ( guide.getnid1() == move.getnid1() or  guide.getnid1() == move.getnid2()
-		     or guide.getnid2() == move.getnid2() or  guide.getnid2() == move.getnid1() )
-			continue;
-		else if ( (move.getInterSwFromPos() < fromPos-1 or move.getInterSwFromPos() > fromPos+1) 
-		   and (move.getInterSwToPos() < toPos-1 or move.getInterSwToPos() > toPos+1) ) {
-			//reinsert only if feasable
-			if ( currentSolution.testInterSwMove(move) ) moves.insert(move);
+		//nothing changes position when an interswp move is done, except for the containers
+		//that where changed, and probably at the end of the route because of the moving dumps
+
+		if (	(move.getvid1()!=guide.getInterSwTruck1()) 
+			and (move.getvid1()!=guide.getInterSwTruck2()) 
+			and (move.getvid2()!=guide.getInterSwTruck1()) 
+			and (move.getvid2()!=guide.getInterSwTruck2()) ) {
+			//moves that dont have the trucks involved in the interSw move are ok
+			assert (currentSolution.testInterSwMove(move));
+                        if ( not currentSolution.testInterSwMove(move) ) continue;
+                        moves.insert(move);
+		}
+
+		//only moves that invlove the trucks of the intraswp move are analyzed
+
+
+
+		//moves with nodes involved on move done are discarded
+		if ( move.getnid1() == guide.getnid1() ) continue;
+		if ( move.getnid1() == guide.getnid2() ) continue;
+		if ( move.getnid2() == guide.getnid1() ) continue;
+		if ( move.getnid2() == guide.getnid2() ) continue;
+
+		//avoid changes because of moving dumps
+		//all moves involving the "end" of the path are discarded
+                if (currentSolution[move.getvid1()].size()-5 <= move.getpos1()) continue;
+                if (currentSolution[move.getvid2()].size()-5 <= move.getpos2()) continue;
+
+                switch (move.getmtype()){
+                        case Move::InterSw: { 
+				//get rid of neighboring moves, savigs have being changed
+                                if (move.getInterSwTruck1()== guide.getInterSwTruck1()) {
+                                        if (inRange( fromPos, move.getInterSwFromPos(),2)) continue;
+				} 
+                                if (move.getInterSwTruck1()== guide.getInterSwTruck2()) {
+                                       	if (inRange( toPos, move.getInterSwFromPos(),2)) continue;
+				}
+                                if (move.getInterSwTruck2()== guide.getInterSwTruck1()) {
+                                        if (inRange( fromPos, move.getInterSwToPos(),2)) continue;
+				} 
+                                if (move.getInterSwTruck2()== guide.getInterSwTruck2()) {
+                                       	if (inRange( toPos, move.getInterSwToPos(),2)) continue;
+				}
+                                //moves that survived maybe are not feasable now becuase of moving dumps
+                                if ( not currentSolution.testInterSwMove(move) ) continue;
+                                moves.insert(move);
+                                break;
+                        }
+                        case Move::Ins: {
+                                //get rid of neighboring moves, savigs have being changed
+                                if (move.getInsFromTruck()== guide.getInterSwTruck1()) {
+                                        if (inRange( fromPos, move.getInsFromPos(),2)) continue;
+                                }
+                                if (move.getInsFromTruck()== guide.getInterSwTruck2()) {
+                                        if (inRange( toPos, move.getInsFromPos(),2)) continue;
+                                }
+                                if (move.getInsToTruck()== guide.getInterSwTruck1()) {
+                                        if (inRange( fromPos, move.getInsToPos(),2)) continue;
+                                }
+                                if (move.getInsToTruck()== guide.getInterSwTruck2()) {
+                                        if (inRange( toPos, move.getInsToPos(),2)) continue;
+                                }
+                                //moves that survived maybe are not feasable now becuase of moving dumps
+                                if ( not currentSolution.testInterSwMove(move) ) continue;
+                                moves.insert(move);
+                                break;
+                        }
+                        case (Move::IntraSw): {
+				//in theory no intraSw is here, so skip them
+				continue;
+                        }
+		
                 }
         }
 }	
 
 
-void TabuOpt::cleanUpInsMoves(Moves &moves, const Move &guide )  {
+void TabuOpt::cleanUpInsMoves(Moves &moves, const Move &guide, bool &reverseFound )  {
 #ifdef DOSTATS
  STATS->inc("TabuOpt::cleanUpInsMoves ");
+
 #endif
         if (not moves.size() ) return;
-        if (not guide.getmtype()==Move::Ins) return;
-        if (not moves.begin()->getmtype()==Move::Ins) return;
         int fromPos = guide.getInsFromPos();
         int toPos = guide.getInsToPos();
         Moves oldMoves=moves;
         moves.clear();
+        if (not guide.getmtype()==Move::Ins) return;
         Move move;
+        Move reverseMove;
+	bool localFind=false;
         for(MovesItr movePtr=oldMoves.begin(); movePtr!=oldMoves.end();++movePtr) {
                 move = (*movePtr);
-                if (move.getsavings()<0) break;
+        	if ( not (move.getmtype()==Move::Ins)) continue;
+
 		if (move==guide) continue;
-		if (move.getInsFromPos() == fromPos) continue; // that container is not longer there
-		if (move.getInsFromPos() > fromPos) move.setInsFromPos(move.getInsFromPos()-1); //the container was shifted -1 position 
-		if (move.getInsToPos() == toPos) continue; //the evaluation is not longer valid
-		if (move.getInsToPos() > toPos) move.setInsToPos(move.getInsToPos()+1); //the container was shifted 1 position 
-		 
-                if ( currentSolution.testInsMove(move) ) moves.insert(move);
-                
+		if (not reverseFound and not localFind and move.getInsFromTruck()==guide.getInsToTruck() and move.getInsToTruck()==guide.getInsFromTruck()) { //making a reverse move
+		
+			if (move.getInsFromPos()==guide.getInsToPos()
+			   or  (move.getInsFromPos()==guide.getInsToPos()+1)
+			   or  (move.getInsFromPos()==guide.getInsToPos()-1)
+			   or  (move.getInsFromPos()==guide.getInsToPos()+2)
+			   or  (move.getInsFromPos()==guide.getInsToPos()-2))
+		 		continue;
+			if (move.getInsFromPos()>guide.getInsToPos()) move.setInsFromPos( move.getInsFromPos()+1 );
+			if (move.getInsToPos()>guide.getInsFromPos()) move.setInsToPos( move.getInsToPos()-1 );
+			if (not currentSolution.testInsMove(move) ) continue;
+			reverseMove=move;
+			localFind=true;
+			continue;
+		}
+		if ( move.getInsFromTruck()==guide.getInsFromTruck() or move.getInsToTruck()==guide.getInsFromTruck()) 
+			continue; 
+		if ( move.getInsFromTruck()==guide.getInsToTruck() or move.getInsToTruck()==guide.getInsToTruck()) 
+			continue; 
+                moves.insert(move);
         }
+	if (localFind) {
+std::cout<<"REVERSE going to make  \n";
+		applyAmove(reverseMove);
+std::cout<<"REVERSE done \n";
+		reverseFound=true;
+	}
 }
 
 
+
+bool TabuOpt::inRange(int center, int data, int step ) const {
+	return ( ((center-step) <= data) and (data <= (center+step))) ;
+}
 
 void TabuOpt::cleanUpIntraSwMoves(Moves &moves, const Move &guide ) const  {
 #ifdef DOSTATS
@@ -469,11 +626,54 @@ void TabuOpt::cleanUpIntraSwMoves(Moves &moves, const Move &guide ) const  {
         int truckPos = guide.getIntraSwTruck();
         for(MovesItr movePtr=oldMoves.begin(); movePtr!=oldMoves.end();++movePtr) {
                 move = (*movePtr);
-                if (not (move.getmtype()==Move::IntraSw)) continue;
-                if ( truckPos == move.getIntraSwTruck() ) continue;
-		if ( move.getIntraSwNid1() == guide.getIntraSwNid1() ) continue;
-		if ( move.getIntraSwNid2() == guide.getIntraSwNid2() ) continue;
-                moves.insert(move);
+		switch (move.getmtype()){
+			case Move::InterSw: {
+
+				if (move.getInterSwTruck1()== truckPos) {
+					if (inRange(guide.getIntraSwFromPos(), move.getInterSwFromPos(),2)) continue;
+					if (inRange(guide.getIntraSwToPos(), move.getInterSwFromPos(),2)) continue;
+					if (currentSolution[truckPos].size()-5 <= move.getInterSwFromPos()) continue;
+					if ( not currentSolution.testInterSwMove(move) ) continue;
+
+                			moves.insert(move);
+				}
+				if (move.getInterSwTruck2()==truckPos) {
+					//The sorrounding Positions structure of the truck are not the same
+					if (inRange(guide.getIntraSwFromPos(), move.getInterSwToPos(),2)) continue;
+					if (inRange(guide.getIntraSwToPos(), move.getInterSwToPos(),2)) continue;
+					if (currentSolution[truckPos].size()-5 <= move.getInterSwToPos()) continue;
+					if ( not currentSolution.testInterSwMove(move) ) continue;
+
+                			moves.insert(move);
+				}
+				break;
+			}
+			case Move::Ins: {
+
+				if (move.getInsFromTruck()== truckPos) {
+					//The sorrounding Positions structure of the truck are not the same
+					if (inRange(guide.getIntraSwFromPos(), move.getInsFromPos(),2)) continue;
+					if (inRange(guide.getIntraSwToPos(), move.getInsFromPos(),2)) continue;
+					if (currentSolution[truckPos].size()-3 <= move.getInsFromPos()) continue;
+                			moves.insert(move);
+				}
+				if (move.getInsToTruck()== truckPos) {
+					//The sorrounding Positions structure of the truck are not the same
+					if (inRange(guide.getIntraSwFromPos(), move.getInsToPos(),2)) continue;
+					if (inRange(guide.getIntraSwToPos(), move.getInsToPos(),2)) continue;
+					if (currentSolution[truckPos].size()-3 <= move.getInsToPos()) continue;
+                			moves.insert(move);
+				}
+				break;
+			}
+			case (Move::IntraSw): {
+
+                		if ( truckPos == move.getIntraSwTruck() ) continue;
+				if ( move.getIntraSwNid1() == guide.getIntraSwNid1() ) continue;
+				if ( move.getIntraSwNid2() == guide.getIntraSwNid2() ) continue;
+                		moves.insert(move);
+			}	
+		}
         }
 }
 
@@ -486,7 +686,7 @@ void TabuOpt::cleanUpMoves(const Move guide ) {
 #endif
 	#ifdef LOG
 	std::cout<<"ENTERING TabuOpt::cleanUpMoves\n";
-	if (guide.getmtype()==Move::IntraSw) {
+	if (guide.getmtype()==Move::Ins) {
 	guide.Dump();
         if (aspirationalNotTabu.size()) std::cout<<"cleaning aspirational not tabu\n";
         if (aspirationalTabu.size()) std::cout<<"cleaning aspirational tabu\n";
@@ -512,10 +712,11 @@ void TabuOpt::cleanUpMoves(const Move guide ) {
 			if (tabu.size()) cleanUpIntraSwMoves(tabu,guide);
 			break;
 		case Move::Ins: 
-			if( aspirationalNotTabu.size()) cleanUpInsMoves(aspirationalNotTabu,guide);
-			if (aspirationalTabu.size()) cleanUpInsMoves(aspirationalTabu,guide);
-			if (notTabu.size())cleanUpInsMoves(notTabu,guide);
-			if (tabu.size()) cleanUpInsMoves(tabu,guide);
+			bool reverseFound=false;
+			if( aspirationalNotTabu.size()) cleanUpInsMoves(aspirationalNotTabu,guide,reverseFound);
+			if (aspirationalTabu.size()) cleanUpInsMoves(aspirationalTabu,guide,reverseFound);
+			if (notTabu.size())cleanUpInsMoves(notTabu,guide,reverseFound);
+			if (tabu.size()) cleanUpInsMoves(tabu,guide,reverseFound);
 			break;
 	}
 	#ifdef LOG
