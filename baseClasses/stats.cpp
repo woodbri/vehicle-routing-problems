@@ -14,6 +14,7 @@
 
 #include <iostream>
 
+#include "logger.h"
 #include "stats.h"
 
 
@@ -54,12 +55,11 @@ std::vector<std::string> Stats::getkeys() const {
 void Stats::dump(const std::string title) const {
     std::map<std::string, double>::const_iterator it;
 
-    std::cout << "---------- Stats: " << title
-              << " --------------" << std::endl;
+    DLOG(INFO) << "---------- Stats: " << title << " --------------";
     for (it = stats.begin(); it!=stats.end(); ++it)
-        std::cout << it->first << ":\t" << it->second << std::endl;
+        DLOG(INFO) << it->first << ":\t" << it->second;
 
-    std::cout << "----------------------------------------" << std::endl;
+    DLOG(INFO) << "----------------------------------------";
 }
 
 

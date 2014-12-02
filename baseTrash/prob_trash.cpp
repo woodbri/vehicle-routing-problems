@@ -16,7 +16,7 @@
 #include <algorithm>
 #include <math.h>
 
-//#include "order.h"
+#include "logger.h"
 #include "prob_trash.h"
 
 // Class functions
@@ -26,9 +26,9 @@ bool Prob_trash::checkIntegrity() const {
    int nodesCant=datanodes.size();
 
    if (datanodes.empty()) {
-        std::cout << "Nodes is empty\n";
+        DLOG(INFO) << "Nodes is empty";
         flag=false; }
-   else std::cout << "# of Nodes:"<<nodesCant<<"\n";
+   else DLOG(INFO) << "# of Nodes:" << nodesCant;
 
    for (int i=1;i<nodesCant-1;i++) {
      flag= flag and datanodes[i].isValid();
@@ -39,30 +39,30 @@ bool Prob_trash::checkIntegrity() const {
 // DUMPS ********************************************
 
 void Prob_trash::nodesdump() {
-    std::cout << "---- Nodes  --------------\n";
+    DLOG(INFO) << "---- Nodes  --------------";
     for (int i=0; i<datanodes.size(); i++)
         datanodes[i].dump();
 }
 
 
 void Prob_trash::nodesdumpeval() {
-    std::cout << "---- Nodes  Evaluation--------------\n";
+    DLOG(INFO) << "---- Nodes  Evaluation--------------";
     for (int i=0; i<datanodes.size(); i++)
         datanodes[i].dumpeval();
 }
 
 
 void Prob_trash::dump() {
-    std::cout << "---- Problem -------------\n";
+    DLOG(INFO) << "---- Problem -------------";
     nodesdump();
-    std::cout << "INITIAL EVALUATION\n";
+    DLOG(INFO) << "INITIAL EVALUATION";
     nodesdumpeval();
 
 }
 
 
 void Prob_trash::dumpdataNodes() const {
-    std::cout << "--------- Nodes ------------" << std::endl;
+    DLOG(INFO) << "--------- Nodes ------------";
     for (int i=0; i<datanodes.size(); i++)
         datanodes[i].dump();
 }
@@ -70,7 +70,7 @@ void Prob_trash::dumpdataNodes() const {
 
 
 void Prob_trash::dumpDepots() const {
-    std::cout << "--------- Depots ------------" << std::endl;
+    DLOG(INFO) << "--------- Depots ------------";
     depots.dump("Depots");
     for (int i=0; i<depots.size(); i++)
         depots[i].dump();
@@ -79,7 +79,7 @@ void Prob_trash::dumpDepots() const {
 
 
 void Prob_trash::dumpDumps() const {
-    std::cout << "--------- Dumps ------------" << std::endl;
+    DLOG(INFO) << "--------- Dumps ------------";
     dumps.dump("Dumps");
     for (int i=0; i<dumps.size(); i++)
         dumps[i].dump();
@@ -87,7 +87,7 @@ void Prob_trash::dumpDumps() const {
 
 
 void Prob_trash::dumpPickups() const {
-    std::cout << "--------- Pickups ------------" << std::endl;
+    DLOG(INFO) << "--------- Pickups ------------";
     pickups.dump("pickups");
     for (int i=0; i<pickups.size(); i++)
         pickups[i].dump();
@@ -111,7 +111,7 @@ void Prob_trash::plot(Plot<Trashnode> &graph) {
 Prob_trash::Prob_trash(const char *infile)
      {
 #ifdef LOG
-std::cout << "---- char * Constructor --------------\n";
+    DLOG(INFO) << "---- char * Constructor --------------";
 #endif
         std::string file = infile;
         loadProblem(file);
@@ -119,7 +119,7 @@ std::cout << "---- char * Constructor --------------\n";
 
 Prob_trash::Prob_trash(const std::string &infile) {
 #ifdef LOG
-std::cout << "Prob_trash---- string Constructor --------------\n";
+    DLOG(INFO) << "Prob_trash---- string Constructor --------------";
 #endif
     loadProblem(infile);
 }
@@ -132,7 +132,8 @@ void Prob_trash::loadProblem(const std::string &infile)
     Bucket nodes;
     Bucket intersection;
 #ifdef LOG
-std::cout << "Prob_trash LoadProblem --------------"<< datafile<< "--------\n";
+    DLOG(INFO) << "Prob_trash LoadProblem --------------" << datafile
+               << "--------";
 #endif
 
 
@@ -150,7 +151,7 @@ std::cout << "Prob_trash LoadProblem --------------"<< datafile<< "--------\n";
     nodes -= intersection;
 
 #ifndef LOG
-invalid.dump("invalid");
+    invalid.dump("invalid");
 #endif
 
 
@@ -159,8 +160,10 @@ invalid.dump("invalid");
     for (int i=0;i<nodes.size();i++) {
         nodes[i].setnid(i);
         id = nodes[i].getid();
-        if ( pickups.hasId( id ) ) pickups[ pickups.posFromId( id ) ].setnid(i);
-        else if ( otherlocs.hasId( id ) ) otherlocs[ otherlocs.posFromId( id ) ].setnid(i);
+        if ( pickups.hasId( id ) )
+            pickups[ pickups.posFromId( id ) ].setnid(i);
+        else if ( otherlocs.hasId( id ) )
+            otherlocs[ otherlocs.posFromId( id ) ].setnid(i);
     };
     C=nodes.back();
     assert( pickups.size() );
@@ -193,30 +196,28 @@ invalid.dump("invalid");
     }
     
 #ifdef LOG
-C.dump();
-nodes.dump("nodes");
-dumps.dump("dumps");
-depots.dump("depots");
-pickups.dump("pickups");
-endings.dump("endings");
-datanodes.dump("datanodes");
-invalid.dump("invalid");
-std::cout<<"TRUCKS\n";
-for (int i=0;i<trucks.size();i++)
-   trucks[i].tau();
-std::cout<<"\n";
-std::cout<<"INVALID TRUCKS\n";
-for (int i=0;i<invalidTrucks.size();i++)
-   invalidTrucks[i].tau();
-std::cout<<"\n";
-twc->dump();
+    C.dump();
+    nodes.dump("nodes");
+    dumps.dump("dumps");
+    depots.dump("depots");
+    pickups.dump("pickups");
+    endings.dump("endings");
+    datanodes.dump("datanodes");
+    invalid.dump("invalid");
+    DLOG(INFO) << "TRUCKS";
+    for (int i=0;i<trucks.size();i++)
+       trucks[i].tau();
+    DLOG(INFO) << "INVALID TRUCKS";
+    for (int i=0;i<invalidTrucks.size();i++)
+       invalidTrucks[i].tau();
+    twc->dump();
 #endif
 }
 
 void Prob_trash::buildStreets( Bucket &unassigned, Bucket &assigned) {
 
 #ifdef TESTED
-std::cout<<"Build Streets\n";
+    DLOG(INFO) << "Build Streets";
 #endif
     Bucket assign;
     Trashnode node;
@@ -226,7 +227,7 @@ std::cout<<"Build Streets\n";
     unassigned.pop_front();
     assigned.push_back( node );
     street.e_insert(unassigned,assign);
-street.dumpid();
+    street.dumpid();
     assigned+=assign;
     streets.push_back(street);
     buildStreets(unassigned,assigned);
@@ -236,7 +237,7 @@ street.dumpid();
 
 void Prob_trash::buildStreets(const Bucket &nodes) {
 #ifdef TESTED
-std::cout<<"Build Streets\n";
+    DLOG(INFO) << "Build Streets";
 #endif
     Bucket assigned;
     Bucket unassigned=nodes;
@@ -250,7 +251,7 @@ void Prob_trash::load_trucks(std::string infile) {
     std::ifstream in( infile.c_str() );
     std::string line;
 #ifdef TESTED
-std::cout<<"Prob_trash:LoadTrucks"<<infile<<"\n";
+    DLOG(INFO) << "Prob_trash:LoadTrucks" << infile;
 #endif
 
     trucks.clear();
@@ -272,7 +273,7 @@ std::cout<<"Prob_trash:LoadTrucks"<<infile<<"\n";
 }
 
 void Prob_trash::load_depots(std::string infile) { 
-std::cout<<"Prob_trash:Load_depots"<<infile<<"\n";
+    DLOG(INFO) << "Prob_trash:Load_depots" << infile;
     std::ifstream in( infile.c_str() );
     std::string line;
     int cnt = 0;
@@ -284,7 +285,7 @@ std::cout<<"Prob_trash:Load_depots"<<infile<<"\n";
 
         Trashnode node(line);  
         if ( not node.isValid() or not node.isDepot()) {
-           std::cout << "ERROR: line: " << cnt << ": " << line << std::endl;
+           DLOG(INFO) << "ERROR: line: " << cnt << ": " << line;
            invalid.push_back(node);
         } else {
            depots.push_back(node); 
@@ -294,7 +295,7 @@ std::cout<<"Prob_trash:Load_depots"<<infile<<"\n";
 }
 
 void Prob_trash::load_otherlocs(std::string infile) { 
-std::cout<<"Prob_trash:Load_otherlocs"<<infile<<"\n";
+    DLOG(INFO) << "Prob_trash:Load_otherlocs" << infile;
     std::ifstream in( infile.c_str() );
     std::string line;
     int cnt = 0;
@@ -307,7 +308,7 @@ std::cout<<"Prob_trash:Load_otherlocs"<<infile<<"\n";
 
         Trashnode node(line);  
         if ( not node.isValid() ) {
-           std::cout << "ERROR: line: " << cnt << ": " << line << std::endl;
+           DLOG(INFO) << "ERROR: line: " << cnt << ": " << line;
            invalid.push_back(node);
         } else {
            otherlocs.push_back(node);  
@@ -329,7 +330,7 @@ void Prob_trash::load_dumps(std::string infile) { //1 dump problem
 
         Trashnode node(line);  
         if ( not node.isValid() or not node.isDump()) {
-           std::cout << "ERROR: line: " << cnt << ": " << line << std::endl;
+           DLOG(INFO) << "ERROR: line: " << cnt << ": " << line;
            invalid.push_back(node);
         } else {
            dumps.push_back(node);  
@@ -353,7 +354,7 @@ void Prob_trash::load_pickups(std::string infile) {
         node.setType(2);
         if ( not node.isValid() ) {
 #ifdef TESTED
-           std::cout << "ERROR: line: " << cnt << ": " << line << std::endl;
+           DLOG(INFO) << "ERROR: line: " << cnt << ": " << line;
 #endif
            invalid.push_back(node);
         } else {

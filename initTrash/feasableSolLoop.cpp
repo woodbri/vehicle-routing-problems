@@ -20,6 +20,7 @@
 #include <sstream>
 #include <fstream>
 
+#include "logger.h"
 #include "plot.h"
 #include "feasableSolLoop.h"
 
@@ -28,8 +29,9 @@
 
 //   need new truck when bestNode generates TV regardless of cargo
 //   what to check firts Cargo or Time????
-//   how to handla that once the Dump is inserted, not to look for best Position on
-//       the first part of ther Route????
+//   how to handla that once the Dump is inserted,
+//      not to look for best Position on
+//      the first part of ther Route????
 
 void FeasableSolLoop::stepOneLoop(Vehicle &truck) {
     int iteration = 0;
@@ -59,7 +61,7 @@ truck.plot("Feasable-","",truck.getVid());
                     usedTrucks.push_back(truck);
                 }
                 else {
-                    std::cout << "No more trucks available. unassigned containers: " << unassigned.size() << std::endl;
+                    DLOG(INFO) << "No more trucks available. unassigned containers: " << unassigned.size();
                     return;
                 }
 
@@ -68,7 +70,7 @@ truck.plot("Feasable-","",truck.getVid());
                 unassigned.erase(bestNode);
             } 
         } else {
-            std::cout<<"no nearest node was found\n";
+            DLOG(INFO)<<"no nearest node was found";
             assert(true==false);
         }
 

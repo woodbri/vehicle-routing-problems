@@ -5,6 +5,7 @@
 #include "Server/DataStructures/RouteParameters.h"
 //#include "Library/OSRM.h"
 
+#include "logger.h"
 #include "node.h"
 
 #include <string>
@@ -92,12 +93,11 @@ class OsrmClient {
 
   public:
     void dump() {
-        std::cout << "----- OsrmClient ----------"
+        DLOG(INFO) << "----- OsrmClient ----------"
                   << "\nstatus: " << status
                   << "\nerr_msg: " << err_msg
                   << "\ncoordinates.size(): " << route_parameters.coordinates.size()
-                  << "\nhttpContent: " << httpContent
-                  << "\n";
+                  << "\nhttpContent: " << httpContent;
     };
 };
 

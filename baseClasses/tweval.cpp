@@ -15,6 +15,8 @@
 #include <iostream>
 #include <sstream>
 
+#include "logger.h"
+
 #ifdef OSRMCLIENT
 #include "osrmclient.h"
 #endif
@@ -80,24 +82,22 @@ void Tweval::evaluate ( const Tweval &pred, double cargoLimit ) {
  */
 void Tweval::dump() const {
     Twnode::dump();
-    std::cout << std::endl;
 }
 
 /*!
  * \brief Print the Tweval attributes for the node.
  */
 void Tweval::dumpeval() const  {
-    std::cout << "twv=" << twv
-              << ", cv=" << cv
-              << ", twvTot=" << twvTot
-              << ", cvTot=" << cvTot
-              << ", cargo=" << cargo
-              << ", travel Time=" << travelTime
-              << ", arrival Time=" << arrivalTime
-              << ", wait Time=" << waitTime
-              << ", service Time=" << serviceTime
-              << ", departure Time=" << departureTime
-              << std::endl;
+    DLOG(INFO) << "twv=" << twv
+               << ", cv=" << cv
+               << ", twvTot=" << twvTot
+               << ", cvTot=" << cvTot
+               << ", cargo=" << cargo
+               << ", travel Time=" << travelTime
+               << ", arrival Time=" << arrivalTime
+               << ", wait Time=" << waitTime
+               << ", service Time=" << serviceTime
+               << ", departure Time=" << departureTime;
 }
 
 
@@ -165,23 +165,6 @@ Tweval::Tweval( int _id, double _x, double _y, int _open, int _close,
 double Tweval::deltaGeneratesTWV( double deltaTime ) const {
     return ( arrivalTime + deltaTime > closes() );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

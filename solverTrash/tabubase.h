@@ -17,7 +17,9 @@
 #include <map>
 #include <cassert>
 #include <cstdlib>
+#include <sstream>
 
+#include "logger.h"
 #include "stats.h"
 #include "timer.h"
 #include "move.h"
@@ -174,34 +176,39 @@ dumpSet("Tabued for insertion",list);
 */
 	
 void dumpSet(std::string title, std::set<int> info) const{
+    std::stringstream ss;
+
 	#ifdef DOSTATS
         STATS->inc("Tabubase::dumpTabuList");
 	#endif
         std::set<int>::const_iterator it;
-	std::cout<<"Title: ";
+        ss << "Title: ";
         for (it = info.begin(); it!=info.end(); ++it) {
-		std::cout<<(*it)<<" ";
+            ss << (*it) << " ";
         }
-	std::cout<<"\n";
+	DLOG(INFO) << ss.str();
 };
 
 
 
 
 void dumpTabuList() const {
+    std::stringstream ss;
+
 	#ifdef DOSTATS
         STATS->inc("Tabubase::dumpTabuList");
 	#endif
 
     std::map<const Move, int>::const_iterator it;
 
-    std::cout << "TabuList at iteration: " << currentIteration <<"\t";
-    std::cout << "total Moves made: " << totalMovesMade << std::endl;
+    ss << "TabuList at iteration: " << currentIteration <<"\t";
+    ss << "total Moves made: " << totalMovesMade << "\n";
     for (it = TabuList.begin(); it!=TabuList.end(); ++it) {
         it->first.dump();
-        std::cout << " - expires: " << it->second << std::endl;
+        ss << " - expires: " << it->second << "\n";
     }
-    std::cout << "--------------------------" << std::endl;
+    ss << "--------------------------";
+	DLOG(INFO) << ss.str();
 };
 
 
@@ -209,7 +216,7 @@ void dumpStats() const {
 	#ifdef DOSTATS
         STATS->inc("Tabubase::dumpStats");
 	#ifndef LOG
-    	std::cout << "TabuList Stats at iteration: " << currentIteration << std::endl;
+    	DLOG(INFO) << "TabuList Stats at iteration: " << currentIteration;
 	#endif
     	STATS->dump("");
 	#endif
@@ -224,8 +231,8 @@ void generateNeighborhoodStats(std::string mtype, double tm, int cnt) const {
     STATS->addto("cum Moves "+mtype, cnt);
     #endif
     #ifndef LOG
-std::cout << "\tdoNeighborhoodMoves for " << mtype << ": " << cnt
-<< " moves generated" << std::endl;
+    DLOG(INFO) << "doNeighborhoodMoves for " << mtype << ": " << cnt
+               << " moves generated";
     #endif
 };
 
@@ -394,7 +401,7 @@ void removeTruckFromTabuList(POS truckPos) {
         STATS->inc("Tabubase::removeTruckFromTabuList");
 	#endif
 #ifndef TESTED
-std::cout<<"Entering TabuBase::removeTruckFromTabuList \n";
+    DLOG(INFO) << "Entering TabuBase::removeTruckFromTabuList";
 #endif
         int pos1,pos2;
         Move move;

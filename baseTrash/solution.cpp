@@ -11,6 +11,7 @@
  * the terms of the MIT License. Please file LICENSE for details.
  *
  ********************************************************************VRP*/
+#include "logger.h"
 #include "solution.h"
 
 bool Solution::feasable() const {
@@ -29,7 +30,7 @@ int Solution::v_computeCosts() {
     for (int i=0; i<fleet.size(); i++) {
         if (fleet[i].size()==1) {
 #ifndef TESTED
-                std::cout<<"FOUND A TRUCK WITHOUT CONTAINERS";
+                DLOG(INFO) << "FOUND A TRUCK WITHOUT CONTAINERS";
 #endif
 		removedPos=i;
                 trucks.push_back(fleet[i]);
@@ -130,7 +131,7 @@ vehicle_path_t *Solution::getSolutionForPg(int& count) const {
         ++seq;
     }
 
-std::cout << "Solution::getSolutionForPg: seq: " << seq <<", count: " << count << std::endl;
+DLOG(INFO) << "Solution::getSolutionForPg: seq: " << seq <<", count: " << count;
 
     return results;
 }
@@ -140,14 +141,14 @@ std::cout << "Solution::getSolutionForPg: seq: " << seq <<", count: " << count <
 // each vehicle is separated with a -1
 
 std::string Solution::solutionAsText() const {
-//std::cout<<"fleets size"<<fleet.size()<<"\n";
+//DLOG(INFO) << "fleets size" << fleet.size();
     std::stringstream ss;;
     const std::vector<int> sol = solutionAsVector();
     for (int i=0; i<sol.size(); i++) {
         if (i) ss << ",";
         ss << sol[i];
     }
-//std::cout<<ss.str()<<"  Solution::solutionAsText() \n";
+//DLOG(INFO) << ss.str() <<"  Solution::solutionAsText();
     return ss.str();
 }
 
@@ -242,17 +243,17 @@ void Solution::plot(std::string file,std::string title){
 
 
 void Solution::tau() {
-    std::cout<< "\nTau:" << std::endl;
+    DLOG(INFO) << "Tau:";
     for (int i=0; i<fleet.size(); i++) {
         fleet[i].tau();
     };
-    std::cout<<"0\n";
+    DLOG(INFO) << "0";
 }
 
 void Solution::dumproutes()  {
-    std::cout<< "\nVehicle:" << std::endl;
+    DLOG(INFO) << "Vehicle:";
     for (int i=0; i<fleet.size(); i++) {
-        std::cout<<"\n -----> Vehicle#"<<i<<"\n";
+        DLOG(INFO) << " -----> Vehicle#" << i;
         fleet[i].dump();
     }
     tau();
@@ -262,12 +263,11 @@ void Solution::dumproutes()  {
 void Solution::dump() {
     computeCosts();
     tau();
-    std::cout <<   " Total Distance: " << totalDistance
-              << "\n     Total Cost: " << totalCost
-              << std::endl;
+    DLOG(INFO) <<   " Total Distance: " << totalDistance
+               << "\n     Total Cost: " << totalCost;
     for (int i=0; i<fleet.size(); i++) {
-        std::cout << "V" << i << " Total OSRM Time: "
-                  << fleet[i].getTimeOSRM() << std::endl;
+        DLOG(INFO) << "V" << i << " Total OSRM Time: "
+                   << fleet[i].getTimeOSRM();
         fleet[i].getBackToDepot().dumpeval();
     }
 }
@@ -331,7 +331,7 @@ solPath.dumpid("solPath");
    };
    computeCosts();
    if (unassigned.size() or (assigned == pickups)) 
-       std::cout<<"Something went wrong creating the solution\n";
+       DLOG(INFO) << "Something went wrong creating the solution";
 };
         
 
@@ -380,7 +380,7 @@ int Solution::getCV() const {
 
 // dump the problem and the solution
 void Solution::dumpFleet() const {
-    std::cout << "--------- Fleet ------------" << std::endl;
+    DLOG(INFO) << "--------- Fleet ------------";
     for (int i=0; i<fleet.size(); i++)
         fleet[i].dump();
 }
@@ -392,16 +392,16 @@ void Solution::dump() const {
     dumpDumps();
     dumpPickups();
     dumpFleet();
-    std::cout << "--------- Solution ------------" << std::endl;
-    std::cout << "Total path length: " << getduration() << std::endl;
-    std::cout << "Total path cost: " << getcost() << std::endl;
-    std::cout << "Total count of TWV: " << getTWV() << std::endl;
-    std::cout << "Total count of CV: " << getCV() << std::endl;
-    std::cout << "Solution: " << solutionAsText() << std::endl;
+    DLOG(INFO) << "--------- Solution ------------";
+    DLOG(INFO) << "Total path length: " << getduration();
+    DLOG(INFO) << "Total path cost: " << getcost();
+    DLOG(INFO) << "Total count of TWV: " << getTWV();
+    DLOG(INFO) << "Total count of CV: " << getCV();
+    DLOG(INFO) << "Solution: " << solutionAsText();
     #ifdef WITHOSRM
     for (int i=0; i<fleet.size(); i++) {
-        std::cout << "V" << i << " Total OSRM Time: "
-                  << fleet[i].getTotTravelTimeOsrm() << std::endl;
+        DLOG(INFO) << "V" << i << " Total OSRM Time: "
+                   << fleet[i].getTotTravelTimeOsrm();
     }
     #endif
 
@@ -424,11 +424,10 @@ bool Solution::applyInterSwMove( const Move &move) {
   assert(not (move.getInterSwTruck1()==move.getInterSwTruck2()));
 
   if (not (fleet[move.getInterSwTruck1()][ move.getpos1()].getnid() == move.getnid1() )) {
-	std::cout<<"ERROR APPLYING INTERSW ";
+	DLOG(INFO) << "ERROR APPLYING INTERSW ";
         move.Dump();
         fleet[move.getInterSwTruck1()][ move.getpos1()].dump();
         fleet[move.getInterSwTruck2()][ move.getpos2()].dump();
-        std::cout<<"\n";
   }
 
   assert(fleet[move.getInterSwTruck1()][ move.getpos1()].getnid() == move.getnid1() );
@@ -459,11 +458,11 @@ bool Solution::applyIntraSwMove( const Move &move) {
 // dump summary of the solution
 
 void Solution::dumpSummary() const {
-    std::cout << "--------- Solution ------------" << std::endl;
-    std::cout << "Total path length: " << getduration() << std::endl;
-    std::cout << "Total path cost: " << getcost() << std::endl;
-    std::cout << "Total count of TWV: " << getTWV() << std::endl;
-    std::cout << "Total count of CV: " << getCV() << std::endl;
-    std::cout << "Solution: " << solutionAsText() << std::endl;
+    DLOG(INFO) << "--------- Solution ------------";
+    DLOG(INFO) << "Total path length: " << getduration();
+    DLOG(INFO) << "Total path cost: " << getcost();
+    DLOG(INFO) << "Total count of TWV: " << getTWV();
+    DLOG(INFO) << "Total count of CV: " << getCV();
+    DLOG(INFO) << "Solution: " << solutionAsText();
 }
 

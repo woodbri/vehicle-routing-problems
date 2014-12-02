@@ -20,6 +20,7 @@
 #include <sstream>
 #include <fstream>
 
+#include "logger.h"
 #include "timer.h"
 #include "plot.h"
 #include "feasableSol.h"
@@ -67,7 +68,7 @@ void FeasableSol::stepOne(Vehicle &truck) {
             stepOne(truck);
         } 
     } else {
-	std::cout<<"no nearest node was found\n";
+	DLOG(INFO) << "no nearest node was found";
 	assert(true==false);
     }
 
@@ -106,6 +107,6 @@ void FeasableSol::process() {
     stepOne(truck);        
     fleet.push_back(truck); //need to save the last truck
 
-    std::cout << "FEASABLESOL: Total time: " << start.duration() << std::endl;
+    DLOG(INFO) << "FEASABLESOL: Total time: " << start.duration();
 return;
 }

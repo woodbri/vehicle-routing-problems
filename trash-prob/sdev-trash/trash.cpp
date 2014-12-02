@@ -33,8 +33,55 @@
 #include "trashnode.h"
 #include "twpath.h"
 #include "feasableSolLoop.h"
-#include "tabusearch.h"
+//#include "tabusearch.h"
 #include "tabuopt.h"
+
+void Usage() {
+    std::cout << "Usage: trash file (no extension)\n";
+}
+
+static std::string font = "/usr/share/fonts/truetype/ttf-dejavu/DejaVuSans.ttf";
+
+int testOsrmClient() {
+    Timer t0;
+    OsrmClient* oc = OsrmClient::Instance();
+    oc->dump();
+    if (oc->getStatus() == -1) {
+        DLOG(INFO) << oc->getErrorMsg() << std::endl;
+        return -1;
+    }
+    oc->setWantGeometry( true );
+    oc->addViaPoint(-34.88124, -56.19048);
+    oc->addViaPoint(-34.89743, -56.12447);
+    oc->dump();
+    if (oc->getOsrmViaroute()) {
+        DLOG(INFO) << "getOsrmViaroute: Failed!\n";
+        DLOG(INFO) << oc->getErrorMsg() << std::endl;
+        return -1;
+    }
+    oc->dump();
+    double time;
+    if (oc->getOsrmTime( time )) {
+        DLOG(INFO) << "getOsrmTime Failed!\n";
+        DLOG(INFO) << oc->getErrorMsg() << std::endl;
+        return -1;
+    }
+    DLOG(INFO) << "getOsrmTime: " << time << std::endl;
+    DLOG(INFO) << "duration: " << t0.duration() << std::endl;
+
+    std::deque<Node> geom;
+    if (oc->getOsrmGeometry( geom )) {
+        DLOG(INFO) << "getOsrmGeometry Failed!\n";
+        DLOG(INFO) << oc->getErrorMsg() << std::endl;
+        return -1;
+    }
+    for (int i=0; i<geom.size(); ++i) {
+        DLOG(INFO) << "geom[" << i << "]: ";
+        geom[i].dump();
+    }
+    return 0;
+}
+
 
 /* Logging Severity Levels
     0   INFO
@@ -49,59 +96,13 @@
 */
 
 
-void Usage() {
-    std::cout << "Usage: trash file (no extension)\n";
-}
-
-static std::string font = "/usr/share/fonts/truetype/ttf-dejavu/DejaVuSans.ttf";
-
-int testOsrmClient() {
-    Timer t0;
-    OsrmClient* oc = OsrmClient::Instance();
-    oc->dump();
-    if (oc->getStatus() == -1) {
-        std::cout << oc->getErrorMsg() << std::endl;
-        return -1;
-    }
-    oc->setWantGeometry( true );
-    oc->addViaPoint(-34.88124, -56.19048);
-    oc->addViaPoint(-34.89743, -56.12447);
-    oc->dump();
-    if (oc->getOsrmViaroute()) {
-        std::cout << "getOsrmViaroute: Failed!\n";
-        std::cout << oc->getErrorMsg() << std::endl;
-        return -1;
-    }
-    oc->dump();
-    double time;
-    if (oc->getOsrmTime( time )) {
-        std::cout << "getOsrmTime Failed!\n";
-        std::cout << oc->getErrorMsg() << std::endl;
-        return -1;
-    }
-    std::cout << "getOsrmTime: " << time << std::endl;
-    std::cout << "duration: " << t0.duration() << std::endl;
-
-    std::deque<Node> geom;
-    if (oc->getOsrmGeometry( geom )) {
-        std::cout << "getOsrmGeometry Failed!\n";
-        std::cout << oc->getErrorMsg() << std::endl;
-        return -1;
-    }
-    for (int i=0; i<geom.size(); ++i) {
-        std::cout << "geom[" << i << "]: ";
-        geom[i].dump();
-    }
-    return 0;
-}
-
-
 int main(int argc, char **argv) {
 
     FLAGS_log_dir = "./logs/";
     google::InitGoogleLogging("sdev/Trash");
     FLAGS_logtostderr = 0;
     FLAGS_stderrthreshold = google::ERROR;
+    FLAGS_minloglevel = google::WARNING;
     FLAGS_minloglevel = google::INFO;
 
     if (argc < 2) {
@@ -163,7 +164,7 @@ int main(int argc, char **argv) {
 
     }
     catch (const std::exception &e) {
-        std::cerr << e.what() << std::endl;
+        DLOG(FATAL) << e.what() << std::endl;
         return 1;
     }
 

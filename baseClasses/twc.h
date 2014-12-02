@@ -24,6 +24,7 @@
 #include <math.h>
 #include <limits>
 
+#include "logger.h"
 #include "node.h"
 #include "twpath.h"
 #include "pg_types_vrp.h"
@@ -33,7 +34,7 @@
 	#include "osrmclient.h"
 #endif
 
-#ifdef DOSTATS                                                                                                                                                                                                                   
+#ifdef DOSTATS
 	#include "timer.h"
 	#include "stats.h"
 #endif 
@@ -983,31 +984,34 @@ template <class knode> class TWC {
      * \param[in] nodes  A bucket of nodes to print the TWC matrix.
      */
     void dumpCompatability( const Bucket &nodes ) const  {
+        std::stringstream ss;
         assert( nodes.size() );
-        std::cout.precision( 8 );
-        std::cout << "COMPATABILITY TABLE \n\t";
+
+        ss.precision( 8 );
+        ss << "COMPATABILITY TABLE \n\t";
 
         for ( int i = 0; i < nodes.size(); i++ )
-            std::cout << "nid " << nodes[i].getnid() << "\t";
+            ss << "nid " << nodes[i].getnid() << "\t";
 
-        std::cout << "\n\t";
+        ss << "\n\t";
 
         for ( int i = 0; i < nodes.size(); i++ )
-            std::cout << "id " << nodes[i].getid() << "\t";
+            ss << "id " << nodes[i].getid() << "\t";
 
-        std::cout << "\n";
+        ss << "\n";
 
         for ( int i = 0; i < nodes.size(); i++ ) {
-            std::cout << nodes[i].getnid() << "=" << nodes[i].getid() << "\t";
+            ss << nodes[i].getnid() << "=" << nodes[i].getid() << "\t";
 
             for ( int j = 0; j < nodes.size(); j++ ) {
-                if ( twcij[i][j] !=  -std::numeric_limits<double>::max() ) std::cout <<
-                            twcij[i][j] << "\t";
-                else std::cout << "--\t";
+                if ( twcij[i][j] !=  -std::numeric_limits<double>::max() )
+                    ss << twcij[i][j] << "\t";
+                else ss << "--\t";
             }
 
-            std::cout << "\n";
+            ss << "\n";
         }
+        DLOG(INFO) << ss.str();
     }
 
     /*!
@@ -1024,33 +1028,35 @@ template <class knode> class TWC {
      * \param[in] nodes A bucket of nodes to print the travel time matrix for.
      */
     void dumpTravelTime( const Bucket &nodes ) const {
+        std::stringstream ss;
         assert( nodes.size() );
-        std::cout << "\n\n\n\nTRAVEL TIME TABLE \n\t";
+        ss << "\n\n\n\nTRAVEL TIME TABLE \n\t";
 
-        std::cout.precision( 2 );
-
-        for ( int i = 0; i < nodes.size(); i++ )
-            std::cout << "nid " << nodes[i].getnid() << "\t";
-
-        std::cout << "\n\t";
+        ss.precision( 2 );
 
         for ( int i = 0; i < nodes.size(); i++ )
-            std::cout << "id " << nodes[i].getid() << "\t";
+            ss << "nid " << nodes[i].getnid() << "\t";
 
-        std::cout << "\n";
+        ss << "\n\t";
+
+        for ( int i = 0; i < nodes.size(); i++ )
+            ss << "id " << nodes[i].getid() << "\t";
+
+        ss << "\n";
 
         for ( int i = 0; i < nodes.size(); i++ ) {
-            std::cout << nodes[i].getnid() << "=" << nodes[i].getid() << "\t";
+            ss << nodes[i].getnid() << "=" << nodes[i].getid() << "\t";
 
             for ( int j = 0; j < nodes.size(); j++ ) {
                 if ( travel_Time[i][j] !=  _MAX() )
-                    std::cout << travel_Time[i][j] << "\t";
+                    ss << travel_Time[i][j] << "\t";
                 else
-                    std::cout << "--\t";
+                    ss << "--\t";
             }
 
-            std::cout << "\n";
+            ss << "\n";
         }
+        DLOG(INFO) << ss.str();
     }
 
 
@@ -1068,20 +1074,22 @@ template <class knode> class TWC {
      * \param[in] nodes The bucket of nodes to print the TWC for.
      */
     void dumpCompatible3( const Bucket &nodes ) const {
+        std::stringstream ss;
         assert( nodes.size() );
 
         for ( int i = 0; i < nodes.size(); i++ ) {
             for ( int j = 0; j < nodes.size(); j++ ) {
                 for ( int k = 0; k < nodes.size(); k++ ) {
-                    std::cout << "\t ( " << nodes[i].getnid() << " , "
+                    ss << "\t ( " << nodes[i].getnid() << " , "
                               << nodes[j].getnid() << " , "
                               << nodes[k].getnid() << ") = "
                               << ( isCompatibleIAJ( i, j, k ) ? "COMP" : "not" );
                 }
 
-                std::cout << "\n";
+                ss << "\n";
             }
         }
+        DLOG(INFO) << ss.str();
     }
 
     // ------------ go back to CALCULATED state -------------------
@@ -1335,7 +1343,7 @@ private:
 			travel_Time[i][j]=travel_Time[j][i]=-1;
 			#ifndef OSRMCLIENT
 
-std::cout <<"OSRMCLIENT is not defined: we need to calculate the travelTime table\n";
+DLOG(INFO) << "OSRMCLIENT is not defined: we need to calculate the travelTime table";
                 	getTravelTime(i,j);
                 	getTravelTime(j,i);
 			#endif
@@ -1389,7 +1397,7 @@ public:
      */
     void loadAndProcess_distance( ttime_t *ttimes, int count,
                                   const Bucket &datanodes, const Bucket &invalid ) {
-        std::cout <<"POSTGRES: loadAndProcess_distance needs to be TESTED\n";
+        DLOG(INFO) << "POSTGRES: loadAndProcess_distance needs to be TESTED";
         assert( datanodes.size() );
         original.clear();
         original = datanodes;
@@ -1435,7 +1443,7 @@ public:
     void loadAndProcess_distance( std::string infile, const Bucket &datanodes,
                                   const Bucket &invalid ) {
         assert( datanodes.size() );
-        std::cout <<"VICKYS: loadAndProcess_distance\n";
+        DLOG(INFO) << "VICKYS: loadAndProcess_distance";
 
         original.clear();
         original = datanodes;

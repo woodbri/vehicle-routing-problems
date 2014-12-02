@@ -15,6 +15,7 @@
 #include <iostream>
 #include <sstream>
 
+#include "logger.h"
 #include "node.h"
 
 
@@ -58,10 +59,9 @@ void Node::set( int _nid, double _x, double _y ) {
  * \brief Print the contents of this node.
  */
 void Node::dump() const {
-    std::cout << nid
+    DLOG(INFO) << nid
               << ", " << x
-              << ", " << y
-              << std::endl;
+              << ", " << y;
 };
 
 // Vector Operations

@@ -248,7 +248,7 @@ if (realArrivalEclosesLast < realTotalTime) { last.dumpeval(); dumpCostValues();
 			z2= std::max (z2+1, realz2);
 		
 #ifdef TESTED		
-	std::cout<<"TODOS LOS DELTAS2"
+	DLOG(INFO) << "TODOS LOS DELTAS2"
 		<<"deltattSC    "<<deltattSC    <<"\n"
 		<<"deltattCC    "<<deltattCC    <<"\n"
 		<<"deltattDC    "<<deltattDC    <<"\n"
@@ -290,19 +290,20 @@ if (realArrivalEclosesLast < realTotalTime) { last.dumpeval(); dumpCostValues();
 		
 
 void dumpCostValues() const{
-	std::cout<<" +++++++++++++++++++++  	 TRUCK #<<"<<vid<<"      +++++++++++++++++++++ \n\n\n"; 
-	std::cout<<" Average Container \t"; 
+	DLOG(INFO) << " +++++++++++++++++++++  	 TRUCK #<<" << vid
+               << "      +++++++++++++++++++++"; 
+	DLOG(INFO) << " Average Container:"; 
 	C.dump();
-	std::cout<<" ------  current path -------\n";
+	DLOG(INFO) << " ------  current path -------";
 	tau();
 		
-	std::cout<<" ------  truck time limits -------\n"
-		<<"Shift Starts\t"<<startTime<<"\n"
-		<<"Shift ends\t"<<endTime<<"\n"
-		<<"Shift length\t"<<shiftLength<<"\n";
+	DLOG(INFO) << " ------  truck time limits -------";
+	DLOG(INFO) << "Shift Starts\t" << startTime;
+	DLOG(INFO) << "Shift ends\t" << endTime;
+	DLOG(INFO) << "Shift length\t" << shiftLength;
 
 		
-	std::cout<<"\n\n\n ------Real  Values of current truck in the solution -------\n"
+	DLOG(INFO) <<"------Real  Values of current truck in the solution -------\n"
                 <<"                   realttSC\t"<<realttSC<<"\n"
                 <<"                   realttCC\t"<<realttCC<<"\n"
                 <<"                   realttCD\t"<<realttCD<<"\n"
@@ -347,7 +348,6 @@ void dumpCostValues() const{
 		<<"     1+ workNotDonePerc=\t"<<(1+workNotDonePerc)<<"\t=(double (realz1 + realz2))  /(double (n + realz1+realz2))\n"
 		<<"realTotalTime + sumIdle)=\t"<<(realTotalTime + sumIdle)<<"\n"
 		<<"\n\n             v_cost=\t"<<v_cost<<"\t= (realTotalTime + sumIdle) *( 1 + workNotDonePerc)\n";
-		std::cout<<"\n";
 
 /*
 		<<"\n\n\n DELTA TIME SIMULATION\n"
@@ -355,23 +355,23 @@ void dumpCostValues() const{
 
 		for (double delta=-20; delta<20;delta++) { //changes in time  
 			if (n) {
-				std::cout<<"same amount of containers delta="<<delta<<  "\t    delta+delta/n=" <<(penalty=delta/n)<<"\t";
-				std::cout<<"penalty*sumIdle= "<<(penalty*sumIdle)<<"\n";
+				DLOG(INFO) <<"same amount of containers delta="<<delta<<  "\t    delta+delta/n=" <<(penalty=delta/n)<<"\t";
+				DLOG(INFO) <<"penalty*sumIdle= "<<(penalty*sumIdle)<<"\n";
 			}
 			if (n+1){
-				 std::cout<<"1 container more          delta="<<delta<<"\tdelta+delta/(n+1)="<<(delta/(n+1))<<"\t";
-				std::cout<<"penalty*sumIdle= "<<(penalty*sumIdle)<<"\n";
+				 DLOG(INFO) <<"1 container more          delta="<<delta<<"\tdelta+delta/(n+1)="<<(delta/(n+1))<<"\t";
+				DLOG(INFO) <<"penalty*sumIdle= "<<(penalty*sumIdle)<<"\n";
 			}
 			if (n-1) {
-				 std::cout<<"1 container less          delta ="<<delta<<"\tdelta+delta/(n-1)="<<(delta/(n-1))<<"\t";
-				std::cout<<"penalty*sumIdle= "<<(penalty*sumIdle)<<"\n";
+				 DLOG(INFO) <<"1 container less          delta ="<<delta<<"\tdelta+delta/(n-1)="<<(delta/(n-1))<<"\t";
+				DLOG(INFO) <<"penalty*sumIdle= "<<(penalty*sumIdle)<<"\n";
 			}
 		}
 */
 ;
 
 /*
-        std::cout<<"\n\n\n ------estimated  Values for emtpy truck that is in the solution -------\n"
+        DLOG(INFO) <<"\n\n\n ------estimated  Values for emtpy truck that is in the solution -------\n"
 		<<"ttSC=\t"	<<ttSC<<"\n" 
 		<<"ttCC=\t"	<<ttCC<<"\n" 
 		<<"ttCD=\t"	<<ttCD<<"\n" 
@@ -417,7 +417,7 @@ void dumpCostValues() const{
 
 
 ;
-		std::cout<<"\n\n\n ------  DOCUMENT COST  VARIABLES -------" <<" ------  REAL COST  VARIABLES -------\t "<<" ------  PERCENTAGES  -------\n"
+		DLOG(INFO) <<"\n\n\n ------  DOCUMENT COST  VARIABLES -------" <<" ------  REAL COST  VARIABLES -------\t "<<" ------  PERCENTAGES  -------\n"
 			<<"ttSC=\t"	<<ttSC<<"\t" <<"realttSC=\t"	<<realttSC<<"\t" <<"realttSC/ttSC=\t\t"	<<realttSC/ttSC*100<<"%\n"
 			<<"ttCC=\t"	<<ttCC<<"\t" <<"realttCC=\t"	<<realttCC<<"\t" <<"realttCC/ttCC=\t\t"	<<realttCC/ttCC*100<<"%\n"
 			<<"ttCD=\t"	<<ttCD<<"\t" <<"realttCD=\t"	<<realttCD<<"\t" <<"realttCD/ttCD=\t\t"	<<realttCD/ttCD*100<<"%\n"

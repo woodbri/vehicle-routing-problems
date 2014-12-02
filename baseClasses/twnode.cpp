@@ -16,6 +16,7 @@
 #include <sstream>
 #include <string>
 
+#include "logger.h"
 #include "twnode.h"
 
 /*!
@@ -56,18 +57,20 @@ bool Twnode::isValid() const {
  * \brief Print the contents of a Twnode object.
  */
 void Twnode::dump() const {
-    std::cout.precision( 8 );
-    std::cout << nid
-              << " = " << id
-              << ",\t\ttype " << type
-              << ",\tx " << x
-              << ",\ty " << y
-              << ",\topen " << tw_open
-              << ",\tclose " << tw_close
-              << ",\tdemand " << demand
-              << ",\tserviceT " << serviceTime
-              << ",\t street:" << streetid
-              << ",\t hint:" << hint;
+    std::stringstream ss;
+    ss.precision( 8 );
+    ss << nid
+       << " = " << id
+       << ",\t\ttype " << type
+       << ",\tx " << x
+       << ",\ty " << y
+       << ",\topen " << tw_open
+       << ",\tclose " << tw_close
+       << ",\tdemand " << demand
+       << ",\tserviceT " << serviceTime
+       << ",\t street:" << streetid
+       << ",\t hint:" << hint;
+    DLOG(INFO) << ss.str();
 }
 
 

@@ -18,6 +18,7 @@
 #include <cassert>
 #include <cstdlib>
 
+#include "logger.h"
 #include "stats.h"
 #include "timer.h"
 #include "move.h"
@@ -44,7 +45,7 @@ bestSolution.tau();
         bestSolutionCost = bestSolution.getCost();
         setBestAsCurrent();
 #ifndef LOG
-std::cout << "TABUSEARCH: Removal of truck time: " << start.duration() << std::endl;
+    DLOG(INFO) << "TABUSEARCH: Removal of truck time: " << start.duration();
 bestSolution.tau();
 #endif
 

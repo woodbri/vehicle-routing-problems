@@ -17,6 +17,8 @@
 #include <deque>
 #include <iostream>
 #include <algorithm>
+
+#include "logger.h"
 #include "node.h"
 #include "twbucket.h"
 
@@ -513,7 +515,7 @@ class Twpath : public TwBucket<knode> {
 
     bool createsViolation( UID from, double maxcapacity ) {
         #ifdef TESTED
-        std::cout << "Entering twpath::createsViolation \n";
+        DLOG(INFO) << "Entering twpath::createsViolation";
         #endif
         assert ( from <= size() ); //the equal just in case the last operation was erase
 
@@ -542,7 +544,7 @@ class Twpath : public TwBucket<knode> {
     // dosnt move dumps
     bool e__insert( const knode &n, UID at, double maxcapacity ) {
         #ifdef TESTED
-        std::cout << "Entering twpath::e__insert \n";
+        DLOG(INFO) << "Entering twpath::e__insert";
         #endif
         assert ( at <= size() );
         assert ( at > 0 );
@@ -568,7 +570,7 @@ class Twpath : public TwBucket<knode> {
         //TODO convert to iterators
 
         #ifdef TESTED
-        std::cout << "Entering twpath::e__adjustDumpsToMaxCapacity \n";
+        DLOG(INFO) << "Entering twpath::e__adjustDumpsToMaxCapacity";
         #endif
         knode dumpSite = dumpS;
         int i = currentPos;
@@ -595,7 +597,7 @@ class Twpath : public TwBucket<knode> {
             evaluate( i, maxcapacity ); //reevaluate the rest of the route
 
             #ifdef TESTED
-            std::cout << "Entering twpath::e__adjustDumpsToMaxCapacity: inserted a dump \n";
+            DLOG(INFO) << "Entering twpath::e__adjustDumpsToMaxCapacity: inserted a dump";
 
             dumpeval();
 

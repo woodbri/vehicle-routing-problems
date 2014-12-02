@@ -18,9 +18,12 @@
 #include <vector>
 #include <set>
 #include <iostream>
+#include <sstream>
 #include <algorithm>
 #include <limits>
 #include <cassert>
+
+#include "logger.h"
 #include "node.h"
 
 
@@ -272,7 +275,7 @@ class TwBucket {
     double getDeltaTimeSwap( POS pos1, POS pos2 ) const {
         assert( pos1 < path.size() - 1 and pos2 < path.size() );
         #ifdef TESTED
-        std::cout << "Entering twBucket::getDeltaTimeSwap() \n";
+        DLOG(INFO) << "Entering twBucket::getDeltaTimeSwap()";
         #endif
 
         double delta, oldTime, newTime;
@@ -604,13 +607,14 @@ class TwBucket {
      * \param[in] title Title to print with the output of the Twbucket.
      */
     void dumpid( const std::string &title ) const {
-        std::cout << title;
+        std::stringstream ss;
+        ss << title;
         const_iterator it = path.begin();
 
         for ( const_iterator it = path.begin(); it != path.end(); it++ )
-            std::cout << " " << it->getid();
+            ss << " " << it->getid();
 
-        std::cout << std::endl;
+        DLOG(INFO) << ss.str();
     };
 
     /*! 
@@ -624,13 +628,14 @@ class TwBucket {
      * \param[in] title Title to print with the output of the Twbucket.
      */
     void dump( const std::string &title ) const {
-        std::cout << title;
+        std::stringstream ss;
+        ss << title;
         const_iterator it = path.begin();
 
         for ( const_iterator it = path.begin(); it != path.end(); it++ )
-            std::cout << " " << it->getnid();
+            ss << " " << it->getnid();
 
-        std::cout << std::endl;
+        DLOG(INFO) << ss.str();
     };
 
     // --------------- set operations tools -------------------------

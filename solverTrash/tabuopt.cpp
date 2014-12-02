@@ -17,6 +17,7 @@
 #include <algorithm>
 #include <cstdlib>
 
+#include "logger.h"
 #include "optsol.h"
 #include "tabuopt.h"
 #ifdef DOSTATS
@@ -43,10 +44,10 @@
 */
 void TabuOpt::search() {
 #ifdef DOSTATS
- STATS->inc("TabuOpt::search ");
+ STATS->inc("TabuOpt::search");
 #endif
 #ifndef TESTED
-std::cout<<"Entering TabuOpt::search() \n";
+DLOG(INFO) << "Entering TabuOpt::search()";
 #endif
 
     currentIteration = 0;
@@ -61,17 +62,20 @@ std::cout<<"Entering TabuOpt::search() \n";
 
     //first cycle with osrm
     osrm->useOsrm( true );
-    if (osrm->getUse()) std::cout<<"OSRM set to be used\n";
-    else std::cout<<"OSRM set to be not used\n";
+    if (osrm->getUse())
+        DLOG(INFO) << "OSRM set to be used";
+    else
+        DLOG(INFO) << "OSRM set to be not used";
 
     for (int i=0; i< maxIteration; i++) {
 
-if (osrm->getUse()) std::cout<<"OSRM set to be used\n";
-else std::cout<<"OSRM set to be not used\n";
+if (osrm->getUse())
+    DLOG(INFO) << "OSRM set to be used";
+else DLOG(INFO) << "OSRM set to be not used";
         oldCost=currentSolution.getCost();
 	#ifndef LOG
 	start.restart();
-        std::cout << "TABUSEARCH: Starting iteration: " << currentIteration << std::endl;
+        DLOG(INFO) << "TABUSEARCH: Starting iteration: " << currentIteration;
 	#endif
 
 	if (osrm->getUse()) cycleLimit=1;
@@ -80,13 +84,13 @@ else std::cout<<"OSRM set to be not used\n";
 	improvedBest=doNeighborhoodMoves(Move::IntraSw, 1 , Move::InterSw );
 	
     	for (int j=0;j<cycleLimit;j++) {
-        	std::cout << "\n\n\n----------------------------------------------------------------------------------------- TABUSEARCH: InterSw: " << j <<"\n";
+        	DLOG(INFO) << "----------------- TABUSEARCH: InterSw: " << j;
         	improvedBest |= doNeighborhoodMoves(Move::InterSw, 1 , Move::InterSw );
 	}
 currentSolution.tau();
 
     	for (int j=0;j<cycleLimit;j++) {
-        	std::cout << "\n\n\n------------------------------------------------------------------------------------------TABUSEARCH: Ins: " << j <<"\n";
+        	DLOG(INFO) << "------------------TABUSEARCH: Ins: " << j;
         	improvedBest |= doNeighborhoodMoves(Move::Ins, 1 ,    Move::Ins);
 	}
 currentSolution.tau();
@@ -97,37 +101,36 @@ currentSolution.tau();
 
 
 	#ifndef LOG
-        std::cout << "TABUSEARCH: Finished iteration: " << currentIteration
+        DLOG(INFO) << "TABUSEARCH: Finished iteration: " << currentIteration
             << ", improvedBest: " << improvedBest
-            << ", run time in seconds: " << start.duration()
-            << std::endl;
+            << ", run time in seconds: " << start.duration();
 	#endif
 
 	#ifdef DOSTATS
         STATS->set("Iteration", currentIteration);
         STATS->set("Best Cost After", bestSolution.getCost());
         dumpStats();
-        std::cout << "--------------------------------------------\n";
+        DLOG(INFO) << "--------------------------------------------";
 	#endif
 	currentIteration++;
 
  	#ifndef OSRMCLIENT
 	if (std::abs(newCost-oldCost) < 0.1  ) {
-		std::cout<<"costs didnt change";
+		DLOG(INFO) << "costs didnt change";
 		break;
 	}
 	#else
-	std::cout<<"old cost"<<oldCost<<"\n";
-	std::cout<<"new cost"<<newCost<<"\n";
-	std::cout<<"diference"<< std::abs(newCost-oldCost) <<"\n";
+	DLOG(INFO) << "old cost" << oldCost;
+	DLOG(INFO) << "new cost" << newCost;
+	DLOG(INFO) << "diference" << std::abs(newCost-oldCost);
 	
 	if (std::abs(newCost-oldCost) > 1.0 ) 	osrm->useOsrm ( false );
 	else {
 		if (osrm->getUse()==true) {
-			std::cout<<"costs didnt change quiting\n";
+			DLOG(INFO) <<"costs didnt change quiting";
 			break;
 		} else {
-			std::cout<<"costs didnt change TRYING with OSRM";
+			DLOG(INFO) <<"costs didnt change TRYING with OSRM";
         		osrm->useOsrm ( true );
 			continue;
 		}
@@ -135,21 +138,18 @@ currentSolution.tau();
 	#endif
     }
 
-    std::cout << "TABUSEARCH: Total time: " << start.duration() << std::endl;
+    DLOG(INFO)  << "TABUSEARCH: Total time: " << start.duration();
     bestSolution.tau();
 }
-
-
-
 
 
 void TabuOpt::getNeighborhood(  Move::Mtype  whichNeighborhood, Moves &neighborhood, double factor, Move::Mtype mtype) const  {
         neighborhood.clear();
 #ifdef DOSTATS
- STATS->inc("TabuOpt::getNeighborhood ");
+ STATS->inc("TabuOpt::getNeighborhood");
 #endif
 #ifdef TESTED
-std::cout<<"Entering TabuOpt::getNeighborhod() \n";
+    DLOG(INFO) << "Entering TabuOpt::getNeighborhod()";
 #endif
         Timer getNeighborhoodTimer;
         switch (whichNeighborhood) {
@@ -171,10 +171,11 @@ std::cout<<"Entering TabuOpt::getNeighborhod() \n";
 
 bool TabuOpt::applyAmove(const Move &move) {
 #ifdef DOSTATS
- STATS->inc("TabuOpt::applyAmove ");
+    STATS->inc("TabuOpt::applyAmove");
 #endif
 #ifdef TESTED
-std::cout<<"\nApply a move ";move.Dump();
+    DLOG(INFO) << "Apply a move ";
+    move.Dump();
 #endif
 
         currentSolution.v_applyMove(move); 
@@ -194,11 +195,12 @@ std::cout<<"\nApply a move ";move.Dump();
 
 bool TabuOpt::applyMoves(std::string type, Moves &moves) {
 #ifdef DOSTATS
- STATS->inc("TabuOpt::applyMoves ");
+ STATS->inc("TabuOpt::applyMoves");
 #endif
 	if (not moves.size()) return false;
 #ifndef TESTED
-std::cout<<"\napply moves: "<<type<<" applied: ";moves.begin()->Dump();
+DLOG(INFO) << "apply moves: " << type << " applied: ";
+moves.begin()->Dump();
 #endif
 	applyAmove( *(moves.begin()) );
 	#ifdef DOSTATS
@@ -211,10 +213,10 @@ std::cout<<"\napply moves: "<<type<<" applied: ";moves.begin()->Dump();
 
 bool TabuOpt::reachedMaxCycles(int number,  Move::Mtype whichNeighborhood) {
 #ifdef DOSTATS
- STATS->inc("TabuOpt::reachedMaxCycles ");
+    STATS->inc("TabuOpt::reachedMaxCycles");
 #endif
 #ifndef TESTED
-std::cout<<"Entering TabuOpt::reachedMaxCycles "<<number<<"\n";
+    DLOG(INFO) << "Entering TabuOpt::reachedMaxCycles " << number;
 #endif
 	bool limit;
         switch (whichNeighborhood) {
@@ -245,11 +247,11 @@ std::cout<<"Entering TabuOpt::reachedMaxCycles "<<number<<"\n";
 
 bool TabuOpt::doNeighborhoodMoves( Move::Mtype whichNeighborhood, int maxMoves, Move::Mtype mtype) {
 #ifdef DOSTATS
- STATS->inc("TabuOpt::doNeighborhoodMoves ");
+    STATS->inc("TabuOpt::doNeighborhoodMoves");
 #endif
 
 #ifdef TESTED
-std::cout<<"Entering TabuOpt::doNeighobrhoodMoves\n";
+    DLOG(INFO) << "Entering TabuOpt::doNeighobrhoodMoves";
 #endif
     bool improvedBest = false;
     int Cnt = 0;
@@ -268,8 +270,9 @@ std::cout<<"Entering TabuOpt::doNeighobrhoodMoves\n";
 	
 	
 #ifndef LOG
-std::cout<<(getTotalMovesMade()-actualMoveCount)<<" > " <<maxMoves<<"***************************************************\n";
-std::cout<<" Factor  "<< factor <<"\n";
+DLOG(INFO) << (getTotalMovesMade()-actualMoveCount) << " > " << maxMoves
+           << " ***************************************************";
+DLOG(INFO) << " Factor  " << factor;
 #endif
 	if ((getTotalMovesMade()-actualMoveCount) > maxMoves) break;
 
@@ -281,25 +284,29 @@ std::cout<<" Factor  "<< factor <<"\n";
         Cnt++;
 
 	if (whichNeighborhood==Move::IntraSw) {
-                while (neighborhood.size()) { //do as many as the bookkeeping allows
+        //do as many as the bookkeeping allows
+        while (neighborhood.size()) {
 			applyMoves("IntraSw", neighborhood );
 			neighborhood.erase( neighborhood.begin());
-                }
+        }
 		return true;
 	}
 
 
 	if (not neighborhood.size()) { 
-	        factor=std::min(factor+1.0/limitInterSw,factor+0.3); //need to increase the search space
+            //need to increase the search space
+	        factor=std::min(factor+1.0/limitInterSw,factor+0.3);
 
 		CntNoNeighborhood++; 
 #ifndef LOG
-std::cout<<" No Moves are found  "<< CntNoNeighborhood <<"\n";
-std::cout<<" Factor  "<< factor <<"\n";
+    DLOG(INFO) << " No Moves are found  " << CntNoNeighborhood;
+    DLOG(INFO) << " Factor  " << factor;
 #endif
-		if ( reachedMaxCycles(CntNoNeighborhood,whichNeighborhood) or whichNeighborhood==Move::IntraSw) {
+		if ( reachedMaxCycles(CntNoNeighborhood,whichNeighborhood) or
+             whichNeighborhood==Move::IntraSw) {
 #ifndef LOG
-std::cout<<" Reached end of cycle - for No moves found- "<<Cnt<<" out of "<< maxMoves<<"\n";
+    DLOG(INFO) << " Reached end of cycle - for No moves found- " << Cnt
+               << " out of " << maxMoves;
 #endif
 		   return improvedBest; //we cycled and no neighborhood moves were found
                 }; 
@@ -406,10 +413,10 @@ std::cout<<" Reached end of cycle - for No moves found- "<<Cnt<<" out of "<< max
 */
 bool TabuOpt::classifyMoves(Moves &neighborhood) {
 #ifdef DOSTATS
- STATS->inc("TabuOpt::classifyMoves ");
+ STATS->inc("TabuOpt::classifyMoves");
 #endif
 #ifdef TESTED
-std::cout<<"Entering TabuOpt::classifyMoves \n";
+    DLOG(INFO) << "Entering TabuOpt::classifyMoves";
 #endif
         Timer start;
 	bool found = false;
@@ -442,16 +449,22 @@ std::cout<<"Entering TabuOpt::classifyMoves \n";
             }
 
 #ifdef LOG
-	    std::cout<<"isTabu??: "<<(isTabu(*it)?"YES\n":"NO\n");it->Dump();
+	    DLOG(INFO) << "isTabu??: " << (isTabu(*it) ? "YES" : "NO");
+        it->Dump();
 	    if (not ( (std::abs( (actualCost - newCost)  -  it->getsavings())) <0.5) ) {
-		it->Dump();
-		std::cout<<"something is wrong with the savings****** "<<it->getsavings()<< " ***** "<<actualCost - newCost<<"\n";
+		    it->Dump();
+		    DLOG(INFO) << "something is wrong with the savings****** "
+                       << it->getsavings() << " ***** " << actualCost - newCost;
             } 
 #endif
-            if (newCost  < bestSolutionCost and not isTabu(*it) ) aspirationalNotTabu.insert(*it);
-            else if (newCost  < bestSolutionCost )  aspirationalTabu.insert(*it);
-	    else if ( not isTabu(*it) ) notTabu.insert(*it); 
-	    else tabu.insert(*it); 
+            if (newCost  < bestSolutionCost and not isTabu(*it) )
+                aspirationalNotTabu.insert(*it);
+            else if (newCost  < bestSolutionCost )
+                aspirationalTabu.insert(*it);
+	        else if ( not isTabu(*it) )
+                notTabu.insert(*it); 
+	        else
+                tabu.insert(*it); 
             	
         };
 	neighborhood.clear();
@@ -460,7 +473,7 @@ std::cout<<"Entering TabuOpt::classifyMoves \n";
 	
 bool TabuOpt::computeCosts(OptSol &s) {
 #ifdef DOSTATS
- STATS->inc("TabuOpt::computeCosts ");
+    STATS->inc("TabuOpt::computeCosts");
 #endif
         int removedTruck = s.v_computeCosts();
         if (removedTruck==-1) return false;
@@ -471,7 +484,7 @@ bool TabuOpt::computeCosts(OptSol &s) {
 
 void TabuOpt::cleanUpInterSwMoves(Moves &moves, const Move &guide ) const  {
 #ifdef DOSTATS
- STATS->inc("TabuOpt::cleanUpInterSwMoves ");
+    STATS->inc("TabuOpt::cleanUpInterSwMoves");
 #endif
 	if (not moves.size() ) return;
 	if (not guide.getmtype()==Move::InterSw) return;
@@ -561,7 +574,7 @@ void TabuOpt::cleanUpInterSwMoves(Moves &moves, const Move &guide ) const  {
 
 void TabuOpt::cleanUpInsMoves(Moves &moves, const Move &guide, bool &reverseFound )  {
 #ifdef DOSTATS
- STATS->inc("TabuOpt::cleanUpInsMoves ");
+ STATS->inc("TabuOpt::cleanUpInsMoves");
 
 #endif
         if (not moves.size() ) return;
@@ -600,9 +613,9 @@ void TabuOpt::cleanUpInsMoves(Moves &moves, const Move &guide, bool &reverseFoun
                 moves.insert(move);
         }
 	if (localFind) {
-std::cout<<"REVERSE going to make  \n";
+        DLOG(INFO) << "REVERSE going to make";
 		applyAmove(reverseMove);
-std::cout<<"REVERSE done \n";
+        DLOG(INFO) << "REVERSE done";
 		reverseFound=true;
 	}
 }
@@ -682,20 +695,28 @@ void TabuOpt::cleanUpIntraSwMoves(Moves &moves, const Move &guide ) const  {
 
 void TabuOpt::cleanUpMoves(const Move guide ) {
 #ifdef DOSTATS
- STATS->inc("TabuOpt::cleanUpMoves ");
+    STATS->inc("TabuOpt::cleanUpMoves");
 #endif
-	#ifdef LOG
-	std::cout<<"ENTERING TabuOpt::cleanUpMoves\n";
+#ifdef LOG
+	DLOG(INFO) << "ENTERING TabuOpt::cleanUpMoves";
 	if (guide.getmtype()==Move::Ins) {
 	guide.Dump();
-        if (aspirationalNotTabu.size()) std::cout<<"cleaning aspirational not tabu\n";
-        if (aspirationalTabu.size()) std::cout<<"cleaning aspirational tabu\n";
-        if (notTabu.size()) std::cout<<"cleaning not tabu\n";
-        if (tabu.size()) std::cout<<"cleaning tabu\n";
-	std::cout<<"aspirational not Tabu size"<<aspirationalNotTabu.size()<<"\n";dumpMoves("aspirationalNotTabu",aspirationalNotTabu);
-	std::cout<<"aspirationalTabu size"<<aspirationalTabu.size()<<"\n";dumpMoves("aspirationalTabu",aspirationalTabu);
-	std::cout<<"not Tabu size"<<notTabu.size()<<"\n";dumpMoves("notTabu",notTabu);
-	std::cout<<"Tabu size"<<tabu.size()<<"\n";dumpMoves("tabu",tabu);
+        if (aspirationalNotTabu.size())
+            DLOG(INFO) <<"cleaning aspirational not tabu";
+        if (aspirationalTabu.size())
+            DLOG(INFO) <<"cleaning aspirational tabu";
+        if (notTabu.size())
+            DLOG(INFO) <<"cleaning not tabu";
+        if (tabu.size())
+            DLOG(INFO) <<"cleaning tabu";
+	DLOG(INFO) << "aspirational not Tabu size" << aspirationalNotTabu.size();
+    dumpMoves("aspirationalNotTabu", aspirationalNotTabu);
+	DLOG(INFO) << "aspirationalTabu size" << aspirationalTabu.size();
+    dumpMoves("aspirationalTabu", aspirationalTabu);
+	DLOG(INFO) << "not Tabu size" << notTabu.size();
+    dumpMoves("notTabu",notTabu);
+	DLOG(INFO) << "Tabu size" << tabu.size();
+    dumpMoves("tabu",tabu);
 	}
 	#endif
 	switch (guide.getmtype()){
@@ -720,10 +741,14 @@ void TabuOpt::cleanUpMoves(const Move guide ) {
 			break;
 	}
 	#ifdef LOG
-	std::cout<<"aspirational not Tabu size"<<aspirationalNotTabu.size()<<"\n";dumpMoves("aspirationalNotTabu",aspirationalNotTabu);
-	std::cout<<"aspirationalTabu size"<<aspirationalTabu.size()<<"\n";dumpMoves("aspirationalTabu",aspirationalTabu);
-	std::cout<<"not Tabu size"<<notTabu.size()<<"\n";dumpMoves("notTabu",notTabu);
-	std::cout<<"Tabu size"<<tabu.size()<<"\n";dumpMoves("tabu",tabu);
+	DLOG(INFO) << "aspirational not Tabu size" << aspirationalNotTabu.size();
+    dumpMoves("aspirationalNotTabu",aspirationalNotTabu);
+	DLOG(INFO) << "aspirationalTabu size" << aspirationalTabu.size();
+    dumpMoves("aspirationalTabu",aspirationalTabu);
+	DLOG(INFO) << "not Tabu size" << notTabu.size();
+    dumpMoves("notTabu",notTabu);
+	DLOG(INFO) << "Tabu size" << tabu.size();
+    dumpMoves("tabu", tabu);
 	#endif
 }
 
@@ -732,9 +757,9 @@ void TabuOpt::cleanUpMoves(const Move guide ) {
 
     bool TabuOpt::dumpMoves(std::string str, Moves moves) const {
 #ifdef DOSTATS
- STATS->inc("TabuOpt::dumpMoves ");
+ STATS->inc("TabuOpt::dumpMoves");
 #endif
-	std::cout<<"Bucket: "<< str<<"\n";
+	DLOG(INFO) << "Bucket: " << str;
 	MovesItr movePtr;
 	for(movePtr=moves.begin(); movePtr!=moves.end();++movePtr)
 		movePtr->Dump();

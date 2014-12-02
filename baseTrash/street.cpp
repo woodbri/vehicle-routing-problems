@@ -18,15 +18,16 @@
 #include <deque>
 #include <limits>
 
+#include "logger.h"
 #include "twpath.h"
 #include "street.h"
 
 
 
 void Street::dumpeval() const {
-     std::cout<< "Street id: " << sid 
+     DLOG(INFO)<< "Street id: " << sid 
      << "\tRequired capacity: " << _reqCapacity
-     << "\tRequired time: " << _reqTime<<"\n";
+     << "\tRequired time: " << _reqTime;
     path.dumpeval();
 }
 

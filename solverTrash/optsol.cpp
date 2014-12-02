@@ -12,6 +12,9 @@
  *
  ********************************************************************VRP*/
 
+#include <sstream>
+
+#include "logger.h"
 #include "timer.h"
 #include "stats.h"
 #include "optsol.h"
@@ -67,32 +70,39 @@ void OptSol::optimizeTruckNumber()   {
 	fromTruck=truckWithMinn;
 
 #ifdef LOG
-std::cout<<"fromTruck"<<fromTruck<<"\n";
-std::cout<<"need to fit "<<minn<<"containers into \t"<<(z1Tot-z1AtMin);
-std::cout<<"= z1Tot "<<z1Tot<<" - ";
-std::cout<<" z1AtMin "<<z1AtMin<<"\n OR \n";
+DLOG(INFO) << "fromTruck"    << fromTruck << "\n"
+           << "need to fit " << minn  << "containers into \t" << (z1Tot-z1AtMin)
+           << "= z1Tot "     << z1Tot << " - "
+           << " z1AtMin "    << z1AtMin   << "\n OR \n"
+           << "need to fit " << minn  << "containers into \t" << (z2Tot-z2AtMin)
+           << "= z2Tot "     << z2Tot << " - "
+           << " z2AtMin "    << z2AtMin;
 
-std::cout<<"need to fit "<<minn<<"containers into \t"<<(z2Tot-z2AtMin);
-std::cout<<"= z2Tot "<<z2Tot<<" - ";
-std::cout<<" z2AtMin "<<z2AtMin<<"\n";
 
-std::cout<<"not FUll Trucks in current Trip\n";
+std::stringstream ss;
+ss.str("");
+DLOG(INFO) << "not FUll Trucks in current Trip: ";
 for (int i=0;i<notFullz1.size();i++) 
-   std::cout<<notFullz1[i]<<"\t";
-std::cout<<"\n";
-std::cout<<" FUll Trucks in current trip\n";
-for (int i=0;i<fullz1.size();i++) 
-   std::cout<<fullz1[i]<<"\t";
-std::cout<<"\n";
+   ss << notFullz1[i] << "\t";
+DLOG(INFO) << ss.str();
 
-std::cout<<"not FUll Trucks in next (non-existing) Trip\n";
+DLOG(INFO) << "FUll Trucks in current trip: ";
+ss.str("");
+for (int i=0;i<fullz1.size();i++) 
+   ss << fullz1[i] << "\t";
+DLOG(INFO) << ss.str();
+
+DLOG(INFO) << "not FUll Trucks in next (non-existing) Trip";
+ss.str("");
 for (int i=0;i<notFullz2.size();i++) 
-   std::cout<<notFullz2[i]<<"\t";
-std::cout<<"\n";
-std::cout<<" FUll Trucks in next (non-exisiting) trip\n";
+   ss << notFullz2[i] << "\t";
+DLOG(INFO) << ss.str();
+
+DLOG(INFO) << " FUll Trucks in next (non-exisiting) trip";
+ss.str("");
 for (int i=0;i<fullz2.size();i++) 
-   std::cout<<fullz2[i]<<"\t";
-std::cout<<"\n";
+   ss << fullz2[i] << "\t";
+DLOG(INFO) << ss.str();
 #endif
 
 	if (minn<= (z1Tot-z1AtMin) ) { //a truck can be removed without extra trip in any other truck
@@ -112,7 +122,7 @@ std::cout<<"\n";
 		emptiedTruck = emptyAtruck(allTrucks,allTrucks);
 	}
 #ifdef LOG
-std::cout<<"\n"; tau();
+tau();
 #endif
 }
 
@@ -163,13 +173,13 @@ bool OptSol::emptyTheTruck(int fromTruck, std::deque<int> notFull) {
 
 /*
 void OptSol::v_getIntraSwNeighborhood(Moves &moves, double factor)  const {
-std::cout<<"THIS SHOULDNT BE CALLED ";
+DLOG(INFO) << "THIS SHOULDNT BE CALLED ";
     moves.clear();
 
     // iterate through each vehicle (vi)
     int truckPos=intraTruckPos;
 
-std::cout<<"working with truck "<<truckPos<<" intraSw neighborhood\n";
+DLOG(INFO) << "working with truck " << truckPos << " intraSw neighborhood";
     fleet[truckPos].eval_intraSwapMoveDumps( moves,  truckPos, factor, twc); 
     moves.begin()->Dump();    
     if ( (moves.size()==0) or (moves.begin()->getsavings()<0))  
@@ -228,9 +238,10 @@ void OptSol::getInterSwNeighborhood(Moves &moves, double factor)  const {
 #endif
 
     #ifdef DOSTATS
-    //STATS->inc("OptSol::getInterSwNeighborhood ",timer.duration());
+    STATS->addto("OptSol::getInterSwNeighborhood ",timer.duration());
     #ifndef LOG
-    std::cout<<"InterSw working with truck "<<truckPos<<" and"<< otherTruckPos<<"interSw neighborhood"<<timer.duration()<<"\n";
+    DLOG(INFO) << "InterSw working with truck " << truckPos << " and"
+               << otherTruckPos << "interSw neighborhood" << timer.duration();
     #endif
     #endif
 
@@ -241,7 +252,8 @@ void OptSol::getInterSwNeighborhood(Moves &moves, double factor)  const {
 void OptSol::getInsNeighborhood(Moves &moves, double factor) const {
 
 #ifdef TESTED
-std::cout<<"Entering OptSol::v_getInsNeighborhood for "<<fleet.size()<<" trucks \n";
+DLOG(INFO) << "Entering OptSol::v_getInsNeighborhood for " << fleet.size()
+           << " trucks";
 #endif
 assert (feasable());
     if (fleet.size()==1)  return;   //no ins in 1 truck solution 
@@ -270,14 +282,16 @@ assert (feasable());
 
 
 #ifndef TESTED
-std::cout<<"**********************************working with truck "<<fromTruck<<" and "<< toTruck<<" insSw neighborhood\n";
+DLOG(INFO) << "**********************************working with truck "
+           << fromTruck << " and " << toTruck << " insSw neighborhood";
 #endif
 
-    if (fleet[toTruck].getz1() or fleet[toTruck].getz2()) { //only try if there is a possibility to insert a container
+    //only try if there is a possibility to insert a container
+    if (fleet[toTruck].getz1() or fleet[toTruck].getz2()) {
           for (int fromPos=1; fromPos<fleet[fromTruck].size(); fromPos++) {
 		if(fleet[fromTruck][fromPos].isDump()) continue;   // skiping dump
         	if (fleet[ fromTruck ].size()==1) {
-			std::cout<<" A TRUCK WITHOUT CONTAINERS HAS BEING GENERATED";
+			DLOG(INFO) << " A TRUCK WITHOUT CONTAINERS HAS BEING GENERATED";
 			interTruckPos1=insTruckPos1=fleet.size()-2;
 			interTruckPos2=insTruckPos2=0;
 			return;
@@ -292,13 +306,14 @@ std::cout<<"**********************************working with truck "<<fromTruck<<"
     toTruck=tmp;
 
 #ifndef TESTED
-std::cout<<"**********************************working with truck "<<fromTruck<<" and "<< toTruck<<" insSw neighborhood\n";
+DLOG(INFO) << "**********************************working with truck "
+           << fromTruck << " and " << toTruck << " insSw neighborhood";
 #endif
     if (fleet[toTruck].getz1() or fleet[toTruck].getz2()) { //only try if there is a possibility to insert a container
           for (int fromPos=1; fromPos<fleet[fromTruck].size(); fromPos++) {
                 if(fleet[fromTruck][fromPos].isDump()) continue;   // skiping dump
                 if (fleet[ fromTruck ].size()==1) {
-                        std::cout<<" A TRUCK WITHOUT CONTAINERS HAS BEING GENERATED";
+                        DLOG(INFO) << " A TRUCK WITHOUT CONTAINERS HAS BEING GENERATED";
                         interTruckPos1=insTruckPos1=fleet.size()-2;
                         interTruckPos2=insTruckPos2=0;
                         return;
@@ -313,7 +328,8 @@ std::cout<<"**********************************working with truck "<<fromTruck<<"
 	assert(insTruckPos1 != insTruckPos2);
 
 #ifdef TESTED
-std::cout<<"EXIT OptSol::v_getInsNeighborhood "<<moves.size()<<" MOVES found total \n";
+DLOG(INFO) << "EXIT OptSol::v_getInsNeighborhood " << moves.size()
+           << " MOVES found total";
 #endif
 }
 
@@ -326,7 +342,6 @@ std::cout<<"EXIT OptSol::v_getInsNeighborhood "<<moves.size()<<" MOVES found tot
         move.Dump();
 	fleet[move.getInterSwTruck1()][ move.getpos1()].dump();
 	fleet[move.getInterSwTruck2()][ move.getpos2()].dump();
-	std::cout<<"\n";
   }
 	
   assert(fleet[move.getInterSwTruck1()][ move.getpos1()].getnid() == move.getnid1() );
@@ -360,7 +375,7 @@ std::cout<<"EXIT OptSol::v_getInsNeighborhood "<<moves.size()<<" MOVES found tot
 
 bool OptSol::testInsMove( const Move &move) const {
 #ifdef TESTED
-std::cout<<"OptSol::testInsMove \n";
+DLOG(INFO) << "OptSol::testInsMove";
 #endif
 
 	//move.Dump();

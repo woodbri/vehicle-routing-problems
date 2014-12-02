@@ -13,6 +13,7 @@
  ********************************************************************VRP*/
 
 #include <iostream>
+#include "logger.h"
 #include "move.h"
 
     /*!
@@ -133,15 +134,14 @@ bool Move::isForbidden( const Move &tabu ) const {
  * \brief Print the move.
  */
 void Move::dump() const {
-    std::cout << "Move: " << mtype
+    DLOG(INFO) << "Move: " << mtype
               << ",\t" << nid1
               << ",\t" << nid2
               << ",\t" << vid1
               << ",\t" << vid2
               << ",\t" << pos1
               << ",\t" << pos2
-              << ",\t" << savings
-              << std::endl;
+              << ",\t" << savings;
 }
 
 /*!
@@ -150,37 +150,34 @@ void Move::dump() const {
 void Move::Dump() const {
     switch ( mtype ) {
         case Ins:
-            std::cout << "Move: Ins"
+            DLOG(INFO) << "Move: Ins"
                       << "\t    NodeID:" << nid1
                       << "\tFrom Truck:" << vid1
                       << "\t  From Pos:" << pos1
                       << "\t  To Truck:" << vid2
                       << "\t    To Pos:" << pos2
-                      << "\t   savings:" << savings
-                      << std::endl;
+                      << "\t   savings:" << savings;
             break;
 
         case IntraSw:
-            std::cout << "Move: IntraSw"
+            DLOG(INFO) << "Move: IntraSw"
                       << "\t    NodeID:" << nid1
                       << "\t  At Truck:" << vid1
                       << "\t  From Pos:" << pos1
                       << "\t  with NID:" << nid2
                       << "\t    To Pos:" << pos2
-                      << "\t   savings:" << savings
-                      << std::endl;
+                      << "\t   savings:" << savings;
             break;
 
         case InterSw:
-            std::cout << "Move: InterSw"
+            DLOG(INFO) << "Move: InterSw"
                       << "\t    NodeID:" << nid1
                       << "\t  (at Truck:" << vid1
                       << "\t  at Pos:" << pos1
                       << ")\t with NodeID:" << nid2
                       << "\t    (at Truck:" << vid2
                       << "\t      at Pos:" << pos2
-                      << ")\t   savings:" << savings
-                      << std::endl;
+                      << ")\t   savings:" << savings;
             break;
     }
 

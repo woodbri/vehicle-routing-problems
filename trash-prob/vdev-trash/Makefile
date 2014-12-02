@@ -5,6 +5,9 @@ CURL_CFLAGS := $(shell pkg-config --cflags curlpp)
 CURL_LIBS := $(shell pkg-config --libs curlpp)
 JSON_LIBS = -L /lib/x86_64-linux-gnu/ -ljson
 
+LOGGER_CFLAGS = -I/usr/local/include
+LOGGER_LIBS = -L/usr/local/lib -lglog
+
 BASETRASH = baseTrash
 BASECLASSES = baseClasses
 INITTRASH = initTrash
@@ -70,8 +73,8 @@ endif
 
 
 INCLUDES = -I../../$(BASECLASSES) -I../../$(BASETRASH) -I../../$(INITTRASH) -I../../$(SOLVERTRASH) -I.
-CPPFLAGS = -g -O0 -MMD  -MP  $(OSRMCLIENT_CFLAGS) $(DEFINES) $(STATS_CFLAGS) $(PLOT_CFLAGS)
-LDFLAGS = -lgd $(INCLUDES) -L$(BASECLASSES) -L$(BASETRASH) -L$(INITTRASH)  $(JSON_LIBS) $(OSRMCLIENT_LIBS)
+CPPFLAGS = -g -O0 -MMD  -MP  $(OSRMCLIENT_CFLAGS) $(DEFINES) $(STATS_CFLAGS) $(PLOT_CFLAGS) $(LOGGER_CFLAGS)
+LDFLAGS = -lgd $(INCLUDES) -L$(BASECLASSES) -L$(BASETRASH) -L$(INITTRASH)  $(JSON_LIBS) $(OSRMCLIENT_LIBS) $(LOGGER_LIBS)
 
 SRCS =  
 OBJS = $(addprefix $(BUILD_DIR)/,$(SRCS:.cpp=.o))

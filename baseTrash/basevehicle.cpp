@@ -17,6 +17,8 @@
 #include <sstream>
 #include <deque>
 
+#include "logger.h"
+
 #include "stats.h"
 #include "timer.h"
 
@@ -75,7 +77,7 @@ double BaseVehicle::getTotTravelTimeOsrm() const {
 
 bool BaseVehicle::e_setPath(const Bucket &sol) {
 #ifdef TESTED
-std::cout<<"Entering BaseVehicle::e_setPath \n";
+DLOG(INFO) << "Entering BaseVehicle::e_setPath";
 #endif
      assert (sol.size());
      if (not sol.size()) return false;
@@ -95,7 +97,7 @@ std::cout<<"Entering BaseVehicle::e_setPath \n";
 
 bool  BaseVehicle::findNearestNodeTo(Bucket &unassigned,UID &pos, Trashnode &bestNode) {
 #ifdef TESTED
-std::cout<<"Entering BaseVehicle::findNearestNodeTo \n";
+DLOG(INFO) << "Entering BaseVehicle::findNearestNodeTo";
 #endif
     assert (unassigned.size());
     if (not unassigned.size()) return false;
@@ -123,20 +125,20 @@ std::cout<<"Entering BaseVehicle::findNearestNodeTo \n";
 
 
 void BaseVehicle::dump() const {
-    std::cout << "---------- BaseVehicle ---------------" << std::endl;
-    std::cout << "maxcapacity: " << getmaxcapacity() << std::endl;
-    std::cout << "cargo: " << getCargo() << std::endl;
-    std::cout << "duration: " << getDuration() << std::endl;
-    std::cout << "cost: " << getcost() << std::endl;
+    DLOG(INFO) << "---------- BaseVehicle ---------------";
+    DLOG(INFO) << "maxcapacity: " << getmaxcapacity();
+    DLOG(INFO) << "cargo: " << getCargo();
+    DLOG(INFO) << "duration: " << getDuration();
+    DLOG(INFO) << "cost: " << getcost();
     #ifdef WITHOSRM
-    std::cout << "OSRM time: " << getTotTravelTimeOsrm() << std::endl;
+    DLOG(INFO) << "OSRM time: " << getTotTravelTimeOsrm();
     #endif
-    std::cout << "TWV: " << getTWV() << std::endl;
-    std::cout << "CV: " << getCV() << std::endl;
-    std::cout << "w1: " << getw1() << std::endl;
-    std::cout << "w2: " << getw2() << std::endl;
-    std::cout << "w3: " << getw3() << std::endl;
-    std::cout << "path nodes: -----------------" << std::endl;
+    DLOG(INFO) << "TWV: " << getTWV();
+    DLOG(INFO) << "CV: " << getCV();
+    DLOG(INFO) << "w1: " << getw1();
+    DLOG(INFO) << "w2: " << getw2();
+    DLOG(INFO) << "w3: " << getw3();
+    DLOG(INFO) << "path nodes: -----------------";
     path.dump();
 }
 
@@ -151,40 +153,36 @@ void BaseVehicle::dumppath() const {
 
 
    void BaseVehicle::dumpeval() const {
-     std::cout<<"\nStarting site:"<<"\n";
+     DLOG(INFO) << "\nStarting site:";
      path[0].dumpeval();
      for (int i=1;i<path.size();i++){
-         std::cout<<"\npath stop #:"<<i<<"\n";
-          path[i].dumpeval();
+         DLOG(INFO) << "path stop #:" << i;
+         path[i].dumpeval();
      }
-     std::cout<<"\nDump site:"<<"\n";
+     DLOG(INFO) << "Dump site:";
      dumpSite.dumpeval();
-     std::cout<<"\nEnding site :"<<"\n";
+     DLOG(INFO) << "Ending site :";
      endingSite.dumpeval();
-     std::cout <<"TOTAL COST="<<cost <<"\n";
+     DLOG(INFO)  << "TOTAL COST=" << cost;
    }
 
 
    void BaseVehicle::smalldump() const {
-      std::cout<<"\nDump site:"<<"\n";
+      DLOG(INFO) << "Dump site:";
       dumpSite.dumpeval();
-      std::cout<<"\nEnding site :"<<"\n";
+      DLOG(INFO) << "Ending site:";
       endingSite.dumpeval();
-      std::cout <<"TOTAL COST="<<cost <<"\n";
+      DLOG(INFO)  << "TOTAL COST=" << cost;
    }
 
    void BaseVehicle::tau() const {
-/*      for (int i=0; i< path.size(); i++)
-         std::cout<<getnid(i)<<" , ";
-      std::cout<<dumpSite.getnid()<<" , ";
-      std::cout<<endingSite.getnid()<<" , ";
-*/
-      std::cout<<" ";
+      std::stringstream ss;
+      ss <<" ";
       for (int i=0; i< path.size(); i++)
-         std::cout<<getid(i)<<" ";
-      std::cout<<dumpSite.getid()<<" ";
-      std::cout<<endingSite.getid()<<" ";
-      std::cout<<" \n";
+        ss << getid(i) << " ";
+      ss << dumpSite.getid() << " ";
+      ss << endingSite.getid();
+      DLOG(INFO) << ss.str();
    }
 
 
@@ -478,8 +476,12 @@ bool BaseVehicle::pathThreeOpt() {
             for (int j=i+2; j<size-3; j++) {
                 for (int k=j+2; k<size-1; k++) {
                     doThreeOpt( i, i+1, j, j+1, k, k+1 );
-//                    std::cout << "pathThreeOpt["<<i<<","<<i+1<<","<<j<<","<<j+1<<","<<k<<","<<k+1<<"]("<<getcost()<<"): ";
-//                    dumppath();
+#ifndef TESTED
+                      DLOG(INFO) << "pathThreeOpt[" << i << "," << i+1 << ","
+                                 << j << "," << j+1 << "," << k << "," << k+1
+                                 << "](" << getcost() << "): ";
+                      dumppath();
+#endif
                 }
             }
         }
@@ -504,8 +506,11 @@ bool BaseVehicle::pathOrOpt() {
                 for (int k=2; k>=0; k--) {
                     if (! (j<i-1 or j>i+k+1)) continue;
                     doOrOpt( i, i+k, j );
-//std::cout << "pathOrOpt["<<i<<","<<i+k<<","<<j<<"]("<<getcost()<<"): ";
-//dumppath();
+#ifndef TESTED
+                    DLOG(INFO) << "pathOrOpt[" << i << "," << i+k << ","
+                               << j << "](" << getcost() << "): ";
+                    dumppath();
+#endif
                 }
             }
         }
@@ -819,8 +824,8 @@ bool BaseVehicle::exchange3(BaseVehicle& v2, BaseVehicle& v3, const int& cnt, co
     double oldcost2 = v2.getcost();
     double oldcost3 = v3.getcost();
 
-std::cout << "oldcost: "<<oldcost1<<"+"<<oldcost2<<"+"<<oldcost3<<"="
-          << oldcost1 + oldcost2 + oldcost3 << std::endl; 
+DLOG(INFO) << "oldcost: " << oldcost1 << "+" << oldcost2 << "+" << oldcost3
+           << "=" << oldcost1 + oldcost2 + oldcost3; 
 
     for (int i=0; i<cnt; i++) {
         path.e_swap(i1+i, getmaxcapacity(),
@@ -838,8 +843,8 @@ std::cout << "oldcost: "<<oldcost1<<"+"<<oldcost2<<"+"<<oldcost3<<"="
     double newcost2 = v2.getcost();
     double newcost3 = v3.getcost();
 
-std::cout << "newcost: "<<newcost1<<"+"<<newcost2<<"+"<<newcost3<<"="
-          << newcost1 + newcost2 + newcost3 << std::endl; 
+DLOG(INFO) << "newcost: " << newcost1 << "+" << newcost2 << "+" <<
+           newcost3 << "=" << newcost1 + newcost2 + newcost3; 
 
     if ( newcost1 + newcost2 + newcost3 > oldcost1 + oldcost2 + oldcost3 or
          !feasable() or !v2.feasable() or !v3.feasable() ) {
@@ -960,7 +965,7 @@ bool BaseVehicle::relocateBest(BaseVehicle& v2, const int& i1) {
 
 /**************************************PLOT************************************/
 void BaseVehicle::plot(std::string file,std::string title,int carnumber) const{
-//std::cout<<"USING VEHICLE PLOT\n";
+//    DLOG(INFO) << "USING VEHICLE PLOT";
     Twpath<Trashnode> trace=path;
     trace.push_back(dumpSite);
     trace.push_back(endingSite);
@@ -992,7 +997,7 @@ trace.dumpid("Path");
 }
 
 void BaseVehicle::plot(Plot<Trashnode> graph, int carnumber)const{
-//std::cout<<"USING VEHICLE PLOT  1\n";
+//DLOG(INFO) << "USING VEHICLE PLOT  1";
     Twpath<Trashnode> trace=path;
     trace.push_back(dumpSite);
     trace.push_back(endingSite);

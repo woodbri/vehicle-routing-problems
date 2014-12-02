@@ -1,5 +1,6 @@
 #include "Library/OSRM.h"
 
+#include "logger.h"
 #include "osrmclient.h"
 
 #ifdef DOSTATS
@@ -447,33 +448,45 @@ bool OsrmClient::testOsrmClient() {
     if (not connectionAvailable) return false;
     std::deque<std::string> hints;
     if (getStatus() == -1) {
-        std::cout << getErrorMsg() << std::endl;
+        DLOG(WARNING) << getErrorMsg();
         return false;
     }
     double penalty;
     bool oldPenalty=addPenalty;
     double time;
 //34.890816,-56.165529
-    if (getOsrmTime( -34.8917,-56.167694,-34.890816,-56.165529,time) ) std::cout<<"test time:"<<time<<"\n";
-    else return false;
+    if (getOsrmTime( -34.8917,-56.167694,-34.890816,-56.165529,time) )
+        DLOG(INFO) << "test time:" << time;
+    else
+        return false;
     getOsrmPenalty(penalty);
     if ( getOsrmHints(hints)) {
 	  std::string hint1= hints[0];
 	  std::string hint2= hints[1];
-    	  if (getOsrmTime( -34.8917,-56.167694,-34.890816,-56.165529,hint1,hint2,time) ) std::cout<<"test time:"<<time<<"\n";
-    	  else return false;
-    } else return false;
-    if (not getOsrmPenalty(penalty) ) return false;
+      if (getOsrmTime( -34.8917,-56.167694,-34.890816,-56.165529,hint1,hint2,time) )
+        DLOG(INFO) << "test time:" << time;
+      else
+        return false;
+    }
+    else
+        return false;
+    if (not getOsrmPenalty(penalty) )
+        return false;
     addPenalty=true;
-    if (getOsrmTime( -34.8917,-56.167694,-34.890816,-56.165529,time) ) std::cout<<"test time:"<<time<<"\n";
+    if (getOsrmTime( -34.8917,-56.167694,-34.890816,-56.165529,time) )
+        DLOG(INFO) << "test time: " << time;
     else return false;
     getOsrmPenalty(penalty);
     if ( getOsrmHints(hints)) {
           std::string hint1= hints[0];
           std::string hint2= hints[1];
-          if (getOsrmTime( -34.8917,-56.167694,-34.890816,-56.165529,hint1,hint2,time) ) std::cout<<"test time:"<<time<<"\n";
-          else return false;
-    } else return false;
+          if (getOsrmTime( -34.8917,-56.167694,-34.890816,-56.165529,hint1,hint2,time) )
+            DLOG(INFO) << "test time: " << time;
+          else
+            return false;
+    }
+    else
+        return false;
     addPenalty=oldPenalty;
  
     return true;
@@ -553,8 +566,8 @@ bool OsrmClient::getGeom( struct json_object *jtree, std::deque<Node> &geom ) {
 
     int numPnts = json_object_array_length( jobj );
 
-    //std::cout << "route_geometry: type: " << json_object_get_type(jobj)
-    //          << ", size: " << numPnts << "\n";
+    //DLOG(INFO) << "route_geometry: type: " << json_object_get_type(jobj)
+    //           << ", size: " << numPnts;
 
     json_object *jval;
     json_object *j0;
@@ -563,14 +576,14 @@ bool OsrmClient::getGeom( struct json_object *jtree, std::deque<Node> &geom ) {
     double y;
     for (int i=0; i<numPnts; ++i) {
         jval = json_object_array_get_idx(jobj, i);
-        //std::cout << "jval: type: " << json_object_get_type(jval)
-        //          << ", size: " << json_object_array_length(jval) << "\n";
+        //DLOG(INFO) << "jval: type: " << json_object_get_type(jval)
+        //           << ", size: " << json_object_array_length(jval);
 
         j0 = json_object_array_get_idx(jval, 0);
-        //std::cout << "j0: type: " << json_object_get_type(j0) << "\n";
+        //DLOG(INFO) << "j0: type: " << json_object_get_type(j0);
 
         j1 = json_object_array_get_idx(jval, 1);
-        //std::cout << "j1: type: " << json_object_get_type(j1) << "\n";
+        //DLOG(INFO) << "j1: type: " << json_object_get_type(j1);
 
         x = json_object_get_double( j0 );
         y = json_object_get_double( j1 );
@@ -652,19 +665,19 @@ bool OsrmClient::getPenalty( struct json_object *jtree, double &penalty ) { //in
     }
 
     	trace = json_object_get_string (jInstructionsArray);
-    	std::cout<<"InstructionsArray "<<trace<<"\n";
+    	DLOG(INFO) << "InstructionsArray " << trace;
 
     jInstructionData = json_object_array_get_idx( jInstructionsArray, 0);
     int i=0;
     while (jInstructionData) {
 
     	trace = json_object_get_string (jInstructionData);
-    	std::cout<<"InstructionsData "<<trace<<"\n";
+    	DLOG(INFO) << "InstructionsData " << trace;
 
         jInstruction = json_object_array_get_idx( jInstructionData, 0);
 
     	turn = json_object_get_int (jInstruction);
-    	std::cout<<"Instruction "<<turn<<"\n";
+    	DLOG(INFO) << "Instruction " << turn;
 	switch (turn) {
 		case 2: penalty += 0.05; break; //slight right
 		case 3: penalty += 0.10; break; //right
@@ -682,7 +695,7 @@ bool OsrmClient::getPenalty( struct json_object *jtree, double &penalty ) { //in
         jInstructionData = json_object_array_get_idx( jInstructionsArray, i);
     }
 
-    std::cout<<"Penalty"<<penalty<<"\n"; 
+    DLOG(INFO) << "Penalty " << penalty; 
     json_object_put( jInstructionsArray );
     return true;
 }
