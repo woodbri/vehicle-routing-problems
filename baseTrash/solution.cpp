@@ -465,10 +465,13 @@ void Solution::dump() const {
 
 bool Solution::applyInsMove( const Move &move ) {
     assert( move.getmtype() == Move::Ins );
-    fleet[ move.getInsFromTruck() ].applyMoveINSerasePart( move.getnid1(),
-            move.getpos1() );
+
+    fleet[ move.getInsFromTruck() ].applyMoveINSerasePart(
+            move.getnid1(), move.getpos1() );
+
     fleet[ move.getInsToTruck() ].applyMoveINSinsertPart(
         datanodes[ move.getnid1() ], move.getpos2() );
+
     assert( fleet[ move.getInsFromTruck() ].feasable() );
     assert( fleet[ move.getInsToTruck() ].feasable() );
     return ( fleet[ move.getInsFromTruck() ].feasable()

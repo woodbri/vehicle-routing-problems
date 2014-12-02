@@ -14,11 +14,11 @@
 #ifndef TWEVAL_H
 #define TWEVAL_H
 
-#include <cassert>
 #include <vector>
 #include <string>
-#include "twnode.h"
 
+#include "vrp_assert.h"
+#include "twnode.h"
 #include "twc.h"
 
 #ifdef WITHOSRM
@@ -71,6 +71,7 @@ class Tweval: public Twnode {
     /* mutators */
     void evaluate ( double cargoLimit );
     void evaluate ( const Tweval &pred, double cargoLimit );
+
     /* Osrm stuff */
     #ifdef WITHOSRM
     void evaluateOsrm ();
@@ -80,6 +81,7 @@ class Tweval: public Twnode {
     std::string getOsrmUrlLocs() const { return osrmUrlLocs; };
     std::string getOsrmUrl( const std::string osrmBaseUrl ) const;
     #endif
+
     /*!
      * \brief Assign a travel time matrix to the class.
      *

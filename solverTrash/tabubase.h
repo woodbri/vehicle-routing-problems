@@ -15,10 +15,10 @@
 #define TABUBASE_H
 
 #include <map>
-#include <cassert>
 #include <cstdlib>
 #include <sstream>
 
+#include "vrp_assert.h"
 #include "logger.h"
 #include "stats.h"
 #include "timer.h"
@@ -322,7 +322,8 @@ class TabuBase  {
             move = it->first;
             expires = it->second;
 
-            if ( ( it->first.isIns()     and expires <= currentIterationIns ) ) continue;
+            if ( ( it->first.isIns()
+                   and expires <= currentIterationIns ) ) continue;
             else if ( ( move.isIntraSw()
                         and expires <= currentIterationIntraSw ) ) continue;
             else if ( ( move.isInterSw()
@@ -384,22 +385,28 @@ class TabuBase  {
             STATS->inc( "neg savings applied" );
 
             switch  ( move.getmtype() ) {
-                case Move::Ins: STATS->inc( "neg sav Ins applied" ); break;
+                case Move::Ins:
+                    STATS->inc( "neg sav Ins applied" ); break;
 
-                case Move::IntraSw: STATS->inc( "neg sav IntraSw applied" ); break;
+                case Move::IntraSw:
+                    STATS->inc( "neg sav IntraSw applied" ); break;
 
-                case Move::InterSw: STATS->inc( "neg sav InterSw applied" ); break;
+                case Move::InterSw:
+                    STATS->inc( "neg sav InterSw applied" ); break;
             }
         }
         else {
             STATS->inc( "pos savings applied" );
 
             switch  ( move.getmtype() ) {
-                case Move::Ins: STATS->inc( "pos sav Ins applied" ); break;
+                case Move::Ins:
+                    STATS->inc( "pos sav Ins applied" ); break;
 
-                case Move::IntraSw: STATS->inc( "pos sav IntraSw applied" ); break;
+                case Move::IntraSw:
+                    STATS->inc( "pos sav IntraSw applied" ); break;
 
-                case Move::InterSw: STATS->inc( "pos sav InterSw applied" ); break;
+                case Move::InterSw:
+                    STATS->inc( "pos sav InterSw applied" ); break;
             }
         }
 
@@ -446,11 +453,11 @@ class TabuBase  {
 
             if ( pos1 == truckPos or pos2 == truckPos ) continue;
 
-            if  ( pos1 > truckPos )  move.setvid1( pos1 -
-                                                       1 ); //interface for position is with vid
+            //interface for position is with vid
+            if  ( pos1 > truckPos )  move.setvid1( pos1 - 1 );
 
-            if  ( pos2 > truckPos )  move.setvid2( pos2 -
-                                                       1 ); //interface for position is with vid
+            //interface for position is with vid
+            if  ( pos2 > truckPos )  move.setvid2( pos2 - 1 );
 
             TabuList[move] = expires;
         }

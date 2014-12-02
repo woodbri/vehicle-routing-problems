@@ -15,8 +15,8 @@
 #define MOVE_H
 
 #include <limits>
-#include <cassert>
 #include <iostream>
+#include "vrp_assert.h"
 #ifdef DOSTATS
 #include "stats.h"
 #endif

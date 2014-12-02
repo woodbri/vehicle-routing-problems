@@ -72,8 +72,8 @@ void FeasableSol::stepOne( Vehicle &truck ) {
         }
     }
     else {
-        DLOG( INFO ) << "no nearest node was found";
-        assert( true == false );
+        DLOG( WARNING ) << "no nearest node was found";
+        assert( "FeasableSol::stepOne" == "no nearest node was found" );
     }
 
 }

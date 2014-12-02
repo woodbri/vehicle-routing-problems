@@ -325,20 +325,28 @@ void OptSol::getInsNeighborhood( Moves &moves, double factor ) const {
         insTruckPos2 = insTruckPos2 = 0;
     };
 
-    if  ( insTruckPos1 == fleet.size() - 2
-          and insTruckPos2 == fleet.size() - 1 ) {insTruckPos1 = 0; insTruckPos2 = 1;}
-    else if ( insTruckPos1 < fleet.size() - 2
-              and insTruckPos2 == fleet.size() - 1 ) { insTruckPos1++; insTruckPos2 = insTruckPos1 + 1;}
-    else if ( insTruckPos2 < fleet.size() - 1 ) insTruckPos2++;
+    if  ( insTruckPos1 == fleet.size() - 2 and
+          insTruckPos2 == fleet.size() - 1 ) {
+        insTruckPos1 = 0;
+        insTruckPos2 = 1;
+    }
+    else if ( insTruckPos1 < fleet.size() - 2 and
+              insTruckPos2 == fleet.size() - 1 ) {
+        insTruckPos1++;
+        insTruckPos2 = insTruckPos1 + 1;
+    }
+    else if ( insTruckPos2 < fleet.size() - 1 )
+        insTruckPos2++;
 
-    if ( insTruckPos1 == insTruckPos2 ) {insTruckPos1 = 0; insTruckPos2 = 1;}
+    if ( insTruckPos1 == insTruckPos2 ) {
+        insTruckPos1 = 0;
+        insTruckPos2 = 1;
+    }
 
     fromTruck = insTruckPos1;
     toTruck = insTruckPos2;
 
-
     //if (insTruckPos1 == insTruckPos2) return;
-
 
     #ifndef TESTED
     DLOG( INFO ) << "**********************************working with truck "
@@ -357,11 +365,12 @@ void OptSol::getInsNeighborhood( Moves &moves, double factor ) const {
                 return;
             };
 
-            if ( not fleet[fromTruck].eval_erase( fromPos,
-                                                  savings ) ) continue; //for whatever reason erasing a node makes the truck infeasable
+            //for whatever reason erasing a node makes the truck infeasable
+            if ( not fleet[fromTruck].eval_erase( fromPos, savings ) ) continue;
 
-            fleet[toTruck].eval_insertMoveDumps( fleet[fromTruck][fromPos], moves,
-                                                 fromTruck, fromPos, toTruck, savings, factor );
+            fleet[toTruck].eval_insertMoveDumps( fleet[fromTruck][fromPos],
+                                                 moves, fromTruck, fromPos,
+                                                 toTruck, savings, factor );
         }
     }
 
@@ -374,8 +383,8 @@ void OptSol::getInsNeighborhood( Moves &moves, double factor ) const {
                  << fromTruck << " and " << toTruck << " insSw neighborhood";
     #endif
 
-    if ( fleet[toTruck].getz1()
-         or fleet[toTruck].getz2() ) { //only try if there is a possibility to insert a container
+    //only try if there is a possibility to insert a container
+    if ( fleet[toTruck].getz1() or fleet[toTruck].getz2() ) {
         for ( int fromPos = 1; fromPos < fleet[fromTruck].size(); fromPos++ ) {
             if ( fleet[fromTruck][fromPos].isDump() ) continue; // skiping dump
 
@@ -386,11 +395,12 @@ void OptSol::getInsNeighborhood( Moves &moves, double factor ) const {
                 return;
             };
 
-            if ( not fleet[fromTruck].eval_erase( fromPos,
-                                                  savings ) ) continue; //for whatever reason erasing a node makes the truck infeasable
+            // for whatever reason erasing a node makes the truck infeasable
+            if ( not fleet[fromTruck].eval_erase( fromPos, savings ) ) continue;
 
-            fleet[toTruck].eval_insertMoveDumps( fleet[fromTruck][fromPos], moves,
-                                                 fromTruck, fromPos, toTruck, savings, factor );
+            fleet[toTruck].eval_insertMoveDumps( fleet[fromTruck][fromPos],
+                                                 moves, fromTruck, fromPos,
+                                                 toTruck, savings, factor );
         }
     }
 
@@ -440,11 +450,11 @@ bool OptSol::testInterSwMove( const Move &move ) const {
 
     if ( not ( move.getInterSwTruck2() < fleet.size() ) ) return false;
 
-    if ( not ( move.getpos1() < fleet[move.getInterSwTruck1()].size() ) ) return
-            false;
+    if ( not ( move.getpos1() < fleet[move.getInterSwTruck1()].size() ) )
+        return false;
 
-    if ( not ( move.getpos2() < fleet[move.getInterSwTruck2()].size() ) ) return
-            false;
+    if ( not ( move.getpos2() < fleet[move.getInterSwTruck2()].size() ) )
+        return false;
 
     if ( not ( fleet[move.getInterSwTruck1()][ move.getpos1()].getnid() ==
                move.getnid1() ) ) return false;
@@ -474,14 +484,11 @@ bool OptSol::testInsMove( const Move &move ) const {
 
     if ( ( move.getInsFromTruck() == move.getInsToTruck() ) ) return false;
 
-    if ( not ( move.getInsFromPos() < fleet[move.getInsFromTruck()].size() - 1 ) )
-        return false;
+    if ( not ( move.getInsFromPos() <
+               fleet[move.getInsFromTruck()].size() - 1 ) ) return false;
 
     if ( not ( move.getInsToPos() < fleet[move.getInsToTruck()].size() - 1 ) )
         return false;
-
-
-
 
     if ( not ( fleet[move.getInsFromTruck()] [ move.getInsFromPos()].getnid() ==
                move.getInsNid() ) ) return false;

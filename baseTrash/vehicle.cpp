@@ -428,6 +428,8 @@ bool Vehicle::e_insertIntoFeasableTruck( const Trashnode &node, int pos ) {
 
     return true;
 }
+
+
 /*
 //dont forget, negative savings is a higher cost
 bool Vehicle::eval_erase(int at, double &savings) const {
@@ -447,6 +449,8 @@ DLOG(INFO) << "Entering Vehicle::eval_erase";
     return truck.feasable();
 };
 */
+
+
 //dont forget, negative savings is a higher cost
 bool Vehicle::eval_erase( int at, double &savings ) const {
     #ifdef DOSTATS

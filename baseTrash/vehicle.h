@@ -105,11 +105,14 @@ class Vehicle: public BaseVehicle {
     long int eval_intraSwapMoveDumps( Moves &moves, int  truckPos,
                                       double factor ) const;
     long int eval_interSwapMoveDumps( Moves &moves, const Vehicle &otherTruck,
-                                      int  truckPos, int  otherTruckPos, double factor   ) const;
+                                      int  truckPos, int  otherTruckPos,
+                                      double factor   ) const;
     long int eval_interSwapMoveDumps( Moves &moves, const Vehicle &otherTruck,
-                                      int  truckPos, int  otherTruckPos, int fromPos, int toPos   ) const;
+                                      int  truckPos, int  otherTruckPos,
+                                      int fromPos, int toPos   ) const;
     long int eval_insertMoveDumps( const Trashnode &node, Moves &moves,
-                                   int fromTruck, int formPos, int toTruck, double savings, double factor ) const;
+                                   int fromTruck, int formPos, int toTruck,
+                                   double savings, double factor ) const;
     bool eval_erase( int at, double &savings ) const;
     //for cost function
     Trashnode C , last;
@@ -174,14 +177,14 @@ class Vehicle: public BaseVehicle {
     void setCost() {
         last = ( size() > 1 ) ? path[size() - 1] : C ;
         realttSC = path.size() > 1 ? path[1].getTotTravelTime()  : ttSC;
-        double deltattSC = realttSC -
-                           ttSC; // >0 viaja mas lejos para llegar al primer contenedor
+        // >0 viaja mas lejos para llegar al primer contenedor
+        double deltattSC = realttSC - ttSC;
         ttSC = std::min( realttSC, ttSC );
 
         realttCC = size() > 1 ? ( path.getTotTravelTime() - realttSC ) /
                    ( size() - 1 ) : ttCC;
-        double deltattCC = realttCC -
-                           ttCC; // >0 el promedio de viaje entre contenedores es mayor
+        // >0 el promedio de viaje entre contenedores es mayor
+        double deltattCC = realttCC - ttCC;
         ttCC = std::min( realttCC, ttCC );
 
         realttCD = 0;
@@ -192,19 +195,22 @@ class Vehicle: public BaseVehicle {
             for ( int i = 1; i < path.size() - 1; i++ ) {
                 realZ++;
 
-                if ( path[i - 1].isDump() ) realttCD += twc->TravelTime( path[i - 1], path[i] );
+                if ( path[i - 1].isDump() )
+                    realttCD += twc->TravelTime( path[i - 1], path[i] );
 
-                if ( path[i].isDump() ) realttDC += twc->TravelTime( path[i], path[i + 1] );
+                if ( path[i].isDump() )
+                    realttDC += twc->TravelTime( path[i], path[i + 1] );
             }
         }
         else realttDC = ttDC;
 
         realttCD = ( realttCD + twc->TravelTime( last,
                      dumpSite ) ) / ( path.getDumpVisits() + 1.0 );
-        double deltattDC = realttDC -
-                           ttDC; // >0 el viaje del dump al contenedor es mas largo que lo esperado (worse)
-        double deltattCD = realttCD -
-                           ttCD; // >0 el viaje del contenedor al dump es mar largo que lo esperado
+        // >0 el viaje del dump al contenedor es mas largo que
+        // lo esperado (worse)
+        double deltattDC = realttDC - ttDC;
+        // >0 el viaje del contenedor al dump es mar largo que lo esperado
+        double deltattCD = realttCD - ttCD;
 
         ttCD = std::min( realttCD, ttCD );
         ttDC = std::min( realttDC, ttDC );
@@ -212,53 +218,64 @@ class Vehicle: public BaseVehicle {
         realttDE = ttDE;
 
         realArrivalEclosesLast = last.closes() +  last.getServiceTime() +
-                                 twc->TravelTime( last, dumpSite ) + dumpSite.getServiceTime() + realttDE;
+                                 twc->TravelTime( last, dumpSite ) +
+                                 dumpSite.getServiceTime() + realttDE;
+        //>0 the latest the truck can arrive is better
         double deltaArrivalEclosesLast = realArrivalEclosesLast -
-                                         arrivalEclosesLast; //>0 the latest the truck can arrive is better
+                                         arrivalEclosesLast;
+        //>0 the latest the truck can arrive
         arrivalEclosesLast = std::max( realArrivalEclosesLast,
-                                       arrivalEclosesLast ); //>0 the latest the truck can arrive
+                                       arrivalEclosesLast );
 
         realForcedWaitTime = endTime - ( realArrivalEclosesLast  +  serviceE );
-        double deltaForcedWaitTime = realForcedWaitTime -
-                                     forcedWaitTime; //>0 bad thing the forcedWaitTime has increased
+        //>0 bad thing the forcedWaitTime has increased
+        double deltaForcedWaitTime = realForcedWaitTime - forcedWaitTime;
         forcedWaitTime = std::min ( realForcedWaitTime , forcedWaitTime );
 
         n  = size() - 1 - ( realN() - 1 );
-        double deltan = n -
-                        lastn; //>0 allways good, we have one more container (truck point fo view)
-        lastn = n;  //setting this n as the last
+        //>0 allways good, we have one more container (truck point fo view)
+        double deltan = n - lastn;
+        //setting this n as the last
+        lastn = n;
 
         z = ( realN() == 1 ) ?  n  : n % Z ;
-        double deltaZ = Z - z; //>0 good, we can work more containers/trip
+        //>0 good, we can work more containers/trip
+        double deltaZ = Z - z;
         Z = std::max( Z, z );
 
-        Zmissing = Z - z; //==0 we are in the limit of container pickup
-        //>0 we need to pickup more containers
+        // ==0 we are in the limit of container pickup
+        // >0 we need to pickup more containers
+        Zmissing = Z - z;
+
         //its never negative
         assert( Zmissing >= 0 );
 
         realTotalTime = endingSite.getArrivalTime();
-        double deltaRealTotalTime = realTotalTime -
-                                    lastRealTotalTime; //>0 the total time has increased  good or bad depends on deltan
+        // >0 the total time has increased  good or bad depends on deltan
+        double deltaRealTotalTime = realTotalTime - lastRealTotalTime;
         lastRealTotalTime = realTotalTime;
 
 
-        if ( realArrivalEclosesLast < realTotalTime ) { last.dumpeval(); dumpCostValues();};
+        if ( realArrivalEclosesLast < realTotalTime ) {
+            last.dumpeval();
+            dumpCostValues();
+        };
 
-        assert ( realArrivalEclosesLast >
-                 realTotalTime ); //otherwise we are in a TWV and something is wrong on the calculation
+        //otherwise we are in a TWV and something is wrong on the calculation
+        assert ( realArrivalEclosesLast > realTotalTime );
 
         realIdleTime =  realArrivalEclosesLast -  realTotalTime ;
 
-        realIdleTimeSCDE =  ( Zmissing > 0 ) ?  ( C.getServiceTime() + realttCC ) *
-                            Zmissing :
+        realIdleTimeSCDE =  ( Zmissing > 0 ) ?
+                            ( C.getServiceTime() + realttCC ) * Zmissing :
                             C.closes() - ( depot.getDepartureTime() +  realttSC ) ;
 
-        realz1 = std::min ( ( int ) ( floor( realIdleTime / ( C.getServiceTime() +
-                                             realttCC ) ) ) , Zmissing ) ;
+        realz1 = std::min( ( int ) ( floor( realIdleTime /
+                ( C.getServiceTime() + realttCC ) ) ) , Zmissing ) ;
 
-        realIdleTimeSDCDE =  std::max ( ( C.closes() - ( dumpSite.getDepartureTime() +
-                                          realttDC ) ) , 0.0 ); //cant have negative idleTime
+        //cant have negative idleTime
+        realIdleTimeSDCDE = std::max( ( C.closes() -
+                ( dumpSite.getDepartureTime() + realttDC ) ) , 0.0 );
 
         realz2 = floor( realIdleTimeSDCDE / ( C.getServiceTime() +  realttCC ) );
 
@@ -270,29 +287,37 @@ class Vehicle: public BaseVehicle {
 
         double deltaz1 = realz1 - z1;
 
-        if ( deltan >=
-             0 ) //aumente el numero de contenedores  deltaz1>0 es bueno, aumente contenedor y pudo puedo aumentar mas contenedores todavia (no tiene sentido)
+        // aumente el numero de contenedores  deltaz1>0 es bueno,
+        // aumente contenedor y pudo puedo aumentar mas contenedores todavia
+        // (no tiene sentido)
+        if ( deltan >= 0 )
             z1 = std::max ( z1 - 1, realz1 );
 
-        if ( deltan == 0 ) //el numero de contenedores no cambio  deltaz1>0 es bueno
+        //el numero de contenedores no cambio  deltaz1>0 es bueno
+        if ( deltan == 0 )
             z1 = std::max ( z1, realz1 ) ;
 
-        if ( deltan <
-             0 ) //quite un contenedor, deltaz>0 me hace falta un contenedor z1 debe de haber aumentado minimo en 1
+        // quite un contenedor, deltaz>0 me hace falta un contenedor z1 debe
+        // de haber aumentado minimo en 1
+        if ( deltan < 0 )
             z1 = std::max ( z1 + 1, realz1 );
 
 
         double deltaz2 = realz2 - z2;
 
-        if ( deltan >=
-             0 ) //aumente el numero de contenedores  deltaz2>0 es bueno, aumente contenedor y pudo puedo aumentar mas contenedores todavia (no tiene sentido)
+        // aumente el numero de contenedores  deltaz2>0 es bueno,
+        // aumente contenedor y pudo puedo aumentar mas contenedores todavia
+        // (no tiene sentido)
+        if ( deltan >= 0 )
             z2 = std::max ( z2 - 1, realz2 );
 
-        if ( deltan == 0 ) //el numero de contenedores no cambio  deltaz2>0 es bueno
+        // el numero de contenedores no cambio  deltaz2>0 es bueno
+        if ( deltan == 0 )
             z2 = std::max ( z2, realz2 ) ;
 
-        if ( deltan <
-             0 ) //quite un contenedor, deltaz>0 me hace falta un contenedor z1 debe de haber aumentado minimo en 1
+        // quite un contenedor, deltaz>0 me hace falta un contenedor z1 debe
+        // de haber aumentado minimo en 1
+        if ( deltan < 0 )
             z2 = std::max ( z2 + 1, realz2 );
 
         #ifdef TESTED
@@ -315,8 +340,8 @@ class Vehicle: public BaseVehicle {
                               n ) + double( realz1 ) + double( realz2 ) ) );
         double workDonePerc = 1 - workNotDonePerc;
 
-        v_cost =  /* realTotalTime * (1 + workNotDonePerc) + sumIdle * ( 1 + workDonePerc) +*/
-            getDuration();
+        // v_cost =  realTotalTime * (1 + workNotDonePerc) + sumIdle * ( 1 + workDonePerc) + getDuration();
+        v_cost = getDuration();
     };
 
     double getDeltaCost( double deltaTravelTime, int deltan ) {

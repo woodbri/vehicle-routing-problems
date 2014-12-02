@@ -23,8 +23,6 @@
 #include "plot.h"
 #include "oneTruckAllNodesInit.h"
 
-
-
 void OneTruckAllNodesInit::stepOne( Vehicle &truck, Bucket &unassigned,
                                     Bucket &assigned ) {
     if ( not unassigned.size() ) return;
@@ -39,12 +37,6 @@ void OneTruckAllNodesInit::stepOne( Vehicle &truck, Bucket &unassigned,
         stepOne( truck, unassigned, assigned );
     }
 }
-
-
-
-
-
-
 
 void OneTruckAllNodesInit::process() {
 
@@ -67,8 +59,8 @@ void OneTruckAllNodesInit::process() {
 
     stepOne( truck, unassigned, assigned );
 
-    truck.plot( "OneTruckAllNodes", "OneTruckAllNodes",
-                truck.getVid() ); // plot displays the route to be plotted
+    // plot displays the route to be plotted
+    truck.plot( "OneTruckAllNodes", "OneTruckAllNodes", truck.getVid() );
     fleet.push_back( truck );
     assert( pickups ==  assigned );
 

@@ -16,7 +16,7 @@
  *
  * This file provides an alternative to assert functionality that will
  * convert all assert() into C++ throw using an AssertFailedException class.
- * This is allows us to catch these errors and do appropriate clean up and
+ * This allows us to catch these errors and do appropriate clean up and
  * re-throw if needed so we can catch errors in the postgresql environment
  * so we do not crash the backend server.
  */

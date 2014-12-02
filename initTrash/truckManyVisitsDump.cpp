@@ -87,7 +87,10 @@ void TruckManyVisitsDump::insertGoing( Bucket &bigTruck, Vehicle &truck,
     //END INVARIANT
 
     //truck.plot("truckManyVisitsDump-","Insert Going",tmp++);
-    if ( not unassigned.size() ) { return; }; //asomething has to be done before return
+    if ( not unassigned.size() ) {
+        //asomething has to be done before return
+        return;
+    };
 
     assert( bigTruck.size() > 1 );
 

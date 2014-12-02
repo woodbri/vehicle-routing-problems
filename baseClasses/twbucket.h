@@ -21,8 +21,8 @@
 #include <sstream>
 #include <algorithm>
 #include <limits>
-#include <cassert>
 
+#include "vrp_assert.h"
 #include "logger.h"
 #include "node.h"
 
@@ -185,11 +185,6 @@ class TwBucket {
         else return timePCN( path[from - 1], path[from], middle , path[from + 2],
                                  path[from].getTravelTime() );
     }
-
-
-
-
-
 
   protected:
     /*!
@@ -384,7 +379,7 @@ class TwBucket {
 
 
     /*!
-     * \brief Compute the cange in time when swapping node with the node at pos
+     * \brief Compute the change in time when swapping node with the node at pos
      *
      * If the current path looks like prev -\> pos -\> pos1 then compute the
      * the change in time of swapping node for the node at pos, so the new

@@ -1482,7 +1482,7 @@ template <class knode> class TWC {
      * \brief Load the travel time matrix from a text file and process the results.
      *
      * Reads \b infile and loads it into the travel time matrix and populates
-     * any missing entries we an approx distance. It also computes the TWC
+     * any missing entries we=ith an approx distance. It also computes the TWC
      * matrix.
      *
      * \todo Add description of file format.
@@ -1494,7 +1494,7 @@ template <class knode> class TWC {
     void loadAndProcess_distance( std::string infile, const Bucket &datanodes,
                                   const Bucket &invalid ) {
         assert( datanodes.size() );
-        DLOG( INFO ) << "VICKYS: loadAndProcess_distance";
+        DLOG( INFO ) << "COMMANDLINE: loadAndProcess_distance";
 
         original.clear();
         original = datanodes;

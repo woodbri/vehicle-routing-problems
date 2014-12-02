@@ -15,9 +15,9 @@
 #define TABUOPT_H
 
 #include <map>
-#include <cassert>
 #include <cstdlib>
 
+#include "vrp_assert.h"
 #include "logger.h"
 #include "stats.h"
 #include "timer.h"
