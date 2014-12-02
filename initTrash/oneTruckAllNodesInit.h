@@ -34,8 +34,8 @@ class OneTruckAllNodesInit : public Solution {
 
   public:
 
-    OneTruckAllNodesInit(const std::string &infile): Solution(infile) { 
-       process();
+    OneTruckAllNodesInit( const std::string &infile ): Solution( infile ) {
+        process();
     };
 
 
@@ -45,9 +45,9 @@ class OneTruckAllNodesInit : public Solution {
     std::string solutionAsText() const;
     std::vector<int> solutionAsVector() const;
 
-    Vehicle getVehicle(int i) const { return fleet[i]; };
+    Vehicle getVehicle( int i ) const { return fleet[i]; };
 
-   
+
     void dumpFleet() const;
     void dump() const;
     void dumpSummary() const;
@@ -57,9 +57,9 @@ class OneTruckAllNodesInit : public Solution {
     void clearFleet() { fleet.clear(); };
 
 
-    
+
     // methods to build initial solution
-    void stepOne(Vehicle &truck, Bucket &unassigned, Bucket &assigned);
+    void stepOne( Vehicle &truck, Bucket &unassigned, Bucket &assigned );
     void process();
 
 };

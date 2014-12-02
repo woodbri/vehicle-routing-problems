@@ -19,7 +19,7 @@
  *
  * The Google glog logging package closely aligns with our logging needs
  * of being about to have a robust logging facility for develop and debugging
- * and being able to easily disable that for production use or when 
+ * and being able to easily disable that for production use or when
  * integrated into PostgreSQL as an extension.
  *
  * While glog has quite a bit of functionality, we are mostly limiting our

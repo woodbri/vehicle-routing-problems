@@ -23,74 +23,74 @@
 #include "tabusearch.h"
 
 int vrp_trash_collection( container_t *containers, unsigned int container_count,
-        otherloc_t *otherlocs, unsigned int otherloc_count,
-        vehicle_t *vehicles, unsigned int vehicle_count,
-        ttime_t *ttimes, unsigned int ttime_count,
-        vehicle_path_t **vehicle_paths, int *vehicle_path_count,
-        char **err_msg) {
+                          otherloc_t *otherlocs, unsigned int otherloc_count,
+                          vehicle_t *vehicles, unsigned int vehicle_count,
+                          ttime_t *ttimes, unsigned int ttime_count,
+                          vehicle_path_t **vehicle_paths, int *vehicle_path_count,
+                          char **err_msg ) {
 
     try {
         FLAGS_log_dir = "./logs/";
-        google::InitGoogleLogging("vrp_trash_collection");
+        google::InitGoogleLogging( "vrp_trash_collection" );
         FLAGS_logtostderr = 0;
         FLAGS_stderrthreshold = google::FATAL;
         FLAGS_minloglevel = google::INFO;
 
         Timer starttime;
-        
+
         TrashProb prob;
         prob.addContainers( containers, container_count );
         prob.addOtherlocs( otherlocs, otherloc_count );
 
-        if (not prob.checkNodesOk()) {
+        if ( not prob.checkNodesOk() ) {
             std::string err = prob.whatIsWrong();
-            *err_msg = strdup(err.c_str());
+            *err_msg = strdup( err.c_str() );
             return -1;
         }
 
         prob.addTtimes( ttimes, ttime_count );
         prob.addVehicles( vehicles, vehicle_count );
 
-        if (not prob.isValid()) {
+        if ( not prob.isValid() ) {
             std::string err = prob.whatIsWrong();
-            *err_msg = strdup(err.c_str());
+            *err_msg = strdup( err.c_str() );
             return -1;
         }
 
-        FeasableSolLoop tp(prob);
+        FeasableSolLoop tp( prob );
         tp.computeCosts();
 
-        DLOG(INFO) << "Load and initial solution time: "
-                   << starttime.duration()
-                   << ", initial cost: " << tp.getCost();
+        DLOG( INFO ) << "Load and initial solution time: "
+                     << starttime.duration()
+                     << ", initial cost: " << tp.getCost();
 
         Timer searchtime;
 
-        TabuSearch ts(tp);
-        ts.setMaxIteration(1000);
+        TabuSearch ts( tp );
+        ts.setMaxIteration( 1000 );
         ts.search();
 
         Solution best = ts.getBestSolution();
         best.computeCosts();
 
-        DLOG(INFO) << "Tabu search time: " << searchtime.duration()
-                   << ", final cost: " << best.getCost();
+        DLOG( INFO ) << "Tabu search time: " << searchtime.duration()
+                     << ", final cost: " << best.getCost();
 
         int count = 0;
-        *vehicle_paths = best.getSolutionForPg(count);
+        *vehicle_paths = best.getSolutionForPg( count );
         *vehicle_path_count = count;
 
-        if (count == -1) {
-            *err_msg = (char *) "Failed to allocate memory for results!";
+        if ( count == -1 ) {
+            *err_msg = ( char * ) "Failed to allocate memory for results!";
             return -1;
         }
     }
-    catch(std::exception& e) {
-        *err_msg = (char *) e.what();
+    catch ( std::exception &e ) {
+        *err_msg = ( char * ) e.what();
         return -1;
     }
-    catch(...) {
-        *err_msg = (char *) "Caught unknown expection!";
+    catch ( ... ) {
+        *err_msg = ( char * ) "Caught unknown expection!";
         return -1;
     }
 

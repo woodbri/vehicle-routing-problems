@@ -38,20 +38,20 @@ class TruckManyVisitsDump : public Solution {
     Bucket assigned;
 
 
-int tmp;
+    int tmp;
   public:
 
-    TruckManyVisitsDump(const Solution &sol): Solution(sol) { 
-       unusedTrucks=trucks;
-       unassigned=pickups;
-tmp=0;
-       process();
+    TruckManyVisitsDump( const Solution &sol ): Solution( sol ) {
+        unusedTrucks = trucks;
+        unassigned = pickups;
+        tmp = 0;
+        process();
     };
 
 
- private:
-    void insertGoing(Bucket &bigTruck, Vehicle &truck, UID goingPos);
-    void insertComming(Bucket &bigTruck, Vehicle &truck, UID goingPos);
+  private:
+    void insertGoing( Bucket &bigTruck, Vehicle &truck, UID goingPos );
+    void insertComming( Bucket &bigTruck, Vehicle &truck, UID goingPos );
     Vehicle getTruck();
     void process();
 

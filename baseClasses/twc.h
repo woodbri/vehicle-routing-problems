@@ -31,13 +31,13 @@
 #include "singleton.h"
 
 #ifdef OSRMCLIENT
-	#include "osrmclient.h"
+#include "osrmclient.h"
 #endif
 
 #ifdef DOSTATS
-	#include "timer.h"
-	#include "stats.h"
-#endif 
+#include "timer.h"
+#include "stats.h"
+#endif
 
 
 /*! \class TWC
@@ -83,23 +83,24 @@ template <class knode> class TWC {
     typedef unsigned long int POS;
 
     #ifdef OSRMCLIENT
-	/*! \todo */
-	typedef struct { //all are ids when prev==from its a 3 node call
-	UID prev;
-	UID from;
-	UID middle;
-	UID last;
-        } TTindex;
-	struct classcomp {
-  		bool operator() (const TTindex &lhs, const TTindex &rhs) const {
-  		return lhs.prev<rhs.prev? true: lhs.from<rhs.from? true:  lhs.middle<rhs.middle? true: lhs.last<rhs.last;
-		};
+    /*! \todo */
+    typedef struct { //all are ids when prev==from its a 3 node call
+        UID prev;
+        UID from;
+        UID middle;
+        UID last;
+    } TTindex;
+    struct classcomp {
+        bool operator() ( const TTindex &lhs, const TTindex &rhs ) const {
+            return lhs.prev < rhs.prev ? true : lhs.from < rhs.from ? true :  lhs.middle <
+                   rhs.middle ? true : lhs.last < rhs.last;
         };
-        typedef std::map<TTindex,double,classcomp>  TT4;
-        typedef typename std::map<TTindex,double>::iterator p_TT4;
+    };
+    typedef std::map<TTindex, double, classcomp>  TT4;
+    typedef typename std::map<TTindex, double>::iterator p_TT4;
 
-   #endif
-	
+    #endif
+
 
 
     TwBucket<knode> original;
@@ -114,7 +115,7 @@ template <class knode> class TWC {
     #endif
 
   public:
-    
+
 
 
     // -------------------  major tools  ----------------------------
@@ -123,11 +124,11 @@ template <class knode> class TWC {
      * \brief Searches a bucket of unassigned nodes for one that is nearest to the exist path and compatible with time windows.
      *
      * For each node in the unassigned bucket, check the time window
-     * compatibility for each existing node in the path can compute the 
+     * compatibility for each existing node in the path can compute the
      * shortest distance to that node. We save the node, position and
      * distance for the node with the shortest distance and return them.
      *
-     * The best node is returned if found, but it is not removed from 
+     * The best node is returned if found, but it is not removed from
      * the unassigned bucket and it is not added to the truck.
      *
      * \param[in] truck The truck that we want to find the best node for.
@@ -168,10 +169,10 @@ template <class knode> class TWC {
     }
 
     bool  findNearestNodeUseExistingData( const TwBucket<knode> &truck,
-                             const  TwBucket<knode> &unassigned,
-                             POS &pos,
-                             knode &bestNode,
-                             double &bestDist ) const {
+                                          const  TwBucket<knode> &unassigned,
+                                          POS &pos,
+                                          knode &bestNode,
+                                          double &bestDist ) const {
         assert( unassigned.size() );
         int flag = false;
         bestDist = _MAX();   // dist to minimize
@@ -181,9 +182,12 @@ template <class knode> class TWC {
 
         for ( int i = 0; i < unassigned.size(); i++ ) {
             for ( int j = 0; j < truck.size() - 1; j++ ) {
-		if ( not (j == 0) // all nodes from the depot that are missing should be calculated
-		     and (   (travel_Time[ truck[j].getnid() ][ unassigned[i].getnid() ] == -1 )
-		          or (travel_Time[ unassigned[i].getnid() ][ truck[j+1].getnid() ] == -1) ) ) continue;
+                if ( not ( j ==
+                           0 ) // all nodes from the depot that are missing should be calculated
+                     and (   ( travel_Time[ truck[j].getnid() ][ unassigned[i].getnid() ] == -1 )
+                             or ( travel_Time[ unassigned[i].getnid() ][ truck[j + 1].getnid() ] == -1 ) ) )
+                    continue;
+
                 if ( isCompatibleIAJ( truck[j], unassigned[i], truck[j + 1] ) ) {
                     d = truck.segmentDistanceToPoint( j , unassigned[i] );
 
@@ -197,7 +201,9 @@ template <class knode> class TWC {
             }
         }
 
-        if (not flag) return findNearestNodeTo( truck, unassigned, pos, bestNode, bestDist ) ;
+        if ( not flag ) return findNearestNodeTo( truck, unassigned, pos, bestNode,
+                                   bestDist ) ;
+
         return flag;
     }
 
@@ -377,50 +383,57 @@ template <class knode> class TWC {
 
 
     /*! \todo comments   */
-    private:
-    double getTravelTime( UID from, UID to ) const { //this one does all the work gets &sets if needed
+  private:
+    double getTravelTime( UID from,
+                          UID to ) const { //this one does all the work gets &sets if needed
 
         assert( from < original.size() and to < original.size() );
-	double time;
-	#ifdef OSRMCLIENT
-	bool oldStateOsrm=osrm->getUse();
-	#endif
-	if (travel_Time[from][to]==-1) {
-            #ifdef DOSTATS
-            STATS->inc("TWC::getTravelTime(2 parameters) travel_time==-1");
-	    #endif
+        double time;
+        #ifdef OSRMCLIENT
+        bool oldStateOsrm = osrm->getUse();
+        #endif
 
-	    #ifdef OSRMCLIENT
-	    osrm->useOsrm(true);
-	    if (not osrm->getOsrmTime(original[from],original[to],time)) { 
-	    #endif
-                time=original[from].distance( original[to] ) / 250;
+        if ( travel_Time[from][to] == -1 ) {
+            #ifdef DOSTATS
+            STATS->inc( "TWC::getTravelTime(2 parameters) travel_time==-1" );
+            #endif
+
+            #ifdef OSRMCLIENT
+            osrm->useOsrm( true );
+
+            if ( not osrm->getOsrmTime( original[from], original[to], time ) ) {
+            #endif
+                time = original[from].distance( original[to] ) / 250;
+
                 if ( not sameStreet( from, to ) ) {
                     time = time *
-                            ( std::abs( std::sin( gradient( from, to ) ) ) +
-                              std::abs( std::cos( gradient( from, to ) ) )
-                            );
+                           ( std::abs( std::sin( gradient( from, to ) ) ) +
+                             std::abs( std::cos( gradient( from, to ) ) )
+                           );
                 }
-	    	#ifdef DOSTATS
-        	STATS->inc("TWC::getTravelTime(2 parameters) euclidean calculated");
-        	#endif
-	    #ifdef OSRMCLIENT
-            } 
-	    else {
-            	#ifdef DOSTATS
-            	STATS->inc("TWC::getTravelTime(2 parameters) osrm calculated");
-	    	#endif
+
+                #ifdef DOSTATS
+                STATS->inc( "TWC::getTravelTime(2 parameters) euclidean calculated" );
+                #endif
+                #ifdef OSRMCLIENT
             }
-	    osrm->useOsrm( oldStateOsrm );
-	    #endif 
-	    travel_Time[from][to]=time;
-	    getTwcij(from,to,time);
-		//TODO if is not compatible set travel_time as infinity
+            else {
+                #ifdef DOSTATS
+                STATS->inc( "TWC::getTravelTime(2 parameters) osrm calculated" );
+                #endif
+            }
+
+            osrm->useOsrm( oldStateOsrm );
+                #endif
+            travel_Time[from][to] = time;
+            getTwcij( from, to, time );
+            //TODO if is not compatible set travel_time as infinity
         }
+
         return travel_Time[from][to];
     }
 
-    public: 
+  public:
     /*!
      * \brief Fetch the travel time from node id \b from to node id \b to. (interface)
      *
@@ -437,7 +450,7 @@ template <class knode> class TWC {
      * \return The value from the travel time matrix.
      */
     double TravelTime( UID from, UID to ) const {
-        return getTravelTime(from,to);
+        return getTravelTime( from, to );
     }
 
     /*!
@@ -457,100 +470,129 @@ template <class knode> class TWC {
 
 
     /*! \todo comments   */
-    private:
-	//this one does all the work
-	double getTravelTime( UID prev, UID from, UID middle, UID to ) const { 
-            assert( prev<original.size() and from < original.size() and middle<original.size() and to < original.size() );
-	    #ifndef OSRMCLIENT
-		if (prev==from) return  getTravelTime(from,middle)+ getTravelTime(middle,to);
-		else return getTravelTime(prev,from) + getTravelTime(from,middle) + getTravelTime(middle,to);
-            #else
-	    if (prev==from and from==middle) return TravelTime(middle,to);
-	    TTindex index={prev,from,middle,to};
- 	    p_TT4 it = travel_Time4.find(index);
-	    if (it != travel_Time4.end()) {
-            	#ifdef DOSTATS
-		if (prev==from) STATS->inc("TWC::getTravelTime(3 parameters) 4 dim Table access");
-		else  STATS->inc("TWC::getTravelTime(4 parameters) 4 dim Table access");
-	    	#endif
-		return it->second;
-	    }
-	    double time;
-	    if (prev==from) {
-		if (TravelTime(from,middle)==TravelTime(middle,from) or TravelTime(middle,to)==TravelTime(to,middle) or TravelTime(from,to)==TravelTime(to,from)) { 
-		       if (osrm->getOsrmTime(original[from],original[middle],original[to],time)) {
-            			#ifdef DOSTATS
-				STATS->inc("TWC::getTravelTime(3 parameters) osrm Calculated");
-	    			#endif
-				travel_Time4[index]=time;
-				return time;
-			} else {
-			
-            			#ifdef DOSTATS
-            			STATS->inc("TWC::getTravelTime(3 parameters) 2 dim Table access");
-	    			#endif
-				return getTravelTime(from,middle)+ getTravelTime(middle,to);
- 			} 
-		} else {
-            		#ifdef DOSTATS
-			STATS->inc("TWC::getTravelTime(3 parameters) combination based on 1 way streets");
-			#endif
-			//assuming that all 3 nodes are in single way street all times are the best (to avoid calls to ORSM)
-			//no need to make all combinations
-			time =  getTravelTime(from,middle)+ getTravelTime(middle,to);
-			travel_Time4[index] =  time;
-			return time;
-		}
-            }
+  private:
+    //this one does all the work
+    double getTravelTime( UID prev, UID from, UID middle, UID to ) const {
+        assert( prev < original.size() and from < original.size()
+                and middle < original.size() and to < original.size() );
+        #ifndef OSRMCLIENT
 
-	    if (TravelTime(prev,from)==TravelTime(from,prev) or TravelTime(from,middle)==TravelTime(middle,from) or TravelTime(middle,to)==TravelTime(to,middle) or TravelTime(from,to)==TravelTime(to,from)) { 
-		    if (osrm->getOsrmTime(original[prev],original[from],original[middle],original[to],time)) {
-        	    	#ifdef DOSTATS
-			STATS->inc("TWC::getTravelTime(4 parameters) osrm Calculated");
-	    		#endif
-			travel_Time4[index]=time;
-			return time;
-	            }  else  {
-			time=  getTravelTime(prev,from) + getTravelTime(from,middle)+ getTravelTime(middle,to);
-            		#ifdef DOSTATS
-            		STATS->inc("TWC::getTravelTime(4 parameters) 2 dim Table access");
-	    		#endif
-		        return time;
-	    	    }
-	    } else {
-                        #ifdef DOSTATS
-                        STATS->inc("TWC::getTravelTime(4 parameters) combination based on 1 way streets");
-                        #endif
-                        //assuming that all 3 nodes are in single way street all times are the best (to avoid calls to ORSM)
-                        //no need to make all combinations
-                        time =  getTravelTime(prev,prev,from,middle)+ getTravelTime(middle,to);
-                        travel_Time4[index] =  time;
-                        return time;
-            }
+        if ( prev == from ) return  getTravelTime( from,
+                                        middle ) + getTravelTime( middle, to );
+        else return getTravelTime( prev, from ) + getTravelTime( from,
+                        middle ) + getTravelTime( middle, to );
+
+        #else
+
+        if ( prev == from and from == middle ) return TravelTime( middle, to );
+
+        TTindex index = {prev, from, middle, to};
+        p_TT4 it = travel_Time4.find( index );
+
+        if ( it != travel_Time4.end() ) {
+            #ifdef DOSTATS
+
+            if ( prev == from )
+                STATS->inc( "TWC::getTravelTime(3 parameters) 4 dim Table access" );
+            else  STATS->inc( "TWC::getTravelTime(4 parameters) 4 dim Table access" );
 
             #endif
-	}
-		
+            return it->second;
+        }
 
-    public:
-//this one is an interface , the previous one is the one that does all the work
+        double time;
+
+        if ( prev == from ) {
+            if ( TravelTime( from, middle ) == TravelTime( middle, from )
+                 or TravelTime( middle, to ) == TravelTime( to, middle )
+                 or TravelTime( from, to ) == TravelTime( to, from ) ) {
+                if ( osrm->getOsrmTime( original[from], original[middle], original[to],
+                                        time ) ) {
+                    #ifdef DOSTATS
+                    STATS->inc( "TWC::getTravelTime(3 parameters) osrm Calculated" );
+                    #endif
+                    travel_Time4[index] = time;
+                    return time;
+                }
+                else {
+
+                    #ifdef DOSTATS
+                    STATS->inc( "TWC::getTravelTime(3 parameters) 2 dim Table access" );
+                    #endif
+                    return getTravelTime( from, middle ) + getTravelTime( middle, to );
+                }
+            }
+            else {
+                #ifdef DOSTATS
+                STATS->inc( "TWC::getTravelTime(3 parameters) combination based on 1 way streets" );
+                #endif
+                //assuming that all 3 nodes are in single way street all times are the best (to avoid calls to ORSM)
+                //no need to make all combinations
+                time =  getTravelTime( from, middle ) + getTravelTime( middle, to );
+                travel_Time4[index] =  time;
+                return time;
+            }
+        }
+
+        if ( TravelTime( prev, from ) == TravelTime( from, prev )
+             or TravelTime( from, middle ) == TravelTime( middle, from )
+             or TravelTime( middle, to ) == TravelTime( to, middle )
+             or TravelTime( from, to ) == TravelTime( to, from ) ) {
+            if ( osrm->getOsrmTime( original[prev], original[from], original[middle],
+                                    original[to], time ) ) {
+                #ifdef DOSTATS
+                STATS->inc( "TWC::getTravelTime(4 parameters) osrm Calculated" );
+                #endif
+                travel_Time4[index] = time;
+                return time;
+            }
+            else  {
+                time =  getTravelTime( prev, from ) + getTravelTime( from,
+                        middle ) + getTravelTime( middle, to );
+                #ifdef DOSTATS
+                STATS->inc( "TWC::getTravelTime(4 parameters) 2 dim Table access" );
+                #endif
+                return time;
+            }
+        }
+        else {
+            #ifdef DOSTATS
+            STATS->inc( "TWC::getTravelTime(4 parameters) combination based on 1 way streets" );
+            #endif
+            //assuming that all 3 nodes are in single way street all times are the best (to avoid calls to ORSM)
+            //no need to make all combinations
+            time =  getTravelTime( prev, prev, from, middle ) + getTravelTime( middle, to );
+            travel_Time4[index] =  time;
+            return time;
+        }
+
+        #endif
+    }
+
+
+  public:
+    //this one is an interface , the previous one is the one that does all the work
     double TravelTime( UID from, UID middle, UID to ) const {
-        return getTravelTime(from,from,middle,to);
+        return getTravelTime( from, from, middle, to );
     }
 
-//this one is an interface, the other one is the one that does all the work
-    double TravelTime( const knode &from, const knode &middle, const knode &to ) const {
-        return getTravelTime( from.getnid(),from.getnid(), middle.getnid(), to.getnid() );
+    //this one is an interface, the other one is the one that does all the work
+    double TravelTime( const knode &from, const knode &middle,
+                       const knode &to ) const {
+        return getTravelTime( from.getnid(), from.getnid(), middle.getnid(),
+                              to.getnid() );
     }
 
-//this one is an interface, the other one is the one that does all the work
-    double TravelTime( const knode &prev, const knode &from, const knode &middle, const knode &to ) const {
-        return getTravelTime( prev.getnid(),from.getnid(), middle.getnid(), to.getnid() );
+    //this one is an interface, the other one is the one that does all the work
+    double TravelTime( const knode &prev, const knode &from, const knode &middle,
+                       const knode &to ) const {
+        return getTravelTime( prev.getnid(), from.getnid(), middle.getnid(),
+                              to.getnid() );
     }
 
-//this one is an interface, the other one is the one that does all the work
+    //this one is an interface, the other one is the one that does all the work
     double TravelTime( UID prev, UID from, UID middle, UID to ) const {
-        return getTravelTime(prev,from,middle,to);
+        return getTravelTime( prev, from, middle, to );
     }
 
 
@@ -584,7 +626,7 @@ template <class knode> class TWC {
      */
     double compatibleIJ( UID fromNid, UID toNid ) const {
         assert( fromNid < original.size() and toNid < original.size() );
-        return  getTwcij(fromNid,toNid) ;
+        return  getTwcij( fromNid, toNid ) ;
     }
 
     /*!
@@ -620,7 +662,7 @@ template <class knode> class TWC {
      */
     bool isCompatibleIJ( UID fromNid, UID toNid ) const {
         assert( fromNid < original.size() and toNid < original.size() );
-        return not ( getTwcij(fromNid,toNid)  == _MIN() );
+        return not ( getTwcij( fromNid, toNid )  == _MIN() );
     }
 
     /*!
@@ -632,7 +674,7 @@ template <class knode> class TWC {
      */
     bool isReachableIJ( UID fromNid, UID toNid ) const {
         assert( fromNid < original.size() and toNid < original.size() );
-        return not ( TravelTime(fromNid,toNid)  == _MAX() );
+        return not ( TravelTime( fromNid, toNid )  == _MAX() );
     }
 
 
@@ -868,7 +910,7 @@ template <class knode> class TWC {
         for ( int j = 0; j < nodes.size(); j++ ) {
             toId = nodes[j].getnid();
 
-            if ( getTwcij(fromNid,toId) > getTwcij(fromNid,bestId) ) {
+            if ( getTwcij( fromNid, toId ) > getTwcij( fromNid, bestId ) ) {
                 bestId = toId;
             }
         }
@@ -898,12 +940,12 @@ template <class knode> class TWC {
         double ec2_tot = 0;
 
         for ( int j = 0; j < nodes.size(); j++ ) {
-            if ( not ( getTwcij(at,j)  == _MIN() ) ) ec2_tot += getTwcij(at,j);
+            if ( not ( getTwcij( at, j )  == _MIN() ) ) ec2_tot += getTwcij( at, j );
 
-            if ( not ( getTwcij(j,at)  == _MIN() ) ) ec2_tot += getTwcij(j,at);
+            if ( not ( getTwcij( j, at )  == _MIN() ) ) ec2_tot += getTwcij( j, at );
         };
 
-        if ( getTwcij(at,at) == _MIN() ) ec2_tot -= getTwcij(at,at);
+        if ( getTwcij( at, at ) == _MIN() ) ec2_tot -= getTwcij( at, at );
 
         return ec2_tot;
     }
@@ -924,7 +966,7 @@ template <class knode> class TWC {
         int count = 0;
 
         for ( UID j = 0; j < nodes.size(); j++ ) {
-            if ( getTwcij(at,j)  == _MIN() ) count++;
+            if ( getTwcij( at, j )  == _MIN() ) count++;
         }
 
         return count;
@@ -941,7 +983,7 @@ template <class knode> class TWC {
         int count = 0;
 
         for ( UID j = 0; j < nodes.size(); j++ ) {
-            if ( getTwcij(j,at)  == _MIN() ) count++;
+            if ( getTwcij( j, at )  == _MIN() ) count++;
         }
 
         return count;
@@ -1011,7 +1053,8 @@ template <class knode> class TWC {
 
             ss << "\n";
         }
-        DLOG(INFO) << ss.str();
+
+        DLOG( INFO ) << ss.str();
     }
 
     /*!
@@ -1023,7 +1066,7 @@ template <class knode> class TWC {
     }
 
     /*!
-     * \brief 
+     * \brief
      *
      * \param[in] nodes A bucket of nodes to print the travel time matrix for.
      */
@@ -1056,7 +1099,8 @@ template <class knode> class TWC {
 
             ss << "\n";
         }
-        DLOG(INFO) << ss.str();
+
+        DLOG( INFO ) << ss.str();
     }
 
 
@@ -1081,15 +1125,16 @@ template <class knode> class TWC {
             for ( int j = 0; j < nodes.size(); j++ ) {
                 for ( int k = 0; k < nodes.size(); k++ ) {
                     ss << "\t ( " << nodes[i].getnid() << " , "
-                              << nodes[j].getnid() << " , "
-                              << nodes[k].getnid() << ") = "
-                              << ( isCompatibleIAJ( i, j, k ) ? "COMP" : "not" );
+                       << nodes[j].getnid() << " , "
+                       << nodes[k].getnid() << ") = "
+                       << ( isCompatibleIAJ( i, j, k ) ? "COMP" : "not" );
                 }
 
                 ss << "\n";
             }
         }
-        DLOG(INFO) << ss.str();
+
+        DLOG( INFO ) << ss.str();
     }
 
     // ------------ go back to CALCULATED state -------------------
@@ -1137,7 +1182,7 @@ template <class knode> class TWC {
     void setIncompatible( UID fromNid, UID toNid ) {
         assert( fromNid < original.size() and toNid < original.size() );
         twcij[fromNid][toNid] = _MIN();
-	travel_Time[fromNid][toNid] =  _MAX();
+        travel_Time[fromNid][toNid] =  _MAX();
     }
 
 
@@ -1152,8 +1197,8 @@ template <class knode> class TWC {
 
         for ( int j = 0; j < nodes.size(); j++ ) {
             twcij[nid][nodes[j].getnid()] =  _MIN();
-	    travel_Time[nid][nodes[j].getnid()] =  _MAX();
-	}
+            travel_Time[nid][nodes[j].getnid()] =  _MAX();
+        }
 
     }
 
@@ -1169,8 +1214,8 @@ template <class knode> class TWC {
 
         for ( int i = 0; i < nodes.size(); i++ ) {
             twcij[nodes[i].getnid()][nid] =  _MIN();
-	    travel_Time[nodes[i].getnid()][nid] =  _MAX();
-	}
+            travel_Time[nodes[i].getnid()][nid] =  _MAX();
+        }
     }
 
 
@@ -1289,7 +1334,7 @@ template <class knode> class TWC {
      * \param[in] j Node id 2
      * \return True if both nodes are on the same street.
      */
-    bool sameStreet( UID i, UID j ) const{
+    bool sameStreet( UID i, UID j ) const {
         assert( i < original.size() and j < original.size() );
         return original[i].sameStreet( original[j] );
     }
@@ -1310,25 +1355,26 @@ template <class knode> class TWC {
 
 
 
-   void setHints( Bucket &nodes ) {
-      #ifdef OSRMCLIENT 
-      #ifdef DOSTATS 
-      Timer timer;
-      #endif
+    void setHints( Bucket &nodes ) {
+        #ifdef OSRMCLIENT
+        #ifdef DOSTATS
+        Timer timer;
+        #endif
 
-      for (int i=0; i < nodes.size();i++) {
-          nodes[i].setHint( original[ nodes[i].getnid() ].getHint() );
-      }
-      #ifdef DOSTATS 
-      STATS->addto("TWC::setHints Cumultaive time:", timer.duration());
-      #endif
+        for ( int i = 0; i < nodes.size(); i++ ) {
+            nodes[i].setHint( original[ nodes[i].getnid() ].getHint() );
+        }
 
-      #endif
-  }
+        #ifdef DOSTATS
+        STATS->addto( "TWC::setHints Cumultaive time:", timer.duration() );
+        #endif
+
+        #endif
+    }
 
 
-private:
-    void prepareTravelTime(){
+  private:
+    void prepareTravelTime() {
         int siz = original.size();
         travel_Time.resize( siz );
 
@@ -1340,52 +1386,57 @@ private:
             for ( int j = i; j < siz; j++ ) {
                 if ( i == j ) travel_Time[i][i] = 0;
                 else {
-			travel_Time[i][j]=travel_Time[j][i]=-1;
-			#ifndef OSRMCLIENT
+                    travel_Time[i][j] = travel_Time[j][i] = -1;
+                    #ifndef OSRMCLIENT
 
-DLOG(INFO) << "OSRMCLIENT is not defined: we need to calculate the travelTime table";
-                	getTravelTime(i,j);
-                	getTravelTime(j,i);
-			#endif
+                    DLOG( INFO ) <<
+                                 "OSRMCLIENT is not defined: we need to calculate the travelTime table";
+                    getTravelTime( i, j );
+                    getTravelTime( j, i );
+                    #endif
                 }
             }
     }
 
 
-   void getAllHints() {
-      #ifdef OSRMCLIENT	
-      #ifdef DOSTATS 
-      Timer timer;
-      #endif
+    void getAllHints() {
+        #ifdef OSRMCLIENT
+        #ifdef DOSTATS
+        Timer timer;
+        #endif
 
-      std::deque<std::string> hints;
-      int total = original.size();
-      int from, to;
-      int i,j,k;
-      for (i=0; (i*100) < total;i++) {
-	from = i*100;
-	to = std::min ( (i+1)*100 , total ) ;
-	hints.clear();
-        osrm->clear();
-        for (j=from; j< to ;j++) osrm->addViaPoint( original[j] );
-	if ( osrm->getOsrmViaroute() and osrm->getOsrmHints(hints) )
-           for (j=from, k=0; j< to ;j++,k++) {
-		original[j].setHint(hints[k]);
-           }
-      }
-      #ifdef DOSTATS 
-      STATS->addto("TWC::getAllHints Cumultaive time:", timer.duration());
-      #endif
+        std::deque<std::string> hints;
+        int total = original.size();
+        int from, to;
+        int i, j, k;
 
-      #endif
-  }
+        for ( i = 0; ( i * 100 ) < total; i++ ) {
+            from = i * 100;
+            to = std::min ( ( i + 1 ) * 100 , total ) ;
+            hints.clear();
+            osrm->clear();
+
+            for ( j = from; j < to ; j++ ) osrm->addViaPoint( original[j] );
+
+            if ( osrm->getOsrmViaroute() and osrm->getOsrmHints( hints ) )
+                for ( j = from, k = 0; j < to ; j++, k++ ) {
+                    original[j].setHint( hints[k] );
+                }
+        }
+
+        #ifdef DOSTATS
+        STATS->addto( "TWC::getAllHints Cumultaive time:", timer.duration() );
+        #endif
+
+        #endif
+    }
 
 
-public: 
+  public:
     /*!
      * \brief Assign the travel time matrix to TWC from Pg
      * \bug TODO needs to be tested when conected to the database
-     * This method is specific for PostgreSQL integration. It receives a 
+     * This method is specific for PostgreSQL integration. It receives a
      * ttime_t structure array containing the travel time matrix values passed
      * from the database and loads them into the problem and does some
      * additional needed computations.
@@ -1397,14 +1448,14 @@ public:
      */
     void loadAndProcess_distance( ttime_t *ttimes, int count,
                                   const Bucket &datanodes, const Bucket &invalid ) {
-        DLOG(INFO) << "POSTGRES: loadAndProcess_distance needs to be TESTED";
+        DLOG( INFO ) << "POSTGRES: loadAndProcess_distance needs to be TESTED";
         assert( datanodes.size() );
         original.clear();
         original = datanodes;
 
         getAllHints();
 
-	prepareTravelTime();
+        prepareTravelTime();
 
         for ( int i = 0; i < count; ++i ) {
             int from    = ttimes[i].from_id;
@@ -1426,7 +1477,7 @@ public:
         assert ( check_integrity() );
     }
 
-    
+
     /*!
      * \brief Load the travel time matrix from a text file and process the results.
      *
@@ -1443,7 +1494,7 @@ public:
     void loadAndProcess_distance( std::string infile, const Bucket &datanodes,
                                   const Bucket &invalid ) {
         assert( datanodes.size() );
-        DLOG(INFO) << "VICKYS: loadAndProcess_distance";
+        DLOG( INFO ) << "VICKYS: loadAndProcess_distance";
 
         original.clear();
         original = datanodes;
@@ -1453,7 +1504,7 @@ public:
         std::string line;
 
         getAllHints();
-	prepareTravelTime();
+        prepareTravelTime();
 
         int fromId;
         int toId;
@@ -1510,12 +1561,12 @@ public:
 
 
     static TWC<knode> *p_twc;
-    static TWC<knode>* Instance()
-	{
-	   if (!p_twc)   // Only allow one instance of class to be generated.
-	      p_twc = new TWC<knode>;
-	   return p_twc;
-	}
+    static TWC<knode> *Instance() {
+        if ( !p_twc ) // Only allow one instance of class to be generated.
+            p_twc = new TWC<knode>;
+
+        return p_twc;
+    }
 
 
 
@@ -1525,8 +1576,8 @@ public:
   private:
     // constructors
     TWC() {};
-    TWC(const TWC&) {};
-    TWC& operator=(const TWC&) {};
+    TWC( const TWC & ) {};
+    TWC &operator=( const TWC & ) {};
 
 
 
@@ -1559,7 +1610,7 @@ public:
      * \param[in] nj The node we arrived at.
      * \return The earliest arrival time at \b nj
      */
-    double ajli( const knode &ni, const knode &nj ) const{
+    double ajli( const knode &ni, const knode &nj ) const {
         return ni.closes() + ni.getServiceTime() + TravelTime( ni, nj );
     }
 
@@ -1586,12 +1637,14 @@ public:
      * \param[in] nj To this node
      * \return The TWC value traveling from node \b ni directly to \b nj
      */
-    double twc_for_ij( const knode &ni, const knode &nj ) const{
+    double twc_for_ij( const knode &ni, const knode &nj ) const {
         double result;
-	int i=ni.getnid();
-	int j=nj.getnid();
-        if ( travel_Time[i][j]==-1 ) return  _MIN();
-	if (TravelTime( i, j ) == _MAX() ) return  _MIN();
+        int i = ni.getnid();
+        int j = nj.getnid();
+
+        if ( travel_Time[i][j] == -1 ) return  _MIN();
+
+        if ( TravelTime( i, j ) == _MAX() ) return  _MIN();
 
         if ( ( nj.closes() - ajei( ni, nj ) ) > 0 ) {
             result = std::min ( ajli( ni, nj ) , nj.closes() )
@@ -1604,19 +1657,20 @@ public:
     }
 
 
-    double getTwcij(UID i, UID j) const { //this one makes twcij dynamical
-	if  ( travel_Time[i][j]==-1 ) {
-		TravelTime( i, j);
-		twcij[i][j] = twc_for_ij( original[i], original[j] );
+    double getTwcij( UID i, UID j ) const { //this one makes twcij dynamical
+        if  ( travel_Time[i][j] == -1 ) {
+            TravelTime( i, j );
+            twcij[i][j] = twc_for_ij( original[i], original[j] );
         }
+
         return twcij[i][j];
     }
 
-    double getTwcij(UID i, UID j, double time) const {
-	twcij[i][j] = twc_for_ij( original[i], original[j] );
+    double getTwcij( UID i, UID j, double time ) const {
+        twcij[i][j] = twc_for_ij( original[i], original[j] );
         return twcij[i][j];
     }
-	
+
 
     /* public functions That are id based */
 
@@ -1645,10 +1699,12 @@ public:
      */
     bool check_integrity() const {
         assert ( original.size() == twcij.size() );
+
         if ( original.size() != twcij.size() ) return false;
 
         for ( int i = 0; i < original.size(); i++ ) {
             assert ( twcij[i].size() == original.size() );
+
             if ( twcij[i].size() != original.size() ) return false;
         }
 
@@ -1663,7 +1719,7 @@ public:
 
 
 template <class knode>
-TWC<knode>*  TWC<knode>::p_twc=NULL;
+TWC<knode>  *TWC<knode>::p_twc = NULL;
 
 #define twc TWC<Tweval>::Instance()
 

@@ -25,17 +25,20 @@
 
 
 
-void OneTruckAllNodesInit::stepOne(Vehicle &truck, Bucket &unassigned, Bucket &assigned) {
-    if (not unassigned.size()) return;
+void OneTruckAllNodesInit::stepOne( Vehicle &truck, Bucket &unassigned,
+                                    Bucket &assigned ) {
+    if ( not unassigned.size() ) return;
+
     Trashnode bestNode;
     UID bestPos;
-    if (truck.findNearestNodeTo( unassigned,   bestPos,  bestNode) ) {
-        truck.insert(bestNode,bestPos);
-        assigned.push_back(bestNode);
-        unassigned.erase(bestNode);
-        stepOne(truck, unassigned, assigned);
+
+    if ( truck.findNearestNodeTo( unassigned,   bestPos,  bestNode ) ) {
+        truck.insert( bestNode, bestPos );
+        assigned.push_back( bestNode );
+        unassigned.erase( bestNode );
+        stepOne( truck, unassigned, assigned );
     }
-} 
+}
 
 
 
@@ -48,7 +51,7 @@ void OneTruckAllNodesInit::process() {
     Bucket unassigned = pickups;
     Bucket assigned;
 
-    assert(not assigned.size());
+    assert( not assigned.size() );
 
     std::deque<Vehicle> unusedTrucks = trucks;
     std::deque<Vehicle> usedTrucks = trucks;
@@ -57,15 +60,16 @@ void OneTruckAllNodesInit::process() {
     Vehicle truck;
 
     clearFleet();
-    truck=unusedTrucks[0];
-    unusedTrucks.erase(unusedTrucks.begin());
-    usedTrucks.push_back(truck);
+    truck = unusedTrucks[0];
+    unusedTrucks.erase( unusedTrucks.begin() );
+    usedTrucks.push_back( truck );
 
 
-    stepOne(truck,unassigned,assigned);        
+    stepOne( truck, unassigned, assigned );
 
-truck.plot("OneTruckAllNodes","OneTruckAllNodes",truck.getVid()); // plot displays the route to be plotted
-    fleet.push_back(truck);
-    assert(pickups ==  assigned);
+    truck.plot( "OneTruckAllNodes", "OneTruckAllNodes",
+                truck.getVid() ); // plot displays the route to be plotted
+    fleet.push_back( truck );
+    assert( pickups ==  assigned );
 
 }

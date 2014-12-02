@@ -112,12 +112,12 @@ std::vector<std::string> Config::getKeys() const {
 void Config::dump( const std::string title ) const {
     std::map<std::string, std::string>::const_iterator it;
 
-    DLOG(INFO) << "---------- CONFIG -------------";
+    DLOG( INFO ) << "---------- CONFIG -------------";
 
     for ( it = data.begin(); it != data.end(); ++it )
-        DLOG(INFO) << it->first << ": '" << it->second << "'";
+        DLOG( INFO ) << it->first << ": '" << it->second << "'";
 
-    DLOG(INFO) << "-------------------------------";
+    DLOG( INFO ) << "-------------------------------";
 }
 
 

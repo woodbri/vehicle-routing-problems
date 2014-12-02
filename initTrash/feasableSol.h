@@ -38,20 +38,20 @@ class FeasableSol : public Solution {
     Bucket assigned;
 
 
-int tmp;
+    int tmp;
   public:
 
-    FeasableSol(const std::string &infile): Solution(infile) { 
-       unusedTrucks=trucks;
-       unassigned=pickups;
-       fleet.clear();
-tmp=0;
-       process();
+    FeasableSol( const std::string &infile ): Solution( infile ) {
+        unusedTrucks = trucks;
+        unassigned = pickups;
+        fleet.clear();
+        tmp = 0;
+        process();
     };
 
 
- private:
-    void stepOne(Vehicle &truck);
+  private:
+    void stepOne( Vehicle &truck );
     Vehicle getTruck();
     void process();
 

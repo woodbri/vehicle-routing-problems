@@ -38,7 +38,7 @@ class Trashnode : public Tweval {
 //Constructors
     Trashnode(std::string line);
     ~Trashnode() {};
-    Trashnode() : Tweval() { }; 
+    Trashnode() : Tweval() { };
 
 };
 */

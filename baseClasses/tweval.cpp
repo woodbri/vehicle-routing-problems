@@ -30,17 +30,17 @@
  * \param[in] cargoLimit The cargo limit for the vehicle
  */
 void Tweval::evaluate ( double cargoLimit ) {
-    assert(type==0);
-    
-    cargo = demand;  
+    assert( type == 0 );
+
+    cargo = demand;
     travelTime = 0;
     arrivalTime = opens();
     totTravelTime = 0;
     totWaitTime = 0;
     totServiceTime = serviceTime;
     departureTime = arrivalTime + serviceTime;
-    twvTot = cvTot = 0; 
-    twv = cv = false;  
+    twvTot = cvTot = 0;
+    twv = cv = false;
     dumpVisits = 0;
     cv = cvTot = demand > cargoLimit ? 1 : 0;
 }
@@ -59,18 +59,25 @@ void Tweval::evaluate ( double cargoLimit ) {
 void Tweval::evaluate ( const Tweval &pred, double cargoLimit ) {
     //assert( Tweval::TravelTime.size() );
 
-    travelTime    = twc->TravelTime(pred.nid,nid); 		// Travel Time from previous node to this node
-    totTravelTime = pred.totTravelTime + travelTime; 	// tot length travel from 1st node
+    travelTime    = twc->TravelTime( pred.nid,
+                                     nid );   // Travel Time from previous node to this node
+    totTravelTime = pred.totTravelTime +
+                    travelTime;    // tot length travel from 1st node
     arrivalTime   = pred.departureTime + travelTime;
-    twv = lateArrival( arrivalTime ); 			// Time Window Violation
-    waitTime      = earlyArrival( arrivalTime ) ? opens() - arrivalTime : 0; // truck arrives before node opens, so waits
+    twv = lateArrival( arrivalTime );           // Time Window Violation
+    waitTime      = earlyArrival( arrivalTime ) ? opens() - arrivalTime :
+                    0; // truck arrives before node opens, so waits
     totWaitTime   = pred.totWaitTime + waitTime;
     totServiceTime = pred.totServiceTime + serviceTime;
     departureTime  = arrivalTime + waitTime + serviceTime;
-    if ( type == 1 and pred.cargo >= 0 ) demand = - pred.cargo; 	// type 1 empties the truck (aka dumpSite)
+
+    if ( type == 1
+         and pred.cargo >= 0 ) demand = - pred.cargo;     // type 1 empties the truck (aka dumpSite)
+
     dumpVisits = ( type == 1 ) ? pred.dumpVisits + 1 :  pred.dumpVisits;
-    cargo = pred.cargo + demand; 			// loading truck demand>0 or unloading demand<0
-    cv = cargo > cargoLimit or cargo < 0; 		// capacity Violation
+    cargo = pred.cargo +
+            demand;            // loading truck demand>0 or unloading demand<0
+    cv = cargo > cargoLimit or cargo < 0;       // capacity Violation
     // keep a total of violations
     twvTot = ( twv ) ? pred.twvTot + 1 : pred.twvTot;
     cvTot =  ( cv ) ?  pred.cvTot + 1 : pred.cvTot;
@@ -88,16 +95,16 @@ void Tweval::dump() const {
  * \brief Print the Tweval attributes for the node.
  */
 void Tweval::dumpeval() const  {
-    DLOG(INFO) << "twv=" << twv
-               << ", cv=" << cv
-               << ", twvTot=" << twvTot
-               << ", cvTot=" << cvTot
-               << ", cargo=" << cargo
-               << ", travel Time=" << travelTime
-               << ", arrival Time=" << arrivalTime
-               << ", wait Time=" << waitTime
-               << ", service Time=" << serviceTime
-               << ", departure Time=" << departureTime;
+    DLOG( INFO ) << "twv=" << twv
+                 << ", cv=" << cv
+                 << ", twvTot=" << twvTot
+                 << ", cvTot=" << cvTot
+                 << ", cargo=" << cargo
+                 << ", travel Time=" << travelTime
+                 << ", arrival Time=" << arrivalTime
+                 << ", wait Time=" << waitTime
+                 << ", service Time=" << serviceTime
+                 << ", departure Time=" << departureTime;
 }
 
 
@@ -206,10 +213,12 @@ void Tweval::evaluateOsrm () {
  * \param[in] osrmBaseUrl The OSRm base URl passed in from application.
  * \param[in] pred The previous node in the path.
  */
-void Tweval::evaluateOsrm ( const Tweval &pred, const std::string &osrmBaseUrl ) {
+void Tweval::evaluateOsrm ( const Tweval &pred,
+                            const std::string &osrmBaseUrl ) {
     // if there was a previous error in the path computing OSRM time
     // then we have already failed so just fail here and return
     double ttimePred = pred.getTotTravelTimeOsrm();
+
     if ( ttimePred == -1 ) {
         totTravelTimeOsrm = -1.0;
         return;
@@ -230,6 +239,7 @@ void Tweval::evaluateOsrm ( const Tweval &pred, const std::string &osrmBaseUrl )
 
     // if we fail to get the OSRM time then set the error indicator and return
     double ttime;
+
     if ( osrm.getTravelTime( ttime ) ) {
         totTravelTimeOsrm = -1.0;
         return;

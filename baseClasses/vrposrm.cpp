@@ -27,14 +27,14 @@ bool VrpOSRM::getTravelTime( double &ttime ) const {
     jtree = json_tokener_parse( json.c_str() );
 
     if ( !jtree ) {
-        DLOG(INFO) << "Error: Invalid json document in OSRM response!" << std::endl;
+        DLOG( INFO ) << "Error: Invalid json document in OSRM response!" << std::endl;
         return true;
     }
 
     jobj = json_object_object_get( jtree, "route_summary" );
 
     if ( !jobj ) {
-        DLOG(INFO) << "Error: Failed to find 'route_summary' key in json document!";
+        DLOG( INFO ) << "Error: Failed to find 'route_summary' key in json document!";
         json_object_put( jtree );
         return true;
     }
@@ -42,7 +42,7 @@ bool VrpOSRM::getTravelTime( double &ttime ) const {
     jobj = json_object_object_get( jobj, "total_time" );
 
     if ( !jobj ) {
-        DLOG(INFO) << "Error: Failed to find 'total_time' key in json document!";
+        DLOG( INFO ) << "Error: Failed to find 'total_time' key in json document!";
         json_object_put( jtree );
         return true;
     }
@@ -61,14 +61,14 @@ bool VrpOSRM::getStatus( int &status ) const {
     status = -1;
 
     if ( json.size() == 0 ) {
-        DLOG(INFO) << "Null json document in OSRM response!";
+        DLOG( INFO ) << "Null json document in OSRM response!";
         return true;
     }
 
     jtree = json_tokener_parse( json.c_str() );
 
     if ( !jtree ) {
-        DLOG(INFO) << "Error: Invalid json document in OSRM response!";
+        DLOG( INFO ) << "Error: Invalid json document in OSRM response!";
         return true;
     }
 
@@ -76,7 +76,7 @@ bool VrpOSRM::getStatus( int &status ) const {
 
     if ( !jobj ) {
         json_object_put( jtree );
-        DLOG(INFO) << "Error: Error parsing OSRM response, \"status\" not found.";
+        DLOG( INFO ) << "Error: Error parsing OSRM response, \"status\" not found.";
         return true;
     }
 
@@ -102,11 +102,11 @@ bool VrpOSRM::callOSRM( const std::string url ) {
 
     }
     catch ( curlpp::LogicError &e ) {
-        DLOG(WARNING) << e.what();
+        DLOG( WARNING ) << e.what();
         return true;
     }
     catch ( curlpp::RuntimeError &e ) {
-        DLOG(WARNING) << e.what();
+        DLOG( WARNING ) << e.what();
         return true;
     }
 

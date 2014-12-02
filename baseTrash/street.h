@@ -28,8 +28,8 @@
 
 class Street    {
   private:
-typedef  TwBucket<Trashnode> Bucket;
-typedef  unsigned long int UID ;
+    typedef  TwBucket<Trashnode> Bucket;
+    typedef  unsigned long int UID ;
     int sid;
     Twpath<Trashnode> path;
 
@@ -38,7 +38,7 @@ typedef  unsigned long int UID ;
 
 
   protected:
-  inline double MAX() { (std::numeric_limits<double>::max()); };
+    inline double MAX() { ( std::numeric_limits<double>::max() ); };
 
 
   public:
@@ -48,11 +48,11 @@ typedef  unsigned long int UID ;
     //--------------------------------------------------------------------
 
     Street() {
-       sid=-1;
+        sid = -1;
     };
 
-    Street( const Trashnode &node) {
-        sid=node.streetId();
+    Street( const Trashnode &node ) {
+        sid = node.streetId();
         e_push_back( node );
     }
 
@@ -72,54 +72,54 @@ typedef  unsigned long int UID ;
     //--------------------------------------------------------------------
     void dump() const;
     void dumpid() const;
-    void dump(const std::string &title) const;
+    void dump( const std::string &title ) const;
     void dumpeval() const ;
     void smalldump() const;
     void dumppath() const;
     void tau() const ;
 
-    void plot(std::string file,std::string title);
-    void plot(Plot<Trashnode> graph);
+    void plot( std::string file, std::string title );
+    void plot( Plot<Trashnode> graph );
 
 
-    bool e_push_back(const Trashnode &node);
-    bool e_push_front(const Trashnode &node);
-    bool insert(const Trashnode &node);
-    int getBestPos(const Trashnode&);
-    bool e_insert(const Trashnode &node);
-    int e_insert(const Bucket& containers);
-    int e_insert(Bucket& unassigned, Bucket &assigned);
+    bool e_push_back( const Trashnode &node );
+    bool e_push_front( const Trashnode &node );
+    bool insert( const Trashnode &node );
+    int getBestPos( const Trashnode & );
+    bool e_insert( const Trashnode &node );
+    int e_insert( const Bucket &containers );
+    int e_insert( Bucket &unassigned, Bucket &assigned );
 
     void evalLast();
 
 
     //--------------------------------------------------------------------
-    // wrappers to twpath code to 
+    // wrappers to twpath code to
     //--------------------------------------------------------------------
-    
-/*
-    bool remove( int at);
-    bool moverange( int rangefrom, int rangeto, int destbefore );
-    bool movereverse( int rangefrom, int rangeto, int destbefore );
-    bool reverse( int rangefrom, int rangeto );
-    bool move( int fromi, int toj );
-    bool swap( const int& i, const int& j );
 
-*/
+    /*
+        bool remove( int at);
+        bool moverange( int rangefrom, int rangeto, int destbefore );
+        bool movereverse( int rangefrom, int rangeto, int destbefore );
+        bool reverse( int rangefrom, int rangeto );
+        bool move( int fromi, int toj );
+        bool swap( const int& i, const int& j );
 
-    int getnid(int i) const { return path[i].getnid(); };
-    int getid(int i) const { return path[i].getid(); };
-    double getx(const int i) const { path[i].getx(); };
-    double gety(const int i) const { path[i].gety(); };
-    bool hasDemand(int i) const { return path[i].hasDemand(); };
-    bool hasSupply(int i) const { return path[i].hasSupply(); };
-    bool hasNoGoods(int i) const { return path[i].hasNoGoods(); };
-    bool earlyArrival(int i, const double D) const { return path[i].earlyArrival(D); };
-    bool lateArrival(int i, const double D) const { return path[i].lateArrival(D); };
-    bool onTime(int i, const double D) const { return not earlyArrival(i, D) and not lateArrival(i, D); };
-    bool isPickup(int i) const { return path[i].isPickup(); };
+    */
 
-    Trashnode operator[](int i) const { return path[i]; };
+    int getnid( int i ) const { return path[i].getnid(); };
+    int getid( int i ) const { return path[i].getid(); };
+    double getx( const int i ) const { path[i].getx(); };
+    double gety( const int i ) const { path[i].gety(); };
+    bool hasDemand( int i ) const { return path[i].hasDemand(); };
+    bool hasSupply( int i ) const { return path[i].hasSupply(); };
+    bool hasNoGoods( int i ) const { return path[i].hasNoGoods(); };
+    bool earlyArrival( int i, const double D ) const { return path[i].earlyArrival( D ); };
+    bool lateArrival( int i, const double D ) const { return path[i].lateArrival( D ); };
+    bool onTime( int i, const double D ) const { return not earlyArrival( i, D ) and not lateArrival( i, D ); };
+    bool isPickup( int i ) const { return path[i].isPickup(); };
+
+    Trashnode operator[]( int i ) const { return path[i]; };
 
 };
 

@@ -31,9 +31,9 @@
 
 class Prob_trash {
   protected:
-typedef  TwBucket<Trashnode> Bucket;
+    typedef  TwBucket<Trashnode> Bucket;
 
-//    Trashnode depot;
+    //    Trashnode depot;
 
     Twpath<Trashnode> datanodes; //dissallowing set operations
     Bucket otherlocs;
@@ -42,9 +42,9 @@ typedef  TwBucket<Trashnode> Bucket;
     Bucket pickups;
     Bucket endings;
     Bucket invalid;
-    std::deque<Vehicle> trucks; 
-    std::deque<Vehicle> invalidTrucks; 
-    std::deque<Street>  streets; 
+    std::deque<Vehicle> trucks;
+    std::deque<Vehicle> invalidTrucks;
+    std::deque<Street>  streets;
     Trashnode C;
 
     std::string datafile;
@@ -52,22 +52,22 @@ typedef  TwBucket<Trashnode> Bucket;
 
   public:
 
-//    Trashnode getdepot() const { return depot;};
+    //    Trashnode getdepot() const { return depot;};
     Prob_trash() {};
-    Prob_trash(const char *infile);
-    Prob_trash(const std::string &infile);
-    void loadProblem(const std::string &infile);
+    Prob_trash( const char *infile );
+    Prob_trash( const std::string &infile );
+    void loadProblem( const std::string &infile );
 
     unsigned int getNodeCount() const {return datanodes.size();};
 
     bool checkIntegrity() const;
 
 
-    double distance(int n1, int n2) const;
-    double nodeDemand(int i) const;
-    double nodeServiceTime(int i) const;
-    bool earlyArrival(int nid,double D) const; 
-    bool lateArrival(int nid,double D) const; 
+    double distance( int n1, int n2 ) const;
+    double nodeDemand( int i ) const;
+    double nodeServiceTime( int i ) const;
+    bool earlyArrival( int nid, double D ) const;
+    bool lateArrival( int nid, double D ) const;
 
     void twcijDump() const;
 
@@ -75,7 +75,7 @@ typedef  TwBucket<Trashnode> Bucket;
 
     void nodesdump();
     void nodesdumpeval();
-    void plot(Plot<Trashnode> &graph);
+    void plot( Plot<Trashnode> &graph );
     void dump();
     void dumpdataNodes() const;
     void dumpDepots() const;
@@ -84,18 +84,18 @@ typedef  TwBucket<Trashnode> Bucket;
 
 
 
-    inline double _MAX() { (std::numeric_limits<double>::max()); };
+    inline double _MAX() { ( std::numeric_limits<double>::max() ); };
     inline double _MIN() { ( - std::numeric_limits<double>::max() ); };
 
-private:
-    void load_depots(std::string infile);
-    void load_dumps(std::string infile);
-    void load_pickups(std::string infile);
-    void load_endings(std::string infile);
-    void load_otherlocs(std::string infile);
-    void load_trucks(std::string infile);
-    void buildStreets( Bucket &unassigned, Bucket &assigned);
-    void buildStreets( const Bucket &nodes);
+  private:
+    void load_depots( std::string infile );
+    void load_dumps( std::string infile );
+    void load_pickups( std::string infile );
+    void load_endings( std::string infile );
+    void load_otherlocs( std::string infile );
+    void load_trucks( std::string infile );
+    void buildStreets( Bucket &unassigned, Bucket &assigned );
+    void buildStreets( const Bucket &nodes );
 };
 
 #endif

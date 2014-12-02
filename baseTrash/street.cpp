@@ -25,99 +25,113 @@
 
 
 void Street::dumpeval() const {
-     DLOG(INFO)<< "Street id: " << sid 
-     << "\tRequired capacity: " << _reqCapacity
-     << "\tRequired time: " << _reqTime;
+    DLOG( INFO ) << "Street id: " << sid
+                 << "\tRequired capacity: " << _reqCapacity
+                 << "\tRequired time: " << _reqTime;
     path.dumpeval();
 }
 
 
 
-void Street::dump() const { 
+void Street::dump() const {
     std::stringstream sidStr;
-    sidStr << "street ID "<<sid<<":\t";
-    path.dump(sidStr.str()); 
+    sidStr << "street ID " << sid << ":\t";
+    path.dump( sidStr.str() );
 }
 
 void Street::dumpid() const {
     std::stringstream sidStr;
-    sidStr << "street ID "<<sid<<":\t";
-    path.dumpid(sidStr.str());
+    sidStr << "street ID " << sid << ":\t";
+    path.dumpid( sidStr.str() );
 }
 
 
-void Street::dump(const std::string &title) const { path.dump(title); }
+void Street::dump( const std::string &title ) const { path.dump( title ); }
 
 
 
 
-bool Street::e_push_back(const Trashnode &node) {
-    assert (node.getnid()>=0);
-    if (sid==-1 or node.streetId()!=sid) return false;
+bool Street::e_push_back( const Trashnode &node ) {
+    assert ( node.getnid() >= 0 );
+
+    if ( sid == -1 or node.streetId() != sid ) return false;
+
     path.push_back( node );
-    path.evaluate(MAX());
+    path.evaluate( MAX() );
     evalLast();
     return true;
 }
 
 
-bool Street::e_push_front(const Trashnode &node) {
-    assert (node.getnid()>=0);
-    if (sid==-1 or node.streetId()!=sid) return false;
+bool Street::e_push_front( const Trashnode &node ) {
+    assert ( node.getnid() >= 0 );
+
+    if ( sid == -1 or node.streetId() != sid ) return false;
+
     path.push_front( node  );
-    path.evaluate(0,MAX());
+    path.evaluate( 0, MAX() );
     evalLast();
     return true;
 }
 
 
-int Street::getBestPos(const Trashnode &node){
+int Street::getBestPos( const Trashnode &node ) {
     double bestDist = MAX();
-    int i=0;
-    while( i<size() and node.distance(path[i]) < bestDist) {
-        bestDist=node.distance(path[i]);i++;}
+    int i = 0;
+
+    while ( i < size() and node.distance( path[i] ) < bestDist ) {
+        bestDist = node.distance( path[i] ); i++;
+    }
+
     return --i;
 }
 
 
-bool Street::insert(const Trashnode &node) {
-    if (sid==-1 or node.streetId()!=sid) return false;
+bool Street::insert( const Trashnode &node ) {
+    if ( sid == -1 or node.streetId() != sid ) return false;
+
     if ( not size() ) return e_push_back( node );
-    int at= getBestPos(node);
-    path.insert(node,at);
+
+    int at = getBestPos( node );
+    path.insert( node, at );
     return true;
 }
 
-bool Street::e_insert(const Trashnode &node) {
-    if (not insert( node ) ) return false;
-    path.evaluate(MAX());
+bool Street::e_insert( const Trashnode &node ) {
+    if ( not insert( node ) ) return false;
+
+    path.evaluate( MAX() );
     evalLast();
     return true;
 }
 
 // e_ insert inserts in order of distances the containers of the street
 // check the order
-int Street::e_insert(Bucket &unassigned, Bucket &assigned) {
-    Bucket nodes=unassigned;
+int Street::e_insert( Bucket &unassigned, Bucket &assigned ) {
+    Bucket nodes = unassigned;
     unassigned.clear();
     assigned.clear();
     Trashnode node;
-    while (nodes.size()) {
-        node=nodes[0];
-        if (insert(node)==false) unassigned.push_back(node);
-        else assigned.push_back(node);
+
+    while ( nodes.size() ) {
+        node = nodes[0];
+
+        if ( insert( node ) == false ) unassigned.push_back( node );
+        else assigned.push_back( node );
+
         nodes.pop_front();
     };
-    path.evaluate(0,MAX());
+
+    path.evaluate( 0, MAX() );
     evalLast();
     return size();
-}            
+}
 
 
-int Street::e_insert(const Bucket& containers) {
-    Bucket unassigned=containers;
+int Street::e_insert( const Bucket &containers ) {
+    Bucket unassigned = containers;
     Bucket assigned;
-    return e_insert(unassigned , assigned );
+    return e_insert( unassigned , assigned );
 }
 
 
@@ -192,37 +206,41 @@ void Street::restorePath(Twpath<Trashnode> oldpath) {
 */
 
 void Street::evalLast() {
-    Trashnode last = path[path.size()-1];
-    _reqCapacity=last.getCargo();
-    _reqTime=last.getTotTime();
+    Trashnode last = path[path.size() - 1];
+    _reqCapacity = last.getCargo();
+    _reqTime = last.getTotTime();
 }
 
 /**************************************PLOT************************************/
-void Street::plot(std::string file,std::string title){
-    Twpath<Trashnode> trace=path;
+void Street::plot( std::string file, std::string title ) {
+    Twpath<Trashnode> trace = path;
     std::stringstream sidStr;
     sidStr << sid;
-    std::string extra=file+" street "+sidStr.str() ;
+    std::string extra = file + " street " + sidStr.str() ;
 
     Plot<Trashnode> graph( trace );
-    graph.setFile( file+".png" );
-    graph.setTitle( title+extra );
+    graph.setFile( file + ".png" );
+    graph.setTitle( title + extra );
     graph.drawInit();
-    for (int i=0; i<trace.size(); i++){
-        if (trace[i].isPickup())  {
-             graph.drawPoint(trace[i], 0x0000ff, 9, true);
-        } else if (trace[i].isDepot()) {
-             graph.drawPoint(trace[i], 0x00ff00, 5, true);
-        } else  {
-             graph.drawPoint(trace[i], 0xff0000, 7, true);
+
+    for ( int i = 0; i < trace.size(); i++ ) {
+        if ( trace[i].isPickup() )  {
+            graph.drawPoint( trace[i], 0x0000ff, 9, true );
+        }
+        else if ( trace[i].isDepot() ) {
+            graph.drawPoint( trace[i], 0x00ff00, 5, true );
+        }
+        else  {
+            graph.drawPoint( trace[i], 0xff0000, 7, true );
         }
     }
-    plot(graph);
+
+    plot( graph );
     graph.save();
 }
 
-void Street::plot(Plot<Trashnode> graph){
-    graph.drawPath(path,graph.makeColor(sid*10), 1, true);
+void Street::plot( Plot<Trashnode> graph ) {
+    graph.drawPath( path, graph.makeColor( sid * 10 ), 1, true );
 }
 
 

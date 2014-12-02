@@ -18,7 +18,7 @@
 #include <cassert>
 #include <iostream>
 #ifdef DOSTATS
-#include "stats.h" 
+#include "stats.h"
 #endif
 
 
@@ -51,7 +51,7 @@ class Move {
     class compMove {
       public:
         bool operator()( const Move &move1, const Move &move2 ) const {
-            return ( Move::bySavings(move1,move2) );
+            return ( Move::bySavings( move1, move2 ) );
         }
     };
 
@@ -79,13 +79,16 @@ class Move {
   public:
 
     Move();
-    Move(const Move &move);
+    Move( const Move &move );
     Move( Mtype _mtype, int _nid1, int _nid2, int _vid1, int _vid2, int _pos1,
           int _pos2, double _sav );
 
-    void setInsMove( int fromTruck, int fromPos, int fromId, int toTruck, int toPos, double save); 
-    void setIntraSwMove( int fromTruck, int fromPos, int fromId, int withPos, int withId, double save); 
-    void setInterSwMove( int fromTruck, int fromPos, int fromId, int withTruck, int withPos, int withId, double save); 
+    void setInsMove( int fromTruck, int fromPos, int fromId, int toTruck, int toPos,
+                     double save );
+    void setIntraSwMove( int fromTruck, int fromPos, int fromId, int withPos,
+                         int withId, double save );
+    void setInterSwMove( int fromTruck, int fromPos, int fromId, int withTruck,
+                         int withPos, int withId, double save );
 
     int getmtype() const { return mtype; };
     int getnid1() const { return nid1; };
@@ -134,8 +137,8 @@ class Move {
     int getInsToTruck() const { assert( mtype == Move::Ins ); return vid2; };
     int getInsFromPos() const { assert( mtype == Move::Ins ); return pos1; };
     int getInsToPos() const { assert( mtype == Move::Ins ); return pos2; };
-    void setInsFromPos(int newPos) { assert( mtype == Move::Ins ); pos1=newPos; };
-    void setInsToPos(int newPos) { assert( mtype == Move::Ins ); pos2=newPos; };
+    void setInsFromPos( int newPos ) { assert( mtype == Move::Ins ); pos1 = newPos; };
+    void setInsToPos( int newPos ) { assert( mtype == Move::Ins ); pos2 = newPos; };
 
     int getIntraSwTruck() const { assert( mtype == Move::IntraSw ); return vid1; };
     int getIntraSwFromPos() const { assert( mtype == Move::IntraSw ); return pos1; };

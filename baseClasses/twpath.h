@@ -57,7 +57,7 @@ class Twpath : public TwBucket<knode> {
     typedef typename std::deque<knode>::iterator iterator;
     typedef typename std::deque<knode>::reverse_iterator reverse_iterator;
     typedef typename std::deque<knode>::const_reverse_iterator
-        const_reverse_iterator;
+    const_reverse_iterator;
     typedef typename std::deque<knode>::const_iterator const_iterator;
 
   public:
@@ -104,7 +104,7 @@ class Twpath : public TwBucket<knode> {
 
 
 
-// ----------  nodes handling within the same path --------------------
+    // ----------  nodes handling within the same path --------------------
 
     /*!
      * \brief Evaluated: Move a node in a path to a new location.
@@ -430,6 +430,7 @@ class Twpath : public TwBucket<knode> {
         while ( it != path.end() ) {
             if ( it == path.begin() ) it->evaluate( maxcapacity );
             else it->evaluate( *( it - 1 ), maxcapacity );
+
             it++;
         }
 
@@ -452,7 +453,8 @@ class Twpath : public TwBucket<knode> {
 
         while ( it != path.end() ) {
             if ( it == path.begin() ) it->evaluateOsrm();
-            else it->evaluateOsrm( *( it - 1 ) , osrmBaseUrl);
+            else it->evaluateOsrm( *( it - 1 ) , osrmBaseUrl );
+
             ++it;
         }
     };
@@ -515,7 +517,7 @@ class Twpath : public TwBucket<knode> {
 
     bool createsViolation( UID from, double maxcapacity ) {
         #ifdef TESTED
-        DLOG(INFO) << "Entering twpath::createsViolation";
+        DLOG( INFO ) << "Entering twpath::createsViolation";
         #endif
         assert ( from <= size() ); //the equal just in case the last operation was erase
 
@@ -544,7 +546,7 @@ class Twpath : public TwBucket<knode> {
     // dosnt move dumps
     bool e__insert( const knode &n, UID at, double maxcapacity ) {
         #ifdef TESTED
-        DLOG(INFO) << "Entering twpath::e__insert";
+        DLOG( INFO ) << "Entering twpath::e__insert";
         #endif
         assert ( at <= size() );
         assert ( at > 0 );
@@ -570,7 +572,7 @@ class Twpath : public TwBucket<knode> {
         //TODO convert to iterators
 
         #ifdef TESTED
-        DLOG(INFO) << "Entering twpath::e__adjustDumpsToMaxCapacity";
+        DLOG( INFO ) << "Entering twpath::e__adjustDumpsToMaxCapacity";
         #endif
         knode dumpSite = dumpS;
         int i = currentPos;
@@ -584,7 +586,8 @@ class Twpath : public TwBucket<knode> {
 
         if ( path[size() - 1].feasable() ) return true; // no need to add a dump
 
-        if (  path[size() - 1].gettwvTot() ) return false; // without dumps its unfeasable
+        if (  path[size() - 1].gettwvTot() ) return
+                false; // without dumps its unfeasable
 
         //the path is dumpless from the currentpos
         //add dumps because of CV
@@ -597,7 +600,7 @@ class Twpath : public TwBucket<knode> {
             evaluate( i, maxcapacity ); //reevaluate the rest of the route
 
             #ifdef TESTED
-            DLOG(INFO) << "Entering twpath::e__adjustDumpsToMaxCapacity: inserted a dump";
+            DLOG( INFO ) << "Entering twpath::e__adjustDumpsToMaxCapacity: inserted a dump";
 
             dumpeval();
 

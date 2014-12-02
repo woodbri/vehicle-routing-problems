@@ -27,17 +27,18 @@
 class TabuSearch : public TabuBase<Neighborhoods> {
 
   public:
-    TabuSearch(const Neighborhoods initialSolution) :
-	TabuBase(initialSolution)
-    {
+    TabuSearch( const Neighborhoods initialSolution ) :
+        TabuBase( initialSolution ) {
         bestSolution.computeCosts();
         bestSolution.dump();
         bestSolutionCost = bestSolution.getCost();
     };
 
     void search();
-    void generateNeighborhood(neighborMovesName whichNeighborhood, std::deque<Move>& neighborhood, const Move& lastMove) const;
-    bool doNeighborhoodMoves(neighborMovesName whichNeighborhood, int maxStagnation);
+    void generateNeighborhood( neighborMovesName whichNeighborhood,
+                               std::deque<Move> &neighborhood, const Move &lastMove ) const;
+    bool doNeighborhoodMoves( neighborMovesName whichNeighborhood,
+                              int maxStagnation );
 
 };
 
