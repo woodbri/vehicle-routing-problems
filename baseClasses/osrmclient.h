@@ -24,6 +24,10 @@
 #include <string>
 #include <deque>
 #include <vector>
+
+// load our assert to throw macros and tell rapidjson to use them
+#include "vrp_assert.h"
+#define RAPIDJSON_ASSERT assert
 #include <rapidjson/document.h>
 
 #include "timer.h"

@@ -24,6 +24,9 @@
 #include <curlpp/Easy.hpp>
 #include <curlpp/Options.hpp>
 
+// load our assert to throw marcos and tell rapidjson to use them
+#include "vrp_assert.h"
+#define RAPIDJSON_ASSERT assert
 #include <rapidjson/document.h>
 
 /*! \class VrpOSRM
