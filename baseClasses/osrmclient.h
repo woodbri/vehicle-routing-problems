@@ -24,7 +24,7 @@
 #include <string>
 #include <deque>
 #include <vector>
-#include <json/json.h>
+#include <rapidjson/document.h>
 
 #include "timer.h"
 #include "stats.h"
@@ -105,11 +105,11 @@ class OsrmClient {
     bool testOsrmClient();
 
   private:
-    bool getTime( struct json_object *jtree, double &time );
-    bool getGeom( struct json_object *jtree, std::deque<Node> &geom );
-    bool getHints( struct json_object *jtree, std::deque<std::string> &hints );
+    bool getTime( rapidjson::Document &jtree, double &time );
+    bool getGeom( rapidjson::Document &jtree, std::deque<Node> &geom );
+    bool getHints( rapidjson::Document &jtree, std::deque<std::string> &hints );
     bool getOsrmPenalty( double &penalty );
-    bool getPenalty( struct json_object *jtree, double &penalty );
+    bool getPenalty( rapidjson::Document &jtree, double &penalty );
 
   public:
     void dump() {

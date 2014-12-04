@@ -24,8 +24,7 @@
 #include <curlpp/Easy.hpp>
 #include <curlpp/Options.hpp>
 
-// json-c lib headers
-#include <json/json.h>
+#include <rapidjson/document.h>
 
 /*! \class VrpOSRM
  * \brief Simple interface class to OSRM server.

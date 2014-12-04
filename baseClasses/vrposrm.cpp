@@ -21,42 +21,32 @@
 
 
 bool VrpOSRM::getTravelTime( double &ttime ) const {
-    struct json_object *jtree;
-    struct json_object *jobj;
 
-    jtree = json_tokener_parse( json.c_str() );
+    rapidjson::Document jsondoc;
+    jsondoc.Parse( json.c_str() );
 
-    if ( !jtree ) {
-        DLOG( INFO ) << "Error: Invalid json document in OSRM response!" << std::endl;
+    if ( jsondoc.HasParseError() ) {
+        DLOG( INFO ) << "Error: Invalid json document in OSRM response!";
         return true;
     }
 
-    jobj = json_object_object_get( jtree, "route_summary" );
-
-    if ( !jobj ) {
+    if ( not jsondoc.HasMember( "route_summary" ) ) {
         DLOG( INFO ) << "Error: Failed to find 'route_summary' key in json document!";
-        json_object_put( jtree );
         return true;
     }
 
-    jobj = json_object_object_get( jobj, "total_time" );
-
-    if ( !jobj ) {
+    if ( not jsondoc["route_summary"].HasMember( "total_time" ) ) {
         DLOG( INFO ) << "Error: Failed to find 'total_time' key in json document!";
-        json_object_put( jtree );
         return true;
     }
 
-    ttime = ( double ) json_object_get_int( jobj ) / 60.0;
-    json_object_put( jtree );
+    ttime = jsondoc["route_summary"]["total_time"].GetDouble() / 60.0;
 
     return false;
 }
 
 
 bool VrpOSRM::getStatus( int &status ) const {
-    struct json_object *jtree;
-    struct json_object *jobj;
 
     status = -1;
 
@@ -65,23 +55,20 @@ bool VrpOSRM::getStatus( int &status ) const {
         return true;
     }
 
-    jtree = json_tokener_parse( json.c_str() );
+    rapidjson::Document jsondoc;
+    jsondoc.Parse( json.c_str() );
 
-    if ( !jtree ) {
+    if ( jsondoc.HasParseError() ) {
         DLOG( INFO ) << "Error: Invalid json document in OSRM response!";
         return true;
     }
 
-    jobj = json_object_object_get( jtree, "status" );
-
-    if ( !jobj ) {
-        json_object_put( jtree );
-        DLOG( INFO ) << "Error: Error parsing OSRM response, \"status\" not found.";
+    if ( not jsondoc.HasMember( "status" ) ) {
+        DLOG( INFO ) << "Error: Failed to find 'status' key in json document!";
         return true;
     }
 
-    status = json_object_get_int( jobj );
-    json_object_put( jtree );
+    status = jsondoc["status"].GetInt();
 
     return false;
 }

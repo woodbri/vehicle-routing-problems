@@ -741,14 +741,16 @@ bool Vehicle::deltaTimeGeneratesTV( const Trashnode &dump,
     #ifdef DOSTATS
     STATS->inc( " Vehicle::deltaTimeGeneratesTV" );
     #endif
+
     #ifdef TESTED
     DLOG( INFO ) << "Entering Vehicle::deltaTimeGeneratesTV";
     DLOG( INFO ) << " (S 1 2 3 D E )  (S 1 2 3 D N D E)"
                  << path.getDeltaTimeAfterDump( dumpSite, node ) << " + "
                  << getDuration() << " ¿? " <<  endingSite.closes();
     #endif
-    return  ( path.getDeltaTimeAfterDump( dumpSite,
-                                          node ) + getDuration()  > endingSite.closes() ) ;
+
+    return  ( path.getDeltaTimeAfterDump( dumpSite, node ) +
+              getDuration()  > endingSite.closes() );
 }
 
 
@@ -759,25 +761,31 @@ bool Vehicle::deltaTimeGeneratesTV( const Trashnode &node, int pos ) const {
     #ifdef DOSTATS
     STATS->inc( "Vehicle::deltaTimeGeneratesTV" );
     #endif
+
     #ifdef TESTED
-    DLOG( INFO ) << "Entering Vehicle::deltaTimeGeneratesTV \n";
+    DLOG( INFO ) << "Entering Vehicle::deltaTimeGeneratesTV";
 
     if ( pos > path.size() )
-        DLOG( INFO ) << "CANT work with this pos:" << pos";
-                     if (pos==path.size())
-                     DLOG(INFO) << " ( S 1 2 3 D E )  ( S 1 2 3 N D E )"
-                     << path.getDeltaTime(node,dumpSite) << " + "
-                     << getDuration() << " ¿ ? " <<  endingSite.closes();
-                     else
-                     DLOG(INFO) << " ( S 1 2 3 D E )  ( S 1 2 N 3 D E ) "
-                     << path.getDeltaTime(node,pos) << " + "
-                     << getDuration() << " ¿ ? " <<  endingSite.closes();
-                     endingSite.dump();
+        DLOG( INFO ) << "CANT work with this pos:" << pos;
+
+    if ( pos==path.size() )
+        DLOG(INFO) << " ( S 1 2 3 D E )  ( S 1 2 3 N D E )"
+                   << path.getDeltaTime(node,dumpSite) << " + "
+                   << getDuration() << " ¿ ? " <<  endingSite.closes();
+    else
+        DLOG(INFO) << " ( S 1 2 3 D E )  ( S 1 2 N 3 D E ) "
+                   << path.getDeltaTime(node,pos) << " + "
+                   << getDuration() << " ¿ ? " <<  endingSite.closes();
+
+    endingSite.dump();
     #endif
-                     assert(pos<=path.size());
-                     if (pos==path.size())
-                     return path.getDeltaTime(node,dumpSite) + getDuration()  > endingSite.closes();
-                     else
-                     return ( path.getDeltaTime(node,pos) + getDuration()  > endingSite.closes() ) ;
-                 }
+    assert( pos<=path.size() );
+
+    if ( pos==path.size() )
+        return path.getDeltaTime( node, dumpSite ) +
+               getDuration() > endingSite.closes();
+    else
+        return path.getDeltaTime( node, pos ) +
+               getDuration() > endingSite.closes();
+}
 

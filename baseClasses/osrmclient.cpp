@@ -363,45 +363,42 @@ bool OsrmClient::getOsrmTime( double &time ) {
 
     #ifdef DOSTATS
     Timer timer;
-    STATS->inc( "OsrmClient::getOsrmTime (does the work) " );
+    STATS->inc( "OsrmClient::getOsrmTime (does the work)" );
     #endif
 
     if ( status != 1 or httpContent.size() == 0 ) {
         err_msg = "OsrmClient:getOsrmTime does not have a valid OSRM response!";
         #ifdef DOSTATS
         STATS->inc( err_msg );
-        STATS->addto( "OsrmClient::getOsrmTime (does the work) Cumultaive time:",
+        STATS->addto( "OsrmClient::getOsrmTime (errors) Cumulative time:",
                       timer.duration() );
         #endif
         return false;
     }
 
-    struct json_object *jtree = NULL;
+    rapidjson::Document jsondoc;
+    jsondoc.Parse( httpContent.c_str() );
 
-    jtree = json_tokener_parse( httpContent.c_str() );
-
-    if ( not jtree ) {
+    if ( jsondoc.HasParseError() ) {
         err_msg = "OsrmClient:getOsrmTime invalid json document in OSRM response!";
         #ifdef DOSTATS
         STATS->inc( err_msg );
-        STATS->addto( "OsrmClient::getOsrmTime (does the work) Cumultaive time:",
+        STATS->addto( "OsrmClient::getOsrmTime (errors) Cumulative time:",
                       timer.duration() );
         #endif
         return false;
     }
 
-    if ( not getTime( jtree, time ) ) {
-        json_object_put( jtree );
+    if ( not getTime( jsondoc, time ) ) {
         #ifdef DOSTATS
-        STATS->addto( "OsrmClient::getOsrmTime (does the work) Cumultaive time:",
+        STATS->addto( "OsrmClient::getOsrmTime (errors) Cumulative time:",
                       timer.duration() );
         #endif
         return false;
     }
 
-    json_object_put( jtree );
     #ifdef DOSTATS
-    STATS->addto( "Cumulative OsrmClient::getOsrmTime (does the work) time:",
+    STATS->addto( "OsrmClient::getOsrmTime (does the work) Cumulative time:",
                   timer.duration() );
     #endif
     return true;
@@ -414,7 +411,7 @@ bool OsrmClient::getOsrmPenalty( double &penalty ) {
 
     #ifdef DOSTATS
     Timer timer;
-    STATS->inc( "OsrmClient::getOsrmTurns  " );
+    STATS->inc( "OsrmClient::getOsrmTurns" );
     #endif
 
     if ( status != 1 or httpContent.size() == 0 ) {
@@ -427,11 +424,10 @@ bool OsrmClient::getOsrmPenalty( double &penalty ) {
         return false;
     }
 
-    struct json_object *jtree = NULL;
+    rapidjson::Document jsondoc;
+    jsondoc.Parse( httpContent.c_str() );
 
-    jtree = json_tokener_parse( httpContent.c_str() );
-
-    if ( not jtree ) {
+    if ( jsondoc.HasParseError() ) {
         err_msg = "OsrmClient:getOsrmTurns (interface) invalid json document in OSRM response!";
         #ifdef DOSTATS
         STATS->inc( err_msg );
@@ -441,8 +437,7 @@ bool OsrmClient::getOsrmPenalty( double &penalty ) {
         return false;
     }
 
-    if ( not getPenalty( jtree, penalty ) ) {
-        json_object_put( jtree );
+    if ( not getPenalty( jsondoc, penalty ) ) {
         #ifdef DOSTATS
         STATS->addto( "OsrmClient::getOsrmTurns (interface) Cumultaive time:",
                       timer.duration() );
@@ -450,17 +445,12 @@ bool OsrmClient::getOsrmPenalty( double &penalty ) {
         return false;
     }
 
-    json_object_put( jtree );
     #ifdef DOSTATS
     STATS->addto( "OsrmClient::getOsrmTurns (interface) Cumulative time:",
                   timer.duration() );
     #endif
     return true;
 }
-
-
-
-
 
 
 /*!
@@ -486,11 +476,10 @@ bool OsrmClient::getOsrmGeometry( std::deque<Node> &geom ) {
         return false;
     }
 
-    struct json_object *jtree = NULL;
+    rapidjson::Document jsondoc;
+    jsondoc.Parse( httpContent.c_str() );
 
-    jtree = json_tokener_parse( httpContent.c_str() );
-
-    if ( not jtree ) {
+    if ( jsondoc.HasParseError() ) {
         err_msg = "OsrmClient:getOsrmGeometry invalid json document in OSRM response!";
         #ifdef DOSTATS
         STATS->inc( err_msg );
@@ -498,12 +487,10 @@ bool OsrmClient::getOsrmGeometry( std::deque<Node> &geom ) {
         return false;
     }
 
-    if ( not getGeom( jtree, geom ) ) {
-        json_object_put( jtree );
+    if ( not getGeom( jsondoc, geom ) ) {
         return false;
     }
 
-    json_object_put( jtree );
     return true;
 }
 
@@ -525,11 +512,10 @@ bool OsrmClient::getOsrmHints( std::deque<std::string> &hints ) {
         return false;
     }
 
-    struct json_object *jtree = NULL;
+    rapidjson::Document jsondoc;
+    jsondoc.Parse( httpContent.c_str() );
 
-    jtree = json_tokener_parse( httpContent.c_str() );
-
-    if ( not jtree ) {
+    if ( jsondoc.HasParseError() ) {
         err_msg = "OsrmClient:getOsrmHint (interface) invalid json document in OSRM response!";
         #ifdef DOSTATS
         STATS->inc( err_msg );
@@ -537,12 +523,10 @@ bool OsrmClient::getOsrmHints( std::deque<std::string> &hints ) {
         return false;
     }
 
-    if ( not getHints( jtree, hints ) ) {
-        json_object_put( jtree );
+    if ( not getHints( jsondoc, hints ) ) {
         return false;
     }
 
-    json_object_put( jtree );
     return true;
 }
 
@@ -563,6 +547,7 @@ bool OsrmClient::testOsrmClient() {
     bool oldPenalty = addPenalty;
     double time;
 
+    // TODO Make this location a config value
     //34.890816,-56.165529
     if ( getOsrmTime( -34.8917, -56.167694, -34.890816, -56.165529, time ) )
         DLOG( INFO ) << "test time:" << time;
@@ -575,8 +560,8 @@ bool OsrmClient::testOsrmClient() {
         std::string hint1 = hints[0];
         std::string hint2 = hints[1];
 
-        if ( getOsrmTime( -34.8917, -56.167694, -34.890816, -56.165529, hint1, hint2,
-                          time ) )
+        if ( getOsrmTime( -34.8917, -56.167694, -34.890816, -56.165529,
+                          hint1, hint2, time ) )
             DLOG( INFO ) << "test time:" << time;
         else
             return false;
@@ -621,20 +606,14 @@ bool OsrmClient::testOsrmClient() {
 
 /*!
  * \brief Parse the actual json document and extract the OSRM Travel time.
- * \param[in] jtree The json parse tree pointer.
+ * \param[in] jsondoc The json parse tree pointer.
  * \param[out] time The OSRM travel time as decimal minutes.
  * \return True if an error and err_msg will be set. False otherwise.
  */
-bool OsrmClient::getTime( struct json_object *jtree, double &time ) {
+bool OsrmClient::getTime( rapidjson::Document &jsondoc, double &time ) {
     if ( not connectionAvailable ) return false;
 
-    struct json_object *jRouteSummary;
-    struct json_object *jTime;
-
-    // find the 'route_sammary' key in the response
-    jRouteSummary = json_object_object_get( jtree, "route_summary" );
-
-    if ( not jRouteSummary ) {
+    if ( not jsondoc.HasMember( "route_summary" ) ) {
         err_msg = "OsrmClient:getTime failed to find 'route_summary' key in OSRM response!";
         #ifdef DOSTATS
         STATS->inc( err_msg );
@@ -643,102 +622,68 @@ bool OsrmClient::getTime( struct json_object *jtree, double &time ) {
     }
 
     // find the 'total_time' in the 'route_summary'
-    jTime = json_object_object_get( jRouteSummary, "total_time" );
-
-    if ( not jTime ) {
+    if ( not jsondoc["route_summary"].HasMember( "total_time" ) ) {
         err_msg = "OsrmClient:getTime failed to find 'total_time' key in OSRM response!";
         #ifdef DOSTATS
         STATS->inc( err_msg );
         #endif
-        json_object_put( jRouteSummary );
         return false;
     }
 
     // extract the total_time and convert from seconds to minutes
-    time = ( double ) json_object_get_int( jTime ) / 60.0;
+    time = ( double ) jsondoc["route_summary"]["total_time"].GetDouble() / 60.0;
     double penalty;
 
-    if ( addPenalty and getPenalty( jtree, penalty ) ) time += penalty;
+    if ( addPenalty and getPenalty( jsondoc, penalty ) ) time += penalty;
 
-    json_object_put( jRouteSummary );
-    json_object_put( jTime );
     return true;
 }
 
 
 /*!
  * \brief Parse the actual json document and extract the geometry Nodes
- * \param[in] jtree The json parse tree pointer.
+ * \param[in] jsondoc The json parse tree pointer.
  * \param[out] geom A std::deque<Node> with each point in the path.
  * \return True if an error and err_msg will be set. False otherwise.
  */
-bool OsrmClient::getGeom( struct json_object *jtree, std::deque<Node> &geom ) {
+bool OsrmClient::getGeom( rapidjson::Document &jsondoc, std::deque<Node> &geom ) {
     if ( not connectionAvailable ) return false;
-
-    struct json_object *jobj;
 
     // clear the path
     geom.clear();
 
     // find the route 'geometry' key in the response
-    jobj = json_object_object_get( jtree, "route_geometry" );
+    const rapidjson::Value &jgeom = jsondoc["route_geometry"];
 
-    if ( not jobj ) {
+    if ( not jgeom.IsArray() ) {
         err_msg = "OsrmClient:getGeom failed to find 'geometry' key in OSRM response!";
         #ifdef DOSTATS
         STATS->inc( err_msg );
         #endif
-        json_object_put( jobj );
         return false;
     }
 
-    int numPnts = json_object_array_length( jobj );
+    for ( rapidjson::Value::ConstValueIterator itr = jgeom.Begin();
+          itr != jgeom.End(); ++itr ) {
 
-    //DLOG(INFO) << "route_geometry: type: " << json_object_get_type(jobj)
-    //           << ", size: " << numPnts;
-
-    json_object *jval;
-    json_object *j0;
-    json_object *j1;
-    double x;
-    double y;
-
-    for ( int i = 0; i < numPnts; ++i ) {
-        jval = json_object_array_get_idx( jobj, i );
-        //DLOG(INFO) << "jval: type: " << json_object_get_type(jval)
-        //           << ", size: " << json_object_array_length(jval);
-
-        j0 = json_object_array_get_idx( jval, 0 );
-        //DLOG(INFO) << "j0: type: " << json_object_get_type(j0);
-
-        j1 = json_object_array_get_idx( jval, 1 );
-        //DLOG(INFO) << "j1: type: " << json_object_get_type(j1);
-
-        x = json_object_get_double( j0 );
-        y = json_object_get_double( j1 );
-        Node n( x, y );
+        // osrm returns [lat, lon], node expects [lon, lat]
+        Node n( (*itr)[1].GetDouble(), (*itr)[0].GetDouble() );
         geom.push_back( n );
-        json_object_put( j0 );
-        json_object_put( j1 );
-        json_object_put( jval );
     }
 
-    json_object_put( jobj );
     return true;
 }
 
-bool OsrmClient::getHints( struct json_object *jtree,
+bool OsrmClient::getHints( rapidjson::Document &jsondoc,
                            std::deque<std::string> &hints ) {
     if ( not connectionAvailable ) return false;
 
-    struct json_object *jHintData;
-    struct json_object *jLocations;
     hints.clear();
 
     // find the route 'hint_data' key in the response
-    jHintData = json_object_object_get( jtree, "hint_data" );
+    const rapidjson::Value &jHintData = jsondoc["hint_data"];
 
-    if ( not jHintData ) {
+    if ( not jHintData.IsObject() ) {
         err_msg = "OsrmClient:getHints (private)  failed to find 'hint_data' key in OSRM response!";
         #ifdef DOSTATS
         STATS->inc( err_msg );
@@ -746,43 +691,35 @@ bool OsrmClient::getHints( struct json_object *jtree,
         return false;
     }
 
-    jLocations = json_object_object_get( jHintData, "locations" );
+    const rapidjson::Value &jLocations = jHintData["locations"];
 
-    if ( not jHintData ) {
+    if ( not jHintData.IsArray() ) {
         err_msg = "OsrmClient:getHints (private)  failed to find 'locations' key in OSRM response!";
         #ifdef DOSTATS
         STATS->inc( err_msg );
         #endif
-        json_object_put( jHintData );
         return false;
     }
 
 
-    json_object *jHint;
     std::string hint;
 
-    for ( int i = 0; i < route_parameters.coordinates.size(); i++ ) {
-        jHint = json_object_array_get_idx( jLocations, i );
+    for ( rapidjson::Value::ConstValueIterator itr = jHintData.Begin();
+          itr != jHintData.End(); ++itr) {
 
-        hint = json_object_get_string ( jHint );
+        hint = std::string( itr->GetString() );
         hints.push_back( hint );
 
-        json_object_put( jHint );
     }
 
-    json_object_put( jLocations );
-    json_object_put( jHintData );
     return true;
 }
 
-bool OsrmClient::getPenalty( struct json_object *jtree,
+
+bool OsrmClient::getPenalty( rapidjson::Document &jsondoc,
                              double &penalty ) { //in munutes
     if ( not connectionAvailable ) return false;
 
-    struct json_object *jInstructionsArray;
-    struct json_object *jInstructionData;
-    struct json_object *jInstruction;
-    //json_object *jTurn;
     int turn;
 
     std::string  trace;
@@ -790,9 +727,9 @@ bool OsrmClient::getPenalty( struct json_object *jtree,
     penalty = 0;
 
     // find the route 'hint_data' key in the response
-    jInstructionsArray = json_object_object_get( jtree, "route_instructions" );
+    const rapidjson::Value &jInstructionsArray = jsondoc["route_instructions"];
 
-    if ( not jInstructionsArray ) {
+    if ( not jInstructionsArray.IsArray() ) {
         err_msg = "OsrmClient:getTurns (private) failed to find 'route_instructions' key in OSRM response!";
         #ifdef DOSTATS
         STATS->inc( err_msg );
@@ -800,20 +737,13 @@ bool OsrmClient::getPenalty( struct json_object *jtree,
         return false;
     }
 
-    trace = json_object_get_string ( jInstructionsArray );
-    DLOG( INFO ) << "InstructionsArray " << trace;
+    for (rapidjson::Value::ConstValueIterator itr = jInstructionsArray.Begin();
+            itr != jInstructionsArray.End(); ++itr) {
 
-    jInstructionData = json_object_array_get_idx( jInstructionsArray, 0 );
-    int i = 0;
+        turn = strtol( (*itr)[0].GetString(), NULL, 10 );
 
-    while ( jInstructionData ) {
-
-        trace = json_object_get_string ( jInstructionData );
+        trace = std::string( (*itr)[0].GetString() );
         DLOG( INFO ) << "InstructionsData " << trace;
-
-        jInstruction = json_object_array_get_idx( jInstructionData, 0 );
-
-        turn = json_object_get_int ( jInstruction );
         DLOG( INFO ) << "Instruction " << turn;
 
         switch ( turn ) {
@@ -832,14 +762,9 @@ bool OsrmClient::getPenalty( struct json_object *jtree,
             case 6: penalty += 0.3 ; break; //sharp left
         }
 
-        json_object_put( jInstruction );
-        json_object_put( jInstructionData );
-        i++;
-        jInstructionData = json_object_array_get_idx( jInstructionsArray, i );
     }
 
     DLOG( INFO ) << "Penalty " << penalty;
-    json_object_put( jInstructionsArray );
     return true;
 }
 
