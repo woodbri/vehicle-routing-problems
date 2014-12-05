@@ -87,12 +87,12 @@ bool TrashProb::checkNodesOk() {
 
 void TrashProb::addTtimes( ttime_t *_ttimes, int count ) {
 
-    twc.loadAndProcess_distance( _ttimes, count, datanodes, invalid );
+    twc->loadAndProcess_distance( _ttimes, count, datanodes, invalid );
 
     Bucket dummy;
-    dummy.setTravelTimes( twc.TravelTime() );
+    dummy.setTravelTimes( twc->TravelTime() );
     Tweval dummyNode;
-    dummyNode.setTravelTimes( twc.TravelTime() );
+    dummyNode.setTravelTimes( twc->TravelTime() );
     //    assert( Tweval::TravelTime.size() );
 }
 

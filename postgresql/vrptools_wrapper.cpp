@@ -30,7 +30,7 @@ int vrp_trash_collection( container_t *containers, unsigned int container_count,
                           char **err_msg ) {
 
     try {
-        FLAGS_log_dir = "./logs/";
+        FLAGS_log_dir = "/tmp/";
         google::InitGoogleLogging( "vrp_trash_collection" );
         FLAGS_logtostderr = 0;
         FLAGS_stderrthreshold = google::FATAL;
