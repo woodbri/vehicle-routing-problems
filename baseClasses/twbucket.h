@@ -18,9 +18,12 @@
 #include <vector>
 #include <set>
 #include <iostream>
+#include <sstream>
 #include <algorithm>
 #include <limits>
-#include <cassert>
+
+#include "vrp_assert.h"
+#include "logger.h"
 #include "node.h"
 
 
@@ -83,54 +86,62 @@ class TwBucket {
 
   public:
 
-    /*! 
+    /*!
      * \brief simulates the following order of nodes in the path:  - prev from middle to
-     * \param[in] prev:   prev node 
-     * \param[in] from:   from node 
-     * \param[in] middle: middle node 
-     * \param[in] to:     to node 
+     * \param[in] prev:   prev node
+     * \param[in] from:   from node
+     * \param[in] middle: middle node
+     * \param[in] to:     to node
      * \param[in] ttpf:   travel time from "prev" to "from" nodes
-     * 
+     *
      * \return  the time that takes to depart from "from" and arrive to "to" passing thru "middle"
      *
      * \return    ttfm + serv(m) + ttmt = arrivalTime(next) - departureTime(prev) when passing thru curr
      * \return infinity              if there is a TWV (time window violation)
-     * 
+     *
      * use when:
          prev from   is a section of the path and "prev" is the previous container of "from"
          from from   there is no previous container of from
 
-	the first one does all the work
+    the first one does all the work
         the other two are variations on the parameters
     */
 
 
-    double  timePCN( const knode &prev, const knode &from, const knode &middle, const knode &to, double ttpf ) const {
-        // prefixes: tt= travel time   	arrive 	depart
-	// suffixes:  p=prev   f=from   m=middle t=to
+    double  timePCN( const knode &prev, const knode &from, const knode &middle,
+                     const knode &to, double ttpf ) const {
+        // prefixes: tt= travel time    arrive  depart
+        // suffixes:  p=prev   f=from   m=middle t=to
 
         double ttpfm = TravelTime( prev, from , middle ) ;
-	double ttfm = ttpfm - ttpf;
-	double ttpfmt = TravelTime( prev, from , middle, to ) ;
-	double ttmt = ttpfmt - ttpfm;
-	double ttfmt = ttfm + ttmt;
-	
+        double ttfm = ttpfm - ttpf;
+        double ttpfmt = TravelTime( prev, from , middle, to ) ;
+        double ttmt = ttpfmt - ttpfm;
+        double ttfmt = ttfm + ttmt;
+
         //starting to check twv
 
         double arrive_f = prev.getDepartureTime() +  ttpf;
-        if ( from.lateArrival(arrive_f) ) return _MAX(); 
-        if ( from.earlyArrival(arrive_f) ) arrive_f = from.opens() ;
-	double depart_f= arrive_f+ from.getServiceTime();
+
+        if ( from.lateArrival( arrive_f ) ) return _MAX();
+
+        if ( from.earlyArrival( arrive_f ) ) arrive_f = from.opens() ;
+
+        double depart_f = arrive_f + from.getServiceTime();
 
         double arrive_m = arrive_f + from.getServiceTime() + ttfm;
-        if ( middle.lateArrival(arrive_m) ) return _MAX(); 
-        if ( middle.earlyArrival(arrive_m) ) arrive_m = middle.opens() ;
+
+        if ( middle.lateArrival( arrive_m ) ) return _MAX();
+
+        if ( middle.earlyArrival( arrive_m ) ) arrive_m = middle.opens() ;
 
         double arrive_t = arrive_m + middle.getServiceTime() + ttmt;
-        if ( to.lateArrival(arrive_t) ) return _MAX(); 
-        if ( to.earlyArrival(arrive_t) ) arrive_t = to.opens() ;
 
-        return arrive_t-depart_f;
+        if ( to.lateArrival( arrive_t ) ) return _MAX();
+
+        if ( to.earlyArrival( arrive_t ) ) arrive_t = to.opens() ;
+
+        return arrive_t - depart_f;
     }
 
 
@@ -138,60 +149,64 @@ class TwBucket {
         assert ( from < path.size() );
         assert ( middle < path.size() );
         assert ( to < path.size() );
-	assert ( middle != from);
-	assert ( middle != to);
+        assert ( middle != from );
+        assert ( middle != to );
 
-        if (from==0) return timePCN(path[from],path[from],path[middle], path[to],0 );
-        else return timePCN(path[from-1],path[from],path[middle], path[to], path[from].getTravelTime());
+        if ( from == 0 ) return timePCN( path[from], path[from], path[middle], path[to],
+                                             0 );
+        else return timePCN( path[from - 1], path[from], path[middle], path[to],
+                                 path[from].getTravelTime() );
     }
 
     double  timePCN( POS from, POS middle, const knode &dump ) const {
         assert ( from < path.size() );
         assert ( middle < path.size() );
-	assert ( middle != from);
+        assert ( middle != from );
 
-        if (from==0) return timePCN(path[from],path[from],path[middle], dump,0 );
-        else return timePCN(path[from-1],path[from],path[middle], dump, path[from].getTravelTime());
+        if ( from == 0 ) return timePCN( path[from], path[from], path[middle], dump,
+                                             0 );
+        else return timePCN( path[from - 1], path[from], path[middle], dump,
+                                 path[from].getTravelTime() );
     }
 
     double  timePCN( POS from, const knode &middle, const knode &dump ) const {
-        assert ( (from+1) < path.size() );
+        assert ( ( from + 1 ) < path.size() );
 
-        if (from==0) return timePCN(path[from],path[from],middle, dump,0 );
-        else return timePCN(path[from-1],path[from], middle , dump, path[from].getTravelTime());
+        if ( from == 0 ) return timePCN( path[from], path[from], middle, dump, 0 );
+        else return timePCN( path[from - 1], path[from], middle , dump,
+                                 path[from].getTravelTime() );
     }
 
     double  timePCN( POS from, const knode &middle ) const {
-        assert ( (from+2) < path.size() );
+        assert ( ( from + 2 ) < path.size() );
 
-        if (from==0) return timePCN(path[from],path[from],middle, path[from+2], 0 );
-        else return timePCN( path[from-1], path[from], middle , path[from+2], path[from].getTravelTime());
+        if ( from == 0 ) return timePCN( path[from], path[from], middle, path[from + 2],
+                                             0 );
+        else return timePCN( path[from - 1], path[from], middle , path[from + 2],
+                                 path[from].getTravelTime() );
     }
 
-
-
-
-
-
-    protected:
-    /*! 
+  protected:
+    /*!
      * \brief Fetch the travel time from Node to Node
      * \note Nodes do not need to be in the path.
     */
     double TravelTime( const knode &from, const knode &to ) const { return TravelTime( from.getnid(), to.getnid() ); }
-    double TravelTime( const knode &from, const knode &middle, const knode &to ) const { return TravelTime( from.getnid(), middle.getnid() , to.getnid() ); }
-    double TravelTime( const knode &prev, const knode &from, const knode &middle, const knode &to ) const { return TravelTime( prev.getnid(), from.getnid(), middle.getnid() , to.getnid() ); }
+    double TravelTime( const knode &from, const knode &middle,
+                       const knode &to ) const { return TravelTime( from.getnid(), middle.getnid() , to.getnid() ); }
+    double TravelTime( const knode &prev, const knode &from, const knode &middle,
+                       const knode &to ) const { return TravelTime( prev.getnid(), from.getnid(), middle.getnid() , to.getnid() ); }
 
-    /*! 
+    /*!
      * \brief Fetch the travel time from nodeId to nodeId
      * \note Nodes do not need to be in the path.
     */
-    double TravelTime( UID i, UID j ) const { return TWC<knode>::Instance()->TravelTime(i,j); }
-    double TravelTime( UID i, UID j, UID k ) const { return TWC<knode>::Instance()->TravelTime(i,j,k); }
-    double TravelTime( UID i, UID j, UID k, UID l ) const { return TWC<knode>::Instance()->TravelTime(i,j,k,l); }
+    double TravelTime( UID i, UID j ) const { return TWC<knode>::Instance()->TravelTime( i, j ); }
+    double TravelTime( UID i, UID j, UID k ) const { return TWC<knode>::Instance()->TravelTime( i, j, k ); }
+    double TravelTime( UID i, UID j, UID k, UID l ) const { return TWC<knode>::Instance()->TravelTime( i, j, k, l ); }
 
-    public:
-    /*! 
+  public:
+    /*!
      * \brief Simulate changes of times within the path
      *
      * Simulates the following change of times within the path
@@ -224,7 +239,7 @@ class TwBucket {
         return delta;
     }
 
-    /*! 
+    /*!
      * \brief Simulate changes in travel times within the path
      *
      * Simulates the following change of travelTimes within the path
@@ -259,7 +274,7 @@ class TwBucket {
     }
 
 
-    /*! 
+    /*!
      * \brief Compute the change in time when swapping nodes in pos1 and pos2
      *
      * Simulate swapping nodes in pos1 and pos2 in the path and compute
@@ -272,7 +287,7 @@ class TwBucket {
     double getDeltaTimeSwap( POS pos1, POS pos2 ) const {
         assert( pos1 < path.size() - 1 and pos2 < path.size() );
         #ifdef TESTED
-        std::cout << "Entering twBucket::getDeltaTimeSwap() \n";
+        DLOG( INFO ) << "Entering twBucket::getDeltaTimeSwap()";
         #endif
 
         double delta, oldTime, newTime;
@@ -363,8 +378,8 @@ class TwBucket {
     }
 
 
-    /*! 
-     * \brief Compute the cange in time when swapping node with the node at pos
+    /*!
+     * \brief Compute the change in time when swapping node with the node at pos
      *
      * If the current path looks like prev -\> pos -\> pos1 then compute the
      * the change in time of swapping node for the node at pos, so the new
@@ -404,7 +419,7 @@ class TwBucket {
         return delta;
     }
 
-    /*! 
+    /*!
      * \brief Compute the change in time when swapping node into pos in the path and do additional time violation checks.
      *
      * If the current path looks like prev -\> pos -\> pos1 then compute the
@@ -434,7 +449,7 @@ class TwBucket {
     }
 
 
-    /*! 
+    /*!
      * \brief Compute the change in time of inserting node before pos in the path.
      *
      * Simulate inserting node before pos in the path and compute the resulting
@@ -453,16 +468,16 @@ class TwBucket {
         int prev = path[pos - 1].getnid();
 
         if ( pos == size() )
-            return  TravelTime(prev,node.getnid()) + node.getServiceTime();
+            return  TravelTime( prev, node.getnid() ) + node.getServiceTime();
 
-        return TravelTime(prev,node.getnid() )
+        return TravelTime( prev, node.getnid() )
                + node.getServiceTime()
-               + TravelTime(node.getnid(),nid)
-               - TravelTime(prev,nid);
+               + TravelTime( node.getnid(), nid )
+               - TravelTime( prev, nid );
     }
 
 
-    /*! 
+    /*!
      * \brief Compute the change in time of inserting node before pos in the path and check for TW violations..
      *
      * Simulate inserting node before pos in the path and compute the resulting
@@ -492,7 +507,7 @@ class TwBucket {
     }
 
 
-    /*! 
+    /*!
      * \brief Check all nodes from pos to upto if adding delta would cause a violation.
      *
      * \param[in] delta The change in time to evaluate.
@@ -575,7 +590,7 @@ class TwBucket {
     }
 
 
-    /*! 
+    /*!
      * \brief Move node fromi to the new position of toj in this TwBucket
      *
      */
@@ -593,50 +608,52 @@ class TwBucket {
     };
 
 
-    /*! 
+    /*!
      * \brief Print the Twbucket using id as node identifiers with the title "Twbucket".
      */
     void dumpid() const {dumpid( "Twbucket" );};
 
 
-    /*! 
+    /*!
      * \brief Print the Twbucket using id as node identifiers with user defined title.
      * \param[in] title Title to print with the output of the Twbucket.
      */
     void dumpid( const std::string &title ) const {
-        std::cout << title;
+        std::stringstream ss;
+        ss << title;
         const_iterator it = path.begin();
 
         for ( const_iterator it = path.begin(); it != path.end(); it++ )
-            std::cout << " " << it->getid();
+            ss << " " << it->getid();
 
-        std::cout << std::endl;
+        DLOG( INFO ) << ss.str();
     };
 
-    /*! 
+    /*!
      * \brief Print the Twbucket using nid as node identifiers with the title "Twbucket".
      */
     void dump() const {dump( "Twbucket" );};
 
 
-    /*! 
+    /*!
      * \brief Print the Twbucket using nid as node identifiers with user defined title.
      * \param[in] title Title to print with the output of the Twbucket.
      */
     void dump( const std::string &title ) const {
-        std::cout << title;
+        std::stringstream ss;
+        ss << title;
         const_iterator it = path.begin();
 
         for ( const_iterator it = path.begin(); it != path.end(); it++ )
-            std::cout << " " << it->getnid();
+            ss << " " << it->getnid();
 
-        std::cout << std::endl;
+        DLOG( INFO ) << ss.str();
     };
 
     // --------------- set operations tools -------------------------
 
 
-    /*! 
+    /*!
      * \brief Check if a node in the bucket has the same id as node.
      * \param[in] node See if this node is in the bucket based on its id.
      * \return true if a node with the same id was found.
@@ -644,7 +661,7 @@ class TwBucket {
     bool hasId( const knode &node ) const { return hasid( node.getid() ); };
 
 
-    /*! 
+    /*!
      * \brief Check if a node in the bucket has this id.
      * \return true if a node with this id was found.
      */
@@ -661,7 +678,7 @@ class TwBucket {
     };
 
 
-    /*! 
+    /*!
      * \brief Check if a node in the bucket has the same nid as node.
      * \param[in] node See if this node is in the bucket based on its nid.
      * \return true if a node with the same nid was found.
@@ -669,7 +686,7 @@ class TwBucket {
     bool has( const knode &node ) const { return has( node.getnid() ); };
 
 
-    /*! 
+    /*!
      * \brief Check if a node in the bucket has this nid.
      * \param[in] nid Check if a node in the bucket has this nid
      * \return true if a node with the same nid was found.
@@ -687,7 +704,7 @@ class TwBucket {
     };
 
 
-    /*! 
+    /*!
      * \brief Compare two buckets and report of they are equal or not.
      */
     bool operator ==( const TwBucket<knode> &other ) const  {
@@ -703,7 +720,7 @@ class TwBucket {
     }
 
 
-    /*! 
+    /*!
      * \brief Copy assignment of another bucket to this bucket.
      *
      * Clears the contents of the current bucket and copies the other
@@ -721,7 +738,7 @@ class TwBucket {
 
     // ----------- set doesnt mind order of nodes ---------------------
 
-    /*! 
+    /*!
      * \brief Perform a set UNION operation of two buckets.
      *
      * If A, B, and newBucket are TwBuckets then newBucket = A + B performs
@@ -741,7 +758,7 @@ class TwBucket {
         return b;
     }
 
-    /*! 
+    /*!
      * \brief Perform a set UNION operation of this bucket and another bucket.
      *
      * If A and B are TwBuckets then A += B is equivalent to A = A + B and
@@ -761,7 +778,7 @@ class TwBucket {
         return *this;
     }
 
-    /*! 
+    /*!
      * \brief Perform a set INTERSECTION operation between two buckets.
      *
      * If A, B, and newBucket are TwBuckets then newBucket = A * B performs
@@ -785,7 +802,7 @@ class TwBucket {
         return b;
     }
 
-    /*! 
+    /*!
      * \brief Perform a set INTERSECTION operation of this and another bucket.
      *
      * If A and B TwBuckets then A *= B is equivalent to A = A * B and performs
@@ -809,7 +826,7 @@ class TwBucket {
         return *this;
     }
 
-    /*! 
+    /*!
      * \brief Perform a set DIFFERENCE operation of this and another bucket.
      *
      * If A, B, and newBucket are TwBuckets then newBucket = A - B performs
@@ -833,7 +850,7 @@ class TwBucket {
         return b;
     }
 
-    /*! 
+    /*!
      * \brief Perform a set DIFFERENCE operation of this and another bucket.
      *
      * If A and B are TwBuckets then A -= B performs
@@ -859,7 +876,7 @@ class TwBucket {
 
     // -------------------- End of Path Tools ----------------------------
 
-    /*! 
+    /*!
      * \brief Get the total travel time of the path.
      *
      * The last node in the path contains some path statistics. This method
@@ -873,7 +890,7 @@ class TwBucket {
         return path[size() - 1].getTotTravelTime();
     };
 
-    /*! 
+    /*!
      * \brief Get the total wait time of the path.
      *
      * The last node in the path contains some path statistics. This method
@@ -886,7 +903,7 @@ class TwBucket {
         return path[size() - 1].getTotWaitTime();
     };
 
-    /*! 
+    /*!
      * \brief Get the total service time of the path based on the last node in the path.
      *
      * The last node in the path contains some path statistics. This method
@@ -899,7 +916,7 @@ class TwBucket {
         return path[size() - 1].getTotServiceTime();
     };
 
-    /*! 
+    /*!
      * \brief Get the total number of dump visits of the path.
      *
      * The last node in the path contains some path statistics. This method
@@ -912,7 +929,7 @@ class TwBucket {
         return path[size() - 1].getDumpVisits();
     };
 
-    /*! 
+    /*!
      * \brief Get the departure time of the last node in the path.
      *
      * The last node in the path contains some path statistics. This method
@@ -925,7 +942,7 @@ class TwBucket {
         return path[size() - 1].getDepartureTime();
     };
 
-    /*! 
+    /*!
      * \brief Get the total number of time window violations in the path.
      *
      * The last node in the path contains some path statistics. This method
@@ -938,7 +955,7 @@ class TwBucket {
         return path[size() - 1].gettwvTot();
     };
 
-    /*! 
+    /*!
      * \brief Get the total number of capacity violations in the path.
      *
      * The last node in the path contains some path statistics. This method
@@ -956,7 +973,7 @@ class TwBucket {
         return path[size() - 1].gettwvTot();
     };
 
-    /*! 
+    /*!
      * \brief Get the total cargo at the end of the route.
      *
      * The last node in the path contains some path statistics. This method
@@ -977,7 +994,7 @@ class TwBucket {
 
     // ---------- ID based tools  to NID tools ---------------------------
 
-    /*! 
+    /*!
      * \brief Get the internal node id associated with the user id.
      * \param[in] id The user id for the node.
      * \return The internal node id or -1 if user id was not found.
@@ -995,7 +1012,7 @@ class TwBucket {
     };
 
 
-    /*! 
+    /*!
      * \brief Get the position in the path where id is located.
      * \param[in] id The user id for the node.
      * \return The position in the path or -1 if it is not found.
@@ -1011,14 +1028,14 @@ class TwBucket {
 
     // ------------------  NID tools  -------------------------------
 
-    /*! 
+    /*!
      * \brief Get the position of node in the path
      * \param[in] node A node object that we want to locate in the path
      * \return returns the position of node in the path or -1 if it's not found.
      */
     long int pos( const knode &node ) const { return pos( node.getnid() ); };
 
-    /*! 
+    /*!
      * \brief Get the position of node id in the path
      * \param[in] nid The node id we want to locate in the path
      * \return The position of node id in the path or -1 if it's not found.
@@ -1032,7 +1049,7 @@ class TwBucket {
     };
 
 
-    /*! 
+    /*!
      * \brief Get a deque of nids that are in the path.
      * \return A deque of the nids in the path.
      */
@@ -1048,7 +1065,7 @@ class TwBucket {
 
     // ------ deque like functions   POSITION based functions  -------
 
-    /*! 
+    /*!
      * \brief Insert node into path at position atPos
      * \param[in] node The node to insert
      * \param[in] atPos The position it should be inserted at
@@ -1059,7 +1076,7 @@ class TwBucket {
     };
 
 
-    /*! 
+    /*!
      * \brief Erase the node at location atPos
      * \param[in] atPos The position of the node to be erased.
      */
@@ -1069,7 +1086,7 @@ class TwBucket {
     };
 
 
-    /* 
+    /*
      * \brief Erase node from within the path.
      * \param[in] node The node to be erased.
      */
@@ -1080,7 +1097,7 @@ class TwBucket {
     };
 
 
-    /*! 
+    /*!
      * \brief Erase all node between fromPos and toPos inclusive.
      * \param[in] fromPos Position of the start of the range to be erased.
      * \param[in] toPos Position of the last in the range to be erased.

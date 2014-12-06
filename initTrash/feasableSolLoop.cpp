@@ -20,6 +20,7 @@
 #include <sstream>
 #include <fstream>
 
+#include "logger.h"
 #include "plot.h"
 #include "feasableSolLoop.h"
 
@@ -28,62 +29,67 @@
 
 //   need new truck when bestNode generates TV regardless of cargo
 //   what to check firts Cargo or Time????
-//   how to handla that once the Dump is inserted, not to look for best Position on
-//       the first part of ther Route????
+//   how to handla that once the Dump is inserted,
+//      not to look for best Position on
+//      the first part of ther Route????
 
-void FeasableSolLoop::stepOneLoop(Vehicle &truck) {
+void FeasableSolLoop::stepOneLoop( Vehicle &truck ) {
     int iteration = 0;
 
-    while (unassigned.size()) {
+    while ( unassigned.size() ) {
         // THE INVARIANT
         // union must be pickups
-            assert(pickups == unassigned + problematic + assigned);
+        assert( pickups == unassigned + problematic + assigned );
         // all intersections must be empty set
-            assert( not (unassigned * problematic).size()  ) ;
-            assert( not (unassigned * assigned).size()  ) ;
-            assert( not (problematic * assigned).size()  ) ;
-            assert ( truck.feasable()) ;
+        assert( not ( unassigned * problematic ).size()  ) ;
+        assert( not ( unassigned * assigned ).size()  ) ;
+        assert( not ( problematic * assigned ).size()  ) ;
+        assert ( truck.feasable() ) ;
         //END INVARIANT
 
-          
+
         Trashnode bestNode;
         UID bestPos;
-        if ( truck.findNearestNodeTo(unassigned,  bestPos, bestNode) ) {
-            if ( not  truck.e_insertIntoFeasableTruck(bestNode, bestPos) ) { 
-                fleet.push_back(truck);
-truck.plot("Feasable-","",truck.getVid());
 
-                if (unusedTrucks.size()) {
-                    truck=unusedTrucks[0];
-                    unusedTrucks.erase(unusedTrucks.begin());
-                    usedTrucks.push_back(truck);
+        if ( truck.findNearestNodeTo( unassigned,  bestPos, bestNode ) ) {
+            if ( not  truck.e_insertIntoFeasableTruck( bestNode, bestPos ) ) {
+                fleet.push_back( truck );
+                truck.plot( "Feasable-", "", truck.getVid() );
+
+                if ( unusedTrucks.size() ) {
+                    truck = unusedTrucks[0];
+                    unusedTrucks.erase( unusedTrucks.begin() );
+                    usedTrucks.push_back( truck );
                 }
                 else {
-                    std::cout << "No more trucks available. unassigned containers: " << unassigned.size() << std::endl;
+                    DLOG( INFO ) << "No more trucks available. unassigned containers: " <<
+                                 unassigned.size();
                     return;
                 }
 
-            } else {
-                assigned.push_back(bestNode);
-                unassigned.erase(bestNode);
-            } 
-        } else {
-            std::cout<<"no nearest node was found\n";
-            assert(true==false);
+            }
+            else {
+                assigned.push_back( bestNode );
+                unassigned.erase( bestNode );
+            }
+        }
+        else {
+            DLOG( WARNING ) << "no nearest node was found";
+            assert( "FeasableSolLoop::stepOneLoop" == "no nearest node was found" );
         }
 
         ++iteration;
     }
-} 
+}
 
 
 
 
 Vehicle  FeasableSolLoop::getTruck() {
-        Vehicle truck=unusedTrucks[0];
-        unusedTrucks.erase(unusedTrucks.begin());
-        usedTrucks.push_back(truck);
-        return truck;
+    Vehicle truck = unusedTrucks[0];
+    unusedTrucks.erase( unusedTrucks.begin() );
+    usedTrucks.push_back( truck );
+    return truck;
 }
 
 
@@ -92,22 +98,22 @@ Vehicle  FeasableSolLoop::getTruck() {
 //    This implements a feasable solution
 
 void FeasableSolLoop::process() {
-// THE INVARIANT
-// union must be pickups
-    assert(pickups == unassigned + problematic + assigned);
-// all intersections must be empty set
-    assert( not (unassigned * problematic).size()  ) ;
-    assert( not (unassigned * assigned).size()  ) ;
-    assert( not (problematic * assigned).size()  ) ;
-//END INVARIANT
+    // THE INVARIANT
+    // union must be pickups
+    assert( pickups == unassigned + problematic + assigned );
+    // all intersections must be empty set
+    assert( not ( unassigned * problematic ).size()  ) ;
+    assert( not ( unassigned * assigned ).size()  ) ;
+    assert( not ( problematic * assigned ).size()  ) ;
+    //END INVARIANT
 
     Vehicle truck;
 
-    truck=getTruck();
+    truck = getTruck();
 
-    stepOneLoop(truck);        
-    fleet.push_back(truck); //need to save the last truck
+    stepOneLoop( truck );
+    fleet.push_back( truck ); //need to save the last truck
 
-truck.plot("Feasable-","",truck.getVid());
-return;
+    truck.plot( "Feasable-", "", truck.getVid() );
+    return;
 }

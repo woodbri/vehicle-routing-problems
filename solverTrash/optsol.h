@@ -18,39 +18,40 @@
 #include "move.h"
 
 class OptSol : public Solution {
-    typedef std::set<Move,Move::compMove> Moves;
-    typedef std::set<Move,Move::compMove>::iterator MovesItr;
+    typedef std::set<Move, Move::compMove> Moves;
+    typedef std::set<Move, Move::compMove>::iterator MovesItr;
 
 
-public:
+  public:
 
-OptSol(const Solution &solution): Solution(solution){
-	intraTruckPos=0;
-	interTruckPos1=0;
-	interTruckPos2=1;
-	insTruckPos1=fleet.size()-1;
-	insTruckPos2=0;
- }; 
+    OptSol( const Solution &solution ): Solution( solution ) {
+        intraTruckPos = 0;
+        interTruckPos1 = 0;
+        interTruckPos2 = 1;
+        insTruckPos1 = fleet.size() - 1;
+        insTruckPos2 = 0;
+    };
 
-    void getIntraSwNeighborhood(Move::Mtype mtype, Moves &moves, double factor) const;
-    void getInsNeighborhood(Moves &moves,double factor) const ;
-    void getInterSwNeighborhood(Moves &moves, double factor) const;
+    void getIntraSwNeighborhood( Move::Mtype mtype, Moves &moves,
+                                 double factor ) const;
+    void getInsNeighborhood( Moves &moves, double factor ) const ;
+    void getInterSwNeighborhood( Moves &moves, double factor ) const;
 
-    bool v_applyInterSwMove( const Move &move);
-    bool testInterSwMove( const Move &move) const; 
-    bool testInsMove( const Move &move) const; 
-    void v_applyMove(const Move&);
+    bool v_applyInterSwMove( const Move &move );
+    bool testInterSwMove( const Move &move ) const;
+    bool testInsMove( const Move &move ) const;
+    void v_applyMove( const Move & );
     void optimizeTruckNumber();
 
-private:
-    bool emptyAtruck(std::deque<int> from, std::deque<int> toThisOnes);
-    bool emptyTheTruck(int fromTruck, std::deque<int> toThisOnes);
+  private:
+    bool emptyAtruck( std::deque<int> from, std::deque<int> toThisOnes );
+    bool emptyTheTruck( int fromTruck, std::deque<int> toThisOnes );
 
-   mutable int intraTruckPos;
-   mutable int interTruckPos1;
-   mutable int interTruckPos2;
-   mutable int insTruckPos1;
-   mutable int insTruckPos2;
+    mutable int intraTruckPos;
+    mutable int interTruckPos1;
+    mutable int interTruckPos2;
+    mutable int insTruckPos1;
+    mutable int insTruckPos2;
 
 
 };

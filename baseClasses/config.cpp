@@ -16,6 +16,7 @@
 #include <cstdio>
 #include <iostream>
 
+#include "logger.h"
 #include "config.h"
 
 
@@ -111,12 +112,12 @@ std::vector<std::string> Config::getKeys() const {
 void Config::dump( const std::string title ) const {
     std::map<std::string, std::string>::const_iterator it;
 
-    std::cout << "---------- CONFIG -------------" << std::endl;
+    DLOG( INFO ) << "---------- CONFIG -------------";
 
     for ( it = data.begin(); it != data.end(); ++it )
-        std::cout << it->first << ": '" << it->second << "'" << std::endl;
+        DLOG( INFO ) << it->first << ": '" << it->second << "'";
 
-    std::cout << "-------------------------------" << std::endl;
+    DLOG( INFO ) << "-------------------------------";
 }
 
 

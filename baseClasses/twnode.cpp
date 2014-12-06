@@ -16,6 +16,7 @@
 #include <sstream>
 #include <string>
 
+#include "logger.h"
 #include "twnode.h"
 
 /*!
@@ -27,27 +28,39 @@
  * - serviceTime \>= 0
  */
 bool Twnode::isValid() const {
-    if (not  Node::isValid() ) return false;
-    if (not (tw_open < tw_close
-            and tw_open >= 0
-            and serviceTime >= 0) ) return false;
-    switch  (type) {
-	case 0: //depot
-	    if (not demand==0) return false;
-	    break;
-	case 1: //dump
-	    if ( demand>0) return false;
-	    break;
-	case 2: //pickup
-	    if ( demand<=0 ) return false;
-	    break;
-	case 3: //ending site
-	    if (not demand==0) return false;
+    if ( not  Node::isValid() ) return false;
+
+    if ( not ( tw_open < tw_close
+               and tw_open >= 0
+               and serviceTime >= 0 ) ) return false;
+
+    switch  ( type ) {
+        case 0: //depot
+            if ( not demand == 0 ) return false;
+
             break;
-	case 4: //delivery site
-	    if (demand>=0) return false;
+
+        case 1: //dump
+            if ( demand > 0 ) return false;
+
+            break;
+
+        case 2: //pickup
+            if ( demand <= 0 ) return false;
+
+            break;
+
+        case 3: //ending site
+            if ( not demand == 0 ) return false;
+
+            break;
+
+        case 4: //delivery site
+            if ( demand >= 0 ) return false;
+
             break;
     }
+
     return true;
 }
 
@@ -56,18 +69,20 @@ bool Twnode::isValid() const {
  * \brief Print the contents of a Twnode object.
  */
 void Twnode::dump() const {
-    std::cout.precision( 8 );
-    std::cout << nid
-              << " = " << id
-              << ",\t\ttype " << type
-              << ",\tx " << x
-              << ",\ty " << y
-              << ",\topen " << tw_open
-              << ",\tclose " << tw_close
-              << ",\tdemand " << demand
-              << ",\tserviceT " << serviceTime
-              << ",\t street:" << streetid
-              << ",\t hint:" << hint;
+    std::stringstream ss;
+    ss.precision( 8 );
+    ss << nid
+       << " = " << id
+       << ",\t\ttype " << type
+       << ",\tx " << x
+       << ",\ty " << y
+       << ",\topen " << tw_open
+       << ",\tclose " << tw_close
+       << ",\tdemand " << demand
+       << ",\tserviceT " << serviceTime
+       << ",\t street:" << streetid
+       << ",\t hint:" << hint;
+    DLOG( INFO ) << ss.str();
 }
 
 

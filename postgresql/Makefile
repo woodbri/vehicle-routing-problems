@@ -1,29 +1,29 @@
+ifndef PGVER
+    $(error pgver error: make PGVER=9.2|9.3 clean|install)
+endif
+
+include build/vrptools-mk.inc
+
+ifndef VRP_CFLAGS
+    $(error Please run make -f Makefile.vrptools)
+endif
 
 CPP = g++
-PG_CPPFLAGS = -DPGROUTING -DNDEBUG
+PG_CPPFLAGS = -DPGROUTING -DNDEBUG $(VRP_CFLAGS)
 
 VRPTOOLS_VERSION = 1.0
-OBJS = vrptools.o
+OBJS = vrptools.o trashprob.o vrptools_wrapper.o
 MODULE_big = vrptools-$(VRPTOOLS_VERSION)
 EXTENSION = vrptools
 DATA = vrptools--$(VRPTOOLS_VERSION).sql
 DOCS = README.vrptools
 
+JSON_CFLAGS := -I/usr/local/include
 CURL_CFLAGS := $(shell pkg-config --cflags curlpp)
 CURL_LIBS := $(shell pkg-config --libs curlpp)
-JSON_LIBS = -L /lib/x86_64-linux-gnu/ -ljson
-SHLIB_LINK = $(CURL_LIBS) $(JSON_LIBS)
-
-
-all:
-ifndef PGVER
-    @echo "make PGVER=9.2|9.3 clean|install"
-
-else
+SHLIB_LINK = build/libvrptools.a $(CURL_LIBS) $(VRP_LDFLAGS)
 
 PG_CONFIG = /usr/lib/postgresql/$(PGVER)/bin/pg_config
 PGXS := $(shell $(PG_CONFIG) --pgxs)
 include $(PGXS)
-
-endif
 

@@ -38,29 +38,29 @@ class FeasableSolLoop : public Solution {
     Bucket assigned;
 
 
-int tmp;
+    int tmp;
   public:
 
-    FeasableSolLoop(const std::string &infile): Solution(infile) { 
-       unusedTrucks=trucks;
-       unassigned=pickups;
-       fleet.clear();
-tmp=0;
-       process();
+    FeasableSolLoop( const std::string &infile ): Solution( infile ) {
+        unusedTrucks = trucks;
+        unassigned = pickups;
+        fleet.clear();
+        tmp = 0;
+        process();
     };
 
 
-    FeasableSolLoop(const Prob_trash& P): Solution(P) { 
-       unusedTrucks=trucks;
-       unassigned=pickups;
-       fleet.clear();
-tmp=0;
-       process();
+    FeasableSolLoop( const Prob_trash &P ): Solution( P ) {
+        unusedTrucks = trucks;
+        unassigned = pickups;
+        fleet.clear();
+        tmp = 0;
+        process();
     };
 
 
- private:
-    void stepOneLoop(Vehicle &truck);
+  private:
+    void stepOneLoop( Vehicle &truck );
     Vehicle getTruck();
     void process();
 

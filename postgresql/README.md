@@ -17,12 +17,19 @@ DEPENDENCIES
 The follow packages are required to build this on Ubuntu:
 
  * sudo apt-get install curl libcurl3 libcurl4-gnutls-dev
- * sudo apt-get install libjson0 libjson0-dev
 
 Other requirments:
 
  * Build and install curlpp from source at https://code.google.com/p/curlpp/
- * You need to have a local OSRM server running with OSM data for your coverage area.
+ * You need to have OSRM datastore running on the same host with OSM data
+   for your coverage area. We are using a sharedmemory connection to that.
+ * Follow the following to install rapidjson
+   ```
+   git clone https://github.com/miloyip/rapidjson.git
+   cd rapidjson
+   sudo rsync -a include/* /usr/local/include/.
+   ``` 
+   Then in the Makefile, ensure -I/usr/local/include is included in CFLAGS
 
 INSTALLATION
 ============

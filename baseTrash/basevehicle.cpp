@@ -17,6 +17,8 @@
 #include <sstream>
 #include <deque>
 
+#include "logger.h"
+
 #include "stats.h"
 #include "timer.h"
 
@@ -35,19 +37,21 @@
 // *OSRM() REQUIRES the main() to call cURLpp::Cleanup myCleanup; ONCE!
 void BaseVehicle::evaluateOsrm() {
     double otime = path.getTotTravelTimeOsrm();
+
     if ( otime == -1 ) {
         Timer osrmtime;
 
-        std::string osrmBaseUrl = CONFIG->getString("osrmBaseUrl");
+        std::string osrmBaseUrl = CONFIG->getString( "osrmBaseUrl" );
         path.evaluateOsrm( osrmBaseUrl );
-        dumpSite.evaluateOsrm( path[path.size() - 1] , osrmBaseUrl);
+        dumpSite.evaluateOsrm( path[path.size() - 1] , osrmBaseUrl );
         endingSite.evaluateOsrm( dumpSite, osrmBaseUrl );
 
         // stats collection
         if ( otime == -1 )
-            STATS->inc("failed To Get Time OSRM");
-        STATS->addto("cum Time Get Time OSRM", osrmtime.duration());
-        STATS->inc("cnt Get Time OSRM");
+            STATS->inc( "failed To Get Time OSRM" );
+
+        STATS->addto( "cum Time Get Time OSRM", osrmtime.duration() );
+        STATS->inc( "cnt Get Time OSRM" );
     }
 
 };
@@ -57,7 +61,7 @@ double BaseVehicle::getCostOsrm() const {
     double otime = getTotTravelTimeOsrm();
 
     // if OSRM failed, return -1.0 to indicate a failure
-    if (otime == -1) return otime;
+    if ( otime == -1 ) return otime;
 
     // WARNING: this is only an approximation because changes at a per
     //          node level need to be evaluated for moving dumps and violations
@@ -73,49 +77,57 @@ double BaseVehicle::getTotTravelTimeOsrm() const {
 };
 #endif
 
-bool BaseVehicle::e_setPath(const Bucket &sol) {
-#ifdef TESTED
-std::cout<<"Entering BaseVehicle::e_setPath \n";
-#endif
-     assert (sol.size());
-     if (not sol.size()) return false;
+bool BaseVehicle::e_setPath( const Bucket &sol ) {
+    #ifdef TESTED
+    DLOG( INFO ) << "Entering BaseVehicle::e_setPath";
+    #endif
+    assert ( sol.size() );
 
-     if (not ( (sol[0]==path[0]) and (sol[sol.size()-1] == endingSite) and (sol[sol.size()-2] == dumpSite) ) ) 
-         return false;
-     path=sol;
-     path.pop_back();
-     path.pop_back();
-     path[0].evaluate( getmaxcapacity() );
-     path.evaluate(1 , getmaxcapacity());
+    if ( not sol.size() ) return false;
 
-     assert((sol[0]==path[0]) and (sol[sol.size()-1] == endingSite) and (sol[sol.size()-2] == dumpSite));
-     return true;
-}     
+    if ( not ( ( sol[0] == path[0] ) and ( sol[sol.size() - 1] == endingSite )
+               and ( sol[sol.size() - 2] == dumpSite ) ) )
+        return false;
+
+    path = sol;
+    path.pop_back();
+    path.pop_back();
+    path[0].evaluate( getmaxcapacity() );
+    path.evaluate( 1 , getmaxcapacity() );
+
+    assert( ( sol[0] == path[0] ) and ( sol[sol.size() - 1] == endingSite )
+            and ( sol[sol.size() - 2] == dumpSite ) );
+    return true;
+}
 
 
-bool  BaseVehicle::findNearestNodeTo(Bucket &unassigned,UID &pos, Trashnode &bestNode) {
-#ifdef TESTED
-std::cout<<"Entering BaseVehicle::findNearestNodeTo \n";
-#endif
-    assert (unassigned.size());
-    if (not unassigned.size()) return false;
+bool  BaseVehicle::findNearestNodeTo( Bucket &unassigned, UID &pos,
+                                      Trashnode &bestNode ) {
+    #ifdef TESTED
+    DLOG( INFO ) << "Entering BaseVehicle::findNearestNodeTo";
+    #endif
+    assert ( unassigned.size() );
 
-    bool flag= false;
-    double bestDist=-1;
+    if ( not unassigned.size() ) return false;
+
+    bool flag = false;
+    double bestDist = -1;
     double d;
-    
-    flag = twc->findNearestNodeUseExistingData(path, unassigned,  pos , bestNode, bestDist);
-    
-    for (int i=0; i<unassigned.size(); i++) {
-       if ( twc->isCompatibleIAJ( path[size()-1]  , unassigned[i], dumpSite ) ) { 
-          d = unassigned[i].distanceToSegment( path[size()-1], dumpSite );
-          if ( d < bestDist) {
-            bestDist = d;
-            bestNode = unassigned[i];
-            pos = size();
-            flag= true;
-          };
-       }
+
+    flag = twc->findNearestNodeUseExistingData( path, unassigned,  pos , bestNode,
+            bestDist );
+
+    for ( int i = 0; i < unassigned.size(); i++ ) {
+        if ( twc->isCompatibleIAJ( path[size() - 1]  , unassigned[i], dumpSite ) ) {
+            d = unassigned[i].distanceToSegment( path[size() - 1], dumpSite );
+
+            if ( d < bestDist ) {
+                bestDist = d;
+                bestNode = unassigned[i];
+                pos = size();
+                flag = true;
+            };
+        }
     }
 
     return flag;
@@ -123,20 +135,20 @@ std::cout<<"Entering BaseVehicle::findNearestNodeTo \n";
 
 
 void BaseVehicle::dump() const {
-    std::cout << "---------- BaseVehicle ---------------" << std::endl;
-    std::cout << "maxcapacity: " << getmaxcapacity() << std::endl;
-    std::cout << "cargo: " << getCargo() << std::endl;
-    std::cout << "duration: " << getDuration() << std::endl;
-    std::cout << "cost: " << getcost() << std::endl;
+    DLOG( INFO ) << "---------- BaseVehicle ---------------";
+    DLOG( INFO ) << "maxcapacity: " << getmaxcapacity();
+    DLOG( INFO ) << "cargo: " << getCargo();
+    DLOG( INFO ) << "duration: " << getDuration();
+    DLOG( INFO ) << "cost: " << getcost();
     #ifdef WITHOSRM
-    std::cout << "OSRM time: " << getTotTravelTimeOsrm() << std::endl;
+    DLOG( INFO ) << "OSRM time: " << getTotTravelTimeOsrm();
     #endif
-    std::cout << "TWV: " << getTWV() << std::endl;
-    std::cout << "CV: " << getCV() << std::endl;
-    std::cout << "w1: " << getw1() << std::endl;
-    std::cout << "w2: " << getw2() << std::endl;
-    std::cout << "w3: " << getw3() << std::endl;
-    std::cout << "path nodes: -----------------" << std::endl;
+    DLOG( INFO ) << "TWV: " << getTWV();
+    DLOG( INFO ) << "CV: " << getCV();
+    DLOG( INFO ) << "w1: " << getw1();
+    DLOG( INFO ) << "w2: " << getw2();
+    DLOG( INFO ) << "w3: " << getw3();
+    DLOG( INFO ) << "path nodes: -----------------";
     path.dump();
 }
 
@@ -145,164 +157,184 @@ void BaseVehicle::dumppath() const {
     path.dump();
 }
 
-    void BaseVehicle::dump(const std::string &title) const {
-       path.dump(title);
+void BaseVehicle::dump( const std::string &title ) const {
+    path.dump( title );
+}
+
+
+void BaseVehicle::dumpeval() const {
+    DLOG( INFO ) << "\nStarting site:";
+    path[0].dumpeval();
+
+    for ( int i = 1; i < path.size(); i++ ) {
+        DLOG( INFO ) << "path stop #:" << i;
+        path[i].dumpeval();
     }
 
-
-   void BaseVehicle::dumpeval() const {
-     std::cout<<"\nStarting site:"<<"\n";
-     path[0].dumpeval();
-     for (int i=1;i<path.size();i++){
-         std::cout<<"\npath stop #:"<<i<<"\n";
-          path[i].dumpeval();
-     }
-     std::cout<<"\nDump site:"<<"\n";
-     dumpSite.dumpeval();
-     std::cout<<"\nEnding site :"<<"\n";
-     endingSite.dumpeval();
-     std::cout <<"TOTAL COST="<<cost <<"\n";
-   }
+    DLOG( INFO ) << "Dump site:";
+    dumpSite.dumpeval();
+    DLOG( INFO ) << "Ending site :";
+    endingSite.dumpeval();
+    DLOG( INFO )  << "TOTAL COST=" << cost;
+}
 
 
-   void BaseVehicle::smalldump() const {
-      std::cout<<"\nDump site:"<<"\n";
-      dumpSite.dumpeval();
-      std::cout<<"\nEnding site :"<<"\n";
-      endingSite.dumpeval();
-      std::cout <<"TOTAL COST="<<cost <<"\n";
-   }
+void BaseVehicle::smalldump() const {
+    DLOG( INFO ) << "Dump site:";
+    dumpSite.dumpeval();
+    DLOG( INFO ) << "Ending site:";
+    endingSite.dumpeval();
+    DLOG( INFO )  << "TOTAL COST=" << cost;
+}
 
-   void BaseVehicle::tau() const {
-/*      for (int i=0; i< path.size(); i++)
-         std::cout<<getnid(i)<<" , ";
-      std::cout<<dumpSite.getnid()<<" , ";
-      std::cout<<endingSite.getnid()<<" , ";
-*/
-      std::cout<<" ";
-      for (int i=0; i< path.size(); i++)
-         std::cout<<getid(i)<<" ";
-      std::cout<<dumpSite.getid()<<" ";
-      std::cout<<endingSite.getid()<<" ";
-      std::cout<<" \n";
-   }
+void BaseVehicle::tau() const {
+    std::stringstream ss;
+    ss << " ";
+
+    for ( int i = 0; i < path.size(); i++ )
+        ss << getid( i ) << " ";
+
+    ss << dumpSite.getid() << " ";
+    ss << endingSite.getid();
+    DLOG( INFO ) << ss.str();
+}
 
 
 std::deque<int> BaseVehicle::getpath() const {
-      std::deque<int> p;
-      p = path.getpath();
-      p.push_front(getDepot().getnid());
-      p.push_back(getDumpSite().getnid());
-      p.push_back(getDepot().getnid());
-      return p;
+    std::deque<int> p;
+    p = path.getpath();
+    p.push_front( getDepot().getnid() );
+    p.push_back( getDumpSite().getnid() );
+    p.push_back( getDepot().getnid() );
+    return p;
 }
 
 
-bool BaseVehicle::push_back(Trashnode node) {
-    assert (node.getnid()>=0);
-    E_Ret ret = path.e_push_back(node, getmaxcapacity());
-    if (ret == OK) evalLast();
-    else if (ret == INVALID) return false;
+bool BaseVehicle::push_back( Trashnode node ) {
+    assert ( node.getnid() >= 0 );
+    E_Ret ret = path.e_push_back( node, getmaxcapacity() );
+
+    if ( ret == OK ) evalLast();
+    else if ( ret == INVALID ) return false;
+
     return true;
 }
 
 
-bool BaseVehicle::push_front(Trashnode node) {
+bool BaseVehicle::push_front( Trashnode node ) {
     // position 0 is the depot we can not put a node before that
-    return insert(node, 1);
+    return insert( node, 1 );
 }
 
 
-bool BaseVehicle::insert(Trashnode node, int at) {
-    E_Ret ret = path.e_insert(node, at, getmaxcapacity());
-    if (ret == OK) {
-        path.evaluate(at, getmaxcapacity());
+bool BaseVehicle::insert( Trashnode node, int at ) {
+    E_Ret ret = path.e_insert( node, at, getmaxcapacity() );
+
+    if ( ret == OK ) {
+        path.evaluate( at, getmaxcapacity() );
         evalLast();
     }
-    else if (ret == INVALID) return false;
+    else if ( ret == INVALID ) return false;
+
     return true;
 }
 
-bool BaseVehicle::remove(int at) {
-    E_Ret ret = path.e_remove(at, getmaxcapacity());
-    if (ret == OK) evalLast();
-    else if (ret == INVALID) return false;
+bool BaseVehicle::remove( int at ) {
+    E_Ret ret = path.e_remove( at, getmaxcapacity() );
+
+    if ( ret == OK ) evalLast();
+    else if ( ret == INVALID ) return false;
+
     return true;
 }
 
 
 bool BaseVehicle::moverange( int rangefrom, int rangeto, int destbefore ) {
-    E_Ret ret = path.e_move(rangefrom, rangeto, destbefore, getmaxcapacity());
-    if (ret == OK) evalLast();
-    else if (ret == INVALID) return false;
+    E_Ret ret = path.e_move( rangefrom, rangeto, destbefore, getmaxcapacity() );
+
+    if ( ret == OK ) evalLast();
+    else if ( ret == INVALID ) return false;
+
     return true;
 }
 
 
 bool BaseVehicle::movereverse( int rangefrom, int rangeto, int destbefore ) {
-    E_Ret ret = path.e_movereverse(rangefrom, rangeto, destbefore, getmaxcapacity());
-    if (ret == OK) evalLast();
-    else if (ret == INVALID) return false;
+    E_Ret ret = path.e_movereverse( rangefrom, rangeto, destbefore,
+                                    getmaxcapacity() );
+
+    if ( ret == OK ) evalLast();
+    else if ( ret == INVALID ) return false;
+
     return true;
 }
 
 
 bool BaseVehicle::reverse( int rangefrom, int rangeto ) {
-    E_Ret ret = path.e_reverse(rangefrom, rangeto, getmaxcapacity());
-    if (ret == OK) evalLast();
-    else if (ret == INVALID) return false;
+    E_Ret ret = path.e_reverse( rangefrom, rangeto, getmaxcapacity() );
+
+    if ( ret == OK ) evalLast();
+    else if ( ret == INVALID ) return false;
+
     return true;
 }
 
 
 bool BaseVehicle::move( int fromi, int toj ) {
-    E_Ret ret = path.e_move(fromi, toj, getmaxcapacity());
-    if (ret == OK) evalLast();
-    else if (ret == INVALID) return false;
+    E_Ret ret = path.e_move( fromi, toj, getmaxcapacity() );
+
+    if ( ret == OK ) evalLast();
+    else if ( ret == INVALID ) return false;
+
     return true;
 }
 
 
-bool BaseVehicle::swap( const int& i, const int& j ) {
-    E_Ret ret = path.e_swap(i, j, getmaxcapacity());
-    if (ret == OK) evalLast();
-    else if (ret == INVALID) return false;
+bool BaseVehicle::swap( const int &i, const int &j ) {
+    E_Ret ret = path.e_swap( i, j, getmaxcapacity() );
+
+    if ( ret == OK ) evalLast();
+    else if ( ret == INVALID ) return false;
+
     return true;
 }
 
 
-bool BaseVehicle::swap(BaseVehicle &v2, const int& i1, const int& i2) {
-    E_Ret ret = path.e_swap(i1, getmaxcapacity(),
-                    v2.getvpath(), i2, v2.getmaxcapacity());
-    if (ret == OK) {
+bool BaseVehicle::swap( BaseVehicle &v2, const int &i1, const int &i2 ) {
+    E_Ret ret = path.e_swap( i1, getmaxcapacity(),
+                             v2.getvpath(), i2, v2.getmaxcapacity() );
+
+    if ( ret == OK ) {
         evalLast();
         v2.evalLast();
     }
-    else if (ret == INVALID) return false;
+    else if ( ret == INVALID ) return false;
+
     return true;
 }
 
 
-void BaseVehicle::restorePath(Twpath<Trashnode> oldpath) {
+void BaseVehicle::restorePath( Twpath<Trashnode> oldpath ) {
     path = oldpath;
     evalLast();
 }
 
 
 void BaseVehicle::evalLast() {
-    Trashnode last = path[path.size()-1];
-    dumpSite.setDemand(-last.getCargo());
-    dumpSite.evaluate(last, getmaxcapacity());
-    endingSite.evaluate(dumpSite, getmaxcapacity());
+    Trashnode last = path[path.size() - 1];
+    dumpSite.setDemand( -last.getCargo() );
+    dumpSite.evaluate( last, getmaxcapacity() );
+    endingSite.evaluate( dumpSite, getmaxcapacity() );
+
     // if a vehcile has no containers to pickup it is empty
     // and empty trucks do not leave leave the depot
     // so cost for path.size()-1 == 0 is 0
-    if (path.size()-1 == 0)
+    if ( path.size() - 1 == 0 )
         cost = 0.0;
     else
-        cost = w1*endingSite.getTotTime() +
-               w2*endingSite.getcvTot() +
-               w3*endingSite.gettwvTot();
+        cost = w1 * endingSite.getTotTime() +
+               w2 * endingSite.getcvTot() +
+               w3 * endingSite.gettwvTot();
 }
 
 
@@ -310,7 +342,8 @@ void BaseVehicle::evalLast() {
 // intra-route optimiziation
 //--------------------------------------------------------------------------
 
-bool BaseVehicle::doTwoOpt(const int& c1, const int& c2, const int& c3, const int& c4) {
+bool BaseVehicle::doTwoOpt( const int &c1, const int &c2, const int &c3,
+                            const int &c4 ) {
     // Feasible exchanges only
     if ( c3 == c1 || c3 == c2 || c4 == c1 || c4 == c2 || c2 < 1 || c3 < 2 )
         return false;
@@ -323,12 +356,12 @@ bool BaseVehicle::doTwoOpt(const int& c1, const int& c2, const int& c3, const in
     // c2 -> c3
     // reverse any nodes between c2 and c3
     // this reduces to just a simple reverse(c2, c3)
-    if (! reverse(c2, c3)) return false;
+    if ( ! reverse( c2, c3 ) ) return false;
 
     // if the change does NOT improve the cost or generates TW violations
     // undo the change
-    if (getcost() > oldcost or hastwv()) {
-        reverse(c2, c3);
+    if ( getcost() > oldcost or hastwv() ) {
+        reverse( c2, c3 );
         return false;
     }
 
@@ -336,19 +369,20 @@ bool BaseVehicle::doTwoOpt(const int& c1, const int& c2, const int& c3, const in
 }
 
 
-bool BaseVehicle::doThreeOpt(const int& c1, const int& c2, const int& c3, const int& c4, const int& c5, const int& c6) {
+bool BaseVehicle::doThreeOpt( const int &c1, const int &c2, const int &c3,
+                              const int &c4, const int &c5, const int &c6 ) {
     // Feasible exchanges only
-    if (! (c2>c1 && c3>c2 && c4>c3 && c5>c4 && c6>c5)) return false;
+    if ( ! ( c2 > c1 && c3 > c2 && c4 > c3 && c5 > c4 && c6 > c5 ) ) return false;
 
     double oldcost = getcost();
-    Twpath<Trashnode> oldpath(path); // save a copy for undo
+    Twpath<Trashnode> oldpath( path ); // save a copy for undo
 
     // the 3-opt appears to reduce to extracting a sequence of nodes c3-c4
     // and reversing them and inserting them back after c6
-    if (! movereverse(c2, c3, c6)) return false;
+    if ( ! movereverse( c2, c3, c6 ) ) return false;
 
-    if (getcost() > oldcost or hastwv()) {
-        restorePath(oldpath);
+    if ( getcost() > oldcost or hastwv() ) {
+        restorePath( oldpath );
         return false;
     }
 
@@ -356,18 +390,19 @@ bool BaseVehicle::doThreeOpt(const int& c1, const int& c2, const int& c3, const 
 }
 
 
-bool BaseVehicle::doOrOpt(const int& c1, const int& c2, const int& c3) {
+bool BaseVehicle::doOrOpt( const int &c1, const int &c2, const int &c3 ) {
     // Feasible exchanges only
-    if (! (c2 >= c1 and (c3 < c1-1 or c3 > c2+2))) return false;
-    if (c2 > path.size()-1 or c3 > path.size()-1) return false;
+    if ( ! ( c2 >= c1 and ( c3 < c1 - 1 or c3 > c2 + 2 ) ) ) return false;
+
+    if ( c2 > path.size() - 1 or c3 > path.size() - 1 ) return false;
 
     double oldcost = getcost();
-    Twpath<Trashnode> oldpath(path); // save a copy for undo
+    Twpath<Trashnode> oldpath( path ); // save a copy for undo
 
-    if (! moverange(c1, c2, c3)) return false;
+    if ( ! moverange( c1, c2, c3 ) ) return false;
 
-    if (getcost() > oldcost or hastwv()) {
-        restorePath(oldpath);
+    if ( getcost() > oldcost or hastwv() ) {
+        restorePath( oldpath );
         return false;
     }
 
@@ -375,16 +410,16 @@ bool BaseVehicle::doOrOpt(const int& c1, const int& c2, const int& c3) {
 }
 
 
-bool BaseVehicle::doNodeMove(const int& i, const int& j) {
-    if (i == j or i < 1 or j < 1 or i > path.size()-1 or j > path.size()-1)
+bool BaseVehicle::doNodeMove( const int &i, const int &j ) {
+    if ( i == j or i < 1 or j < 1 or i > path.size() - 1 or j > path.size() - 1 )
         return false;
 
     double oldcost = getcost();
 
-    if (! move(i, j)) return false;
+    if ( ! move( i, j ) ) return false;
 
-    if (getcost() > oldcost or hastwv()) {
-        move(j, i);
+    if ( getcost() > oldcost or hastwv() ) {
+        move( j, i );
         return false;
     }
 
@@ -392,16 +427,16 @@ bool BaseVehicle::doNodeMove(const int& i, const int& j) {
 }
 
 
-bool BaseVehicle::doNodeSwap(const int& i, const int& j) {
-    if (i < 1 or j < 1 or i > path.size()-1 or j > path.size()-1)
+bool BaseVehicle::doNodeSwap( const int &i, const int &j ) {
+    if ( i < 1 or j < 1 or i > path.size() - 1 or j > path.size() - 1 )
         return false;
 
     double oldcost = getcost();
 
-    if (! swap(i, j)) return false;
+    if ( ! swap( i, j ) ) return false;
 
-    if (getcost() > oldcost or hastwv()) {
-        swap(i, j);
+    if ( getcost() > oldcost or hastwv() ) {
+        swap( i, j );
         return false;
     }
 
@@ -409,16 +444,16 @@ bool BaseVehicle::doNodeSwap(const int& i, const int& j) {
 }
 
 
-bool BaseVehicle::doInvertSeq(const int& i, const int& j) {
-    if (i > path.size() or j > path.size()-1)
+bool BaseVehicle::doInvertSeq( const int &i, const int &j ) {
+    if ( i > path.size() or j > path.size() - 1 )
         return false;
 
     double oldcost = getcost();
 
-    if (! reverse(i, j)) return false;
+    if ( ! reverse( i, j ) ) return false;
 
-    if (getcost() > oldcost or hastwv()) {
-        reverse(i, j);
+    if ( getcost() > oldcost or hastwv() ) {
+        reverse( i, j );
         return false;
     }
 
@@ -453,13 +488,13 @@ bool BaseVehicle::pathTwoOpt() {
     do {
         oldcost = getcost();
 
-        for (int i=0; i<size-3; i++) {
-            for (int j=i+2; j<size; j++) {
-                doTwoOpt( i, i+1, j, j+1 );
+        for ( int i = 0; i < size - 3; i++ ) {
+            for ( int j = i + 2; j < size; j++ ) {
+                doTwoOpt( i, i + 1, j, j + 1 );
             }
         }
     }
-    while (getcost() < oldcost);
+    while ( getcost() < oldcost );
 
     return getcost() < origcost;
 }
@@ -474,17 +509,21 @@ bool BaseVehicle::pathThreeOpt() {
     do {
         oldcost = getcost();
 
-        for (int i=0; i<size-5; i++) {
-            for (int j=i+2; j<size-3; j++) {
-                for (int k=j+2; k<size-1; k++) {
-                    doThreeOpt( i, i+1, j, j+1, k, k+1 );
-//                    std::cout << "pathThreeOpt["<<i<<","<<i+1<<","<<j<<","<<j+1<<","<<k<<","<<k+1<<"]("<<getcost()<<"): ";
-//                    dumppath();
+        for ( int i = 0; i < size - 5; i++ ) {
+            for ( int j = i + 2; j < size - 3; j++ ) {
+                for ( int k = j + 2; k < size - 1; k++ ) {
+                    doThreeOpt( i, i + 1, j, j + 1, k, k + 1 );
+                    #ifndef TESTED
+                    DLOG( INFO ) << "pathThreeOpt[" << i << "," << i + 1 << ","
+                                 << j << "," << j + 1 << "," << k << "," << k + 1
+                                 << "](" << getcost() << "): ";
+                    dumppath();
+                    #endif
                 }
             }
         }
     }
-    while (getcost() < oldcost);
+    while ( getcost() < oldcost );
 
     return getcost() < origcost;
 }
@@ -499,18 +538,22 @@ bool BaseVehicle::pathOrOpt() {
     do {
         oldcost = getcost();
 
-        for (int i=1; i<size; i++) {
-            for (int j=1; j<size; j++) {
-                for (int k=2; k>=0; k--) {
-                    if (! (j<i-1 or j>i+k+1)) continue;
-                    doOrOpt( i, i+k, j );
-//std::cout << "pathOrOpt["<<i<<","<<i+k<<","<<j<<"]("<<getcost()<<"): ";
-//dumppath();
+        for ( int i = 1; i < size; i++ ) {
+            for ( int j = 1; j < size; j++ ) {
+                for ( int k = 2; k >= 0; k-- ) {
+                    if ( ! ( j < i - 1 or j > i + k + 1 ) ) continue;
+
+                    doOrOpt( i, i + k, j );
+                    #ifndef TESTED
+                    DLOG( INFO ) << "pathOrOpt[" << i << "," << i + k << ","
+                                 << j << "](" << getcost() << "): ";
+                    dumppath();
+                    #endif
                 }
             }
         }
     }
-    while (getcost() < oldcost);
+    while ( getcost() < oldcost );
 
     return getcost() < origcost;
 }
@@ -526,25 +569,25 @@ bool BaseVehicle::pathOptMoveNodes() {
     do {
         oldcost = getcost();
 
-        for (int i=1; i<size; i++) {
-            for (int j=i+1; j<size; j++) {
-                doNodeMove(i, j);
+        for ( int i = 1; i < size; i++ ) {
+            for ( int j = i + 1; j < size; j++ ) {
+                doNodeMove( i, j );
             }
         }
     }
-    while (getcost() < oldcost);
+    while ( getcost() < oldcost );
 
     // move the nodes backwards looking for improvements
     do {
         oldcost = getcost();
 
-        for (int i=size-1; i>0; i--) {
-            for (int j=i-1; j>0; j--) {
-                doNodeMove(i, j);
+        for ( int i = size - 1; i > 0; i-- ) {
+            for ( int j = i - 1; j > 0; j-- ) {
+                doNodeMove( i, j );
             }
         }
     }
-    while (getcost() < oldcost);
+    while ( getcost() < oldcost );
 
     return getcost() < origcost;
 }
@@ -560,13 +603,13 @@ bool BaseVehicle::pathOptExchangeNodes() {
     do {
         oldcost = getcost();
 
-        for (int i=1; i<size; i++) {
-            for (int j=i+1; j<size; j++) {
-                doNodeSwap(i, j);
+        for ( int i = 1; i < size; i++ ) {
+            for ( int j = i + 1; j < size; j++ ) {
+                doNodeSwap( i, j );
             }
         }
     }
-    while (getcost() < oldcost);
+    while ( getcost() < oldcost );
 
     return getcost() < origcost;
 }
@@ -582,13 +625,13 @@ bool BaseVehicle::pathOptInvertSequence() {
     do {
         oldcost = getcost();
 
-        for (int i=1; i<size; i++) {
-            for (int j=i+1; j<size; j++) {
-                doInvertSeq(i, j);
+        for ( int i = 1; i < size; i++ ) {
+            for ( int j = i + 1; j < size; j++ ) {
+                doInvertSeq( i, j );
             }
         }
     }
-    while (getcost() < oldcost);
+    while ( getcost() < oldcost );
 
     return getcost() < origcost;
 }
@@ -602,7 +645,8 @@ bool BaseVehicle::pathOptInvertSequence() {
 // it currently assume all ops succeed but if they dont
 // the paths will get realy messed up
 
-bool BaseVehicle::findBestFit(const Trashnode& tn, int* tpos, double* deltacost) {
+bool BaseVehicle::findBestFit( const Trashnode &tn, int *tpos,
+                               double *deltacost ) {
     int bestpos = -1;
     double bestdelta;
 
@@ -610,27 +654,28 @@ bool BaseVehicle::findBestFit(const Trashnode& tn, int* tpos, double* deltacost)
 
     // first we insert nid into the start of vp
     // ie: pos: 1 after the depot at pos: 0
-    if (! insert(tn, 1)) return false;
+    if ( ! insert( tn, 1 ) ) return false;
 
-    if (feasable()) {
+    if ( feasable() ) {
         bestpos = 1;
         bestdelta = getcost() - origcost;
     }
 
     // now we walk it down the path checking for better costs
-    for (int i=2; i<this->size(); i++) {
-        swap(i-1, i);
-        if (getcost() - origcost < bestdelta and feasable()) {
+    for ( int i = 2; i < this->size(); i++ ) {
+        swap( i - 1, i );
+
+        if ( getcost() - origcost < bestdelta and feasable() ) {
             bestpos = i;
             bestdelta = getcost() - origcost;
         }
     }
 
     // this is only a test so remove the node
-    remove(this->size()-1);
+    remove( this->size() - 1 );
 
     // if we found NO feasable place to insert it
-    if (bestpos == -1) {
+    if ( bestpos == -1 ) {
         return false;
     }
 
@@ -647,23 +692,24 @@ bool BaseVehicle::findBestFit(const Trashnode& tn, int* tpos, double* deltacost)
 /*
     2-exchange - swap path[i1] with v2[i2]
 */
-bool BaseVehicle::swap2(BaseVehicle& v2, const int& i1, const int& i2, bool force) {
-    if (i1 < 0 or i1 > this->size()-1 or i2 < 0 or i2 > v2.size()-1)
+bool BaseVehicle::swap2( BaseVehicle &v2, const int &i1, const int &i2,
+                         bool force ) {
+    if ( i1 < 0 or i1 > this->size() - 1 or i2 < 0 or i2 > v2.size() - 1 )
         return false;
 
     double oldcost1 = getcost();
     double oldcost2 = v2.getcost();
 
-    if (! swap(v2, i1, i2)) return false;
+    if ( ! swap( v2, i1, i2 ) ) return false;
 
-    if (force) return true;
+    if ( force ) return true;
 
     double newcost1 = getcost();
     double newcost2 = v2.getcost();
 
     if ( newcost1 + newcost2 > oldcost1 + oldcost2 or
          hastwv() or hascv() or v2.hastwv() or v2.hascv() ) {
-        swap(v2, i1, i2);
+        swap( v2, i1, i2 );
 
         return false;
     }
@@ -676,10 +722,11 @@ bool BaseVehicle::swap2(BaseVehicle& v2, const int& i1, const int& i2, bool forc
     3-route node exchange - swap3
     path[i1] -> v2.path[i2] -> v3.path[i3] -> path[i1]
 */
-bool BaseVehicle::swap3(BaseVehicle& v2, BaseVehicle& v3, const int& i1, const int& i2, const int& i3, bool force) {
-    if ( i1 < 0 or i1 > this->size()-1 or
-         i2 < 0 or i2 > v2.size()-1 or
-         i2 < 0 or i3 > v3.size()-1 ) return false;
+bool BaseVehicle::swap3( BaseVehicle &v2, BaseVehicle &v3, const int &i1,
+                         const int &i2, const int &i3, bool force ) {
+    if ( i1 < 0 or i1 > this->size() - 1 or
+         i2 < 0 or i2 > v2.size() - 1 or
+         i2 < 0 or i3 > v3.size() - 1 ) return false;
 
     double oldcost1 = getcost();
     double oldcost2 = v2.getcost();
@@ -688,13 +735,14 @@ bool BaseVehicle::swap3(BaseVehicle& v2, BaseVehicle& v3, const int& i1, const i
     // this require all both swaps to work
     // if the 1st fails we can abort and return false
     // if the 2nd fails we have to unwind the 1st then abort
-    if (! swap(v2, i1, i2)) return false;
-    if (! v2.swap(v3, i2, i3)) {
-        swap(v2, i1, i2);
+    if ( ! swap( v2, i1, i2 ) ) return false;
+
+    if ( ! v2.swap( v3, i2, i3 ) ) {
+        swap( v2, i1, i2 );
         return false;
     }
 
-    if (force) return true;
+    if ( force ) return true;
 
     double newcost1 = getcost();
     double newcost2 = v2.getcost();
@@ -702,8 +750,8 @@ bool BaseVehicle::swap3(BaseVehicle& v2, BaseVehicle& v3, const int& i1, const i
 
     if ( newcost1 + newcost2 + newcost3 > oldcost1 + oldcost2 + oldcost3 or
          !feasable() or !v2.feasable() or !v3.feasable() ) {
-        v2.swap(v3, i2, i3);
-        swap(v2, i1, i2);
+        v2.swap( v3, i2, i3 );
+        swap( v2, i1, i2 );
         return false;
     }
 
@@ -719,59 +767,62 @@ bool BaseVehicle::swap3(BaseVehicle& v2, BaseVehicle& v3, const int& i1, const i
 // TODO: convert this to use non-evaluating functions
 //       and then just evaluate the whole path when done
 
-bool BaseVehicle::exchangeSeq(BaseVehicle& v2, const int& i1, const int& j1, const int& i2, const int& j2, bool force) {
+bool BaseVehicle::exchangeSeq( BaseVehicle &v2, const int &i1, const int &j1,
+                               const int &i2, const int &j2, bool force ) {
     if ( j1 < i1 or j2 < i2 or i1 < 0 or i2 < 0 or
-         j1 > this->size()-1 or j2 > v2.size()-1 ) return false;
+         j1 > this->size() - 1 or j2 > v2.size() - 1 ) return false;
 
     const Twpath<Trashnode> p1 = getvpath();      // get a copy
     const Twpath<Trashnode> p2 = v2.getvpath();   // get a copy
 
-    Twpath<Trashnode>& v2p = v2.getvpath(); // get a reference to manipulate
+    Twpath<Trashnode> &v2p = v2.getvpath(); // get a reference to manipulate
 
     double oldcost1 = getcost();
     double oldcost2 = v2.getcost();
 
-    int d1 = j1-i1+1;
-    int d2 = j2-i2+1;
+    int d1 = j1 - i1 + 1;
+    int d2 = j2 - i2 + 1;
 
     // first swap the nodes in the min length of the seq length
-    for (int n=0; n<std::min(d1, d2); n++) {
-        path.e_swap(i1+n, getmaxcapacity(),
-            v2p, i2+n, v2.getmaxcapacity());
+    for ( int n = 0; n < std::min( d1, d2 ); n++ ) {
+        path.e_swap( i1 + n, getmaxcapacity(),
+                     v2p, i2 + n, v2.getmaxcapacity() );
     }
 
     // now if the seqs were different lengths move the remainder
-    if (d1 > d2) {
-        for (int n=0; n<d1-d2; n++) {
-            if (i2+d2+n >= v2.size())
-                v2p.e_push_back(path[i1+d2], v2.getmaxcapacity());
+    if ( d1 > d2 ) {
+        for ( int n = 0; n < d1 - d2; n++ ) {
+            if ( i2 + d2 + n >= v2.size() )
+                v2p.e_push_back( path[i1 + d2], v2.getmaxcapacity() );
             else
-                v2p.e_insert(path[i1+d2], i2+d2+n, v2.getmaxcapacity());
-            path.e_remove(i1+d2, getmaxcapacity());
+                v2p.e_insert( path[i1 + d2], i2 + d2 + n, v2.getmaxcapacity() );
+
+            path.e_remove( i1 + d2, getmaxcapacity() );
         }
     }
-    else if (d2 > d1) {
-        for (int n=0; n<d2-d1; n++) {
-            if (i1+d1+n >= this->size())
-                path.e_push_back(v2p[i2+d1], getmaxcapacity());
+    else if ( d2 > d1 ) {
+        for ( int n = 0; n < d2 - d1; n++ ) {
+            if ( i1 + d1 + n >= this->size() )
+                path.e_push_back( v2p[i2 + d1], getmaxcapacity() );
             else
-                path.e_insert(v2p[i2+d1], i1+d1+n, getmaxcapacity());
-            v2p.e_remove(i2+d1, v2.getmaxcapacity());
+                path.e_insert( v2p[i2 + d1], i1 + d1 + n, getmaxcapacity() );
+
+            v2p.e_remove( i2 + d1, v2.getmaxcapacity() );
         }
     }
 
     evalLast();
     v2.evalLast();
 
-    if (force) return true;
+    if ( force ) return true;
 
     double newcost1 = getcost();
     double newcost2 = v2.getcost();
 
     if ( newcost1 + newcost2 > oldcost1 + oldcost2 or
-             !feasable() or !v2.feasable() ) {
-        setvpath(p1);
-        v2.setvpath(p2);
+         !feasable() or !v2.feasable() ) {
+        setvpath( p1 );
+        v2.setvpath( p2 );
         evalLast();
         v2.evalLast();
 
@@ -788,11 +839,12 @@ bool BaseVehicle::exchangeSeq(BaseVehicle& v2, const int& i1, const int& j1, con
     another path and its given index
     exchange v1[i1...n1] <--> v2[i2..n2]
 */
-bool BaseVehicle::exchangeTails(BaseVehicle& v2, const int& i1, const int& i2, bool force) {
-    if ( i1 < 0 or i1 > this->size()-1 or
-         i2 < 0 or i2 > v2.size()-1 ) return false;
+bool BaseVehicle::exchangeTails( BaseVehicle &v2, const int &i1, const int &i2,
+                                 bool force ) {
+    if ( i1 < 0 or i1 > this->size() - 1 or
+         i2 < 0 or i2 > v2.size() - 1 ) return false;
 
-    return exchangeSeq(v2, i1, this->size()-1, i2, v2.size()-1, force);
+    return exchangeSeq( v2, i1, this->size() - 1, i2, v2.size() - 1, force );
 }
 
 
@@ -807,48 +859,51 @@ bool BaseVehicle::exchangeTails(BaseVehicle& v2, const int& i1, const int& i2, b
 // TODO: convert this to use non-evaluating twpath functions
 //       and then just call evaluate on each
 
-bool BaseVehicle::exchange3(BaseVehicle& v2, BaseVehicle& v3, const int& cnt, const int& i1, const int& i2, const int& i3, bool force) {
-    if ( i1 < 0 or i1+cnt > this->size()-1 or
-         i2 < 0 or i2+cnt > v2.size()-1 or
-         i3 < 0 or i3+cnt > v3.size()-1 or cnt < 1) return false;
+bool BaseVehicle::exchange3( BaseVehicle &v2, BaseVehicle &v3, const int &cnt,
+                             const int &i1, const int &i2, const int &i3, bool force ) {
+    if ( i1 < 0 or i1 + cnt > this->size() - 1 or
+         i2 < 0 or i2 + cnt > v2.size() - 1 or
+         i3 < 0 or i3 + cnt > v3.size() - 1 or cnt < 1 ) return false;
 
-    Twpath<Trashnode>& v2p = v2.getvpath(); // get a reference to manipulate
-    Twpath<Trashnode>& v3p = v3.getvpath(); // get a reference to manipulate
+    Twpath<Trashnode> &v2p = v2.getvpath(); // get a reference to manipulate
+    Twpath<Trashnode> &v3p = v3.getvpath(); // get a reference to manipulate
 
     double oldcost1 = getcost();
     double oldcost2 = v2.getcost();
     double oldcost3 = v3.getcost();
 
-std::cout << "oldcost: "<<oldcost1<<"+"<<oldcost2<<"+"<<oldcost3<<"="
-          << oldcost1 + oldcost2 + oldcost3 << std::endl; 
+    DLOG( INFO ) << "oldcost: " << oldcost1 << "+" << oldcost2 << "+" << oldcost3
+                 << "=" << oldcost1 + oldcost2 + oldcost3;
 
-    for (int i=0; i<cnt; i++) {
-        path.e_swap(i1+i, getmaxcapacity(),
-            v2.getvpath(), i2+i, v2.getmaxcapacity());
-        v2.getvpath().e_swap(i2+i, v2.getmaxcapacity(),
-            v3.getvpath(), i3+i, v3.getmaxcapacity());
+    for ( int i = 0; i < cnt; i++ ) {
+        path.e_swap( i1 + i, getmaxcapacity(),
+                     v2.getvpath(), i2 + i, v2.getmaxcapacity() );
+        v2.getvpath().e_swap( i2 + i, v2.getmaxcapacity(),
+                              v3.getvpath(), i3 + i, v3.getmaxcapacity() );
     }
+
     evalLast();
     v2.evalLast();
     v3.evalLast();
 
-    if (force) return true;
+    if ( force ) return true;
 
     double newcost1 = getcost();
     double newcost2 = v2.getcost();
     double newcost3 = v3.getcost();
 
-std::cout << "newcost: "<<newcost1<<"+"<<newcost2<<"+"<<newcost3<<"="
-          << newcost1 + newcost2 + newcost3 << std::endl; 
+    DLOG( INFO ) << "newcost: " << newcost1 << "+" << newcost2 << "+" <<
+                 newcost3 << "=" << newcost1 + newcost2 + newcost3;
 
     if ( newcost1 + newcost2 + newcost3 > oldcost1 + oldcost2 + oldcost3 or
          !feasable() or !v2.feasable() or !v3.feasable() ) {
-        for (int i=0; i<cnt; i++) {
-            v2.getvpath().e_swap(i2+i, v2.getmaxcapacity(),
-                v3.getvpath(), i3+i, v3.getmaxcapacity());
-            path.e_swap(i1+i, getmaxcapacity(),
-                v2.getvpath(), i2+i, v2.getmaxcapacity());
+        for ( int i = 0; i < cnt; i++ ) {
+            v2.getvpath().e_swap( i2 + i, v2.getmaxcapacity(),
+                                  v3.getvpath(), i3 + i, v3.getmaxcapacity() );
+            path.e_swap( i1 + i, getmaxcapacity(),
+                         v2.getvpath(), i2 + i, v2.getmaxcapacity() );
         }
+
         evalLast();
         v2.evalLast();
         v3.evalLast();
@@ -865,31 +920,34 @@ std::cout << "newcost: "<<newcost1<<"+"<<newcost2<<"+"<<newcost3<<"="
 //  move node v1[i1] to another path v2[i2]
 //  returns false if it fails to relocate the node to v2
 
-bool BaseVehicle::relocate(BaseVehicle& v2, const int& i1, const int& i2, bool force) {
-    if ( i1 < 0 or i1 > this->size()-1 or
-         i2 < 0 or i2 > v2.size()-1 ) return false;
+bool BaseVehicle::relocate( BaseVehicle &v2, const int &i1, const int &i2,
+                            bool force ) {
+    if ( i1 < 0 or i1 > this->size() - 1 or
+         i2 < 0 or i2 > v2.size() - 1 ) return false;
 
 
     double oldcost1 = getcost();
     double oldcost2 = v2.getcost();
 
-    if (! v2.insert(path[i1], i2)) return false;
-    if (!remove(i1)) {
-        v2.remove(i2);
+    if ( ! v2.insert( path[i1], i2 ) ) return false;
+
+    if ( !remove( i1 ) ) {
+        v2.remove( i2 );
         return false;
     }
 
-    if (force) return true;
+    if ( force ) return true;
 
     double newcost1 = getcost();
     double newcost2 = v2.getcost();
 
     if ( newcost1 + newcost2 > oldcost1 + oldcost2 or
          !feasable() or !v2.feasable() ) {
-        insert(v2.path[i2], i1);
-        v2.remove(i2);
+        insert( v2.path[i2], i1 );
+        v2.remove( i2 );
         return false;
     }
+
     return true;
 }
 
@@ -904,8 +962,8 @@ bool BaseVehicle::relocate(BaseVehicle& v2, const int& i1, const int& i2, bool f
 // it currently assume all ops succeed but if they dont
 // the paths will get realy messed up
 
-bool BaseVehicle::relocateBest(BaseVehicle& v2, const int& i1) {
-    if ( i1 < 0 or i1 > this->size()-1 ) return false;
+bool BaseVehicle::relocateBest( BaseVehicle &v2, const int &i1 ) {
+    if ( i1 < 0 or i1 > this->size() - 1 ) return false;
 
     double oldcost1 = getcost();
     double oldcost2 = v2.getcost();
@@ -915,17 +973,18 @@ bool BaseVehicle::relocateBest(BaseVehicle& v2, const int& i1) {
 
     // first we insert v1[i1] into the start of v2
     // ie: pos: 1 after the depot at pos: 0
-    if (! v2.insert(path[i1], 1)) return false;
+    if ( ! v2.insert( path[i1], 1 ) ) return false;
 
-    if (v2.feasable()) {
+    if ( v2.feasable() ) {
         bestpos = 1;
         bestcost = v2.getcost();
     }
 
     // now we walk it down the path checking for better costs
-    for (int i=2; i<v2.size(); i++) {
-        v2.swap(i-1, i);
-        if (v2.getcost() < bestcost and v2.feasable()) {
+    for ( int i = 2; i < v2.size(); i++ ) {
+        v2.swap( i - 1, i );
+
+        if ( v2.getcost() < bestcost and v2.feasable() ) {
             bestpos = i;
             bestcost = v2.getcost();
         }
@@ -933,25 +992,25 @@ bool BaseVehicle::relocateBest(BaseVehicle& v2, const int& i1) {
 
     // if we found NO feasable place to insert it
     // restore v2 and return
-    if (bestpos == -1) {
-        v2.remove(v2.size()-1);
+    if ( bestpos == -1 ) {
+        v2.remove( v2.size() - 1 );
         return false;
     }
 
     // otherwise remove i1
-    remove(i1);
+    remove( i1 );
 
     // check that we have a better overall cost
     // and reposition i1 to bestpos
-    if (getcost() + bestcost < oldcost1 + oldcost2) {
-        if (bestpos != v2.size()-1) {
-            v2.move(v2.size()-1, bestpos);
+    if ( getcost() + bestcost < oldcost1 + oldcost2 ) {
+        if ( bestpos != v2.size() - 1 ) {
+            v2.move( v2.size() - 1, bestpos );
         }
     }
     // else restore everything and return false
     else {
-        insert(v2[v2.size()-1], i1);
-        v2.remove(v2.size()-1);
+        insert( v2[v2.size() - 1], i1 );
+        v2.remove( v2.size() - 1 );
         return false;
     }
 
@@ -959,12 +1018,13 @@ bool BaseVehicle::relocateBest(BaseVehicle& v2, const int& i1) {
 }
 
 /**************************************PLOT************************************/
-void BaseVehicle::plot(std::string file,std::string title,int carnumber) const{
-//std::cout<<"USING VEHICLE PLOT\n";
-    Twpath<Trashnode> trace=path;
-    trace.push_back(dumpSite);
-    trace.push_back(endingSite);
-trace.dumpid("Path");
+void BaseVehicle::plot( std::string file, std::string title,
+                        int carnumber ) const {
+    //    DLOG(INFO) << "USING VEHICLE PLOT";
+    Twpath<Trashnode> trace = path;
+    trace.push_back( dumpSite );
+    trace.push_back( endingSite );
+    trace.dumpid( "Path" );
     trace.pop_front();
     trace.pop_back();
     trace.pop_back();
@@ -972,31 +1032,35 @@ trace.dumpid("Path");
     std::stringstream convert;
     convert << carnumber;
     std::string carnum = convert.str();
-    std::string extra="vehicle"+carnum ;
+    std::string extra = "vehicle" + carnum ;
 
     Plot<Trashnode> graph( trace );
-    graph.setFile( CONFIG->getString("plotDir") + file + extra + ".png" );
-    graph.setTitle( title+extra );
+    graph.setFile( CONFIG->getString( "plotDir" ) + file + extra + ".png" );
+    graph.setTitle( title + extra );
     graph.drawInit();
-    for (int i=0; i<trace.size(); i++){
-        if (trace[i].isPickup())  {
-             graph.drawPoint(trace[i], 0x0000ff, 9, true);
-        } else if (trace[i].isDepot()) {
-             graph.drawPoint(trace[i], 0x00ff00, 5, true);
-        } else  {
-             graph.drawPoint(trace[i], 0xff0000, 7, true);
+
+    for ( int i = 0; i < trace.size(); i++ ) {
+        if ( trace[i].isPickup() )  {
+            graph.drawPoint( trace[i], 0x0000ff, 9, true );
+        }
+        else if ( trace[i].isDepot() ) {
+            graph.drawPoint( trace[i], 0x00ff00, 5, true );
+        }
+        else  {
+            graph.drawPoint( trace[i], 0xff0000, 7, true );
         }
     }
-    plot(graph,carnumber);
+
+    plot( graph, carnumber );
     graph.save();
 }
 
-void BaseVehicle::plot(Plot<Trashnode> graph, int carnumber)const{
-//std::cout<<"USING VEHICLE PLOT  1\n";
-    Twpath<Trashnode> trace=path;
-    trace.push_back(dumpSite);
-    trace.push_back(endingSite);
-    graph.drawPath(trace,graph.makeColor(carnumber*10), 1, true);
+void BaseVehicle::plot( Plot<Trashnode> graph, int carnumber )const {
+    //DLOG(INFO) << "USING VEHICLE PLOT  1";
+    Twpath<Trashnode> trace = path;
+    trace.push_back( dumpSite );
+    trace.push_back( endingSite );
+    graph.drawPath( trace, graph.makeColor( carnumber * 10 ), 1, true );
 }
 
 

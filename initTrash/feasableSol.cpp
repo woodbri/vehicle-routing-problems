@@ -20,6 +20,7 @@
 #include <sstream>
 #include <fstream>
 
+#include "logger.h"
 #include "timer.h"
 #include "plot.h"
 #include "feasableSol.h"
@@ -32,57 +33,61 @@
 //   how to handla that once the Dump is inserted, not to look for best Position on
 //       the first part of ther Route????
 
-void FeasableSol::stepOne(Vehicle &truck) {
-// THE INVARIANT
-// union must be pickups
-    assert(pickups == unassigned + problematic + assigned);
-// all intersections must be empty set
-    assert( not (unassigned * problematic).size()  ) ;
-    assert( not (unassigned * assigned).size()  ) ;
-    assert( not (problematic * assigned).size()  ) ;
-    assert ( truck.feasable()) ;
-//END INVARIANT
+void FeasableSol::stepOne( Vehicle &truck ) {
+    // THE INVARIANT
+    // union must be pickups
+    assert( pickups == unassigned + problematic + assigned );
+    // all intersections must be empty set
+    assert( not ( unassigned * problematic ).size()  ) ;
+    assert( not ( unassigned * assigned ).size()  ) ;
+    assert( not ( problematic * assigned ).size()  ) ;
+    assert ( truck.feasable() ) ;
+    //END INVARIANT
 
-    if (not unassigned.size()) return;
-          
+    if ( not unassigned.size() ) return;
+
     Trashnode bestNode;
     UID bestPos;
-    if (truck.findNearestNodeTo( unassigned,   bestPos,  bestNode) ) {
-        if(  not  truck.e_insertIntoFeasableTruck(bestNode,bestPos) ) { 
-                fleet.push_back(truck);
 
-                if (unusedTrucks.size()==0) return;
-		truck=unusedTrucks[0];
-                unusedTrucks.erase(unusedTrucks.begin());
-                usedTrucks.push_back(truck);
+    if ( truck.findNearestNodeTo( unassigned,   bestPos,  bestNode ) ) {
+        if (  not  truck.e_insertIntoFeasableTruck( bestNode, bestPos ) ) {
+            fleet.push_back( truck );
 
-                assert ( truck.feasable()) ;
-                stepOne(truck);
-        } else {
-//            truck.insert(bestNode,bestPos);
-            assigned.push_back(bestNode);
-            unassigned.erase(bestNode);
+            if ( unusedTrucks.size() == 0 ) return;
 
-            assert ( truck.feasable()) ;
-            stepOne(truck);
-        } 
-    } else {
-	std::cout<<"no nearest node was found\n";
-	assert(true==false);
+            truck = unusedTrucks[0];
+            unusedTrucks.erase( unusedTrucks.begin() );
+            usedTrucks.push_back( truck );
+
+            assert ( truck.feasable() ) ;
+            stepOne( truck );
+        }
+        else {
+            //            truck.insert(bestNode,bestPos);
+            assigned.push_back( bestNode );
+            unassigned.erase( bestNode );
+
+            assert ( truck.feasable() ) ;
+            stepOne( truck );
+        }
+    }
+    else {
+        DLOG( WARNING ) << "no nearest node was found";
+        assert( "FeasableSol::stepOne" == "no nearest node was found" );
     }
 
-} 
+}
 
 
 
 
 Vehicle  FeasableSol::getTruck() {
-	assert(unusedTrucks[0].size());
+    assert( unusedTrucks[0].size() );
 
-        Vehicle truck=unusedTrucks[0];
-        unusedTrucks.erase(unusedTrucks.begin());
-        usedTrucks.push_back(truck);
-        return truck;
+    Vehicle truck = unusedTrucks[0];
+    unusedTrucks.erase( unusedTrucks.begin() );
+    usedTrucks.push_back( truck );
+    return truck;
 }
 
 
@@ -91,21 +96,21 @@ Vehicle  FeasableSol::getTruck() {
 //    This implements a feasable solution
 
 void FeasableSol::process() {
-// THE INVARIANT
-// union must be pickups
-    assert(pickups == unassigned + problematic + assigned);
-// all intersections must be empty set
-    assert( not (unassigned * problematic).size()  ) ;
-    assert( not (unassigned * assigned).size()  ) ;
-    assert( not (problematic * assigned).size()  ) ;
-//END INVARIANT
+    // THE INVARIANT
+    // union must be pickups
+    assert( pickups == unassigned + problematic + assigned );
+    // all intersections must be empty set
+    assert( not ( unassigned * problematic ).size()  ) ;
+    assert( not ( unassigned * assigned ).size()  ) ;
+    assert( not ( problematic * assigned ).size()  ) ;
+    //END INVARIANT
     Timer start;
 
     Vehicle truck;
-    truck=getTruck();
-    stepOne(truck);        
-    fleet.push_back(truck); //need to save the last truck
+    truck = getTruck();
+    stepOne( truck );
+    fleet.push_back( truck ); //need to save the last truck
 
-    std::cout << "FEASABLESOL: Total time: " << start.duration() << std::endl;
-return;
+    DLOG( INFO ) << "FEASABLESOL: Total time: " << start.duration();
+    return;
 }

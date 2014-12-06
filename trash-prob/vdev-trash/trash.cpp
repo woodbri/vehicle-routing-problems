@@ -21,6 +21,8 @@
 #include <math.h>
 #include <stdio.h>
 
+#include "logger.h"
+
 #ifdef DOSTATS
 #include "timer.h"
 #include "stats.h"
@@ -43,7 +45,29 @@ void Usage() {
 static std::string font = "/usr/share/fonts/truetype/ttf-dejavu/DejaVuSans.ttf";
 #endif
 
+/* Logging Severity Levels
+    0   INFO
+    1   WARNING
+    2   ERROR
+    3   FATAL  NOTE FATAL is converted to ERROR when NDEBUG is defined
+
+    DLOG(<level>) << "message";
+    DLOG_IF(<level>, <cond>) << "message";
+    DLOG_EVERY_N(<level>, <n>) << "message";
+    CHECK(<cond>) << "message";  // print "message" and FATAL if false
+
+    http://google-glog.googlecode.com/svn/trunk/doc/glog.html
+
+    GLOG_logtostderr=1 ./bin/trash ...  // to get output to terminal
+*/
+
 int main(int argc, char **argv) {
+
+    FLAGS_log_dir = "./logs/";
+    google::InitGoogleLogging("vdev/Trash");
+    //FLAGS_logtostderr = 0;
+    FLAGS_stderrthreshold = google::ERROR;
+    FLAGS_minloglevel = google::INFO;
 
     if (argc < 2) {
         Usage();
@@ -81,7 +105,7 @@ int main(int argc, char **argv) {
 
 	#ifndef LOG
         tp.dump();
-        std::cout << "FeasableSol time: " << starttime.duration() << std::endl;
+        DLOG(INFO) << "FeasableSol time: " << starttime.duration();
 	#endif
 	#ifdef DOSTATS
         STATS->set("zzFeasableSol time", starttime.duration());

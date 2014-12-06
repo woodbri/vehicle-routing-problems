@@ -16,74 +16,59 @@
 #include <sstream>
 #include <string>
 
+#include "logger.h"
 #include "vrposrm.h"
 
 
 bool VrpOSRM::getTravelTime( double &ttime ) const {
-    struct json_object *jtree;
-    struct json_object *jobj;
 
-    jtree = json_tokener_parse( json.c_str() );
+    rapidjson::Document jsondoc;
+    jsondoc.Parse( json.c_str() );
 
-    if ( !jtree ) {
-        std::cout << "Error: Invalid json document in OSRM response!" << std::endl;
+    if ( jsondoc.HasParseError() ) {
+        DLOG( INFO ) << "Error: Invalid json document in OSRM response!";
         return true;
     }
 
-    jobj = json_object_object_get( jtree, "route_summary" );
-
-    if ( !jobj ) {
-        std::cout << "Error: Failed to find 'route_summary' key in json document!" <<
-                  std::endl;
-        json_object_put( jtree );
+    if ( not jsondoc.HasMember( "route_summary" ) ) {
+        DLOG( INFO ) << "Error: Failed to find 'route_summary' key in json document!";
         return true;
     }
 
-    jobj = json_object_object_get( jobj, "total_time" );
-
-    if ( !jobj ) {
-        std::cout << "Error: Failed to find 'total_time' key in json document!" <<
-                  std::endl;
-        json_object_put( jtree );
+    if ( not jsondoc["route_summary"].HasMember( "total_time" ) ) {
+        DLOG( INFO ) << "Error: Failed to find 'total_time' key in json document!";
         return true;
     }
 
-    ttime = ( double ) json_object_get_int( jobj ) / 60.0;
-    json_object_put( jtree );
+    ttime = jsondoc["route_summary"]["total_time"].GetDouble() / 60.0;
 
     return false;
 }
 
 
 bool VrpOSRM::getStatus( int &status ) const {
-    struct json_object *jtree;
-    struct json_object *jobj;
 
     status = -1;
 
     if ( json.size() == 0 ) {
-        std::cout << "Null json document in OSRM response!" << std::endl;
+        DLOG( INFO ) << "Null json document in OSRM response!";
         return true;
     }
 
-    jtree = json_tokener_parse( json.c_str() );
+    rapidjson::Document jsondoc;
+    jsondoc.Parse( json.c_str() );
 
-    if ( !jtree ) {
-        std::cout << "Error: Invalid json document in OSRM response!" << std::endl;
+    if ( jsondoc.HasParseError() ) {
+        DLOG( INFO ) << "Error: Invalid json document in OSRM response!";
         return true;
     }
 
-    jobj = json_object_object_get( jtree, "status" );
-
-    if ( !jobj ) {
-        json_object_put( jtree );
-        std::cout << "Error: Error parsing OSRM response, \"status\" not found." <<
-                  std::endl;
+    if ( not jsondoc.HasMember( "status" ) ) {
+        DLOG( INFO ) << "Error: Failed to find 'status' key in json document!";
         return true;
     }
 
-    status = json_object_get_int( jobj );
-    json_object_put( jtree );
+    status = jsondoc["status"].GetInt();
 
     return false;
 }
@@ -92,7 +77,7 @@ bool VrpOSRM::getStatus( int &status ) const {
 bool VrpOSRM::callOSRM( const std::string url ) {
     std::stringstream result;
 
-    //std::cout << "callOSRM: url: " << url << std::endl;
+    //DLOG(INFO) << "callOSRM: url: " << url;
 
     try {
 
@@ -104,11 +89,11 @@ bool VrpOSRM::callOSRM( const std::string url ) {
 
     }
     catch ( curlpp::LogicError &e ) {
-        std::cout << e.what() << std::endl;
+        DLOG( WARNING ) << e.what();
         return true;
     }
     catch ( curlpp::RuntimeError &e ) {
-        std::cout << e.what() << std::endl;
+        DLOG( WARNING ) << e.what();
         return true;
     }
 

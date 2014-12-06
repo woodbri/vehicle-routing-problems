@@ -36,9 +36,9 @@ class TrashConfig : public Config {
   public:
 
     TrashConfig() : Config() {
-        set("osrmBaseUrl", "http://localhost:5000/");
-        set("plotDir",     "./");
-        set("plotFontFile", "/usr/share/fonts/truetype/msttcorefonts/Verdana.ttf");
+        set( "osrmBaseUrl", "http://localhost:5000/" );
+        set( "plotDir",     "./" );
+        set( "plotFontFile", "/usr/share/fonts/truetype/msttcorefonts/Verdana.ttf" );
     };
     ~TrashConfig() {};
 };

@@ -15,7 +15,7 @@
 #define SINGLETON_H
 
 #include <stddef.h>  // defines NULL
-#include <cassert>
+#include "vrp_assert.h"
 
 /*! \class Singleton
  * \brief A template class for creating  singleton objects.

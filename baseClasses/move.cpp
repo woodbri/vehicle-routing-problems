@@ -13,49 +13,51 @@
  ********************************************************************VRP*/
 
 #include <iostream>
+#include "logger.h"
 #include "move.h"
 
-    /*!
-     * \brief Construct a Move object where the move is not defined and mtype is Invalid
-     */
-    Move::Move() {
-        #ifdef DOSTATS
-        STATS->inc("Move::Move (invalid) ");
-        #endif
-        mtype = Invalid; nid1 = nid2 = vid1 = vid2 = pos1 = pos2 = -1; savings = -std::numeric_limits<double>::max();
-         };
+/*!
+ * \brief Construct a Move object where the move is not defined and mtype is Invalid
+ */
+Move::Move() {
+    #ifdef DOSTATS
+    STATS->inc( "Move::Move (invalid) " );
+    #endif
+    mtype = Invalid; nid1 = nid2 = vid1 = vid2 = pos1 = pos2 = -1;
+    savings = -std::numeric_limits<double>::max();
+};
 
-    /*!
-     * \brief Construct a Move object and assign the appropriate values.
-     */
-    Move::Move( Mtype _mtype, int _nid1, int _nid2, int _vid1, int _vid2, int _pos1,
-          int _pos2, double _sav ) {
-        #ifdef DOSTATS
-        STATS->inc("Move::Move (valid 8 arguments) ");
-        #endif
-        mtype = _mtype;
-        nid1 = _nid1;
-        nid2 = _nid2;
-        vid1 = _vid1;
-        vid2 = _vid2;
-        pos1 = _pos1;
-        pos2 = _pos2;
-        savings = _sav;
-    };
+/*!
+ * \brief Construct a Move object and assign the appropriate values.
+ */
+Move::Move( Mtype _mtype, int _nid1, int _nid2, int _vid1, int _vid2, int _pos1,
+            int _pos2, double _sav ) {
+    #ifdef DOSTATS
+    STATS->inc( "Move::Move (valid 8 arguments) " );
+    #endif
+    mtype = _mtype;
+    nid1 = _nid1;
+    nid2 = _nid2;
+    vid1 = _vid1;
+    vid2 = _vid2;
+    pos1 = _pos1;
+    pos2 = _pos2;
+    savings = _sav;
+};
 
-    Move::Move( const Move &move) {
-        #ifdef DOSTATS
-        STATS->inc("Move::Move (copy) ");
-        #endif
-        mtype = move.mtype;
-        nid1 = move.nid1;
-        nid2 = move.nid2;
-        vid1 = move.vid1;
-        vid2 = move.vid2;
-        pos1 = move.pos1;
-        pos2 = move.pos2;
-        savings = move.savings;
-    };
+Move::Move( const Move &move ) {
+    #ifdef DOSTATS
+    STATS->inc( "Move::Move (copy) " );
+    #endif
+    mtype = move.mtype;
+    nid1 = move.nid1;
+    nid2 = move.nid2;
+    vid1 = move.vid1;
+    vid2 = move.vid2;
+    pos1 = move.pos1;
+    pos2 = move.pos2;
+    savings = move.savings;
+};
 
 
 
@@ -133,15 +135,14 @@ bool Move::isForbidden( const Move &tabu ) const {
  * \brief Print the move.
  */
 void Move::dump() const {
-    std::cout << "Move: " << mtype
-              << ",\t" << nid1
-              << ",\t" << nid2
-              << ",\t" << vid1
-              << ",\t" << vid2
-              << ",\t" << pos1
-              << ",\t" << pos2
-              << ",\t" << savings
-              << std::endl;
+    DLOG( INFO ) << "Move: " << mtype
+                 << ",\t" << nid1
+                 << ",\t" << nid2
+                 << ",\t" << vid1
+                 << ",\t" << vid2
+                 << ",\t" << pos1
+                 << ",\t" << pos2
+                 << ",\t" << savings;
 }
 
 /*!
@@ -150,89 +151,97 @@ void Move::dump() const {
 void Move::Dump() const {
     switch ( mtype ) {
         case Ins:
-            std::cout << "Move: Ins"
-                      << "\t    NodeID:" << nid1
-                      << "\tFrom Truck:" << vid1
-                      << "\t  From Pos:" << pos1
-                      << "\t  To Truck:" << vid2
-                      << "\t    To Pos:" << pos2
-                      << "\t   savings:" << savings
-                      << std::endl;
+            DLOG( INFO ) << "Move: Ins"
+                         << "\t    NodeID:" << nid1
+                         << "\tFrom Truck:" << vid1
+                         << "\t  From Pos:" << pos1
+                         << "\t  To Truck:" << vid2
+                         << "\t    To Pos:" << pos2
+                         << "\t   savings:" << savings;
             break;
 
         case IntraSw:
-            std::cout << "Move: IntraSw"
-                      << "\t    NodeID:" << nid1
-                      << "\t  At Truck:" << vid1
-                      << "\t  From Pos:" << pos1
-                      << "\t  with NID:" << nid2
-                      << "\t    To Pos:" << pos2
-                      << "\t   savings:" << savings
-                      << std::endl;
+            DLOG( INFO ) << "Move: IntraSw"
+                         << "\t    NodeID:" << nid1
+                         << "\t  At Truck:" << vid1
+                         << "\t  From Pos:" << pos1
+                         << "\t  with NID:" << nid2
+                         << "\t    To Pos:" << pos2
+                         << "\t   savings:" << savings;
             break;
 
         case InterSw:
-            std::cout << "Move: InterSw"
-                      << "\t    NodeID:" << nid1
-                      << "\t  (at Truck:" << vid1
-                      << "\t  at Pos:" << pos1
-                      << ")\t with NodeID:" << nid2
-                      << "\t    (at Truck:" << vid2
-                      << "\t      at Pos:" << pos2
-                      << ")\t   savings:" << savings
-                      << std::endl;
+            DLOG( INFO ) << "Move: InterSw"
+                         << "\t    NodeID:" << nid1
+                         << "\t  (at Truck:" << vid1
+                         << "\t  at Pos:" << pos1
+                         << ")\t with NodeID:" << nid2
+                         << "\t    (at Truck:" << vid2
+                         << "\t      at Pos:" << pos2
+                         << ")\t   savings:" << savings;
             break;
     }
 
 }
 
-    void Move::setInsMove( int fromTruck, int fromPos, int fromId, int toTruck, int toPos,double save) {
-	#ifdef DOSTATS
- 	STATS->inc("Move::setInsMove ");
-	#endif
-	vid1=fromTruck; pos1=fromPos; nid1=fromId;
-	vid2=toTruck;   pos2=toPos;   nid2=fromId;
-	savings=save; mtype=Ins;
-	};
+void Move::setInsMove( int fromTruck, int fromPos, int fromId, int toTruck,
+                       int toPos, double save ) {
+    #ifdef DOSTATS
+    STATS->inc( "Move::setInsMove " );
+    #endif
+    vid1 = fromTruck; pos1 = fromPos; nid1 = fromId;
+    vid2 = toTruck;   pos2 = toPos;   nid2 = fromId;
+    savings = save; mtype = Ins;
+};
 
-    void Move::setIntraSwMove( int fromTruck, int fromPos, int fromId, int withPos, int withId,double save){ 
-        #ifdef DOSTATS
-        STATS->inc("Move::setIntraSwMove ");
-        #endif
-	vid1=fromTruck; pos1=fromPos; nid1=fromId;
-	vid2=fromTruck; pos2=withPos; nid2=withId;
-	savings=save; mtype=IntraSw;
-	};
+void Move::setIntraSwMove( int fromTruck, int fromPos, int fromId, int withPos,
+                           int withId, double save ) {
+    #ifdef DOSTATS
+    STATS->inc( "Move::setIntraSwMove " );
+    #endif
+    vid1 = fromTruck; pos1 = fromPos; nid1 = fromId;
+    vid2 = fromTruck; pos2 = withPos; nid2 = withId;
+    savings = save; mtype = IntraSw;
+};
 
-    void Move::setInterSwMove( int fromTruck, int fromPos, int fromId, int withTruck, int withPos, int withId,double save){
-        #ifdef DOSTATS
-        STATS->inc("Move::setInterSwMove ");
-        #endif
-	vid1=fromTruck; pos1=fromPos; nid1=fromId;
-	vid2=withTruck; pos2=withPos; nid2=withId;
-	savings=save; mtype=InterSw;
-	};
-
-
-bool Move::isTabu(const Move &move_e) const  {
-	if (not mtype==move_e.mtype) return false;
-	int rule;
-        switch ( mtype ) {
-                case Ins: rule=5; break;
-                case IntraSw: rule=0; break;
-                case InterSw: rule=0;break;
-        }
-	return isTabu(move_e,rule);
+void Move::setInterSwMove( int fromTruck, int fromPos, int fromId,
+                           int withTruck, int withPos, int withId, double save ) {
+    #ifdef DOSTATS
+    STATS->inc( "Move::setInterSwMove " );
+    #endif
+    vid1 = fromTruck; pos1 = fromPos; nid1 = fromId;
+    vid2 = withTruck; pos2 = withPos; nid2 = withId;
+    savings = save; mtype = InterSw;
 };
 
 
-bool Move::isTabu(const Move &move_e, int rule) const  {
-	if (not (mtype==move_e.mtype))  return false;
-	switch ( mtype ) {
-		case Move::Ins: return insForbidden(move_e,rule);
-		case Move::IntraSw: return move_e.isForbidden(*this);
-		case Move::InterSw: return move_e.isForbidden(*this);
-        }
+bool Move::isTabu( const Move &move_e ) const  {
+    if ( not mtype == move_e.mtype ) return false;
+
+    int rule;
+
+    switch ( mtype ) {
+        case Ins: rule = 5; break;
+
+        case IntraSw: rule = 0; break;
+
+        case InterSw: rule = 0; break;
+    }
+
+    return isTabu( move_e, rule );
+};
+
+
+bool Move::isTabu( const Move &move_e, int rule ) const  {
+    if ( not ( mtype == move_e.mtype ) )  return false;
+
+    switch ( mtype ) {
+        case Move::Ins: return insForbidden( move_e, rule );
+
+        case Move::IntraSw: return move_e.isForbidden( *this );
+
+        case Move::InterSw: return move_e.isForbidden( *this );
+    }
 };
 
 
@@ -240,30 +249,37 @@ bool Move::isTabu(const Move &move_e, int rule) const  {
 // for the follwoing functions ARE PROHIBITION RULES for INS
 // always *this is the one in the tabu list
 
-bool Move::insForbidden(const Move &move_e, int rule) const {
-	assert (move_e.mtype==Move::Ins);
-	switch (rule) {
-	  case 0: return insForbiddenRule0(move_e);
-	  case 1: return insForbiddenRule1(move_e);
-	  case 2: return insForbiddenRule2(move_e);
-	  case 3: return insForbiddenRule3(move_e);
-	  case 4: return insForbiddenRule4(move_e);
-	  case 5: return insForbiddenRule5(move_e);
-	  case 6: return insForbiddenRule6(move_e);
-	}
+bool Move::insForbidden( const Move &move_e, int rule ) const {
+    assert ( move_e.mtype == Move::Ins );
+
+    switch ( rule ) {
+        case 0: return insForbiddenRule0( move_e );
+
+        case 1: return insForbiddenRule1( move_e );
+
+        case 2: return insForbiddenRule2( move_e );
+
+        case 3: return insForbiddenRule3( move_e );
+
+        case 4: return insForbiddenRule4( move_e );
+
+        case 5: return insForbiddenRule5( move_e );
+
+        case 6: return insForbiddenRule6( move_e );
+    }
 }
-	
-	
 
 
-/** 
+
+
+/**
   semi inverse Move is prohibited
 
         M_t (Nid_t , fromTruck_t, fromPos_t, toTruck_t, toPos_t)
         M_e (Nid_e , fromTruck_e, fromPos_e, toTruck_e, toPos_e)
 
   True when:
-        ( Nid_e = Nid_t  and fromTruck_e = toTruck_t 
+        ( Nid_e = Nid_t  and fromTruck_e = toTruck_t
 
   Example:
   (A, T1,i  T2,j)   is (*this)  move
@@ -274,22 +290,23 @@ bool Move::insForbidden(const Move &move_e, int rule) const {
 
   Therfore returns True
 */
-bool Move::insForbiddenRule0 (const Move &move_e) const {
-        return (move_e.getInsNid()==getInsNid()  and move_e.getInsFromTruck()==getInsToTruck()
-		and move_e.getInsToTruck()==getInsFromTruck());
+bool Move::insForbiddenRule0 ( const Move &move_e ) const {
+    return ( move_e.getInsNid() == getInsNid()
+             and move_e.getInsFromTruck() == getInsToTruck()
+             and move_e.getInsToTruck() == getInsFromTruck() );
 }
 
 
 
 
-/** 
+/**
   forbidding moving the container back to the original truck
 
-	M_t (Nid_t , fromTruck_t, fromPos_t, toTruck_t, toPos_t)
-	M_e (Nid_e , fromTruck_e, fromPos_e, toTruck_e, toPos_e)
+    M_t (Nid_t , fromTruck_t, fromPos_t, toTruck_t, toPos_t)
+    M_e (Nid_e , fromTruck_e, fromPos_e, toTruck_e, toPos_e)
 
   True when:
-	( Nid_e = Nid_t  and fromTruck_e = toTruck_t 
+    ( Nid_e = Nid_t  and fromTruck_e = toTruck_t
 
   Example:
   (A, T1,i  T2,j)   is (*this)  move
@@ -297,18 +314,19 @@ bool Move::insForbiddenRule0 (const Move &move_e) const {
 
   both have the same  A (Nid)
   The evaluated move is taking out the contaier from a truck we placed it on
-	even when it comes from a different truck
+    even when it comes from a different truck
 
   Therfore returns True
 */
 
-bool Move::insForbiddenRule1 (const Move &move_e) const {
-	return (move_e.getInsNid()==getInsNid()  and move_e.getInsFromTruck()==getInsToTruck() );
+bool Move::insForbiddenRule1 ( const Move &move_e ) const {
+    return ( move_e.getInsNid() == getInsNid()
+             and move_e.getInsFromTruck() == getInsToTruck() );
 }
 
 
 
-/** 
+/**
   forbidding inserting a container to a truck when the truck it comes from is
   a truck we inserted to
 
@@ -316,7 +334,7 @@ bool Move::insForbiddenRule1 (const Move &move_e) const {
         M_e (Nid_e , fromTruck_e, fromPos_e, toTruck_e, toPos_e)
 
   True when:
-        ( fromTruck_e = toTruck_t  and toTruck_e = fromTruck_t 
+        ( fromTruck_e = toTruck_t  and toTruck_e = fromTruck_t
 
   Example:
   (A, T1,i  T2,j)   is (*this) tabued  move
@@ -327,20 +345,21 @@ bool Move::insForbiddenRule1 (const Move &move_e) const {
   Therfore returns True
 */
 
-bool Move::insForbiddenRule2(const Move &move_e) const {
-	return (move_e.getInsFromTruck()==getInsToTruck()  and move_e.getInsToTruck()==getInsFromTruck() );
+bool Move::insForbiddenRule2( const Move &move_e ) const {
+    return ( move_e.getInsFromTruck() == getInsToTruck()
+             and move_e.getInsToTruck() == getInsFromTruck() );
 }
 
 
 
-/** 
+/**
   forbidding reinserting a container back to the original truck
 
         M_t (Nid_t , fromTruck_t, fromPos_t, toTruck_t, toPos_t)
         M_e (Nid_e , fromTruck_e, fromPos_e, toTruck_e, toPos_e)
 
   True when:
-        ( Nid_e = Nid_t  and toTruck_e = fromTruck_t 
+        ( Nid_e = Nid_t  and toTruck_e = fromTruck_t
 
   Example:
   (A, T1,i  T2,j)   is (*this) tabued move
@@ -352,11 +371,12 @@ bool Move::insForbiddenRule2(const Move &move_e) const {
 
   Therfore returns True
 */
-bool Move::insForbiddenRule3 (const Move &move_e) const {
-        return (move_e.getInsNid()==getInsNid()  and move_e.getInsToTruck()==getInsFromTruck() );
+bool Move::insForbiddenRule3 ( const Move &move_e ) const {
+    return ( move_e.getInsNid() == getInsNid()
+             and move_e.getInsToTruck() == getInsFromTruck() );
 }
 
-/** 
+/**
   forbidding to move a container recently moved
 
         M_t (Nid_t , fromTruck_t, fromPos_t, toTruck_t, toPos_t)
@@ -374,19 +394,19 @@ bool Move::insForbiddenRule3 (const Move &move_e) const {
 
   Therfore returns True
 */
-bool Move::insForbiddenRule4 (const Move &move_e) const {
-        return (move_e.getInsNid()==getInsNid());
+bool Move::insForbiddenRule4 ( const Move &move_e ) const {
+    return ( move_e.getInsNid() == getInsNid() );
 }
 
 
-/** 
+/**
   forbidding to remove a container from a recently inserted Truck
 
         M_t (Nid_t , fromTruck_t, fromPos_t, toTruck_t, toPos_t)
         M_e (Nid_e , fromTruck_e, fromPos_e, toTruck_e, toPos_e)
 
   True when:
-        fromTruck_e = toTruck_t 
+        fromTruck_e = toTruck_t
 
   Example:
   (A, T1,i  T2,j)   is (*this)  tabued move
@@ -396,18 +416,18 @@ bool Move::insForbiddenRule4 (const Move &move_e) const {
 
   Therfore returns True
 */
-bool Move::insForbiddenRule5 (const Move &move_e) const {
-        return (move_e.getInsFromTruck()==getInsToTruck());  
-} 
+bool Move::insForbiddenRule5 ( const Move &move_e ) const {
+    return ( move_e.getInsFromTruck() == getInsToTruck() );
+}
 
-/** 
+/**
   forbidding to reinsert any order to a truck we used to remove from
 
         M_t (Nid_t , fromTruck_t, fromPos_t, toTruck_t, toPos_t)
         M_e (Nid_e , fromTruck_e, fromPos_e, toTruck_e, toPos_e)
 
   True when:
-         toTruck_e = fromTruck_t 
+         toTruck_e = fromTruck_t
 
   Example:
   (A, T1,i  T2,j)   is (*this)  tabued move
@@ -417,8 +437,8 @@ bool Move::insForbiddenRule5 (const Move &move_e) const {
   Therfore its frobidden
   returns True
 */
-bool Move::insForbiddenRule6 (const Move &move_e) const {
-        return (move_e.getInsToTruck()==getInsFromTruck());
+bool Move::insForbiddenRule6 ( const Move &move_e ) const {
+    return ( move_e.getInsToTruck() == getInsFromTruck() );
 }
 
 

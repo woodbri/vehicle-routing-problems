@@ -19,20 +19,24 @@
 
 class Neighborhoods : public Solution {
 
-public:
+  public:
 
-  Neighborhoods(const Solution &solution): Solution(solution){}; 
+    Neighborhoods( const Solution &solution ): Solution( solution ) {};
 
-    bool isNotFeasible(const Move& m) const ;
-    double getMoveSavings(const Move& m) const ;
-    int clearRelatedMoves(std::deque<Move>& moves, const Move& lastMove)  const;
-    int addRelatedMovesIns(std::deque<Move>& moves, const Move& lastMove)  const;
-    int addRelatedMovesIntraSw(std::deque<Move>& moves, const Move& lastMove)  const;
-    int addRelatedMovesInterSw(std::deque<Move>& moves, const Move& lastMove)  const;
-    void getInsNeighborhood(std::deque<Move>& moves, const Move& lastMove) const ;
-    void getIntraSwNeighborhood(std::deque<Move>& moves, const Move& lastMove) const;
-    void getInterSwNeighborhood(std::deque<Move>& moves, const Move& lastMove) const;
-    void applyMove(const Move& m);
+    bool isNotFeasible( const Move &m ) const ;
+    double getMoveSavings( const Move &m ) const ;
+    int clearRelatedMoves( std::deque<Move> &moves, const Move &lastMove )  const;
+    int addRelatedMovesIns( std::deque<Move> &moves, const Move &lastMove )  const;
+    int addRelatedMovesIntraSw( std::deque<Move> &moves,
+                                const Move &lastMove )  const;
+    int addRelatedMovesInterSw( std::deque<Move> &moves,
+                                const Move &lastMove )  const;
+    void getInsNeighborhood( std::deque<Move> &moves, const Move &lastMove ) const ;
+    void getIntraSwNeighborhood( std::deque<Move> &moves,
+                                 const Move &lastMove ) const;
+    void getInterSwNeighborhood( std::deque<Move> &moves,
+                                 const Move &lastMove ) const;
+    void applyMove( const Move &m );
 
 
 };
