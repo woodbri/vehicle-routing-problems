@@ -13,7 +13,15 @@
  ********************************************************************VRP*/
 
 #include <iostream>
+
+#ifdef LOG
 #include "logger.h"
+#endif
+
+#ifdef DOSTATS
+#include "stats.h"
+#endif
+
 #include "move.h"
 
 /*!
@@ -135,6 +143,7 @@ bool Move::isForbidden( const Move &tabu ) const {
  * \brief Print the move.
  */
 void Move::dump() const {
+#ifdef LOG
     DLOG( INFO ) << "Move: " << mtype
                  << ",\t" << nid1
                  << ",\t" << nid2
@@ -143,12 +152,14 @@ void Move::dump() const {
                  << ",\t" << pos1
                  << ",\t" << pos2
                  << ",\t" << savings;
+#endif
 }
 
 /*!
  * \brief Print the move in a more explict format.
  */
 void Move::Dump() const {
+#ifdef LOG
     switch ( mtype ) {
         case Ins:
             DLOG( INFO ) << "Move: Ins"
@@ -181,7 +192,7 @@ void Move::Dump() const {
                          << ")\t   savings:" << savings;
             break;
     }
-
+#endif
 }
 
 void Move::setInsMove( int fromTruck, int fromPos, int fromId, int toTruck,

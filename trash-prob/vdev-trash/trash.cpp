@@ -21,7 +21,9 @@
 #include <math.h>
 #include <stdio.h>
 
+#ifdef LOG
 #include "logger.h"
+#endif
 
 #ifdef DOSTATS
 #include "timer.h"
@@ -63,11 +65,13 @@ static std::string font = "/usr/share/fonts/truetype/ttf-dejavu/DejaVuSans.ttf";
 
 int main(int argc, char **argv) {
 
+    #ifdef LOG
     FLAGS_log_dir = "./logs/";
     google::InitGoogleLogging("vdev/Trash");
     //FLAGS_logtostderr = 0;
     FLAGS_stderrthreshold = google::ERROR;
     FLAGS_minloglevel = google::INFO;
+    #endif
 
     if (argc < 2) {
         Usage();
@@ -103,10 +107,13 @@ int main(int argc, char **argv) {
         FeasableSol tp(infile);
 	
 
-	#ifndef LOG
+	#ifdef LOG
         tp.dump();
+	#ifdef DOSTATS
         DLOG(INFO) << "FeasableSol time: " << starttime.duration();
 	#endif
+	#endif
+
 	#ifdef DOSTATS
         STATS->set("zzFeasableSol time", starttime.duration());
 	#endif
@@ -136,7 +143,7 @@ int main(int argc, char **argv) {
         STATS->set("zzTotal time", starttime.duration());
 	#endif
 
-	#ifndef LOG
+	#ifdef LOG
         best.dump();
 	#endif
 

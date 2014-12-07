@@ -14,9 +14,15 @@
 
 #include <sstream>
 
+#ifdef LOG
 #include "logger.h"
+#endif
+
+#ifdef DOSTATS
 #include "timer.h"
 #include "stats.h"
+#endif
+
 #include "optsol.h"
 
 
@@ -89,50 +95,30 @@ void OptSol::optimizeTruckNumber()   {
                  << "need to fit " << minn  << "containers into \t" << ( z2Tot - z2AtMin )
                  << "= z2Tot "     << z2Tot << " - "
                  << " z2AtMin "    << z2AtMin;
-
-
     std::stringstream ss;
     ss.str( "" );
     DLOG( INFO ) << "not FUll Trucks in current Trip: ";
-
-    for ( int i = 0; i < notFullz1.size(); i++ )
-        ss << notFullz1[i] << "\t";
-
+    for ( int i = 0; i < notFullz1.size(); i++ ) ss << notFullz1[i] << "\t";
     DLOG( INFO ) << ss.str();
-
     DLOG( INFO ) << "FUll Trucks in current trip: ";
     ss.str( "" );
-
-    for ( int i = 0; i < fullz1.size(); i++ )
-        ss << fullz1[i] << "\t";
-
+    for ( int i = 0; i < fullz1.size(); i++ ) ss << fullz1[i] << "\t";
     DLOG( INFO ) << ss.str();
-
     DLOG( INFO ) << "not FUll Trucks in next (non-existing) Trip";
     ss.str( "" );
-
-    for ( int i = 0; i < notFullz2.size(); i++ )
-        ss << notFullz2[i] << "\t";
-
+    for ( int i = 0; i < notFullz2.size(); i++ ) ss << notFullz2[i] << "\t";
     DLOG( INFO ) << ss.str();
-
     DLOG( INFO ) << " FUll Trucks in next (non-exisiting) trip";
     ss.str( "" );
-
-    for ( int i = 0; i < fullz2.size(); i++ )
-        ss << fullz2[i] << "\t";
-
+    for ( int i = 0; i < fullz2.size(); i++ ) ss << fullz2[i] << "\t";
     DLOG( INFO ) << ss.str();
     #endif
 
-    if ( minn <= ( z1Tot -
-                   z1AtMin ) ) { //a truck can be removed without extra trip in any other truck
+    if ( minn <= ( z1Tot - z1AtMin ) ) { //a truck can be removed without extra trip in any other truck
 
-        emptiedTruck = emptyTheTruck( fromTruck,
-                                      notFullz1 ); //first try to remove the smallest truck
+        emptiedTruck = emptyTheTruck( fromTruck, notFullz1 ); //first try to remove the smallest truck
 
-        if ( not emptiedTruck )
-            emptiedTruck = emptyAtruck( notFullz1, notFullz1 );
+        if ( not emptiedTruck ) emptiedTruck = emptyAtruck( notFullz1, notFullz1 );
 
     }
 
@@ -140,8 +126,7 @@ void OptSol::optimizeTruckNumber()   {
         fromTruck = truckWithMinn;
         emptiedTruck = emptyTheTruck( fromTruck, notFullz2 );
 
-        if ( not emptiedTruck )
-            emptiedTruck = emptyAtruck( notFullz2, notFullz2 );
+        if ( not emptiedTruck ) emptiedTruck = emptyAtruck( notFullz2, notFullz2 );
     }
 
     if ( not emptiedTruck and ( minn <= ( z2Tot - z2AtMin )
@@ -348,7 +333,7 @@ void OptSol::getInsNeighborhood( Moves &moves, double factor ) const {
 
     //if (insTruckPos1 == insTruckPos2) return;
 
-    #ifndef TESTED
+    #ifdef LOG
     DLOG( INFO ) << "**********************************working with truck "
                  << fromTruck << " and " << toTruck << " insSw neighborhood";
     #endif
@@ -359,7 +344,9 @@ void OptSol::getInsNeighborhood( Moves &moves, double factor ) const {
             if ( fleet[fromTruck][fromPos].isDump() ) continue; // skiping dump
 
             if ( fleet[ fromTruck ].size() == 1 ) {
+    		#ifdef LOG
                 DLOG( INFO ) << " A TRUCK WITHOUT CONTAINERS HAS BEING GENERATED";
+		#endif
                 interTruckPos1 = insTruckPos1 = fleet.size() - 2;
                 interTruckPos2 = insTruckPos2 = 0;
                 return;
@@ -378,7 +365,7 @@ void OptSol::getInsNeighborhood( Moves &moves, double factor ) const {
     fromTruck = toTruck;
     toTruck = tmp;
 
-    #ifndef TESTED
+    #ifdef LOG
     DLOG( INFO ) << "**********************************working with truck "
                  << fromTruck << " and " << toTruck << " insSw neighborhood";
     #endif
@@ -389,7 +376,9 @@ void OptSol::getInsNeighborhood( Moves &moves, double factor ) const {
             if ( fleet[fromTruck][fromPos].isDump() ) continue; // skiping dump
 
             if ( fleet[ fromTruck ].size() == 1 ) {
+    		#ifdef LOG
                 DLOG( INFO ) << " A TRUCK WITHOUT CONTAINERS HAS BEING GENERATED";
+		#endif
                 interTruckPos1 = insTruckPos1 = fleet.size() - 2;
                 interTruckPos2 = insTruckPos2 = 0;
                 return;

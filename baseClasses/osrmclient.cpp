@@ -332,7 +332,6 @@ bool OsrmClient::getOsrmViaroute() {
     }
 
 
-    //routing_machine.RunQuery( route_parameters, osrm_reply );
 
     httpContent = "";
     std::vector<std::string>::iterator sit;

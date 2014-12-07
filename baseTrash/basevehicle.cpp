@@ -17,10 +17,14 @@
 #include <sstream>
 #include <deque>
 
+#ifdef LOG
 #include "logger.h"
+#endif
 
+#ifdef DOSTATS
 #include "stats.h"
 #include "timer.h"
+#endif
 
 #include "trashconfig.h"
 #include "twpath.h"
@@ -134,6 +138,7 @@ bool  BaseVehicle::findNearestNodeTo( Bucket &unassigned, UID &pos,
 }
 
 
+#ifdef LOG
 void BaseVehicle::dump() const {
     DLOG( INFO ) << "---------- BaseVehicle ---------------";
     DLOG( INFO ) << "maxcapacity: " << getmaxcapacity();
@@ -198,7 +203,7 @@ void BaseVehicle::tau() const {
     ss << endingSite.getid();
     DLOG( INFO ) << ss.str();
 }
-
+#endif
 
 std::deque<int> BaseVehicle::getpath() const {
     std::deque<int> p;
@@ -513,7 +518,7 @@ bool BaseVehicle::pathThreeOpt() {
             for ( int j = i + 2; j < size - 3; j++ ) {
                 for ( int k = j + 2; k < size - 1; k++ ) {
                     doThreeOpt( i, i + 1, j, j + 1, k, k + 1 );
-                    #ifndef TESTED
+                    #ifdef LOG
                     DLOG( INFO ) << "pathThreeOpt[" << i << "," << i + 1 << ","
                                  << j << "," << j + 1 << "," << k << "," << k + 1
                                  << "](" << getcost() << "): ";
@@ -544,7 +549,7 @@ bool BaseVehicle::pathOrOpt() {
                     if ( ! ( j < i - 1 or j > i + k + 1 ) ) continue;
 
                     doOrOpt( i, i + k, j );
-                    #ifndef TESTED
+                    #ifdef LOG
                     DLOG( INFO ) << "pathOrOpt[" << i << "," << i + k << ","
                                  << j << "](" << getcost() << "): ";
                     dumppath();
@@ -872,8 +877,10 @@ bool BaseVehicle::exchange3( BaseVehicle &v2, BaseVehicle &v3, const int &cnt,
     double oldcost2 = v2.getcost();
     double oldcost3 = v3.getcost();
 
+    #ifdef LOG
     DLOG( INFO ) << "oldcost: " << oldcost1 << "+" << oldcost2 << "+" << oldcost3
                  << "=" << oldcost1 + oldcost2 + oldcost3;
+    #endif
 
     for ( int i = 0; i < cnt; i++ ) {
         path.e_swap( i1 + i, getmaxcapacity(),
@@ -892,8 +899,10 @@ bool BaseVehicle::exchange3( BaseVehicle &v2, BaseVehicle &v3, const int &cnt,
     double newcost2 = v2.getcost();
     double newcost3 = v3.getcost();
 
+    #ifdef LOG
     DLOG( INFO ) << "newcost: " << newcost1 << "+" << newcost2 << "+" <<
                  newcost3 << "=" << newcost1 + newcost2 + newcost3;
+    #endif
 
     if ( newcost1 + newcost2 + newcost3 > oldcost1 + oldcost2 + oldcost3 or
          !feasable() or !v2.feasable() or !v3.feasable() ) {
@@ -1018,6 +1027,7 @@ bool BaseVehicle::relocateBest( BaseVehicle &v2, const int &i1 ) {
 }
 
 /**************************************PLOT************************************/
+    #ifdef DOPLOT
 void BaseVehicle::plot( std::string file, std::string title,
                         int carnumber ) const {
     //    DLOG(INFO) << "USING VEHICLE PLOT";
@@ -1062,5 +1072,6 @@ void BaseVehicle::plot( Plot<Trashnode> graph, int carnumber )const {
     trace.push_back( endingSite );
     graph.drawPath( trace, graph.makeColor( carnumber * 10 ), 1, true );
 }
+    #endif
 
 

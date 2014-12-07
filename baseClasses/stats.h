@@ -19,7 +19,7 @@
 #include <map>
 
 #include "singleton.h"
-#include "timer.h"
+//#include "timer.h"
 
 /*! \class Stats
  * \brief Provides a general purpose statistics collection class.

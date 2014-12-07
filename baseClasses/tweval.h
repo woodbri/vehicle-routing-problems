@@ -62,7 +62,6 @@ class Tweval: public Twnode {
     double getDumpVisits() const { return dumpVisits; };
     double deltaGeneratesTWV( double deltaTime ) const;
     std::string getLoc() const;
-    //double getTT(const Tweval &other) const {return TravelTime[nid][other.nid];};
 
 
     bool hastwv() const { return twv; };
@@ -81,24 +80,6 @@ class Tweval: public Twnode {
     std::string getOsrmUrlLocs() const { return osrmUrlLocs; };
     std::string getOsrmUrl( const std::string osrmBaseUrl ) const;
     #endif
-
-    /*!
-     * \brief Assign a travel time matrix to the class.
-     *
-     * The travel time matrix is a static class object that is shared
-     * between all the Tweval nodes.
-     *
-     * \param[in] _tt A reference to a travel time matrix.
-    void setTravelTimes( const std::vector<std::vector<double> > &_tt ) {
-        assert ( _tt.size() );
-        TravelTime = _tt;
-        assert ( TravelTime.size() );
-    }
-    */
-
-
-
-    /* Operators, to be discussed */
 
 
     /* constructors &destructors */

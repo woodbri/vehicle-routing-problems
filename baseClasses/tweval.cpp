@@ -15,7 +15,9 @@
 #include <iostream>
 #include <sstream>
 
+#ifdef LOG
 #include "logger.h"
+#endif
 
 #ifdef OSRMCLIENT
 #include "osrmclient.h"
@@ -95,6 +97,7 @@ void Tweval::dump() const {
  * \brief Print the Tweval attributes for the node.
  */
 void Tweval::dumpeval() const  {
+    #ifdef LOG
     DLOG( INFO ) << "twv=" << twv
                  << ", cv=" << cv
                  << ", twvTot=" << twvTot
@@ -105,6 +108,7 @@ void Tweval::dumpeval() const  {
                  << ", wait Time=" << waitTime
                  << ", service Time=" << serviceTime
                  << ", departure Time=" << departureTime;
+    #endif
 }
 
 

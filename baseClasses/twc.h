@@ -24,11 +24,9 @@
 #include <math.h>
 #include <limits>
 
+#ifdef LOG
 #include "logger.h"
-#include "node.h"
-#include "twpath.h"
-#include "pg_types_vrp.h"
-#include "singleton.h"
+#endif
 
 #ifdef OSRMCLIENT
 #include "osrmclient.h"
@@ -38,6 +36,12 @@
 #include "timer.h"
 #include "stats.h"
 #endif
+
+#include "node.h"
+#include "twpath.h"
+#include "pg_types_vrp.h"
+#include "singleton.h"
+
 
 
 /*! \class TWC
@@ -389,20 +393,31 @@ template <class knode> class TWC {
 
         assert( from < original.size() and to < original.size() );
         double time;
-        #ifdef OSRMCLIENT
+        #ifndef OSRMCLIENT
+        if ( travel_Time[from][to] == -1 ) {
+                time = original[from].distance( original[to] ) / 250;
+
+                if ( not sameStreet( from, to ) ) {
+                    time = time *
+                           ( std::abs( std::sin( gradient( from, to ) ) ) +
+                             std::abs( std::cos( gradient( from, to ) ) )
+                           );
+                }
+        	travel_Time[from][to] = time;
+        }
+	return travel_Time[from][to];
+	#else
+
+
         bool oldStateOsrm = osrm->getUse();
-        #endif
 
         if ( travel_Time[from][to] == -1 ) {
             #ifdef DOSTATS
             STATS->inc( "TWC::getTravelTime(2 parameters) travel_time==-1" );
             #endif
 
-            #ifdef OSRMCLIENT
             osrm->useOsrm( true );
-
             if ( not osrm->getOsrmTime( original[from], original[to], time ) ) {
-            #endif
                 time = original[from].distance( original[to] ) / 250;
 
                 if ( not sameStreet( from, to ) ) {
@@ -415,7 +430,6 @@ template <class knode> class TWC {
                 #ifdef DOSTATS
                 STATS->inc( "TWC::getTravelTime(2 parameters) euclidean calculated" );
                 #endif
-                #ifdef OSRMCLIENT
             }
             else {
                 #ifdef DOSTATS
@@ -424,13 +438,14 @@ template <class knode> class TWC {
             }
 
             osrm->useOsrm( oldStateOsrm );
-                #endif
             travel_Time[from][to] = time;
             getTwcij( from, to, time );
+
             //TODO if is not compatible set travel_time as infinity
         }
 
         return travel_Time[from][to];
+        #endif
     }
 
   public:
@@ -1026,6 +1041,7 @@ template <class knode> class TWC {
      * \param[in] nodes  A bucket of nodes to print the TWC matrix.
      */
     void dumpCompatability( const Bucket &nodes ) const  {
+	#ifdef LOG
         std::stringstream ss;
         assert( nodes.size() );
 
@@ -1055,14 +1071,17 @@ template <class knode> class TWC {
         }
 
         DLOG( INFO ) << ss.str();
+        #endif
     }
 
     /*!
      * \brief Print the travel time matrix for the original nodes.
      */
     void dumpTravelTime() const {
+	#ifdef LOG
         assert( original.size() );
         dumpTravelTime( original );
+        #endif
     }
 
     /*!
@@ -1071,6 +1090,7 @@ template <class knode> class TWC {
      * \param[in] nodes A bucket of nodes to print the travel time matrix for.
      */
     void dumpTravelTime( const Bucket &nodes ) const {
+	#ifdef LOG
         std::stringstream ss;
         assert( nodes.size() );
         ss << "\n\n\n\nTRAVEL TIME TABLE \n\t";
@@ -1101,6 +1121,7 @@ template <class knode> class TWC {
         }
 
         DLOG( INFO ) << ss.str();
+	#endif
     }
 
 
@@ -1108,8 +1129,10 @@ template <class knode> class TWC {
      * \brief Print the compatibility matrix using an alternate format for the original nodes.
      */
     void dumpCompatible3() const  {
+	#ifdef LOG
         assert( original.size() );
         dumpCompatible3( original );
+	#endif
     }
 
     /*!
@@ -1118,6 +1141,7 @@ template <class knode> class TWC {
      * \param[in] nodes The bucket of nodes to print the TWC for.
      */
     void dumpCompatible3( const Bucket &nodes ) const {
+	#ifdef LOG
         std::stringstream ss;
         assert( nodes.size() );
 
@@ -1135,6 +1159,7 @@ template <class knode> class TWC {
         }
 
         DLOG( INFO ) << ss.str();
+	#endif
     }
 
     // ------------ go back to CALCULATED state -------------------
@@ -1388,9 +1413,11 @@ template <class knode> class TWC {
                 else {
                     travel_Time[i][j] = travel_Time[j][i] = -1;
                     #ifndef OSRMCLIENT
-
+		    #ifdef LOG
                     DLOG( INFO ) <<
                                  "OSRMCLIENT is not defined: we need to calculate the travelTime table";
+		    #endif
+
                     getTravelTime( i, j );
                     getTravelTime( j, i );
                     #endif
@@ -1448,7 +1475,9 @@ template <class knode> class TWC {
      */
     void loadAndProcess_distance( ttime_t *ttimes, int count,
                                   const Bucket &datanodes, const Bucket &invalid ) {
+	#ifdef LOG
         DLOG( INFO ) << "POSTGRES: loadAndProcess_distance needs to be TESTED";
+	#endif
         assert( datanodes.size() );
         original.clear();
         original = datanodes;
@@ -1494,7 +1523,9 @@ template <class knode> class TWC {
     void loadAndProcess_distance( std::string infile, const Bucket &datanodes,
                                   const Bucket &invalid ) {
         assert( datanodes.size() );
+	#ifdef LOG
         DLOG( INFO ) << "COMMANDLINE: loadAndProcess_distance";
+	#endif
 
         original.clear();
         original = datanodes;

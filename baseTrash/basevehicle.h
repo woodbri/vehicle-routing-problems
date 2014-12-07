@@ -19,11 +19,15 @@
 #include <sstream>
 
 
+#ifdef DOPLOT
+#include "plot.h"
+#endif
+
+
 #include "twpath.h"
 #include "trashnode.h"
 #include "twc.h"
 #include "twpath.h"
-#include "plot.h"
 #include "move.h"
 #include "pg_types_vrp.h"
 
@@ -225,18 +229,24 @@ class BaseVehicle  {
     //Trashnode operator[](int i) const { return path[i]; };
 
     //--------------------------------------------------------------------
-    // dumps and plots
+    // dumps 
     //--------------------------------------------------------------------
+    #ifdef LOG
     void dump() const;
     void dump( const std::string &title ) const;
     void dumpeval() const;
     void smalldump() const;
     void dumppath() const;
     void tau() const ;
+    #endif
 
+    //--------------------------------------------------------------------
+    // plots
+    //--------------------------------------------------------------------
+    #ifdef DOPLOT
     void plot( std::string file, std::string title, int carnumber ) const;
     void plot( Plot<Trashnode> graph, int carnumber ) const;
-
+    #endif
 
     //--------------------------------------------------------------------
     // evaluation
