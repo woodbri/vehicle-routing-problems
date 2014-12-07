@@ -388,8 +388,7 @@ template <class knode> class TWC {
 
     /*! \todo comments   */
   private:
-    double getTravelTime( UID from,
-                          UID to ) const { //this one does all the work gets &sets if needed
+    double getTravelTime( UID from, UID to ) const { //this one does all the work gets &sets if needed
 
         assert( from < original.size() and to < original.size() );
         double time;
@@ -1008,10 +1007,9 @@ template <class knode> class TWC {
 
     // ------------------------ DUMPS --------------------------
 
+    #ifdef LOG
 
-    /*!
-     * \brief Print the original nodes.
-     */
+    /*! \brief Print the original nodes.  */
     void dump() const  {
         assert( original.size() );
         dump( original );
@@ -1028,9 +1026,7 @@ template <class knode> class TWC {
         dumpTravelTime( original );
     }
 
-    /*!
-     * \brief Print the TW Compatibility matrix for the original nodes.
-     */
+    /*! \brief Print the TW Compatibility matrix for the original nodes.  */
     void dumpCompatability() const  {
         assert( original.size() );
         dumpCompatability( original );
@@ -1041,7 +1037,6 @@ template <class knode> class TWC {
      * \param[in] nodes  A bucket of nodes to print the TWC matrix.
      */
     void dumpCompatability( const Bucket &nodes ) const  {
-	#ifdef LOG
         std::stringstream ss;
         assert( nodes.size() );
 
@@ -1071,17 +1066,14 @@ template <class knode> class TWC {
         }
 
         DLOG( INFO ) << ss.str();
-        #endif
     }
 
     /*!
      * \brief Print the travel time matrix for the original nodes.
      */
     void dumpTravelTime() const {
-	#ifdef LOG
         assert( original.size() );
         dumpTravelTime( original );
-        #endif
     }
 
     /*!
@@ -1090,7 +1082,6 @@ template <class knode> class TWC {
      * \param[in] nodes A bucket of nodes to print the travel time matrix for.
      */
     void dumpTravelTime( const Bucket &nodes ) const {
-	#ifdef LOG
         std::stringstream ss;
         assert( nodes.size() );
         ss << "\n\n\n\nTRAVEL TIME TABLE \n\t";
@@ -1121,7 +1112,6 @@ template <class knode> class TWC {
         }
 
         DLOG( INFO ) << ss.str();
-	#endif
     }
 
 
@@ -1129,10 +1119,8 @@ template <class knode> class TWC {
      * \brief Print the compatibility matrix using an alternate format for the original nodes.
      */
     void dumpCompatible3() const  {
-	#ifdef LOG
         assert( original.size() );
         dumpCompatible3( original );
-	#endif
     }
 
     /*!
@@ -1141,7 +1129,6 @@ template <class knode> class TWC {
      * \param[in] nodes The bucket of nodes to print the TWC for.
      */
     void dumpCompatible3( const Bucket &nodes ) const {
-	#ifdef LOG
         std::stringstream ss;
         assert( nodes.size() );
 
@@ -1159,8 +1146,8 @@ template <class knode> class TWC {
         }
 
         DLOG( INFO ) << ss.str();
-	#endif
     }
+    #endif  //logs
 
     // ------------ go back to CALCULATED state -------------------
 
@@ -1413,11 +1400,6 @@ template <class knode> class TWC {
                 else {
                     travel_Time[i][j] = travel_Time[j][i] = -1;
                     #ifndef OSRMCLIENT
-		    #ifdef LOG
-                    DLOG( INFO ) <<
-                                 "OSRMCLIENT is not defined: we need to calculate the travelTime table";
-		    #endif
-
                     getTravelTime( i, j );
                     getTravelTime( j, i );
                     #endif
@@ -1426,8 +1408,8 @@ template <class knode> class TWC {
     }
 
 
+    #ifdef OSRMCLIENT
     void getAllHints() {
-        #ifdef OSRMCLIENT
         #ifdef DOSTATS
         Timer timer;
         #endif
@@ -1455,8 +1437,8 @@ template <class knode> class TWC {
         STATS->addto( "TWC::getAllHints Cumultaive time:", timer.duration() );
         #endif
 
-        #endif
     }
+    #endif
 
 
   public:
@@ -1482,7 +1464,9 @@ template <class knode> class TWC {
         original.clear();
         original = datanodes;
 
+        #ifdef OSRMCLIENT
         getAllHints();
+        #endif
 
         prepareTravelTime();
 
@@ -1534,7 +1518,10 @@ template <class knode> class TWC {
         std::ifstream in( infile.c_str() );
         std::string line;
 
+        #ifdef OSRMCLIENT
         getAllHints();
+	#endif
+
         prepareTravelTime();
 
         int fromId;

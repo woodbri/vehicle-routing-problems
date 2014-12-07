@@ -13,7 +13,11 @@
  ********************************************************************VRP*/
 #include "Library/OSRM.h"
 
+#ifdef LOG
 #include "logger.h"
+#endif
+
+
 #include "osrmclient.h"
 
 #ifdef DOSTATS
@@ -52,25 +56,15 @@ OsrmClient::OsrmClient() {
     };
 
     route_parameters.zoomLevel = 18;
-
     route_parameters.printInstructions = true;
-
     route_parameters.alternateRoute = false;
-
     route_parameters.geometry = false;
-
     route_parameters.compression = false;
-
     route_parameters.checkSum = UINT_MAX;
-
     route_parameters.service = "viaroute";
-
     route_parameters.outputFormat = "json";
-
     route_parameters.jsonpParameter = "";
-
     route_parameters.language = "";
-
     status = 0;
 
     use = false;
@@ -94,7 +88,6 @@ OsrmClient::OsrmClient() {
  */
 void OsrmClient::clear() {
     if ( not connectionAvailable ) return;
-
     if ( not use ) return;
 
     #ifdef DOSTATS

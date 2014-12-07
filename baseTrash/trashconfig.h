@@ -18,31 +18,12 @@
 
 #include "config.h"
 
-/*!
- * \class TrashConfig
- * \brief Defines TrashConfig object and initializes some default attributes.
- *
- * TrashConfig is derived from Config and create a global singleton object
- * for storing key/value pairs for configuring the Trash Collection application.
- * The following keys are currently defined:
- *
- * \arg \c osrmBaseUrl Sets the location of the OSRM server to use.
- * \arg \c plotDir Sets the location where plot files will get written.
- * \arg \c plotFontFile Sets the location of the default font file for plots.
- * \bug \c plotFontFile varible may not be working in the code.
- *
- */
 class TrashConfig : public Config {
   public:
 
-    TrashConfig() : Config() {
-        set( "osrmBaseUrl", "http://localhost:5000/" );
-        set( "plotDir",     "./" );
-        set( "plotFontFile", "/usr/share/fonts/truetype/msttcorefonts/Verdana.ttf" );
-    };
+    TrashConfig(); 
     ~TrashConfig() {};
 };
-
 #endif
 
 /*! \var typedef Singleton<TrashConfig> OurTrashConfig

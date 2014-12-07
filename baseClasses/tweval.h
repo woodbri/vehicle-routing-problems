@@ -71,16 +71,6 @@ class Tweval: public Twnode {
     void evaluate ( double cargoLimit );
     void evaluate ( const Tweval &pred, double cargoLimit );
 
-    /* Osrm stuff */
-    #ifdef WITHOSRM
-    void evaluateOsrm ();
-    void evaluateOsrm ( const Tweval &pred, const std::string &osrmBaseUrl );
-    bool isOsrmTtimeValid() { return getTotTravelTimeOsrm() == -1 ? false : true; };
-    double getTotTravelTimeOsrm() const { return totTravelTimeOsrm; };
-    std::string getOsrmUrlLocs() const { return osrmUrlLocs; };
-    std::string getOsrmUrl( const std::string osrmBaseUrl ) const;
-    #endif
-
 
     /* constructors &destructors */
 
@@ -110,6 +100,16 @@ class Tweval: public Twnode {
     double totTravelTimeOsrm;   ///< Total accumulated travel time at this point in the path based on the OSRM path
     std::string
     osrmUrlLocs;    ///< The partial URL string to get OSRM traveltime to this position in the path
+    #endif
+
+    /* Osrm stuff not in use so made it private meanwhile*/
+    #ifdef WITHOSRM
+    void evaluateOsrm ();
+    void evaluateOsrm ( const Tweval &pred, const std::string &osrmBaseUrl );
+    bool isOsrmTtimeValid() { return getTotTravelTimeOsrm() == -1 ? false : true; };
+    double getTotTravelTimeOsrm() const { return totTravelTimeOsrm; };
+    std::string getOsrmUrlLocs() const { return osrmUrlLocs; };
+    std::string getOsrmUrl( const std::string osrmBaseUrl ) const;
     #endif
 
 };

@@ -32,8 +32,6 @@
 
 
 
-//#include "Library/OSRM.h"
-
 #include "trashconfig.h"
 #include "feasableSol.h"
 #include "tabuopt.h"
@@ -43,9 +41,6 @@ void Usage() {
     std::cout << "Usage: trash file (no extension)\n";
 }
 
-#ifdef DOPLOT
-static std::string font = "/usr/share/fonts/truetype/ttf-dejavu/DejaVuSans.ttf";
-#endif
 
 /* Logging Severity Levels
     0   INFO
@@ -80,29 +75,13 @@ int main(int argc, char **argv) {
 
     std::string infile = argv[1];
 
-    #ifdef WITHOSRM
-    // MUST call this once to initial communications via cURL
-    cURLpp::Cleanup myCleanup;
-    #endif
-
     try {
-	#ifdef LOG
-	#ifdef OSRMCLIENT
-	osrm->useOsrm(true);
-	osrm->testOsrmClient();
-	osrm->useOsrm(false);
-	#endif
-	#endif
-
 	#ifdef DOSTATS
         Timer starttime;
 	#endif
 
-        #ifdef DOPLOT 
-        CONFIG->set("plotDir", "./logs/");
-	#endif
         CONFIG->dump("CONFIG");
-
+ assert(true==false);
        
         FeasableSol tp(infile);
 	
