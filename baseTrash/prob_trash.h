@@ -93,6 +93,9 @@ class Prob_trash {
     void load_endings( std::string infile );
     void load_otherlocs( std::string infile );
     void load_trucks( std::string infile );
+
+
+
 };
 
 #endif

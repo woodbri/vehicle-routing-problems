@@ -158,9 +158,6 @@ build/baseClasses/stats.o: $(BASECLASSES_DIR)/stats.cpp $(STATS_HEADER)
 build/baseClasses/%.o: ../$(BASECLASSES)/%.cpp  ../$(BASECLASSES)/%.h $(BASECLASSES_HEADS)
 	$(CPP) $(CPPFLAGS) $(INCLUDES) -c $< -o $@
 
-build/baseTrash/prob_trash.o: ../$(BASETRASH)/prob_trash.cpp ../$(BASETRASH)/prob_trash.h  $(BASECLASSES_HEADS) $(BASETRASH_HEADS)
-	$(CPP) $(CPPFLAGS) -fPIC $(INCLUDES) -c $< -o $@
-
 build/baseTrash/%.o: ../$(BASETRASH)/%.cpp ../$(BASETRASH)/%.h  $(BASECLASSES_HEADS) $(BASETRASH_HEADS)
 	$(CPP) $(CPPFLAGS) $(INCLUDES) -c $< -o $@
 

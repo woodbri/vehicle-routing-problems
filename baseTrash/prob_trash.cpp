@@ -142,15 +142,13 @@ Prob_trash::Prob_trash( const std::string &infile ) {
     loadProblem( infile );
 }
 
-/* depot must be the first node in list... rest can be anywhere*/
 
 void Prob_trash::loadProblem( const std::string &infile ) {
     datafile = infile;
     Bucket nodes;
     Bucket intersection;
     #ifdef LOG
-    DLOG( INFO ) << "Prob_trash LoadProblem --------------" << datafile
-                 << "--------";
+    DLOG( INFO ) << "Prob_trash LoadProblem --------------" << datafile << "--------";
     #endif
 
 

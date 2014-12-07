@@ -102,10 +102,6 @@ void TabuOpt::search() {
     //first cycle with osrm
     #ifdef OSRMCLIENT
     osrm->useOsrm( true );
-    if ( osrm->getUse() )
-        DLOG( INFO ) << "OSRM set to be used";
-    else
-        DLOG( INFO ) << "OSRM set to be not used";
     #endif
 
     for ( int i = 0; i < maxIteration; i++ ) {

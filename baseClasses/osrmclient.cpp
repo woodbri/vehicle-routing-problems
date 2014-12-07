@@ -531,7 +531,9 @@ bool OsrmClient::testOsrmClient() {
     std::deque<std::string> hints;
 
     if ( getStatus() == -1 ) {
+	#ifdef LOG
         DLOG( WARNING ) << getErrorMsg();
+	#endif
         return false;
     }
 
@@ -541,10 +543,11 @@ bool OsrmClient::testOsrmClient() {
 
     // TODO Make this location a config value
     //34.890816,-56.165529
-    if ( getOsrmTime( -34.8917, -56.167694, -34.890816, -56.165529, time ) )
+    if ( getOsrmTime( -34.8917, -56.167694, -34.890816, -56.165529, time ) ) {
+	#ifdef LOG
         DLOG( INFO ) << "test time:" << time;
-    else
-        return false;
+	#endif
+    } else return false;
 
     getOsrmPenalty( penalty );
 
@@ -553,10 +556,11 @@ bool OsrmClient::testOsrmClient() {
         std::string hint2 = hints[1];
 
         if ( getOsrmTime( -34.8917, -56.167694, -34.890816, -56.165529,
-                          hint1, hint2, time ) )
+                          hint1, hint2, time ) ) {
+	    #ifdef LOG
             DLOG( INFO ) << "test time:" << time;
-        else
-            return false;
+	    #endif
+        } else return false;
     }
     else
         return false;
@@ -566,9 +570,11 @@ bool OsrmClient::testOsrmClient() {
 
     addPenalty = true;
 
-    if ( getOsrmTime( -34.8917, -56.167694, -34.890816, -56.165529, time ) )
+    if ( getOsrmTime( -34.8917, -56.167694, -34.890816, -56.165529, time ) ) {
+	#ifdef LOG
         DLOG( INFO ) << "test time: " << time;
-    else return false;
+	#endif
+    } else return false;
 
     getOsrmPenalty( penalty );
 
@@ -577,13 +583,13 @@ bool OsrmClient::testOsrmClient() {
         std::string hint2 = hints[1];
 
         if ( getOsrmTime( -34.8917, -56.167694, -34.890816, -56.165529, hint1, hint2,
-                          time ) )
+                          time ) ) {
+	    #ifdef LOG
             DLOG( INFO ) << "test time: " << time;
-        else
-            return false;
+	    #endif
+        } else return false;
     }
-    else
-        return false;
+    else return false;
 
     addPenalty = oldPenalty;
 
@@ -735,8 +741,10 @@ bool OsrmClient::getPenalty( rapidjson::Document &jsondoc,
         turn = strtol( (*itr)[0].GetString(), NULL, 10 );
 
         trace = std::string( (*itr)[0].GetString() );
+	#ifdef LOG
         DLOG( INFO ) << "InstructionsData " << trace;
         DLOG( INFO ) << "Instruction " << turn;
+	#endif
 
         switch ( turn ) {
             case 2: penalty += 0.05; break; //slight right
@@ -756,7 +764,9 @@ bool OsrmClient::getPenalty( rapidjson::Document &jsondoc,
 
     }
 
+    #ifdef LOG
     DLOG( INFO ) << "Penalty " << penalty;
+    #endif
     return true;
 }
 

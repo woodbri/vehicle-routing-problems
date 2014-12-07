@@ -278,7 +278,7 @@ void OptSol::getInterSwNeighborhood( Moves &moves, double factor )  const {
 
     #ifdef DOSTATS
     STATS->addto( "OptSol::getInterSwNeighborhood ", timer.duration() );
-    #ifndef LOG
+    #ifdef LOG
     DLOG( INFO ) << "InterSw working with truck " << truckPos << " and"
                  << otherTruckPos << "interSw neighborhood" << timer.duration();
     #endif

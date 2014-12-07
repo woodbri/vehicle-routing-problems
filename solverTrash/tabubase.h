@@ -232,7 +232,7 @@ class TabuBase  {
     void dumpStats() const {
         #ifdef DOSTATS
         STATS->inc( "Tabubase::dumpStats" );
-        #ifndef LOG
+        #ifdef LOG
         DLOG( INFO ) << "TabuList Stats at iteration: " << currentIteration;
         #endif
         STATS->dump( "" );
