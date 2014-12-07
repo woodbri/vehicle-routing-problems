@@ -14,16 +14,18 @@
 #ifndef VRP_OSRMCLIENT_H
 #define VRP_OSRMCLIENT_H
 
-#include "DataStructures/Coordinate.h"
-#include "Server/DataStructures/RouteParameters.h"
-//#include "Library/OSRM.h"
-
-#include "logger.h"
-#include "node.h"
-
 #include <string>
 #include <deque>
 #include <vector>
+#include "DataStructures/Coordinate.h"
+#include "Server/DataStructures/RouteParameters.h"
+
+#ifdef LOG
+#include "logger.h"
+#endif
+
+#include "node.h"
+
 
 // load our assert to throw macros and tell rapidjson to use them
 #include "vrp_assert.h"
@@ -56,8 +58,7 @@ class OsrmClient {
     std::string
     err_msg;                ///< An error message if an error is reported.
     std::string httpContent;            ///< the json response document
-    static bool
-    connectionAvailable;           ///< once set to false, it doesnt try to make a connection
+    static bool connectionAvailable;           ///< once set to false, it doesnt try to make a connection
     static OSRM  *routing_machine;
     static OsrmClient *p_osrm;
     OsrmClient();
@@ -105,6 +106,7 @@ class OsrmClient {
     bool getOsrmGeometry( std::deque<Node> &geom );
     bool getOsrmHints( std::deque<std::string> &hints );
     int getStatus() const { return status; };
+    int getConnection() const { return connectionAvailable; };
     std::string getErrorMsg() const { return err_msg; };
     bool testOsrmClient();
 
@@ -116,6 +118,7 @@ class OsrmClient {
     bool getPenalty( rapidjson::Document &jtree, double &penalty );
 
   public:
+    #ifdef LOG
     void dump() {
         DLOG( INFO ) << "----- OsrmClient ----------"
                      << "\nstatus: " << status
@@ -123,6 +126,7 @@ class OsrmClient {
                      << "\ncoordinates.size(): " << route_parameters.coordinates.size()
                      << "\nhttpContent: " << httpContent;
     };
+    #endif
 };
 
 #define osrm OsrmClient::Instance()

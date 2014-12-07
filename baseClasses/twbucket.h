@@ -22,8 +22,12 @@
 #include <algorithm>
 #include <limits>
 
-#include "vrp_assert.h"
+
+#ifdef LOG
 #include "logger.h"
+#endif
+
+#include "vrp_assert.h"
 #include "node.h"
 
 
@@ -619,6 +623,7 @@ class TwBucket {
      * \param[in] title Title to print with the output of the Twbucket.
      */
     void dumpid( const std::string &title ) const {
+	#ifdef LOG
         std::stringstream ss;
         ss << title;
         const_iterator it = path.begin();
@@ -627,6 +632,7 @@ class TwBucket {
             ss << " " << it->getid();
 
         DLOG( INFO ) << ss.str();
+        #endif
     };
 
     /*!
@@ -640,6 +646,7 @@ class TwBucket {
      * \param[in] title Title to print with the output of the Twbucket.
      */
     void dump( const std::string &title ) const {
+	#ifdef LOG
         std::stringstream ss;
         ss << title;
         const_iterator it = path.begin();
@@ -648,6 +655,7 @@ class TwBucket {
             ss << " " << it->getnid();
 
         DLOG( INFO ) << ss.str();
+	#endif
     };
 
     // --------------- set operations tools -------------------------

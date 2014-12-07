@@ -22,10 +22,7 @@
 #include <deque>
 #include <math.h>
 
-//#include "order.h"
-//#include "orders.h"
 #include "vehicle.h"
-#include "street.h"
 #include "twpath.h"
 #include "twc.h"
 
@@ -44,7 +41,6 @@ class Prob_trash {
     Bucket invalid;
     std::deque<Vehicle> trucks;
     std::deque<Vehicle> invalidTrucks;
-    std::deque<Street>  streets;
     Trashnode C;
 
     std::string datafile;
@@ -72,16 +68,19 @@ class Prob_trash {
     void twcijDump() const;
 
 
-
+    #ifdef LOG
     void nodesdump();
     void nodesdumpeval();
-    void plot( Plot<Trashnode> &graph );
     void dump();
     void dumpdataNodes() const;
     void dumpDepots() const;
     void dumpDumps() const;
     void dumpPickups() const;
+    #endif
 
+    #ifdef DOPLOT
+    void plot( Plot<Trashnode> &graph );
+    #endif
 
 
     inline double _MAX() { ( std::numeric_limits<double>::max() ); };
@@ -94,8 +93,6 @@ class Prob_trash {
     void load_endings( std::string infile );
     void load_otherlocs( std::string infile );
     void load_trucks( std::string infile );
-    void buildStreets( Bucket &unassigned, Bucket &assigned );
-    void buildStreets( const Bucket &nodes );
 };
 
 #endif

@@ -21,7 +21,9 @@
 #include <math.h>
 #include <stdio.h>
 
+#ifdef LOG
 #include "logger.h"
+#endif
 
 #ifdef DOSTATS
 #include "timer.h"
@@ -29,8 +31,6 @@
 #endif
 
 
-
-//#include "Library/OSRM.h"
 
 #include "trashconfig.h"
 #include "feasableSol.h"
@@ -41,9 +41,6 @@ void Usage() {
     std::cout << "Usage: trash file (no extension)\n";
 }
 
-#ifdef DOPLOT
-static std::string font = "/usr/share/fonts/truetype/ttf-dejavu/DejaVuSans.ttf";
-#endif
 
 /* Logging Severity Levels
     0   INFO
@@ -63,11 +60,13 @@ static std::string font = "/usr/share/fonts/truetype/ttf-dejavu/DejaVuSans.ttf";
 
 int main(int argc, char **argv) {
 
+    #ifdef LOG
     FLAGS_log_dir = "./logs/";
     google::InitGoogleLogging("vdev/Trash");
     //FLAGS_logtostderr = 0;
     FLAGS_stderrthreshold = google::ERROR;
     FLAGS_minloglevel = google::INFO;
+    #endif
 
     if (argc < 2) {
         Usage();
@@ -76,37 +75,24 @@ int main(int argc, char **argv) {
 
     std::string infile = argv[1];
 
-    #ifdef WITHOSRM
-    // MUST call this once to initial communications via cURL
-    cURLpp::Cleanup myCleanup;
-    #endif
-
     try {
-	#ifdef LOG
-	#ifdef OSRMCLIENT
-	osrm->useOsrm(true);
-	osrm->testOsrmClient();
-	osrm->useOsrm(false);
-	#endif
-	#endif
-
 	#ifdef DOSTATS
         Timer starttime;
 	#endif
 
-        #ifdef DOPLOT 
-        CONFIG->set("plotDir", "./logs/");
-	#endif
         CONFIG->dump("CONFIG");
-
+ assert(true==false);
        
         FeasableSol tp(infile);
 	
 
-	#ifndef LOG
+	#ifdef LOG
         tp.dump();
+	#ifdef DOSTATS
         DLOG(INFO) << "FeasableSol time: " << starttime.duration();
 	#endif
+	#endif
+
 	#ifdef DOSTATS
         STATS->set("zzFeasableSol time", starttime.duration());
 	#endif
@@ -136,7 +122,7 @@ int main(int argc, char **argv) {
         STATS->set("zzTotal time", starttime.duration());
 	#endif
 
-	#ifndef LOG
+	#ifdef LOG
         best.dump();
 	#endif
 

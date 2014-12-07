@@ -17,10 +17,14 @@
 #include <sstream>
 #include <deque>
 
+#ifdef LOG
 #include "logger.h"
+#endif
 
+#ifdef DOSTATS
 #include "stats.h"
 #include "timer.h"
+#endif
 
 #include "trashconfig.h"
 #include "twpath.h"
@@ -107,7 +111,7 @@ long int Vehicle::eval_intraSwapMoveDumps( Moves &moves, int  truckPos,
     STATS->inc( "Vehicle::eval_intraSwapMoveDumps" );
     #endif
 
-    #ifndef TESTED
+    #ifdef LOG
     DLOG( INFO ) << "Entering Vehicle::eval_intraSwapMoveDumps";
     #endif
 
@@ -403,7 +407,7 @@ bool Vehicle::e_insertIntoFeasableTruck( const Trashnode &node, int pos ) {
     #ifdef DOSTATS
     STATS->inc( "Vehicle::e_insertIntoFeasableTruck" );
     #endif
-    #ifdef TESTED
+    #ifdef LOG
     DLOG( INFO ) << "Entering Vehicle::e_insertIntoFeasableTruck";
     #endif
     assert( feasable() );
@@ -570,7 +574,9 @@ bool Vehicle::applyMoveINSerasePart( int nodeNid, int pos ) {
     path.erase( pos );
     e_makeFeasable( pos );
 
+    #ifdef LOG
     if ( not feasable() ) dumpeval();
+    #endif
 
     assert ( feasable() );
     return feasable();
@@ -581,13 +587,15 @@ bool Vehicle::applyMoveINSinsertPart( const Trashnode &node, int pos ) {
     #ifdef DOSTATS
     STATS->inc( "Vehicle::applyMoveINSinsertPart" );
     #endif
-    #ifdef TESTED
+    #ifdef LOG
     DLOG( INFO ) << "Entering Vehicle::applyMoveINSinsertPart";
     #endif
     path.insert( node, pos );
     e_makeFeasable( pos );
 
+    #ifdef LOG
     if ( not feasable() ) dumpeval();
+    #endif
 
     assert ( feasable() );
     return feasable();
@@ -620,7 +628,7 @@ bool Vehicle::applyMoveIntraSw( int  fromPos, int withPos ) {
     #ifdef DOSTATS
     STATS->inc( "Vehicle::applyMoveIntraSw" );
     #endif
-    #ifdef TESTED
+    #ifdef LOG
     DLOG( INFO ) << "Entering Vehicle::applyMoveInterSw";
     #endif
     path.swap( fromPos,  withPos );
@@ -654,7 +662,7 @@ bool Vehicle::e_insertSteadyDumpsTight( const Trashnode &node, int at ) {
     STATS->inc( "Vehicle::e_insertSteadyDumpsTight" );
     #endif
     assert ( at <= size() );
-    #ifndef TESTED
+    #ifdef LOG
     DLOG( INFO ) << "Entering Vehicle::e_insertSteadyDumpsTight";
     #endif
 
@@ -681,7 +689,7 @@ bool Vehicle::e_insertDumpInPath( const Trashnode &lonelyNodeAfterDump ) {
     #ifdef DOSTATS
     STATS->inc( "Vehicle::e_insertDumpInPath" );
     #endif
-    #ifndef TESTED
+    #ifdef LOG
     DLOG( INFO ) << "Entering Vehicle::e_insertDumpInPath";
     #endif
 
@@ -711,7 +719,7 @@ bool Vehicle::deltaCargoGeneratesCV( const Trashnode &node,
     #ifdef DOSTATS
     STATS->inc( "Vehicle::deltaCargoGeneratesCV" );
     #endif
-    #ifdef TESTED
+    #ifdef LOG
     DLOG( INFO ) << "Entering Vehicle::deltaCargoGeneratesCV";
     //    DLOG(INFO) << getcargo() << "+" << node.getdemand() << " ¿? " << getmaxcapacity();
     #endif
@@ -722,7 +730,7 @@ bool Vehicle::deltaCargoGeneratesCV( const Trashnode &node,
 
     // two choices i points to a dump or i == size()
     // in any case the i-1 node has the truck's cargo
-    #ifdef TESTED
+    #ifdef LOG
     path[i - 1].dumpeval();
 
     DLOG( INFO ) << getCargo( i - 1 ) << "+" << node.getDemand() << " ¿? " <<
@@ -762,7 +770,7 @@ bool Vehicle::deltaTimeGeneratesTV( const Trashnode &node, int pos ) const {
     STATS->inc( "Vehicle::deltaTimeGeneratesTV" );
     #endif
 
-    #ifdef TESTED
+    #ifdef LOG
     DLOG( INFO ) << "Entering Vehicle::deltaTimeGeneratesTV";
 
     if ( pos > path.size() )

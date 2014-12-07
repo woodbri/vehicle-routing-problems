@@ -17,12 +17,16 @@
 #include <deque>
 #include <cmath>
 
+
+#ifdef DOPLOT
+#include "plot.h"
+#endif
+
 #include "prob_trash.h"
 #include "twbucket.h"
 #include "twpath.h"
 #include "pg_types_vrp.h"
 #include "vehicle.h"
-#include "plot.h"
 #include "move.h"
 
 const double EPSILON = 0.001;
@@ -110,9 +114,10 @@ class Solution: public Prob_trash {
     void dumpCostValues() {
         for ( int i = 0; i < fleet.size(); i++ )
             fleet[i].getCost();
-
+ 	#ifdef LOG
         for ( int i = 0; i < fleet.size(); i++ )
             fleet[i].dumpCostValues();
+	#endif
     }
 
     void setInitialValues() {
@@ -127,9 +132,11 @@ class Solution: public Prob_trash {
     int getTWV() const ;
     int getCV() const ;
 
+    #ifdef LOG
     void dump() const;
     void dumpFleet() const ;
     void dumpSummary() const ;
+    #endif
 
 };
 

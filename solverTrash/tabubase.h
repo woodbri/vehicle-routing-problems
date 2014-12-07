@@ -19,9 +19,16 @@
 #include <sstream>
 
 #include "vrp_assert.h"
+
+#ifdef LOG
 #include "logger.h"
+#endif
+
+#ifdef DOSTATS
 #include "stats.h"
 #include "timer.h"
+#endif
+
 #include "move.h"
 #include "optsol.h"
 
@@ -178,6 +185,7 @@ class TabuBase  {
     */
 
     void dumpSet( std::string title, std::set<int> info ) const {
+	#ifdef LOG
         std::stringstream ss;
 
         #ifdef DOSTATS
@@ -191,12 +199,14 @@ class TabuBase  {
         }
 
         DLOG( INFO ) << ss.str();
+	#endif
     };
 
 
 
 
     void dumpTabuList() const {
+	#ifdef LOG
         std::stringstream ss;
 
         #ifdef DOSTATS
@@ -215,6 +225,7 @@ class TabuBase  {
 
         ss << "--------------------------";
         DLOG( INFO ) << ss.str();
+	#endif
     };
 
 
@@ -236,42 +247,13 @@ class TabuBase  {
         STATS->inc( "cnt Calls Gen " + mtype );
         STATS->addto( "cum Moves " + mtype, cnt );
         #endif
-        #ifndef LOG
+        #ifdef LOG
         DLOG( INFO ) << "doNeighborhoodMoves for " << mtype << ": " << cnt
                      << " moves generated";
         #endif
     };
 
 
-    /*
-    bool isTabu(const Move& m) const {
-        #ifdef DOSTATS
-            STATS->inc("Tabubase::isTabu");
-        #endif
-        std::map<const Move, int>::const_iterator it;
-
-        bool myTabu=v_isTabu(m);
-        STATS->inc("tabu Moves Checked");
-        for (it = TabuList.begin(); it!=TabuList.end(); ++it) {
-            //if (it->second < currentIteration) continue;
-            if ( (it->first.getmtype()==Move::Ins and
-                  it->second < currentIterationIns) or
-                 (it->first.getmtype()==Move::IntraSw and
-                  it->second < currentIterationIntraSw) or
-                 (it->first.getmtype()==Move::InterSw and
-                  it->second < currentIterationInterSw)
-                 ) continue;
-            if (it->first.getmtype() != m.getmtype() ) continue;
-            if (m.isForbidden(it->first)) {
-            assert (myTabu==true);
-                STATS->inc("tabu Moves Checked Tabu");
-                return true;
-            }
-        }
-        assert (myTabu==false);
-        return false;
-    };
-    */
 
     bool isTabu( const Move &move_e ) const {
         #ifdef DOSTATS
@@ -293,7 +275,9 @@ class TabuBase  {
                ) continue;
 
             if ( tabu.isTabu( move_e, 6 ) ) {
+		#ifdef DOSTATS
                 STATS->inc( "tabu Moves resulted" );
+		#endif
                 return true;
             }
         }
@@ -435,7 +419,7 @@ class TabuBase  {
         #ifdef DOSTATS
         STATS->inc( "Tabubase::removeTruckFromTabuList" );
         #endif
-        #ifndef TESTED
+        #ifdef LOG
         DLOG( INFO ) << "Entering TabuBase::removeTruckFromTabuList";
         #endif
         int pos1, pos2;

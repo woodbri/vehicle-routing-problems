@@ -16,7 +16,10 @@
 #include <cstdio>
 #include <iostream>
 
+#ifdef LOG
 #include "logger.h"
+#endif
+
 #include "config.h"
 
 
@@ -110,6 +113,7 @@ std::vector<std::string> Config::getKeys() const {
  *
  */
 void Config::dump( const std::string title ) const {
+    #ifdef LOG
     std::map<std::string, std::string>::const_iterator it;
 
     DLOG( INFO ) << "---------- CONFIG -------------";
@@ -118,6 +122,7 @@ void Config::dump( const std::string title ) const {
         DLOG( INFO ) << it->first << ": '" << it->second << "'";
 
     DLOG( INFO ) << "-------------------------------";
+    #endif
 }
 
 

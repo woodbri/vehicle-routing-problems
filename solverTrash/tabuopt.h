@@ -18,47 +18,13 @@
 #include <cstdlib>
 
 #include "vrp_assert.h"
-#include "logger.h"
-#include "stats.h"
-#include "timer.h"
-#include "move.h"
-#include "optsol.h"
+
 #include "tabubase.h"
 
 class TabuOpt: public TabuBase<OptSol> {
 
   public:
-    TabuOpt( const OptSol &initialSolution ) :
-        TabuBase( initialSolution ) {
-        #ifdef DOSTATS
-        STATS->inc( "TabuOpt::TabuOpt" );
-        #endif
-        computeCosts( bestSolution );
-        Timer start;
-        #ifndef LOG
-        bestSolution.tau();
-        #endif
-        bestSolution.optimizeTruckNumber();
-        bestTabuList.clear();
-        computeCosts( bestSolution );
-        bestSolutionCost = bestSolution.getCost();
-        setBestAsCurrent();
-        #ifndef LOG
-        DLOG( INFO ) << "TABUSEARCH: Removal of truck time: " << start.duration();
-        bestSolution.tau();
-        #endif
-
-        limitIntraSw = bestSolution.getFleetSize();
-        limitInterSw = limitIntraSw * ( limitIntraSw - 1 ) / 2 ;
-        limitIns    = limitInterSw;
-        #ifdef DOSTATS
-        STATS->set( "limitIntraSw", limitIntraSw );
-        STATS->set( "limitInterSw", limitIntraSw );
-        STATS->set( "limitIns", limitInterSw );
-        #endif
-    };
-
-
+    TabuOpt( const OptSol &initialSolution ); 
 
     void optimizeTruckNumber();
 

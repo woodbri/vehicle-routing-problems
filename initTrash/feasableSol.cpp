@@ -20,9 +20,15 @@
 #include <sstream>
 #include <fstream>
 
+#ifdef LOG
 #include "logger.h"
+#endif
+
+#ifdef DOSTATS
 #include "timer.h"
 #include "plot.h"
+#endif
+
 #include "feasableSol.h"
 
 
@@ -72,7 +78,9 @@ void FeasableSol::stepOne( Vehicle &truck ) {
         }
     }
     else {
+        #ifdef LOG
         DLOG( WARNING ) << "no nearest node was found";
+	#endif
         assert( "FeasableSol::stepOne" == "no nearest node was found" );
     }
 
@@ -104,13 +112,17 @@ void FeasableSol::process() {
     assert( not ( unassigned * assigned ).size()  ) ;
     assert( not ( problematic * assigned ).size()  ) ;
     //END INVARIANT
+    #ifdef DOSTATS
     Timer start;
+    #endif
 
     Vehicle truck;
     truck = getTruck();
     stepOne( truck );
     fleet.push_back( truck ); //need to save the last truck
-
+    
+    #if defined LOG && defined DOSTATS
     DLOG( INFO ) << "FEASABLESOL: Total time: " << start.duration();
+    #endif
     return;
 }

@@ -5,8 +5,6 @@ CURL_CFLAGS := $(shell pkg-config --cflags curlpp)
 CURL_LIBS := $(shell pkg-config --libs curlpp)
 JSON_LIBS = -L /lib/x86_64-linux-gnu/ -ljson
 
-LOGGER_CFLAGS = -I/usr/local/include
-LOGGER_LIBS = -L/usr/local/lib -lglog
 
 BASETRASH = baseTrash
 BASECLASSES = baseClasses
@@ -20,13 +18,12 @@ BIN_DIR = ./bin
 # set WITH_OSRMCLIENT = "1" to include this code
 # you will also need to define additional related variables
 
-WITH_OSRMCLIENT = yes
-WITH_STATS = yes
-WITH_LOG =
+WITH_OSRMCLIENT =
+WITH_STATS =
+WITH_LOG = yes
 WITH_MD5 =
 WITH_OSRM =
 WITH_PLOT =
-
 
 
 ifeq ("$(WITH_STATS)", "")
@@ -45,7 +42,7 @@ OSRM_HEADER = $(BASECLASSES_DIR)/vrposrm.h
 OSRM_CFLAGS = -DWITHOSRM $(CURL_CFLAGS)
 endif
 
-ifeq ("$(WITH_STATS)", "")
+ifeq ("$(WITH_PLOT)", "")
 PLOT_HEADER = 
 PLOT_CFLAGS = 
 else
@@ -58,6 +55,18 @@ MD5_CFLAGS =
 else
 MD5_CFLAGS = -DWITHMD5 
 endif
+
+ifeq ("$(WITH_LOG)", "")
+LOGGER_HEADER = 
+LOGGER_CFLAGS = 
+LOGGER_LIBS = 
+else
+LOGGER_HEADER = $(BASECLASSES_DIR)/logger.h 
+LOGGER_CFLAGS = -DLOG -I/usr/local/include
+LOGGER_LIBS = -L/usr/local/lib -lglog
+endif
+
+
 
 
 ifeq ("$(WITH_OSRMCLIENT)", "")
@@ -83,32 +92,38 @@ HEADS = $(SRCS:.cpp=.h)
 
 
 BASECLASSES_SRCS = $(wildcard $(BASECLASSES_DIR)/*.cpp)
+BASECLASSES_HDS = $(UTIL_SRCS:.cpp=.h)
 
-# filter out baseClasses/osrmclient.cpp unless
-# WITH_OSRMCLIENT=1 has been set
 
 ifeq ("$(WITH_OSRMCLIENT)", "")
 BASECLASSES_SRCS := $(filter-out $(BASECLASSES_DIR)/osrmclient.cpp, $(BASECLASSES_SRCS))
+BASECLASSES_HDS := $(filter-out $(BASECLASSES_DIR)/osrmclient.h, $(BASECLASSES_HDS))
 endif
 
 ifeq ("$(WITH_STATS)", "")
 BASECLASSES_SRCS := $(filter-out $(BASECLASSES_DIR)/stats.cpp, $(BASECLASSES_SRCS))
 BASECLASSES_SRCS := $(filter-out $(BASECLASSES_DIR)/timer.cpp, $(BASECLASSES_SRCS))
+BASECLASSES_HDS := $(filter-out $(BASECLASSES_DIR)/stats.h, $(BASECLASSES_HDS))
+BASECLASSES_HDS := $(filter-out $(BASECLASSES_DIR)/timer.h, $(BASECLASSES_HDS))
 endif
 
 ifeq ("$(WITH_MD5)", "")
 BASECLASSES_SRCS := $(filter-out $(BASECLASSES_DIR)/md5.cpp, $(BASECLASSES_SRCS))
+BASECLASSES_HDS := $(filter-out $(BASECLASSES_DIR)/md5.h, $(BASECLASSES_HDS))
 endif
 
 ifeq ("$(WITH_OSRM)", "")
 BASECLASSES_SRCS := $(filter-out $(BASECLASSES_DIR)/vrposrm.cpp, $(BASECLASSES_SRCS))
+BASECLASSES_HDS := $(filter-out $(BASECLASSES_DIR)/vrposrm.h, $(BASECLASSES_HDS))
 endif
 
 
-
-BASECLASSES_HDS = $(UTIL_SRCS:.cpp=.h)
 BASECLASSES_OBJS = $(addprefix $(BUILD_DIR)/$(BASECLASSES)/,$(notdir $(BASECLASSES_SRCS:.cpp=.o)))
-BASECLASSES_HEADS = ../../$(BASECLASSES)/twpath.h ../../$(BASECLASSES)/twc.h ../../$(BASECLASSES)/twbucket.h  ../../$(BASECLASSES)/singleton.h ../../$(BASECLASSES)/timer.h $(BASECLASSES_HDS) $(PLOT_HEADER)
+BASECLASSES_HEADS = ../../$(BASECLASSES)/twpath.h ../../$(BASECLASSES)/twc.h ../../$(BASECLASSES)/twbucket.h  ../../$(BASECLASSES)/singleton.h $(BASECLASSES_HDS) $(PLOT_HEADER)
+
+
+
+
 
 
 BASETRASH_SRCS = $(wildcard ../../$(BASETRASH)/*.cpp)
@@ -116,7 +131,7 @@ BASETRASH_HDS = $(BASETRASH_SRCS:.cpp=.h) ../../$(BASETRASH)/trashconfig.h
 BASETRASH_OBJS = $(addprefix $(BUILD_DIR)/$(BASETRASH)/,$(notdir $(BASETRASH_SRCS:.cpp=.o)))
 BASETRASH_HEADS = $(BASETRASH_HDS) $(BASECLASSES_HEADS)
 
-INITTRASH_SRCS = $(wildcard ../../$(INITTRASH)/*.cpp)
+INITTRASH_SRCS =  ../../$(INITTRASH)/feasableSol.cpp
 INITTRASH_HDS = $(INITTRASH_SRCS:.cpp=.h)
 INITTRASH_OBJS = $(addprefix $(BUILD_DIR)/$(INITTRASH)/,$(notdir $(INITTRASH_SRCS:.cpp=.o)))
 INITTRASH_HEADS = $(INITTRASH_HDS)  $(BASECLASSES_HEADS)

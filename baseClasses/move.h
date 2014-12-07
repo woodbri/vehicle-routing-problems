@@ -17,9 +17,7 @@
 #include <limits>
 #include <iostream>
 #include "vrp_assert.h"
-#ifdef DOSTATS
-#include "stats.h"
-#endif
+
 
 
 /*!

@@ -18,14 +18,21 @@
 #include <vector>
 #include <sstream>
 
+#ifdef LOG
+#include "logger.h"
+#endif
+
+#ifdef DOPLOT
+#include "plot.h"
+#endif
 
 #include "twpath.h"
 #include "trashnode.h"
 #include "twc.h"
 #include "twpath.h"
-#include "plot.h"
 #include "move.h"
 #include "basevehicle.h"
+
 
 
 class Vehicle: public BaseVehicle {
@@ -255,11 +262,12 @@ class Vehicle: public BaseVehicle {
         double deltaRealTotalTime = realTotalTime - lastRealTotalTime;
         lastRealTotalTime = realTotalTime;
 
-
+	#ifdef LOG
         if ( realArrivalEclosesLast < realTotalTime ) {
             last.dumpeval();
             dumpCostValues();
         };
+	#endif
 
         //otherwise we are in a TWV and something is wrong on the calculation
         assert ( realArrivalEclosesLast > realTotalTime );
@@ -320,7 +328,7 @@ class Vehicle: public BaseVehicle {
         if ( deltan < 0 )
             z2 = std::max ( z2 + 1, realz2 );
 
-        #ifdef TESTED
+        #ifdef LOG
         DLOG( INFO ) << "TODOS LOS DELTAS2"
                      << "deltattSC    " << deltattSC    << "\n"
                      << "deltattCC    " << deltattCC    << "\n"
@@ -368,6 +376,7 @@ class Vehicle: public BaseVehicle {
 
 
 
+    #ifdef LOG
     void dumpCostValues() const {
         DLOG( INFO ) << " +++++++++++++++++++++  	 TRUCK #<<" << vid
                      << "      +++++++++++++++++++++";
@@ -449,7 +458,8 @@ class Vehicle: public BaseVehicle {
                      << "\n\n             v_cost=\t" << v_cost <<
                      "\t= (realTotalTime + sumIdle) *( 1 + workNotDonePerc)\n";
 
-        /*
+        
+	#if 0
                 <<"\n\n\n DELTA TIME SIMULATION\n"
                 <<"if a container is added into a very full truck:\n";
 
@@ -467,10 +477,9 @@ class Vehicle: public BaseVehicle {
                         DLOG(INFO) <<"penalty*sumIdle= "<<(penalty*sumIdle)<<"\n";
                     }
                 }
-        */
-        ;
+        #endif
 
-        /*
+	#if 0
                 DLOG(INFO) <<"\n\n\n ------estimated  Values for emtpy truck that is in the solution -------\n"
                 <<"ttSC=\t" <<ttSC<<"\n"
                 <<"ttCC=\t" <<ttCC<<"\n"
@@ -534,8 +543,9 @@ class Vehicle: public BaseVehicle {
                     <<"forcedWaitTime\t"<<forcedWaitTime<<"\t\t\t\t" <<"forcedWaitTime/shiftLength\t"<<forcedWaitTime/shiftLength*100<<"%\n"
                     <<"idleTime\t"<<idleTime<<"\t"<<"idleTime/shiftLength\t"<<idleTime/shiftLength*100<<"%\n"
                     <<"arrivalEcloseslast\t"<<arrivalEcloseslast<<"\n";
-        */
+       #endif 
     };
+   #endif
 
 };
 

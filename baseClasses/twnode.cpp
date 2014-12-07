@@ -16,7 +16,10 @@
 #include <sstream>
 #include <string>
 
+#ifdef LOG
 #include "logger.h"
+#endif
+
 #include "twnode.h"
 
 /*!
@@ -69,6 +72,7 @@ bool Twnode::isValid() const {
  * \brief Print the contents of a Twnode object.
  */
 void Twnode::dump() const {
+    #ifdef LOG
     std::stringstream ss;
     ss.precision( 8 );
     ss << nid
@@ -83,6 +87,7 @@ void Twnode::dump() const {
        << ",\t street:" << streetid
        << ",\t hint:" << hint;
     DLOG( INFO ) << ss.str();
+    #endif
 }
 
 

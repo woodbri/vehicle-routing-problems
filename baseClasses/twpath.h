@@ -18,7 +18,10 @@
 #include <iostream>
 #include <algorithm>
 
+#ifdef LOG
 #include "logger.h"
+#endif
+
 #include "node.h"
 #include "twbucket.h"
 

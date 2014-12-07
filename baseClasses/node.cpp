@@ -15,7 +15,10 @@
 #include <iostream>
 #include <sstream>
 
+#ifdef LOG
 #include "logger.h"
+#endif
+
 #include "node.h"
 
 
@@ -59,16 +62,16 @@ void Node::set( int _nid, double _x, double _y ) {
  * \brief Print the contents of this node.
  */
 void Node::dump() const {
+    #ifdef LOG
     DLOG( INFO ) << nid
                  << ", " << x
                  << ", " << y;
+    #endif
 };
 
 // Vector Operations
 
-/*!
- * \brief Create a new Node by performing vector addition.
- */
+/*!  \brief Create a new Node by performing vector addition.  */
 Node  Node::operator+( const Node &v ) const { return Node( x + v.x, y + v.y ); };
 
 /*!
