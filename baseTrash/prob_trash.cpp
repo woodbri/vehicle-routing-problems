@@ -16,7 +16,7 @@
 #include <algorithm>
 #include <math.h>
 
-#ifdef LOG
+#ifdef DOVRPLOG
 #include "logger.h"
 #endif
 
@@ -29,12 +29,12 @@ bool Prob_trash::checkIntegrity() const {
     int nodesCant = datanodes.size();
 
     if ( datanodes.empty() ) {
-        #ifdef LOG
+        #ifdef DOVRPLOG
         DLOG( INFO ) << "Nodes is empty";
 	#endif
         flag = false;
     }
-    #ifdef LOG
+    #ifdef DOVRPLOG
     else DLOG( INFO ) << "# of Nodes:" << nodesCant;
     #endif
 
@@ -45,7 +45,7 @@ bool Prob_trash::checkIntegrity() const {
 
 
 // DUMPS ********************************************
-#ifdef LOG
+#ifdef DOVRPLOG
 void Prob_trash::nodesdump() {
     DLOG( INFO ) << "---- Nodes  --------------";
 
@@ -128,7 +128,7 @@ void Prob_trash::plot( Plot<Trashnode> &graph ) {
 
 
 Prob_trash::Prob_trash( const char *infile ) {
-    #ifdef LOG
+    #ifdef DOVRPLOG
     DLOG( INFO ) << "---- char * Constructor --------------";
     #endif
     std::string file = infile;
@@ -136,7 +136,7 @@ Prob_trash::Prob_trash( const char *infile ) {
 }
 
 Prob_trash::Prob_trash( const std::string &infile ) {
-    #ifdef LOG
+    #ifdef DOVRPLOG
     DLOG( INFO ) << "Prob_trash---- string Constructor --------------";
     #endif
     loadProblem( infile );
@@ -147,7 +147,7 @@ void Prob_trash::loadProblem( const std::string &infile ) {
     datafile = infile;
     Bucket nodes;
     Bucket intersection;
-    #ifdef LOG
+    #ifdef DOVRPLOG
     DLOG( INFO ) << "Prob_trash LoadProblem --------------" << datafile << "--------";
     #endif
 
@@ -165,7 +165,7 @@ void Prob_trash::loadProblem( const std::string &infile ) {
     pickups -= intersection;
     nodes -= intersection;
 
-    #ifndef LOG
+    #ifndef DOVRPLOG
     invalid.dump( "invalid" );
     #endif
 
@@ -209,7 +209,7 @@ void Prob_trash::loadProblem( const std::string &infile ) {
         trucks[i].setInitialValues( C, pickups );
     }
 
-    #ifdef LOG
+    #ifdef DOVRPLOG
     C.dump();
     nodes.dump( "nodes" );
     dumps.dump( "dumps" );
@@ -266,7 +266,7 @@ void Prob_trash::load_trucks( std::string infile ) {
 }
 
 void Prob_trash::load_depots( std::string infile ) {
-    #ifdef LOG
+    #ifdef DOVRPLOG
     DLOG( INFO ) << "Prob_trash:Load_depots" << infile;
     #endif
     std::ifstream in( infile.c_str() );
@@ -283,7 +283,7 @@ void Prob_trash::load_depots( std::string infile ) {
         Trashnode node( line );
 
         if ( not node.isValid() or not node.isDepot() ) {
-    	    #ifdef LOG
+    	    #ifdef DOVRPLOG
             DLOG( INFO ) << "ERROR: line: " << cnt << ": " << line;
             #endif
             invalid.push_back( node );
@@ -297,7 +297,7 @@ void Prob_trash::load_depots( std::string infile ) {
 }
 
 void Prob_trash::load_otherlocs( std::string infile ) {
-    #ifdef LOG
+    #ifdef DOVRPLOG
     DLOG( INFO ) << "Prob_trash:Load_otherlocs" << infile;
     #endif
     std::ifstream in( infile.c_str() );
@@ -314,7 +314,7 @@ void Prob_trash::load_otherlocs( std::string infile ) {
         Trashnode node( line );
 
         if ( not node.isValid() ) {
-	    #ifdef LOG
+	    #ifdef DOVRPLOG
             DLOG( INFO ) << "ERROR: line: " << cnt << ": " << line;
 	    #endif
             invalid.push_back( node );
@@ -343,7 +343,7 @@ void Prob_trash::load_dumps( std::string infile ) { //1 dump problem
         Trashnode node( line );
 
         if ( not node.isValid() or not node.isDump() ) {
-	    #ifdef LOG
+	    #ifdef DOVRPLOG
             DLOG( INFO ) << "ERROR: line: " << cnt << ": " << line;
             #endif
             invalid.push_back( node );

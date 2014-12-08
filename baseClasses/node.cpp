@@ -15,7 +15,7 @@
 #include <iostream>
 #include <sstream>
 
-#ifdef LOG
+#ifdef DOVRPLOG
 #include "logger.h"
 #endif
 
@@ -62,7 +62,7 @@ void Node::set( int _nid, double _x, double _y ) {
  * \brief Print the contents of this node.
  */
 void Node::dump() const {
-    #ifdef LOG
+    #ifdef DOVRPLOG
     DLOG( INFO ) << nid
                  << ", " << x
                  << ", " << y;

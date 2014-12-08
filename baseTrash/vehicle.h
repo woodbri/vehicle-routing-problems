@@ -18,7 +18,7 @@
 #include <vector>
 #include <sstream>
 
-#ifdef LOG
+#ifdef DOVRPLOG
 #include "logger.h"
 #endif
 
@@ -262,7 +262,7 @@ class Vehicle: public BaseVehicle {
         double deltaRealTotalTime = realTotalTime - lastRealTotalTime;
         lastRealTotalTime = realTotalTime;
 
-	#ifdef LOG
+	#ifdef DOVRPLOG
         if ( realArrivalEclosesLast < realTotalTime ) {
             last.dumpeval();
             dumpCostValues();
@@ -328,7 +328,7 @@ class Vehicle: public BaseVehicle {
         if ( deltan < 0 )
             z2 = std::max ( z2 + 1, realz2 );
 
-        #ifdef LOG
+        #ifdef DOVRPLOG
         DLOG( INFO ) << "TODOS LOS DELTAS2"
                      << "deltattSC    " << deltattSC    << "\n"
                      << "deltattCC    " << deltattCC    << "\n"
@@ -376,7 +376,7 @@ class Vehicle: public BaseVehicle {
 
 
 
-    #ifdef LOG
+    #ifdef DOVRPLOG
     void dumpCostValues() const {
         DLOG( INFO ) << " +++++++++++++++++++++  	 TRUCK #<<" << vid
                      << "      +++++++++++++++++++++";

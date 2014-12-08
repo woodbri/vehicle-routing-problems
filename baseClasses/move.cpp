@@ -14,7 +14,7 @@
 
 #include <iostream>
 
-#ifdef LOG
+#ifdef DOVRPLOG
 #include "logger.h"
 #endif
 
@@ -143,7 +143,7 @@ bool Move::isForbidden( const Move &tabu ) const {
  * \brief Print the move.
  */
 void Move::dump() const {
-#ifdef LOG
+#ifdef DOVRPLOG
     DLOG( INFO ) << "Move: " << mtype
                  << ",\t" << nid1
                  << ",\t" << nid2
@@ -159,7 +159,7 @@ void Move::dump() const {
  * \brief Print the move in a more explict format.
  */
 void Move::Dump() const {
-#ifdef LOG
+#ifdef DOVRPLOG
     switch ( mtype ) {
         case Ins:
             DLOG( INFO ) << "Move: Ins"

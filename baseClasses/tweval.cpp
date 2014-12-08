@@ -15,7 +15,7 @@
 #include <iostream>
 #include <sstream>
 
-#ifdef LOG
+#ifdef DOVRPLOG
 #include "logger.h"
 #endif
 
@@ -97,7 +97,7 @@ void Tweval::dump() const {
  * \brief Print the Tweval attributes for the node.
  */
 void Tweval::dumpeval() const  {
-    #ifdef LOG
+    #ifdef DOVRPLOG
     DLOG( INFO ) << "twv=" << twv
                  << ", cv=" << cv
                  << ", twvTot=" << twvTot

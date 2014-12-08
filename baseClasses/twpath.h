@@ -18,7 +18,7 @@
 #include <iostream>
 #include <algorithm>
 
-#ifdef LOG
+#ifdef DOVRPLOG
 #include "logger.h"
 #endif
 

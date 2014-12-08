@@ -114,7 +114,7 @@ class Solution: public Prob_trash {
     void dumpCostValues() {
         for ( int i = 0; i < fleet.size(); i++ )
             fleet[i].getCost();
- 	#ifdef LOG
+ 	#ifdef DOVRPLOG
         for ( int i = 0; i < fleet.size(); i++ )
             fleet[i].dumpCostValues();
 	#endif
@@ -132,7 +132,7 @@ class Solution: public Prob_trash {
     int getTWV() const ;
     int getCV() const ;
 
-    #ifdef LOG
+    #ifdef DOVRPLOG
     void dump() const;
     void dumpFleet() const ;
     void dumpSummary() const ;

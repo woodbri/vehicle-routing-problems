@@ -17,7 +17,7 @@
 #include <algorithm>
 #include <cstdlib>
 
-#ifdef LOG
+#ifdef DOVRPLOG
 #include "logger.h"
 #endif
 
@@ -39,7 +39,7 @@ TabuOpt::TabuOpt( const OptSol &initialSolution ) :
         Timer start;
         #endif
         computeCosts( bestSolution );
-        #ifdef LOG
+        #ifdef DOVRPLOG
         bestSolution.tau();
         #endif
         bestSolution.optimizeTruckNumber();
@@ -47,7 +47,7 @@ TabuOpt::TabuOpt( const OptSol &initialSolution ) :
         computeCosts( bestSolution );
         bestSolutionCost = bestSolution.getCost();
         setBestAsCurrent();
-        #ifdef LOG
+        #ifdef DOVRPLOG
         #ifdef DOSTATS
         DLOG( INFO ) << "TABUSEARCH: Removal of truck time: " << start.duration();
         #endif
@@ -117,7 +117,7 @@ void TabuOpt::search() {
         start.restart();
         #endif
 
-        #ifdef  LOG 
+        #ifdef  DOVRPLOG 
         DLOG( INFO ) << "TABUSEARCH: Starting iteration: " << currentIteration;
         #endif
 
@@ -129,24 +129,24 @@ void TabuOpt::search() {
         improvedBest = doNeighborhoodMoves( Move::IntraSw, 1 , Move::InterSw );
 
         for ( int j = 0; j < cycleLimit; j++ ) {
-            #ifdef LOG
+            #ifdef DOVRPLOG
             DLOG( INFO ) << "----------------- TABUSEARCH: InterSw: " << j;
 	    #endif
             improvedBest |= doNeighborhoodMoves( Move::InterSw, 1 , Move::InterSw );
         }
 
-        #ifdef LOG
+        #ifdef DOVRPLOG
         currentSolution.tau();
 	#endif
 
         for ( int j = 0; j < cycleLimit; j++ ) {
-            #ifdef LOG
+            #ifdef DOVRPLOG
             DLOG( INFO ) << "------------------TABUSEARCH: Ins: " << j;
 	    #endif
             improvedBest |= doNeighborhoodMoves( Move::Ins, 1 ,    Move::Ins );
         }
 
-        #ifdef LOG
+        #ifdef DOVRPLOG
         currentSolution.tau();
 	#endif
 
@@ -155,7 +155,7 @@ void TabuOpt::search() {
         newCost = currentSolution.getCost();
 
 
-        #ifdef LOG
+        #ifdef DOVRPLOG
         DLOG( INFO ) << "TABUSEARCH: Finished iteration: " << currentIteration
                      << ", improvedBest: " << improvedBest;
 
@@ -169,7 +169,7 @@ void TabuOpt::search() {
         STATS->set( "Best Cost After", bestSolution.getCost() );
         #endif
 
-        #ifdef LOG
+        #ifdef DOVRPLOG
         dumpStats();
         DLOG( INFO ) << "--------------------------------------------";
         #endif
@@ -177,7 +177,7 @@ void TabuOpt::search() {
         currentIteration++;
 
         #ifndef OSRMCLIENT
-	#ifdef LOG
+	#ifdef DOVRPLOG
        	if ( std::abs( newCost - oldCost ) < 0.1  ) {
           DLOG( INFO ) << "costs didnt change";
           break;
@@ -186,7 +186,7 @@ void TabuOpt::search() {
 
         #else
 
-	#ifdef LOG
+	#ifdef DOVRPLOG
         DLOG( INFO ) << "old cost" << oldCost;
         DLOG( INFO ) << "new cost" << newCost;
         DLOG( INFO ) << "difference" << std::abs( newCost - oldCost );
@@ -195,13 +195,13 @@ void TabuOpt::search() {
         if ( std::abs( newCost - oldCost ) > 1.0 )   osrm->useOsrm ( false );
         else {
             if ( osrm->getUse() == true ) {
-	        #ifdef LOG
+	        #ifdef DOVRPLOG
                 DLOG( INFO ) << "costs didnt change quiting";
 		#endif
                 break;
             }
             else {
-	        #ifdef LOG
+	        #ifdef DOVRPLOG
                 DLOG( INFO ) << "costs didnt change TRYING with OSRM";
 		#endif
                 osrm->useOsrm ( true );
@@ -212,7 +212,7 @@ void TabuOpt::search() {
         #endif
     }
 
-    #ifdef LOG
+    #ifdef DOVRPLOG
     #ifdef DOSTATS 
     DLOG( INFO )  << "TABUSEARCH: Total time: " << start.duration();
     #endif
@@ -261,7 +261,7 @@ bool TabuOpt::applyAmove( const Move &move ) {
     #ifdef DOSTATS
     STATS->inc( "TabuOpt::applyAmove" );
     #endif
-    #ifdef LOG
+    #ifdef DOVRPLOG
     DLOG( INFO ) << "Apply a move ";
     move.Dump();
     #endif
@@ -290,7 +290,7 @@ bool TabuOpt::applyMoves( std::string type, Moves &moves ) {
 
     if ( not moves.size() ) return false;
 
-    #ifdef LOG
+    #ifdef DOVRPLOG
     DLOG( INFO ) << "apply moves: " << type << " applied: ";
     moves.begin()->Dump();
     #endif
@@ -307,7 +307,7 @@ bool TabuOpt::reachedMaxCycles( int number,  Move::Mtype whichNeighborhood ) {
     #ifdef DOSTATS
     STATS->inc( "TabuOpt::reachedMaxCycles" );
     #endif
-    #ifdef LOG
+    #ifdef DOVRPLOG
     DLOG( INFO ) << "Entering TabuOpt::reachedMaxCycles " << number;
     #endif
     bool limit;
@@ -366,7 +366,7 @@ bool TabuOpt::doNeighborhoodMoves( Move::Mtype whichNeighborhood, int maxMoves,
     do {
 
 
-        #ifdef LOG
+        #ifdef DOVRPLOG
         DLOG( INFO ) << ( getTotalMovesMade() - actualMoveCount ) << " > " << maxMoves
                      << " ***************************************************";
         DLOG( INFO ) << " Factor  " << factor;
@@ -399,14 +399,14 @@ bool TabuOpt::doNeighborhoodMoves( Move::Mtype whichNeighborhood, int maxMoves,
             factor = std::min( factor + 1.0 / limitInterSw, factor + 0.3 );
 
             CntNoNeighborhood++;
-            #ifdef LOG
+            #ifdef DOVRPLOG
             DLOG( INFO ) << " No Moves are found  " << CntNoNeighborhood;
             DLOG( INFO ) << " Factor  " << factor;
             #endif
 
             if ( reachedMaxCycles( CntNoNeighborhood, whichNeighborhood ) or
                  whichNeighborhood == Move::IntraSw ) {
-                #ifdef LOG
+                #ifdef DOVRPLOG
                 DLOG( INFO ) << " Reached end of cycle - for No moves found- " << Cnt
                              << " out of " << maxMoves;
                 #endif
@@ -565,7 +565,7 @@ bool TabuOpt::classifyMoves( Moves &neighborhood ) {
             return true;
         }
 
-        #ifdef LOG
+        #ifdef DOVRPLOG
         DLOG( INFO ) << "isTabu??: " << ( isTabu( *it ) ? "YES" : "NO" );
         it->Dump();
 
@@ -783,11 +783,11 @@ void TabuOpt::cleanUpInsMoves( Moves &moves, const Move &guide,
     }
 
     if ( localFind ) {
-        #ifdef LOG
+        #ifdef DOVRPLOG
         DLOG( INFO ) << "REVERSE going to make";
 	#endif
         applyAmove( reverseMove );
-        #ifdef LOG
+        #ifdef DOVRPLOG
         DLOG( INFO ) << "REVERSE done";
 	#endif
         reverseFound = true;
@@ -900,7 +900,7 @@ void TabuOpt::cleanUpMoves( const Move guide ) {
     #ifdef DOSTATS
     STATS->inc( "TabuOpt::cleanUpMoves" );
     #endif
-    #ifdef LOG
+    #ifdef DOVRPLOG
     DLOG( INFO ) << "ENTERING TabuOpt::cleanUpMoves";
 
     if ( guide.getmtype() == Move::Ins ) {
@@ -971,7 +971,7 @@ void TabuOpt::cleanUpMoves( const Move guide ) {
             break;
     }
 
-    #ifdef LOG
+    #ifdef DOVRPLOG
     DLOG( INFO ) << "aspirational not Tabu size" << aspirationalNotTabu.size();
     dumpMoves( "aspirationalNotTabu", aspirationalNotTabu );
     DLOG( INFO ) << "aspirationalTabu size" << aspirationalTabu.size();
@@ -990,7 +990,7 @@ bool TabuOpt::dumpMoves( std::string str, Moves moves ) const {
     #ifdef DOSTATS
     STATS->inc( "TabuOpt::dumpMoves" );
     #endif
-    #ifdef LOG
+    #ifdef DOVRPLOG
     DLOG( INFO ) << "Bucket: " << str;
     #endif
 

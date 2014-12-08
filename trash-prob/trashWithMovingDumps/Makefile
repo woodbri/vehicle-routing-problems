@@ -67,7 +67,7 @@ LOGGER_CFLAGS =
 LOGGER_LIBS =
 else
 LOGGER_HEADER = $(BASECLASSES_DIR)/logger.h
-LOGGER_CFLAGS = -DLOG -I/usr/local/include
+LOGGER_CFLAGS = -DDOVRPLOG -I/usr/local/include
 LOGGER_LIBS = -L/usr/local/lib -lglog
 endif
 

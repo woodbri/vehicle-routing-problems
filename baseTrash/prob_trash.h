@@ -68,7 +68,7 @@ class Prob_trash {
     void twcijDump() const;
 
 
-    #ifdef LOG
+    #ifdef DOVRPLOG
     void nodesdump();
     void nodesdumpeval();
     void dump();

@@ -20,7 +20,7 @@
 #include "DataStructures/Coordinate.h"
 #include "Server/DataStructures/RouteParameters.h"
 
-#ifdef LOG
+#ifdef DOVRPLOG
 #include "logger.h"
 #endif
 
@@ -118,7 +118,7 @@ class OsrmClient {
     bool getPenalty( rapidjson::Document &jtree, double &penalty );
 
   public:
-    #ifdef LOG
+    #ifdef DOVRPLOG
     void dump() {
         DLOG( INFO ) << "----- OsrmClient ----------"
                      << "\nstatus: " << status

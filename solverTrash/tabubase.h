@@ -20,7 +20,7 @@
 
 #include "vrp_assert.h"
 
-#ifdef LOG
+#ifdef DOVRPLOG
 #include "logger.h"
 #endif
 
@@ -185,7 +185,7 @@ class TabuBase  {
     */
 
     void dumpSet( std::string title, std::set<int> info ) const {
-	#ifdef LOG
+	#ifdef DOVRPLOG
         std::stringstream ss;
 
         #ifdef DOSTATS
@@ -206,7 +206,7 @@ class TabuBase  {
 
 
     void dumpTabuList() const {
-	#ifdef LOG
+	#ifdef DOVRPLOG
         std::stringstream ss;
 
         #ifdef DOSTATS
@@ -232,7 +232,7 @@ class TabuBase  {
     void dumpStats() const {
         #ifdef DOSTATS
         STATS->inc( "Tabubase::dumpStats" );
-        #ifdef LOG
+        #ifdef DOVRPLOG
         DLOG( INFO ) << "TabuList Stats at iteration: " << currentIteration;
         #endif
         STATS->dump( "" );
@@ -247,7 +247,7 @@ class TabuBase  {
         STATS->inc( "cnt Calls Gen " + mtype );
         STATS->addto( "cum Moves " + mtype, cnt );
         #endif
-        #ifdef LOG
+        #ifdef DOVRPLOG
         DLOG( INFO ) << "doNeighborhoodMoves for " << mtype << ": " << cnt
                      << " moves generated";
         #endif
@@ -419,7 +419,7 @@ class TabuBase  {
         #ifdef DOSTATS
         STATS->inc( "Tabubase::removeTruckFromTabuList" );
         #endif
-        #ifdef LOG
+        #ifdef DOVRPLOG
         DLOG( INFO ) << "Entering TabuBase::removeTruckFromTabuList";
         #endif
         int pos1, pos2;

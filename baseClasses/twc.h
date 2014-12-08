@@ -24,7 +24,7 @@
 #include <math.h>
 #include <limits>
 
-#ifdef LOG
+#ifdef DOVRPLOG
 #include "logger.h"
 #endif
 
@@ -1007,7 +1007,7 @@ template <class knode> class TWC {
 
     // ------------------------ DUMPS --------------------------
 
-    #ifdef LOG
+    #ifdef DOVRPLOG
 
     /*! \brief Print the original nodes.  */
     void dump() const  {
@@ -1457,7 +1457,7 @@ template <class knode> class TWC {
      */
     void loadAndProcess_distance( ttime_t *ttimes, int count,
                                   const Bucket &datanodes, const Bucket &invalid ) {
-	#ifdef LOG
+	#ifdef DOVRPLOG
         DLOG( INFO ) << "POSTGRES: loadAndProcess_distance needs to be TESTED";
 	#endif
         assert( datanodes.size() );
@@ -1507,7 +1507,7 @@ template <class knode> class TWC {
     void loadAndProcess_distance( std::string infile, const Bucket &datanodes,
                                   const Bucket &invalid ) {
         assert( datanodes.size() );
-	#ifdef LOG
+	#ifdef DOVRPLOG
         DLOG( INFO ) << "COMMANDLINE: loadAndProcess_distance";
 	#endif
 

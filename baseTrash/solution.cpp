@@ -13,7 +13,7 @@
  ********************************************************************VRP*/
 
 
-#ifdef LOG
+#ifdef DOVRPLOG
 #include "logger.h"
 #endif
 
@@ -35,7 +35,7 @@ int Solution::v_computeCosts() {
 
     for ( int i = 0; i < fleet.size(); i++ ) {
         if ( fleet[i].size() == 1 ) {
-            #ifdef LOG
+            #ifdef DOVRPLOG
             DLOG( INFO ) << "FOUND A TRUCK WITHOUT CONTAINERS";
             #endif
             removedPos = i;
@@ -144,7 +144,7 @@ vehicle_path_t *Solution::getSolutionForPg( int &count ) const {
         results[seq].cargo     = fleet[i].getDepot().getCargo();
         ++seq;
     }
-    #ifdef LOG
+    #ifdef DOVRPLOG
     DLOG( INFO ) << "Solution::getSolutionForPg: seq: " << seq << ", count: " <<
                  count;
     #endif
@@ -274,7 +274,7 @@ void Solution::plot( std::string file, std::string title ) {
 }
 #endif
 
-#ifdef LOG
+#ifdef DOVRPLOG
 void Solution::tau() {
     DLOG( INFO ) << "Tau:";
 
@@ -367,7 +367,7 @@ Solution::Solution( const std::string &infile,
 
     computeCosts();
 
-    #ifdef LOG
+    #ifdef DOVRPLOG
     if ( unassigned.size() or ( assigned == pickups ) )
         DLOG( INFO ) << "Something went wrong creating the solution";
     #endif
@@ -426,7 +426,7 @@ int Solution::getCV() const {
 
 
 // dump the problem and the solution
-#ifdef LOG
+#ifdef DOVRPLOG
 void Solution::dumpFleet() const {
     DLOG( INFO ) << "--------- Fleet ------------";
 
@@ -481,7 +481,7 @@ bool Solution::applyInterSwMove( const Move &move ) {
 
     if ( not ( fleet[move.getInterSwTruck1()][ move.getpos1()].getnid() ==
                move.getnid1() ) ) {
-	#ifdef LOG
+	#ifdef DOVRPLOG
         DLOG( INFO ) << "ERROR APPLYING INTERSW ";
         move.Dump();
 	#endif
@@ -523,7 +523,7 @@ bool Solution::applyIntraSwMove( const Move &move ) {
 
 // dump summary of the solution
 
-#ifdef LOG
+#ifdef DOVRPLOG
 void Solution::dumpSummary() const {
     DLOG( INFO ) << "--------- Solution ------------";
     DLOG( INFO ) << "Total path length: " << getduration();

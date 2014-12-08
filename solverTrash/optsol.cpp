@@ -14,7 +14,7 @@
 
 #include <sstream>
 
-#ifdef LOG
+#ifdef DOVRPLOG
 #include "logger.h"
 #endif
 
@@ -87,7 +87,7 @@ void OptSol::optimizeTruckNumber()   {
 
     fromTruck = truckWithMinn;
 
-    #ifdef LOG
+    #ifdef DOVRPLOG
     DLOG( INFO ) << "fromTruck"    << fromTruck << "\n"
                  << "need to fit " << minn  << "containers into \t" << ( z1Tot - z1AtMin )
                  << "= z1Tot "     << z1Tot << " - "
@@ -134,7 +134,7 @@ void OptSol::optimizeTruckNumber()   {
         emptiedTruck = emptyAtruck( allTrucks, allTrucks );
     }
 
-    #ifdef LOG
+    #ifdef DOVRPLOG
     tau();
     #endif
 }
@@ -278,7 +278,7 @@ void OptSol::getInterSwNeighborhood( Moves &moves, double factor )  const {
 
     #ifdef DOSTATS
     STATS->addto( "OptSol::getInterSwNeighborhood ", timer.duration() );
-    #ifdef LOG
+    #ifdef DOVRPLOG
     DLOG( INFO ) << "InterSw working with truck " << truckPos << " and"
                  << otherTruckPos << "interSw neighborhood" << timer.duration();
     #endif
@@ -333,7 +333,7 @@ void OptSol::getInsNeighborhood( Moves &moves, double factor ) const {
 
     //if (insTruckPos1 == insTruckPos2) return;
 
-    #ifdef LOG
+    #ifdef DOVRPLOG
     DLOG( INFO ) << "**********************************working with truck "
                  << fromTruck << " and " << toTruck << " insSw neighborhood";
     #endif
@@ -344,7 +344,7 @@ void OptSol::getInsNeighborhood( Moves &moves, double factor ) const {
             if ( fleet[fromTruck][fromPos].isDump() ) continue; // skiping dump
 
             if ( fleet[ fromTruck ].size() == 1 ) {
-    		#ifdef LOG
+    		#ifdef DOVRPLOG
                 DLOG( INFO ) << " A TRUCK WITHOUT CONTAINERS HAS BEING GENERATED";
 		#endif
                 interTruckPos1 = insTruckPos1 = fleet.size() - 2;
@@ -365,7 +365,7 @@ void OptSol::getInsNeighborhood( Moves &moves, double factor ) const {
     fromTruck = toTruck;
     toTruck = tmp;
 
-    #ifdef LOG
+    #ifdef DOVRPLOG
     DLOG( INFO ) << "**********************************working with truck "
                  << fromTruck << " and " << toTruck << " insSw neighborhood";
     #endif
@@ -376,7 +376,7 @@ void OptSol::getInsNeighborhood( Moves &moves, double factor ) const {
             if ( fleet[fromTruck][fromPos].isDump() ) continue; // skiping dump
 
             if ( fleet[ fromTruck ].size() == 1 ) {
-    		#ifdef LOG
+    		#ifdef DOVRPLOG
                 DLOG( INFO ) << " A TRUCK WITHOUT CONTAINERS HAS BEING GENERATED";
 		#endif
                 interTruckPos1 = insTruckPos1 = fleet.size() - 2;

@@ -231,7 +231,7 @@ class BaseVehicle  {
     //--------------------------------------------------------------------
     // dumps 
     //--------------------------------------------------------------------
-    #ifdef LOG
+    #ifdef DOVRPLOG
     void dump() const;
     void dump( const std::string &title ) const;
     void dumpeval() const;

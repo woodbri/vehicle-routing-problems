@@ -13,7 +13,7 @@
  ********************************************************************VRP*/
 #include "Library/OSRM.h"
 
-#ifdef LOG
+#ifdef DOVRPLOG
 #include "logger.h"
 #endif
 
@@ -71,7 +71,7 @@ OsrmClient::OsrmClient() {
 
     addPenalty = false;
 
-    #ifdef LOG
+    #ifdef DOVRPLOG
     testOsrmClient();
 
     #endif
@@ -531,7 +531,7 @@ bool OsrmClient::testOsrmClient() {
     std::deque<std::string> hints;
 
     if ( getStatus() == -1 ) {
-	#ifdef LOG
+	#ifdef DOVRPLOG
         DLOG( WARNING ) << getErrorMsg();
 	#endif
         return false;
@@ -544,7 +544,7 @@ bool OsrmClient::testOsrmClient() {
     // TODO Make this location a config value
     //34.890816,-56.165529
     if ( getOsrmTime( -34.8917, -56.167694, -34.890816, -56.165529, time ) ) {
-	#ifdef LOG
+	#ifdef DOVRPLOG
         DLOG( INFO ) << "test time:" << time;
 	#endif
     } else return false;
@@ -557,7 +557,7 @@ bool OsrmClient::testOsrmClient() {
 
         if ( getOsrmTime( -34.8917, -56.167694, -34.890816, -56.165529,
                           hint1, hint2, time ) ) {
-	    #ifdef LOG
+	    #ifdef DOVRPLOG
             DLOG( INFO ) << "test time:" << time;
 	    #endif
         } else return false;
@@ -571,7 +571,7 @@ bool OsrmClient::testOsrmClient() {
     addPenalty = true;
 
     if ( getOsrmTime( -34.8917, -56.167694, -34.890816, -56.165529, time ) ) {
-	#ifdef LOG
+	#ifdef DOVRPLOG
         DLOG( INFO ) << "test time: " << time;
 	#endif
     } else return false;
@@ -584,7 +584,7 @@ bool OsrmClient::testOsrmClient() {
 
         if ( getOsrmTime( -34.8917, -56.167694, -34.890816, -56.165529, hint1, hint2,
                           time ) ) {
-	    #ifdef LOG
+	    #ifdef DOVRPLOG
             DLOG( INFO ) << "test time: " << time;
 	    #endif
         } else return false;
@@ -741,7 +741,7 @@ bool OsrmClient::getPenalty( rapidjson::Document &jsondoc,
         turn = strtol( (*itr)[0].GetString(), NULL, 10 );
 
         trace = std::string( (*itr)[0].GetString() );
-	#ifdef LOG
+	#ifdef DOVRPLOG
         DLOG( INFO ) << "InstructionsData " << trace;
         DLOG( INFO ) << "Instruction " << turn;
 	#endif
@@ -764,7 +764,7 @@ bool OsrmClient::getPenalty( rapidjson::Document &jsondoc,
 
     }
 
-    #ifdef LOG
+    #ifdef DOVRPLOG
     DLOG( INFO ) << "Penalty " << penalty;
     #endif
     return true;
