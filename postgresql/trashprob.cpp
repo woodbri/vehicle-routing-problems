@@ -89,10 +89,10 @@ void TrashProb::addTtimes( ttime_t *_ttimes, int count ) {
 
     twc->loadAndProcess_distance( _ttimes, count, datanodes, invalid );
 
-    Bucket dummy;
+    /*Bucket dummy;
     dummy.setTravelTimes( twc->TravelTime() );
     Tweval dummyNode;
-    dummyNode.setTravelTimes( twc->TravelTime() );
+    dummyNode.setTravelTimes( twc->TravelTime() );*/
     //    assert( Tweval::TravelTime.size() );
 }
 
@@ -106,7 +106,7 @@ void TrashProb::addVehicles( vehicle_t *_vehicles, int count ) {
         if ( truck.isvalid() ) {
             trucks.push_back( truck );
             depots.push_back( truck.getStartingSite() );
-            dumps.push_back( truck.getdumpSite() );
+            dumps.push_back( truck.getDumpSite() );
             endings.push_back( truck.getEndingSite() );
         }
         else {
@@ -125,7 +125,7 @@ bool TrashProb::isValid() const {
            and endings.size()
            and pickups.size()
            and otherlocs.size()
-           and Tweval::TravelTime.size()
+           //and Tweval::TravelTime.size()
            ;
 }
 
@@ -150,8 +150,8 @@ std::string TrashProb::whatIsWrong() const {
     if ( not otherlocs.size() )
         wiw << "No valid other locations found\n";
 
-    if ( not Tweval::TravelTime.size() )
-        wiw << "The travel time matrix is empty\n";
+    //if ( not Tweval::TravelTime.size() )
+      //  wiw << "The travel time matrix is empty\n";
 
     if ( invalid.size() ) {
         wiw << "The following nodes are invalid: ";

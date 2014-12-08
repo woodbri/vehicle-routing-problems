@@ -9,7 +9,7 @@ ifndef VRP_CFLAGS
 endif
 
 CPP = g++
-PG_CPPFLAGS = -DPGROUTING -DNDEBUG $(VRP_CFLAGS)
+PG_CPPFLAGS = -fPIC -DPGROUTING -DNDEBUG $(VRP_CFLAGS)
 
 VRPTOOLS_VERSION = 1.0
 OBJS = vrptools.o trashprob.o vrptools_wrapper.o

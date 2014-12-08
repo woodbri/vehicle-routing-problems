@@ -87,7 +87,7 @@ endif
 
 
 INCLUDES = -I../../$(BASECLASSES) -I../../$(BASETRASH) -I../../$(INITTRASH) -I../../$(SOLVERTRASH) -I.
-CPPFLAGS = -g -O0 -MMD  -MP  $(OSRMCLIENT_CFLAGS) $(DEFINES) $(STATS_CFLAGS) $(PLOT_CFLAGS) $(LOGGER_CFLAGS)
+CPPFLAGS = -g -O0 -MMD  -MP -fPIC $(OSRMCLIENT_CFLAGS) $(DEFINES) $(STATS_CFLAGS) $(PLOT_CFLAGS) $(LOGGER_CFLAGS)
 LDFLAGS = -lgd $(INCLUDES) -L$(BASECLASSES) -L$(BASETRASH) -L$(INITTRASH)  $(JSON_LIBS) $(OSRMCLIENT_LIBS) $(LOGGER_LIBS)
 
 CPPFLAGS_OUT = $(INCLUDES) $(OSRMCLIENT_CFLAGS) $(DEFINES) $(STATS_CFLAGS) $(PLOT_CFLAGS) $(LOGGER_CFLAGS)
@@ -229,16 +229,18 @@ clean:
 	rm -rf $(BIN_DIR)/trash $(BUILD_DIR)/*
 	find . -name "*.d" -type f -delete
 	find . -name "*.png" -type f -delete
+	rm *.o
+	rm *.so
 	mkdir -p $(BIN_DIR)
 	echo $(INITTRASH)
 	mkdir -p $(BUILD_DIR)/$(BASECLASSES) $(BUILD_DIR)/$(BASETRASH) $(BUILD_DIR)/$(INITTRASH) $(BUILD_DIR)/$(SOLVERTRASH)
 
 
 cleanAll: clean
-	$(MAKE) -C ../$(BASECLASSES) clean
-	$(MAKE) -C ../$(BASETRASH) clean
-	$(MAKE) -C ../$(INITTRASH) clean
-	$(MAKE) -C ../$(SOLVERTRASH) clean
+	$(MAKE) -C ../../$(BASECLASSES) clean
+	$(MAKE) -C ../../$(BASETRASH) clean
+	$(MAKE) -C ../../$(INITTRASH) clean
+	$(MAKE) -C ../../$(SOLVERTRASH) clean
 	rm ./bin/trash
 
 -include $(DEPS)

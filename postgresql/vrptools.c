@@ -15,9 +15,10 @@
 #include "executor/spi.h"
 #include "funcapi.h"
 #include "catalog/pg_type.h"
-#if PGSQL_VERSION > 92
+
+//#if PGSQL_VERSION > 92
 #include "access/htup_details.h"
-#endif
+//#endif
 
 #include "fmgr.h"
 #include "vrptools.h"
@@ -885,6 +886,7 @@ static int solve_trash_collection(
     ret = -1;
 
     #endif
+    err_msg=NULL;
 
     DBG( "Message received from inside:" );
     DBG( "%s", err_msg );
@@ -1001,7 +1003,7 @@ Datum vrp_trash_collection_run( PG_FUNCTION_ARGS ) {
         values[5] = Float8GetDatum( result[call_cntr].cargo );
         nulls[5] = ' ';
 
-        tuple = heap_formtuple( tuple_desc, values, nulls );
+        tuple = heap_form_tuple( tuple_desc, values, nulls );
 
         // make the tuple into a datum
         result_data = HeapTupleGetDatum( tuple );
