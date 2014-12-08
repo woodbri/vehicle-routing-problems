@@ -128,7 +128,7 @@ void Prob_trash::plot( Plot<Trashnode> &graph ) {
 
 
 Prob_trash::Prob_trash( const char *infile ) {
-    #ifdef DOVRPLOG
+    #ifdef VRPMINTRACE
     DLOG( INFO ) << "---- char * Constructor --------------";
     #endif
     std::string file = infile;
@@ -136,7 +136,7 @@ Prob_trash::Prob_trash( const char *infile ) {
 }
 
 Prob_trash::Prob_trash( const std::string &infile ) {
-    #ifdef DOVRPLOG
+    #ifdef VRPMINTRACE
     DLOG( INFO ) << "Prob_trash---- string Constructor --------------";
     #endif
     loadProblem( infile );
@@ -147,7 +147,7 @@ void Prob_trash::loadProblem( const std::string &infile ) {
     datafile = infile;
     Bucket nodes;
     Bucket intersection;
-    #ifdef DOVRPLOG
+    #ifdef VRPMINTRACE
     DLOG( INFO ) << "Prob_trash LoadProblem --------------" << datafile << "--------";
     #endif
 
@@ -165,7 +165,7 @@ void Prob_trash::loadProblem( const std::string &infile ) {
     pickups -= intersection;
     nodes -= intersection;
 
-    #ifndef DOVRPLOG
+    #ifdef VRPMINTRACE
     invalid.dump( "invalid" );
     #endif
 
@@ -209,7 +209,7 @@ void Prob_trash::loadProblem( const std::string &infile ) {
         trucks[i].setInitialValues( C, pickups );
     }
 
-    #ifdef DOVRPLOG
+    #ifdef VRPMAXTRACE
     C.dump();
     nodes.dump( "nodes" );
     dumps.dump( "dumps" );
@@ -238,7 +238,7 @@ void Prob_trash::load_trucks( std::string infile ) {
     assert ( otherlocs.size() );
     std::ifstream in( infile.c_str() );
     std::string line;
-    #ifdef TESTED
+    #ifdef VRPMINTRACE
     DLOG( INFO ) << "Prob_trash:LoadTrucks" << infile;
     #endif
 
@@ -266,7 +266,7 @@ void Prob_trash::load_trucks( std::string infile ) {
 }
 
 void Prob_trash::load_depots( std::string infile ) {
-    #ifdef DOVRPLOG
+    #ifdef VRPMINTRACE
     DLOG( INFO ) << "Prob_trash:Load_depots" << infile;
     #endif
     std::ifstream in( infile.c_str() );
@@ -297,7 +297,7 @@ void Prob_trash::load_depots( std::string infile ) {
 }
 
 void Prob_trash::load_otherlocs( std::string infile ) {
-    #ifdef DOVRPLOG
+    #ifdef VRPMINTRACE
     DLOG( INFO ) << "Prob_trash:Load_otherlocs" << infile;
     #endif
     std::ifstream in( infile.c_str() );
@@ -373,7 +373,7 @@ void Prob_trash::load_pickups( std::string infile ) {
         node.setType( 2 );
 
         if ( not node.isValid() ) {
-            #ifdef TESTED
+            #ifdef DOVRPLOG
             DLOG( INFO ) << "ERROR: line: " << cnt << ": " << line;
             #endif
             invalid.push_back( node );

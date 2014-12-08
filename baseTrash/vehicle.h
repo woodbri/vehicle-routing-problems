@@ -328,8 +328,8 @@ class Vehicle: public BaseVehicle {
         if ( deltan < 0 )
             z2 = std::max ( z2 + 1, realz2 );
 
-        #ifdef DOVRPLOG
-        DLOG( INFO ) << "TODOS LOS DELTAS2"
+        #ifdef VRPMAXTRACE
+        DLOG( INFO ) << "TODOS LOS DELTAS2\n"
                      << "deltattSC    " << deltattSC    << "\n"
                      << "deltattCC    " << deltattCC    << "\n"
                      << "deltattDC    " << deltattDC    << "\n"

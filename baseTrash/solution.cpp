@@ -282,7 +282,6 @@ void Solution::tau() {
         fleet[i].tau();
     };
 
-    DLOG( INFO ) << "0";
 }
 
 void Solution::dumproutes()  {

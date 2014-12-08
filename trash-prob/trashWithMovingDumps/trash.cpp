@@ -60,7 +60,7 @@ void Usage() {
 
 int main(int argc, char **argv) {
 
-    #ifdef LOG
+    #ifdef DOVRPLOG
     FLAGS_log_dir = "./logs/";
     google::InitGoogleLogging("vdev/Trash");
     //FLAGS_logtostderr = 0;
@@ -81,54 +81,51 @@ int main(int argc, char **argv) {
 	#endif
 
         CONFIG->dump("CONFIG");
- assert(true==false);
        
         FeasableSol tp(infile);
 	
 
-	#ifdef LOG
-        tp.dump();
+	#ifdef VRPMINTRACE
+        tp.dumpCostValues();
 	#ifdef DOSTATS
         DLOG(INFO) << "FeasableSol time: " << starttime.duration();
 	#endif
 	#endif
 
 	#ifdef DOSTATS
-        STATS->set("zzFeasableSol time", starttime.duration());
+        STATS->set("FeasableSol time", starttime.duration());
 	#endif
 
         tp.setInitialValues();
         tp.computeCosts();
 	#ifdef DOSTATS
-        STATS->set("zInitial cost", tp.getCost());
-        STATS->set("yNode count", tp.getNodeCount());
-        STATS->set("yVehicle count", tp.getFleetSize());
-
+        STATS->set("Initial cost", tp.getCost());
+        STATS->set("Node count", tp.getNodeCount());
+        STATS->set("Vehicle count", tp.getFleetSize());
         Timer searchtime;
 	#endif
 
         TabuOpt ts(tp);
-        ts.setMaxIteration(1000);
-        ts.search();
 
 	#ifdef DOSTATS
-        STATS->set("zzSearch time", searchtime.duration());
+        STATS->set("Search time", searchtime.duration());
 	#endif
 
         Solution best = ts.getBestSolution();
         best.computeCosts();
 
 	#ifdef DOSTATS
-        STATS->set("zzTotal time", starttime.duration());
+        STATS->set("Total time", starttime.duration());
 	#endif
 
-	#ifdef LOG
-        best.dump();
+	#ifdef VRPMINTRACE
+        best.dumpCostValues();
+	best.tau();
 	#endif
 
 	#ifdef DOSTATS
-        STATS->set("zBest cost", best.getCost());
-        STATS->set("zBest distance", best.getDistance());
+        STATS->set("best cost", best.getCost());
+        STATS->set("Best distance", best.getDistance());
 
         STATS->dump("Final");
 	#endif

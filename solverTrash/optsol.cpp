@@ -87,8 +87,8 @@ void OptSol::optimizeTruckNumber()   {
 
     fromTruck = truckWithMinn;
 
-    #ifdef DOVRPLOG
-    DLOG( INFO ) << "fromTruck"    << fromTruck << "\n"
+    #ifdef VRPMAXTRACE
+    DLOG( INFO ) << "fromTruck "    << fromTruck << "\n"
                  << "need to fit " << minn  << "containers into \t" << ( z1Tot - z1AtMin )
                  << "= z1Tot "     << z1Tot << " - "
                  << " z1AtMin "    << z1AtMin   << "\n OR \n"
@@ -134,9 +134,6 @@ void OptSol::optimizeTruckNumber()   {
         emptiedTruck = emptyAtruck( allTrucks, allTrucks );
     }
 
-    #ifdef DOVRPLOG
-    tau();
-    #endif
 }
 
 bool OptSol::emptyAtruck( std::deque<int> fromThis, std::deque<int> intoThis ) {
@@ -333,7 +330,7 @@ void OptSol::getInsNeighborhood( Moves &moves, double factor ) const {
 
     //if (insTruckPos1 == insTruckPos2) return;
 
-    #ifdef DOVRPLOG
+    #ifdef VRPMAXTRACE
     DLOG( INFO ) << "**********************************working with truck "
                  << fromTruck << " and " << toTruck << " insSw neighborhood";
     #endif
@@ -344,7 +341,7 @@ void OptSol::getInsNeighborhood( Moves &moves, double factor ) const {
             if ( fleet[fromTruck][fromPos].isDump() ) continue; // skiping dump
 
             if ( fleet[ fromTruck ].size() == 1 ) {
-    		#ifdef DOVRPLOG
+    		#ifdef VRPMINTRACE
                 DLOG( INFO ) << " A TRUCK WITHOUT CONTAINERS HAS BEING GENERATED";
 		#endif
                 interTruckPos1 = insTruckPos1 = fleet.size() - 2;
@@ -365,7 +362,7 @@ void OptSol::getInsNeighborhood( Moves &moves, double factor ) const {
     fromTruck = toTruck;
     toTruck = tmp;
 
-    #ifdef DOVRPLOG
+    #ifdef VRPMAXTRACE
     DLOG( INFO ) << "**********************************working with truck "
                  << fromTruck << " and " << toTruck << " insSw neighborhood";
     #endif
@@ -376,7 +373,7 @@ void OptSol::getInsNeighborhood( Moves &moves, double factor ) const {
             if ( fleet[fromTruck][fromPos].isDump() ) continue; // skiping dump
 
             if ( fleet[ fromTruck ].size() == 1 ) {
-    		#ifdef DOVRPLOG
+    		#ifdef VRPMINTRACE
                 DLOG( INFO ) << " A TRUCK WITHOUT CONTAINERS HAS BEING GENERATED";
 		#endif
                 interTruckPos1 = insTruckPos1 = fleet.size() - 2;

@@ -79,7 +79,7 @@ void FeasableSol::stepOne( Vehicle &truck ) {
     }
     else {
         #ifdef DOVRPLOG
-        DLOG( WARNING ) << "no nearest node was found";
+        DLOG( WARNING ) << " FeasableSol::stepOne: No nearest node was found";
 	#endif
         assert( "FeasableSol::stepOne" == "no nearest node was found" );
     }
@@ -121,7 +121,7 @@ void FeasableSol::process() {
     stepOne( truck );
     fleet.push_back( truck ); //need to save the last truck
     
-    #if defined DOVRPLOG && defined DOSTATS
+    #ifdef DOSTATS
     DLOG( INFO ) << "FEASABLESOL: Total time: " << start.duration();
     #endif
     return;

@@ -15,20 +15,67 @@ BASECLASSES = baseClasses
 INITTRASH = initTrash
 SOLVERTRASH = solverTrash
 
-BASECLASSES_DIR = ../../$(BASECLASSES)/
+BASECLASSES_DIR = ../../$(BASECLASSES)
 BUILD_DIR = ./build
 BIN_DIR = ./bin
 
-# set WITH_OSRMCLIENT = "1" to include this code
-# you will also need to define additional related variables
+# setting NO_TRACE = <something>  invalidates the other traces
+NO_TRACE =
+TRACE_MIN = yes 
+TRACE_ALL =
+
+ifeq ("$(NO_TRACE)", "")
+ifeq ("$(TRACE_ALL)", "")
+ifeq ("$(TRACE_MIN)", "")
+TRACE_CFLAGS =
+else
+TRACE_CFLAGS = -DVRPMINTRACE
+endif
+else
+TRACE_CFLAGS = -DVRPMINTRACE -DVRPMAXTRACE
+endif
+else
+TRACE_CFLAGS =
+endif
+
+
+
+
+# <blank> is NO
+# anything else  
 
 WITH_OSRMCLIENT =
 WITH_STATS =
-WITH_LOG = yes
 WITH_MD5 =
 WITH_OSRM =
 WITH_PLOT =
+DEBUG_MODE = yes
 
+ifeq ("$(DEBUG_MODE)", "")
+WITH_LOG = $(WITH_LOG)
+else
+WITH_LOG = yes
+endif
+
+ifeq ("$(WITH_STATS)", "")
+WITH_LOG = $(WITH_LOG)
+else
+WITH_LOG = yes
+endif
+
+ifeq ("$(TRACE_CFLAGS)", "")
+WITH_LOG = $(WITH_LOG)
+else
+WITH_LOG = yes
+endif
+
+
+
+ifeq ("$(DEBUG_MODE)", "")
+DEBUG_CFLAGS = -DNDEBUG 
+else
+DEBUG_CFLAGS = 
+endif
 
 ifeq ("$(WITH_STATS)", "")
 STATS_CFLAGS =
@@ -87,10 +134,10 @@ endif
 
 
 INCLUDES = -I../../$(BASECLASSES) -I../../$(BASETRASH) -I../../$(INITTRASH) -I../../$(SOLVERTRASH) -I.
-CPPFLAGS = -g -O0 -MMD  -MP -fPIC $(OSRMCLIENT_CFLAGS) $(DEFINES) $(STATS_CFLAGS) $(PLOT_CFLAGS) $(LOGGER_CFLAGS)
+CPPFLAGS = -g -O0 -MMD  -MP -fPIC $(OSRMCLIENT_CFLAGS) $(DEFINES) $(STATS_CFLAGS) $(PLOT_CFLAGS) $(LOGGER_CFLAGS) $(DEBUG_CFLAGS) $(TRACE_CFLAGS)
 LDFLAGS = -lgd $(INCLUDES) -L$(BASECLASSES) -L$(BASETRASH) -L$(INITTRASH)  $(JSON_LIBS) $(OSRMCLIENT_LIBS) $(LOGGER_LIBS)
 
-CPPFLAGS_OUT = $(INCLUDES) $(OSRMCLIENT_CFLAGS) $(DEFINES) $(STATS_CFLAGS) $(PLOT_CFLAGS) $(LOGGER_CFLAGS)
+CPPFLAGS_OUT = $(INCLUDES) $(OSRMCLIENT_CFLAGS) $(DEFINES) $(STATS_CFLAGS) $(PLOT_CFLAGS) $(LOGGER_CFLAGS) $(DEBUG_CFLAGS) $(TRACE_CFLAGS)
 LDFLAGS_OUT = -L$(BASECLASSES) -L$(BASETRASH) -L$(INITTRASH)  $(OSRMCLIENT_LIBS) $(LOGGER_LIBS)
 
 
@@ -229,8 +276,8 @@ clean:
 	rm -rf $(BIN_DIR)/trash $(BUILD_DIR)/*
 	find . -name "*.d" -type f -delete
 	find . -name "*.png" -type f -delete
-	rm *.o
-	rm *.so
+	rm -f *.o
+	rm -f *.so
 	mkdir -p $(BIN_DIR)
 	echo $(INITTRASH)
 	mkdir -p $(BUILD_DIR)/$(BASECLASSES) $(BUILD_DIR)/$(BASETRASH) $(BUILD_DIR)/$(INITTRASH) $(BUILD_DIR)/$(SOLVERTRASH)
