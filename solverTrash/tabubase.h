@@ -232,7 +232,7 @@ class TabuBase  {
     void dumpStats() const {
         #ifdef DOSTATS
         STATS->inc( "Tabubase::dumpStats" );
-        #ifdef DOVRPLOG
+        #ifdef VRPMINTRACE
         DLOG( INFO ) << "TabuList Stats at iteration: " << currentIteration;
         #endif
         STATS->dump( "" );
@@ -247,7 +247,7 @@ class TabuBase  {
         STATS->inc( "cnt Calls Gen " + mtype );
         STATS->addto( "cum Moves " + mtype, cnt );
         #endif
-        #ifdef DOVRPLOG
+        #ifdef VRPMAXTRACE
         DLOG( INFO ) << "doNeighborhoodMoves for " << mtype << ": " << cnt
                      << " moves generated";
         #endif
@@ -419,7 +419,7 @@ class TabuBase  {
         #ifdef DOSTATS
         STATS->inc( "Tabubase::removeTruckFromTabuList" );
         #endif
-        #ifdef DOVRPLOG
+        #ifdef VRPMAXTRACE
         DLOG( INFO ) << "Entering TabuBase::removeTruckFromTabuList";
         #endif
         int pos1, pos2;

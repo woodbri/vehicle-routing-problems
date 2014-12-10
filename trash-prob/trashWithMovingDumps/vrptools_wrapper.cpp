@@ -19,7 +19,7 @@
 #include "timer.h"
 #include "logger.h"
 #include "trashprob.h"
-#include "feasableSolLoop.h"
+#include "feasableSol.h"
 #include "tabuopt.h"
 
 int vrp_trash_collection( container_t *containers, unsigned int container_count,
@@ -57,7 +57,7 @@ int vrp_trash_collection( container_t *containers, unsigned int container_count,
             return -1;
         }
 
-        FeasableSolLoop tp( prob );
+        FeasableSol tp( prob );
         tp.computeCosts();
 
         DLOG( INFO ) << "Load and initial solution time: "

@@ -21,7 +21,7 @@ BIN_DIR = ./bin
 
 # setting NO_TRACE = <something>  invalidates the other traces
 NO_TRACE =
-TRACE_MIN = yes 
+TRACE_MIN = yes
 TRACE_ALL =
 
 ifeq ("$(NO_TRACE)", "")
@@ -44,27 +44,24 @@ endif
 # <blank> is NO
 # anything else  
 
-WITH_OSRMCLIENT =
+WITH_OSRMCLIENT = yes
 WITH_STATS =
 WITH_MD5 =
 WITH_OSRM =
 WITH_PLOT =
-DEBUG_MODE = yes
+DEBUG_MODE =
 
 ifeq ("$(DEBUG_MODE)", "")
-WITH_LOG = $(WITH_LOG)
 else
 WITH_LOG = yes
 endif
 
 ifeq ("$(WITH_STATS)", "")
-WITH_LOG = $(WITH_LOG)
 else
 WITH_LOG = yes
 endif
 
 ifeq ("$(TRACE_CFLAGS)", "")
-WITH_LOG = $(WITH_LOG)
 else
 WITH_LOG = yes
 endif

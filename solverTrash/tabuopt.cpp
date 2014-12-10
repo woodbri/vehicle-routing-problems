@@ -107,7 +107,7 @@ void TabuOpt::search() {
     #endif
 
     for ( int i = 0; i < maxIteration; i++ ) {
-        #ifdef  VRPMINTRACE 
+        #ifdef  DOVRPLOG 
         DLOG( INFO ) << "TABUSEARCH: Starting iteration: " << currentIteration;
         #endif
 
@@ -125,7 +125,7 @@ void TabuOpt::search() {
 
 
         #ifdef OSRMCLIENT
-        if ( osrm->getUse() ) cycleLimit = 1;
+        if ( osrm->getUse() ) cycleLimit = 2;
         else cycleLimit = 5;
         #endif
 
@@ -158,19 +158,16 @@ void TabuOpt::search() {
         newCost = currentSolution.getCost();
 
 
-        #ifdef VRPMINTRACE
+        #ifdef DOVRPLOG
         DLOG( INFO ) << "TABUSEARCH: Finished iteration: " << currentIteration
         	<< "\nold cost" << oldCost
          	<< "\nnew cost" << newCost
          	<< "\nbest cost" << bestSolution.getCost()
          	<< "\ndifference" << std::abs( newCost - oldCost )<<"\n";
+        #endif
 
         #ifdef DOSTATS
         DLOG( INFO ) << ", run time in seconds: " << start.duration();
-        #endif
-        #endif
-
-        #ifdef DOSTATS
         STATS->set( "Iteration", currentIteration );
         STATS->set( "Best Cost After", bestSolution.getCost() );
         #endif
@@ -193,7 +190,7 @@ void TabuOpt::search() {
         #else
 
 
-        if ( std::abs( newCost - oldCost ) > 1.0 )   osrm->useOsrm ( false );
+        if ( std::abs( newCost - oldCost ) > 0.5 )   osrm->useOsrm ( false );
         else {
             if ( osrm->getUse() == true ) {
 	        #ifdef VRPMINTRACE
@@ -213,10 +210,10 @@ void TabuOpt::search() {
         #endif
     }
 
-    #ifdef DOVRPLOG
     #ifdef DOSTATS 
     DLOG( INFO )  << "TABUSEARCH: Total time: " << start.duration();
     #endif
+    #ifdef DOVRPLOG
     bestSolution.tau();
     #endif
 }

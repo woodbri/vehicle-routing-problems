@@ -23,7 +23,7 @@ void TrashProb::addContainers( container_t *_containers, int count ) {
         Trashnode node( c.id, c.x, c.y, c.open, c.close, c.service, c.demand, c.sid );
         node.setType( 2 );
 
-        if ( node.isvalid() ) {
+        if ( node.isValid() ) {
             pickups.push_back( node );
         }
         else {
@@ -40,7 +40,7 @@ void TrashProb::addOtherlocs( otherloc_t *_otherlocs, int count ) {
         otherloc_t c = _otherlocs[i];
         Trashnode node( c.id, c.x, c.y, c.open, c.close, 0, 0, -1 );
 
-        if ( node.isvalid() ) {
+        if ( node.isValid() ) {
             otherlocs.push_back( node );
         }
         else {
