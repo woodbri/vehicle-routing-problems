@@ -11,14 +11,16 @@
  * the terms of the MIT License. Please file LICENSE for details.
  *
  ********************************************************************VRP*/
+
+#include "pg_config.h"
 #include "postgres.h"
 #include "executor/spi.h"
 #include "funcapi.h"
 #include "catalog/pg_type.h"
 
-//#if PGSQL_VERSION > 92
+#if PG_VERSION_NUM/100 > 902
 #include "access/htup_details.h"
-//#endif
+#endif
 
 #include "fmgr.h"
 #include "vrptools.h"
@@ -88,6 +90,7 @@ static int finish( int code, int ret ) {
         elog( ERROR, "couldn't disconnect from SPI" );
         return -1 ;
     }
+    DBG( "In finish, disconnect from spi %d successfull", ret );
 
     return ret;
 }
@@ -941,6 +944,7 @@ Datum vrp_trash_collection_run( PG_FUNCTION_ARGS ) {
 
             for ( i = 0; i < result_count; i++ ) {
                 total_time += result[i].deltatime;
+		DBG("reult[%i] (seq,vid,nid,ntype,deltatime,cargo)=(%i,%i,%i,%i,%f,%f)",i,result[i].seq,result[i].vid,result[i].nid,result[i].ntype,result[i].deltatime,result[i].cargo);
             }
 
             DBG( "Total Travel Time: %f", total_time );
@@ -979,21 +983,21 @@ Datum vrp_trash_collection_run( PG_FUNCTION_ARGS ) {
         Datum       *values;
         char        *nulls;
 
-        values = palloc( 4 * sizeof( Datum ) );
-        nulls = palloc( 4 * sizeof( char ) );
+        values = palloc( 6 * sizeof( Datum ) );
+        nulls = palloc( 6 * sizeof( bool ) );
 
         values[0] = Int32GetDatum( result[call_cntr].seq );
-        nulls[0] = ' ';
+        nulls[0] = false;
         values[1] = Int32GetDatum( result[call_cntr].vid );
-        nulls[1] = ' ';
+        nulls[1] = false;
         values[2] = Int32GetDatum( result[call_cntr].nid );
-        nulls[2] = ' ';
+        nulls[2] = false;
         values[3] = Int32GetDatum( result[call_cntr].ntype );
-        nulls[3] = ' ';
+        nulls[3] = false;
         values[4] = Float8GetDatum( result[call_cntr].deltatime );
-        nulls[4] = ' ';
+        nulls[4] = false;
         values[5] = Float8GetDatum( result[call_cntr].cargo );
-        nulls[5] = ' ';
+        nulls[5] = false;
 
         tuple = heap_form_tuple( tuple_desc, values, nulls );
 
