@@ -64,6 +64,7 @@ class Solution: public Prob_trash {
     double getDistance() const ;
     int getFleetSize() const { return fleet.size(); };
     double getAverageRouteDurationLength();
+    void dumpSolutionForPg () const;
 
     Vehicle operator[]( int pos ) const {
         return fleet[pos];
