@@ -20,8 +20,8 @@ BUILD_DIR = ./build
 BIN_DIR = ./bin
 
 # setting NO_TRACE = <something>  invalidates the other traces
-NO_TRACE =
-TRACE_MIN = yes
+NO_TRACE = yes
+TRACE_MIN =
 TRACE_ALL =
 
 ifeq ("$(NO_TRACE)", "")
@@ -49,7 +49,7 @@ WITH_STATS =
 WITH_MD5 =
 WITH_OSRM =
 WITH_PLOT =
-DEBUG_MODE = yes
+DEBUG_MODE =
 
 ifeq ("$(DEBUG_MODE)", "")
 else

@@ -16,8 +16,15 @@
 #include <string.h>
 
 #include "vrptools.h"
+
+#ifdef DOSTATS
 #include "timer.h"
+#endif
+
+#ifdef DOVRPLOG
 #include "logger.h"
+#endif
+
 #include "trashprob.h"
 #include "feasableSol.h"
 #include "tabuopt.h"
@@ -30,11 +37,13 @@ int vrp_trash_collection( container_t *containers, unsigned int container_count,
                           char **err_msg ) {
 
     try {
+	#ifdef DOVRPLOG
         FLAGS_log_dir = "/tmp/";
         google::InitGoogleLogging( "vrp_trash_collection" );
         FLAGS_logtostderr = 0;
         FLAGS_stderrthreshold = google::FATAL;
         FLAGS_minloglevel = google::INFO;
+	#endif
 
         Timer starttime;
 
@@ -60,9 +69,11 @@ int vrp_trash_collection( container_t *containers, unsigned int container_count,
         FeasableSol tp( prob );
         tp.computeCosts();
 
+	#ifdef DOVRPLOG
         DLOG( INFO ) << "Load and initial solution time: "
                      << starttime.duration()
                      << ", initial cost: " << tp.getCost();
+	#endif
 
         Timer searchtime;
 
@@ -73,9 +84,10 @@ int vrp_trash_collection( container_t *containers, unsigned int container_count,
         Solution best = ts.getBestSolution();
         best.computeCosts();
 
+	#ifdef DOVRPLOG
         DLOG( INFO ) << "Tabu search time: " << searchtime.duration()
                      << ", final cost: " << best.getCost();
-
+        #endif
         int count = 0;
         *vehicle_paths = best.getSolutionForPg( count );
         *vehicle_path_count = count;
@@ -84,6 +96,8 @@ int vrp_trash_collection( container_t *containers, unsigned int container_count,
             *err_msg = ( char * ) "Failed to allocate memory for results!";
             return -1;
         }
+
+        twc->cleanUp();
     }
     catch ( std::exception &e ) {
         *err_msg = ( char * ) e.what();

@@ -120,6 +120,17 @@ template <class knode> class TWC {
 
   public:
 
+    /*! \brief cleans all the tables, leaving them blanck for a next execution */
+    void cleanUp() {
+	original.clear();
+	twcij.clear();
+	travel_Time.clear();
+        #ifdef OSRMCLIENT
+    	travel_Time4.clear();
+    	#endif
+    }
+	
+	
 
 
     // -------------------  major tools  ----------------------------

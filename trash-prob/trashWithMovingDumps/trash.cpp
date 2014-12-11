@@ -131,6 +131,7 @@ int main(int argc, char **argv) {
 	#endif
 
 	best.dumpSolutionForPg();
+	twc->cleanUp();
 
     }
     catch (const std::exception &e) {
