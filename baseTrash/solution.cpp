@@ -28,6 +28,17 @@ bool Solution::feasable() const {
     return true;
 }
 
+void Solution::evaluate() {
+    assert( fleet.size() );
+
+    for ( int i = 0; i < fleet.size(); i++ )
+        fleet[i].evaluate();
+
+}
+
+
+
+
 int Solution::v_computeCosts() {
     totalCost = 0.0;
     totalDistance = 0.0;
@@ -54,24 +65,8 @@ int Solution::v_computeCosts() {
 
 
 
-void Solution::computeCosts() {
-    #ifdef VICKY
-    assert( true == false );
-    #endif
-
-    totalCost = 0.0;
-    totalDistance = 0.0;
-
-    for ( int i = 0; i < fleet.size(); i++ ) {
-        // if the vehicle has no containers then it never leaves
-        // we always insert the starting location in the path
-        // so vehicle.size()-1 == 0 is an empty vehicle
-        // and hence has no cost
-        if ( fleet[i].size() - 1 == 0 ) continue;
-
-        totalCost += fleet[i].getcost();
-        totalDistance += fleet[i].getDuration();
-    }
+int Solution::computeCosts() {
+    v_computeCosts();
 }
 
 double Solution::getCost() const {
@@ -131,8 +126,8 @@ vehicle_path_t *Solution::getSolutionForPg( int &count ) const {
             results[seq].vid       = fleet[i].getVid();
             results[seq].nid       = fleet[i][j].getid();
             results[seq].ntype     = map[fleet[i][j].ntype()];
-            results[seq].deltatime = ( j == 0 ) ? 0 :
-						fleet[i][j].getDepartureTime() - fleet[i][j - 1].getDepartureTime();
+            //results[seq].deltatime = ( j == 0 ) ? 0 : fleet[i][j].getDepartureTime() - fleet[i][j - 1].getDepartureTime();
+            results[seq].deltatime     =  fleet[i][j].getDepartureTime();
             results[seq].cargo     =  fleet[i][j].getDemand();
 
             ++seq;

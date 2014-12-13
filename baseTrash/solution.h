@@ -43,6 +43,7 @@ class Solution: public Prob_trash {
     double w1, w2, w3;
 
   public:
+    void evaluate();
 
     void clear() {
 	Prob_trash::clear();
@@ -64,7 +65,7 @@ class Solution: public Prob_trash {
 
     vehicle_path_t *getSolutionForPg( int &count ) const;
 
-    void computeCosts();
+    int computeCosts();
     double getCost() const ;
     double getDistance() const ;
     int getFleetSize() const { return fleet.size(); };

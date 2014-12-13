@@ -211,6 +211,7 @@ class BaseVehicle  {
     Trashnode &getStartingSite() {return path[0];}
     Trashnode &getDumpSite()  { return dumpSite; };
     Trashnode &getEndingSite()  {return endingSite;}
+
     //const Trashnode& getBackToDepot() const {return endingSite;}
 
     //ouble distancetodepot(int i) const { return path[i].distance(getdepot()); };
@@ -263,6 +264,7 @@ class BaseVehicle  {
     bool hastwv()const { return endingSite.gettwvTot() != 0; };
 
     void evalLast();
+    void evaluate();
 
     //--------------------------------------------------------------------
     // mutators

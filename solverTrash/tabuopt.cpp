@@ -40,12 +40,14 @@ TabuOpt::TabuOpt( const OptSol &initialSolution, unsigned int iteration ) :
         #endif
         maxIteration = iteration;     
 	if (maxIteration==0) return;
+	bestSolution.evaluate();
         computeCosts( bestSolution );
         #ifdef VRPMINTRACE
         bestSolution.tau();
         #endif
         bestSolution.optimizeTruckNumber();
         bestTabuList.clear();
+	bestSolution.evaluate();
         computeCosts( bestSolution );
         bestSolutionCost = bestSolution.getCost();
         setBestAsCurrent();
@@ -53,6 +55,7 @@ TabuOpt::TabuOpt( const OptSol &initialSolution, unsigned int iteration ) :
         #ifdef DOSTATS
         DLOG( INFO ) << "TABUSEARCH: Removal of truck time: " << start.duration();
         #endif
+	bestSolution.evaluate();
         bestSolution.dumpCostValues();
         bestSolution.tau();
         #endif
@@ -67,6 +70,7 @@ TabuOpt::TabuOpt( const OptSol &initialSolution, unsigned int iteration ) :
         #endif
         currentIteration = 0;
 	if (maxIteration>1) search();
+	bestSolution.evaluate();
     };
 
 

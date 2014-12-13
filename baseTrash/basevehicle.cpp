@@ -342,6 +342,12 @@ void BaseVehicle::evalLast() {
                w3 * endingSite.gettwvTot();
 }
 
+void BaseVehicle::evaluate() {
+	path.evaluate(0,getmaxcapacity());
+	evalLast();
+}
+
+
 
 //--------------------------------------------------------------------------
 // intra-route optimiziation
