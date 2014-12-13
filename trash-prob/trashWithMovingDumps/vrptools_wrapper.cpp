@@ -45,7 +45,6 @@ int vrp_trash_collection( container_t *containers, unsigned int container_count,
         FLAGS_minloglevel = google::INFO;
 	#endif
 
-        Timer starttime;
 
         TrashProb prob;
         prob.addContainers( containers, container_count );
@@ -69,13 +68,7 @@ int vrp_trash_collection( container_t *containers, unsigned int container_count,
         FeasableSol tp( prob );
         tp.computeCosts();
 
-	#ifdef DOVRPLOG
-        DLOG( INFO ) << "Load and initial solution time: "
-                     << starttime.duration()
-                     << ", initial cost: " << tp.getCost();
-	#endif
 
-        Timer searchtime;
 
         TabuOpt ts( tp );
         ts.setMaxIteration( 1000 );
@@ -84,10 +77,6 @@ int vrp_trash_collection( container_t *containers, unsigned int container_count,
         Solution best = ts.getBestSolution();
         best.computeCosts();
 
-	#ifdef DOVRPLOG
-        DLOG( INFO ) << "Tabu search time: " << searchtime.duration()
-                     << ", final cost: " << best.getCost();
-        #endif
         int count = 0;
         *vehicle_paths = best.getSolutionForPg( count );
         *vehicle_path_count = count;
