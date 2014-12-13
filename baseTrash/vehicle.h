@@ -270,7 +270,7 @@ class Vehicle: public BaseVehicle {
 	#endif
 
         //otherwise we are in a TWV and something is wrong on the calculation
-        assert ( realArrivalEclosesLast > realTotalTime );
+        //assert ( realArrivalEclosesLast > realTotalTime );
 
         realIdleTime =  realArrivalEclosesLast -  realTotalTime ;
 

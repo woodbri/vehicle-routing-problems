@@ -935,7 +935,7 @@ Datum vrp_trash_collection_run( PG_FUNCTION_ARGS ) {
                               errmsg( "Unknown Error computing solution!" ) ) );
         }
 
-        #ifdef DEBUG
+        #ifdef VRPDEBUG
         DBG( "   Result count: %i", result_count );
 
         if ( ret >= 0 ) {
