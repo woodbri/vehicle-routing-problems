@@ -506,6 +506,7 @@ static int solve_trash_collection(
     char *otherloc_sql,
     char *vehicle_sql,
     char *ttime_sql,
+    unsigned int iteration,
     vehicle_path_t **result,
     int *result_count ) {
 
@@ -880,6 +881,7 @@ static int solve_trash_collection(
               otherlocs, otherloc_count,
               vehicles, vehicle_count,
               ttimes, ttime_count,
+              iteration,
               result, result_count, &err_msg );
     #endif
 
@@ -918,11 +920,14 @@ Datum vrp_trash_collection_run( PG_FUNCTION_ARGS ) {
         // switch to memory context appropriate for multiple function calls
         oldcontext = MemoryContextSwitchTo( funcctx->multi_call_memory_ctx );
 
+        DBG("iteration: %u", PG_GETARG_INT32(4));
+
         ret = solve_trash_collection(
                   text2char( PG_GETARG_TEXT_P( 0 ) ), // containers
                   text2char( PG_GETARG_TEXT_P( 1 ) ), // otherlocs
                   text2char( PG_GETARG_TEXT_P( 2 ) ), // vehicles
                   text2char( PG_GETARG_TEXT_P( 3 ) ), // ttimes
+                  PG_GETARG_INT32(4),                 // interation
                   &result,
                   &result_count );
 

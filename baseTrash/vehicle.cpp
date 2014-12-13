@@ -702,7 +702,7 @@ bool Vehicle::deltaCargoGeneratesCV( const Trashnode &node,
     #endif
     #ifdef VRPMAXTRACE
     DLOG( INFO ) << "Entering Vehicle::deltaCargoGeneratesCV";
-    DLOG(INFO) << getcargo() << "+" << node.getdemand() << " ¿? " << getmaxcapacity();
+    DLOG(INFO) << getCargo() << "+" << node.getDemand() << " ¿? " << getmaxcapacity();
     #endif
     //cycle until a dump is found
     int i;

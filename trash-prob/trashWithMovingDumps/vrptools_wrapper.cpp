@@ -33,16 +33,19 @@ int vrp_trash_collection( container_t *containers, unsigned int container_count,
                           otherloc_t *otherlocs, unsigned int otherloc_count,
                           vehicle_t *vehicles, unsigned int vehicle_count,
                           ttime_t *ttimes, unsigned int ttime_count,
+                          unsigned int iteration,
                           vehicle_path_t **vehicle_paths, int *vehicle_path_count,
                           char **err_msg ) {
 
     try {
 	#ifdef DOVRPLOG
-        FLAGS_log_dir = "/tmp/";
-        google::InitGoogleLogging( "vrp_trash_collection" );
-        FLAGS_logtostderr = 0;
-        FLAGS_stderrthreshold = google::FATAL;
-        FLAGS_minloglevel = google::INFO;
+        if ( not google::IsGoogleLoggingInitialized() ) {
+            FLAGS_log_dir = "/tmp/";
+            google::InitGoogleLogging( "vrp_trash_collection" );
+            FLAGS_logtostderr = 0;
+            FLAGS_stderrthreshold = google::FATAL;
+            FLAGS_minloglevel = google::INFO;
+        }
 	#endif
 
 
