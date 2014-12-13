@@ -12,7 +12,7 @@ CREATE OR REPLACE FUNCTION vrp_trashCollection(
         IN otherloc_sql text,
         IN vehicle_sql text,
         IN ttime_sql text,
-        IN interation integer default 1,
+        IN interation integer default 1000,
         OUT seq integer,
         OUT vehicle_id integer,
         OUT node_id integer,

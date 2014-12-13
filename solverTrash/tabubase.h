@@ -84,6 +84,17 @@ class TabuBase  {
 
 
   public:
+
+  void  clear() {
+	currentSolution.clear();
+	bestSolution.clear();
+	bestTabuList.clear();
+	TabuList.clear();
+    }
+	
+	
+
+
     TabuBase( const Ksolution &initialSolution ) :
         bestSolution( initialSolution ), currentSolution( initialSolution ) {
         currentIteration = currentIterationIns = currentIterationIntraSw =

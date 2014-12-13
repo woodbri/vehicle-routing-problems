@@ -73,15 +73,13 @@ int vrp_trash_collection( container_t *containers, unsigned int container_count,
 
 
 
-        TabuOpt ts( tp );
-        ts.setMaxIteration( 1000 );
-        ts.search();
+        TabuOpt ts( tp , iteration);
 
         Solution best = ts.getBestSolution();
         best.computeCosts();
 
         int count = 0;
-        *vehicle_paths = best.getSolutionForPg( count );
+        *vehicle_paths = ts.getSolutionForPg( count );
         *vehicle_path_count = count;
 
         if ( count == -1 ) {

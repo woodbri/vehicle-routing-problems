@@ -142,7 +142,7 @@ vehicle_path_t *Solution::getSolutionForPg( int &count ) const {
         results[seq].seq       = seq + 1;
         results[seq].vid       = fleet[i].getVid();
         results[seq].nid       = fleet[i].getDumpSite().getid();
-        results[seq].ntype     = fleet[i].getDumpSite().ntype();
+        results[seq].ntype     = map[fleet[i].getDumpSite().ntype()];
         results[seq].deltatime = fleet[i].getDumpSite().getDepartureTime() - fleet[i][fleet[i].size() - 1].getDepartureTime();
         results[seq].cargo     = fleet[i].getDumpSite().getDemand();
         ++seq;
@@ -151,7 +151,7 @@ vehicle_path_t *Solution::getSolutionForPg( int &count ) const {
         results[seq].seq       = seq + 1;
         results[seq].vid       = fleet[i].getVid();
         results[seq].nid       = fleet[i].getEndingSite().getid();
-        results[seq].ntype     = fleet[i].getEndingSite().ntype();
+        results[seq].ntype     = map[fleet[i].getEndingSite().ntype()];
         results[seq].deltatime = fleet[i].getEndingSite().getDepartureTime() - fleet[i].getDumpSite().getDepartureTime();
         results[seq].cargo     = fleet[i].getEndingSite().getDemand();
         ++seq;

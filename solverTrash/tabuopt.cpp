@@ -32,12 +32,14 @@
 
 
 
-TabuOpt::TabuOpt( const OptSol &initialSolution ) :
+TabuOpt::TabuOpt( const OptSol &initialSolution, unsigned int iteration ) :
         TabuBase( initialSolution ) {
         #ifdef DOSTATS
         STATS->inc( "TabuOpt::TabuOpt" );
         Timer start;
         #endif
+        maxIteration = iteration;     
+	if (maxIteration==0) return;
         computeCosts( bestSolution );
         #ifdef VRPMINTRACE
         bestSolution.tau();
@@ -63,10 +65,16 @@ TabuOpt::TabuOpt( const OptSol &initialSolution ) :
         STATS->set( "limitInterSw", limitIntraSw );
         STATS->set( "limitIns", limitInterSw );
         #endif
-        maxIteration = 1000;     
         currentIteration = 0;
-	search();
+	if (maxIteration>1) search();
     };
+
+
+vehicle_path_t* TabuOpt::getSolutionForPg( int &count ) const {
+	return bestSolution.getSolutionForPg(count);
+}
+
+
 
 
 
@@ -125,7 +133,7 @@ void TabuOpt::search() {
 
 
         #ifdef OSRMCLIENT
-        if ( osrm->getUse() ) cycleLimit = 2;
+        if ( osrm->getUse() ) cycleLimit = 1;
         else cycleLimit = 5;
         #endif
 

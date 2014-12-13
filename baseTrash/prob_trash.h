@@ -48,6 +48,17 @@ class Prob_trash {
 
   public:
 
+    void clear() {
+	otherlocs.clear();
+	dumps.clear();
+	depots.clear();
+	pickups.clear();
+	endings.clear();
+	invalid.clear();
+	trucks.clear();
+	invalidTrucks.clear();
+    }
+
     //    Trashnode getdepot() const { return depot;};
     Prob_trash() {};
     Prob_trash( const char *infile );

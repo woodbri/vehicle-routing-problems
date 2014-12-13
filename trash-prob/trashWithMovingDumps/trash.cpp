@@ -105,7 +105,8 @@ int main(int argc, char **argv) {
         Timer searchtime;
 	#endif
 
-        TabuOpt ts(tp);
+	int iteration=1;
+        TabuOpt ts(tp,iteration);
 
 	#ifdef DOSTATS
         STATS->set("Search time", searchtime.duration());

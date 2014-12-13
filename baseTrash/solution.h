@@ -44,6 +44,11 @@ class Solution: public Prob_trash {
 
   public:
 
+    void clear() {
+	Prob_trash::clear();
+	fleet.clear();
+    };
+
     Solution( const Prob_trash &P ): Prob_trash( P ) {};
     Solution( const std::string &infile, const std::vector<int> &solution );
 

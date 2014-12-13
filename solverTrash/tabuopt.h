@@ -19,12 +19,13 @@
 
 #include "vrp_assert.h"
 
+#include "pg_types_vrp.h"
 #include "tabubase.h"
 
 class TabuOpt: public TabuBase<OptSol> {
 
   public:
-    TabuOpt( const OptSol &initialSolution ); 
+    TabuOpt( const OptSol &initialSolution,unsigned int iteration ); 
 
     void optimizeTruckNumber();
 
@@ -48,7 +49,17 @@ class TabuOpt: public TabuBase<OptSol> {
     void cleanUpIntraSwMoves( Moves &moves, const Move &guide ) const ;
     void cleanUpInsMoves( Moves &moves, const Move &guide, bool &reverseFound ) ;
     void cleanUpMoves( const Move guide ) ;
+    vehicle_path_t* getSolutionForPg( int &count ) const ;
 
+
+    void clean() {
+	TabuBase<OptSol>::clear();
+	aspirationalNotTabu.clear();
+	aspirationalTabu.clear();
+	notTabu.clear();
+	tabu.clear();
+	reverseMoves.clear();
+    }
 
     bool inRange( int center, int data, int step ) const;
   private:

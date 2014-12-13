@@ -243,7 +243,7 @@ build/%.o: %.cpp %.h $(BASECLASSES_HEADS) $(BASETRASH_HEADS) $(INITTRASH_HEADS) 
 bin/trash: build/trash.o $(OBJS) $(BASECLASSES_OBJS) $(BASETRASH_OBJS) $(INITTRASH_OBJS) $(SOLVERTRASH_OBJS) $(BASECLASSES_HEADS) $(BASETRASH_HEADS) $(INITTRASH_HEADS) $(SOLVERTRASH_HEADS)
 	$(CPP) $^ -o $@ $(LDFLAGS)
 
-test: ./bin/trash ./montevideo/muni-b.containers.txt ./montevideo/muni-b.otherlocs.txt ./montevideo/muni-b.dmatrix-time.txt ./montevideo/muni-b.vehicles.txt
+test: ./bin/trash ./muni-b/muni-b.containers.txt ./muni-b/muni-b.otherlocs.txt ./muni-b/muni-b.dmatrix-time.txt ./muni-b/muni-b.vehicles.txt
 	./bin/trash ./muni-b/muni-b >./logs/muni-b.out
 
 
