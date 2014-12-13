@@ -17,6 +17,7 @@
 #include "logger.h"
 #endif
 
+#include "pg_types_vrp.h"
 #include "solution.h"
 
 bool Solution::feasable() const {
@@ -78,18 +79,30 @@ double Solution::getDistance() const {
 }
 
 void Solution::dumpSolutionForPg () const {
+    vehicle_path_t *results;
+    int count;
+    results = getSolutionForPg( count ) ;
+    for (int i=0;i<count;i++) 
+        std::cout<<"i"<<i<<
+			"\tseq:"<<results[i].seq<<
+			"\tVID:"<<results[i].vid<<
+			"\tnid"<<results[i].nid<<
+			"\tntype"<<results[i].ntype<<
+			"\tdeltaTime"<<results[i].deltatime<<
+			"\tcargo"<<results[i].cargo<<"\n";
+
     for ( int i = 0; i < fleet.size(); ++i ) {
         if ( fleet[i].size() <= 1 ) continue;
         for ( int j = 0; j < fleet[i].size(); ++j ) {
           std::cout<<"VID: "<<fleet[i].getVid()<<"\tid: "<<fleet[i][j].getid()<<"\tntype: "<<fleet[i][j].ntype()<<"\tDeparture: "<<fleet[i][j].getDepartureTime()<<
-		"\tdeltaTime:"<< ((j==0) ? 0 : fleet[i][j].getDepartureTime() - fleet[i][j - 1].getDepartureTime())<<
+		"\tdeltaTime:"<< fleet[i][j].getDeltaTime()<<
 		"\tdeltaCargo"<< fleet[i][j].getDemand()<<"\n";
         }
         std::cout<<"VID: "<<fleet[i].getVid()<<"\tid: "<<fleet[i].getDumpSite().getid()<<"\tntype: "<<fleet[i].getDumpSite().ntype()<<"\tDeparture: "<<fleet[i].getDumpSite().getDepartureTime()<<
-		"\tdeltaTime:"<< ( fleet[i].getDumpSite().getDepartureTime() - fleet[i][fleet[i].size() - 1].getDepartureTime())<<
+		"\tdeltaTime:"<<  fleet[i].getDumpSite().getDeltaTime()<<
 		"\tdeltaCargo"<< fleet[i].getDumpSite().getDemand()<<"\n";
         std::cout<<"VID: "<<fleet[i].getVid()<<"\tid: "<<fleet[i].getEndingSite().getid()<<"\tntype: "<<fleet[i].getEndingSite().ntype()<<"\tDeparture: "<<fleet[i].getEndingSite().getDepartureTime()<<
-		"\tdeltaTime:"<< ( fleet[i].getEndingSite().getDepartureTime() - fleet[i].getDumpSite().getDepartureTime())<<
+		"\tdeltaTime:"<<  fleet[i].getEndingSite().getDeltaTime()<<
 		"\tdeltaCargo"<< fleet[i].getEndingSite().getDemand()<<"\n";
     }
 }
@@ -98,9 +111,11 @@ void Solution::dumpSolutionForPg () const {
 
 vehicle_path_t *Solution::getSolutionForPg( int &count ) const {
     count = 0;
+    int fleetSize= fleet.size();
+    //fleetSize=1;
 
     // count the number of records we need for the output
-    for ( int i = 0; i < fleet.size(); ++i )
+    for ( int i = 0; i < fleetSize; ++i )
         if ( fleet[i].size() > 1 )          // don't count empty routes
             count += fleet[i].size() + 2;   // add final dump and ending nodes
 
@@ -118,7 +133,7 @@ vehicle_path_t *Solution::getSolutionForPg( int &count ) const {
 
     int seq = 0;
 
-    for ( int i = 0; i < fleet.size(); ++i ) {
+    for ( int i = 0; i < fleetSize; ++i ) {
         if ( fleet[i].size() <= 1 ) continue;
 
         for ( int j = 0; j < fleet[i].size(); ++j ) {
@@ -127,7 +142,7 @@ vehicle_path_t *Solution::getSolutionForPg( int &count ) const {
             results[seq].nid       = fleet[i][j].getid();
             results[seq].ntype     = map[fleet[i][j].ntype()];
             //results[seq].deltatime = ( j == 0 ) ? 0 : fleet[i][j].getDepartureTime() - fleet[i][j - 1].getDepartureTime();
-            results[seq].deltatime     =  fleet[i][j].getDepartureTime();
+            results[seq].deltatime     =  fleet[i][j].getDeltaTime();
             results[seq].cargo     =  fleet[i][j].getDemand();
 
             ++seq;

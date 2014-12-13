@@ -652,10 +652,11 @@ bool Vehicle::e_insertSteadyDumpsTight( const Trashnode &node, int at ) {
 
 
     if ( deltaCargoGeneratesCV( node, at ) ) return false;
-
     if ( deltaTimeGeneratesTV( node, at ) ) return false;
 
+    #ifdef VRPMAXTRACE
     path[size() - 1].dumpeval();
+    #endif
 
     if ( path.e_insert( node, at, maxcapacity ) ) return false;
 

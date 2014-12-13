@@ -20,8 +20,8 @@ BUILD_DIR = ./build
 BIN_DIR = ./bin
 
 # setting NO_TRACE = <something>  invalidates the other traces
-NO_TRACE = yes
-TRACE_MIN =
+NO_TRACE =
+TRACE_MIN = yes
 TRACE_ALL =
 
 ifeq ("$(NO_TRACE)", "")

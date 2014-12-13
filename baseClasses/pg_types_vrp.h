@@ -31,10 +31,10 @@ typedef struct container_ {
     int id;
     double x;
     double y;
-    int open;
-    int close;
-    int service;
-    int demand;
+    double open;
+    double close;
+    double service;
+    double demand;
     int sid;
 } container_t;
 
@@ -42,8 +42,8 @@ typedef struct otherloc_ {
     int id;
     double x;
     double y;
-    int open;
-    int close;
+    double open;
+    double close;
 } otherloc_t;
 
 typedef struct vehicle_ {
@@ -51,10 +51,10 @@ typedef struct vehicle_ {
     int start_id;
     int dump_id;
     int end_id;
-    int capacity;
-    int dumpservicetime;
-    int starttime;
-    int endtime;
+    double capacity;
+    double dumpservicetime;
+    double starttime;
+    double endtime;
 } vehicle_t;
 
 typedef struct ttime_ {

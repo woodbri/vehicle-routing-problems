@@ -189,16 +189,11 @@ static int fetch_otherloc_columns( SPITupleTable *tuptable,
         return -1;
     }
 
-    if (    SPI_gettypeid( SPI_tuptable->tupdesc, otherloc_columns->id )
-            != INT4OID
-            || SPI_gettypeid( SPI_tuptable->tupdesc, otherloc_columns->x )
-            != FLOAT8OID
-            || SPI_gettypeid( SPI_tuptable->tupdesc, otherloc_columns->y )
-            != FLOAT8OID
-            || SPI_gettypeid( SPI_tuptable->tupdesc, otherloc_columns->open )
-            != FLOAT8OID
-            || SPI_gettypeid( SPI_tuptable->tupdesc, otherloc_columns->close )
-            != FLOAT8OID
+    if (    SPI_gettypeid( SPI_tuptable->tupdesc, otherloc_columns->id ) != INT4OID
+            || SPI_gettypeid( SPI_tuptable->tupdesc, otherloc_columns->x ) != FLOAT8OID
+            || SPI_gettypeid( SPI_tuptable->tupdesc, otherloc_columns->y ) != FLOAT8OID
+            || SPI_gettypeid( SPI_tuptable->tupdesc, otherloc_columns->open ) != FLOAT8OID
+            || SPI_gettypeid( SPI_tuptable->tupdesc, otherloc_columns->close ) != FLOAT8OID
        ) {
         elog( ERROR, "Error, otherloc column types must be: int4 id, "
               "float8 x, float8 y, float8 open, float8 close, "
@@ -243,22 +238,14 @@ static int fetch_vehicle_columns( SPITupleTable *tuptable,
         return -1;
     }
 
-    if (    SPI_gettypeid( SPI_tuptable->tupdesc, vehicle_columns->vid )
-            != INT4OID
-            || SPI_gettypeid( SPI_tuptable->tupdesc, vehicle_columns->start_id )
-            != INT4OID
-            || SPI_gettypeid( SPI_tuptable->tupdesc, vehicle_columns->dump_id )
-            != INT4OID
-            || SPI_gettypeid( SPI_tuptable->tupdesc, vehicle_columns->end_id )
-            != INT4OID
-            || SPI_gettypeid( SPI_tuptable->tupdesc, vehicle_columns->capacity )
-            != FLOAT8OID
-            || SPI_gettypeid( SPI_tuptable->tupdesc, vehicle_columns->dumpservicetime )
-            != FLOAT8OID
-            || SPI_gettypeid( SPI_tuptable->tupdesc, vehicle_columns->starttime )
-            != FLOAT8OID
-            || SPI_gettypeid( SPI_tuptable->tupdesc, vehicle_columns->endtime )
-            != FLOAT8OID
+    if (    SPI_gettypeid( SPI_tuptable->tupdesc, vehicle_columns->vid ) != INT4OID
+            || SPI_gettypeid( SPI_tuptable->tupdesc, vehicle_columns->start_id ) != INT4OID
+            || SPI_gettypeid( SPI_tuptable->tupdesc, vehicle_columns->dump_id ) != INT4OID
+            || SPI_gettypeid( SPI_tuptable->tupdesc, vehicle_columns->end_id ) != INT4OID
+            || SPI_gettypeid( SPI_tuptable->tupdesc, vehicle_columns->capacity ) != FLOAT8OID
+            || SPI_gettypeid( SPI_tuptable->tupdesc, vehicle_columns->dumpservicetime ) != FLOAT8OID
+            || SPI_gettypeid( SPI_tuptable->tupdesc, vehicle_columns->starttime ) != FLOAT8OID
+            || SPI_gettypeid( SPI_tuptable->tupdesc, vehicle_columns->endtime ) != FLOAT8OID
        ) {
         elog( ERROR, "Error, vehicle column types must be: int4 vid, "
               "int4 start_id, int4 dump_id, int4 end_id, float8 capacity, "
@@ -292,12 +279,9 @@ static int fetch_ttime_columns( SPITupleTable *tuptable,
         return -1;
     }
 
-    if (    SPI_gettypeid( SPI_tuptable->tupdesc, ttime_columns->from_id )
-            != INT4OID
-            || SPI_gettypeid( SPI_tuptable->tupdesc, ttime_columns->to_id )
-            != INT4OID
-            || SPI_gettypeid( SPI_tuptable->tupdesc, ttime_columns->ttime )
-            != FLOAT8OID
+    if (    SPI_gettypeid( SPI_tuptable->tupdesc, ttime_columns->from_id ) != INT4OID
+            || SPI_gettypeid( SPI_tuptable->tupdesc, ttime_columns->to_id ) != INT4OID
+            || SPI_gettypeid( SPI_tuptable->tupdesc, ttime_columns->ttime ) != FLOAT8OID
        ) {
         elog( ERROR, "Error, traveltime column types must be: int4 from_id, "
               "int4 to_id, float8 ttime "
@@ -320,51 +304,35 @@ static void fetch_container( HeapTuple *tuple, TupleDesc *tupdesc,
     bool isnull;
 
     binval = SPI_getbinval( *tuple, *tupdesc, columns->id, &isnull );
-
     if ( isnull ) elog( ERROR, "container.id contains a null value" );
-
     data->id = DatumGetInt32( binval );
 
     binval = SPI_getbinval( *tuple, *tupdesc, columns->x, &isnull );
-
     if ( isnull ) elog( ERROR, "container.x contains a null value" );
-
     data->x = DatumGetFloat8( binval );
 
     binval = SPI_getbinval( *tuple, *tupdesc, columns->y, &isnull );
-
     if ( isnull ) elog( ERROR, "container.y contains a null value" );
-
     data->y = DatumGetFloat8( binval );
 
     binval = SPI_getbinval( *tuple, *tupdesc, columns->open, &isnull );
-
     if ( isnull ) elog( ERROR, "container.open contains a null value" );
-
     data->open = DatumGetFloat8( binval );
 
     binval = SPI_getbinval( *tuple, *tupdesc, columns->close, &isnull );
-
     if ( isnull ) elog( ERROR, "container.close contains a null value" );
-
     data->close = DatumGetFloat8( binval );
 
     binval = SPI_getbinval( *tuple, *tupdesc, columns->service, &isnull );
-
     if ( isnull ) elog( ERROR, "container.service contains a null value" );
-
     data->service = DatumGetFloat8( binval );
 
     binval = SPI_getbinval( *tuple, *tupdesc, columns->demand, &isnull );
-
     if ( isnull ) elog( ERROR, "container.demand contains a null value" );
-
     data->demand = DatumGetFloat8( binval );
 
     binval = SPI_getbinval( *tuple, *tupdesc, columns->sid, &isnull );
-
     if ( isnull ) elog( ERROR, "container.street_id contains a null value" );
-
     data->sid = DatumGetInt32( binval );
 }
 
@@ -380,33 +348,23 @@ static void fetch_otherloc( HeapTuple *tuple, TupleDesc *tupdesc,
     bool isnull;
 
     binval = SPI_getbinval( *tuple, *tupdesc, columns->id, &isnull );
-
     if ( isnull ) elog( ERROR, "otherloc.id contains a null value" );
-
     data->id = DatumGetInt32( binval );
 
     binval = SPI_getbinval( *tuple, *tupdesc, columns->x, &isnull );
-
     if ( isnull ) elog( ERROR, "otherloc.x contains a null value" );
-
     data->x = DatumGetFloat8( binval );
 
     binval = SPI_getbinval( *tuple, *tupdesc, columns->y, &isnull );
-
     if ( isnull ) elog( ERROR, "otherloc.y contains a null value" );
-
     data->y = DatumGetFloat8( binval );
 
     binval = SPI_getbinval( *tuple, *tupdesc, columns->open, &isnull );
-
     if ( isnull ) elog( ERROR, "otherloc.open contains a null value" );
-
     data->open = DatumGetFloat8( binval );
 
     binval = SPI_getbinval( *tuple, *tupdesc, columns->close, &isnull );
-
     if ( isnull ) elog( ERROR, "otherloc.close contains a null value" );
-
     data->close = DatumGetFloat8( binval );
 }
 
@@ -422,51 +380,35 @@ static void fetch_vehicle( HeapTuple *tuple, TupleDesc *tupdesc,
     bool isnull;
 
     binval = SPI_getbinval( *tuple, *tupdesc, columns->vid, &isnull );
-
     if ( isnull ) elog( ERROR, "vehicle.vid contains a null value" );
-
     data->vid = DatumGetInt32( binval );
 
     binval = SPI_getbinval( *tuple, *tupdesc, columns->start_id, &isnull );
-
     if ( isnull ) elog( ERROR, "vehicle.start_id contains a null value" );
-
     data->start_id = DatumGetInt32( binval );
 
     binval = SPI_getbinval( *tuple, *tupdesc, columns->dump_id, &isnull );
-
     if ( isnull ) elog( ERROR, "vehicle.dump_id contains a null value" );
-
     data->dump_id = DatumGetInt32( binval );
 
     binval = SPI_getbinval( *tuple, *tupdesc, columns->end_id, &isnull );
-
     if ( isnull ) elog( ERROR, "vehicle.end_id contains a null value" );
-
     data->end_id = DatumGetInt32( binval );
 
     binval = SPI_getbinval( *tuple, *tupdesc, columns->capacity, &isnull );
-
     if ( isnull ) elog( ERROR, "vehicle.capacity contains a null value" );
-
     data->capacity = DatumGetFloat8( binval );
 
     binval = SPI_getbinval( *tuple, *tupdesc, columns->dumpservicetime, &isnull );
-
     if ( isnull ) elog( ERROR, "vehicle.dumpservicetime contains a null value" );
-
     data->dumpservicetime = DatumGetFloat8( binval );
 
     binval = SPI_getbinval( *tuple, *tupdesc, columns->starttime, &isnull );
-
     if ( isnull ) elog( ERROR, "vehicle.starttime contains a null value" );
-
     data->starttime = DatumGetFloat8( binval );
 
     binval = SPI_getbinval( *tuple, *tupdesc, columns->endtime, &isnull );
-
     if ( isnull ) elog( ERROR, "vehicle.endtime contains a null value" );
-
     data->endtime = DatumGetFloat8( binval );
 }
 
@@ -482,21 +424,15 @@ static void fetch_ttime( HeapTuple *tuple, TupleDesc *tupdesc,
     bool isnull;
 
     binval = SPI_getbinval( *tuple, *tupdesc, columns->from_id, &isnull );
-
     if ( isnull ) elog( ERROR, "ttime.from_id contains a null value" );
-
     data->from_id = DatumGetInt32( binval );
 
     binval = SPI_getbinval( *tuple, *tupdesc, columns->to_id, &isnull );
-
     if ( isnull ) elog( ERROR, "ttime.to_id contains a null value" );
-
     data->to_id = DatumGetInt32( binval );
 
     binval = SPI_getbinval( *tuple, *tupdesc, columns->ttime, &isnull );
-
     if ( isnull ) elog( ERROR, "ttime.ttime contains a null value" );
-
     data->ttime = DatumGetFloat8( binval );
 }
 

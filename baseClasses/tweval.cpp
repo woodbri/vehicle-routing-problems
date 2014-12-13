@@ -45,6 +45,7 @@ void Tweval::evaluate ( double cargoLimit ) {
     twv = cv = false;
     dumpVisits = 0;
     cv = cvTot = demand > cargoLimit ? 1 : 0;
+    deltaTime=0;
 }
 
 /*!
@@ -59,16 +60,12 @@ void Tweval::evaluate ( double cargoLimit ) {
  * \param[in] cargoLimit The cargo limit for this vehicle.
  */
 void Tweval::evaluate ( const Tweval &pred, double cargoLimit ) {
-    //assert( Tweval::TravelTime.size() );
 
-    travelTime    = twc->TravelTime( pred.nid,
-                                     nid );   // Travel Time from previous node to this node
-    totTravelTime = pred.totTravelTime +
-                    travelTime;    // tot length travel from 1st node
+    travelTime    = twc->TravelTime( pred.nid, nid );   // Travel Time from previous node to this node
+    totTravelTime = pred.totTravelTime + travelTime;    // tot length travel from 1st node
     arrivalTime   = pred.departureTime + travelTime;
     twv = lateArrival( arrivalTime );           // Time Window Violation
-    waitTime      = earlyArrival( arrivalTime ) ? opens() - arrivalTime :
-                    0; // truck arrives before node opens, so waits
+    waitTime      = earlyArrival( arrivalTime ) ? opens() - arrivalTime : 0; // truck arrives before node opens, so waits
     totWaitTime   = pred.totWaitTime + waitTime;
     totServiceTime = pred.totServiceTime + serviceTime;
     departureTime  = arrivalTime + waitTime + serviceTime;
@@ -77,12 +74,12 @@ void Tweval::evaluate ( const Tweval &pred, double cargoLimit ) {
          and pred.cargo >= 0 ) demand = - pred.cargo;     // type 1 empties the truck (aka dumpSite)
 
     dumpVisits = ( type == 1 ) ? pred.dumpVisits + 1 :  pred.dumpVisits;
-    cargo = pred.cargo +
-            demand;            // loading truck demand>0 or unloading demand<0
+    cargo = pred.cargo + demand;            // loading truck demand>0 or unloading demand<0
     cv = cargo > cargoLimit or cargo < 0;       // capacity Violation
     // keep a total of violations
     twvTot = ( twv ) ? pred.twvTot + 1 : pred.twvTot;
     cvTot =  ( cv ) ?  pred.cvTot + 1 : pred.cvTot;
+    deltaTime=departureTime - pred.departureTime;
 }
 
 
@@ -96,8 +93,8 @@ void Tweval::dump() const {
 /*!
  * \brief Print the Tweval attributes for the node.
  */
+#ifdef DOVRPLOG
 void Tweval::dumpeval() const  {
-    #ifdef DOVRPLOG
     DLOG( INFO ) << "twv=" << twv
                  << ", cv=" << cv
                  << ", twvTot=" << twvTot
@@ -108,8 +105,8 @@ void Tweval::dumpeval() const  {
                  << ", wait Time=" << waitTime
                  << ", service Time=" << serviceTime
                  << ", departure Time=" << departureTime;
-    #endif
 }
+#endif
 
 
 /*!
