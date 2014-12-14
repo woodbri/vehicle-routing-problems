@@ -22,13 +22,14 @@
 #include <math.h>
 #include <stdio.h>
 
+#include "signalhandler.h"
 #include "node.h"
 #include "twnode.h"
 #include "twpath.h"
 #include "tweval.h"
 #include "otherClasses.h"
 #include "md5.h"
-#include "osrm.h"
+#include "vrposrm.h"
 
 // TODO: all Twpath::e_*() functions return E_Ret = OK|NO_CHANGE|INVALID
 //       the test should probably add tests for the return codes
@@ -228,7 +229,7 @@ class TestProblem {
 
             Testnode node( line );
 
-            if ( !node.isvalid() )
+            if ( !node.isValid() )
                 std::cout << "ERROR: line: " << cnt << ": " << line << std::endl;
 
             datanodes.push_back( node );
@@ -615,6 +616,7 @@ bool test_md5() {
     return true;
 }
 
+#if 0
 bool test_osrm() {
     int status;
     double ttime;
@@ -641,6 +643,8 @@ bool test_osrm() {
     return true;
 }
 
+#endif
+
 void Usage() {
     std::cout << "Usage: tester in.txt\n";
 }
@@ -656,8 +660,17 @@ int main( int argc, char **argv ) {
 
     try {
 
+        REG_SIGINT
+
+        while ( sigint_handler.gracefulQuit() == 0 ) {
+            std::cout << "Type ^C to continue\n";
+            sleep(2);
+        }
+
+        THROW_ON_SIGINT
+
         test_md5();
-        test_osrm();
+        //test_osrm();
 
         TestProblem tp( infile );
 
