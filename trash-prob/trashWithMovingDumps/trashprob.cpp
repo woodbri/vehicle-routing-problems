@@ -80,7 +80,7 @@ TrashProb::TrashProb(  container_t* p_containers, unsigned int container_count,
     }
 
 
-    #ifdef VRPMAXTRACE
+    #ifdef VRPMINTRACE
     C.dump();
     nodes.dump( "nodes" );
     dumps.dump( "dumps" );
