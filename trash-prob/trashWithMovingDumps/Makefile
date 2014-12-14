@@ -25,17 +25,17 @@ TRACE_MIN = yes
 TRACE_ALL =
 
 ifeq ("$(NO_TRACE)", "")
-ifeq ("$(TRACE_ALL)", "")
-ifeq ("$(TRACE_MIN)", "")
-TRACE_CFLAGS =
+  ifeq ("$(TRACE_ALL)", "")
+    ifeq ("$(TRACE_MIN)", "")
+      TRACE_CFLAGS =
+    else
+      TRACE_CFLAGS = -DVRPMINTRACE
+    endif
+  else
+    TRACE_CFLAGS = -DVRPMINTRACE -DVRPMAXTRACE
+  endif
 else
-TRACE_CFLAGS = -DVRPMINTRACE
-endif
-else
-TRACE_CFLAGS = -DVRPMINTRACE -DVRPMAXTRACE
-endif
-else
-TRACE_CFLAGS =
+  TRACE_CFLAGS =
 endif
 
 
@@ -277,7 +277,7 @@ clean:
 	rm -f *.so
 	mkdir -p $(BIN_DIR)
 	echo $(INITTRASH)
-	mkdir -p $(BUILD_DIR)/$(BASECLASSES) $(BUILD_DIR)/$(BASETRASH) $(BUILD_DIR)/$(INITTRASH) $(BUILD_DIR)/$(SOLVERTRASH)
+	mkdir -p $(BUILD_DIR)/$(BASECLASSES) $(BUILD_DIR)/$(BASETRASH) $(BUILD_DIR)/$(INITTRASH) $(BUILD_DIR)/$(SOLVERTRASH) ./logs
 
 
 cleanAll: clean
