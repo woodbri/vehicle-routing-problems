@@ -2,7 +2,13 @@
 
 DBUSER=postgres
 DBHOST=localhost
+
+if [ "$USER" == "woodbri" ] ; then
+DBPORT=5433
+else
 DBPORT=5432
+fi
+
 DBNAME=vrptools_test
 
 
