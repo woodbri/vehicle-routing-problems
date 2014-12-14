@@ -39,7 +39,7 @@ int vrp_trash_collection (
     unsigned int vehicle_count,
     ttime_t *ttime,
     unsigned int ttime_count,
-    unsigned int interation,
+    unsigned int iteration,
     vehicle_path_t **vehicle_paths,
     int *vehicle_path_count,
     char **err_msg

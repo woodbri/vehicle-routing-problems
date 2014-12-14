@@ -14,6 +14,11 @@
 
 #include "trashprob.h"
 
+#ifdef DOVRPLOG
+#include "logger.h"
+#endif
+
+
 TrashProb::TrashProb(  container_t* p_containers, unsigned int container_count,
                           otherloc_t* p_otherlocs, unsigned int otherloc_count,
                           ttime_t* p_ttimes, unsigned int ttime_count,
@@ -38,11 +43,6 @@ TrashProb::TrashProb(  container_t* p_containers, unsigned int container_count,
     invalid += intersection;
     pickups -= intersection;
     nodes -= intersection;
-
-    #ifdef VRPMINTRACE
-    invalid.dump( "invalid" );
-    #endif
-
 
     nodes = pickups + otherlocs;
     nodes.push_back( C );
@@ -80,7 +80,8 @@ TrashProb::TrashProb(  container_t* p_containers, unsigned int container_count,
     }
 
 
-    #ifdef VRPMINTRACE
+    #ifdef VRPMAXTRACE
+    DLOG ( INFO ) <<"Average Node";
     C.dump();
     nodes.dump( "nodes" );
     dumps.dump( "dumps" );
@@ -97,6 +98,8 @@ TrashProb::TrashProb(  container_t* p_containers, unsigned int container_count,
 
     for ( int i = 0; i < invalidTrucks.size(); i++ ) invalidTrucks[i].tau();
 
+    #endif
+    #ifdef VRPMINTRACE
     twc->dump();
     #endif
 }
