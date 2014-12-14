@@ -61,11 +61,13 @@ void Usage() {
 int main(int argc, char **argv) {
 
     #ifdef DOVRPLOG
-    FLAGS_log_dir = "./logs/";
-    google::InitGoogleLogging("vdev/Trash");
-    //FLAGS_logtostderr = 0;
-    FLAGS_stderrthreshold = google::ERROR;
-    FLAGS_minloglevel = google::INFO;
+        if ( not google::IsGoogleLoggingInitialized() ) {                                                                                                                                                                        
+            FLAGS_log_dir = "./logs/";
+            google::InitGoogleLogging( "vrp_trash_collection" );
+            FLAGS_logtostderr = 0;
+            FLAGS_stderrthreshold = google::FATAL;                                                                                                                                                                               
+            FLAGS_minloglevel = google::INFO;
+        }                                                                                                                                                                                                                        
     #endif
 
     if (argc < 2) {

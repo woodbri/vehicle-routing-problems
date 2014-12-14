@@ -191,18 +191,17 @@ void Prob_trash::loadProblem( const std::string &infile ) {
 
 
 
-    twc->loadAndProcess_distance( datafile + ".dmatrix-time.txt", datanodes,
-                                  invalid );
+    twc->loadAndProcess_distance( datafile + ".dmatrix-time.txt", datanodes, invalid );
+    load_trucks( datafile + ".vehicles.txt" );
+
     twc->setHints( dumps );
     twc->setHints( nodes );
     twc->setHints( depots );
     twc->setHints( pickups );
     twc->setHints( endings );
-
     twc->settCC( C, pickups );
 
 
-    load_trucks( datafile + ".vehicles.txt" );
     assert( trucks.size() and depots.size() and dumps.size() and endings.size() );
 
     for ( int i = 0; i < trucks.size(); i++ ) {
@@ -220,13 +219,11 @@ void Prob_trash::loadProblem( const std::string &infile ) {
     invalid.dump( "invalid" );
     DLOG( INFO ) << "TRUCKS";
 
-    for ( int i = 0; i < trucks.size(); i++ )
-        trucks[i].tau();
+    for ( int i = 0; i < trucks.size(); i++ ) trucks[i].tau();
 
     DLOG( INFO ) << "INVALID TRUCKS";
 
-    for ( int i = 0; i < invalidTrucks.size(); i++ )
-        invalidTrucks[i].tau();
+    for ( int i = 0; i < invalidTrucks.size(); i++ ) invalidTrucks[i].tau();
 
     twc->dump();
     #endif
@@ -265,6 +262,7 @@ void Prob_trash::load_trucks( std::string infile ) {
 
 }
 
+#if 0
 void Prob_trash::load_depots( std::string infile ) {
     #ifdef VRPMINTRACE
     DLOG( INFO ) << "Prob_trash:Load_depots" << infile;
@@ -295,6 +293,7 @@ void Prob_trash::load_depots( std::string infile ) {
 
     in.close();
 }
+#endif
 
 void Prob_trash::load_otherlocs( std::string infile ) {
     #ifdef VRPMINTRACE
@@ -327,7 +326,7 @@ void Prob_trash::load_otherlocs( std::string infile ) {
     in.close();
 }
 
-
+#if 0
 void Prob_trash::load_dumps( std::string infile ) { //1 dump problem
     std::ifstream in( infile.c_str() );
     std::string line;
@@ -355,6 +354,8 @@ void Prob_trash::load_dumps( std::string infile ) { //1 dump problem
 
     in.close();
 }
+#endif
+
 
 void Prob_trash::load_pickups( std::string infile ) {
     std::ifstream in( infile.c_str() );

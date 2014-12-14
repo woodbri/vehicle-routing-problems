@@ -24,11 +24,16 @@ class TrashProb : public Prob_trash {
 
   public:
 
-    TrashProb() : Prob_trash() {};
+//    TrashProb() : Prob_trash() {};
+    TrashProb(  container_t * p_containers, unsigned int container_count,
+                          otherloc_t * p_otherlocs, unsigned int otherloc_count,
+                          ttime_t * p_ttimes, unsigned int ttime_count,
+                          vehicle_t * p_vehicles, unsigned int vehicle_count);
+
 
     void addContainers( container_t *containers, int count );
     void addOtherlocs( otherloc_t *otherlocs, int count );
-    bool checkNodesOk();
+//    bool checkNodesOk();
     void addTtimes( ttime_t *ttimes, int count );
     void addVehicles( vehicle_t *vehicles, int count );
 

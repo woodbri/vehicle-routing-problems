@@ -14,22 +14,123 @@
 
 #include "trashprob.h"
 
+TrashProb::TrashProb(  container_t* p_containers, unsigned int container_count,
+                          otherloc_t* p_otherlocs, unsigned int otherloc_count,
+                          ttime_t* p_ttimes, unsigned int ttime_count,
+                          vehicle_t* p_vehicles, unsigned int vehicle_count) {
+
+    Bucket nodes;
+    Bucket intersection;
+    #ifdef VRPMINTRACE
+    DLOG( INFO ) << "trashProb LoadProblem -------------from sql data---------";
+    #endif
+
+
+    // read the nodes
+    int cnt = 0;
+    int nid = 0;
+    int id = 0;
+
+    addContainers(p_containers, container_count);
+    addOtherlocs( p_otherlocs, otherloc_count );
+
+    intersection = otherlocs * pickups;
+    invalid += intersection;
+    pickups -= intersection;
+    nodes -= intersection;
+
+    #ifdef VRPMINTRACE
+    invalid.dump( "invalid" );
+    #endif
+
+
+    nodes = pickups + otherlocs;
+    nodes.push_back( C );
+
+    for ( int i = 0; i < nodes.size(); i++ ) {
+        nodes[i].setnid( i );
+        id = nodes[i].getid();
+
+        if ( pickups.hasId( id ) )
+            pickups[ pickups.posFromId( id ) ].setnid( i );
+        else if ( otherlocs.hasId( id ) )
+            otherlocs[ otherlocs.posFromId( id ) ].setnid( i );
+    };
+
+    C = nodes.back();
+    assert( pickups.size() );
+    assert( otherlocs.size() );
+
+    datanodes = nodes;
+    twc->loadAndProcess_distance( p_ttimes, ttime_count, datanodes, invalid );
+    addVehicles( p_vehicles, vehicle_count );
+
+    twc->setHints( dumps );
+    twc->setHints( nodes );
+    twc->setHints( depots );
+    twc->setHints( pickups );
+    twc->setHints( endings );
+    twc->settCC( C, pickups );
+
+
+    assert( trucks.size() and depots.size() and dumps.size() and endings.size() );
+
+    for ( int i = 0; i < trucks.size(); i++ ) {
+        trucks[i].setInitialValues( C, pickups );
+    }
+
+
+    #ifdef VRPMAXTRACE
+    C.dump();
+    nodes.dump( "nodes" );
+    dumps.dump( "dumps" );
+    depots.dump( "depots" );
+    pickups.dump( "pickups" );
+    endings.dump( "endings" );
+    datanodes.dump( "datanodes" );
+    invalid.dump( "invalid" );
+    DLOG( INFO ) << "TRUCKS";
+
+    for ( int i = 0; i < trucks.size(); i++ ) trucks[i].tau();
+
+    DLOG( INFO ) << "INVALID TRUCKS";
+
+    for ( int i = 0; i < invalidTrucks.size(); i++ ) invalidTrucks[i].tau();
+
+    twc->dump();
+    #endif
+}
+
 
 void TrashProb::addContainers( container_t *_containers, int count ) {
     pickups.clear();
+    double st, op, cl, dm, x, y;
+    st = op = cl = dm = x = y = 0;
 
     for ( int i = 0; i < count; ++i ) {
         container_t c = _containers[i];
-        Trashnode node( c.id, c.x, c.y, c.open, c.close, c.service, c.demand, c.sid );
+        Trashnode node( c.id, c.x, c.y, c.open, c.close, c.service, c.demand, c.sid ); //get it out of the cycle
         node.setType( 2 );
 
         if ( node.isValid() ) {
             pickups.push_back( node );
+            st += node.getServiceTime();
+            op += node.opens();
+            cl += node.closes();
+            dm += node.getDemand();
+            x += node.getx();
+            y += node.gety();
         }
-        else {
-            invalid.push_back( node );
-        }
+        else invalid.push_back( node );
+        
     }
+    st = st / pickups.size();
+    op = op / pickups.size();
+    cl = cl / pickups.size();
+    dm = dm / pickups.size();
+    x = x / pickups.size();
+    y = y / pickups.size();
+    C.set( -1, -1, x, y, dm, op, cl, st );
 }
 
 
@@ -50,51 +151,7 @@ void TrashProb::addOtherlocs( otherloc_t *_otherlocs, int count ) {
 }
 
 
-bool TrashProb::checkNodesOk() {
-    if ( pickups.size() == 0 ) return false;
 
-    if ( otherlocs.size() == 0 ) return false;
-
-    Bucket nodes;
-    Bucket intersection;
-    int id;
-
-    intersection = otherlocs * pickups;
-    invalid += intersection;
-    pickups -= intersection;
-
-    intersection.dump( "intersection" );
-    invalid.dump( "invalid" );
-
-    nodes = pickups + otherlocs;
-
-    for ( int i = 0; i < nodes.size(); i++ ) {
-        nodes[i].setnid( i );
-        id = nodes[i].getid();
-
-        if ( pickups.hasId( id ) ) pickups[ pickups.posFromId( id ) ].setnid( i );
-        else if ( otherlocs.hasId( id ) ) otherlocs[ otherlocs.posFromId( id ) ].setnid(
-                i );
-    }
-
-    if ( not pickups.size() or not otherlocs.size() ) return false;
-
-    datanodes = nodes;
-
-    return true;
-}
-
-
-void TrashProb::addTtimes( ttime_t *_ttimes, int count ) {
-
-    twc->loadAndProcess_distance( _ttimes, count, datanodes, invalid );
-
-    /*Bucket dummy;
-    dummy.setTravelTimes( twc->TravelTime() );
-    Tweval dummyNode;
-    dummyNode.setTravelTimes( twc->TravelTime() );*/
-    //    assert( Tweval::TravelTime.size() );
-}
 
 
 void TrashProb::addVehicles( vehicle_t *_vehicles, int count ) {
@@ -114,7 +171,6 @@ void TrashProb::addVehicles( vehicle_t *_vehicles, int count ) {
         }
     }
 
-    //    assert(trucks.size() and depots.size() and dumps.size() and endings.size());
 }
 
 
@@ -125,33 +181,25 @@ bool TrashProb::isValid() const {
            and endings.size()
            and pickups.size()
            and otherlocs.size()
-           //and Tweval::TravelTime.size()
+	   and not invalid.size()
+	   and not invalidTrucks.size();
            ;
 }
 
 std::string TrashProb::whatIsWrong() const {
     std::ostringstream wiw( std::ostringstream::ate );
 
-    if ( not trucks.size() )
-        wiw << "No valid vehicles\n";
+    if ( not trucks.size() ) wiw << "No valid vehicles\n";
 
-    if ( not depots.size() )
-        wiw << "No valid starting locations found\n";
+    if ( not depots.size() ) wiw << "No valid starting locations found\n";
 
-    if ( not dumps.size() )
-        wiw << "No valid dumps found\n";
+    if ( not dumps.size() ) wiw << "No valid dumps found\n";
 
-    if ( not endings.size() )
-        wiw << "No valid ending locations found\n";
+    if ( not endings.size() ) wiw << "No valid ending locations found\n";
 
-    if ( not pickups.size() )
-        wiw << "No valid container locations found\n";
+    if ( not pickups.size() ) wiw << "No valid container locations found\n";
 
-    if ( not otherlocs.size() )
-        wiw << "No valid other locations found\n";
-
-    //if ( not Tweval::TravelTime.size() )
-      //  wiw << "The travel time matrix is empty\n";
+    if ( not otherlocs.size() ) wiw << "No valid other locations found\n";
 
     if ( invalid.size() ) {
         wiw << "The following nodes are invalid: ";

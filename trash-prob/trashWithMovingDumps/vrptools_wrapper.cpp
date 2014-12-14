@@ -49,18 +49,7 @@ int vrp_trash_collection( container_t *containers, unsigned int container_count,
 	#endif
 
 
-        TrashProb prob;
-        prob.addContainers( containers, container_count );
-        prob.addOtherlocs( otherlocs, otherloc_count );
-
-        if ( not prob.checkNodesOk() ) {
-            std::string err = prob.whatIsWrong();
-            *err_msg = strdup( err.c_str() );
-            return -1;
-        }
-
-        prob.addTtimes( ttimes, ttime_count );
-        prob.addVehicles( vehicles, vehicle_count );
+        TrashProb prob(containers,container_count,otherlocs,otherloc_count,ttimes,ttime_count,vehicles,vehicle_count) ;
 
         if ( not prob.isValid() ) {
             std::string err = prob.whatIsWrong();
