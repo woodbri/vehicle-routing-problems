@@ -20,7 +20,10 @@
 #include <sstream>
 #include <fstream>
 
+#ifdef DOPLOT
 #include "plot.h"
+#endif
+
 #include "oneTruckAllNodesInit.h"
 
 void OneTruckAllNodesInit::stepOne( Vehicle &truck, Bucket &unassigned,
@@ -60,7 +63,11 @@ void OneTruckAllNodesInit::process() {
     stepOne( truck, unassigned, assigned );
 
     // plot displays the route to be plotted
+
+    #ifdef DOPLOT
     truck.plot( "OneTruckAllNodes", "OneTruckAllNodes", truck.getVid() );
+    #endif
+
     fleet.push_back( truck );
     assert( pickups ==  assigned );
 

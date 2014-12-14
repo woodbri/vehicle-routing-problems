@@ -43,6 +43,12 @@ class Solution: public Prob_trash {
     double w1, w2, w3;
 
   public:
+    void evaluate();
+
+    void clear() {
+	Prob_trash::clear();
+	fleet.clear();
+    };
 
     Solution( const Prob_trash &P ): Prob_trash( P ) {};
     Solution( const std::string &infile, const std::vector<int> &solution );
@@ -59,11 +65,12 @@ class Solution: public Prob_trash {
 
     vehicle_path_t *getSolutionForPg( int &count ) const;
 
-    void computeCosts();
+    int computeCosts();
     double getCost() const ;
     double getDistance() const ;
     int getFleetSize() const { return fleet.size(); };
     double getAverageRouteDurationLength();
+    void dumpSolutionForPg () const;
 
     Vehicle operator[]( int pos ) const {
         return fleet[pos];
@@ -114,7 +121,7 @@ class Solution: public Prob_trash {
     void dumpCostValues() {
         for ( int i = 0; i < fleet.size(); i++ )
             fleet[i].getCost();
- 	#ifdef LOG
+ 	#ifdef DOVRPLOG
         for ( int i = 0; i < fleet.size(); i++ )
             fleet[i].dumpCostValues();
 	#endif
@@ -132,7 +139,7 @@ class Solution: public Prob_trash {
     int getTWV() const ;
     int getCV() const ;
 
-    #ifdef LOG
+    #ifdef DOVRPLOG
     void dump() const;
     void dumpFleet() const ;
     void dumpSummary() const ;

@@ -13,10 +13,11 @@
  ********************************************************************VRP*/
 
 
-#ifdef LOG
+#ifdef DOVRPLOG
 #include "logger.h"
 #endif
 
+#include "pg_types_vrp.h"
 #include "solution.h"
 
 bool Solution::feasable() const {
@@ -28,6 +29,17 @@ bool Solution::feasable() const {
     return true;
 }
 
+void Solution::evaluate() {
+    assert( fleet.size() );
+
+    for ( int i = 0; i < fleet.size(); i++ )
+        fleet[i].evaluate();
+
+}
+
+
+
+
 int Solution::v_computeCosts() {
     totalCost = 0.0;
     totalDistance = 0.0;
@@ -35,7 +47,7 @@ int Solution::v_computeCosts() {
 
     for ( int i = 0; i < fleet.size(); i++ ) {
         if ( fleet[i].size() == 1 ) {
-            #ifdef LOG
+            #ifdef DOVRPLOG
             DLOG( INFO ) << "FOUND A TRUCK WITHOUT CONTAINERS";
             #endif
             removedPos = i;
@@ -54,24 +66,8 @@ int Solution::v_computeCosts() {
 
 
 
-void Solution::computeCosts() {
-    #ifdef VICKY
-    assert( true == false );
-    #endif
-
-    totalCost = 0.0;
-    totalDistance = 0.0;
-
-    for ( int i = 0; i < fleet.size(); i++ ) {
-        // if the vehicle has no containers then it never leaves
-        // we always insert the starting location in the path
-        // so vehicle.size()-1 == 0 is an empty vehicle
-        // and hence has no cost
-        if ( fleet[i].size() - 1 == 0 ) continue;
-
-        totalCost += fleet[i].getcost();
-        totalDistance += fleet[i].getDuration();
-    }
+int Solution::computeCosts() {
+    v_computeCosts();
 }
 
 double Solution::getCost() const {
@@ -82,12 +78,44 @@ double Solution::getDistance() const {
     return totalDistance;
 }
 
+void Solution::dumpSolutionForPg () const {
+    vehicle_path_t *results;
+    int count;
+    results = getSolutionForPg( count ) ;
+    for (int i=0;i<count;i++) 
+        std::cout<<"i"<<i<<
+			"\tseq:"<<results[i].seq<<
+			"\tVID:"<<results[i].vid<<
+			"\tnid"<<results[i].nid<<
+			"\tntype"<<results[i].ntype<<
+			"\tdeltaTime"<<results[i].deltatime<<
+			"\tcargo"<<results[i].cargo<<"\n";
+
+    for ( int i = 0; i < fleet.size(); ++i ) {
+        if ( fleet[i].size() <= 1 ) continue;
+        for ( int j = 0; j < fleet[i].size(); ++j ) {
+          std::cout<<"VID: "<<fleet[i].getVid()<<"\tid: "<<fleet[i][j].getid()<<"\tntype: "<<fleet[i][j].ntype()<<"\tDeparture: "<<fleet[i][j].getDepartureTime()<<
+		"\tdeltaTime:"<< fleet[i][j].getDeltaTime()<<
+		"\tdeltaCargo"<< fleet[i][j].getDemand()<<"\n";
+        }
+        std::cout<<"VID: "<<fleet[i].getVid()<<"\tid: "<<fleet[i].getDumpSite().getid()<<"\tntype: "<<fleet[i].getDumpSite().ntype()<<"\tDeparture: "<<fleet[i].getDumpSite().getDepartureTime()<<
+		"\tdeltaTime:"<<  fleet[i].getDumpSite().getDeltaTime()<<
+		"\tdeltaCargo"<< fleet[i].getDumpSite().getDemand()<<"\n";
+        std::cout<<"VID: "<<fleet[i].getVid()<<"\tid: "<<fleet[i].getEndingSite().getid()<<"\tntype: "<<fleet[i].getEndingSite().ntype()<<"\tDeparture: "<<fleet[i].getEndingSite().getDepartureTime()<<
+		"\tdeltaTime:"<<  fleet[i].getEndingSite().getDeltaTime()<<
+		"\tdeltaCargo"<< fleet[i].getEndingSite().getDemand()<<"\n";
+    }
+}
+        
+
 
 vehicle_path_t *Solution::getSolutionForPg( int &count ) const {
     count = 0;
+    int fleetSize= fleet.size();
+    //fleetSize=1;
 
     // count the number of records we need for the output
-    for ( int i = 0; i < fleet.size(); ++i )
+    for ( int i = 0; i < fleetSize; ++i )
         if ( fleet[i].size() > 1 )          // don't count empty routes
             count += fleet[i].size() + 2;   // add final dump and ending nodes
 
@@ -105,7 +133,7 @@ vehicle_path_t *Solution::getSolutionForPg( int &count ) const {
 
     int seq = 0;
 
-    for ( int i = 0; i < fleet.size(); ++i ) {
+    for ( int i = 0; i < fleetSize; ++i ) {
         if ( fleet[i].size() <= 1 ) continue;
 
         for ( int j = 0; j < fleet[i].size(); ++j ) {
@@ -113,13 +141,9 @@ vehicle_path_t *Solution::getSolutionForPg( int &count ) const {
             results[seq].vid       = fleet[i].getVid();
             results[seq].nid       = fleet[i][j].getid();
             results[seq].ntype     = map[fleet[i][j].ntype()];
-            results[seq].deltatime = ( j == 0 ) ? 0 : fleet[i][j].getDepartureTime() -
-                                     fleet[i][j - 1].getDepartureTime();
-            results[seq].cargo     = ( j == 0 ) ? 0 : fleet[i][j].getCargo() -
-                                     fleet[i][j - 1].getCargo();
-            // at a dump and the following node we report that nodes cargo
-            //if (results[seq].cargo <= 0)
-            //    results[seq].cargo = fleet[i][j].getcargo();
+            //results[seq].deltatime = ( j == 0 ) ? 0 : fleet[i][j].getDepartureTime() - fleet[i][j - 1].getDepartureTime();
+            results[seq].deltatime     =  fleet[i][j].getDeltaTime();
+            results[seq].cargo     =  fleet[i][j].getDemand();
 
             ++seq;
         }
@@ -128,23 +152,21 @@ vehicle_path_t *Solution::getSolutionForPg( int &count ) const {
         results[seq].seq       = seq + 1;
         results[seq].vid       = fleet[i].getVid();
         results[seq].nid       = fleet[i].getDumpSite().getid();
-        results[seq].ntype     = 2;
-        results[seq].deltatime = fleet[i].getDumpSite().getDepartureTime() -
-                                 fleet[i][fleet[i].size() - 1].getDepartureTime();
-        results[seq].cargo     = -fleet[i][fleet[i].size() - 1].getCargo();
+        results[seq].ntype     = map[fleet[i].getDumpSite().ntype()];
+        results[seq].deltatime = fleet[i].getDumpSite().getDepartureTime() - fleet[i][fleet[i].size() - 1].getDepartureTime();
+        results[seq].cargo     = fleet[i].getDumpSite().getDemand();
         ++seq;
 
         // add the ending location
         results[seq].seq       = seq + 1;
         results[seq].vid       = fleet[i].getVid();
-        results[seq].nid       = fleet[i].getDepot().getid();
-        results[seq].ntype     = 3;
-        results[seq].deltatime = fleet[i].getDepot().getDepartureTime() -
-                                 fleet[i].getDumpSite().getDepartureTime();
-        results[seq].cargo     = fleet[i].getDepot().getCargo();
+        results[seq].nid       = fleet[i].getEndingSite().getid();
+        results[seq].ntype     = map[fleet[i].getEndingSite().ntype()];
+        results[seq].deltatime = fleet[i].getEndingSite().getDepartureTime() - fleet[i].getDumpSite().getDepartureTime();
+        results[seq].cargo     = fleet[i].getEndingSite().getDemand();
         ++seq;
     }
-    #ifdef LOG
+    #ifdef DOVRPLOG
     DLOG( INFO ) << "Solution::getSolutionForPg: seq: " << seq << ", count: " <<
                  count;
     #endif
@@ -274,7 +296,7 @@ void Solution::plot( std::string file, std::string title ) {
 }
 #endif
 
-#ifdef LOG
+#ifdef DOVRPLOG
 void Solution::tau() {
     DLOG( INFO ) << "Tau:";
 
@@ -282,7 +304,6 @@ void Solution::tau() {
         fleet[i].tau();
     };
 
-    DLOG( INFO ) << "0";
 }
 
 void Solution::dumproutes()  {
@@ -367,7 +388,7 @@ Solution::Solution( const std::string &infile,
 
     computeCosts();
 
-    #ifdef LOG
+    #ifdef DOVRPLOG
     if ( unassigned.size() or ( assigned == pickups ) )
         DLOG( INFO ) << "Something went wrong creating the solution";
     #endif
@@ -426,7 +447,7 @@ int Solution::getCV() const {
 
 
 // dump the problem and the solution
-#ifdef LOG
+#ifdef DOVRPLOG
 void Solution::dumpFleet() const {
     DLOG( INFO ) << "--------- Fleet ------------";
 
@@ -481,7 +502,7 @@ bool Solution::applyInterSwMove( const Move &move ) {
 
     if ( not ( fleet[move.getInterSwTruck1()][ move.getpos1()].getnid() ==
                move.getnid1() ) ) {
-	#ifdef LOG
+	#ifdef DOVRPLOG
         DLOG( INFO ) << "ERROR APPLYING INTERSW ";
         move.Dump();
 	#endif
@@ -523,7 +544,7 @@ bool Solution::applyIntraSwMove( const Move &move ) {
 
 // dump summary of the solution
 
-#ifdef LOG
+#ifdef DOVRPLOG
 void Solution::dumpSummary() const {
     DLOG( INFO ) << "--------- Solution ------------";
     DLOG( INFO ) << "Total path length: " << getduration();

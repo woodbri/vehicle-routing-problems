@@ -20,7 +20,7 @@
 #include <sstream>
 #include <fstream>
 
-#ifdef LOG
+#ifdef DOVRPLOG
 #include "logger.h"
 #endif
 
@@ -78,8 +78,8 @@ void FeasableSol::stepOne( Vehicle &truck ) {
         }
     }
     else {
-        #ifdef LOG
-        DLOG( WARNING ) << "no nearest node was found";
+        #ifdef DOVRPLOG
+        DLOG( WARNING ) << " FeasableSol::stepOne: No nearest node was found";
 	#endif
         assert( "FeasableSol::stepOne" == "no nearest node was found" );
     }
@@ -121,7 +121,7 @@ void FeasableSol::process() {
     stepOne( truck );
     fleet.push_back( truck ); //need to save the last truck
     
-    #if defined LOG && defined DOSTATS
+    #ifdef DOSTATS
     DLOG( INFO ) << "FEASABLESOL: Total time: " << start.duration();
     #endif
     return;

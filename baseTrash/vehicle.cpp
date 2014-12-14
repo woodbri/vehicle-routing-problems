@@ -17,7 +17,7 @@
 #include <sstream>
 #include <deque>
 
-#ifdef LOG
+#ifdef DOVRPLOG
 #include "logger.h"
 #endif
 
@@ -28,10 +28,6 @@
 
 #include "trashconfig.h"
 #include "twpath.h"
-
-#ifdef WITHOSRM
-#include "osrm.h"
-#endif
 
 #include "move.h"
 #include "vehicle.h"
@@ -111,7 +107,7 @@ long int Vehicle::eval_intraSwapMoveDumps( Moves &moves, int  truckPos,
     STATS->inc( "Vehicle::eval_intraSwapMoveDumps" );
     #endif
 
-    #ifdef LOG
+    #ifdef VRPMAXTRACE
     DLOG( INFO ) << "Entering Vehicle::eval_intraSwapMoveDumps";
     #endif
 
@@ -167,7 +163,7 @@ long int Vehicle::eval_intraSwapMoveDumps( Moves &moves, int  truckPos,
                                       withPos + 1 ) - timePCN( withPos - 1, withPos, withPos + 1 );
 
                 if ( fromDelta < 0 or withDelta < 0 ) {
-                    #ifdef LOG
+                    #ifdef VRPMAXTRACE
                     DLOG( INFO ) << "timePCN( " << fromPos - 1 << "," << withPos
                                  << "," << fromPos + 1 << ")="
                                  << timePCN( fromPos - 1, withPos, fromPos + 1 );
@@ -333,7 +329,7 @@ long int Vehicle::eval_interSwapMoveDumps( Moves &moves,
                     if ( other.path[j].isDump() ) continue;
 
                     if ( numNotFeasable > factor * ( truck.getn() * other.getn() ) ) {
-                        #ifdef LOG
+                        #ifdef VRPMAXTRACE
                         DLOG( INFO ) << "LEAVING WITH numNotFeasable: " << numNotFeasable;
                         DLOG( INFO ) << "LEAVING WITH moves: " << deltaMovesSize;
                         #endif
@@ -341,7 +337,7 @@ long int Vehicle::eval_interSwapMoveDumps( Moves &moves,
                     }
 
                     if ( deltaMovesSize > factor * ( truck.getn() * other.getn() ) ) {
-                        #ifdef LOG
+                        #ifdef VRPMAXTRACE
                         DLOG( INFO ) << " LEAVING WITH moves: " << deltaMovesSize;
                         DLOG( INFO ) << " LEAVING WITH numNotFeasable: " << numNotFeasable;
                         #endif
@@ -387,7 +383,7 @@ long int Vehicle::eval_interSwapMoveDumps( Moves &moves,
         }
     }
 
-    #ifdef LOG
+    #ifdef VRPMAXTRACE
     DLOG( INFO ) << "NORMAL WITH moves: " << deltaMovesSize;
     DLOG( INFO ) << "NORMAL WITH numNotFeasable: " << numNotFeasable;
     DLOG( INFO ) << "limit was " << ( factor * ( getn() * otherTruck.getn() ) );
@@ -407,7 +403,7 @@ bool Vehicle::e_insertIntoFeasableTruck( const Trashnode &node, int pos ) {
     #ifdef DOSTATS
     STATS->inc( "Vehicle::e_insertIntoFeasableTruck" );
     #endif
-    #ifdef LOG
+    #ifdef VRPMAXTRACE
     DLOG( INFO ) << "Entering Vehicle::e_insertIntoFeasableTruck";
     #endif
     assert( feasable() );
@@ -574,7 +570,7 @@ bool Vehicle::applyMoveINSerasePart( int nodeNid, int pos ) {
     path.erase( pos );
     e_makeFeasable( pos );
 
-    #ifdef LOG
+    #ifdef DOVRPLOG
     if ( not feasable() ) dumpeval();
     #endif
 
@@ -587,13 +583,10 @@ bool Vehicle::applyMoveINSinsertPart( const Trashnode &node, int pos ) {
     #ifdef DOSTATS
     STATS->inc( "Vehicle::applyMoveINSinsertPart" );
     #endif
-    #ifdef LOG
-    DLOG( INFO ) << "Entering Vehicle::applyMoveINSinsertPart";
-    #endif
     path.insert( node, pos );
     e_makeFeasable( pos );
 
-    #ifdef LOG
+    #ifdef DOVRPLOG
     if ( not feasable() ) dumpeval();
     #endif
 
@@ -605,9 +598,6 @@ bool Vehicle::applyMoveInterSw( Vehicle &otherTruck, int truckPos,
                                 int otherTruckPos ) {
     #ifdef DOSTATS
     STATS->inc( "Vehicle::applyMoveInterSw" );
-    #endif
-    #ifdef TESTED
-    DLOG( INFO ) << "Entering Vehicle::applyMoveIntraSw";
     #endif
 
     path.swap( truckPos,  otherTruck.path, otherTruckPos );
@@ -627,9 +617,6 @@ bool Vehicle::applyMoveInterSw( Vehicle &otherTruck, int truckPos,
 bool Vehicle::applyMoveIntraSw( int  fromPos, int withPos ) {
     #ifdef DOSTATS
     STATS->inc( "Vehicle::applyMoveIntraSw" );
-    #endif
-    #ifdef LOG
-    DLOG( INFO ) << "Entering Vehicle::applyMoveInterSw";
     #endif
     path.swap( fromPos,  withPos );
 
@@ -662,16 +649,14 @@ bool Vehicle::e_insertSteadyDumpsTight( const Trashnode &node, int at ) {
     STATS->inc( "Vehicle::e_insertSteadyDumpsTight" );
     #endif
     assert ( at <= size() );
-    #ifdef LOG
-    DLOG( INFO ) << "Entering Vehicle::e_insertSteadyDumpsTight";
-    #endif
 
 
     if ( deltaCargoGeneratesCV( node, at ) ) return false;
-
     if ( deltaTimeGeneratesTV( node, at ) ) return false;
 
+    #ifdef VRPMAXTRACE
     path[size() - 1].dumpeval();
+    #endif
 
     if ( path.e_insert( node, at, maxcapacity ) ) return false;
 
@@ -688,9 +673,6 @@ bool Vehicle::e_insertSteadyDumpsTight( const Trashnode &node, int at ) {
 bool Vehicle::e_insertDumpInPath( const Trashnode &lonelyNodeAfterDump ) {
     #ifdef DOSTATS
     STATS->inc( "Vehicle::e_insertDumpInPath" );
-    #endif
-    #ifdef LOG
-    DLOG( INFO ) << "Entering Vehicle::e_insertDumpInPath";
     #endif
 
     //we arrived here because of CV
@@ -719,9 +701,9 @@ bool Vehicle::deltaCargoGeneratesCV( const Trashnode &node,
     #ifdef DOSTATS
     STATS->inc( "Vehicle::deltaCargoGeneratesCV" );
     #endif
-    #ifdef LOG
+    #ifdef VRPMAXTRACE
     DLOG( INFO ) << "Entering Vehicle::deltaCargoGeneratesCV";
-    //    DLOG(INFO) << getcargo() << "+" << node.getdemand() << " ¿? " << getmaxcapacity();
+    DLOG(INFO) << getCargo() << "+" << node.getDemand() << " ¿? " << getmaxcapacity();
     #endif
     //cycle until a dump is found
     int i;
@@ -730,7 +712,7 @@ bool Vehicle::deltaCargoGeneratesCV( const Trashnode &node,
 
     // two choices i points to a dump or i == size()
     // in any case the i-1 node has the truck's cargo
-    #ifdef LOG
+    #ifdef VRPMAXTRACE
     path[i - 1].dumpeval();
 
     DLOG( INFO ) << getCargo( i - 1 ) << "+" << node.getDemand() << " ¿? " <<
@@ -750,7 +732,7 @@ bool Vehicle::deltaTimeGeneratesTV( const Trashnode &dump,
     STATS->inc( " Vehicle::deltaTimeGeneratesTV" );
     #endif
 
-    #ifdef TESTED
+    #ifdef VRPMAXTRACE
     DLOG( INFO ) << "Entering Vehicle::deltaTimeGeneratesTV";
     DLOG( INFO ) << " (S 1 2 3 D E )  (S 1 2 3 D N D E)"
                  << path.getDeltaTimeAfterDump( dumpSite, node ) << " + "
@@ -769,8 +751,9 @@ bool Vehicle::deltaTimeGeneratesTV( const Trashnode &node, int pos ) const {
     #ifdef DOSTATS
     STATS->inc( "Vehicle::deltaTimeGeneratesTV" );
     #endif
+    assert( pos<=path.size() );
 
-    #ifdef LOG
+    #ifdef VRPMAXTRACE
     DLOG( INFO ) << "Entering Vehicle::deltaTimeGeneratesTV";
 
     if ( pos > path.size() )
@@ -787,7 +770,6 @@ bool Vehicle::deltaTimeGeneratesTV( const Trashnode &node, int pos ) const {
 
     endingSite.dump();
     #endif
-    assert( pos<=path.size() );
 
     if ( pos==path.size() )
         return path.getDeltaTime( node, dumpSite ) +

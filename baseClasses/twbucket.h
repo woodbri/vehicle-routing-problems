@@ -23,7 +23,7 @@
 #include <limits>
 
 
-#ifdef LOG
+#ifdef DOVRPLOG
 #include "logger.h"
 #endif
 
@@ -623,7 +623,7 @@ class TwBucket {
      * \param[in] title Title to print with the output of the Twbucket.
      */
     void dumpid( const std::string &title ) const {
-	#ifdef LOG
+	#ifdef DOVRPLOG
         std::stringstream ss;
         ss << title;
         const_iterator it = path.begin();
@@ -646,7 +646,7 @@ class TwBucket {
      * \param[in] title Title to print with the output of the Twbucket.
      */
     void dump( const std::string &title ) const {
-	#ifdef LOG
+	#ifdef DOVRPLOG
         std::stringstream ss;
         ss << title;
         const_iterator it = path.begin();

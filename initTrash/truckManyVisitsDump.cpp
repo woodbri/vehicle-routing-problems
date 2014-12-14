@@ -46,7 +46,9 @@ void TruckManyVisitsDump::insertComming( Bucket &bigTruck, Vehicle &truck,
     comming = bigTruck[bigTruck.size() - 1];
 
     if ( truck.e_insertSteadyDumpsTight( comming, goingPos + 1 ) ) {
+	#ifdef DOVRPLOG
         truck.dumpeval();
+	#endif
         assigned.push_back( comming );
         unassigned.erase( comming );
         bigTruck.erase( comming );
@@ -100,9 +102,10 @@ void TruckManyVisitsDump::insertGoing( Bucket &bigTruck, Vehicle &truck,
 
     // alternate code
 
+    #ifdef DOVRPLOG
     truck.dump( "Truck" );
-
     truck.smalldump();
+    #endif
 
     if ( truck.e_insertSteadyDumpsTight( going, goingPos ) ) {
         assigned.push_back( going );
@@ -165,14 +168,18 @@ void TruckManyVisitsDump::process() {
     //reteriving the result of oneTruckAllNodesInit
     Bucket bigTruck;
     assert( fleet.size() );
+    #ifdef DOVRPLOG
     fleet[0].dump( "fleet[0]" );
+    #endif
     bigTruck = fleet[0].Path();
     fleet.clear();
     bigTruck.dump( "bigTruck" );
     int goingPos = 1;
     Vehicle truck;
     truck = getTruck();
+    #ifdef DOVRPLOG
     truck.dump( "Truck" );
+    #endif
     insertGoing( bigTruck, truck, goingPos );
     fleet.push_back( truck ); //need to save the last truck
 

@@ -48,6 +48,17 @@ class Prob_trash {
 
   public:
 
+    void clear() {
+	otherlocs.clear();
+	dumps.clear();
+	depots.clear();
+	pickups.clear();
+	endings.clear();
+	invalid.clear();
+	trucks.clear();
+	invalidTrucks.clear();
+    }
+
     //    Trashnode getdepot() const { return depot;};
     Prob_trash() {};
     Prob_trash( const char *infile );
@@ -68,7 +79,7 @@ class Prob_trash {
     void twcijDump() const;
 
 
-    #ifdef LOG
+    #ifdef DOVRPLOG
     void nodesdump();
     void nodesdumpeval();
     void dump();
@@ -93,6 +104,9 @@ class Prob_trash {
     void load_endings( std::string infile );
     void load_otherlocs( std::string infile );
     void load_trucks( std::string infile );
+
+
+
 };
 
 #endif

@@ -21,9 +21,6 @@
 #include "twnode.h"
 #include "twc.h"
 
-#ifdef WITHOSRM
-#include "vrposrm.h"
-#endif
 
 /*! \class Tweval
  * \brief Extend Twnode to evaluate the vehicle at node level
@@ -56,6 +53,7 @@ class Tweval: public Twnode {
     double getArrivalTime() const { return arrivalTime; };
     double getWaitTime() const {return waitTime;};
     double getDepartureTime() const { return departureTime; };
+    double getDeltaTime() const { return deltaTime; };
     double getTotTravelTime() const { return totTravelTime; };
     double getTotWaitTime() const { return totWaitTime; };
     double getTotServiceTime() const { return totServiceTime; };
@@ -91,26 +89,12 @@ class Tweval: public Twnode {
     double arrivalTime;     ///< Arrival time at this node
     double waitTime;        ///< Wait time at this node is early arrival
     double departureTime;   ///< Departure time from this node
+    double deltaTime;   ///< Departure time from this node
 
     double totWaitTime;     ///< Total accumulated wait time at this point in the path
     double totTravelTime;   ///< Total accumulated travel time at this point in the path
     double totServiceTime;  ///< Total accumulated service time at this point in the path
     double dumpVisits;      ///< Total count of dump visits at this point in the path
-    #ifdef WITHOSRM
-    double totTravelTimeOsrm;   ///< Total accumulated travel time at this point in the path based on the OSRM path
-    std::string
-    osrmUrlLocs;    ///< The partial URL string to get OSRM traveltime to this position in the path
-    #endif
-
-    /* Osrm stuff not in use so made it private meanwhile*/
-    #ifdef WITHOSRM
-    void evaluateOsrm ();
-    void evaluateOsrm ( const Tweval &pred, const std::string &osrmBaseUrl );
-    bool isOsrmTtimeValid() { return getTotTravelTimeOsrm() == -1 ? false : true; };
-    double getTotTravelTimeOsrm() const { return totTravelTimeOsrm; };
-    std::string getOsrmUrlLocs() const { return osrmUrlLocs; };
-    std::string getOsrmUrl( const std::string osrmBaseUrl ) const;
-    #endif
 
 };
 

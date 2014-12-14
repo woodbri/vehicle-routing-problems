@@ -17,7 +17,7 @@
 #include <algorithm>
 #include <cstdlib>
 
-#ifdef LOG
+#ifdef DOVRPLOG
 #include "logger.h"
 #endif
 
@@ -32,25 +32,31 @@
 
 
 
-TabuOpt::TabuOpt( const OptSol &initialSolution ) :
+TabuOpt::TabuOpt( const OptSol &initialSolution, unsigned int iteration ) :
         TabuBase( initialSolution ) {
         #ifdef DOSTATS
         STATS->inc( "TabuOpt::TabuOpt" );
         Timer start;
         #endif
+        maxIteration = iteration;     
+	if (maxIteration==0) return;
+	bestSolution.evaluate();
         computeCosts( bestSolution );
-        #ifdef LOG
+        #ifdef VRPMINTRACE
         bestSolution.tau();
         #endif
         bestSolution.optimizeTruckNumber();
         bestTabuList.clear();
+	bestSolution.evaluate();
         computeCosts( bestSolution );
         bestSolutionCost = bestSolution.getCost();
         setBestAsCurrent();
-        #ifdef LOG
+        #ifdef VRPMINTRACE
         #ifdef DOSTATS
         DLOG( INFO ) << "TABUSEARCH: Removal of truck time: " << start.duration();
         #endif
+	bestSolution.evaluate();
+        bestSolution.dumpCostValues();
         bestSolution.tau();
         #endif
 
@@ -62,7 +68,17 @@ TabuOpt::TabuOpt( const OptSol &initialSolution ) :
         STATS->set( "limitInterSw", limitIntraSw );
         STATS->set( "limitIns", limitInterSw );
         #endif
+        currentIteration = 0;
+	if (maxIteration>1) search();
+	bestSolution.evaluate();
     };
+
+
+vehicle_path_t* TabuOpt::getSolutionForPg( int &count ) const {
+	return bestSolution.getSolutionForPg(count);
+}
+
+
 
 
 
@@ -90,8 +106,6 @@ void TabuOpt::search() {
     Timer start;
     #endif
 
-    currentIteration = 0;
-    maxIteration = 1000;     // use ts.setMaxIteration(1) in trash.cpp
 
     bool improvedBest;
     int lastImproved = 0;
@@ -102,28 +116,25 @@ void TabuOpt::search() {
     //first cycle with osrm
     #ifdef OSRMCLIENT
     osrm->useOsrm( true );
-    if ( osrm->getUse() )
-        DLOG( INFO ) << "OSRM set to be used";
-    else
-        DLOG( INFO ) << "OSRM set to be not used";
     #endif
 
     for ( int i = 0; i < maxIteration; i++ ) {
+        #ifdef  DOVRPLOG 
+        DLOG( INFO ) << "TABUSEARCH: Starting iteration: " << currentIteration;
+        #endif
 
-        #if defined (OSRMCLIENT) && defined (LOG)
+        #if defined (OSRMCLIENT) && defined (VRPMINTRACE)
         if ( osrm->getUse() )
             DLOG( INFO ) << "OSRM set to be used";
         else DLOG( INFO ) << "OSRM set to be not used";
         #endif
 
         oldCost = currentSolution.getCost();
+
 	#ifdef DOSTATS
         start.restart();
         #endif
 
-        #ifdef  LOG 
-        DLOG( INFO ) << "TABUSEARCH: Starting iteration: " << currentIteration;
-        #endif
 
         #ifdef OSRMCLIENT
         if ( osrm->getUse() ) cycleLimit = 1;
@@ -133,24 +144,24 @@ void TabuOpt::search() {
         improvedBest = doNeighborhoodMoves( Move::IntraSw, 1 , Move::InterSw );
 
         for ( int j = 0; j < cycleLimit; j++ ) {
-            #ifdef LOG
+            #ifdef VRPMINTRACE
             DLOG( INFO ) << "----------------- TABUSEARCH: InterSw: " << j;
 	    #endif
             improvedBest |= doNeighborhoodMoves( Move::InterSw, 1 , Move::InterSw );
         }
 
-        #ifdef LOG
+        #ifdef VRPMINTRACE
         currentSolution.tau();
 	#endif
 
         for ( int j = 0; j < cycleLimit; j++ ) {
-            #ifdef LOG
+            #ifdef VRPMINTRACE
             DLOG( INFO ) << "------------------TABUSEARCH: Ins: " << j;
 	    #endif
             improvedBest |= doNeighborhoodMoves( Move::Ins, 1 ,    Move::Ins );
         }
 
-        #ifdef LOG
+        #ifdef VRPMINTRACE
         currentSolution.tau();
 	#endif
 
@@ -159,21 +170,21 @@ void TabuOpt::search() {
         newCost = currentSolution.getCost();
 
 
-        #ifdef LOG
+        #ifdef DOVRPLOG
         DLOG( INFO ) << "TABUSEARCH: Finished iteration: " << currentIteration
-                     << ", improvedBest: " << improvedBest;
+        	<< "\nold cost" << oldCost
+         	<< "\nnew cost" << newCost
+         	<< "\nbest cost" << bestSolution.getCost()
+         	<< "\ndifference" << std::abs( newCost - oldCost )<<"\n";
+        #endif
 
         #ifdef DOSTATS
         DLOG( INFO ) << ", run time in seconds: " << start.duration();
-        #endif
-        #endif
-
-        #ifdef DOSTATS
         STATS->set( "Iteration", currentIteration );
         STATS->set( "Best Cost After", bestSolution.getCost() );
         #endif
 
-        #ifdef LOG
+        #ifdef VRPMINTRACE
         dumpStats();
         DLOG( INFO ) << "--------------------------------------------";
         #endif
@@ -181,31 +192,26 @@ void TabuOpt::search() {
         currentIteration++;
 
         #ifndef OSRMCLIENT
-	#ifdef LOG
        	if ( std::abs( newCost - oldCost ) < 0.1  ) {
+	  #ifdef VRPMINTRACE
           DLOG( INFO ) << "costs didnt change";
+	  #endif
           break;
         }
-	#endif
 
         #else
 
-	#ifdef LOG
-        DLOG( INFO ) << "old cost" << oldCost;
-        DLOG( INFO ) << "new cost" << newCost;
-        DLOG( INFO ) << "difference" << std::abs( newCost - oldCost );
-	#endif
 
-        if ( std::abs( newCost - oldCost ) > 1.0 )   osrm->useOsrm ( false );
+        if ( std::abs( newCost - oldCost ) > 0.5 )   osrm->useOsrm ( false );
         else {
             if ( osrm->getUse() == true ) {
-	        #ifdef LOG
+	        #ifdef VRPMINTRACE
                 DLOG( INFO ) << "costs didnt change quiting";
 		#endif
                 break;
             }
             else {
-	        #ifdef LOG
+	        #ifdef VRPMINTRACE
                 DLOG( INFO ) << "costs didnt change TRYING with OSRM";
 		#endif
                 osrm->useOsrm ( true );
@@ -216,10 +222,10 @@ void TabuOpt::search() {
         #endif
     }
 
-    #ifdef LOG
     #ifdef DOSTATS 
     DLOG( INFO )  << "TABUSEARCH: Total time: " << start.duration();
     #endif
+    #ifdef DOVRPLOG
     bestSolution.tau();
     #endif
 }
@@ -265,7 +271,7 @@ bool TabuOpt::applyAmove( const Move &move ) {
     #ifdef DOSTATS
     STATS->inc( "TabuOpt::applyAmove" );
     #endif
-    #ifdef LOG
+    #ifdef VRPMAXTRACE
     DLOG( INFO ) << "Apply a move ";
     move.Dump();
     #endif
@@ -294,7 +300,7 @@ bool TabuOpt::applyMoves( std::string type, Moves &moves ) {
 
     if ( not moves.size() ) return false;
 
-    #ifdef LOG
+    #ifdef VRPMINTRACE
     DLOG( INFO ) << "apply moves: " << type << " applied: ";
     moves.begin()->Dump();
     #endif
@@ -311,7 +317,7 @@ bool TabuOpt::reachedMaxCycles( int number,  Move::Mtype whichNeighborhood ) {
     #ifdef DOSTATS
     STATS->inc( "TabuOpt::reachedMaxCycles" );
     #endif
-    #ifdef LOG
+    #ifdef VRPMAXTRACE
     DLOG( INFO ) << "Entering TabuOpt::reachedMaxCycles " << number;
     #endif
     bool limit;
@@ -351,7 +357,7 @@ bool TabuOpt::doNeighborhoodMoves( Move::Mtype whichNeighborhood, int maxMoves,
     STATS->inc( "TabuOpt::doNeighborhoodMoves" );
     #endif
 
-    #ifdef TESTED
+    #ifdef VRPMAXTRACE
     DLOG( INFO ) << "Entering TabuOpt::doNeighobrhoodMoves";
     #endif
     bool improvedBest = false;
@@ -370,7 +376,7 @@ bool TabuOpt::doNeighborhoodMoves( Move::Mtype whichNeighborhood, int maxMoves,
     do {
 
 
-        #ifdef LOG
+        #ifdef VRPMAXTRACE
         DLOG( INFO ) << ( getTotalMovesMade() - actualMoveCount ) << " > " << maxMoves
                      << " ***************************************************";
         DLOG( INFO ) << " Factor  " << factor;
@@ -403,14 +409,14 @@ bool TabuOpt::doNeighborhoodMoves( Move::Mtype whichNeighborhood, int maxMoves,
             factor = std::min( factor + 1.0 / limitInterSw, factor + 0.3 );
 
             CntNoNeighborhood++;
-            #ifdef LOG
+            #ifdef DOVRPLOG
             DLOG( INFO ) << " No Moves are found  " << CntNoNeighborhood;
             DLOG( INFO ) << " Factor  " << factor;
             #endif
 
             if ( reachedMaxCycles( CntNoNeighborhood, whichNeighborhood ) or
                  whichNeighborhood == Move::IntraSw ) {
-                #ifdef LOG
+                #ifdef DOVRPLOG
                 DLOG( INFO ) << " Reached end of cycle - for No moves found- " << Cnt
                              << " out of " << maxMoves;
                 #endif
@@ -569,7 +575,7 @@ bool TabuOpt::classifyMoves( Moves &neighborhood ) {
             return true;
         }
 
-        #ifdef LOG
+        #ifdef VRPMAXTRACE
         DLOG( INFO ) << "isTabu??: " << ( isTabu( *it ) ? "YES" : "NO" );
         it->Dump();
 
@@ -787,11 +793,11 @@ void TabuOpt::cleanUpInsMoves( Moves &moves, const Move &guide,
     }
 
     if ( localFind ) {
-        #ifdef LOG
+        #ifdef VRPMAXTRACE
         DLOG( INFO ) << "REVERSE going to make";
 	#endif
         applyAmove( reverseMove );
-        #ifdef LOG
+        #ifdef VRPMAXTRACE
         DLOG( INFO ) << "REVERSE done";
 	#endif
         reverseFound = true;
@@ -904,7 +910,7 @@ void TabuOpt::cleanUpMoves( const Move guide ) {
     #ifdef DOSTATS
     STATS->inc( "TabuOpt::cleanUpMoves" );
     #endif
-    #ifdef LOG
+    #ifdef VRPMAXTRACE
     DLOG( INFO ) << "ENTERING TabuOpt::cleanUpMoves";
 
     if ( guide.getmtype() == Move::Ins ) {
@@ -975,7 +981,7 @@ void TabuOpt::cleanUpMoves( const Move guide ) {
             break;
     }
 
-    #ifdef LOG
+    #ifdef VRPMAXTRACE
     DLOG( INFO ) << "aspirational not Tabu size" << aspirationalNotTabu.size();
     dumpMoves( "aspirationalNotTabu", aspirationalNotTabu );
     DLOG( INFO ) << "aspirationalTabu size" << aspirationalTabu.size();
@@ -994,7 +1000,7 @@ bool TabuOpt::dumpMoves( std::string str, Moves moves ) const {
     #ifdef DOSTATS
     STATS->inc( "TabuOpt::dumpMoves" );
     #endif
-    #ifdef LOG
+    #ifdef DOVRPLOG
     DLOG( INFO ) << "Bucket: " << str;
     #endif
 

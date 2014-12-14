@@ -16,7 +16,7 @@
 #include <cstdio>
 #include <iostream>
 
-#ifdef LOG
+#ifdef DOVRPLOG
 #include "logger.h"
 #endif
 
@@ -113,7 +113,7 @@ std::vector<std::string> Config::getKeys() const {
  *
  */
 void Config::dump( const std::string title ) const {
-    #ifdef LOG
+    #ifdef DOVRPLOG
     std::map<std::string, std::string>::const_iterator it;
 
     DLOG( INFO ) << "---------- CONFIG -------------";

@@ -16,7 +16,7 @@
 #include <sstream>
 #include <string>
 
-#ifdef LOG
+#ifdef DOVRPLOG
 #include "logger.h"
 #endif
 
@@ -72,7 +72,7 @@ bool Twnode::isValid() const {
  * \brief Print the contents of a Twnode object.
  */
 void Twnode::dump() const {
-    #ifdef LOG
+    #ifdef DOVRPLOG
     std::stringstream ss;
     ss.precision( 8 );
     ss << nid

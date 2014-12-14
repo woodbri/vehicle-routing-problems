@@ -17,7 +17,7 @@
 #include <sstream>
 #include <deque>
 
-#ifdef LOG
+#ifdef DOVRPLOG
 #include "logger.h"
 #endif
 
@@ -138,7 +138,7 @@ bool  BaseVehicle::findNearestNodeTo( Bucket &unassigned, UID &pos,
 }
 
 
-#ifdef LOG
+#ifdef DOVRPLOG
 void BaseVehicle::dump() const {
     DLOG( INFO ) << "---------- BaseVehicle ---------------";
     DLOG( INFO ) << "maxcapacity: " << getmaxcapacity();
@@ -342,6 +342,12 @@ void BaseVehicle::evalLast() {
                w3 * endingSite.gettwvTot();
 }
 
+void BaseVehicle::evaluate() {
+	path.evaluate(0,getmaxcapacity());
+	evalLast();
+}
+
+
 
 //--------------------------------------------------------------------------
 // intra-route optimiziation
@@ -518,7 +524,7 @@ bool BaseVehicle::pathThreeOpt() {
             for ( int j = i + 2; j < size - 3; j++ ) {
                 for ( int k = j + 2; k < size - 1; k++ ) {
                     doThreeOpt( i, i + 1, j, j + 1, k, k + 1 );
-                    #ifdef LOG
+                    #ifdef DOVRPLOG
                     DLOG( INFO ) << "pathThreeOpt[" << i << "," << i + 1 << ","
                                  << j << "," << j + 1 << "," << k << "," << k + 1
                                  << "](" << getcost() << "): ";
@@ -549,7 +555,7 @@ bool BaseVehicle::pathOrOpt() {
                     if ( ! ( j < i - 1 or j > i + k + 1 ) ) continue;
 
                     doOrOpt( i, i + k, j );
-                    #ifdef LOG
+                    #ifdef DOVRPLOG
                     DLOG( INFO ) << "pathOrOpt[" << i << "," << i + k << ","
                                  << j << "](" << getcost() << "): ";
                     dumppath();
@@ -877,7 +883,7 @@ bool BaseVehicle::exchange3( BaseVehicle &v2, BaseVehicle &v3, const int &cnt,
     double oldcost2 = v2.getcost();
     double oldcost3 = v3.getcost();
 
-    #ifdef LOG
+    #ifdef DOVRPLOG
     DLOG( INFO ) << "oldcost: " << oldcost1 << "+" << oldcost2 << "+" << oldcost3
                  << "=" << oldcost1 + oldcost2 + oldcost3;
     #endif
@@ -899,7 +905,7 @@ bool BaseVehicle::exchange3( BaseVehicle &v2, BaseVehicle &v3, const int &cnt,
     double newcost2 = v2.getcost();
     double newcost3 = v3.getcost();
 
-    #ifdef LOG
+    #ifdef DOVRPLOG
     DLOG( INFO ) << "newcost: " << newcost1 << "+" << newcost2 << "+" <<
                  newcost3 << "=" << newcost1 + newcost2 + newcost3;
     #endif

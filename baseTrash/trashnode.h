@@ -18,29 +18,5 @@
 #include "tweval.h"
 
 #define Trashnode Tweval
-/*
-class Trashnode : public Tweval {
-  protected:
-
-  public:
-    // accessors
-    void dumpeval() const;
-
-    // state
-    bool isDepot() const {return type==0;};
-    bool isStarting() const {return type==0;};
-    bool isDump() const {return type==1;};
-    bool isPickup() const {return type==2;};
-    bool isEnding() const {return type==3;};
-    bool isValid() const;
-
-
-//Constructors
-    Trashnode(std::string line);
-    ~Trashnode() {};
-    Trashnode() : Tweval() { };
-
-};
-*/
 
 #endif

@@ -49,6 +49,14 @@ class FeasableSol : public Solution {
         process();
     };
 
+    FeasableSol( const Prob_trash &P ): Solution( P ) {
+        unusedTrucks = trucks;
+        unassigned = pickups;
+        fleet.clear();
+        tmp = 0;
+        process();
+    };
+
 
   private:
     void stepOne( Vehicle &truck );
