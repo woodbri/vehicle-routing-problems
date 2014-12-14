@@ -277,7 +277,7 @@ clean:
 	rm -f *.so
 	mkdir -p $(BIN_DIR)
 	echo $(INITTRASH)
-	mkdir -p $(BUILD_DIR)/$(BASECLASSES) $(BUILD_DIR)/$(BASETRASH) $(BUILD_DIR)/$(INITTRASH) $(BUILD_DIR)/$(SOLVERTRASH)
+	mkdir -p $(BUILD_DIR)/$(BASECLASSES) $(BUILD_DIR)/$(BASETRASH) $(BUILD_DIR)/$(INITTRASH) $(BUILD_DIR)/$(SOLVERTRASH) ./logs
 
 
 cleanAll: clean
