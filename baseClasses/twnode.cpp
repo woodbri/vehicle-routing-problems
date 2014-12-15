@@ -71,8 +71,8 @@ bool Twnode::isValid() const {
 /*!
  * \brief Print the contents of a Twnode object.
  */
+#ifdef DOVRPLOG
 void Twnode::dump() const {
-    #ifdef DOVRPLOG
     std::stringstream ss;
     ss.precision( 8 );
     ss << nid
@@ -87,8 +87,8 @@ void Twnode::dump() const {
        << ",\t street:" << streetid
        << ",\t hint:" << hint;
     DLOG( INFO ) << ss.str();
-    #endif
 }
+#endif
 
 
 /*!

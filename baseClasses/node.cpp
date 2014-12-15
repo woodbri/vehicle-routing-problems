@@ -30,6 +30,7 @@
  *
  */
 double Node::distance( const Node &n ) const {
+    if (not (isLatLon() and n.isLatLon())) return distanceTo(n);
     // Haversine sphereical distance for lat/lon values
     const double deg2rad = 3.14159265358979323846 / 180.0;
     const double rad2deg = 180.0 / 3.14159265358979323846;
@@ -41,11 +42,6 @@ double Node::distance( const Node &n ) const {
     double c = 2.0 * atan2( sqrt( a ), sqrt( 1.0 - a ) );
     double dist = radius * c;
     return dist;
-
-    // Simple Euclidean distance in x-y plane
-    //double dx = n.x - x;
-    //double dy = n.y - y;
-    //return sqrt( dx*dx + dy*dy );
 };
 
 

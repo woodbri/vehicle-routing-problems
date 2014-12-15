@@ -427,7 +427,7 @@ template <class knode> class TWC {
             #endif
 
             osrm->useOsrm( true );
-            if ( not osrm->getOsrmTime( original[from], original[to], time ) ) {
+            if ( not original[from].isLatLon() or not original[to].isLatLon() or not osrm->getOsrmTime( original[from], original[to], time ) ) {
                 time = original[from].distance( original[to] ) / 250;
 
                 if ( not sameStreet( from, to ) ) {
@@ -1407,12 +1407,11 @@ template <class knode> class TWC {
         //travel_Time default value is 250m/min
         for ( int i = 0; i < siz; i++ )
             for ( int j = i; j < siz; j++ ) {
-                if ( i == j ) travel_Time[i][i] = 0;
+                if ( i == j ) travel_Time[i][i] = 0.0;
                 else {
-                    travel_Time[i][j] = travel_Time[j][i] = -1;
+                    travel_Time[i][j] = travel_Time[j][i] = -1.0;
                     #ifndef OSRMCLIENT
-                    getTravelTime( i, j );
-                    getTravelTime( j, i );
+                    	travel_Time[i][j] = travel_Time[j][i] = getTravelTime( i, j );
                     #endif
                 }
             }

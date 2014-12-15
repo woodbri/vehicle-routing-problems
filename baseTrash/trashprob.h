@@ -17,14 +17,13 @@
 #include <string>
 #include <sstream>
 
-#include "vrptools.h"
+//#include "vrptools.h"
 #include "prob_trash.h"
 
 class TrashProb : public Prob_trash {
 
   public:
 
-//    TrashProb() : Prob_trash() {};
     TrashProb(  container_t * p_containers, unsigned int container_count,
                           otherloc_t * p_otherlocs, unsigned int otherloc_count,
                           ttime_t * p_ttimes, unsigned int ttime_count,
@@ -33,7 +32,6 @@ class TrashProb : public Prob_trash {
 
     void addContainers( container_t *containers, int count );
     void addOtherlocs( otherloc_t *otherlocs, int count );
-//    bool checkNodesOk();
     void addTtimes( ttime_t *ttimes, int count );
     void addVehicles( vehicle_t *vehicles, int count );
 

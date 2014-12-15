@@ -20,5 +20,31 @@ psql -h $DBHOST -U $DBUSER -p $DBPORT $DBNAME < muni-b/muni-b.sql
 psql -h $DBHOST -U $DBUSER -p $DBPORT $DBNAME -c "create extension vrptools with schema public"
 
 psql -h $DBHOST -U $DBUSER -p $DBPORT $DBNAME -c "alter database $DBNAME set search_path to data, public"
-
+date
 psql -h $DBHOST -U $DBUSER -p $DBPORT $DBNAME -c "select * from  vrp_trashcollection( 'select * from containers where demand <> 0', 'select * from other_locs', 'select * from vehicles', 'select * from distance_matrix',0)"
+date
+psql -h $DBHOST -U $DBUSER -p $DBPORT $DBNAME -c "select * from  vrp_trashcollection( 'select * from containers where demand <> 0', 'select * from other_locs', 'select * from vehicles', 'select * from distance_matrix',1)"
+date
+psql -h $DBHOST -U $DBUSER -p $DBPORT $DBNAME -c "select * from  vrp_trashcollection( 'select * from containers where demand <> 0', 'select * from other_locs', 'select * from vehicles', 'select * from distance_matrix',2)"
+date
+psql -h $DBHOST -U $DBUSER -p $DBPORT $DBNAME -c "select * from  vrp_trashcollection( 'select * from containers where demand <> 0', 'select * from other_locs', 'select * from vehicles', 'select * from distance_matrix',3)"
+date
+psql -h $DBHOST -U $DBUSER -p $DBPORT $DBNAME -c "select * from  vrp_trashcollection( 'select * from containers where demand <> 0', 'select * from other_locs', 'select * from vehicles', 'select * from distance_matrix',4)"
+date
+psql -h $DBHOST -U $DBUSER -p $DBPORT $DBNAME -c "select * from  vrp_trashcollection( 'select * from containers where demand <> 0', 'select * from other_locs', 'select * from vehicles', 'select * from distance_matrix',5)"
+date
+psql -h $DBHOST -U $DBUSER -p $DBPORT $DBNAME -c "select * from  vrp_trashcollection( 'select * from containers where demand <> 0', 'select * from other_locs', 'select * from vehicles', 'select * from distance_matrix',6)"
+date
+psql -h $DBHOST -U $DBUSER -p $DBPORT $DBNAME -c "select * from  vrp_trashcollection( 'select * from containers where demand <> 0', 'select * from other_locs', 'select * from vehicles', 'select * from distance_matrix',7)"
+date
+psql -h $DBHOST -U $DBUSER -p $DBPORT $DBNAME -c "select * from  vrp_trashcollection( 'select * from containers where demand <> 0', 'select * from other_locs', 'select * from vehicles', 'select * from distance_matrix',8)"
+date
+psql -h $DBHOST -U $DBUSER -p $DBPORT $DBNAME -c "select * from  vrp_trashcollection( 'select * from containers where demand <> 0', 'select * from other_locs', 'select * from vehicles', 'select * from distance_matrix',9)"
+date
+psql -h $DBHOST -U $DBUSER -p $DBPORT $DBNAME -c "select * from  vrp_trashcollection( 'select * from containers where demand <> 0', 'select * from other_locs', 'select * from vehicles', 'select * from distance_matrix',10)"
+date
+psql -h $DBHOST -U $DBUSER -p $DBPORT $DBNAME -c "select * from  vrp_trashcollection( 'select * from containers where demand <> 0', 'select * from other_locs', 'select * from vehicles', 'select * from distance_matrix',10)"
+date
+psql -h $DBHOST -U $DBUSER -p $DBPORT $DBNAME -c "select * from  vrp_trashcollection( 'select * from containers where demand <> 0', 'select * from other_locs', 'select * from vehicles', 'select * from distance_matrix')"
+date
+psql -h $DBHOST -U $DBUSER -p $DBPORT $DBNAME -c "select * from  vrp_trashcollection( 'select * from containers where demand <> 0', 'select * from other_locs', 'select * from vehicles', 'select * from distance_matrix')"
