@@ -76,7 +76,7 @@ void OptSol::optimizeTruckNumber()   {
 
     fromTruck = truckWithMinn;
 
-    #ifdef VRPMINTRACE
+    #ifdef VRPMAXTRACE
     DLOG( INFO ) << "fromTruck "    << fromTruck << "\n"
                  << "need to fit " << minn  << "containers into \t" << ( z1Tot - z1AtMin )
                  << "= z1Tot "     << z1Tot << " - "
