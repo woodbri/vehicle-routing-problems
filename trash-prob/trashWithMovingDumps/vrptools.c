@@ -17,6 +17,7 @@
 #include "executor/spi.h"
 #include "funcapi.h"
 #include "catalog/pg_type.h"
+#include "utils/builtins.h"
 
 #if PG_VERSION_NUM/100 > 902
 #include "access/htup_details.h"
@@ -30,6 +31,7 @@ PG_MODULE_MAGIC;
 #endif
 
 Datum vrp_trash_collection_run( PG_FUNCTION_ARGS );
+Datum vrp_trash_collection_check( PG_FUNCTION_ARGS );
 
 #undef DEBUG
 #define DEBUG 1
@@ -444,7 +446,9 @@ static int solve_trash_collection(
     char *ttime_sql,
     unsigned int iteration,
     vehicle_path_t **result,
-    int *result_count ) {
+    int *result_count,
+    char **err_msg_out,
+    int check) {
 
     int SPIcode;
     SPIPlanPtr SPIplan;
@@ -818,8 +822,11 @@ static int solve_trash_collection(
               vehicles, vehicle_count,
               ttimes, ttime_count,
               iteration,
+              check,
               result, result_count, &err_msg );
     #endif
+
+    *err_msg_out = err_msg;
 
     DBG( "Message received from inside:" );
     DBG( "%s", err_msg );
@@ -843,6 +850,8 @@ Datum vrp_trash_collection_run( PG_FUNCTION_ARGS ) {
     int                  max_calls;
     TupleDesc            tuple_desc;
     vehicle_path_t      *result;
+    char                *err_msg = NULL;
+    char                *pmsg;
     int                  ret;
 
     // stuff done only on the first call of the function
@@ -865,15 +874,24 @@ Datum vrp_trash_collection_run( PG_FUNCTION_ARGS ) {
                   text2char( PG_GETARG_TEXT_P( 3 ) ), // ttimes
                   PG_GETARG_INT32(4),                 // interation
                   &result,
-                  &result_count );
+                  &result_count,
+                  &err_msg,                           // error message
+                  0);                                 // not check
 
         DBG( "solve_trash_collection returned %i", ret );
+
+        if (err_msg) {
+            pmsg = pstrdup( err_msg );
+            free( err_msg );
+        }
+        else
+            pmsg = "Unknown Error computing solution!";
 
         if ( ret < 0 ) {
             if ( result ) free( result );
 
             ereport( ERROR, ( errcode( ERRCODE_E_R_E_CONTAINING_SQL_NOT_PERMITTED ),
-                              errmsg( "Unknown Error computing solution!" ) ) );
+                              errmsg( "%s", pmsg ) ) );
         }
 
         #ifdef VRPDEBUG
@@ -959,6 +977,47 @@ Datum vrp_trash_collection_run( PG_FUNCTION_ARGS ) {
 
         SRF_RETURN_DONE( funcctx );
     }
+}
+
+
+
+PG_FUNCTION_INFO_V1( vrp_trash_collection_check );
+Datum vrp_trash_collection_check( PG_FUNCTION_ARGS ) {
+
+    vehicle_path_t      *result;
+    int                  ret;
+    char                *err_msg = NULL;
+    int                  result_count = 0;
+    char                *pmsg;
+
+    ret = solve_trash_collection(
+              text2char( PG_GETARG_TEXT_P( 0 ) ), // containers
+              text2char( PG_GETARG_TEXT_P( 1 ) ), // otherlocs
+              text2char( PG_GETARG_TEXT_P( 2 ) ), // vehicles
+              text2char( PG_GETARG_TEXT_P( 3 ) ), // ttimes
+              PG_GETARG_INT32(4),                 // interation
+              &result,
+              &result_count,
+              &err_msg,                           // error message
+              1);                                 // check only
+
+    DBG( "solve_trash_collection returned %i", ret );
+
+    if (err_msg) {
+        pmsg = pstrdup( err_msg );
+        free( err_msg );
+    }
+    else
+        pmsg = "Unknown Error computing solution!";
+
+    if ( ret < 0 ) {
+        if ( result ) free( result );
+
+        ereport( ERROR, ( errcode( ERRCODE_E_R_E_CONTAINING_SQL_NOT_PERMITTED ),
+                          errmsg( "%s", pmsg ) ) );
+    }
+
+    PG_RETURN_TEXT_P( cstring_to_text( pmsg ) );
 }
 
 

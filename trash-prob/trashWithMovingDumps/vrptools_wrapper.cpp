@@ -35,6 +35,7 @@ int vrp_trash_collection( container_t *containers, unsigned int container_count,
                           vehicle_t *vehicles, unsigned int vehicle_count,
                           ttime_t *ttimes, unsigned int ttime_count,
                           unsigned int iteration,
+                          int check,
                           vehicle_path_t **vehicle_paths, int *vehicle_path_count,
                           char **err_msg ) {
 
@@ -54,6 +55,15 @@ int vrp_trash_collection( container_t *containers, unsigned int container_count,
 
 
         TrashProb prob(containers,container_count,otherlocs,otherloc_count,ttimes,ttime_count,vehicles,vehicle_count) ;
+
+        if ( check ) {
+            std::string err = prob.whatIsWrong();
+            if ( err == "" )
+                *err_msg = strdup("OK");
+            else
+                *err_msg = strdup( err.c_str() );
+            return 0;
+        }
 
         if ( not prob.isValid() ) {
             std::string err = prob.whatIsWrong();
