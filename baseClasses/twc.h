@@ -407,21 +407,12 @@ template <class knode> class TWC {
         if ( travel_Time[from][to] == -1 ) {
                 time = original[from].distance( original[to] ) / 250;
 
-		#ifdef VRPMINTRACE
-                	DLOG(INFO) << "->>>("<<from<<","<<to<<")="<<time<<"\n";
-			original[from].dump();
-			original[to].dump();
-		#endif
-
                 if ( not sameStreet( from, to ) ) {
                     time = time *
                            ( std::abs( std::sin( gradient( from, to ) ) ) +
                              std::abs( std::cos( gradient( from, to ) ) )
                            );
                 }
-		#ifdef VRPMINTRACE
-               	DLOG(INFO) << "----->>>("<<from<<","<<to<<")="<<time<<"\n";
-		#endif
         	travel_Time[from][to] = time;
         }
 	return travel_Time[from][to];
@@ -436,7 +427,7 @@ template <class knode> class TWC {
             #endif
 
             osrm->useOsrm( true );
-            if ( not osrm->getOsrmTime( original[from], original[to], time ) ) {
+            if ( not original[from].isLatLon() or not original[to].isLatLon() or not osrm->getOsrmTime( original[from], original[to], time ) ) {
                 time = original[from].distance( original[to] ) / 250;
 
                 if ( not sameStreet( from, to ) ) {
@@ -1421,15 +1412,9 @@ template <class knode> class TWC {
                     travel_Time[i][j] = travel_Time[j][i] = -1.0;
                     #ifndef OSRMCLIENT
                     	travel_Time[i][j] = travel_Time[j][i] = getTravelTime( i, j );
-		    	#ifdef VRPMINTRACE
-                    		DLOG(INFO) << "("<<i<<","<<j<<")="<<travel_Time[i][j]<<"\n";
-		    	#endif
                     #endif
                 }
             }
-         #if VRPMINTRACE
-	 dumpTravelTime();
-	 #endif
     }
 
 
