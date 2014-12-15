@@ -96,8 +96,7 @@ template <class knode> class TWC {
     } TTindex;
     struct classcomp {
         bool operator() ( const TTindex &lhs, const TTindex &rhs ) const {
-            return lhs.prev < rhs.prev ? true : lhs.from < rhs.from ? true :  lhs.middle <
-                   rhs.middle ? true : lhs.last < rhs.last;
+            return lhs.prev < rhs.prev ? true : lhs.from < rhs.from ? true :  lhs.middle < rhs.middle ? true : lhs.last < rhs.last;
         };
     };
     typedef std::map<TTindex, double, classcomp>  TT4;
@@ -119,6 +118,9 @@ template <class knode> class TWC {
     #endif
 
   public:
+    bool emptiedTruck;
+    int z1Tot;
+    int z2Tot;
 
     /*! \brief cleans all the tables, leaving them blanck for a next execution */
     void cleanUp() {
@@ -1592,7 +1594,6 @@ template <class knode> class TWC {
     static TWC<knode> *Instance() {
         if ( !p_twc ) // Only allow one instance of class to be generated.
             p_twc = new TWC<knode>;
-
         return p_twc;
     }
 

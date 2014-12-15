@@ -729,8 +729,7 @@ void TabuOpt::cleanUpInterSwMoves( Moves &moves, const Move &guide ) const  {
 }
 
 
-void TabuOpt::cleanUpInsMoves( Moves &moves, const Move &guide,
-                               bool &reverseFound )  {
+void TabuOpt::cleanUpInsMoves( Moves &moves, const Move &guide, bool &reverseFound )  {
     #ifdef DOSTATS
     STATS->inc( "TabuOpt::cleanUpInsMoves" );
 
@@ -749,8 +748,7 @@ void TabuOpt::cleanUpInsMoves( Moves &moves, const Move &guide,
     Move reverseMove;
     bool localFind = false;
 
-    for ( MovesItr movePtr = oldMoves.begin(); movePtr != oldMoves.end();
-          ++movePtr ) {
+    for ( MovesItr movePtr = oldMoves.begin(); movePtr != oldMoves.end(); ++movePtr ) {
         move = ( *movePtr );
 
         if ( not ( move.getmtype() == Move::Ins ) ) continue;
@@ -768,26 +766,16 @@ void TabuOpt::cleanUpInsMoves( Moves &moves, const Move &guide,
                  or  ( move.getInsFromPos() == guide.getInsToPos() - 2 ) )
                 continue;
 
-            if ( move.getInsFromPos() > guide.getInsToPos() ) move.setInsFromPos(
-                    move.getInsFromPos() + 1 );
-
-            if ( move.getInsToPos() > guide.getInsFromPos() ) move.setInsToPos(
-                    move.getInsToPos() - 1 );
-
+            if ( move.getInsFromPos() > guide.getInsToPos() ) move.setInsFromPos( move.getInsFromPos() + 1 );
+            if ( move.getInsToPos() > guide.getInsFromPos() ) move.setInsToPos( move.getInsToPos() - 1 );
             if ( not currentSolution.testInsMove( move ) ) continue;
 
             reverseMove = move;
             localFind = true;
             continue;
         }
-
-        if ( move.getInsFromTruck() == guide.getInsFromTruck()
-             or move.getInsToTruck() == guide.getInsFromTruck() )
-            continue;
-
-        if ( move.getInsFromTruck() == guide.getInsToTruck()
-             or move.getInsToTruck() == guide.getInsToTruck() )
-            continue;
+        if ( move.getInsFromTruck() == guide.getInsFromTruck() or move.getInsToTruck() == guide.getInsFromTruck() ) continue;
+        if ( move.getInsFromTruck() == guide.getInsToTruck() or move.getInsToTruck() == guide.getInsToTruck() ) continue;
 
         moves.insert( move );
     }
@@ -833,13 +821,11 @@ void TabuOpt::cleanUpIntraSwMoves( Moves &moves, const Move &guide ) const  {
             case Move::InterSw: {
 
                     if ( move.getInterSwTruck1() == truckPos ) {
-                        if ( inRange( guide.getIntraSwFromPos(), move.getInterSwFromPos(),
-                                      2 ) ) continue;
+                        if ( inRange( guide.getIntraSwFromPos(), move.getInterSwFromPos(), 2 ) ) continue;
 
                         if ( inRange( guide.getIntraSwToPos(), move.getInterSwFromPos(), 2 ) ) continue;
 
-                        if ( currentSolution[truckPos].size() - 5 <= move.getInterSwFromPos() )
-                            continue;
+                        if ( currentSolution[truckPos].size() - 5 <= move.getInterSwFromPos() ) continue;
 
                         if ( not currentSolution.testInterSwMove( move ) ) continue;
 
@@ -916,17 +902,10 @@ void TabuOpt::cleanUpMoves( const Move guide ) {
     if ( guide.getmtype() == Move::Ins ) {
         guide.Dump();
 
-        if ( aspirationalNotTabu.size() )
-            DLOG( INFO ) << "cleaning aspirational not tabu";
-
-        if ( aspirationalTabu.size() )
-            DLOG( INFO ) << "cleaning aspirational tabu";
-
-        if ( notTabu.size() )
-            DLOG( INFO ) << "cleaning not tabu";
-
-        if ( tabu.size() )
-            DLOG( INFO ) << "cleaning tabu";
+        if ( aspirationalNotTabu.size() ) DLOG( INFO ) << "cleaning aspirational not tabu";
+        if ( aspirationalTabu.size() ) DLOG( INFO ) << "cleaning aspirational tabu";
+        if ( notTabu.size() ) DLOG( INFO ) << "cleaning not tabu";
+        if ( tabu.size() ) DLOG( INFO ) << "cleaning tabu";
 
         DLOG( INFO ) << "aspirational not Tabu size" << aspirationalNotTabu.size();
         dumpMoves( "aspirationalNotTabu", aspirationalNotTabu );
@@ -942,8 +921,7 @@ void TabuOpt::cleanUpMoves( const Move guide ) {
 
     switch ( guide.getmtype() ) {
         case Move::InterSw:
-            if ( aspirationalNotTabu.size() ) cleanUpInterSwMoves( aspirationalNotTabu,
-                        guide );
+            if ( aspirationalNotTabu.size() ) cleanUpInterSwMoves( aspirationalNotTabu, guide );
 
             if ( aspirationalTabu.size() ) cleanUpInterSwMoves( aspirationalTabu, guide );
 
@@ -954,13 +932,9 @@ void TabuOpt::cleanUpMoves( const Move guide ) {
             break;
 
         case Move::IntraSw:
-            if ( aspirationalNotTabu.size() ) cleanUpIntraSwMoves( aspirationalNotTabu,
-                        guide );
-
+            if ( aspirationalNotTabu.size() ) cleanUpIntraSwMoves( aspirationalNotTabu, guide );
             if ( aspirationalTabu.size() ) cleanUpIntraSwMoves( aspirationalTabu, guide );
-
             if ( notTabu.size() ) cleanUpIntraSwMoves( notTabu, guide );
-
             if ( tabu.size() ) cleanUpIntraSwMoves( tabu, guide );
 
             break;
@@ -968,11 +942,9 @@ void TabuOpt::cleanUpMoves( const Move guide ) {
         case Move::Ins:
             bool reverseFound = false;
 
-            if ( aspirationalNotTabu.size() ) cleanUpInsMoves( aspirationalNotTabu, guide,
-                        reverseFound );
+            if ( aspirationalNotTabu.size() ) cleanUpInsMoves( aspirationalNotTabu, guide, reverseFound );
 
-            if ( aspirationalTabu.size() ) cleanUpInsMoves( aspirationalTabu, guide,
-                        reverseFound );
+            if ( aspirationalTabu.size() ) cleanUpInsMoves( aspirationalTabu, guide, reverseFound );
 
             if ( notTabu.size() )cleanUpInsMoves( notTabu, guide, reverseFound );
 
