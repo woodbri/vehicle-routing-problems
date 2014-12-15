@@ -22,144 +22,6 @@ SET search_path = data, pg_catalog;
 -- Name: getosrmpath(integer[]); Type: FUNCTION; Schema: data; Owner: -
 --
 
-CREATE FUNCTION getosrmpath(nids integer[], OUT path text) RETURNS SETOF text
-    LANGUAGE plpgsql STABLE STRICT
-    AS $$
-declare
-  i integer;
-begin
-
-    for i in 1 .. array_length(nids, 1)-1 loop
-        select rtext into path from osrm_jgetroutetext((select json from osrm_json where irow=nids[i] and icol=nids[i+1]));
-        return next;
-    end loop;
-
-    return;
-
-end;
-$$;
-
-
---
--- Name: getosrmpath2(integer[]); Type: FUNCTION; Schema: data; Owner: -
---
-
-CREATE FUNCTION getosrmpath2(nids integer[], OUT path text) RETURNS SETOF text
-    LANGUAGE plpgsql STABLE STRICT
-    AS $$
-declare
-  i integer;
-  g geometry;
-  pnts geometry[];
-  json text;
-  
-begin
-
-    for i in 1 .. array_length(nids, 1) loop
-        select st_transform(geom, 4326) into g
-          from (
-                select gid, geom from contenedores_geom
-                union all
-                select id as gid, geom from other_locs
-               ) as foo where gid=nids[i];
-        pnts[i] := g;
-    end loop;
-
-    json := osrm_viaroute(pnts);
-    return query select rtext from osrm_jgetroutetext(json);
-
-end;
-$$;
-
-
---
--- Name: prep_montevideo_data(text); Type: FUNCTION; Schema: data; Owner: -
---
-
-CREATE FUNCTION prep_montevideo_data(muni text) RETURNS boolean
-    LANGUAGE plpgsql
-    AS $_$
-DECLARE
- DBHOST text;
- DBUSER text;
- DBNAME text;
- query text;
-
-BEGIN
- DBHOST = 'localhost';
- DBUSER = 'postgres';
- DBNAME = 'montevideo';
- 
-
-
-
-execute 'drop table if exists distance_matrix_'||$1||' cascade';
-execute 'create table distance_matrix_'||$1||' (
-  id serial not null primary key,
-  nfrom integer,
-  nto integer,
-  dist float8,
-  time float8,
-  jsonstr text
-)';
-
--- compute partial distance matrix
-execute 'insert into distance_matrix_'||$1||' (nfrom, nto, jsonstr)
-
-  select * from (
-
-    select a.gid as nfrom, b.gid as nto, 
-     (osrm_viaroute  (array[st_transform(a.geom, 4326),st_transform(b.geom,4326)]::geometry[], 
-   false, false, 18, '||quote_literal('http://localhost:5000')||'::text)) as jsonstr
-       from contenedores_geom a, contenedores_geom b
-      where st_dwithin(a.geom, b.geom, 1000) and not a.gid = b.gid and 
-           left(a.cod_recorr,1)='||quote_literal($1)||' and left(b.cod_recorr,1)='||quote_literal($1)||
- ' union
-   
-     select b.id as nfrom, a.gid as nto, 
-     (osrm_viaroute  (array[st_transform(a.geom, 4326),st_transform(b.geom,4326)]::geometry[], 
-   false, false, 18, '||quote_literal('http://localhost:5000')||'::text))  as jsonstr
-       from contenedores_geom a, other_locs b
-      where left(a.cod_recorr,1)='||quote_literal($1)||
-      
- ' union
-    
-     select a.gid as nfrom, b.id as nto, 
-     (osrm_viaroute  (array[st_transform(b.geom, 4326),st_transform(a.geom,4326)]::geometry[], 
-   false, false, 18, '||quote_literal('http://localhost:5000')||'::text))  as jsonstr
-       from contenedores_geom a, other_locs b
-      where left(a.cod_recorr,1)='||quote_literal($1)||
-      
-   ' union 
-   
-    select a.id as nfrom, b.id as nto, 
-      (osrm_viaroute  (array[st_transform(a.geom, 4326),st_transform(b.geom,4326)]::geometry[], 
-   false, false, 18, '||quote_literal('http://localhost:5000')||'::text))  as jsonstr
-
-         from other_locs a, other_locs b
-      where  not a.id = b.id
-      
-    ) as foo
-    
-   order by nfrom, nto';
-
-execute 'update distance_matrix_'||$1||' set 
-dist = ((jsonstr::json->'||quote_literal('route_summary')||')->'||quote_literal('total_distance')||')::text::float8 ,
-time= ((jsonstr::json->'||quote_literal('route_summary')||')->'||quote_literal('total_time')||')::text::float8 / 60 ';
-
-return true;
-END
-$_$;
-
-
-SET default_tablespace = '';
-
-SET default_with_oids = false;
-
---
--- Name: containers; Type: TABLE; Schema: data; Owner: -; Tablespace: 
---
-
 CREATE TABLE containers (
     id integer,
     x double precision,
@@ -184,24 +46,6 @@ CREATE TABLE distance_matrix (
 );
 
 
---
--- Name: distance_matrix_b_id_seq; Type: SEQUENCE; Schema: data; Owner: -
---
-
-CREATE SEQUENCE distance_matrix_b_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: distance_matrix_b_id_seq; Type: SEQUENCE OWNED BY; Schema: data; Owner: -
---
-
-ALTER SEQUENCE distance_matrix_b_id_seq OWNED BY distance_matrix.id;
-
 
 --
 -- Name: other_locs; Type: TABLE; Schema: data; Owner: -; Tablespace: 
@@ -213,8 +57,7 @@ CREATE TABLE other_locs (
     y double precision,
     demand double precision,
     open double precision,
-    close double precision,
-    geom public.geometry(Point,32721)
+    close double precision
 );
 
 
@@ -234,15 +77,9 @@ CREATE TABLE vehicles (
 );
 
 
---
--- Name: id; Type: DEFAULT; Schema: data; Owner: -
---
-
-ALTER TABLE ONLY distance_matrix ALTER COLUMN id SET DEFAULT nextval('distance_matrix_b_id_seq'::regclass);
-
 
 --
--- Data for Name: containers; Type: TABLE DATA; Schema: data; Owner: -
+-- Data for Name: containers; Type: TABLE DATA; Schema: data; Owner: 
 --
 
 COPY containers (id, x, y, demand, open, close, service, street_id) FROM stdin;
@@ -422,7 +259,7 @@ COPY containers (id, x, y, demand, open, close, service, street_id) FROM stdin;
 
 
 --
--- Data for Name: distance_matrix; Type: TABLE DATA; Schema: data; Owner: -
+-- Data for Name: distance_matrix; Type: TABLE DATA; Schema: data; Owner: 
 --
 
 COPY distance_matrix (id, from_id, to_id, ttime) FROM stdin;
@@ -19665,21 +19502,17 @@ COPY distance_matrix (id, from_id, to_id, ttime) FROM stdin;
 \.
 
 
---
--- Name: distance_matrix_b_id_seq; Type: SEQUENCE SET; Schema: data; Owner: -
---
 
-SELECT pg_catalog.setval('distance_matrix_b_id_seq', 19236, true);
 
 
 --
 -- Data for Name: other_locs; Type: TABLE DATA; Schema: data; Owner: -
 --
 
-COPY other_locs (id, x, y, demand, open, close, geom) FROM stdin;
-10001	-56.1240999999999204	-34.8977299999999673	0	0	14400	0101000020D17F00000DF20B7577B32141BBF6A00D176A5741
-10002	-56.2166199999999634	-34.8488450000000043	0	0	14400	0101000020D17F000022DDC56AC17121412FDB2FDE736F5741
-10003	-56.0948369999999201	-34.8488210000000009	0	0	14400	0101000020D17F0000BA044FE8BCC82141463360185D6F5741
+COPY other_locs (id, x, y, demand, open, close) FROM stdin;
+10001	-56.1240999999999204	-34.8977299999999673	0	0	14400
+10002	-56.2166199999999634	-34.8488450000000043	0	0	14400
+10003	-56.0948369999999201	-34.8488210000000009	0	0	14400
 \.
 
 
@@ -19693,32 +19526,4 @@ COPY vehicles (vid, start_id, dump_id, end_id, dumpservicetime, capacity, startt
 2	10002	10003	10001	20	192000	0	500
 \.
 
-
---
--- Name: distance_matrix_b_pkey; Type: CONSTRAINT; Schema: data; Owner: -; Tablespace: 
---
-
-ALTER TABLE ONLY distance_matrix
-    ADD CONSTRAINT distance_matrix_b_pkey PRIMARY KEY (id);
-
-
---
--- Name: other_locs_pkey; Type: CONSTRAINT; Schema: data; Owner: -; Tablespace: 
---
-
-ALTER TABLE ONLY other_locs
-    ADD CONSTRAINT other_locs_pkey PRIMARY KEY (id);
-
-
---
--- Name: vehicles_pkey; Type: CONSTRAINT; Schema: data; Owner: -; Tablespace: 
---
-
-ALTER TABLE ONLY vehicles
-    ADD CONSTRAINT vehicles_pkey PRIMARY KEY (vid);
-
-
---
--- PostgreSQL database dump complete
---
 

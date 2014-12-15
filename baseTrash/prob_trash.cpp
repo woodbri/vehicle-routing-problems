@@ -157,6 +157,8 @@ void Prob_trash::loadProblem( const std::string &infile ) {
     int nid = 0;
     int id = 0;
 
+    twc->emptiedTruck=false;
+
     load_pickups( datafile + ".containers.txt" );
     load_otherlocs( datafile + ".otherlocs.txt" );
 

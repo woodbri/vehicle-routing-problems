@@ -36,27 +36,18 @@ TODO  refine the code
 */
 void OptSol::optimizeTruckNumber()   {
     /** Stores the trucks position in the fleet */
-    std::deque<int>
-    fullz1;    /**< Trucks that cant receive a container in the current trip  */
-    std::deque<int>
-    fullz2;     /**< Trucks that cant receive a container in the next (non-existing) trip */
-    std::deque<int>
-    notFullz1; /**< Trucks that CAN receive a container in the current trip  */
-    std::deque<int>
-    notFullz2; /**< Trucks that CAN  receive a container in the next (non-existing) trip  */
+    std::deque<int> fullz1;    /**< Trucks that cant receive a container in the current trip  */
+    std::deque<int> fullz2;     /**< Trucks that cant receive a container in the next (non-existing) trip */
+    std::deque<int> notFullz1; /**< Trucks that CAN receive a container in the current trip  */
+    std::deque<int> notFullz2; /**< Trucks that CAN  receive a container in the next (non-existing) trip  */
     std::deque<int> allTrucks; /**< All trucks  */
 
-    int z1Tot =
-        0;         /**< total number of containers that can be picked in the current trip */
-    int z2Tot =
-        0;         /**< total number of containers that can be picked in the next (non-exisiting)  trip */
-    int minn =
-        datanodes.size(); /**< setting a minimum to see if it is requiered to minimize */
+    int z1Tot = 0;         /**< total number of containers that can be picked in the current trip */
+    int z2Tot = 0;         /**< total number of containers that can be picked in the next (non-exisiting)  trip */
+    int minn = datanodes.size(); /**< setting a minimum to see if it is requiered to minimize */
     int truckWithMinn = -1;    /**< the trucks position that has that minimun */
-    int z1AtMin =
-        0;           /**< the trucks that has the min number of containers has the most number of avaliable spots in the current trip*/
-    int z2AtMin =
-        0;           /**< the trucks that has the min number of containers has the most number of avaliable spots in the next (non-exisiting) trip*/
+    int z1AtMin = 0;           /**< the trucks that has the min number of containers has the most number of avaliable spots in the current trip*/
+    int z2AtMin = 0;           /**< the trucks that has the min number of containers has the most number of avaliable spots in the next (non-exisiting) trip*/
 
     /** requiered by the evaluation of a move */
     int fromTruck;        /**< truck from where a container is moved */
@@ -68,14 +59,12 @@ void OptSol::optimizeTruckNumber()   {
         if ( fleet[i].getz1() ) {
             notFullz1.push_back( i );
             z1Tot += fleet[i].getz1();
-        }
-        else fullz1.push_back( i );
+        } else fullz1.push_back( i );
 
         if ( fleet[i].getz2() ) {
             notFullz2.push_back( i );
             z2Tot += fleet[i].getz2();
-        }
-        else fullz2.push_back( i );
+        } else fullz2.push_back( i );
 
         if ( fleet[i].getn() < minn ) {
             minn = fleet[i].getn();
@@ -115,26 +104,38 @@ void OptSol::optimizeTruckNumber()   {
     #endif
 
     if ( minn <= ( z1Tot - z1AtMin ) ) { //a truck can be removed without extra trip in any other truck
-
         emptiedTruck = emptyTheTruck( fromTruck, notFullz1 ); //first try to remove the smallest truck
-
         if ( not emptiedTruck ) emptiedTruck = emptyAtruck( notFullz1, notFullz1 );
-
     }
 
     if ( not emptiedTruck and minn <= ( z2Tot - z2AtMin ) ) {
         fromTruck = truckWithMinn;
         emptiedTruck = emptyTheTruck( fromTruck, notFullz2 );
-
         if ( not emptiedTruck ) emptiedTruck = emptyAtruck( notFullz2, notFullz2 );
     }
 
-    if ( not emptiedTruck and ( minn <= ( z2Tot - z2AtMin )
-                                or minn <= ( z1Tot - z1AtMin ) ) ) {
+    if ( not emptiedTruck and ( minn <= ( z2Tot - z2AtMin ) or minn <= ( z1Tot - z1AtMin ) ) ) 
         emptiedTruck = emptyAtruck( allTrucks, allTrucks );
+    
+    if (emptiedTruck==true) {
+	twc->emptiedTruck=true; 
+	optimizeTruckNumber();
     }
+    setFreeSpaces();
 
 }
+
+void OptSol::setFreeSpaces() {
+    twc->z1Tot=0;
+    twc->z2Tot=0;
+    for ( int i = 0; i < fleet.size(); i++ ) {
+        twc->z1Tot += fleet[i].getz1();
+        twc->z2Tot += fleet[i].getz2();
+    }
+}
+
+
+
 
 bool OptSol::emptyAtruck( std::deque<int> fromThis, std::deque<int> intoThis ) {
     int fromTruck;               /**< truck & position from where a container is moved */
@@ -307,18 +308,15 @@ void OptSol::getInsNeighborhood( Moves &moves, double factor ) const {
         insTruckPos2 = insTruckPos2 = 0;
     };
 
-    if  ( insTruckPos1 == fleet.size() - 2 and
-          insTruckPos2 == fleet.size() - 1 ) {
+    if  ( insTruckPos1 == fleet.size() - 2 and insTruckPos2 == fleet.size() - 1 ) {
         insTruckPos1 = 0;
         insTruckPos2 = 1;
     }
-    else if ( insTruckPos1 < fleet.size() - 2 and
-              insTruckPos2 == fleet.size() - 1 ) {
+    else if ( insTruckPos1 < fleet.size() - 2 and insTruckPos2 == fleet.size() - 1 ) {
         insTruckPos1++;
         insTruckPos2 = insTruckPos1 + 1;
     }
-    else if ( insTruckPos2 < fleet.size() - 1 )
-        insTruckPos2++;
+    else if ( insTruckPos2 < fleet.size() - 1 ) insTruckPos2++;
 
     if ( insTruckPos1 == insTruckPos2 ) {
         insTruckPos1 = 0;

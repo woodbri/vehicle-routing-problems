@@ -35,6 +35,7 @@ TrashProb::TrashProb(  container_t* p_containers, unsigned int container_count,
     int cnt = 0;
     int nid = 0;
     int id = 0;
+    twc->emptiedTruck=false;
 
     addContainers(p_containers, container_count);
     addOtherlocs( p_otherlocs, otherloc_count );

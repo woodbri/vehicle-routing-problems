@@ -42,6 +42,7 @@ class OptSol : public Solution {
     bool testInsMove( const Move &move ) const;
     void v_applyMove( const Move & );
     void optimizeTruckNumber();
+    void setFreeSpaces();
 
   private:
     bool emptyAtruck( std::deque<int> from, std::deque<int> toThisOnes );
