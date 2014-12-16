@@ -8,14 +8,19 @@ CPP = g++
 
 CPP = g++
 
-
-
+# when blank, even when set to compile with OSRM it will compile without osrm
+OSRMBACKEND_DIR = $(HOME)/work/osrm-backend/
+ 
 BASETRASH = baseTrash
 BASECLASSES = baseClasses
 INITTRASH = initTrash
 SOLVERTRASH = solverTrash
 
-BASECLASSES_DIR = ../../$(BASECLASSES)
+BASECLASSES_DIR = ../../../$(BASECLASSES)
+BASETRASH_DIR=../../$(BASETRASH)
+INITTRASH_DIR=../../$(INITTRASH)
+SOLVERTRASH_DIR=../$(SOLVERTRASH)
+
 BUILD_DIR = ./build
 BIN_DIR = ./bin
 
@@ -123,14 +128,14 @@ OSRMCLIENT_CFLAGS =
 OSRMCLIENT_LIBS =
 OSRMCLIENT_HEADER =
 else
-OSRMCLIENT_HEADER =../../$(BASECLASSES)/osrmclient.h
+OSRMCLIENT_HEADER =$(BASECLASSES_DIR)/osrmclient.h
 OSRMCLIENT_CFLAGS = -DOSRMCLIENT -I$(HOME)/work/osrm-backend/
 OSRMCLIENT_LIBS = -L/usr/local/lib -lboost_filesystem -lboost_iostreams -lboost_program_options -lboost_regex -lboost_system -lboost_thread -lpthread -lOSRM -lUUID -lGITDESCRIPTION -lz -lrt -lboost_filesystem -lboost_iostreams -lboost_program_options -lboost_regex -lboost_system -lboost_thread -lpthread -lstxxl
 endif
 
 
 
-INCLUDES = -I../../$(BASECLASSES) -I../../$(BASETRASH) -I../../$(INITTRASH) -I../../$(SOLVERTRASH) -I.
+INCLUDES = -I$(BASECLASSES_DIR) -I$(BASETRASH_DIR) -I$(INITTRASH_DIR) -I$(SOLVERTRASH_DIR) -I.
 CPPFLAGS = -g -O0 -MMD  -MP -fPIC $(OSRMCLIENT_CFLAGS) $(DEFINES) $(STATS_CFLAGS) $(PLOT_CFLAGS) $(LOGGER_CFLAGS) $(DEBUG_CFLAGS) $(TRACE_CFLAGS)
 LDFLAGS = -lgd $(INCLUDES) -L$(BASECLASSES) -L$(BASETRASH) -L$(INITTRASH)  $(JSON_LIBS) $(OSRMCLIENT_LIBS) $(LOGGER_LIBS)
 
@@ -173,23 +178,23 @@ endif
 
 
 BASECLASSES_OBJS = $(addprefix $(BUILD_DIR)/$(BASECLASSES)/,$(notdir $(BASECLASSES_SRCS:.cpp=.o)))
-BASECLASSES_HEADS = ../../$(BASECLASSES)/twpath.h ../../$(BASECLASSES)/twc.h ../../$(BASECLASSES)/twbucket.h  ../../$(BASECLASSES)/singleton.h $(BASECLASSES_HDS) $(PLOT_HEADER)
+BASECLASSES_HEADS = $(BASECLASSES_DIR)/twpath.h $(BASECLASSES_DIR)/twc.h $(BASECLASSES_DIR)/twbucket.h  $(BASECLASSES_DIR)/singleton.h $(BASECLASSES_HDS) $(PLOT_HEADER)
 
 
 
 
 
-BASETRASH_SRCS = $(wildcard ../../$(BASETRASH)/*.cpp)
-BASETRASH_HDS = $(BASETRASH_SRCS:.cpp=.h) ../../$(BASETRASH)/trashconfig.h
+BASETRASH_SRCS = $(wildcard $(BASETRASH_DIR)/*.cpp)
+BASETRASH_HDS = $(BASETRASH_SRCS:.cpp=.h) $(BASETRASH_DIR)/trashconfig.h
 BASETRASH_OBJS = $(addprefix $(BUILD_DIR)/$(BASETRASH)/,$(notdir $(BASETRASH_SRCS:.cpp=.o)))
 BASETRASH_HEADS = $(BASETRASH_HDS) $(BASECLASSES_HEADS)
 
-INITTRASH_SRCS =  ../../$(INITTRASH)/feasableSol.cpp
+INITTRASH_SRCS =  $(INITTRASH_DIR)/feasableSol.cpp
 INITTRASH_HDS = $(INITTRASH_SRCS:.cpp=.h)
 INITTRASH_OBJS = $(addprefix $(BUILD_DIR)/$(INITTRASH)/,$(notdir $(INITTRASH_SRCS:.cpp=.o)))
 INITTRASH_HEADS = $(INITTRASH_HDS)  $(BASECLASSES_HEADS)
 
-SOLVERTRASH_SRCS = $(wildcard ../../$(SOLVERTRASH)/*.cpp)
+SOLVERTRASH_SRCS = $(wildcard $(SOLVERTRASH_DIR)/*.cpp)
 SOLVERTRASH_HDS = $(SOLVERTRASH_SRCS:.cpp=.h)
 SOLVERTRASH_OBJS = $(addprefix $(BUILD_DIR)/$(SOLVERTRASH)/,$(notdir $(SOLVERTRASH_SRCS:.cpp=.o)))
 SOLVERTRASH_HEADS = $(SOLVERTRASH_HDS)  $(BASECLASSES_HEADS)
@@ -222,19 +227,19 @@ build/baseClasses/stats.o: $(BASECLASSES_DIR)/stats.cpp $(STATS_HEADER)
 	$(CPP) $(CPPFLAGS) $(INCLUDES) -c $< -o $@
 
 
-build/baseClasses/%.o: ../../$(BASECLASSES)/%.cpp  ../../$(BASECLASSES)/%.h $(BASECLASSES_HEADS)
+build/baseClasses/%.o: $(BASECLASSES_DIR)/%.cpp  $(BASECLASSES_DIR)/%.h $(BASECLASSES_HEADS)
 	$(CPP) $(CPPFLAGS) $(INCLUDES) -c $< -o $@
 
 
 
-build/baseTrash/%.o: ../../$(BASETRASH)/%.cpp ../../$(BASETRASH)/%.h  $(BASECLASSES_HEADS) $(BASETRASH_HEADS)
+build/baseTrash/%.o: $(BASETRASH_DIR)/%.cpp $(BASETRASH_DIR)/%.h  $(BASECLASSES_HEADS) $(BASETRASH_HEADS)
 	$(CPP) $(CPPFLAGS) $(INCLUDES) -c $< -o $@
 
 
-build/initTrash/%.o: ../../$(INITTRASH)/%.cpp  ../../$(INITTRASH)/%.h  $(BASECLASSES_HEADS) $(BASETRASH_HEADS) $(INITTRASH_HEADS)
+build/initTrash/%.o: $(INITTRASH_DIR)/%.cpp  ../../$(INITTRASH)/%.h  $(BASECLASSES_HEADS) $(BASETRASH_HEADS) $(INITTRASH_HEADS)
 	$(CPP) $(CPPFLAGS) $(INCLUDES) -c $< -o $@
 
-build/solverTrash/%.o: ../../$(SOLVERTRASH)/%.cpp  ../../$(SOLVERTRASH)/%.h  $(BASECLASSES_HEADS) $(BASETRASH_HEADS) $(SOLVERTRASH_HEADS)
+build/solverTrash/%.o: $(SOLVERTRASH_DIR)/%.cpp  $(SOLVERTRASH_DIR)/%.h  $(BASECLASSES_HEADS) $(BASETRASH_HEADS) $(SOLVERTRASH_HEADS)
 	$(CPP) $(CPPFLAGS) $(INCLUDES) -c $< -o $@
 
 build/%.o: %.cpp %.h $(BASECLASSES_HEADS) $(BASETRASH_HEADS) $(INITTRASH_HEADS) $(SOLVERTRASH_HEADS)
@@ -243,8 +248,8 @@ build/%.o: %.cpp %.h $(BASECLASSES_HEADS) $(BASETRASH_HEADS) $(INITTRASH_HEADS) 
 bin/trash: build/trash.o $(OBJS) $(BASECLASSES_OBJS) $(BASETRASH_OBJS) $(INITTRASH_OBJS) $(SOLVERTRASH_OBJS) $(BASECLASSES_HEADS) $(BASETRASH_HEADS) $(INITTRASH_HEADS) $(SOLVERTRASH_HEADS)
 	$(CPP) $^ -o $@ $(LDFLAGS)
 
-test: ./bin/trash ./muni-b/muni-b.containers.txt ./muni-b/muni-b.otherlocs.txt ./muni-b/muni-b.dmatrix-time.txt ./muni-b/muni-b.vehicles.txt
-	./bin/trash ./muni-b/muni-b >./logs/muni-b.out
+test: ./bin/trash ../muni-b/muni-b.containers.txt ../muni-b/muni-b.otherlocs.txt ../muni-b/muni-b.dmatrix-time.txt ../muni-b/muni-b.vehicles.txt
+	./bin/trash ../muni-b/muni-b >./logs/muni-b.out
 
 
 build/libvrptools.a: $(OBJS) $(BASECLASSES_OBJS) $(BASETRASH_OBJS) $(INITTRASH_OBJS) $(SOLVERTRASH_OBJS) $(BASECLASSES_HEADS) $(BASETRASH_HEADS) $(INITTRASH_HEADS) $(SOLVERTRASH_HEADS)
@@ -281,10 +286,10 @@ clean:
 
 
 cleanAll: clean
-	$(MAKE) -C ../../$(BASECLASSES) clean
-	$(MAKE) -C ../../$(BASETRASH) clean
-	$(MAKE) -C ../../$(INITTRASH) clean
-	$(MAKE) -C ../../$(SOLVERTRASH) clean
+	$(MAKE) -C $(BASECLASSES_DIR) clean
+	$(MAKE) -C $(BASETRASH_DIR) clean
+	$(MAKE) -C $(INITTRASH_DIR) clean
+	$(MAKE) -C $(SOLVERTRASH_DIR) clean
 	rm ./bin/trash
 
 -include $(DEPS)

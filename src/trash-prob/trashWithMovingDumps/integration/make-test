@@ -15,7 +15,7 @@ DBNAME=vrptools_test
 dropdb  -h $DBHOST -U $DBUSER -p $DBPORT $DBNAME
 createdb -h $DBHOST -U $DBUSER -p $DBPORT $DBNAME
 
-psql -h $DBHOST -U $DBUSER -p $DBPORT $DBNAME < muni-b/muni-b-latlon.sql
+psql -h $DBHOST -U $DBUSER -p $DBPORT $DBNAME < ../muni-b/muni-b-latlon.sql
 
 psql -h $DBHOST -U $DBUSER -p $DBPORT $DBNAME -c "create extension vrptools with schema public"
 
