@@ -872,7 +872,7 @@ Datum vrp_trash_collection_run( PG_FUNCTION_ARGS ) {
                   text2char( PG_GETARG_TEXT_P( 1 ) ), // otherlocs
                   text2char( PG_GETARG_TEXT_P( 2 ) ), // vehicles
                   text2char( PG_GETARG_TEXT_P( 3 ) ), // ttimes
-                  PG_GETARG_INT32(4),                 // interation
+                  PG_GETARG_INT32(4),                 // iteration
                   &result,
                   &result_count,
                   &err_msg,                           // error message
@@ -995,7 +995,7 @@ Datum vrp_trash_collection_check( PG_FUNCTION_ARGS ) {
               text2char( PG_GETARG_TEXT_P( 1 ) ), // otherlocs
               text2char( PG_GETARG_TEXT_P( 2 ) ), // vehicles
               text2char( PG_GETARG_TEXT_P( 3 ) ), // ttimes
-              PG_GETARG_INT32(4),                 // interation
+              PG_GETARG_INT32(4),                 // iteration
               &result,
               &result_count,
               &err_msg,                           // error message
