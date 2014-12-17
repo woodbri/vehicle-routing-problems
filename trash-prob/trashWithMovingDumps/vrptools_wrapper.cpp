@@ -34,7 +34,7 @@ int vrp_trash_collection( container_t *containers, unsigned int container_count,
                           otherloc_t *otherlocs, unsigned int otherloc_count,
                           vehicle_t *vehicles, unsigned int vehicle_count,
                           ttime_t *ttimes, unsigned int ttime_count,
-                          unsigned int iteration,
+                          unsigned int iteration, unsigned int check,
                           vehicle_path_t **vehicle_paths, int *vehicle_path_count,
                           char **err_msg ) {
 
@@ -55,9 +55,22 @@ int vrp_trash_collection( container_t *containers, unsigned int container_count,
 
         TrashProb prob(containers,container_count,otherlocs,otherloc_count,ttimes,ttime_count,vehicles,vehicle_count) ;
 
+        if (check==1) {
+	  if (prob.isValid()) {
+	    *err_msg= (char*) "OK";
+	  } else {
+	    std::string err = prob.whatIsWrong();
+            *err_msg = strdup( err.c_str() );
+          };
+          twc->cleanUp();
+          return 0;
+        }
+
+
         if ( not prob.isValid() ) {
             std::string err = prob.whatIsWrong();
             *err_msg = strdup( err.c_str() );
+            twc->cleanUp();
             return -1;
         }
 
@@ -70,8 +83,8 @@ int vrp_trash_collection( container_t *containers, unsigned int container_count,
 
         TabuOpt ts( tp , iteration);
 
-        Solution best = ts.getBestSolution();
-        best.computeCosts();
+        //Solution best = ts.getBestSolution();
+        //best.computeCosts();
 
         int count = 0;
         *vehicle_paths = ts.getSolutionForPg( count );
@@ -79,6 +92,7 @@ int vrp_trash_collection( container_t *containers, unsigned int container_count,
 
         if ( count == -1 ) {
             *err_msg = ( char * ) "Failed to allocate memory for results!";
+            twc->cleanUp();
             return -1;
         }
 

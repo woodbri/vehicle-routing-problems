@@ -83,14 +83,14 @@ typedef struct ttime_columns {
 
 
 static int finish( int code, int ret ) {
-    DBG( "In finish, trying to disconnect from spi %d", ret );
+    //DBG( "In finish, trying to disconnect from spi %d", ret );
     code = SPI_finish();
 
     if ( code  != SPI_OK_FINISH ) {
         elog( ERROR, "couldn't disconnect from SPI" );
         return -1 ;
     }
-    DBG( "In finish, disconnect from spi %d successfull", ret );
+    //DBG( "In finish, disconnect from spi %d successfull", ret );
 
     return ret;
 }
@@ -443,8 +443,11 @@ static int solve_trash_collection(
     char *vehicle_sql,
     char *ttime_sql,
     unsigned int iteration,
+    unsigned int check,
     vehicle_path_t **result,
-    int *result_count ) {
+    int *result_count,
+    char **err_msg_out) {
+    
 
     int SPIcode;
     SPIPlanPtr SPIplan;
@@ -478,7 +481,7 @@ static int solve_trash_collection(
         .from_id = -1, .to_id = -1, .ttime = -1
     };
 
-    char *err_msg;
+    char *err_msg=NULL;
     int ret = -1;
 
     DBG( "Enter solve_trash_collection\n" );
@@ -812,19 +815,25 @@ static int solve_trash_collection(
     fclose( fh );
 
     #else
+    DBG("Calling vrp_trash_collection ");
     ret = vrp_trash_collection(
               containers, container_count,
               otherlocs, otherloc_count,
               vehicles, vehicle_count,
               ttimes, ttime_count,
-              iteration,
-              result, result_count, &err_msg );
+              iteration, check,
+              result, result_count, err_msg );
     #endif
 
-    DBG( "Message received from inside:" );
-    DBG( "%s", err_msg );
-    DBG( "ret = %i\n", ret );
-    DBG( "result_count = %i\n", *result_count );
+    DBG( "vrp_trash_collection returned status: %i", ret );
+    DBG( "result_count = %i", *result_count );
+
+    if (err_msg) {
+      DBG( "Message received from inside:" );
+      DBG( "%s", err_msg );
+    } else {
+      DBG( "NO Message received from inside:" );
+    }
 
     if ( ret < 0 ) {
         ereport( ERROR, ( errcode( ERRCODE_E_R_E_CONTAINING_SQL_NOT_PERMITTED ),
@@ -844,6 +853,7 @@ Datum vrp_trash_collection_run( PG_FUNCTION_ARGS ) {
     TupleDesc            tuple_desc;
     vehicle_path_t      *result;
     int                  ret;
+    char                *err_msg = NULL;
 
     // stuff done only on the first call of the function
     if ( SRF_IS_FIRSTCALL() ) {
@@ -864,10 +874,13 @@ Datum vrp_trash_collection_run( PG_FUNCTION_ARGS ) {
                   text2char( PG_GETARG_TEXT_P( 2 ) ), // vehicles
                   text2char( PG_GETARG_TEXT_P( 3 ) ), // ttimes
                   PG_GETARG_INT32(4),                 // interation
-                  &result,
-                  &result_count );
+                  0,                                  // dont check
 
-        DBG( "solve_trash_collection returned %i", ret );
+                  &result,
+                  &result_count
+		  &err_msg );
+
+        DBG( "solve_trash_collection returned status %i", ret );
 
         if ( ret < 0 ) {
             if ( result ) free( result );
