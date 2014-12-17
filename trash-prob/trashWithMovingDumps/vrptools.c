@@ -838,7 +838,7 @@ static int solve_trash_collection(
 
     if ( ret < 0 ) {
         ereport( ERROR, ( errcode( ERRCODE_E_R_E_CONTAINING_SQL_NOT_PERMITTED ),
-                          errmsg( "Error computing solution: %s", err_msg ) ) );
+                          errmsg( "Error computing solution: %s:\n", err_msg ) ) );
     }
 
     return finish( SPIcode, ret );

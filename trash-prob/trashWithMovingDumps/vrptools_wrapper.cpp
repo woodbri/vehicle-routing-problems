@@ -55,21 +55,17 @@ int vrp_trash_collection( container_t *containers, unsigned int container_count,
 
         TrashProb prob(containers,container_count,otherlocs,otherloc_count,ttimes,ttime_count,vehicles,vehicle_count) ;
 
+
         if (check==1) {
-	  if (prob.isValid()) {
-	    *err_msg= (char*) "OK";
-	  } else {
-	    std::string err = prob.whatIsWrong();
-            *err_msg = strdup( err.c_str() );
-          };
+	  if (not prob.isValid()) 
+            *err_msg = strdup( prob.getErrorsString().c_str() );
           twc->cleanUp();
           return 0;
         }
 
 
         if ( not prob.isValid() ) {
-            std::string err = prob.whatIsWrong();
-            *err_msg = strdup( err.c_str() );
+            *err_msg = strdup( prob.getErrorsString().c_str() );
             twc->cleanUp();
             return -1;
         }
