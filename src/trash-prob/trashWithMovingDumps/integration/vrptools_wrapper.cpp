@@ -88,20 +88,22 @@ int vrp_trash_collection( container_t *containers, unsigned int container_count,
         *vehicle_path_count = count;
 
         if ( count == -1 ) {
-            *err_msg = ( char * ) "Failed to allocate memory for results!";
+            *err_msg = strdup( "Failed to allocate memory for results!" );
             return -1;
         }
 
         twc->cleanUp();
     }
     catch ( std::exception &e ) {
-        *err_msg = ( char * ) e.what();
+        *err_msg = strdup( e.what() );
         return -1;
     }
     catch ( ... ) {
-        *err_msg = ( char * ) "Caught unknown expection!";
+        *err_msg = strdup( "Caught unknown expection!" );
         return -1;
     }
+
+    *err_msg = (char *)0;
 
     return EXIT_SUCCESS;
 }
