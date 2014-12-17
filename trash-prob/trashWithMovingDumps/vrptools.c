@@ -17,6 +17,7 @@
 #include "executor/spi.h"
 #include "funcapi.h"
 #include "catalog/pg_type.h"
+#include "utils/builtins.h"
 
 #if PG_VERSION_NUM/100 > 902
 #include "access/htup_details.h"
@@ -822,7 +823,7 @@ static int solve_trash_collection(
               vehicles, vehicle_count,
               ttimes, ttime_count,
               iteration, check,
-              result, result_count, err_msg );
+              result, result_count, &err_msg );
     #endif
 
     DBG( "vrp_trash_collection returned status: %i", ret );
@@ -877,7 +878,7 @@ Datum vrp_trash_collection_run( PG_FUNCTION_ARGS ) {
                   0,                                  // dont check
 
                   &result,
-                  &result_count
+                  &result_count,
 		  &err_msg );
 
         DBG( "solve_trash_collection returned status %i", ret );
