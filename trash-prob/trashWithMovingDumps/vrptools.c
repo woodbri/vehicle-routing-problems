@@ -881,11 +881,16 @@ Datum vrp_trash_collection_run( PG_FUNCTION_ARGS ) {
         DBG( "solve_trash_collection returned %i", ret );
 
         if (err_msg) {
+DBG( "err_msg: '%s'", err_msg );
             pmsg = pstrdup( err_msg );
+DBG( "after pstrdup" );
             free( err_msg );
+DBG( "after free" );
         }
         else
             pmsg = "Unknown Error computing solution!";
+
+DBG( "ret=%d", ret );
 
         if ( ret < 0 ) {
             if ( result ) free( result );
