@@ -32,3 +32,28 @@ More detailed information is below.
 ## ttimes table
 
 
+This function analyzes the proposed query input and reports on data errors in the input. These need to be fixed before the query can be run.
+
+```
+    SELECT messages
+      FROM vrp_trashCollectioniCheck(
+        'select id, x, y, open, close, service, demand from containers',
+        'select id, x, y, open, close from otherlocs',
+        'select vid, start_id, dump_id, end_id, capacity, dumpservicetime,
+                starttime, endtime from vehicles',
+        'select from_id, to_id, ttime from ttimes'
+        );
+```
+
+The checking follow this process:
+
+  1. First it looks for errors in containers
+  2. if it has errors it will stop and pin point all the errors it might have
+  3. if no errors are found then it looks for errors in otherlocations
+  4. if it has errors it will stop and pin point all the errors it has
+  5. then it will look if the same id is used for containers and otherlocations
+  6. then it looks for errors in vehicles
+  7. tht is becuase its only one string
+  8. and I had problems when I made a test with a nodes that all were problematic in evrything that I checked
+  9. so, i decided to keep the string as samll as possible
+  10. so, if you run the check and get container errors only that doesnt mean the other locs and vehicles are correct
