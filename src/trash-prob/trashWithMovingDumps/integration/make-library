@@ -1,0 +1,7 @@
+#!/bin/bash
+
+
+make -f Makefile.library PGVER=9.3 clean all
+sudo make -f Makefile.library PGVER=9.3 install
+
+

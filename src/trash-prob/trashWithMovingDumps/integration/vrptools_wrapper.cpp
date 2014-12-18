@@ -34,10 +34,9 @@ int vrp_trash_collection( container_t *containers, unsigned int container_count,
                           otherloc_t *otherlocs, unsigned int otherloc_count,
                           vehicle_t *vehicles, unsigned int vehicle_count,
                           ttime_t *ttimes, unsigned int ttime_count,
-                          unsigned int iteration,
-                          int check,
+                          unsigned int iteration, unsigned int check,
                           vehicle_path_t **vehicle_paths, int *vehicle_path_count,
-                          char **err_msg ) {
+                          char **err_msg, char **data_err_msg ) {
 
     try {
         // register the signal handler
@@ -56,18 +55,20 @@ int vrp_trash_collection( container_t *containers, unsigned int container_count,
 
         TrashProb prob(containers,container_count,otherlocs,otherloc_count,ttimes,ttime_count,vehicles,vehicle_count) ;
 
-        if ( check ) {
-            std::string err = prob.whatIsWrong();
-            if ( err == "" )
-                *err_msg = strdup("OK");
-            else
-                *err_msg = strdup( err.c_str() );
-            return 0;
+
+        if (check==1) {
+	  if ( prob.isValid() ) 
+	    *data_err_msg = strdup( "OK" );
+	  else
+            *data_err_msg = strdup( prob.getErrorsString().c_str() );
+          twc->cleanUp();
+          return 0;
         }
 
+
         if ( not prob.isValid() ) {
-            std::string err = prob.whatIsWrong();
-            *err_msg = strdup( err.c_str() );
+            *err_msg = strdup( prob.getErrorsString().c_str() );
+            twc->cleanUp();
             return -1;
         }
 
@@ -80,15 +81,13 @@ int vrp_trash_collection( container_t *containers, unsigned int container_count,
 
         TabuOpt ts( tp , iteration);
 
-        Solution best = ts.getBestSolution();
-        best.computeCosts();
-
         int count = 0;
         *vehicle_paths = ts.getSolutionForPg( count );
         *vehicle_path_count = count;
 
         if ( count == -1 ) {
-            *err_msg = strdup( "Failed to allocate memory for results!" );
+            *err_msg = strdup ( "Failed to allocate memory for results!");
+            twc->cleanUp();
             return -1;
         }
 

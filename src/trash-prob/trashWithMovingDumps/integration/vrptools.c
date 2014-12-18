@@ -11,14 +11,17 @@
  * the terms of the MIT License. Please file LICENSE for details.
  *
  ********************************************************************VRP*/
+
+#include "pg_config.h"
 #include "postgres.h"
 #include "executor/spi.h"
 #include "funcapi.h"
 #include "catalog/pg_type.h"
+#include "utils/builtins.h"
 
-//#if PGSQL_VERSION > 92
+#if PG_VERSION_NUM/100 > 902
 #include "access/htup_details.h"
-//#endif
+#endif
 
 #include "fmgr.h"
 #include "vrptools.h"
@@ -28,6 +31,7 @@ PG_MODULE_MAGIC;
 #endif
 
 Datum vrp_trash_collection_run( PG_FUNCTION_ARGS );
+Datum vrp_trash_collection_check( PG_FUNCTION_ARGS );
 
 #undef DEBUG
 #define DEBUG 1
@@ -81,13 +85,14 @@ typedef struct ttime_columns {
 
 
 static int finish( int code, int ret ) {
-    DBG( "In finish, trying to disconnect from spi %d", ret );
+    //DBG( "In finish, trying to disconnect from spi %d", ret );
     code = SPI_finish();
 
     if ( code  != SPI_OK_FINISH ) {
         elog( ERROR, "couldn't disconnect from SPI" );
         return -1 ;
     }
+    //DBG( "In finish, disconnect from spi %d successfull", ret );
 
     return ret;
 }
@@ -132,26 +137,18 @@ static int fetch_container_columns( SPITupleTable *tuptable,
         return -1;
     }
 
-    if (    SPI_gettypeid( SPI_tuptable->tupdesc, container_columns->id )
-            != INT4OID
-            || SPI_gettypeid( SPI_tuptable->tupdesc, container_columns->x )
-            != FLOAT8OID
-            || SPI_gettypeid( SPI_tuptable->tupdesc, container_columns->y )
-            != FLOAT8OID
-            || SPI_gettypeid( SPI_tuptable->tupdesc, container_columns->open )
-            != INT4OID
-            || SPI_gettypeid( SPI_tuptable->tupdesc, container_columns->close )
-            != INT4OID
-            || SPI_gettypeid( SPI_tuptable->tupdesc, container_columns->service )
-            != INT4OID
-            || SPI_gettypeid( SPI_tuptable->tupdesc, container_columns->demand )
-            != INT4OID
-            || SPI_gettypeid( SPI_tuptable->tupdesc, container_columns->sid )
-            != INT4OID
+    if (    SPI_gettypeid( SPI_tuptable->tupdesc, container_columns->id ) != INT4OID
+            || SPI_gettypeid( SPI_tuptable->tupdesc, container_columns->x ) != FLOAT8OID
+            || SPI_gettypeid( SPI_tuptable->tupdesc, container_columns->y ) != FLOAT8OID
+            || SPI_gettypeid( SPI_tuptable->tupdesc, container_columns->open ) != FLOAT8OID
+            || SPI_gettypeid( SPI_tuptable->tupdesc, container_columns->close ) != FLOAT8OID
+            || SPI_gettypeid( SPI_tuptable->tupdesc, container_columns->service ) != FLOAT8OID
+            || SPI_gettypeid( SPI_tuptable->tupdesc, container_columns->demand ) != FLOAT8OID
+            || SPI_gettypeid( SPI_tuptable->tupdesc, container_columns->sid ) != INT4OID
        ) {
         elog( ERROR, "Error, container column types must be: int4 id"
-              ", float8 x, float8 y, int4 open, int4 close"
-              ", int4 service, int4 demand"
+              ", float8 x, float8 y, float8 open, float8 close"
+              ", float8 service, float8 demand"
               ", int4 street_id"
             );
         return -1;
@@ -186,19 +183,14 @@ static int fetch_otherloc_columns( SPITupleTable *tuptable,
         return -1;
     }
 
-    if (    SPI_gettypeid( SPI_tuptable->tupdesc, otherloc_columns->id )
-            != INT4OID
-            || SPI_gettypeid( SPI_tuptable->tupdesc, otherloc_columns->x )
-            != FLOAT8OID
-            || SPI_gettypeid( SPI_tuptable->tupdesc, otherloc_columns->y )
-            != FLOAT8OID
-            || SPI_gettypeid( SPI_tuptable->tupdesc, otherloc_columns->open )
-            != INT4OID
-            || SPI_gettypeid( SPI_tuptable->tupdesc, otherloc_columns->close )
-            != INT4OID
+    if (    SPI_gettypeid( SPI_tuptable->tupdesc, otherloc_columns->id ) != INT4OID
+            || SPI_gettypeid( SPI_tuptable->tupdesc, otherloc_columns->x ) != FLOAT8OID
+            || SPI_gettypeid( SPI_tuptable->tupdesc, otherloc_columns->y ) != FLOAT8OID
+            || SPI_gettypeid( SPI_tuptable->tupdesc, otherloc_columns->open ) != FLOAT8OID
+            || SPI_gettypeid( SPI_tuptable->tupdesc, otherloc_columns->close ) != FLOAT8OID
        ) {
         elog( ERROR, "Error, otherloc column types must be: int4 id, "
-              "float8 x, float8 y, int4 open, int4 close, "
+              "float8 x, float8 y, float8 open, float8 close, "
             );
         return -1;
     }
@@ -240,26 +232,18 @@ static int fetch_vehicle_columns( SPITupleTable *tuptable,
         return -1;
     }
 
-    if (    SPI_gettypeid( SPI_tuptable->tupdesc, vehicle_columns->vid )
-            != INT4OID
-            || SPI_gettypeid( SPI_tuptable->tupdesc, vehicle_columns->start_id )
-            != INT4OID
-            || SPI_gettypeid( SPI_tuptable->tupdesc, vehicle_columns->dump_id )
-            != INT4OID
-            || SPI_gettypeid( SPI_tuptable->tupdesc, vehicle_columns->end_id )
-            != INT4OID
-            || SPI_gettypeid( SPI_tuptable->tupdesc, vehicle_columns->capacity )
-            != INT4OID
-            || SPI_gettypeid( SPI_tuptable->tupdesc, vehicle_columns->dumpservicetime )
-            != INT4OID
-            || SPI_gettypeid( SPI_tuptable->tupdesc, vehicle_columns->starttime )
-            != INT4OID
-            || SPI_gettypeid( SPI_tuptable->tupdesc, vehicle_columns->endtime )
-            != INT4OID
+    if (    SPI_gettypeid( SPI_tuptable->tupdesc, vehicle_columns->vid ) != INT4OID
+            || SPI_gettypeid( SPI_tuptable->tupdesc, vehicle_columns->start_id ) != INT4OID
+            || SPI_gettypeid( SPI_tuptable->tupdesc, vehicle_columns->dump_id ) != INT4OID
+            || SPI_gettypeid( SPI_tuptable->tupdesc, vehicle_columns->end_id ) != INT4OID
+            || SPI_gettypeid( SPI_tuptable->tupdesc, vehicle_columns->capacity ) != FLOAT8OID
+            || SPI_gettypeid( SPI_tuptable->tupdesc, vehicle_columns->dumpservicetime ) != FLOAT8OID
+            || SPI_gettypeid( SPI_tuptable->tupdesc, vehicle_columns->starttime ) != FLOAT8OID
+            || SPI_gettypeid( SPI_tuptable->tupdesc, vehicle_columns->endtime ) != FLOAT8OID
        ) {
         elog( ERROR, "Error, vehicle column types must be: int4 vid, "
-              "int4 start_id, int4 dump_id, int4 end_id, int4 capacity, "
-              "int4 dumpservicetime, int4 starttime, int4 endtime"
+              "int4 start_id, int4 dump_id, int4 end_id, float8 capacity, "
+              "float8 dumpservicetime, float8 starttime, float8 endtime"
             );
         return -1;
     }
@@ -289,12 +273,9 @@ static int fetch_ttime_columns( SPITupleTable *tuptable,
         return -1;
     }
 
-    if (    SPI_gettypeid( SPI_tuptable->tupdesc, ttime_columns->from_id )
-            != INT4OID
-            || SPI_gettypeid( SPI_tuptable->tupdesc, ttime_columns->to_id )
-            != INT4OID
-            || SPI_gettypeid( SPI_tuptable->tupdesc, ttime_columns->ttime )
-            != FLOAT8OID
+    if (    SPI_gettypeid( SPI_tuptable->tupdesc, ttime_columns->from_id ) != INT4OID
+            || SPI_gettypeid( SPI_tuptable->tupdesc, ttime_columns->to_id ) != INT4OID
+            || SPI_gettypeid( SPI_tuptable->tupdesc, ttime_columns->ttime ) != FLOAT8OID
        ) {
         elog( ERROR, "Error, traveltime column types must be: int4 from_id, "
               "int4 to_id, float8 ttime "
@@ -317,51 +298,35 @@ static void fetch_container( HeapTuple *tuple, TupleDesc *tupdesc,
     bool isnull;
 
     binval = SPI_getbinval( *tuple, *tupdesc, columns->id, &isnull );
-
     if ( isnull ) elog( ERROR, "container.id contains a null value" );
-
     data->id = DatumGetInt32( binval );
 
     binval = SPI_getbinval( *tuple, *tupdesc, columns->x, &isnull );
-
     if ( isnull ) elog( ERROR, "container.x contains a null value" );
-
     data->x = DatumGetFloat8( binval );
 
     binval = SPI_getbinval( *tuple, *tupdesc, columns->y, &isnull );
-
     if ( isnull ) elog( ERROR, "container.y contains a null value" );
-
     data->y = DatumGetFloat8( binval );
 
     binval = SPI_getbinval( *tuple, *tupdesc, columns->open, &isnull );
-
     if ( isnull ) elog( ERROR, "container.open contains a null value" );
-
-    data->open = DatumGetInt32( binval );
+    data->open = DatumGetFloat8( binval );
 
     binval = SPI_getbinval( *tuple, *tupdesc, columns->close, &isnull );
-
     if ( isnull ) elog( ERROR, "container.close contains a null value" );
-
-    data->close = DatumGetInt32( binval );
+    data->close = DatumGetFloat8( binval );
 
     binval = SPI_getbinval( *tuple, *tupdesc, columns->service, &isnull );
-
     if ( isnull ) elog( ERROR, "container.service contains a null value" );
-
-    data->service = DatumGetInt32( binval );
+    data->service = DatumGetFloat8( binval );
 
     binval = SPI_getbinval( *tuple, *tupdesc, columns->demand, &isnull );
-
     if ( isnull ) elog( ERROR, "container.demand contains a null value" );
-
-    data->demand = DatumGetInt32( binval );
+    data->demand = DatumGetFloat8( binval );
 
     binval = SPI_getbinval( *tuple, *tupdesc, columns->sid, &isnull );
-
     if ( isnull ) elog( ERROR, "container.street_id contains a null value" );
-
     data->sid = DatumGetInt32( binval );
 }
 
@@ -377,34 +342,24 @@ static void fetch_otherloc( HeapTuple *tuple, TupleDesc *tupdesc,
     bool isnull;
 
     binval = SPI_getbinval( *tuple, *tupdesc, columns->id, &isnull );
-
     if ( isnull ) elog( ERROR, "otherloc.id contains a null value" );
-
     data->id = DatumGetInt32( binval );
 
     binval = SPI_getbinval( *tuple, *tupdesc, columns->x, &isnull );
-
     if ( isnull ) elog( ERROR, "otherloc.x contains a null value" );
-
     data->x = DatumGetFloat8( binval );
 
     binval = SPI_getbinval( *tuple, *tupdesc, columns->y, &isnull );
-
     if ( isnull ) elog( ERROR, "otherloc.y contains a null value" );
-
     data->y = DatumGetFloat8( binval );
 
     binval = SPI_getbinval( *tuple, *tupdesc, columns->open, &isnull );
-
     if ( isnull ) elog( ERROR, "otherloc.open contains a null value" );
-
-    data->open = DatumGetInt32( binval );
+    data->open = DatumGetFloat8( binval );
 
     binval = SPI_getbinval( *tuple, *tupdesc, columns->close, &isnull );
-
     if ( isnull ) elog( ERROR, "otherloc.close contains a null value" );
-
-    data->close = DatumGetInt32( binval );
+    data->close = DatumGetFloat8( binval );
 }
 
 
@@ -419,52 +374,36 @@ static void fetch_vehicle( HeapTuple *tuple, TupleDesc *tupdesc,
     bool isnull;
 
     binval = SPI_getbinval( *tuple, *tupdesc, columns->vid, &isnull );
-
     if ( isnull ) elog( ERROR, "vehicle.vid contains a null value" );
-
     data->vid = DatumGetInt32( binval );
 
     binval = SPI_getbinval( *tuple, *tupdesc, columns->start_id, &isnull );
-
     if ( isnull ) elog( ERROR, "vehicle.start_id contains a null value" );
-
     data->start_id = DatumGetInt32( binval );
 
     binval = SPI_getbinval( *tuple, *tupdesc, columns->dump_id, &isnull );
-
     if ( isnull ) elog( ERROR, "vehicle.dump_id contains a null value" );
-
     data->dump_id = DatumGetInt32( binval );
 
     binval = SPI_getbinval( *tuple, *tupdesc, columns->end_id, &isnull );
-
     if ( isnull ) elog( ERROR, "vehicle.end_id contains a null value" );
-
     data->end_id = DatumGetInt32( binval );
 
     binval = SPI_getbinval( *tuple, *tupdesc, columns->capacity, &isnull );
-
     if ( isnull ) elog( ERROR, "vehicle.capacity contains a null value" );
-
-    data->capacity = DatumGetInt32( binval );
+    data->capacity = DatumGetFloat8( binval );
 
     binval = SPI_getbinval( *tuple, *tupdesc, columns->dumpservicetime, &isnull );
-
     if ( isnull ) elog( ERROR, "vehicle.dumpservicetime contains a null value" );
-
-    data->dumpservicetime = DatumGetInt32( binval );
+    data->dumpservicetime = DatumGetFloat8( binval );
 
     binval = SPI_getbinval( *tuple, *tupdesc, columns->starttime, &isnull );
-
     if ( isnull ) elog( ERROR, "vehicle.starttime contains a null value" );
-
-    data->starttime = DatumGetInt32( binval );
+    data->starttime = DatumGetFloat8( binval );
 
     binval = SPI_getbinval( *tuple, *tupdesc, columns->endtime, &isnull );
-
     if ( isnull ) elog( ERROR, "vehicle.endtime contains a null value" );
-
-    data->endtime = DatumGetInt32( binval );
+    data->endtime = DatumGetFloat8( binval );
 }
 
 
@@ -479,21 +418,15 @@ static void fetch_ttime( HeapTuple *tuple, TupleDesc *tupdesc,
     bool isnull;
 
     binval = SPI_getbinval( *tuple, *tupdesc, columns->from_id, &isnull );
-
     if ( isnull ) elog( ERROR, "ttime.from_id contains a null value" );
-
     data->from_id = DatumGetInt32( binval );
 
     binval = SPI_getbinval( *tuple, *tupdesc, columns->to_id, &isnull );
-
     if ( isnull ) elog( ERROR, "ttime.to_id contains a null value" );
-
     data->to_id = DatumGetInt32( binval );
 
     binval = SPI_getbinval( *tuple, *tupdesc, columns->ttime, &isnull );
-
     if ( isnull ) elog( ERROR, "ttime.ttime contains a null value" );
-
     data->ttime = DatumGetFloat8( binval );
 }
 
@@ -503,8 +436,11 @@ static int solve_trash_collection(
     char *otherloc_sql,
     char *vehicle_sql,
     char *ttime_sql,
+    unsigned int iteration,
+    unsigned int check,
     vehicle_path_t **result,
-    int *result_count ) {
+    int *result_count,
+    char **err_msg_out) {
 
     int SPIcode;
     SPIPlanPtr SPIplan;
@@ -538,7 +474,7 @@ static int solve_trash_collection(
         .from_id = -1, .to_id = -1, .ttime = -1
     };
 
-    char *err_msg;
+    char *err_msg=NULL;
     int ret = -1;
 
     DBG( "Enter solve_trash_collection\n" );
@@ -833,7 +769,7 @@ static int solve_trash_collection(
     FILE *fh = fopen( "/tmp/test.txt", "wb" );
     int i;
 
-    if ( !fh ) return -1;
+    if ( !fh ) return -1; //a notice of why we are returning????
 
     fprintf( fh, "%d %d %d %d\n",
              container_count, otherloc_count, vehicle_count, ttime_count );
@@ -871,31 +807,31 @@ static int solve_trash_collection(
 
     fclose( fh );
 
+    #else
+    DBG("Calling vrp_trash_collection ");
     ret = vrp_trash_collection(
               containers, container_count,
               otherlocs, otherloc_count,
               vehicles, vehicle_count,
               ttimes, ttime_count,
-              result, result_count, &err_msg );
-
-    #else
-
-    // fake the call for testing purposes
-    result = NULL;
-    result_count = 0;
-    ret = -1;
-
+              iteration, check,
+              result, result_count, &err_msg, err_msg_out );
     #endif
-    err_msg=NULL;
 
-    DBG( "Message received from inside:" );
-    DBG( "%s", err_msg );
-    DBG( "ret = %i\n", ret );
-    DBG( "result_count = %i\n", *result_count );
+    DBG( "vrp_trash_collection returned status: %i", ret );
+    DBG( "result_count = %i", *result_count );
+
+    if (check) {
+      DBG( "Message received from inside:" );
+      DBG( "%s", *err_msg_out );
+    } else {
+      DBG( "Message received from inside:" );
+      DBG( "%s", err_msg );
+    }
 
     if ( ret < 0 ) {
         ereport( ERROR, ( errcode( ERRCODE_E_R_E_CONTAINING_SQL_NOT_PERMITTED ),
-                          errmsg( "Error computing solution: %s", err_msg ) ) );
+                          errmsg( "Error computing solution: %s:\n", err_msg ) ) );
     }
 
     return finish( SPIcode, ret );
@@ -910,6 +846,8 @@ Datum vrp_trash_collection_run( PG_FUNCTION_ARGS ) {
     int                  max_calls;
     TupleDesc            tuple_desc;
     vehicle_path_t      *result;
+    char                *err_msg = NULL;
+    char                *pmsg;
     int                  ret;
 
     // stuff done only on the first call of the function
@@ -923,24 +861,42 @@ Datum vrp_trash_collection_run( PG_FUNCTION_ARGS ) {
         // switch to memory context appropriate for multiple function calls
         oldcontext = MemoryContextSwitchTo( funcctx->multi_call_memory_ctx );
 
+        DBG("iteration: %u", PG_GETARG_INT32(4));
+
         ret = solve_trash_collection(
                   text2char( PG_GETARG_TEXT_P( 0 ) ), // containers
                   text2char( PG_GETARG_TEXT_P( 1 ) ), // otherlocs
                   text2char( PG_GETARG_TEXT_P( 2 ) ), // vehicles
                   text2char( PG_GETARG_TEXT_P( 3 ) ), // ttimes
-                  &result,
-                  &result_count );
+                  PG_GETARG_INT32(4),                 // interation
+                  0,                                  // dont check
 
-        DBG( "solve_trash_collection returned %i", ret );
+                  &result,
+                  &result_count,
+		  &err_msg );
+
+        DBG( "solve_trash_collection returned status %i", ret );
+
+        if (err_msg) {
+DBG( "err_msg: '%s'", err_msg );
+            pmsg = pstrdup( err_msg );
+DBG( "after pstrdup" );
+            free( err_msg );
+DBG( "after free" );
+        }
+        else
+            pmsg = "Unknown Error computing solution!";
+
+DBG( "ret=%d", ret );
 
         if ( ret < 0 ) {
             if ( result ) free( result );
 
             ereport( ERROR, ( errcode( ERRCODE_E_R_E_CONTAINING_SQL_NOT_PERMITTED ),
-                              errmsg( "Unknown Error computing solution!" ) ) );
+                              errmsg( "%s", pmsg ) ) );
         }
 
-        #ifdef DEBUG
+        #ifdef VRPDEBUG
         DBG( "   Result count: %i", result_count );
 
         if ( ret >= 0 ) {
@@ -949,6 +905,7 @@ Datum vrp_trash_collection_run( PG_FUNCTION_ARGS ) {
 
             for ( i = 0; i < result_count; i++ ) {
                 total_time += result[i].deltatime;
+		DBG("reult[%i] (seq,vid,nid,ntype,deltatime,cargo)=(%i,%i,%i,%i,%f,%f)",i,result[i].seq,result[i].vid,result[i].nid,result[i].ntype,result[i].deltatime,result[i].cargo);
             }
 
             DBG( "Total Travel Time: %f", total_time );
@@ -987,21 +944,21 @@ Datum vrp_trash_collection_run( PG_FUNCTION_ARGS ) {
         Datum       *values;
         char        *nulls;
 
-        values = palloc( 4 * sizeof( Datum ) );
-        nulls = palloc( 4 * sizeof( char ) );
+        values = palloc( 6 * sizeof( Datum ) );
+        nulls = palloc( 6 * sizeof( bool ) );
 
         values[0] = Int32GetDatum( result[call_cntr].seq );
-        nulls[0] = ' ';
+        nulls[0] = false;
         values[1] = Int32GetDatum( result[call_cntr].vid );
-        nulls[1] = ' ';
+        nulls[1] = false;
         values[2] = Int32GetDatum( result[call_cntr].nid );
-        nulls[2] = ' ';
+        nulls[2] = false;
         values[3] = Int32GetDatum( result[call_cntr].ntype );
-        nulls[3] = ' ';
+        nulls[3] = false;
         values[4] = Float8GetDatum( result[call_cntr].deltatime );
-        nulls[4] = ' ';
+        nulls[4] = false;
         values[5] = Float8GetDatum( result[call_cntr].cargo );
-        nulls[5] = ' ';
+        nulls[5] = false;
 
         tuple = heap_form_tuple( tuple_desc, values, nulls );
 
@@ -1022,6 +979,56 @@ Datum vrp_trash_collection_run( PG_FUNCTION_ARGS ) {
 
         SRF_RETURN_DONE( funcctx );
     }
+}
+
+
+/*********************************************************************************/
+
+
+PG_FUNCTION_INFO_V1( vrp_trash_collection_check );
+Datum vrp_trash_collection_check( PG_FUNCTION_ARGS ) {
+
+    //FuncCallContext     *funcctx;
+    //int                  call_cntr;
+    //int                  max_calls;
+    //TupleDesc            tuple_desc;
+    vehicle_path_t      *result;
+    int                  ret;
+    char                *err_msg = NULL;
+    char                *pmsg;
+    int                  result_count = 0;
+
+
+
+    ret = solve_trash_collection(
+                  text2char( PG_GETARG_TEXT_P( 0 ) ), // containers
+                  text2char( PG_GETARG_TEXT_P( 1 ) ), // otherlocs
+                  text2char( PG_GETARG_TEXT_P( 2 ) ), // vehicles
+                  text2char( PG_GETARG_TEXT_P( 3 ) ), // ttimes
+                  PG_GETARG_INT32(4),                 // interation
+                  1,                                  // dont check
+
+                  &result,
+                  &result_count,
+		  &err_msg );
+
+        DBG( "solve_trash_collection_check returned status %i", ret );
+
+        if ( ret < 0 ) {
+            if ( err_msg ) free( err_msg );
+
+            ereport( ERROR, ( errcode( ERRCODE_E_R_E_CONTAINING_SQL_NOT_PERMITTED ),
+                              errmsg( "Unknown Error checking data!" ) ) );
+        }
+
+        if (err_msg) {
+            pmsg = pstrdup( err_msg );
+            free( err_msg );
+        } else {
+            pmsg = pstrdup( "OK");
+        }
+
+     PG_RETURN_TEXT_P( cstring_to_text( pmsg ) );
 }
 
 
