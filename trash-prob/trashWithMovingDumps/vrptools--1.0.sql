@@ -23,3 +23,13 @@ CREATE OR REPLACE FUNCTION vrp_trashCollection(
     AS 'MODULE_PATHNAME', 'vrp_trash_collection_run'
     LANGUAGE c STABLE STRICT;
 
+CREATE OR REPLACE FUNCTION vrp_trashcollectioncheck(
+        IN container_sql text,
+        IN otherloc_sql text,
+        IN vehicle_sql text,
+        IN ttime_sql text,
+        IN interation integer default 1000
+    ) RETURNS text
+    AS 'MODULE_PATHNAME', 'vrp_trash_collection_check'
+    LANGUAGE c STABLE STRICT;
+

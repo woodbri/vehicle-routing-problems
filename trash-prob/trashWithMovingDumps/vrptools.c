@@ -31,6 +31,7 @@ PG_MODULE_MAGIC;
 #endif
 
 Datum vrp_trash_collection_run( PG_FUNCTION_ARGS );
+Datum vrp_trash_collection_check( PG_FUNCTION_ARGS );
 
 #undef DEBUG
 #define DEBUG 1
@@ -136,22 +137,14 @@ static int fetch_container_columns( SPITupleTable *tuptable,
         return -1;
     }
 
-    if (    SPI_gettypeid( SPI_tuptable->tupdesc, container_columns->id )
-            != INT4OID
-            || SPI_gettypeid( SPI_tuptable->tupdesc, container_columns->x )
-            != FLOAT8OID
-            || SPI_gettypeid( SPI_tuptable->tupdesc, container_columns->y )
-            != FLOAT8OID
-            || SPI_gettypeid( SPI_tuptable->tupdesc, container_columns->open )
-            != FLOAT8OID
-            || SPI_gettypeid( SPI_tuptable->tupdesc, container_columns->close )
-            != FLOAT8OID
-            || SPI_gettypeid( SPI_tuptable->tupdesc, container_columns->service )
-            != FLOAT8OID
-            || SPI_gettypeid( SPI_tuptable->tupdesc, container_columns->demand )
-            != FLOAT8OID
-            || SPI_gettypeid( SPI_tuptable->tupdesc, container_columns->sid )
-            != INT4OID
+    if (    SPI_gettypeid( SPI_tuptable->tupdesc, container_columns->id ) != INT4OID
+            || SPI_gettypeid( SPI_tuptable->tupdesc, container_columns->x ) != FLOAT8OID
+            || SPI_gettypeid( SPI_tuptable->tupdesc, container_columns->y ) != FLOAT8OID
+            || SPI_gettypeid( SPI_tuptable->tupdesc, container_columns->open ) != FLOAT8OID
+            || SPI_gettypeid( SPI_tuptable->tupdesc, container_columns->close ) != FLOAT8OID
+            || SPI_gettypeid( SPI_tuptable->tupdesc, container_columns->service ) != FLOAT8OID
+            || SPI_gettypeid( SPI_tuptable->tupdesc, container_columns->demand ) != FLOAT8OID
+            || SPI_gettypeid( SPI_tuptable->tupdesc, container_columns->sid ) != INT4OID
        ) {
         elog( ERROR, "Error, container column types must be: int4 id"
               ", float8 x, float8 y, float8 open, float8 close"
@@ -823,17 +816,18 @@ static int solve_trash_collection(
               vehicles, vehicle_count,
               ttimes, ttime_count,
               iteration, check,
-              result, result_count, &err_msg );
+              result, result_count, &err_msg, err_msg_out );
     #endif
 
     DBG( "vrp_trash_collection returned status: %i", ret );
     DBG( "result_count = %i", *result_count );
 
-    if (err_msg) {
+    if (check) {
+      DBG( "Message received from inside:" );
+      DBG( "%s", *err_msg_out );
+    } else {
       DBG( "Message received from inside:" );
       DBG( "%s", err_msg );
-    } else {
-      DBG( "NO Message received from inside:" );
     }
 
     if ( ret < 0 ) {
@@ -976,4 +970,52 @@ Datum vrp_trash_collection_run( PG_FUNCTION_ARGS ) {
 }
 
 
+/*********************************************************************************/
+
+
+PG_FUNCTION_INFO_V1( vrp_trash_collection_check );
+Datum vrp_trash_collection_check( PG_FUNCTION_ARGS ) {
+
+    //FuncCallContext     *funcctx;
+    //int                  call_cntr;
+    //int                  max_calls;
+    //TupleDesc            tuple_desc;
+    vehicle_path_t      *result;
+    int                  ret;
+    char                *err_msg = NULL;
+    char                *pmsg;
+    int                  result_count = 0;
+
+
+
+    ret = solve_trash_collection(
+                  text2char( PG_GETARG_TEXT_P( 0 ) ), // containers
+                  text2char( PG_GETARG_TEXT_P( 1 ) ), // otherlocs
+                  text2char( PG_GETARG_TEXT_P( 2 ) ), // vehicles
+                  text2char( PG_GETARG_TEXT_P( 3 ) ), // ttimes
+                  PG_GETARG_INT32(4),                 // interation
+                  1,                                  // dont check
+
+                  &result,
+                  &result_count,
+		  &err_msg );
+
+        DBG( "solve_trash_collection_check returned status %i", ret );
+
+        if ( ret < 0 ) {
+            if ( err_msg ) free( err_msg );
+
+            ereport( ERROR, ( errcode( ERRCODE_E_R_E_CONTAINING_SQL_NOT_PERMITTED ),
+                              errmsg( "Unknown Error checking data!" ) ) );
+        }
+
+        if (err_msg) {
+            pmsg = pstrdup( err_msg );
+            free( err_msg );
+        } else {
+            pmsg = pstrdup( "OK");
+        }
+
+     PG_RETURN_TEXT_P( cstring_to_text( pmsg ) );
+}
 

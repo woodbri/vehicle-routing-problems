@@ -43,7 +43,8 @@ int vrp_trash_collection (
     unsigned int check,
     vehicle_path_t **vehicle_paths,
     int *vehicle_path_count,
-    char **err_msg
+    char **err_msg,
+    char **data_err_msg
 );
 
 #endif

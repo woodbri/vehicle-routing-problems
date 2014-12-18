@@ -36,7 +36,7 @@ int vrp_trash_collection( container_t *containers, unsigned int container_count,
                           ttime_t *ttimes, unsigned int ttime_count,
                           unsigned int iteration, unsigned int check,
                           vehicle_path_t **vehicle_paths, int *vehicle_path_count,
-                          char **err_msg ) {
+                          char **err_msg, char **data_err_msg ) {
 
     try {
         // register the signal handler
@@ -57,8 +57,10 @@ int vrp_trash_collection( container_t *containers, unsigned int container_count,
 
 
         if (check==1) {
-	  if (not prob.isValid()) 
-            *err_msg = strdup( prob.getErrorsString().c_str() );
+	  if ( prob.isValid() ) 
+	    *data_err_msg = strdup( "OK" );
+	  else
+            *data_err_msg = strdup( prob.getErrorsString().c_str() );
           twc->cleanUp();
           return 0;
         }
@@ -79,15 +81,12 @@ int vrp_trash_collection( container_t *containers, unsigned int container_count,
 
         TabuOpt ts( tp , iteration);
 
-        //Solution best = ts.getBestSolution();
-        //best.computeCosts();
-
         int count = 0;
         *vehicle_paths = ts.getSolutionForPg( count );
         *vehicle_path_count = count;
 
         if ( count == -1 ) {
-            *err_msg = ( char * ) "Failed to allocate memory for results!";
+            *err_msg = strdup ( "Failed to allocate memory for results!");
             twc->cleanUp();
             return -1;
         }
@@ -95,11 +94,11 @@ int vrp_trash_collection( container_t *containers, unsigned int container_count,
         twc->cleanUp();
     }
     catch ( std::exception &e ) {
-        *err_msg = ( char * ) e.what();
+        *err_msg = strdup ( e.what() );
         return -1;
     }
     catch ( ... ) {
-        *err_msg = ( char * ) "Caught unknown expection!";
+        *err_msg = strdup( "Caught unknown expection!" );
         return -1;
     }
 
