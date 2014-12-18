@@ -40,10 +40,11 @@ int vrp_trash_collection (
     ttime_t *ttime,
     unsigned int ttime_count,
     unsigned int iteration,
-    int check,
+    unsigned int check,
     vehicle_path_t **vehicle_paths,
     int *vehicle_path_count,
-    char **err_msg
+    char **err_msg,
+    char **data_err_msg
 );
 
 #endif

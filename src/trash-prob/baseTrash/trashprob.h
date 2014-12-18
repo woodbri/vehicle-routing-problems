@@ -21,6 +21,16 @@
 #include "prob_trash.h"
 
 class TrashProb : public Prob_trash {
+    std::vector<std::string> errorsFound;
+    bool dataIsLatLon;
+
+  template <typename T>
+  std::string numbertoString ( T Number )
+  {
+     std::stringstream ss;
+     ss << Number;
+     return ss.str();
+  }
 
   public:
 
@@ -35,8 +45,11 @@ class TrashProb : public Prob_trash {
     void addTtimes( ttime_t *ttimes, int count );
     void addVehicles( vehicle_t *vehicles, int count );
 
+    char** getErrorsForPg( int &count );
     bool isValid() const;
-    std::string whatIsWrong() const;
+    //std::string whatIsWrong() const;
+    std::string getErrorsString() const;
+    void  whatIsWrong() ;
 
 };
 
