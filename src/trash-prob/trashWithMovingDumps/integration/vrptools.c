@@ -849,7 +849,6 @@ Datum vrp_trash_collection_run( PG_FUNCTION_ARGS ) {
     char                *err_msg = NULL;
     char                *pmsg;
     int                  ret;
-    char                *err_msg = NULL;
 
     // stuff done only on the first call of the function
     if ( SRF_IS_FIRSTCALL() ) {
@@ -1025,45 +1024,6 @@ Datum vrp_trash_collection_check( PG_FUNCTION_ARGS ) {
         }
 
      PG_RETURN_TEXT_P( cstring_to_text( pmsg ) );
-}
-
-PG_FUNCTION_INFO_V1( vrp_trash_collection_check );
-Datum vrp_trash_collection_check( PG_FUNCTION_ARGS ) {
-
-    vehicle_path_t      *result;
-    int                  ret;
-    char                *err_msg = NULL;
-    int                  result_count = 0;
-    char                *pmsg;
-
-    ret = solve_trash_collection(
-              text2char( PG_GETARG_TEXT_P( 0 ) ), // containers
-              text2char( PG_GETARG_TEXT_P( 1 ) ), // otherlocs
-              text2char( PG_GETARG_TEXT_P( 2 ) ), // vehicles
-              text2char( PG_GETARG_TEXT_P( 3 ) ), // ttimes
-              PG_GETARG_INT32(4),                 // iteration
-              &result,
-              &result_count,
-              &err_msg,                           // error message
-              1);                                 // check only
-
-    DBG( "solve_trash_collection returned %i", ret );
-
-    if (err_msg) {
-        pmsg = pstrdup( err_msg );
-        free( err_msg );
-    }
-    else
-        pmsg = "Unknown Error computing solution!";
-
-    if ( ret < 0 ) {
-        if ( result ) free( result );
-
-        ereport( ERROR, ( errcode( ERRCODE_E_R_E_CONTAINING_SQL_NOT_PERMITTED ),
-                          errmsg( "%s", pmsg ) ) );
-    }
-
-    PG_RETURN_TEXT_P( cstring_to_text( pmsg ) );
 }
 
 
