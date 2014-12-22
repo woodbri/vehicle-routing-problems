@@ -48,11 +48,12 @@ class Node {
 
 
     // state
-    bool isLatLon() const { return ((x < 180) and (x > -180)) and ((y < 180) and (y > -180)) ;}
-    bool isValid() const { return  id > -1; }
-    bool isSamePos(const Node &n) const { return distance( n ) == 0; }
+    bool isLatLon() const { return (x < 180) && (x > -180)
+                                && (y < 180) && (y > -180);}
+    bool isValid() const { return  id > -1;}
+    bool isSamePos(const Node &n) const { return distance(n) == 0; }
     bool isSamePos(const Node &n, double tol) const {return distance(n) < tol;}
-    bool hasHint() const {return not ( hint == "" );}
+    bool hasHint() const {return !( hint == "" );}
 
     // mutators
     void set(int _nid, double _x, double _y);
@@ -64,7 +65,8 @@ class Node {
 
     // operators
     bool operator<( const Node &n) const { return nid < n.nid; }
-    bool operator==(const Node &n) const { return nid == n.nid && x == n.x && y == n.y; }
+    bool operator==(const Node &n) const { return nid == n.nid
+                                                  && x == n.x && y == n.y; }
     bool operator!=(const Node &n) const { return !( *this == n ); }
     bool operator>(const Node &n) const { return nid > n.nid; }
 
@@ -92,7 +94,7 @@ class Node {
     Node(int _nid, double _x, double _y);
     Node(int _nid, int id, double _x, double _y);
     Node(double _x, double _y);
-    Node(const std::string line);
+    explicit Node(const std::string &line);
 
     ~Node() {}
 };
