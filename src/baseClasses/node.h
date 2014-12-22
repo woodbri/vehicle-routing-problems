@@ -29,46 +29,46 @@
  */
 
 class Node {
- protected:
-    int nid;    ///< internal node number
-    int id;     ///< user supplied node number
-    double x;   ///< x or longitude of the node's location
-    double y;   ///< y or latitude of the node's location
-    std::string hint;
+ private:
+    int nid_;    ///< internal node number
+    int id_;     ///< user supplied node number
+    double x_;   ///< x or longitude of the node's location
+    double y_;   ///< y or latitude of the node's location
+    std::string hint_;  ///< orsrm's hint
 
  public:
     // accessors
-    int getnid() const { return nid; }
-    int getid() const { return id; }
-    double getx() const { return x; }
-    double gety() const { return y; }
-    std::string getHint() const { return hint; }
+    int nid() const {return nid_;}
+    int id() const {return id_;}
+    double x() const {return x_;}
+    double y() const {return y_;}
+    std::string hint() const {return hint_;}
 
     double distance(const Node &n) const;
 
 
     // state
-    bool isLatLon() const { return (x < 180) && (x > -180)
-                                && (y < 180) && (y > -180);}
-    bool isValid() const { return  id > -1;}
-    bool isSamePos(const Node &n) const { return distance(n) == 0; }
-    bool isSamePos(const Node &n, double tol) const {return distance(n) < tol;}
-    bool hasHint() const {return !( hint == "" );}
+    bool isLatLon() const { return (x_ < 180) && (x_ > -180)
+                                && (y_ < 180) && (y_ > -180);}
+    bool isValid() const { return  id_ > -1;}
+    bool isSamePos(const Node &other) const { return distance(other) == 0; }
+    bool isSamePos(const Node &other, double tolerance) const {return distance(other) < tolerance;}
+    bool hasHint() const {return !( hint_ == "" );}
 
     // mutators
-    void set(int _nid, double _x, double _y);
-    void setnid(int _nid) {nid = _nid;}
-    void setid(int _id) {id = _id; }
-    void setx(double _x) {x = _x; }
-    void sety(double _y) {y = _y; }
-    void setHint(const std::string &_hint) {hint = _hint;}
+    void set(int nid, double x, double y);
+    void setnid(int _nid) {nid_ = nid;}
+    void setid(int id) {id_ = id; }
+    void setx(double x) {x_ = x; }
+    void sety(double y) {y_ = y; }
+    void setHint(const std::string &hint) {hint_ = hint;}
 
     // operators
-    bool operator<( const Node &n) const { return nid < n.nid; }
-    bool operator==(const Node &n) const { return nid == n.nid
-                                                  && x == n.x && y == n.y; }
+    bool operator<( const Node &n) const { return nid_ < n.nid_; }
+    bool operator==(const Node &n) const { return nid_ == n.nid_
+                                                  && x_ == n.x_ && y_ == n.y_; }
     bool operator!=(const Node &n) const { return !( *this == n ); }
-    bool operator>(const Node &n) const { return nid > n.nid; }
+    bool operator>(const Node &n) const { return nid_ > n.nid_; }
 
     // vector operators
     Node operator+(const Node &v) const;
@@ -91,9 +91,9 @@ class Node {
     // constructors
 
     Node();
-    Node(int _nid, double _x, double _y);
-    Node(int _nid, int id, double _x, double _y);
-    Node(double _x, double _y);
+    Node(int nid, double x, double y);
+    Node(int nid, int id, double x, double y);
+    Node(double x, double y);
     explicit Node(const std::string &line);
 
     ~Node() {}

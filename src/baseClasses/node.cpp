@@ -31,15 +31,16 @@
  * the nodes x,y is loaded with longitude,latitude values.
  *
  */
-double Node::distance(const Node &n) const {
-    if (!(isLatLon() && n.isLatLon())) return distanceTo(n);
+double Node::distance(const Node &other) const {
+    if (!(isLatLon() && other.isLatLon())) return distanceTo(other);
     // Haversine sphereical distance for lat/lon values
-    const double deg2rad = 3.14159265358979323846 / 180.0;
-    const double rad2deg = 180.0 / 3.14159265358979323846;
+    const double pi = 3.14159265358979323846;
+    const double deg2rad = pi / 180.0;
+    const double rad2deg = 180.0 / pi;
     const double radius = 6367000;  // Earth radius 6367 Km in meters
-    double dlon = (n.x - x) * deg2rad;
-    double dlat = (n.y - y) * deg2rad;
-    double a = pow(sin(dlat / 2.0), 2) + cos(y) * cos(n.y) *
+    double dlon = (other.x__ - x_) * deg2rad;
+    double dlat = (other.y_ - y_) * deg2rad;
+    double a = pow(sin(dlat / 2.0), 2) + cos(y_) * cos(other.y_) *
                pow(sin(dlon / 2.0), 2);
     double c = 2.0 * atan2(sqrt(a), sqrt(1.0 - a));
     double dist = radius * c;
@@ -48,20 +49,20 @@ double Node::distance(const Node &n) const {
 
 
 /*!  * \brief Set attributes for this node.  */
-void Node::set(int _nid, double _x, double _y) {
-    id = nid = _nid;
-    x = _x;
-    y = _y;
+void Node::set(int nid, double x, double y) {
+    id_ = nid_ = nid;
+    x_ = x;
+    y_ = y;
 }
 
 /*!  * \brief Print the contents of this node.  */
+#ifdef DOVRPLOG
 void Node::dump() const {
-    #ifdef DOVRPLOG
-    DLOG(INFO) << nid
-               << ", " << x
-               << ", " << y;
-    #endif
+    DLOG(INFO) << nid_
+               << ", " << x_
+               << ", " << y_;
 }
+#endif
 
 // Vector Operations
 
