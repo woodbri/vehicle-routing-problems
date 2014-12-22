@@ -214,20 +214,16 @@ Node::Node(int _nid, double _x, double _y) {
 }
 
 /*! \brief Construct a new Node and assign it the associated values.  */
-Node::Node(int _nid, int _id , double _x, double _y) {
-    id = _id;
-    nid = _nid;
-    x = _x;
-    y = _y;
-    hint = "";
+Node::Node(int _nid, int _id , double _x, double _y)
+    :id_(id), nid_(nid), x_(x), y_(y), hint("") {
 }
 
 /*! \brief Create a new Node by parsing a string.  */
 Node::Node(const std::string &line) {
     std::istringstream buffer(line);
-    buffer >> nid;
-    buffer >> x;
-    buffer >> y;
-    id = nid;
-    hint = "";
+    buffer >> nid_;
+    buffer >> x_;
+    buffer >> y_;
+    id_ = nid_;
+    hint_ = "";
 }
