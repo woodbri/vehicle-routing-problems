@@ -49,7 +49,7 @@ endif
 # <blank> is NO
 # anything else  
 
-WITH_OSRMCLIENT =
+WITH_OSRMCLIENT = yes
 WITH_STATS =
 WITH_MD5 =
 WITH_OSRM =
@@ -264,7 +264,8 @@ build/libvrptools.a: $(OBJS) $(BASECLASSES_OBJS) $(BASETRASH_OBJS) $(INITTRASH_O
 
 
 valgrind: 
-	valgrind -v --track-origins=yes --leak-check=full ./bin/trash montevideo/muni-b
+	@echo "Output will be in valgrindlog"
+	valgrind -v --track-origins=yes --undef-value-errors=yes --leak-check=full ./bin/trash montevideo/muni-b --log-file=valgrindlog
 
 callgrind-8: ./bin/trash ./montevideo/muni-b.*
 	valgrind --tool=callgrind --callgrind-out-file=logs/callgrind-008.out ./bin/trash montevideo/muni-b
