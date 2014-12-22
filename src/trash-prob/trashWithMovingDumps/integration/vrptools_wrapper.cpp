@@ -94,15 +94,22 @@ int vrp_trash_collection( container_t *containers, unsigned int container_count,
         twc->cleanUp();
     }
     catch ( std::exception &e ) {
+#ifdef DOVRPLOG
+        DLOG(INFO) << "in wrapper, caught exception: " << e.what();
+#endif
         *err_msg = strdup( e.what() );
         return -1;
     }
     catch ( ... ) {
+#ifdef DOVRPLOG
+        DLOG(INFO) << "in wrapper, caught unknown expection!";
+#endif
         *err_msg = strdup( "Caught unknown expection!" );
         return -1;
     }
 
     *err_msg = (char *)0;
+
 
     return EXIT_SUCCESS;
 }

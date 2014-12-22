@@ -85,14 +85,14 @@ typedef struct ttime_columns {
 
 
 static int finish( int code, int ret ) {
-    //DBG( "In finish, trying to disconnect from spi %d", ret );
+    DBG( "In finish, trying to disconnect from spi %d", ret );
     code = SPI_finish();
 
     if ( code  != SPI_OK_FINISH ) {
         elog( ERROR, "couldn't disconnect from SPI" );
         return -1 ;
     }
-    //DBG( "In finish, disconnect from spi %d successfull", ret );
+    DBG( "In finish, disconnect from spi %d successfull", ret );
 
     return ret;
 }

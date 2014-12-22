@@ -1,7 +1,10 @@
+\pset pager off
+\set ECHO queries
 
 drop extension if exists vrptools;
 create extension if not exists vrptools with schema public;
 
+/*
 select * from vrp_trashcollection(
   'select gid as id, round(st_x(st_transform(geom,4326))::numeric,6)::float8 as x, round(st_y(st_transform(geom,4326))::numeric,6)::float8 as y,
      0 as open, 360 as close, capacidad::integer as demand, 2 service, b.sid as street_id
@@ -14,4 +17,24 @@ select * from vrp_trashcollection(
      from vehicles',
   'select nfrom as from_id, nto as to_id, ttime from osrm_ttime_b order by id'
   );
+*/
+
+select * from  vrp_trashcollectioncheck( 'select * from containers limit 10 ', 'select * from other_locs', 'select * from vehicles', 'select * from distance_matrix',0);
+
+select * from  vrp_trashcollectioncheck( 'select * from containers ', 'select * from other_locs', 'select * from vehicles', 'select * from distance_matrix',0);
+
+select * from  vrp_trashcollectioncheck( 'select * from containers where demand <>0 limit 10 ', 'select * from other_locs', 'select * from vehicles', 'select * from distance_matrix',0);
+
+select * from  vrp_trashcollectioncheck( 'select * from containers where demand <>0 ', 'select * from other_locs', 'select * from vehicles', 'select * from distance_matrix',0);
+
+select * from  vrp_trashcollection( 'select * from containers where demand <> 0', 'select * from other_locs', 'select * from vehicles', 'select * from distance_matrix',0);
+
+select * from  vrp_trashcollection( 'select * from containers where demand <> 0', 'select * from other_locs', 'select * from vehicles', 'select * from distance_matrix',1);
+
+select * from  vrp_trashcollection( 'select * from containers limit 10 ', 'select * from other_locs', 'select * from vehicles', 'select * from distance_matrix',0);
+
+select * from  vrp_trashcollection( 'select * from containers ', 'select * from other_locs', 'select * from vehicles', 'select * from distance_matrix',0);
+
+select * from  vrp_trashcollection( 'select * from containers where demand <> 0', 'select * from other_locs', 'select * from vehicles', 'select * from distance_matrix',2);
+
 
