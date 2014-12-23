@@ -23,7 +23,7 @@
 bool Solution::feasable() const {
     assert( fleet.size() );
 
-    for ( int i = 0; i < fleet.size(); i++ )
+    for ( UINT i = 0; i < fleet.size(); i++ )
         if ( not fleet[i].feasable() ) return false;
 
     return true;
@@ -32,7 +32,7 @@ bool Solution::feasable() const {
 void Solution::evaluate() {
     assert( fleet.size() );
 
-    for ( int i = 0; i < fleet.size(); i++ )
+    for ( UINT i = 0; i < fleet.size(); i++ )
         fleet[i].evaluate();
 
 }
@@ -45,7 +45,7 @@ int Solution::v_computeCosts() {
     totalDistance = 0.0;
     int removedPos = -1;
 
-    for ( int i = 0; i < fleet.size(); i++ ) {
+    for ( UINT i = 0; i < fleet.size(); i++ ) {
         if ( fleet[i].size() == 1 ) {
             #ifdef DOVRPLOG
             DLOG( INFO ) << "FOUND A TRUCK WITHOUT CONTAINERS";
@@ -57,7 +57,7 @@ int Solution::v_computeCosts() {
         };
     }
 
-    for ( int i = 0; i < fleet.size(); i++ ) {
+    for ( UINT i = 0; i < fleet.size(); i++ ) {
         totalCost += fleet[i].getCost();
     }
 
@@ -67,7 +67,7 @@ int Solution::v_computeCosts() {
 
 
 int Solution::computeCosts() {
-    v_computeCosts();
+    return v_computeCosts();
 }
 
 double Solution::getCost() const {
@@ -80,9 +80,9 @@ double Solution::getDistance() const {
 
 void Solution::dumpSolutionForPg () const {
     vehicle_path_t *results;
-    int count;
+    UINT count;
     results = getSolutionForPg( count ) ;
-    for (int i=0;i<count;i++) 
+    for (UINT i=0; i < count; i++) 
         std::cout<<"i"<<i<<
 			"\tseq:"<<results[i].seq<<
 			"\tVID:"<<results[i].vid<<
@@ -91,9 +91,9 @@ void Solution::dumpSolutionForPg () const {
 			"\tdeltaTime"<<results[i].deltatime<<
 			"\tcargo"<<results[i].cargo<<"\n";
 
-    for ( int i = 0; i < fleet.size(); ++i ) {
+    for ( UINT i = 0; i < fleet.size(); ++i ) {
         if ( fleet[i].size() <= 1 ) continue;
-        for ( int j = 0; j < fleet[i].size(); ++j ) {
+        for ( UINT j = 0; j < fleet[i].size(); ++j ) {
           std::cout<<"VID: "<<fleet[i].getVid()<<"\tid: "<<fleet[i][j].id()<<"\tntype: "<<fleet[i][j].ntype()<<"\tDeparture: "<<fleet[i][j].getDepartureTime()<<
 		"\tdeltaTime:"<< fleet[i][j].getDeltaTime()<<
 		"\tdeltaCargo"<< fleet[i][j].getDemand()<<"\n";
@@ -109,13 +109,13 @@ void Solution::dumpSolutionForPg () const {
         
 
 
-vehicle_path_t *Solution::getSolutionForPg( int &count ) const {
+vehicle_path_t *Solution::getSolutionForPg( UINT &count ) const {
     count = 0;
-    int fleetSize= fleet.size();
+    UINT fleetSize= fleet.size();
     //fleetSize=1;
 
     // count the number of records we need for the output
-    for ( int i = 0; i < fleetSize; ++i )
+    for ( UINT i = 0; i < fleetSize; ++i )
         if ( fleet[i].size() > 1 )          // don't count empty routes
             count += fleet[i].size() + 2;   // add final dump and ending nodes
 
@@ -131,12 +131,12 @@ vehicle_path_t *Solution::getSolutionForPg( int &count ) const {
     // remap internal node types to pg node types
     int map[] = {0, 2, 1, 3};
 
-    int seq = 0;
+    UINT seq = 0;
 
-    for ( int i = 0; i < fleetSize; ++i ) {
+    for ( UINT i = 0; i < fleetSize; ++i ) {
         if ( fleet[i].size() <= 1 ) continue;
 
-        for ( int j = 0; j < fleet[i].size(); ++j ) {
+        for ( UINT j = 0; j < fleet[i].size(); ++j ) {
             results[seq].seq       = seq + 1;
             results[seq].vid       = fleet[i].getVid();
             results[seq].nid       = fleet[i][j].id();
@@ -182,7 +182,7 @@ std::string Solution::solutionAsText() const {
     std::stringstream ss;;
     const std::vector<int> sol = solutionAsVector();
 
-    for ( int i = 0; i < sol.size(); i++ ) {
+    for ( UINT i = 0; i < sol.size(); i++ ) {
         if ( i ) ss << ",";
 
         ss << sol[i];
@@ -196,7 +196,7 @@ std::string Solution::solutionAsTextID() const {
     std::stringstream ss;;
     const std::vector<int> sol = solutionAsVectorID();
 
-    for ( int i = 0; i < sol.size(); i++ ) {
+    for ( UINT i = 0; i < sol.size(); i++ ) {
         if ( i ) ss << ",";
 
         ss << sol[i];
@@ -215,13 +215,13 @@ std::vector<int>  Solution::solutionAsVectorID() const {
     std::vector<int> sol;
     sol.push_back( -1 );
 
-    for ( int i = 0; i < fleet.size(); i++ ) {
+    for ( UINT i = 0; i < fleet.size(); i++ ) {
         if ( fleet[i].size() == 0 ) continue;
 
         sol.push_back( fleet[i].getVid() );
         sol.push_back( -1 );
 
-        for ( int j = 0; j < fleet[i].size(); j++ ) {
+        for ( UINT j = 0; j < fleet[i].size(); j++ ) {
             sol.push_back( fleet[i][j].id() );
         }
 
@@ -238,13 +238,13 @@ std::vector<int>  Solution::solutionAsVector() const {
     std::vector<int> sol;
     sol.push_back( -2 );
 
-    for ( int i = 0; i < fleet.size(); i++ ) {
+    for ( UINT i = 0; i < fleet.size(); i++ ) {
         if ( fleet[i].size() == 0 ) continue;
 
         sol.push_back( fleet[i].getVid() );
         sol.push_back( -2 );
 
-        for ( int j = 0; j < fleet[i].size(); j++ ) {
+        for ( UINT j = 0; j < fleet[i].size(); j++ ) {
             sol.push_back( fleet[i][j].nid() );
         }
 
@@ -273,7 +273,7 @@ void Solution::plot( std::string file, std::string title ) {
 
     // a grpah for individual truck but with all nodes
 
-    for ( int j = 0; j < fleet.size(); j++ ) {
+    for ( UINT j = 0; j < fleet.size(); j++ ) {
         Plot<Trashnode> graph1( datanodes );
         std::stringstream convert;
         convert << j;
@@ -289,7 +289,7 @@ void Solution::plot( std::string file, std::string title ) {
     }
 
     //     now a graph for each individual truck
-    for ( int i = 0; i < fleet.size(); i++ ) {
+    for ( UINT i = 0; i < fleet.size(); i++ ) {
         fleet[i].plot( file, datafile + ": " + title, i );
     }
 
@@ -300,7 +300,7 @@ void Solution::plot( std::string file, std::string title ) {
 void Solution::tau() {
     DLOG( INFO ) << "Tau:";
 
-    for ( int i = 0; i < fleet.size(); i++ ) {
+    for ( UINT i = 0; i < fleet.size(); i++ ) {
         fleet[i].tau();
     };
 
@@ -309,7 +309,7 @@ void Solution::tau() {
 void Solution::dumproutes()  {
     DLOG( INFO ) << "Vehicle:";
 
-    for ( int i = 0; i < fleet.size(); i++ ) {
+    for ( UINT i = 0; i < fleet.size(); i++ ) {
         DLOG( INFO ) << " -----> Vehicle#" << i;
         fleet[i].dump();
     }
@@ -322,7 +322,7 @@ double Solution::getAverageRouteDurationLength() {
     double len = 0.0;
     int n = 0;
 
-    for ( int i = 0; i < fleet.size(); i++ ) {
+    for ( UINT i = 0; i < fleet.size(); i++ ) {
         if ( fleet[i].size() > 0 ) {
             len += fleet[i].getDuration();
             n++;
@@ -349,7 +349,7 @@ Solution::Solution( const std::string &infile,
     fleet.clear();
     Bucket solPath;
 
-    int i = 1;
+    UINT i = 1;
 
     while ( i < sol.size() ) {
         if ( sol[i] < 0 and sol[i + 1] > 0 ) break; //expected: vid -1
@@ -357,7 +357,7 @@ Solution::Solution( const std::string &infile,
         vid = sol[i];
 
         //get the truck from the truks:
-        for ( int tr = 0; tr < trucks.size(); tr++ )
+        for ( UINT tr = 0; tr < trucks.size(); tr++ )
             if ( trucks[tr].getVid() == vid ) {
                 truck = trucks[tr];
                 break;
@@ -402,7 +402,7 @@ Solution::Solution( const std::string &infile,
 double Solution::getduration() const {
     double d = 0;
 
-    for ( int i = 0; i < fleet.size(); i++ )
+    for ( UINT i = 0; i < fleet.size(); i++ )
         d += fleet[i].getDuration();
 
     return d;
@@ -415,7 +415,7 @@ double Solution::getduration() const {
 double Solution::getcost() const {
     double d = 0;
 
-    for ( int i = 0; i < fleet.size(); i++ )
+    for ( UINT i = 0; i < fleet.size(); i++ )
         d += fleet[i].getcost();
 
     return d;
@@ -427,7 +427,7 @@ double Solution::getcost() const {
 int Solution::getTWV() const {
     int d = 0;
 
-    for ( int i = 0; i < fleet.size(); i++ )
+    for ( UINT i = 0; i < fleet.size(); i++ )
         d += fleet[i].getTWV();
 
     return d;
@@ -439,7 +439,7 @@ int Solution::getTWV() const {
 int Solution::getCV() const {
     int d = 0;
 
-    for ( int i = 0; i < fleet.size(); i++ )
+    for ( UINT i = 0; i < fleet.size(); i++ )
         d += fleet[i].getCV();
 
     return d;
@@ -451,7 +451,7 @@ int Solution::getCV() const {
 void Solution::dumpFleet() const {
     DLOG( INFO ) << "--------- Fleet ------------";
 
-    for ( int i = 0; i < fleet.size(); i++ )
+    for ( UINT i = 0; i < fleet.size(); i++ )
         fleet[i].dump();
 }
 
@@ -540,6 +540,19 @@ bool Solution::applyIntraSwMove( const Move &move ) {
     return ( fleet[ move.getIntraSwTruck() ].feasable() ) ;
 }
 
+void Solution::dumpCostValues() {
+        for ( UINT i = 0; i < fleet.size(); i++ )
+            fleet[i].getCost();
+        #ifdef DOVRPLOG
+        for ( UINT i = 0; i < fleet.size(); i++ )
+            fleet[i].dumpCostValues();
+        #endif
+}
+
+void Solution::setInitialValues() {
+        for ( UINT i = 0; i < fleet.size(); i++ )
+            fleet[i].setInitialValues( C, pickups );
+}
 
 
 // dump summary of the solution
@@ -554,3 +567,5 @@ void Solution::dumpSummary() const {
     DLOG( INFO ) << "Solution: " << solutionAsText();
 }
 #endif
+
+

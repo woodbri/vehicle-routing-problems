@@ -29,10 +29,12 @@
  */
 
 class Node {
+ protected:
+      typedef unsigned long int UID ;
  public:
   /** @name accessors */
   ///@{
-  int nid() const {return nid_;}
+  UID nid() const {return nid_;}
   int id() const {return id_;}
   double x() const {return x_;}
   double y() const {return y_;}
@@ -41,11 +43,11 @@ class Node {
 
 
 
-  /** @name mutators */
+  /** @name state */
   ///@{
   bool isLatLon() const { return (x_ < 180) && (x_ > -180)
                                 && (y_ < 180) && (y_ > -180);}
-  bool isValid() const { return  id_ > -1;}
+  bool isValid() const { return  id_>0;}
   bool isSamePos(const Node &other) const { return distance(other) == 0; }
   bool isSamePos(const Node &other, double tolerance) const {
     return distance(other) < tolerance;}
@@ -54,8 +56,8 @@ class Node {
 
   /** @name mutators */
   ///@{
-  void set(int nid, double x, double y);
-  void set_nid(int nid) {nid_ = nid;}
+  void set(UID nid, double x, double y);
+  void set_nid(UID nid) {nid_ = nid;}
   void set_id(int id) {id_ = id; }
   void set_x(double x) {x_ = x; }
   void set_y(double y) {y_ = y; }
@@ -105,13 +107,13 @@ class Node {
   // constructors
   Node();
   Node(double x, double y);
-  Node(int nid, double x, double y);
-  Node(int nid, int id, double x, double y);
+  //Node(UID nid, double x, double y);
+  Node(UID nid, int id, double x, double y);
   explicit Node(const std::string &line);
 
   //  ~Node() {}
  private:
-  int nid_;    ///< internal node number
+  UID nid_;    ///< internal node number
   int id_;     ///< user supplied node number
   double x_;   ///< x or longitude of the node's location
   double y_;   ///< y or latitude of the node's location

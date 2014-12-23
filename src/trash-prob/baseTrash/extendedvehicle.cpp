@@ -121,7 +121,7 @@ bool  BaseVehicle::findNearestNodeTo( Bucket &unassigned, UID &pos,
     flag = twc->findNearestNodeUseExistingData( path, unassigned,  pos , bestNode,
             bestDist );
 
-    for ( POS i = 0; i < unassigned.size(); i++ ) {
+    for ( int i = 0; i < unassigned.size(); i++ ) {
         if ( twc->isCompatibleIAJ( path[size() - 1]  , unassigned[i], dumpSite ) ) {
             d = unassigned[i].distanceToSegment( path[size() - 1], dumpSite );
 
@@ -171,7 +171,7 @@ void BaseVehicle::dumpeval() const {
     DLOG( INFO ) << "\nStarting site:";
     path[0].dumpeval();
 
-    for ( POS i = 1; i < path.size(); i++ ) {
+    for ( int i = 1; i < path.size(); i++ ) {
         DLOG( INFO ) << "path stop #:" << i;
         path[i].dumpeval();
     }
@@ -196,7 +196,7 @@ void BaseVehicle::tau() const {
     std::stringstream ss;
     ss << " ";
 
-    for ( POS i = 0; i < path.size(); i++ )
+    for ( int i = 0; i < path.size(); i++ )
         ss << id( i ) << " ";
 
     ss << dumpSite.id() << " ";
@@ -216,6 +216,7 @@ std::deque<int> BaseVehicle::getpath() const {
 
 
 bool BaseVehicle::push_back( Trashnode node ) {
+    assert ( node.nid() >= 0 );
     E_Ret ret = path.e_push_back( node, getmaxcapacity() );
 
     if ( ret == OK ) evalLast();
@@ -348,7 +349,6 @@ void BaseVehicle::evaluate() {
 
 
 
-#if 0
 //--------------------------------------------------------------------------
 // intra-route optimiziation
 //--------------------------------------------------------------------------
@@ -454,6 +454,7 @@ bool BaseVehicle::doNodeSwap( const int &i, const int &j ) {
     return true;
 }
 
+
 bool BaseVehicle::doInvertSeq( const int &i, const int &j ) {
     if ( i > path.size() or j > path.size() - 1 )
         return false;
@@ -469,6 +470,7 @@ bool BaseVehicle::doInvertSeq( const int &i, const int &j ) {
 
     return true;
 }
+
 
 bool BaseVehicle::pathOptimize() {
     // repeat each move until the is no improvement then move to the next
@@ -858,6 +860,77 @@ bool BaseVehicle::exchangeTails( BaseVehicle &v2, const int &i1, const int &i2,
 
 
 
+//  exchange3
+// this exchanges a sequence of cnt nodes starting at i1, i2 and i3
+// between thre respective vehicles this*, v2, and v3
+// the nodes in this* are moved to v2 and
+// the nodes in v2 are moved to v3 and
+// the nodes in v3 are moved to this*
+
+// TODO: convert this to use non-evaluating twpath functions
+//       and then just call evaluate on each
+
+bool BaseVehicle::exchange3( BaseVehicle &v2, BaseVehicle &v3, const int &cnt,
+                             const int &i1, const int &i2, const int &i3, bool force ) {
+    if ( i1 < 0 or i1 + cnt > this->size() - 1 or
+         i2 < 0 or i2 + cnt > v2.size() - 1 or
+         i3 < 0 or i3 + cnt > v3.size() - 1 or cnt < 1 ) return false;
+
+    Twpath<Trashnode> &v2p = v2.getvpath(); // get a reference to manipulate
+    Twpath<Trashnode> &v3p = v3.getvpath(); // get a reference to manipulate
+
+    double oldcost1 = getcost();
+    double oldcost2 = v2.getcost();
+    double oldcost3 = v3.getcost();
+
+    #ifdef DOVRPLOG
+    DLOG( INFO ) << "oldcost: " << oldcost1 << "+" << oldcost2 << "+" << oldcost3
+                 << "=" << oldcost1 + oldcost2 + oldcost3;
+    #endif
+
+    for ( int i = 0; i < cnt; i++ ) {
+        path.e_swap( i1 + i, getmaxcapacity(),
+                     v2.getvpath(), i2 + i, v2.getmaxcapacity() );
+        v2.getvpath().e_swap( i2 + i, v2.getmaxcapacity(),
+                              v3.getvpath(), i3 + i, v3.getmaxcapacity() );
+    }
+
+    evalLast();
+    v2.evalLast();
+    v3.evalLast();
+
+    if ( force ) return true;
+
+    double newcost1 = getcost();
+    double newcost2 = v2.getcost();
+    double newcost3 = v3.getcost();
+
+    #ifdef DOVRPLOG
+    DLOG( INFO ) << "newcost: " << newcost1 << "+" << newcost2 << "+" <<
+                 newcost3 << "=" << newcost1 + newcost2 + newcost3;
+    #endif
+
+    if ( newcost1 + newcost2 + newcost3 > oldcost1 + oldcost2 + oldcost3 or
+         !feasable() or !v2.feasable() or !v3.feasable() ) {
+        for ( int i = 0; i < cnt; i++ ) {
+            v2.getvpath().e_swap( i2 + i, v2.getmaxcapacity(),
+                                  v3.getvpath(), i3 + i, v3.getmaxcapacity() );
+            path.e_swap( i1 + i, getmaxcapacity(),
+                         v2.getvpath(), i2 + i, v2.getmaxcapacity() );
+        }
+
+        evalLast();
+        v2.evalLast();
+        v3.evalLast();
+
+        return false;
+    }
+
+    return true;
+}
+
+
+
 //  relocate
 //  move node v1[i1] to another path v2[i2]
 //  returns false if it fails to relocate the node to v2
@@ -958,7 +1031,6 @@ bool BaseVehicle::relocateBest( BaseVehicle &v2, const int &i1 ) {
 
     return true;
 }
-#endif
 
 /**************************************PLOT************************************/
     #ifdef DOPLOT
@@ -1008,102 +1080,4 @@ void BaseVehicle::plot( Plot<Trashnode> graph, int carnumber )const {
 }
     #endif
 
-
-
-BaseVehicle::BaseVehicle( int _vid, int _start_id, int _dump_id, int _end_id,
-                 int _capacity, int _dumpservicetime, int _starttime,
-                 int _endtime, const Bucket &otherlocs ) {
-
-        assert( otherlocs.size() );
-        cost        = 0;
-        w1 = w2 = w3 = 1.0;
-
-        int depotId, dumpId, endingId;
-        double dumpServiceTime;
-        double endTime, startTime;
-
-        vid             = _vid;
-        depotId         = _start_id;
-        dumpId          = _dump_id;
-        endingId        = _end_id;
-        maxcapacity     = _capacity;
-        dumpServiceTime = _dumpservicetime;
-        startTime       = _starttime;
-        endTime         = _endtime;
-
-        if ( depotId >= 0 and dumpId >= 0 and endingId >= 0 and
-             startTime >= 0 and startTime <= endTime and maxcapacity > 0 and
-             dumpServiceTime >= 0 and vid >= 0 and otherlocs.hasId( depotId ) and
-             otherlocs.hasId( dumpId ) and otherlocs.hasId( endingId ) ) {
-
-            endingSite = otherlocs[otherlocs.posFromId( endingId )];
-
-            if ( endingSite.closes() > endTime )
-                endingSite.setCloses( endTime );
-
-            dumpSite = otherlocs[otherlocs.posFromId( dumpId )];
-            dumpSite.setServiceTime( dumpServiceTime );
-            depot = otherlocs[otherlocs.posFromId( depotId )];
-
-            if ( depot.opens() < startTime )
-                depot.setOpens( startTime );
-
-            depot.setType( 0 );
-            depot.setDemand( 0 );
-            dumpSite.setType( 1 );
-            endingSite.setType( 3 );
-            push_back( depot );
-            evalLast();
-        }
-        else
-            vid = -1; //truck is rejected
-    }
-
-BaseVehicle::BaseVehicle( std::string line, const Bucket &otherlocs )  {
-        // TESTED on running program
-        assert( otherlocs.size() );
-        std::istringstream buffer( line );
-        int depotId, dumpId, endingId;
-        double dumpServiceTime;
-        endTime = startTime = 0;
-
-        cost        = 0;
-        w1 = w2 = w3 = 1.0;
-
-        buffer >> vid;
-        buffer >> depotId;
-        buffer >> dumpId;
-        buffer >> endingId;
-        buffer >> dumpServiceTime;
-        buffer >> maxcapacity;
-        buffer >> startTime;
-        buffer >> endTime;
-
-        if ( depotId >= 0 and dumpId >= 0 and endingId >= 0 and startTime >= 0
-             and startTime <= endTime and maxcapacity > 0 and dumpServiceTime >= 0
-             and vid >= 0
-             and otherlocs.hasId( depotId ) and otherlocs.hasId( dumpId )
-             and otherlocs.hasId( endingId ) ) {
-
-            endingSite = otherlocs[otherlocs.posFromId( endingId )];
-
-            if ( endingSite.closes() > endTime ) endingSite.setCloses( endTime );
-
-            dumpSite = otherlocs[otherlocs.posFromId( dumpId )];
-            dumpSite.setServiceTime( dumpServiceTime );
-            depot = otherlocs[otherlocs.posFromId( depotId )];
-
-            if ( depot.opens() < startTime ) depot.setOpens( startTime );
-
-            depot.setType( 0 );
-            depot.setDemand( 0 );
-            dumpSite.setType( 1 );
-            endingSite.setType( 3 );
-            push_back( depot );
-            evalLast();
-            //dumpeval();
-
-        }
-        else vid = -1;  //truck is rejected
-    }
 

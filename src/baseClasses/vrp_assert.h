@@ -79,12 +79,8 @@ class AssertFailedException : public std::exception {
     const char *str;    ///< str Holds the what() string for the exception.
 
   public:
-    virtual const char *what() const throw() {
-        return str;
-    };
-
-    AssertFailedException( const char *_str ) : str( _str ) {};
-
+    virtual const char *what() const throw();
+    AssertFailedException( const char *_str );
 };
 
 #endif

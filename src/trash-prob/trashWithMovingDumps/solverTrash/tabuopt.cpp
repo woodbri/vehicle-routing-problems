@@ -74,7 +74,7 @@ TabuOpt::TabuOpt( const OptSol &initialSolution, unsigned int iteration ) :
     };
 
 
-vehicle_path_t* TabuOpt::getSolutionForPg( int &count ) const {
+vehicle_path_t* TabuOpt::getSolutionForPg( UINT &count ) const {
 	return bestSolution.getSolutionForPg(count);
 }
 
@@ -108,7 +108,7 @@ void TabuOpt::search() {
 
 
     bool improvedBest;
-    int lastImproved = 0;
+    //int lastImproved = 0;
     double oldCost = currentSolution.getCost();
     double newCost;
     int cycleLimit=5;
@@ -141,13 +141,13 @@ void TabuOpt::search() {
         else cycleLimit = 5;
         #endif
 
-        improvedBest = doNeighborhoodMoves( Move::IntraSw, 1 , Move::InterSw );
+        improvedBest = doNeighborhoodMoves( Move::IntraSw, 1  );
 
         for ( int j = 0; j < cycleLimit; j++ ) {
             #ifdef VRPMINTRACE
             DLOG( INFO ) << "----------------- TABUSEARCH: InterSw: " << j;
 	    #endif
-            improvedBest |= doNeighborhoodMoves( Move::InterSw, 1 , Move::InterSw );
+            improvedBest |= doNeighborhoodMoves( Move::InterSw, 1  );
         }
 
         #ifdef VRPMINTRACE
@@ -158,7 +158,7 @@ void TabuOpt::search() {
             #ifdef VRPMINTRACE
             DLOG( INFO ) << "------------------TABUSEARCH: Ins: " << j;
 	    #endif
-            improvedBest |= doNeighborhoodMoves( Move::Ins, 1 ,    Move::Ins );
+            improvedBest |= doNeighborhoodMoves( Move::Ins, 1 );
         }
 
         #ifdef VRPMINTRACE
@@ -232,7 +232,8 @@ void TabuOpt::search() {
 
 
 void TabuOpt::getNeighborhood(  Move::Mtype  whichNeighborhood,
-                                Moves &neighborhood, double factor, Move::Mtype mtype ) const  {
+                                Moves &neighborhood, double factor ) const  {
+    assert (whichNeighborhood!=Move::Invalid);
     neighborhood.clear();
     #ifdef DOSTATS
     STATS->inc( "TabuOpt::getNeighborhood" );
@@ -241,7 +242,7 @@ void TabuOpt::getNeighborhood(  Move::Mtype  whichNeighborhood,
 
     switch ( whichNeighborhood ) {
         case Move::Ins:
-            currentSolution.getInsNeighborhood( neighborhood, factor );
+            currentSolution.getInsNeighborhood( neighborhood );
     	    #ifdef DOSTATS
             generateNeighborhoodStats( "Ins", getNeighborhoodTimer.duration(),
                                        neighborhood.size() );
@@ -249,7 +250,7 @@ void TabuOpt::getNeighborhood(  Move::Mtype  whichNeighborhood,
             break;
 
         case Move::IntraSw:
-            currentSolution.getIntraSwNeighborhood( mtype, neighborhood, factor );
+            currentSolution.getIntraSwNeighborhood( neighborhood );
     	    #ifdef DOSTATS
             generateNeighborhoodStats( "IntraSw", getNeighborhoodTimer.duration(),
                                        neighborhood.size() );
@@ -262,6 +263,8 @@ void TabuOpt::getNeighborhood(  Move::Mtype  whichNeighborhood,
             generateNeighborhoodStats( "InterSw", getNeighborhoodTimer.duration(),
                                        neighborhood.size() );
    	    #endif
+            break;
+        case Move::Invalid:
             break;
     }
 }
@@ -293,27 +296,27 @@ bool TabuOpt::applyAmove( const Move &move ) {
 }
 
 
-bool TabuOpt::applyMoves( std::string type, Moves &moves ) {
-    #ifdef DOSTATS
-    STATS->inc( "TabuOpt::applyMoves" );
-    #endif
-
+bool TabuOpt::applyMoves(const std::string &type, Moves &moves ) {
     if ( not moves.size() ) return false;
+    bool retValue;
+    Move move =  *(moves.begin());
+    retValue= applyAmove( move );
+    cleanUpMoves( move );
 
     #ifdef VRPMINTRACE
     DLOG( INFO ) << "apply moves: " << type << " applied: ";
-    moves.begin()->Dump();
+    move.Dump();
     #endif
-    applyAmove( *( moves.begin() ) );
     #ifdef DOSTATS
     STATS->inc( "Number of moves of type " + type );
     #endif
-    cleanUpMoves( *( moves.begin() ) );
 
+    return retValue;
 }
 
 
 bool TabuOpt::reachedMaxCycles( int number,  Move::Mtype whichNeighborhood ) {
+    assert (whichNeighborhood!=Move::Invalid);
     #ifdef DOSTATS
     STATS->inc( "TabuOpt::reachedMaxCycles" );
     #endif
@@ -324,10 +327,9 @@ bool TabuOpt::reachedMaxCycles( int number,  Move::Mtype whichNeighborhood ) {
 
     switch ( whichNeighborhood ) {
         case Move::Ins: { limit = number >= limitIns; break;}
-
         case Move::IntraSw: { limit = number >= limitIntraSw; break;}
-
         case Move::InterSw: { limit = number >= limitInterSw; break;}
+        case Move::Invalid: { limit = true; break;}
     };
 
     return limit;
@@ -351,8 +353,7 @@ bool TabuOpt::reachedMaxCycles( int number,  Move::Mtype whichNeighborhood ) {
     return an indicator that we improved the best move or not.
 */
 
-bool TabuOpt::doNeighborhoodMoves( Move::Mtype whichNeighborhood, int maxMoves,
-                                   Move::Mtype mtype ) {
+bool TabuOpt::doNeighborhoodMoves( Move::Mtype whichNeighborhood, int maxMoves) {
     #ifdef DOSTATS
     STATS->inc( "TabuOpt::doNeighborhoodMoves" );
     #endif
@@ -362,10 +363,10 @@ bool TabuOpt::doNeighborhoodMoves( Move::Mtype whichNeighborhood, int maxMoves,
     #endif
     bool improvedBest = false;
     int Cnt = 0;
-    int CntNonAspirational = 0;
+    //int CntNonAspirational = 0;
     int CntNoNeighborhood = 0;
     double factor = 0.02;
-    bool limit;
+    //bool limit;
     int actualMoveCount = getTotalMovesMade();
     bool moveMade = false;
     bool intraSwMoveMade = true;
@@ -387,9 +388,9 @@ bool TabuOpt::doNeighborhoodMoves( Move::Mtype whichNeighborhood, int maxMoves,
         //if (whichNeighborhood==Move::Ins) factor=1;
         if ( factor == 0.01 and CntNoNeighborhood == 0 and notTabu.size() == 0
              and tabu.size() == 0 )
-            getNeighborhood( whichNeighborhood, neighborhood, 1, mtype );
+            getNeighborhood( whichNeighborhood, neighborhood, 1 );
         else
-            getNeighborhood( whichNeighborhood, neighborhood, factor, mtype );
+            getNeighborhood( whichNeighborhood, neighborhood, factor );
 
         Cnt++;
 
@@ -485,7 +486,7 @@ bool TabuOpt::doNeighborhoodMoves( Move::Mtype whichNeighborhood, int maxMoves,
         if ( moveMade == true ) break;
 
         if ( ( not ( whichNeighborhood == Move::IntraSw ) and intraSwMoveMade ) ) {
-            improvedBest =  doNeighborhoodMoves( Move::IntraSw, 1, Move::InterSw );
+            improvedBest =  doNeighborhoodMoves( Move::IntraSw, 1 );
 
             if ( improvedBest ) {
                 actualMoveCount = getTotalMovesMade();
@@ -517,8 +518,8 @@ bool TabuOpt::doNeighborhoodMoves( Move::Mtype whichNeighborhood, int maxMoves,
     }
     while ( not moveMade );
 
-    if ( not intraSwMoveMade ) improvedBest |= doNeighborhoodMoves( Move::IntraSw,
-                1, Move::InterSw );
+    if ( not intraSwMoveMade ) 
+      improvedBest |= doNeighborhoodMoves( Move::IntraSw, 1 );
 
     return improvedBest;
 }
@@ -544,12 +545,14 @@ bool TabuOpt::classifyMoves( Moves &neighborhood ) {
     Timer start;
     #endif
 
-    bool found = false;
-    bool foundAspTabu = false;
+    //bool found = false;
+    //bool foundAspTabu = false;
     bool removedTruck = false;
     double newCost;
     computeCosts( currentSolution );
+    #ifdef VRPMAXTRACE
     double actualCost = currentSolution.getCost();
+    #endif
     OptSol current = currentSolution;
     Move guide;
 
@@ -737,8 +740,8 @@ void TabuOpt::cleanUpInsMoves( Moves &moves, const Move &guide, bool &reverseFou
 
     if ( not moves.size() ) return;
 
-    int fromPos = guide.getInsFromPos();
-    int toPos = guide.getInsToPos();
+    //int fromPos = guide.getInsFromPos();
+    //POS toPos = guide.getInsToPos();
     Moves oldMoves = moves;
     moves.clear();
 
@@ -811,7 +814,7 @@ void TabuOpt::cleanUpIntraSwMoves( Moves &moves, const Move &guide ) const  {
 
     if ( not ( guide.getmtype() == Move::IntraSw ) ) return;
 
-    int truckPos = guide.getIntraSwTruck();
+    POS truckPos = guide.getIntraSwTruck();
 
     for ( MovesItr movePtr = oldMoves.begin(); movePtr != oldMoves.end();
           ++movePtr ) {
@@ -822,26 +825,18 @@ void TabuOpt::cleanUpIntraSwMoves( Moves &moves, const Move &guide ) const  {
 
                     if ( move.getInterSwTruck1() == truckPos ) {
                         if ( inRange( guide.getIntraSwFromPos(), move.getInterSwFromPos(), 2 ) ) continue;
-
                         if ( inRange( guide.getIntraSwToPos(), move.getInterSwFromPos(), 2 ) ) continue;
-
                         if ( currentSolution[truckPos].size() - 5 <= move.getInterSwFromPos() ) continue;
-
                         if ( not currentSolution.testInterSwMove( move ) ) continue;
-
                         moves.insert( move );
                     }
 
                     if ( move.getInterSwTruck2() == truckPos ) {
                         //The sorrounding Positions structure of the truck are not the same
                         if ( inRange( guide.getIntraSwFromPos(), move.getInterSwToPos(), 2 ) ) continue;
-
                         if ( inRange( guide.getIntraSwToPos(), move.getInterSwToPos(), 2 ) ) continue;
-
                         if ( currentSolution[truckPos].size() - 5 <= move.getInterSwToPos() ) continue;
-
                         if ( not currentSolution.testInterSwMove( move ) ) continue;
-
                         moves.insert( move );
                     }
 
@@ -853,11 +848,8 @@ void TabuOpt::cleanUpIntraSwMoves( Moves &moves, const Move &guide ) const  {
                     if ( move.getInsFromTruck() == truckPos ) {
                         //The sorrounding Positions structure of the truck are not the same
                         if ( inRange( guide.getIntraSwFromPos(), move.getInsFromPos(), 2 ) ) continue;
-
                         if ( inRange( guide.getIntraSwToPos(), move.getInsFromPos(), 2 ) ) continue;
-
                         if ( currentSolution[truckPos].size() - 3 <= move.getInsFromPos() ) continue;
-
                         moves.insert( move );
                     }
 
@@ -968,7 +960,7 @@ void TabuOpt::cleanUpMoves( const Move guide ) {
 
 
 
-bool TabuOpt::dumpMoves( std::string str, Moves moves ) const {
+void TabuOpt::dumpMoves( std::string str, Moves moves ) const {
     #ifdef DOSTATS
     STATS->inc( "TabuOpt::dumpMoves" );
     #endif

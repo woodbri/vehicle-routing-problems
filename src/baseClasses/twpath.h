@@ -505,16 +505,17 @@ class Twpath : public TwBucket<knode> {
     }
 
     Twpath<knode> &operator -=( const TwBucket<knode> &other ) {
-        assert( "Set operation not allowed on derived class of Twpath, Overload -= if this is required"
-                == "" );
+        assert( std::string("Set operation not allowed on derived class of Twpath, Overload -= if this is required")
+                == std::string(" "));
     }
     Twpath<knode> &operator *=( const TwBucket<knode> &other ) {
-        assert( "Set operation not allowed on derived class of Twpath, Overload *= if this is required"
-                == "" );
+        assert( std::string("Set operation not allowed on derived class of Twpath, Overload *= if this is required")
+                == std::string(" "));
     }
     Twpath<knode> &operator +=( const TwBucket<knode> &other ) {
-        assert( "Set operation not allowed on derived class of Twpath, Overload += if this is required"
-                == "" );
+        assert( std::string("Set operation not allowed on derived class of Twpath, Overload += if this is required")
+                == std::string(" "));
+	return *this;
     }
     ////// (double underscore) (considers  Dumps;)
 

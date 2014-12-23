@@ -121,7 +121,7 @@ class TwBucket {
         double ttfm = ttpfm - ttpf;
         double ttpfmt = TravelTime( prev, from , middle, to ) ;
         double ttmt = ttpfmt - ttpfm;
-        double ttfmt = ttfm + ttmt;
+        //double ttfmt = ttfm + ttmt;
 
         //starting to check twv
 
@@ -132,17 +132,14 @@ class TwBucket {
         if ( from.earlyArrival( arrive_f ) ) arrive_f = from.opens() ;
 
         double depart_f = arrive_f + from.getServiceTime();
-
         double arrive_m = arrive_f + from.getServiceTime() + ttfm;
 
         if ( middle.lateArrival( arrive_m ) ) return _MAX();
-
         if ( middle.earlyArrival( arrive_m ) ) arrive_m = middle.opens() ;
 
         double arrive_t = arrive_m + middle.getServiceTime() + ttmt;
 
         if ( to.lateArrival( arrive_t ) ) return _MAX();
-
         if ( to.earlyArrival( arrive_t ) ) arrive_t = to.opens() ;
 
         return arrive_t - depart_f;
@@ -718,7 +715,7 @@ class TwBucket {
     bool operator ==( const TwBucket<knode> &other ) const  {
         if ( size() != other.size() ) return false;
 
-        if ( size() == other.size() == 0 ) return true;
+        if ( size() == 0 && other.size() == 0 ) return true;
 
         if ( ( ( *this ) - other ).size() != 0 ) return false;
 

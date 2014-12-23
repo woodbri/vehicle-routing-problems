@@ -29,6 +29,12 @@
 class Prob_trash {
   protected:
     typedef  TwBucket<Trashnode> Bucket;
+    typedef  unsigned long int UID ;
+    typedef  unsigned long int POS ;
+    typedef  unsigned long int UINT;
+    inline double _MAX() {return ( std::numeric_limits<double>::max() ); };
+    inline double _MIN() {return ( - std::numeric_limits<double>::max() ); };
+
 
     //    Trashnode depot;
 
@@ -94,8 +100,6 @@ class Prob_trash {
     #endif
 
 
-    inline double _MAX() { ( std::numeric_limits<double>::max() ); };
-    inline double _MIN() { ( - std::numeric_limits<double>::max() ); };
 
   private:
     void load_depots( std::string infile );

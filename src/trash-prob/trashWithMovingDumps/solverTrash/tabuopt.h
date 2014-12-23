@@ -23,6 +23,11 @@
 #include "tabubase.h"
 
 class TabuOpt: public TabuBase<OptSol> {
+  private:
+    typedef unsigned long int UID;
+    typedef unsigned long int POS;
+    typedef unsigned long int UINT;
+
 
   public:
     TabuOpt( const OptSol &initialSolution,unsigned int iteration ); 
@@ -30,26 +35,25 @@ class TabuOpt: public TabuBase<OptSol> {
     void optimizeTruckNumber();
 
     void search();
-    bool doNeighborhoodMoves( Move::Mtype whichNeighborhood, int maxCnt,
-                              Move::Mtype mtype );
+    bool doNeighborhoodMoves( Move::Mtype whichNeighborhood, int maxCnt);
     void getNeighborhood( Move::Mtype whichNeighborhood, Moves &neighborhood ,
-                          double factor, Move::Mtype mtype ) const;
+                          double factor ) const;
     bool applyAspirationalTabu( Moves &aspirationalTabu );
     bool classifyMoves( Moves &neighborhood );
     bool applyNonTabu ( Moves &moves );
     bool applyAmove ( const Move &move );
-    bool applyMoves ( std::string type, Moves &moves );
+    bool applyMoves ( const std::string &type, Moves &moves );
     bool applyAspirationalNotTabu ( const Move &move );
     bool applyTabu ( Moves &moves );
     bool applyTabu ( Moves &moves, int strategy );
     bool computeCosts( OptSol &s ) ;
     bool reachedMaxCycles( int, Move::Mtype );
-    bool dumpMoves( std::string str, Moves moves ) const ;
+    void dumpMoves( std::string str, Moves moves ) const ;
     void cleanUpInterSwMoves( Moves &moves, const Move &guide ) const ;
     void cleanUpIntraSwMoves( Moves &moves, const Move &guide ) const ;
     void cleanUpInsMoves( Moves &moves, const Move &guide, bool &reverseFound ) ;
     void cleanUpMoves( const Move guide ) ;
-    vehicle_path_t* getSolutionForPg( int &count ) const ;
+    vehicle_path_t* getSolutionForPg( UINT &count ) const ;
 
 
     void clean() {

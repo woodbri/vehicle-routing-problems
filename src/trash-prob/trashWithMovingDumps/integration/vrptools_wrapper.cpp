@@ -81,7 +81,7 @@ int vrp_trash_collection( container_t *containers, unsigned int container_count,
 
         TabuOpt ts( tp , iteration);
 
-        int count = 0;
+        unsigned long int count = 0;
         *vehicle_paths = ts.getSolutionForPg( count );
         *vehicle_path_count = count;
 

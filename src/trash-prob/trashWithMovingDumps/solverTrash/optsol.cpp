@@ -53,7 +53,7 @@ void OptSol::optimizeTruckNumber()   {
     int fromTruck;        /**< truck from where a container is moved */
     bool emptiedTruck = false;
 
-    for ( int i = 0; i < fleet.size(); i++ ) {
+    for ( UINT i = 0; i < fleet.size(); i++ ) {
         allTrucks.push_back( i );
 
         if ( fleet[i].getz1() ) {
@@ -87,19 +87,19 @@ void OptSol::optimizeTruckNumber()   {
     std::stringstream ss;
     ss.str( "" );
     DLOG( INFO ) << "not FUll Trucks in current Trip: ";
-    for ( int i = 0; i < notFullz1.size(); i++ ) ss << notFullz1[i] << "\t";
+    for ( UINT i = 0; i < notFullz1.size(); i++ ) ss << notFullz1[i] << "\t";
     DLOG( INFO ) << ss.str();
     DLOG( INFO ) << "FUll Trucks in current trip: ";
     ss.str( "" );
-    for ( int i = 0; i < fullz1.size(); i++ ) ss << fullz1[i] << "\t";
+    for ( UINT i = 0; i < fullz1.size(); i++ ) ss << fullz1[i] << "\t";
     DLOG( INFO ) << ss.str();
     DLOG( INFO ) << "not FUll Trucks in next (non-existing) Trip";
     ss.str( "" );
-    for ( int i = 0; i < notFullz2.size(); i++ ) ss << notFullz2[i] << "\t";
+    for ( UINT i = 0; i < notFullz2.size(); i++ ) ss << notFullz2[i] << "\t";
     DLOG( INFO ) << ss.str();
     DLOG( INFO ) << " FUll Trucks in next (non-exisiting) trip";
     ss.str( "" );
-    for ( int i = 0; i < fullz2.size(); i++ ) ss << fullz2[i] << "\t";
+    for ( UINT i = 0; i < fullz2.size(); i++ ) ss << fullz2[i] << "\t";
     DLOG( INFO ) << ss.str();
     #endif
 
@@ -128,7 +128,7 @@ void OptSol::optimizeTruckNumber()   {
 void OptSol::setFreeSpaces() {
     twc->z1Tot=0;
     twc->z2Tot=0;
-    for ( int i = 0; i < fleet.size(); i++ ) {
+    for (UINT i = 0; i < fleet.size(); i++ ) {
         twc->z1Tot += fleet[i].getz1();
         twc->z2Tot += fleet[i].getz2();
     }
@@ -140,29 +140,28 @@ void OptSol::setFreeSpaces() {
 bool OptSol::emptyAtruck( std::deque<int> fromThis, std::deque<int> intoThis ) {
     int fromTruck;               /**< truck & position from where a container is moved */
 
-    for ( int i = 0; i < fromThis.size(); i++ ) {
+    for ( UINT i = 0; i < fromThis.size(); i++ ) {
         fromTruck = fromThis[i];
-
         if ( emptyTheTruck( fromTruck, intoThis ) ) {
             return true;
         }
     }
+    return false;
 }
 
 
-bool OptSol::emptyTheTruck( int fromTruck, std::deque<int> notFull ) {
+bool OptSol::emptyTheTruck( POS fromTruck, std::deque<int> notFull ) {
     Moves moves;        /**< moves storage */
-    int fromPos = 1;        /**< postition of a container in the fromTruck */
-    int toTruck;            /**< truck to  where a container is moved */
+    POS fromPos = 1;        /**< postition of a container in the fromTruck */
+    POS toTruck;            /**< truck to  where a container is moved */
     double savings;         /**< savings of the move */
-    double factor =
-        1;      /**< factor=1 making sure all feasable moves are returned */
-    int count = fleet[fromTruck].getn(); /**< number of containers in truck */
+    //double factor = 1;      /**< factor=1 making sure all feasable moves are returned */
+    UINT count = fleet[fromTruck].getn(); /**< number of containers in truck */
 
-    for ( int j = 0; j < count; j++ ) {
+    for ( UINT j = 0; j < count; j++ ) {
         moves.clear();
 
-        for ( int i = 0; i < notFull.size(); i++ ) {
+        for ( UINT i = 0; i < notFull.size(); i++ ) {
             toTruck = notFull[i];
 
             if ( toTruck == fromTruck ) continue;
@@ -171,7 +170,7 @@ bool OptSol::emptyTheTruck( int fromTruck, std::deque<int> notFull ) {
                                                   savings ) ) continue; //for whatever reason erasing a node makes the truck infeasable
 
             fleet[toTruck].eval_insertMoveDumps( fleet[fromTruck][fromPos], moves,
-                                                 fromTruck, fromPos, toTruck, savings, factor );
+                                                 fromTruck, fromPos, toTruck, savings );
         };
 
         if ( moves.size() ) {
@@ -211,17 +210,16 @@ DLOG(INFO) << "working with truck " << truckPos << " intraSw neighborhood";
        else intraTruckPos++;
 }
 */
-void OptSol::getIntraSwNeighborhood( Move::Mtype mtype,  Moves &moves,
-                                     double factor )  const {
+void OptSol::getIntraSwNeighborhood(Moves &moves) const {
     moves.clear();
 
     if ( fleet.size() == 1 )  {
-        fleet[0].eval_intraSwapMoveDumps( moves,  0, factor );
+        fleet[0].eval_intraSwapMoveDumps( moves,  0 );
         return;
     }
 
-    for ( int i = 0; i < fleet.size(); i++ )
-        fleet[i].eval_intraSwapMoveDumps( moves,  i, factor );
+    for ( UINT i = 0; i < fleet.size(); i++ )
+        fleet[i].eval_intraSwapMoveDumps( moves,  i);
 }
 
 
@@ -286,7 +284,7 @@ void OptSol::getInterSwNeighborhood( Moves &moves, double factor )  const {
 
 
 
-void OptSol::getInsNeighborhood( Moves &moves, double factor ) const {
+void OptSol::getInsNeighborhood( Moves &moves ) const {
 
     #ifdef TESTED
     DLOG( INFO ) << "Entering OptSol::v_getInsNeighborhood for " << fleet.size()
@@ -294,29 +292,32 @@ void OptSol::getInsNeighborhood( Moves &moves, double factor ) const {
     #endif
     assert ( feasable() );
 
+    if ( fleet.size() >  0 )  return; //no ins in 1 truck solution
     if ( fleet.size() == 1 )  return; //no ins in 1 truck solution
 
     moves.clear();
     double savings;
-    int fromTruck;
-    int toTruck;
+    POS fromTruck;
+    POS toTruck;
 
 
 
-    if ( ( insTruckPos1 >= fleet.size() ) or ( insTruckPos2 >= fleet.size() ) ) {
-        insTruckPos1 = insTruckPos1 = fleet.size() - 1;
-        insTruckPos2 = insTruckPos2 = 0;
+    if ( (insTruckPos1 >= fleet.size()) or (insTruckPos2 >= fleet.size()) ) {
+        insTruckPos1 = fleet.size() - 1;
+        insTruckPos1 = insTruckPos1;
+        insTruckPos2 = 0;
+        insTruckPos2 = insTruckPos2;
     };
 
     if  ( insTruckPos1 == fleet.size() - 2 and insTruckPos2 == fleet.size() - 1 ) {
         insTruckPos1 = 0;
         insTruckPos2 = 1;
     }
-    else if ( insTruckPos1 < fleet.size() - 2 and insTruckPos2 == fleet.size() - 1 ) {
+    else if ( insTruckPos1 < (fleet.size() - 2) and insTruckPos2 == (fleet.size() - 1) ) {
         insTruckPos1++;
         insTruckPos2 = insTruckPos1 + 1;
     }
-    else if ( insTruckPos2 < fleet.size() - 1 ) insTruckPos2++;
+    else if ( insTruckPos2 < (fleet.size() - 1)) insTruckPos2++;
 
     if ( insTruckPos1 == insTruckPos2 ) {
         insTruckPos1 = 0;
@@ -335,7 +336,7 @@ void OptSol::getInsNeighborhood( Moves &moves, double factor ) const {
 
     //only try if there is a possibility to insert a container
     if ( fleet[toTruck].getz1() or fleet[toTruck].getz2() ) {
-        for ( int fromPos = 1; fromPos < fleet[fromTruck].size(); fromPos++ ) {
+        for ( UINT fromPos = 1; fromPos < fleet[fromTruck].size(); fromPos++ ) {
             if ( fleet[fromTruck][fromPos].isDump() ) continue; // skiping dump
 
             if ( fleet[ fromTruck ].size() == 1 ) {
@@ -352,7 +353,7 @@ void OptSol::getInsNeighborhood( Moves &moves, double factor ) const {
 
             fleet[toTruck].eval_insertMoveDumps( fleet[fromTruck][fromPos],
                                                  moves, fromTruck, fromPos,
-                                                 toTruck, savings, factor );
+                                                 toTruck, savings );
         }
     }
 
@@ -367,7 +368,7 @@ void OptSol::getInsNeighborhood( Moves &moves, double factor ) const {
 
     //only try if there is a possibility to insert a container
     if ( fleet[toTruck].getz1() or fleet[toTruck].getz2() ) {
-        for ( int fromPos = 1; fromPos < fleet[fromTruck].size(); fromPos++ ) {
+        for ( UINT fromPos = 1; fromPos < fleet[fromTruck].size(); fromPos++ ) {
             if ( fleet[fromTruck][fromPos].isDump() ) continue; // skiping dump
 
             if ( fleet[ fromTruck ].size() == 1 ) {
@@ -384,7 +385,7 @@ void OptSol::getInsNeighborhood( Moves &moves, double factor ) const {
 
             fleet[toTruck].eval_insertMoveDumps( fleet[fromTruck][fromPos],
                                                  moves, fromTruck, fromPos,
-                                                 toTruck, savings, factor );
+                                                 toTruck, savings );
         }
     }
 

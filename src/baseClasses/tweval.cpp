@@ -44,7 +44,7 @@ void Tweval::evaluate ( double cargoLimit ) {
     twvTot = cvTot = 0;
     twv = cv = false;
     dumpVisits = 0;
-    cv = cvTot = demand > cargoLimit ? 1 : 0;
+    cv = (cvTot = (demand > cargoLimit ? 1 : 0) == 1);
     deltaTime=0;
 }
 

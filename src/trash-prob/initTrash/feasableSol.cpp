@@ -81,7 +81,7 @@ void FeasableSol::stepOne( Vehicle &truck ) {
         #ifdef DOVRPLOG
         DLOG( WARNING ) << " FeasableSol::stepOne: No nearest node was found";
 	#endif
-        assert( "FeasableSol::stepOne" == "no nearest node was found" );
+        assert( std::string("FeasableSol::stepOne") == std::string("no nearest node was found"));
     }
 
 }

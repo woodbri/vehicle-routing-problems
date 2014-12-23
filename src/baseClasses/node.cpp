@@ -34,7 +34,7 @@
 double Node::haversineDistance(const Node &other) const {
     const double pi = 3.14159265358979323846;
     const double deg2rad = pi / 180.0;
-    const double rad2deg = 180.0 / pi;
+    //const double rad2deg = 180.0 / pi;
     const double radius = 6367000;  // Earth radius 6367 Km in meters
     double dlon = (other.x_ - x_) * deg2rad;
     double dlat = (other.y_ - y_) * deg2rad;
@@ -51,7 +51,7 @@ double Node::distance(const Node &other) const {
 }
 
 /*!  * \brief Set attributes for this node.  */
-void Node::set(int nid, double x, double y) {
+void Node::set(UID nid, double x, double y) {
     id_ = nid_ = nid;
     x_ = x;
     y_ = y;
@@ -194,17 +194,17 @@ double Node::distanceToSegment(double segmentX1, double segmentY1,
 
 /*! \brief Construct a new Node that needs the user to set its attributes.  */
 Node::Node()
-    :id_(-1), nid_(-1), x_(0.0), y_(0.0), hint_("") {
+    :nid_(-1), id_(-1), x_(0.0), y_(0.0), hint_("") {
 }
 
 /*! \brief Construct a new Node and assign it \c x and \c y values.  */
 Node::Node(double x, double y)
-    :id_(-1), nid_(-1), x_(x), y_(y), hint_("") {
+    :nid_(-1), id_(-1), x_(x), y_(y), hint_("") {
 }
 
 #if 0
 /*! \brief Construct a new Node and assign it \c nid, \c x and \c y values.  */
-Node::Node(int nid, double x, double y) {
+Node::Node(UID nid, double x, double y) {
     id_ = -1;
     nid_ = nid;
     x_ = x;
@@ -214,8 +214,8 @@ Node::Node(int nid, double x, double y) {
 #endif
 
 /*! \brief Construct a new Node and assign it the associated values.  */
-Node::Node(int nid, int id , double x, double y)
-    :id_(id), nid_(nid), x_(x), y_(y), hint_("") {
+Node::Node(UID nid, int id , double x, double y)
+    :nid_(nid), id_(id), x_(x), y_(y), hint_("") {
 }
 
 /*! \brief Create a new Node by parsing a string.  */

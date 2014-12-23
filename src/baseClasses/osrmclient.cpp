@@ -30,9 +30,15 @@ OsrmClient *OsrmClient::p_osrm = NULL;
 OSRM *OsrmClient::routing_machine = NULL;
 bool OsrmClient::connectionAvailable = true;
 
-/*!
- * \brief The OsrmClient constructor.
- */
+OsrmClient::OsrmClient(const OsrmClient &other) {
+   connectionAvailable=other.connectionAvailable;
+};
+ 
+OsrmClient& OsrmClient::operator=(const OsrmClient &other) { 
+   connectionAvailable=other.connectionAvailable;
+};
+
+/*!  * \brief The OsrmClient constructor.  */
 OsrmClient::OsrmClient() {
     if ( not connectionAvailable ) return;
 
@@ -689,7 +695,7 @@ bool OsrmClient::getHints( rapidjson::Document &jsondoc,
         return false;
     }
 
-    const rapidjson::Value &jLocations = jHintData["locations"];
+    //const rapidjson::Value &jLocations = jHintData["locations"];
 
     if ( not jHintData.IsArray() ) {
         err_msg = "OsrmClient:getHints (private)  failed to find 'locations' key in OSRM response!";

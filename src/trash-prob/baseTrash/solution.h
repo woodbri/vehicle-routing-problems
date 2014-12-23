@@ -63,7 +63,7 @@ class Solution: public Prob_trash {
     std::vector<int>  solutionAsVector() const ;
     std::vector<int>  solutionAsVectorID() const ;
 
-    vehicle_path_t *getSolutionForPg( int &count ) const;
+    vehicle_path_t *getSolutionForPg(UINT &count) const;
 
     int computeCosts();
     double getCost() const ;
@@ -117,20 +117,8 @@ class Solution: public Prob_trash {
     // Cost related
 
     int v_computeCosts();
-
-    void dumpCostValues() {
-        for ( int i = 0; i < fleet.size(); i++ )
-            fleet[i].getCost();
- 	#ifdef DOVRPLOG
-        for ( int i = 0; i < fleet.size(); i++ )
-            fleet[i].dumpCostValues();
-	#endif
-    }
-
-    void setInitialValues() {
-        for ( int i = 0; i < fleet.size(); i++ )
-            fleet[i].setInitialValues( C, pickups );
-    }
+    void dumpCostValues();
+    void setInitialValues(); 
 
     // code moved from OLD CODE TO BE INTEGRATED
     bool feasable() const;

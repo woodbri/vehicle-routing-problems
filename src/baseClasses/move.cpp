@@ -38,8 +38,8 @@ Move::Move() {
 /*!
  * \brief Construct a Move object and assign the appropriate values.
  */
-Move::Move( Mtype _mtype, int _nid1, int _nid2, int _vid1, int _vid2, int _pos1,
-            int _pos2, double _sav ) {
+Move::Move( Mtype _mtype, UID _nid1, UID _nid2, POS _vid1, POS _vid2, POS _pos1,
+            POS _pos2, double _sav ) {
     #ifdef DOSTATS
     STATS->inc( "Move::Move (valid 8 arguments) " );
     #endif
@@ -139,11 +139,9 @@ bool Move::isForbidden( const Move &tabu ) const {
 }
 
 
-/*!
- * \brief Print the move.
- */
-void Move::dump() const {
 #ifdef DOVRPLOG
+/*! \brief Print the move.  */
+void Move::dump() const {
     DLOG( INFO ) << "Move: " << mtype
                  << ",\t" << nid1
                  << ",\t" << nid2
@@ -152,14 +150,11 @@ void Move::dump() const {
                  << ",\t" << pos1
                  << ",\t" << pos2
                  << ",\t" << savings;
-#endif
 }
 
-/*!
- * \brief Print the move in a more explict format.
- */
+/*!  \brief Print the move in a more explict format.  */
 void Move::Dump() const {
-#ifdef DOVRPLOG
+    assert ( mtype != Invalid);
     switch ( mtype ) {
         case Ins:
             DLOG( INFO ) << "Move: Ins"
@@ -191,12 +186,14 @@ void Move::Dump() const {
                          << "\t      at Pos:" << pos2
                          << ")\t   savings:" << savings;
             break;
+        case Invalid:
+            DLOG( INFO ) << "Move: Invalid";
     }
 #endif
 }
 
-void Move::setInsMove( int fromTruck, int fromPos, int fromId, int toTruck,
-                       int toPos, double save ) {
+void Move::setInsMove( POS fromTruck, POS fromPos, UID fromId, POS toTruck,
+                       POS toPos, double save ) {
     #ifdef DOSTATS
     STATS->inc( "Move::setInsMove " );
     #endif
@@ -205,8 +202,8 @@ void Move::setInsMove( int fromTruck, int fromPos, int fromId, int toTruck,
     savings = save; mtype = Ins;
 };
 
-void Move::setIntraSwMove( int fromTruck, int fromPos, int fromId, int withPos,
-                           int withId, double save ) {
+void Move::setIntraSwMove( POS fromTruck, POS fromPos, UID fromId,
+                           POS withPos, UID withId, double save ) {
     #ifdef DOSTATS
     STATS->inc( "Move::setIntraSwMove " );
     #endif
@@ -215,8 +212,8 @@ void Move::setIntraSwMove( int fromTruck, int fromPos, int fromId, int withPos,
     savings = save; mtype = IntraSw;
 };
 
-void Move::setInterSwMove( int fromTruck, int fromPos, int fromId,
-                           int withTruck, int withPos, int withId, double save ) {
+void Move::setInterSwMove( POS fromTruck, POS fromPos, UID fromId,
+                           POS withTruck, POS withPos, UID withId, double save ) {
     #ifdef DOSTATS
     STATS->inc( "Move::setInterSwMove " );
     #endif
@@ -228,15 +225,14 @@ void Move::setInterSwMove( int fromTruck, int fromPos, int fromId,
 
 bool Move::isTabu( const Move &move_e ) const  {
     if ( not mtype == move_e.mtype ) return false;
-
+    assert ( mtype != Invalid);
     int rule;
 
     switch ( mtype ) {
         case Ins: rule = 5; break;
-
         case IntraSw: rule = 0; break;
-
         case InterSw: rule = 0; break;
+        case Invalid: return false;
     }
 
     return isTabu( move_e, rule );
@@ -248,11 +244,11 @@ bool Move::isTabu( const Move &move_e, int rule ) const  {
 
     switch ( mtype ) {
         case Move::Ins: return insForbidden( move_e, rule );
-
         case Move::IntraSw: return move_e.isForbidden( *this );
-
         case Move::InterSw: return move_e.isForbidden( *this );
+        case Move::Invalid: return false;
     }
+    return false;
 };
 
 
@@ -262,22 +258,18 @@ bool Move::isTabu( const Move &move_e, int rule ) const  {
 
 bool Move::insForbidden( const Move &move_e, int rule ) const {
     assert ( move_e.mtype == Move::Ins );
+    assert (-1<rule  && rule <7);
 
     switch ( rule ) {
         case 0: return insForbiddenRule0( move_e );
-
         case 1: return insForbiddenRule1( move_e );
-
         case 2: return insForbiddenRule2( move_e );
-
         case 3: return insForbiddenRule3( move_e );
-
         case 4: return insForbiddenRule4( move_e );
-
         case 5: return insForbiddenRule5( move_e );
-
         case 6: return insForbiddenRule6( move_e );
     }
+    return false;
 }
 
 

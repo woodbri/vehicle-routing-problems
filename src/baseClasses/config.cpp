@@ -35,7 +35,7 @@
  * \warning set(double) converts double values with only 6 digits percision.
  *
  */
-double Config::getDouble( const std::string key ) const {
+double Config::getDouble( const std::string &key ) const {
     std::map<std::string, std::string>::const_iterator it;
     it = data.find( key );
 
@@ -57,7 +57,7 @@ double Config::getDouble( const std::string key ) const {
  * \return The string value converted to a integer or 0
  *
  */
-int Config::getInt( const std::string key ) const {
+int Config::getInt( const std::string &key ) const {
     std::map<std::string, std::string>::const_iterator it;
     it = data.find( key );
 
@@ -77,7 +77,7 @@ int Config::getInt( const std::string key ) const {
  * \return The string value associated with the key or a null string.
  *
  */
-const std::string Config::getString( const std::string key ) const {
+const std::string Config::getString( const std::string &key ) const {
     std::map<std::string, std::string>::const_iterator it;
     it = data.find( key );
 
@@ -108,83 +108,66 @@ std::vector<std::string> Config::getKeys() const {
 }
 
 
-/*!
- * \brief Print the contents of the Config object.
- *
- */
-void Config::dump( const std::string title ) const {
-    #ifdef DOVRPLOG
+#ifdef DOVRPLOG
+/*!  \brief Print the contents of the Config object.  */
+void Config::dump( const std::string &title ) const {
     std::map<std::string, std::string>::const_iterator it;
 
-    DLOG( INFO ) << "---------- CONFIG -------------";
+    DLOG( INFO ) << "---------- CONFIG "<<title<<"-------------";
 
     for ( it = data.begin(); it != data.end(); ++it )
         DLOG( INFO ) << it->first << ": '" << it->second << "'";
 
     DLOG( INFO ) << "-------------------------------";
-    #endif
 }
+    #endif
 
 
-/*!
- * \brief Check if a key exists in the config data store.
- *
- * \return Returns true if the key exists in the config data store, otherwise false.
- *
- */
-bool Config::keyExists( const std::string key ) const {
+/*! \brief Returns true when the \c key exists in the config data store.  */
+bool Config::keyExists( const std::string &key ) const {
     std::map<std::string, std::string>::const_iterator it;
     it = data.find( key );
     return it != data.end();
 }
 
 
-/*!
- * \brief Associate double val with key in the config data store.
+/*! \brief Associate double val with key in the config data store.
  *
  * \param[in] key The config key that the val should be associated with.
  * \param[in] val A double value to be converted to a string and associated with key.
  * \warning val is converted to a string with only 6 decimals of percision for storage in the config data store.
- *
  */
-void Config::set( std::string key, double val ) {
+void Config::set( const std::string &key, double val ) {
     char buf[50];
     snprintf( buf, 50, "%e", val );
     data[key] = std::string( buf );
 }
 
 
-/*!
- * \brief Associate integer val with key in the config data store.
+/*! \brief Associate integer val with key in the config data store.
  *
  * \param[in] key The config key that the val should be associated with.
  * \param[in] val An integer value to be converted to a string and associated with key.
- *
  */
-void Config::set( std::string key, int val ) {
+void Config::set(const std::string &key, int val ) {
     char buf[50];
     snprintf( buf, 50, "%d", val );
     data[key] = std::string( buf );
 }
 
 
-/*!
- * \brief Associate a string val with key in the config data store.
+/*! \brief Associate a string val with key in the config data store.
  *
  * \param[in] key The config key that the val should be associated with.
  * \param[in] val The value to be associated with key.
- *
  */
-void Config::set( std::string key, std::string val ) {
+void Config::set(const std::string &key,const std::string &val ) {
     data[key] = val;
 }
 
 
-/*!
- * \brief Remove the key and associated value from the config data store..
- *
- */
-void Config::deleteKey( const std::string key ) {
+/*! \brief Remove the key and associated value from the config data store..  */
+void Config::deleteKey( const std::string &key ) {
     std::map<std::string, std::string>::iterator it;
     it = data.find( key );
 

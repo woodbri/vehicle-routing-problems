@@ -36,10 +36,8 @@ class BaseVehicle  {
   protected:
     typedef  TwBucket<Trashnode> Bucket;
     typedef  unsigned long int UID ;
-    typedef  unsigned long int POS ;
-    typedef  unsigned long int UINT ;
-    inline double _MAX() const { return ( std::numeric_limits<double>::max() ); };
-    inline double _MIN() const { return ( - std::numeric_limits<double>::max() ); };
+    inline double _MAX() const { ( std::numeric_limits<double>::max() ); };
+    inline double _MIN() const { ( - std::numeric_limits<double>::max() ); };
 
 
     int vid;
@@ -85,8 +83,106 @@ class BaseVehicle  {
 
     BaseVehicle( int _vid, int _start_id, int _dump_id, int _end_id,
                  int _capacity, int _dumpservicetime, int _starttime,
-                 int _endtime, const Bucket &otherlocs );
-    BaseVehicle( std::string line, const Bucket &otherlocs );
+                 int _endtime, const Bucket &otherlocs ) {
+
+        assert( otherlocs.size() );
+        cost        = 0;
+        w1 = w2 = w3 = 1.0;
+
+        int depotId,  depotNid;
+        int dumpId,   dumpNid;
+        int endingId, endingNid;
+        double dumpServiceTime;
+        double endTime, startTime;
+
+        vid             = _vid;
+        depotId         = _start_id;
+        dumpId          = _dump_id;
+        endingId        = _end_id;
+        maxcapacity     = _capacity;
+        dumpServiceTime = _dumpservicetime;
+        startTime       = _starttime;
+        endTime         = _endtime;
+
+        if ( depotId >= 0 and dumpId >= 0 and endingId >= 0 and
+             startTime >= 0 and startTime <= endTime and maxcapacity > 0 and
+             dumpServiceTime >= 0 and vid >= 0 and otherlocs.hasId( depotId ) and
+             otherlocs.hasId( dumpId ) and otherlocs.hasId( endingId ) ) {
+
+            endingSite = otherlocs[otherlocs.posFromId( endingId )];
+
+            if ( endingSite.closes() > endTime )
+                endingSite.setCloses( endTime );
+
+            dumpSite = otherlocs[otherlocs.posFromId( dumpId )];
+            dumpSite.setServiceTime( dumpServiceTime );
+            depot = otherlocs[otherlocs.posFromId( depotId )];
+
+            if ( depot.opens() < startTime )
+                depot.setOpens( startTime );
+
+            depot.setType( 0 );
+            depot.setDemand( 0 );
+            dumpSite.setType( 1 );
+            endingSite.setType( 3 );
+            push_back( depot );
+            evalLast();
+            //dumpeval();
+
+        }
+        else
+            vid = -1; //truck is rejected
+    }
+
+    BaseVehicle( std::string line, const Bucket &otherlocs )  {
+        // TESTED on running program
+        assert( otherlocs.size() );
+        std::istringstream buffer( line );
+        int depotId, depotNid;
+        int dumpId, dumpNid;
+        int endingId, endingNid;
+        double dumpServiceTime;
+        endTime = startTime = 0;
+
+        cost        = 0;
+        w1 = w2 = w3 = 1.0;
+
+        buffer >> vid;
+        buffer >> depotId;
+        buffer >> dumpId;
+        buffer >> endingId;
+        buffer >> dumpServiceTime;
+        buffer >> maxcapacity;
+        buffer >> startTime;
+        buffer >> endTime;
+
+        if ( depotId >= 0 and dumpId >= 0 and endingId >= 0 and startTime >= 0
+             and startTime <= endTime and maxcapacity > 0 and dumpServiceTime >= 0
+             and vid >= 0
+             and otherlocs.hasId( depotId ) and otherlocs.hasId( dumpId )
+             and otherlocs.hasId( endingId ) ) {
+
+            endingSite = otherlocs[otherlocs.posFromId( endingId )];
+
+            if ( endingSite.closes() > endTime ) endingSite.setCloses( endTime );
+
+            dumpSite = otherlocs[otherlocs.posFromId( dumpId )];
+            dumpSite.setServiceTime( dumpServiceTime );
+            depot = otherlocs[otherlocs.posFromId( depotId )];
+
+            if ( depot.opens() < startTime ) depot.setOpens( startTime );
+
+            depot.setType( 0 );
+            depot.setDemand( 0 );
+            dumpSite.setType( 1 );
+            endingSite.setType( 3 );
+            push_back( depot );
+            evalLast();
+            //dumpeval();
+
+        }
+        else vid = -1;  //truck is rejected
+    }
 
 
     //--------------------------------------------------------------------
@@ -96,11 +192,11 @@ class BaseVehicle  {
     Twpath<Trashnode> getvpath() const { return path; };
     Twpath<Trashnode> &getvpath() { return path; };
     std::deque<int> getpath() const;
-    UINT size() const { return path.size(); };
-    double getmaxcapacity() const { return maxcapacity; };
+    int size() const { return path.size(); };
+    int getmaxcapacity() const { return maxcapacity; };
     int getTWV() const { return endingSite.gettwvTot(); };
     int getCV() const { return endingSite.getcvTot(); };
-    double getCargo() const { return  path[path.size() - 1].getCargo(); };
+    int getCargo() const { return  path[path.size() - 1].getCargo(); };
     double getDuration() const { return ( path.size() - 1 == 0 ) ? 0.0 : endingSite.getTotTime(); };
     double getcost() const { return cost; };
     double getw1() const { return w1; };

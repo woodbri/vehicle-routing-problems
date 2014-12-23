@@ -23,7 +23,7 @@
 #include "prob_trash.h"
 
 // Class functions
-
+#if 0
 bool Prob_trash::checkIntegrity() const {
     bool flag = true;
     int nodesCant = datanodes.size();
@@ -42,14 +42,14 @@ bool Prob_trash::checkIntegrity() const {
         flag = flag and datanodes[i].isValid();
     }
 }
-
+#endif
 
 // DUMPS ********************************************
 #ifdef DOVRPLOG
 void Prob_trash::nodesdump() {
     DLOG( INFO ) << "---- Nodes  --------------";
 
-    for ( int i = 0; i < datanodes.size(); i++ )
+    for ( UINT i = 0; i < datanodes.size(); i++ )
         datanodes[i].dump();
 }
 
@@ -57,7 +57,7 @@ void Prob_trash::nodesdump() {
 void Prob_trash::nodesdumpeval() {
     DLOG( INFO ) << "---- Nodes  Evaluation--------------";
 
-    for ( int i = 0; i < datanodes.size(); i++ )
+    for ( UINT i = 0; i < datanodes.size(); i++ )
         datanodes[i].dumpeval();
 }
 
@@ -74,7 +74,7 @@ void Prob_trash::dump() {
 void Prob_trash::dumpdataNodes() const {
     DLOG( INFO ) << "--------- Nodes ------------";
 
-    for ( int i = 0; i < datanodes.size(); i++ )
+    for ( UINT i = 0; i < datanodes.size(); i++ )
         datanodes[i].dump();
 }
 
@@ -84,7 +84,7 @@ void Prob_trash::dumpDepots() const {
     DLOG( INFO ) << "--------- Depots ------------";
     depots.dump( "Depots" );
 
-    for ( int i = 0; i < depots.size(); i++ )
+    for ( UINT i = 0; i < depots.size(); i++ )
         depots[i].dump();
 }
 
@@ -94,7 +94,7 @@ void Prob_trash::dumpDumps() const {
     DLOG( INFO ) << "--------- Dumps ------------";
     dumps.dump( "Dumps" );
 
-    for ( int i = 0; i < dumps.size(); i++ )
+    for ( UINT i = 0; i < dumps.size(); i++ )
         dumps[i].dump();
 }
 
@@ -103,7 +103,7 @@ void Prob_trash::dumpPickups() const {
     DLOG( INFO ) << "--------- Pickups ------------";
     pickups.dump( "pickups" );
 
-    for ( int i = 0; i < pickups.size(); i++ )
+    for ( UINT i = 0; i < pickups.size(); i++ )
         pickups[i].dump();
 }
 #endif
@@ -153,8 +153,8 @@ void Prob_trash::loadProblem( const std::string &infile ) {
 
 
     // read the nodes
-    int cnt = 0;
-    int nid = 0;
+    //int cnt = 0;
+    //int nid = 0;
     int id = 0;
 
     twc->emptiedTruck=false;
@@ -175,7 +175,7 @@ void Prob_trash::loadProblem( const std::string &infile ) {
     nodes = pickups + otherlocs;
     nodes.push_back( C );
 
-    for ( int i = 0; i < nodes.size(); i++ ) {
+    for ( UINT i = 0; i < nodes.size(); i++ ) {
         nodes[i].set_nid( i );
         id = nodes[i].id();
 
@@ -206,7 +206,7 @@ void Prob_trash::loadProblem( const std::string &infile ) {
 
     assert( trucks.size() and depots.size() and dumps.size() and endings.size() );
 
-    for ( int i = 0; i < trucks.size(); i++ ) {
+    for ( UINT i = 0; i < trucks.size(); i++ ) {
         trucks[i].setInitialValues( C, pickups );
     }
 

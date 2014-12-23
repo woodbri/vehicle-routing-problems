@@ -62,8 +62,8 @@ class OsrmClient {
     static OSRM  *routing_machine;
     static OsrmClient *p_osrm;
     OsrmClient();
-    OsrmClient( const OsrmClient &other ) {};
-    OsrmClient &operator=( const OsrmClient & ) {};
+    OsrmClient( const OsrmClient &other ); 
+    OsrmClient &operator=( const OsrmClient & );
     bool use, addPenalty;
 
   public:

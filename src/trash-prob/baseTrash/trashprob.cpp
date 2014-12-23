@@ -32,9 +32,8 @@ TrashProb::TrashProb(  container_t* p_containers, unsigned int container_count,
 
 
     // read the nodes
-    int cnt = 0;
-    int nid = 0;
-    int id = 0;
+    //int cnt = 0;
+    //int nid = 0;
     twc->emptiedTruck=false;
 
     addContainers(p_containers, container_count);
@@ -60,7 +59,7 @@ TrashProb::TrashProb(  container_t* p_containers, unsigned int container_count,
 
     std::string errorStr;
     if (intersection.size()) {
-	for (int i=0; i<intersection.size(); i++) {
+	for (UINT i=0; i<intersection.size(); i++) {
 	   errorStr = "Container #"+numbertoString(intersection[i].id())+": has same id as an other location's id";
 	   errorsFound.push_back(errorStr);
         };
@@ -74,7 +73,8 @@ TrashProb::TrashProb(  container_t* p_containers, unsigned int container_count,
     nodes = pickups + otherlocs;
     nodes.push_back( C );
 
-    for ( int i = 0; i < nodes.size(); i++ ) {
+    int id = 0;
+    for ( UINT i = 0; i < nodes.size(); i++ ) {
         nodes[i].set_nid( i );
         id = nodes[i].id();
 
@@ -107,7 +107,7 @@ TrashProb::TrashProb(  container_t* p_containers, unsigned int container_count,
 
     assert( trucks.size() and depots.size() and dumps.size() and endings.size() );
 
-    for ( int i = 0; i < trucks.size(); i++ ) {
+    for ( UINT i = 0; i < trucks.size(); i++ ) {
         trucks[i].setInitialValues( C, pickups );
     }
 
@@ -124,11 +124,11 @@ TrashProb::TrashProb(  container_t* p_containers, unsigned int container_count,
     invalid.dump( "invalid" );
     DLOG( INFO ) << "TRUCKS";
 
-    for ( int i = 0; i < trucks.size(); i++ ) trucks[i].tau();
+    for ( UINT i = 0; i < trucks.size(); i++ ) trucks[i].tau();
 
     DLOG( INFO ) << "INVALID TRUCKS";
 
-    for ( int i = 0; i < invalidTrucks.size(); i++ ) invalidTrucks[i].tau();
+    for ( UINT i = 0; i < invalidTrucks.size(); i++ ) invalidTrucks[i].tau();
 
     #endif
     #ifdef VRPMINTRACE
@@ -356,7 +356,6 @@ bool TrashProb::isValid() const {
 }
 
 void  TrashProb::whatIsWrong() {
-    bool dataHasError = false;
     std::string errorStr;
 
     if ( not trucks.size() ) {
@@ -394,7 +393,7 @@ void  TrashProb::whatIsWrong() {
 
 std::string TrashProb::getErrorsString() const {
    std::string errorStr="";
-   for (int i = 0;i < errorsFound.size(); i++)
+   for (UINT i = 0;i < errorsFound.size(); i++)
 	errorStr += errorsFound[i]+"\n";
    return errorStr;
 }

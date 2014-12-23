@@ -451,7 +451,7 @@ template <class knode> class TWC {
 
             osrm->useOsrm( oldStateOsrm );
             travel_Time[from][to] = time;
-            getTwcij( from, to, time );
+            setTwcij( from, to );
 
             //TODO if is not compatible set travel_time as infinity
         }
@@ -1034,9 +1034,9 @@ template <class knode> class TWC {
      * \param[in] nodes A bucket of nodes to print.
      */
     void dump( const Bucket &nodes ) const  {
-        assert( original.size() );
-        dumpCompatability( original );
-        dumpTravelTime( original );
+        assert( nodes.size() );
+        dumpCompatability( nodes );
+        dumpTravelTime( nodes );
     }
 
     /*! \brief Print the TW Compatibility matrix for the original nodes.  */
@@ -1181,7 +1181,7 @@ template <class knode> class TWC {
 
     // ---- Functions to adjust compatability depending on problem ----
 
-
+#if 0
     /*!
      * \brief Recompute the travel time matrix for a given node.
      *
@@ -1196,7 +1196,7 @@ template <class knode> class TWC {
     void recreateTravelTime( UID nid, int mode ) {
         assert( "needs to be re-read from file" == "" );
     }
-
+#endif
 
     /*!
      * \brief Set TWC from fromNid to toNid to be incompatible & unreachable.
@@ -1525,7 +1525,7 @@ template <class knode> class TWC {
 
         original.clear();
         original = datanodes;
-        int siz = original.size();
+        POS siz = original.size();
 
         std::ifstream in( infile.c_str() );
         std::string line;
@@ -1695,7 +1695,7 @@ template <class knode> class TWC {
         return twcij[i][j];
     }
 
-    double getTwcij( UID i, UID j, double time ) const {
+    double setTwcij( UID i, UID j) const {
         twcij[i][j] = twc_for_ij( original[i], original[j] );
         return twcij[i][j];
     }

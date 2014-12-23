@@ -32,9 +32,8 @@ class OptSol : public Solution {
         insTruckPos2 = 0;
     };
 
-    void getIntraSwNeighborhood( Move::Mtype mtype, Moves &moves,
-                                 double factor ) const;
-    void getInsNeighborhood( Moves &moves, double factor ) const ;
+    void getIntraSwNeighborhood( Moves &moves) const;
+    void getInsNeighborhood( Moves &moves  ) const ;
     void getInterSwNeighborhood( Moves &moves, double factor ) const;
 
     bool v_applyInterSwMove( const Move &move );
@@ -46,13 +45,13 @@ class OptSol : public Solution {
 
   private:
     bool emptyAtruck( std::deque<int> from, std::deque<int> toThisOnes );
-    bool emptyTheTruck( int fromTruck, std::deque<int> toThisOnes );
+    bool emptyTheTruck( POS fromTruck, std::deque<int> toThisOnes );
 
-    mutable int intraTruckPos;
-    mutable int interTruckPos1;
-    mutable int interTruckPos2;
-    mutable int insTruckPos1;
-    mutable int insTruckPos2;
+    mutable POS intraTruckPos;
+    mutable POS interTruckPos1;
+    mutable POS interTruckPos2;
+    mutable POS insTruckPos1;
+    mutable POS insTruckPos2;
 
 
 };
