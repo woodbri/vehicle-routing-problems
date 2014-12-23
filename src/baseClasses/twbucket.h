@@ -74,7 +74,7 @@ class TwBucket {
     class compNode {
       public:
         bool operator()( const knode &n1, const knode &n2 ) const {
-            return ( n1.getnid() < n2.getnid() );
+            return ( n1.nid() < n2.nid() );
         }
     };
 
@@ -195,11 +195,11 @@ class TwBucket {
      * \brief Fetch the travel time from Node to Node
      * \note Nodes do not need to be in the path.
     */
-    double TravelTime( const knode &from, const knode &to ) const { return TravelTime( from.getnid(), to.getnid() ); }
+    double TravelTime( const knode &from, const knode &to ) const { return TravelTime( from.nid(), to.nid() ); }
     double TravelTime( const knode &from, const knode &middle,
-                       const knode &to ) const { return TravelTime( from.getnid(), middle.getnid() , to.getnid() ); }
+                       const knode &to ) const { return TravelTime( from.nid(), middle.nid() , to.nid() ); }
     double TravelTime( const knode &prev, const knode &from, const knode &middle,
-                       const knode &to ) const { return TravelTime( prev.getnid(), from.getnid(), middle.getnid() , to.getnid() ); }
+                       const knode &to ) const { return TravelTime( prev.nid(), from.nid(), middle.nid() , to.nid() ); }
 
     /*!
      * \brief Fetch the travel time from nodeId to nodeId
@@ -304,11 +304,11 @@ class TwBucket {
             // nids invloved
             // in the same order the nodes are in the path
             int nidPrev, nid1, nid2, nidNext;
-            nidPrev = path[pos1 - 1].getnid();
-            nid1 = path[pos1].getnid();
-            nid2 = path[pos2].getnid();
+            nidPrev = path[pos1 - 1].nid();
+            nid1 = path[pos1].nid();
+            nid2 = path[pos2].nid();
 
-            if ( pos2 != size() ) nidNext = path[pos2 + 1].getnid();
+            if ( pos2 != size() ) nidNext = path[pos2 + 1].nid();
 
             //                pos1-1  pos1  pos2  pos2+1
             // newpath looks: nidPrev nid2 nid1, nidNext
@@ -400,24 +400,24 @@ class TwBucket {
 
         if ( pos == 0 and path[pos].isdepot() ) return _MAX();
 
-        int nid = path[pos].getnid();
-        int prev = path[pos - 1].getnid();
+        int nid = path[pos].nid();
+        int prev = path[pos - 1].nid();
 
         if ( path[pos - 1].getDepartureTime()
-             + TravelTime[prev][node.getnid()] > node.closes() )
+             + TravelTime[prev][node.nid()] > node.closes() )
             return _MAX();
 
         if ( pos1 == size() )
-            return  TravelTime[prev][node.getnid()]
+            return  TravelTime[prev][node.nid()]
                     + node.getServiceTime()
                     - ( path[pos].getDepartureTime()
                         - path[pos - 1].getDepartureTime() );
 
-        int next = path[pos1].getnid();
+        int next = path[pos1].nid();
 
-        double delta  =  TravelTime[prev][node.getnid()]
+        double delta  =  TravelTime[prev][node.nid()]
                          + node.getServiceTime()
-                         + TravelTime[node.getnid()][next]
+                         + TravelTime[node.nid()][next]
                          - ( path[pos1].getArrivalTime()
                              - path[pos - 1].getDepartureTime() ) ;
         return delta;
@@ -442,7 +442,7 @@ class TwBucket {
         double delta = getDeltaTime( node, pos, pos1 );
 
         if ( path[pos - 1].getDepartureTime()
-             + TravelTime[ path[pos - 1].getnid() ] [node.getnid() ]
+             + TravelTime[ path[pos - 1].nid() ] [node.nid() ]
              > node.closes() ) return _MAX();
 
         if ( pos == size() ) return delta;
@@ -468,15 +468,15 @@ class TwBucket {
 
         if ( pos == 0 or path[pos].isDepot() ) return _MAX();
 
-        int nid = path[pos].getnid();
-        int prev = path[pos - 1].getnid();
+        int nid = path[pos].nid();
+        int prev = path[pos - 1].nid();
 
         if ( pos == size() )
-            return  TravelTime( prev, node.getnid() ) + node.getServiceTime();
+            return  TravelTime( prev, node.nid() ) + node.getServiceTime();
 
-        return TravelTime( prev, node.getnid() )
+        return TravelTime( prev, node.nid() )
                + node.getServiceTime()
-               + TravelTime( node.getnid(), nid )
+               + TravelTime( node.nid(), nid )
                - TravelTime( prev, nid );
     }
 
@@ -499,7 +499,7 @@ class TwBucket {
 
         // check for TWV
         if ( path[pos - 1].getDepartureTime()
-             + TravelTime[ path[pos - 1].getnid() ][ node.getnid()]
+             + TravelTime[ path[pos - 1].nid() ][ node.nid()]
              > node.closes() ) return _MAX();
 
         if ( pos == size() ) return delta;
@@ -629,7 +629,7 @@ class TwBucket {
         const_iterator it = path.begin();
 
         for ( const_iterator it = path.begin(); it != path.end(); it++ )
-            ss << " " << it->getid();
+            ss << " " << it->id();
 
         DLOG( INFO ) << ss.str();
         #endif
@@ -652,7 +652,7 @@ class TwBucket {
         const_iterator it = path.begin();
 
         for ( const_iterator it = path.begin(); it != path.end(); it++ )
-            ss << " " << it->getnid();
+            ss << " " << it->nid();
 
         DLOG( INFO ) << ss.str();
 	#endif
@@ -666,7 +666,7 @@ class TwBucket {
      * \param[in] node See if this node is in the bucket based on its id.
      * \return true if a node with the same id was found.
      */
-    bool hasId( const knode &node ) const { return hasid( node.getid() ); };
+    bool hasId( const knode &node ) const { return hasid( node.id() ); };
 
 
     /*!
@@ -677,9 +677,9 @@ class TwBucket {
         const_reverse_iterator rit = path.rbegin();
 
         for ( const_iterator it = path.begin(); it != path.end() ; it++, ++rit ) {
-            if ( it->getid() == id ) return true;
+            if ( it->id() == id ) return true;
 
-            if ( rit->getid() == id ) return true;
+            if ( rit->id() == id ) return true;
         }
 
         return false;
@@ -691,7 +691,7 @@ class TwBucket {
      * \param[in] node See if this node is in the bucket based on its nid.
      * \return true if a node with the same nid was found.
      */
-    bool has( const knode &node ) const { return has( node.getnid() ); };
+    bool has( const knode &node ) const { return has( node.nid() ); };
 
 
     /*!
@@ -703,9 +703,9 @@ class TwBucket {
         const_reverse_iterator rit = path.rbegin();
 
         for ( const_iterator it = path.begin(); it != path.end() ; it++, ++rit ) {
-            if ( it->getnid() == nid ) return true;
+            if ( it->nid() == nid ) return true;
 
-            if ( rit->getnid() == nid ) return true;
+            if ( rit->nid() == nid ) return true;
         }
 
         return false;
@@ -1011,9 +1011,9 @@ class TwBucket {
         const_reverse_iterator rit = path.rbegin();
 
         for ( const_iterator it = path.begin(); it != path.end() ; it++, ++rit ) {
-            if ( it->getid() == id ) return it->getnid();
+            if ( it->id() == id ) return it->nid();
 
-            if ( rit->getid() == id ) return rit->getnid();
+            if ( rit->id() == id ) return rit->nid();
         }
 
         return -1;
@@ -1027,7 +1027,7 @@ class TwBucket {
      */
     long int posFromId( UID id ) const {
         for ( const_iterator it = path.begin(); it != path.end() ; it++ ) {
-            if ( it->getid() == id ) return int( it - path.begin() );
+            if ( it->id() == id ) return int( it - path.begin() );
         }
 
         return -1;
@@ -1041,7 +1041,7 @@ class TwBucket {
      * \param[in] node A node object that we want to locate in the path
      * \return returns the position of node in the path or -1 if it's not found.
      */
-    long int pos( const knode &node ) const { return pos( node.getnid() ); };
+    long int pos( const knode &node ) const { return pos( node.nid() ); };
 
     /*!
      * \brief Get the position of node id in the path
@@ -1050,7 +1050,7 @@ class TwBucket {
      */
     long int pos( UID nid ) const {
         for ( const_iterator it = path.begin(); it != path.end() ; it++ ) {
-            if ( it->getnid() == nid ) return int( it - path.begin() );
+            if ( it->nid() == nid ) return int( it - path.begin() );
         }
 
         return -1;
@@ -1065,7 +1065,7 @@ class TwBucket {
         std::deque<int> p;
 
         for ( const_iterator it = path.begin(); it != path.end(); it++ )
-            p.push_back( it->getnid() );
+            p.push_back( it->nid() );
 
         return p;
     };
@@ -1099,7 +1099,7 @@ class TwBucket {
      * \param[in] node The node to be erased.
      */
     void erase ( const knode &node ) {
-        int atPos = pos( node.getnid() );
+        int atPos = pos( node.nid() );
         assert( atPos < path.size() );
         path.erase( path.begin() + atPos );
     };

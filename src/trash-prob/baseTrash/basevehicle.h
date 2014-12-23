@@ -351,10 +351,10 @@ class BaseVehicle  {
     //----------------------------------------------------------------
 
     Bucket  Path() const { return path; };
-    int getnid( int i ) const { return path[i].getnid(); };
-    int getid( int i ) const { return path[i].getid(); };
-    double getx( const int i ) const { path[i].getx(); };
-    double gety( const int i ) const { path[i].gety(); };
+    inline int nid( int i ) const { return path[i].nid(); };
+    inline int id( int i ) const { return path[i].id(); };
+    inline double x( const int i ) const { return path[i].x(); };
+    inline double y( const int i ) const { return path[i].y(); };
     bool hasDemand( int i ) const { return path[i].hasDemand(); };
     bool hasSupply( int i ) const { return path[i].hasSupply(); };
     bool hasNoGoods( int i ) const { return path[i].hasNoGoods(); };

@@ -94,14 +94,14 @@ void Solution::dumpSolutionForPg () const {
     for ( int i = 0; i < fleet.size(); ++i ) {
         if ( fleet[i].size() <= 1 ) continue;
         for ( int j = 0; j < fleet[i].size(); ++j ) {
-          std::cout<<"VID: "<<fleet[i].getVid()<<"\tid: "<<fleet[i][j].getid()<<"\tntype: "<<fleet[i][j].ntype()<<"\tDeparture: "<<fleet[i][j].getDepartureTime()<<
+          std::cout<<"VID: "<<fleet[i].getVid()<<"\tid: "<<fleet[i][j].id()<<"\tntype: "<<fleet[i][j].ntype()<<"\tDeparture: "<<fleet[i][j].getDepartureTime()<<
 		"\tdeltaTime:"<< fleet[i][j].getDeltaTime()<<
 		"\tdeltaCargo"<< fleet[i][j].getDemand()<<"\n";
         }
-        std::cout<<"VID: "<<fleet[i].getVid()<<"\tid: "<<fleet[i].getDumpSite().getid()<<"\tntype: "<<fleet[i].getDumpSite().ntype()<<"\tDeparture: "<<fleet[i].getDumpSite().getDepartureTime()<<
+        std::cout<<"VID: "<<fleet[i].getVid()<<"\tid: "<<fleet[i].getDumpSite().id()<<"\tntype: "<<fleet[i].getDumpSite().ntype()<<"\tDeparture: "<<fleet[i].getDumpSite().getDepartureTime()<<
 		"\tdeltaTime:"<<  fleet[i].getDumpSite().getDeltaTime()<<
 		"\tdeltaCargo"<< fleet[i].getDumpSite().getDemand()<<"\n";
-        std::cout<<"VID: "<<fleet[i].getVid()<<"\tid: "<<fleet[i].getEndingSite().getid()<<"\tntype: "<<fleet[i].getEndingSite().ntype()<<"\tDeparture: "<<fleet[i].getEndingSite().getDepartureTime()<<
+        std::cout<<"VID: "<<fleet[i].getVid()<<"\tid: "<<fleet[i].getEndingSite().id()<<"\tntype: "<<fleet[i].getEndingSite().ntype()<<"\tDeparture: "<<fleet[i].getEndingSite().getDepartureTime()<<
 		"\tdeltaTime:"<<  fleet[i].getEndingSite().getDeltaTime()<<
 		"\tdeltaCargo"<< fleet[i].getEndingSite().getDemand()<<"\n";
     }
@@ -139,7 +139,7 @@ vehicle_path_t *Solution::getSolutionForPg( int &count ) const {
         for ( int j = 0; j < fleet[i].size(); ++j ) {
             results[seq].seq       = seq + 1;
             results[seq].vid       = fleet[i].getVid();
-            results[seq].nid       = fleet[i][j].getid();
+            results[seq].nid       = fleet[i][j].id();
             results[seq].ntype     = map[fleet[i][j].ntype()];
             //results[seq].deltatime = ( j == 0 ) ? 0 : fleet[i][j].getDepartureTime() - fleet[i][j - 1].getDepartureTime();
             results[seq].deltatime     =  fleet[i][j].getDeltaTime();
@@ -151,7 +151,7 @@ vehicle_path_t *Solution::getSolutionForPg( int &count ) const {
         // add the final dump
         results[seq].seq       = seq + 1;
         results[seq].vid       = fleet[i].getVid();
-        results[seq].nid       = fleet[i].getDumpSite().getid();
+        results[seq].nid       = fleet[i].getDumpSite().id();
         results[seq].ntype     = map[fleet[i].getDumpSite().ntype()];
         results[seq].deltatime = fleet[i].getDumpSite().getDepartureTime() - fleet[i][fleet[i].size() - 1].getDepartureTime();
         results[seq].cargo     = fleet[i].getDumpSite().getDemand();
@@ -160,7 +160,7 @@ vehicle_path_t *Solution::getSolutionForPg( int &count ) const {
         // add the ending location
         results[seq].seq       = seq + 1;
         results[seq].vid       = fleet[i].getVid();
-        results[seq].nid       = fleet[i].getEndingSite().getid();
+        results[seq].nid       = fleet[i].getEndingSite().id();
         results[seq].ntype     = map[fleet[i].getEndingSite().ntype()];
         results[seq].deltatime = fleet[i].getEndingSite().getDepartureTime() - fleet[i].getDumpSite().getDepartureTime();
         results[seq].cargo     = fleet[i].getEndingSite().getDemand();
@@ -222,11 +222,11 @@ std::vector<int>  Solution::solutionAsVectorID() const {
         sol.push_back( -1 );
 
         for ( int j = 0; j < fleet[i].size(); j++ ) {
-            sol.push_back( fleet[i][j].getid() );
+            sol.push_back( fleet[i][j].id() );
         }
 
-        sol.push_back( fleet[i].getDumpSite().getid() );
-        sol.push_back( fleet[i].getDepot().getid() );
+        sol.push_back( fleet[i].getDumpSite().id() );
+        sol.push_back( fleet[i].getDepot().id() );
         sol.push_back( -1 );
     }
 
@@ -245,11 +245,11 @@ std::vector<int>  Solution::solutionAsVector() const {
         sol.push_back( -2 );
 
         for ( int j = 0; j < fleet[i].size(); j++ ) {
-            sol.push_back( fleet[i][j].getnid() );
+            sol.push_back( fleet[i][j].nid() );
         }
 
-        sol.push_back( fleet[i].getDumpSite().getnid() );
-        sol.push_back( fleet[i].getDepot().getnid() );
+        sol.push_back( fleet[i].getDumpSite().nid() );
+        sol.push_back( fleet[i].getDepot().nid() );
         sol.push_back( -2 );
     }
 
@@ -500,7 +500,7 @@ bool Solution::applyInterSwMove( const Move &move ) {
     assert( move.getmtype() == Move::InterSw );
     assert( not ( move.getInterSwTruck1() == move.getInterSwTruck2() ) );
 
-    if ( not ( fleet[move.getInterSwTruck1()][ move.getpos1()].getnid() ==
+    if ( not ( fleet[move.getInterSwTruck1()][ move.getpos1()].nid() ==
                move.getnid1() ) ) {
 	#ifdef DOVRPLOG
         DLOG( INFO ) << "ERROR APPLYING INTERSW ";
@@ -510,9 +510,9 @@ bool Solution::applyInterSwMove( const Move &move ) {
         fleet[move.getInterSwTruck2()][ move.getpos2()].dump();
     }
 
-    assert( fleet[move.getInterSwTruck1()][ move.getpos1()].getnid() ==
+    assert( fleet[move.getInterSwTruck1()][ move.getpos1()].nid() ==
             move.getnid1() );
-    assert( fleet[move.getInterSwTruck2()][ move.getpos2()].getnid() ==
+    assert( fleet[move.getInterSwTruck2()][ move.getpos2()].nid() ==
             move.getnid2() );
 
     fleet[move.getInterSwTruck1()].applyMoveInterSw( fleet[move.getInterSwTruck2()],
@@ -528,9 +528,9 @@ bool Solution::applyInterSwMove( const Move &move ) {
 bool Solution::applyIntraSwMove( const Move &move ) {
 
     assert( move.getmtype() == Move::IntraSw );
-    assert( fleet[move.getIntraSwTruck()][ move.getpos1()].getnid()  ==
+    assert( fleet[move.getIntraSwTruck()][ move.getpos1()].nid()  ==
             move.getnid1() );
-    assert( fleet[move.getIntraSwTruck()][ move.getpos2()].getnid()  ==
+    assert( fleet[move.getIntraSwTruck()][ move.getpos2()].nid()  ==
             move.getnid2() );
 
     fleet[move.getIntraSwTruck()].applyMoveIntraSw(  move.getpos1(),

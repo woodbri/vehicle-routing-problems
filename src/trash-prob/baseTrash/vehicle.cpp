@@ -138,7 +138,7 @@ long int Vehicle::eval_intraSwapMoveDumps( Moves &moves, int  truckPos,
         for ( withPos = fromPos + 1; withPos < path.size(); withPos++ ) {
             if ( isDump( withPos ) ) continue; //skiping dump
 
-            otherNid = path[withPos].getnid();
+            otherNid = path[withPos].nid();
 
             if ( withPos == fromPos + 1 or fromPos == withPos + 1 or withPos == fromPos - 1
                  or fromPos == withPos - 1 ) {
@@ -146,7 +146,7 @@ long int Vehicle::eval_intraSwapMoveDumps( Moves &moves, int  truckPos,
                     newCost = truck.getCost();
                     savings = originalCost - newCost;
                     truck = ( *this );
-                    move.setIntraSwMove( truckPos, fromPos,  node.getnid(), withPos, otherNid,
+                    move.setIntraSwMove( truckPos, fromPos,  node.nid(), withPos, otherNid,
                                          savings );
 
                     if ( savings > 0 ) {
@@ -191,7 +191,7 @@ long int Vehicle::eval_intraSwapMoveDumps( Moves &moves, int  truckPos,
                         newCost = truck.getCost();
                         savings = originalCost - newCost;
                         truck = ( *this );
-                        move.setIntraSwMove( truckPos, fromPos,  node.getnid(), withPos, otherNid,
+                        move.setIntraSwMove( truckPos, fromPos,  node.nid(), withPos, otherNid,
                                              savings );
 
                         if ( savings > 0 ) {
@@ -253,7 +253,7 @@ long int Vehicle::eval_interSwapMoveDumps( Moves &moves,
 
         if ( truck.path[i].isDump() ) continue;
 
-        fromNodeId = truck.path[i].getnid();
+        fromNodeId = truck.path[i].nid();
 
         for ( int j = jLowLimit; j < jHighLimit; j++ ) {
             assert( not ( j == 0 ) );
@@ -265,7 +265,7 @@ long int Vehicle::eval_interSwapMoveDumps( Moves &moves,
             truckDelta = truck.timePCN( i - 1, other.path[j] ) - truck.timePCN( i - 1, i,
                          i + 1 );
 
-            toNodeId = other.path[j].getnid();
+            toNodeId = other.path[j].nid();
 
             if ( otherDelta < 0 or truckDelta < 0 ) {
                 savings = _MIN();
@@ -320,7 +320,7 @@ long int Vehicle::eval_interSwapMoveDumps( Moves &moves,
 
             if ( truck.path[i].isDump() ) continue;
 
-            fromNodeId = truck.path[i].getnid();
+            fromNodeId = truck.path[i].nid();
 
             for ( int k = 1; k < inc + 1; k++ ) {
                 for ( int j = k; j < other.size(); j += inc ) {
@@ -355,7 +355,7 @@ long int Vehicle::eval_interSwapMoveDumps( Moves &moves,
                     DLOG(INFO) << "truckDelta: " << truckDelta;
                     }
                     */
-                    toNodeId = other.path[j].getnid();
+                    toNodeId = other.path[j].nid();
 
 
                     savings = _MIN();
@@ -526,7 +526,7 @@ long int Vehicle::eval_insertMoveDumps( const Trashnode &node, Moves &moves,
                          << "\teraseSavings=" << eraseSavings
                          << "\tsavings" << oldcost - newcost + eraseSavings;
             #endif
-            move.setInsMove( fromTruck, fromPos, node.getnid(), toTruck, currentPos,
+            move.setInsMove( fromTruck, fromPos, node.nid(), toTruck, currentPos,
                              ( cost - truck.cost + eraseSavings )    );
             moves.insert( move );
             #ifdef TESTED
@@ -563,9 +563,9 @@ bool Vehicle::applyMoveINSerasePart( int nodeNid, int pos ) {
     #endif
     // if this assertion fails might be because its not being applied
     // to the correct solution
-    assert ( path[pos].getnid() == nodeNid );
+    assert ( path[pos].nid() == nodeNid );
 
-    if ( not ( path[pos].getnid() == nodeNid ) )  return false;
+    if ( not ( path[pos].nid() == nodeNid ) )  return false;
 
     path.erase( pos );
     e_makeFeasable( pos );

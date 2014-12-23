@@ -197,10 +197,10 @@ void BaseVehicle::tau() const {
     ss << " ";
 
     for ( int i = 0; i < path.size(); i++ )
-        ss << getid( i ) << " ";
+        ss << id( i ) << " ";
 
-    ss << dumpSite.getid() << " ";
-    ss << endingSite.getid();
+    ss << dumpSite.id() << " ";
+    ss << endingSite.id();
     DLOG( INFO ) << ss.str();
 }
 #endif
@@ -208,15 +208,15 @@ void BaseVehicle::tau() const {
 std::deque<int> BaseVehicle::getpath() const {
     std::deque<int> p;
     p = path.getpath();
-    p.push_front( getDepot().getnid() );
-    p.push_back( getDumpSite().getnid() );
-    p.push_back( getDepot().getnid() );
+    p.push_front( getDepot().nid() );
+    p.push_back( getDumpSite().nid() );
+    p.push_back( getDepot().nid() );
     return p;
 }
 
 
 bool BaseVehicle::push_back( Trashnode node ) {
-    assert ( node.getnid() >= 0 );
+    assert ( node.nid() >= 0 );
     E_Ret ret = path.e_push_back( node, getmaxcapacity() );
 
     if ( ret == OK ) evalLast();

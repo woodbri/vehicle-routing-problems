@@ -31,14 +31,12 @@
  * the nodes x,y is loaded with longitude,latitude values.
  *
  */
-double Node::distance(const Node &other) const {
-    if (!(isLatLon() && other.isLatLon())) return distanceTo(other);
-    // Haversine sphereical distance for lat/lon values
+double Node::haversineDistance(const Node &other) const {
     const double pi = 3.14159265358979323846;
     const double deg2rad = pi / 180.0;
     const double rad2deg = 180.0 / pi;
     const double radius = 6367000;  // Earth radius 6367 Km in meters
-    double dlon = (other.x__ - x_) * deg2rad;
+    double dlon = (other.x_ - x_) * deg2rad;
     double dlat = (other.y_ - y_) * deg2rad;
     double a = pow(sin(dlat / 2.0), 2) + cos(y_) * cos(other.y_) *
                pow(sin(dlon / 2.0), 2);
@@ -47,6 +45,10 @@ double Node::distance(const Node &other) const {
     return dist;
 }
 
+double Node::distance(const Node &other) const {
+    if (!(isLatLon() && other.isLatLon())) return distanceTo(other);
+    return haversineDistance(other);
+}
 
 /*!  * \brief Set attributes for this node.  */
 void Node::set(int nid, double x, double y) {
@@ -67,27 +69,29 @@ void Node::dump() const {
 // Vector Operations
 
 /*! \brief Create a new Node by performing vector addition.  */
-Node  Node::operator+(const Node &v) const { return Node( x + v.x, y + v.y ); }
+Node  Node::operator+(const Node &v) const {
+  return Node( x_ + v.x_, y_ + v.y_ );}
 
 /*! \brief Create a new Node by performing vector subtraction.  */
-Node  Node::operator-(const Node &v) const { return Node( x - v.x, y - v.y ); }
+Node  Node::operator-(const Node &v) const {
+  return Node( x_ - v.x_, y_ - v.y_ );}
 
 /*! \brief Create a new Node by scaling and existing node by a factor \c f.*/
-Node  Node::operator*(double f) const { return Node( x * f, y * f ); }
+Node  Node::operator*(double f) const { return Node( x_ * f, y_ * f ); }
 
 /*! \brief Compute the vector dot product between two Nodes.*/
-double Node::dotProduct( const Node &p ) const { return x * p.x + y * p.y; }
+double Node::dotProduct( const Node &p ) const { return x_ * p.x_ + y_ * p.y_; }
 
 /*! \brief Compute the Euclidean length of a vector */
-double Node::length() const { return sqrt( x * x + y * y ); }
+double Node::length() const { return sqrt( x_ * x_ + y_ * y_ ); }
 
 /*! \brief Compute the gradient or slope of a vector defined by the vector n->p
  * \bug This is not safe as it can generate a divide by zero
  * \todo This needs to be fixed to avoid divide by zero errors
  */
 double Node::gradient(const Node &p) const {
-    double deltaY = p.y - y;
-    double deltaX = p.x - x;
+    double deltaY = p.y_ - y_;
+    double deltaX = p.x_ - x_;
 
     if (deltaX == 0) {
       if (deltaY >= 0)
@@ -110,8 +114,8 @@ double Node::distanceTo(const Node &p) const {
  * \sa Node::length, Node::distanceTo, Node::distance
  */
 double Node::distanceToSquared(const Node &p) const {
-    const double dX = p.x - x;
-    const double dY = p.y - y;
+    const double dX = p.x_ - x_;
+    const double dY = p.y_ - y_;
 
     return dX * dX + dY * dY;
 }
@@ -179,8 +183,8 @@ double Node::distanceToSegment(double segmentX1, double segmentY1,
     double distance = distanceToSegment(Node(segmentX1, segmentY1),
                                         Node(segmentX2, segmentY2), q);
 
-    qX = q.x;
-    qY = q.y;
+    qX = q.x_;
+    qY = q.y_;
 
     return distance;
 }
@@ -189,33 +193,29 @@ double Node::distanceToSegment(double segmentX1, double segmentY1,
 // Constructors
 
 /*! \brief Construct a new Node that needs the user to set its attributes.  */
-Node::Node() {
-    id = nid = -1;
-    x = 0.0;
-    y = 0.0;
-    hint = "";
+Node::Node()
+    :id_(-1), nid_(-1), x_(0.0), y_(0.0), hint_("") {
 }
 
 /*! \brief Construct a new Node and assign it \c x and \c y values.  */
-Node::Node(double _x, double _y) {
-    id = nid = -1;
-    x = _x;
-    y = _y;
-    hint = "";
+Node::Node(double x, double y)
+    :id_(-1), nid_(-1), x_(x), y_(y), hint_("") {
 }
 
+#if 0
 /*! \brief Construct a new Node and assign it \c nid, \c x and \c y values.  */
-Node::Node(int _nid, double _x, double _y) {
-    id = -1;
-    nid = _nid;
-    x = _x;
-    y = _y;
-    hint = "";
+Node::Node(int nid, double x, double y) {
+    id_ = -1;
+    nid_ = nid;
+    x_ = x;
+    y_ = y;
+    hint_ = "";
 }
+#endif
 
 /*! \brief Construct a new Node and assign it the associated values.  */
-Node::Node(int _nid, int _id , double _x, double _y)
-    :id_(id), nid_(nid), x_(x), y_(y), hint("") {
+Node::Node(int nid, int id , double x, double y)
+    :id_(id), nid_(nid), x_(x), y_(y), hint_("") {
 }
 
 /*! \brief Create a new Node by parsing a string.  */

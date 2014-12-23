@@ -142,8 +142,8 @@ void OsrmClient::addViaPoint( const Node &node ) {
     #ifdef DOSTATS
     Timer timer;
     #endif
-    addViaPoint( node.gety(), node.getx() );
-    route_parameters.hints.push_back( node.getHint() );
+    addViaPoint( node.y(), node.x() );
+    route_parameters.hints.push_back( node.hint() );
     #ifdef DOSTATS
     STATS->addto( "OsrmClient::addViaPoint Cumulative time", timer.duration() );
     #endif
@@ -216,8 +216,8 @@ bool OsrmClient::getOsrmTime( const Node &node1, const Node &node2,
     clear();
     addViaPoint( node1 );
     addViaPoint( node2 );
-    route_parameters.hints.push_back( node1.getHint() );
-    route_parameters.hints.push_back( node2.getHint() );
+    route_parameters.hints.push_back( node1.hint() );
+    route_parameters.hints.push_back( node2.hint() );
 
     if ( getOsrmViaroute() ) return  getOsrmTime( time );
 
@@ -237,9 +237,9 @@ bool OsrmClient::getOsrmTime( const Node &node1, const Node &node2,
     addViaPoint( node1 );
     addViaPoint( node2 );
     addViaPoint( node3 );
-    route_parameters.hints.push_back( node1.getHint() );
-    route_parameters.hints.push_back( node2.getHint() );
-    route_parameters.hints.push_back( node3.getHint() );
+    route_parameters.hints.push_back( node1.hint() );
+    route_parameters.hints.push_back( node2.hint() );
+    route_parameters.hints.push_back( node3.hint() );
 
     if ( getOsrmViaroute() ) return getOsrmTime( time );
 
@@ -260,10 +260,10 @@ bool OsrmClient::getOsrmTime( const Node &node1, const Node &node2,
     addViaPoint( node2 );
     addViaPoint( node3 );
     addViaPoint( node4 );
-    route_parameters.hints.push_back( node1.getHint() );
-    route_parameters.hints.push_back( node2.getHint() );
-    route_parameters.hints.push_back( node3.getHint() );
-    route_parameters.hints.push_back( node4.getHint() );
+    route_parameters.hints.push_back( node1.hint() );
+    route_parameters.hints.push_back( node2.hint() );
+    route_parameters.hints.push_back( node3.hint() );
+    route_parameters.hints.push_back( node4.hint() );
 
     if ( getOsrmViaroute() ) return getOsrmTime( time );
 

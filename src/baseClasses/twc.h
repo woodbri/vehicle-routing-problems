@@ -201,8 +201,8 @@ template <class knode> class TWC {
             for ( int j = 0; j < truck.size() - 1; j++ ) {
                 if ( not ( j ==
                            0 ) // all nodes from the depot that are missing should be calculated
-                     and (   ( travel_Time[ truck[j].getnid() ][ unassigned[i].getnid() ] == -1 )
-                             or ( travel_Time[ unassigned[i].getnid() ][ truck[j + 1].getnid() ] == -1 ) ) )
+                     and (   ( travel_Time[ truck[j].nid() ][ unassigned[i].nid() ] == -1 )
+                             or ( travel_Time[ unassigned[i].nid() ][ truck[j + 1].nid() ] == -1 ) ) )
                     continue;
 
                 if ( isCompatibleIAJ( truck[j], unassigned[i], truck[j + 1] ) ) {
@@ -244,7 +244,7 @@ template <class knode> class TWC {
         Bucket unreachable;
 
         for ( int i = 0; i < nodes.size(); i++ )
-            if ( not isReachableIJ( nodes[i].getnid(), to ) )
+            if ( not isReachableIJ( nodes[i].nid(), to ) )
                 unreachable.push_back( nodes[i] );
 
         return unreachable;
@@ -265,7 +265,7 @@ template <class knode> class TWC {
         Bucket unreachable;
 
         for ( int i = 0; i < nodes.size(); i++ )
-            if ( not isReachableIJ( from, nodes[i].getnid() ) )
+            if ( not isReachableIJ( from, nodes[i].nid() ) )
                 unreachable.push_back( nodes[i] );
 
         return unreachable;
@@ -286,7 +286,7 @@ template <class knode> class TWC {
         Bucket reachable;
 
         for ( int i = 0; i < nodes.size(); i++ )
-            if ( isReachableIJ( nodes[i].getnid(), to ) )
+            if ( isReachableIJ( nodes[i].nid(), to ) )
                 reachable.push_back( nodes[i] );
 
         return reachable;
@@ -307,7 +307,7 @@ template <class knode> class TWC {
         Bucket reachable;
 
         for ( int i = 0; i < nodes.size(); i++ )
-            if ( isReachableIJ( from, nodes[i].getnid() ) )
+            if ( isReachableIJ( from, nodes[i].nid() ) )
                 reachable.push_back( nodes[i] );
 
         return reachable;
@@ -328,7 +328,7 @@ template <class knode> class TWC {
         Bucket incompatible;
 
         for ( int i = 0; i < nodes.size(); i++ )
-            if ( not isCompatibleIJ( nodes[i].getnid(), to ) )
+            if ( not isCompatibleIJ( nodes[i].nid(), to ) )
                 incompatible.push_back( nodes[i] );
 
         return incompatible;
@@ -350,7 +350,7 @@ template <class knode> class TWC {
         Bucket incompatible;
 
         for ( int i = 0; i < nodes.size(); i++ )
-            if ( not isCompatibleIJ( from, nodes[i].getnid() ) )
+            if ( not isCompatibleIJ( from, nodes[i].nid() ) )
                 incompatible.push_back( nodes[i] );
 
         return incompatible;
@@ -371,7 +371,7 @@ template <class knode> class TWC {
         Bucket compatible;
 
         for ( int i = 0; i < nodes.size(); i++ )
-            if ( isCompatibleIJ( nodes[i].getnid(), to ) )
+            if ( isCompatibleIJ( nodes[i].nid(), to ) )
                 compatible.push_back( nodes[i] );
 
         return compatible;
@@ -392,7 +392,7 @@ template <class knode> class TWC {
         Bucket compatible;
 
         for ( int i = 0; i < nodes.size(); i++ )
-            if ( isCompatibleIJ( from, nodes[i].getnid() ) )
+            if ( isCompatibleIJ( from, nodes[i].nid() ) )
                 compatible.push_back( nodes[i] );
 
         return compatible;
@@ -492,7 +492,7 @@ template <class knode> class TWC {
      * \return The travel time or plus infinity if the node is not reachable.
      */
     double TravelTime( const knode &from, const knode &to ) const {
-        return getTravelTime( from.getnid(), to.getnid() );
+        return getTravelTime( from.nid(), to.nid() );
     }
 
 
@@ -606,15 +606,15 @@ template <class knode> class TWC {
     //this one is an interface, the other one is the one that does all the work
     double TravelTime( const knode &from, const knode &middle,
                        const knode &to ) const {
-        return getTravelTime( from.getnid(), from.getnid(), middle.getnid(),
-                              to.getnid() );
+        return getTravelTime( from.nid(), from.nid(), middle.nid(),
+                              to.nid() );
     }
 
     //this one is an interface, the other one is the one that does all the work
     double TravelTime( const knode &prev, const knode &from, const knode &middle,
                        const knode &to ) const {
-        return getTravelTime( prev.getnid(), from.getnid(), middle.getnid(),
-                              to.getnid() );
+        return getTravelTime( prev.nid(), from.nid(), middle.nid(),
+                              to.nid() );
     }
 
     //this one is an interface, the other one is the one that does all the work
@@ -740,7 +740,7 @@ template <class knode> class TWC {
      */
     bool isCompatibleIAJ( const knode &from, const knode &middle,
                           const knode &to ) const {
-        return isCompatibleIAJ( from.getnid(), middle.getnid() , to.getnid() );
+        return isCompatibleIAJ( from.nid(), middle.nid() , to.nid() );
     }
 
     // ----------------- The best or the worses -----------------------
@@ -768,10 +768,10 @@ template <class knode> class TWC {
         double bestTime = _MAX();
 
         for ( int i = 0; i < reachable.size(); i++ ) {
-            if ( reachable[i].getnid() != from
-                 and travelTime( from, reachable[i].getid() ) < bestTime ) {
+            if ( reachable[i].nid() != from
+                 and travelTime( from, reachable[i].id() ) < bestTime ) {
                 best = reachable[i];
-                bestTime = travelTime( from, reachable[i].getid() );
+                bestTime = travelTime( from, reachable[i].id() );
             }
         }
 
@@ -800,10 +800,10 @@ template <class knode> class TWC {
         double bestTime = _MAX();
 
         for ( int i = 0; i < reachable.size(); i++ ) {
-            if ( reachable[i].getnid() != to
-                 and travelTime( reachable[i].getid(), to ) < bestTime ) {
+            if ( reachable[i].nid() != to
+                 and travelTime( reachable[i].id(), to ) < bestTime ) {
                 best = reachable[i];
-                bestTime = travelTime( reachable[i].getid(), to );
+                bestTime = travelTime( reachable[i].id(), to );
             }
         }
 
@@ -833,10 +833,10 @@ template <class knode> class TWC {
         double worseTime = _MIN();
 
         for ( int i = 0; i < reachable.size(); i++ ) {
-            if ( reachable[i].getnid() != from
-                 and travelTime( from, reachable[i].getid() ) > worseTime ) {
+            if ( reachable[i].nid() != from
+                 and travelTime( from, reachable[i].id() ) > worseTime ) {
                 worse = reachable[i];
-                worseTime = travelTime( from, reachable[i].getid() );
+                worseTime = travelTime( from, reachable[i].id() );
             }
         }
 
@@ -866,10 +866,10 @@ template <class knode> class TWC {
         double worseTime = _MIN();
 
         for ( int i = 0; i < reachable.size(); i++ ) {
-            if ( reachable[i].getnid() != to
-                 and travelTime( reachable[i].getid(), to ) > worseTime ) {
+            if ( reachable[i].nid() != to
+                 and travelTime( reachable[i].id(), to ) > worseTime ) {
                 worse = reachable[i];
-                worseTime = travelTime( reachable[i].getid(), to );
+                worseTime = travelTime( reachable[i].id(), to );
             }
         }
 
@@ -898,13 +898,13 @@ template <class knode> class TWC {
         bestEc2 = - _MIN();
 
         for ( int i = 0; i < nodes.size(); i++ ) {
-            if ( i == 0 ) bestId = nodes[0].getnid();
+            if ( i == 0 ) bestId = nodes[0].nid();
 
-            Id = nodes[i].getnid();
+            Id = nodes[i].nid();
             count = 0;
 
             for ( int j = 0; j < nodes.size(); j++ ) {
-                if ( i != j and  isCompatibleIJ( Id , nodes[j].getnid() ) ) count++;
+                if ( i != j and  isCompatibleIJ( Id , nodes[j].nid() ) ) count++;
 
                 bestCount = count;
                 bestId = Id;
@@ -932,10 +932,10 @@ template <class knode> class TWC {
 
         if ( nodes.empty() ) return -1;
 
-        bestId = nodes[0].getnid();
+        bestId = nodes[0].nid();
 
         for ( int j = 0; j < nodes.size(); j++ ) {
-            toId = nodes[j].getnid();
+            toId = nodes[j].nid();
 
             if ( getTwcij( fromNid, toId ) > getTwcij( fromNid, bestId ) ) {
                 bestId = toId;
@@ -1057,17 +1057,17 @@ template <class knode> class TWC {
         ss << "COMPATABILITY TABLE \n\t";
 
         for ( int i = 0; i < nodes.size(); i++ )
-            ss << "nid " << nodes[i].getnid() << "\t";
+            ss << "nid " << nodes[i].nid() << "\t";
 
         ss << "\n\t";
 
         for ( int i = 0; i < nodes.size(); i++ )
-            ss << "id " << nodes[i].getid() << "\t";
+            ss << "id " << nodes[i].id() << "\t";
 
         ss << "\n";
 
         for ( int i = 0; i < nodes.size(); i++ ) {
-            ss << nodes[i].getnid() << "=" << nodes[i].getid() << "\t";
+            ss << nodes[i].nid() << "=" << nodes[i].id() << "\t";
 
             for ( int j = 0; j < nodes.size(); j++ ) {
                 if ( twcij[i][j] !=  -std::numeric_limits<double>::max() )
@@ -1102,17 +1102,17 @@ template <class knode> class TWC {
         ss.precision( 2 );
 
         for ( int i = 0; i < nodes.size(); i++ )
-            ss << "nid " << nodes[i].getnid() << "\t";
+            ss << "nid " << nodes[i].nid() << "\t";
 
         ss << "\n\t";
 
         for ( int i = 0; i < nodes.size(); i++ )
-            ss << "id " << nodes[i].getid() << "\t";
+            ss << "id " << nodes[i].id() << "\t";
 
         ss << "\n";
 
         for ( int i = 0; i < nodes.size(); i++ ) {
-            ss << nodes[i].getnid() << "=" << nodes[i].getid() << "\t";
+            ss << nodes[i].nid() << "=" << nodes[i].id() << "\t";
 
             for ( int j = 0; j < nodes.size(); j++ ) {
                 if ( travel_Time[i][j] !=  _MAX() )
@@ -1148,9 +1148,9 @@ template <class knode> class TWC {
         for ( int i = 0; i < nodes.size(); i++ ) {
             for ( int j = 0; j < nodes.size(); j++ ) {
                 for ( int k = 0; k < nodes.size(); k++ ) {
-                    ss << "\t ( " << nodes[i].getnid() << " , "
-                       << nodes[j].getnid() << " , "
-                       << nodes[k].getnid() << ") = "
+                    ss << "\t ( " << nodes[i].nid() << " , "
+                       << nodes[j].nid() << " , "
+                       << nodes[k].nid() << ") = "
                        << ( isCompatibleIAJ( i, j, k ) ? "COMP" : "not" );
                 }
 
@@ -1221,8 +1221,8 @@ template <class knode> class TWC {
         assert( nid < original.size() );
 
         for ( int j = 0; j < nodes.size(); j++ ) {
-            twcij[nid][nodes[j].getnid()] =  _MIN();
-            travel_Time[nid][nodes[j].getnid()] =  _MAX();
+            twcij[nid][nodes[j].nid()] =  _MIN();
+            travel_Time[nid][nodes[j].nid()] =  _MAX();
         }
 
     }
@@ -1238,8 +1238,8 @@ template <class knode> class TWC {
         assert( nid < original.size() );
 
         for ( int i = 0; i < nodes.size(); i++ ) {
-            twcij[nodes[i].getnid()][nid] =  _MIN();
-            travel_Time[nodes[i].getnid()][nid] =  _MAX();
+            twcij[nodes[i].nid()][nid] =  _MIN();
+            travel_Time[nodes[i].nid()][nid] =  _MAX();
         }
     }
 
@@ -1266,7 +1266,7 @@ template <class knode> class TWC {
         assert( nid < original.size() );
 
         for ( int j = 0; j < nodes.size(); j++ )
-            travel_Time[nid][nodes[j].getnid()] =  _MAX();
+            travel_Time[nid][nodes[j].nid()] =  _MAX();
     }
 
     /*!
@@ -1279,7 +1279,7 @@ template <class knode> class TWC {
         assert( nid < original.size() );
 
         for ( int i = 0; i < nodes.size(); i++ )
-            travel_Time[nodes[i].getnid()][nid] =  _MAX();
+            travel_Time[nodes[i].nid()][nid] =  _MAX();
     }
 
 
@@ -1306,12 +1306,12 @@ template <class knode> class TWC {
      * \return The average travel time from start to destination.
      */
     double getAverageTime( const Bucket &from, const knode &to ) const {
-        assert( to.getnid() < original.size() );
+        assert( to.nid() < original.size() );
         double time = 0;
-        int j = to.getnid();
+        int j = to.nid();
 
         for ( int i = 0; i < from.size(); i++ ) {
-            time += TravelTime( from[i].getnid() , j ) ;
+            time += TravelTime( from[i].nid() , j ) ;
         }
 
         time = time / from.size();
@@ -1326,12 +1326,12 @@ template <class knode> class TWC {
      * \return The average travel time from start to destination.
      */
     double getAverageTime( const knode &from, const Bucket &to ) const {
-        assert( from.getnid() < original.size() );
+        assert( from.nid() < original.size() );
         double time = 0;
-        int j = from.getnid();
+        int j = from.nid();
 
         for ( int i = 0; i < to.size(); i++ )
-            time += travel_Time[j][ to[i].getnid() ];
+            time += travel_Time[j][ to[i].nid() ];
 
         time = time / to.size();
         return time;
@@ -1346,7 +1346,7 @@ template <class knode> class TWC {
      * \param[in] picks
      */
     void settCC ( const knode &C, const Bucket &picks ) {
-        int pos = C.getnid();
+        int pos = C.nid();
         travel_Time[pos][pos] = getAverageTime( C, picks );
     }
 
@@ -1387,7 +1387,7 @@ template <class knode> class TWC {
         #endif
 
         for ( int i = 0; i < nodes.size(); i++ ) {
-            nodes[i].setHint( original[ nodes[i].getnid() ].getHint() );
+            nodes[i].set_hint( original[nodes[i].nid()].hint() );
         }
 
         #ifdef DOSTATS
@@ -1441,7 +1441,7 @@ template <class knode> class TWC {
 
             if ( osrm->getOsrmViaroute() and osrm->getOsrmHints( hints ) )
                 for ( j = from, k = 0; j < to ; j++, k++ ) {
-                    original[j].setHint( hints[k] );
+                    original[j].set_hint( hints[k] );
                 }
         }
 
@@ -1668,8 +1668,8 @@ template <class knode> class TWC {
      */
     double twc_for_ij( const knode &ni, const knode &nj ) const {
         double result;
-        int i = ni.getnid();
-        int j = nj.getnid();
+        int i = ni.nid();
+        int j = nj.nid();
 
         if ( travel_Time[i][j] == -1 ) return  _MIN();
 

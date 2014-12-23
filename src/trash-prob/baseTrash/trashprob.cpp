@@ -61,7 +61,7 @@ TrashProb::TrashProb(  container_t* p_containers, unsigned int container_count,
     std::string errorStr;
     if (intersection.size()) {
 	for (int i=0; i<intersection.size(); i++) {
-	   errorStr = "Container #"+numbertoString(intersection[i].getid())+": has same id as an other location's id";
+	   errorStr = "Container #"+numbertoString(intersection[i].id())+": has same id as an other location's id";
 	   errorsFound.push_back(errorStr);
         };
         #ifdef VRPMINTRACE
@@ -75,13 +75,13 @@ TrashProb::TrashProb(  container_t* p_containers, unsigned int container_count,
     nodes.push_back( C );
 
     for ( int i = 0; i < nodes.size(); i++ ) {
-        nodes[i].setnid( i );
-        id = nodes[i].getid();
+        nodes[i].set_nid( i );
+        id = nodes[i].id();
 
         if ( pickups.hasId( id ) )
-            pickups[ pickups.posFromId( id ) ].setnid( i );
+            pickups[ pickups.posFromId( id ) ].set_nid( i );
         else if ( otherlocs.hasId( id ) )
-            otherlocs[ otherlocs.posFromId( id ) ].setnid( i );
+            otherlocs[ otherlocs.posFromId( id ) ].set_nid( i );
     };
 
     C = nodes.back();
@@ -196,8 +196,8 @@ void TrashProb::addContainers( container_t *_containers, int count ) {
             op += node.opens();
             cl += node.closes();
             dm += node.getDemand();
-            x += node.getx();
-            y += node.gety();
+            x += node.x();
+            y += node.y();
         }
         else invalid.push_back( node );
         

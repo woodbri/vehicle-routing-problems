@@ -75,17 +75,17 @@ bool Twnode::isValid() const {
 void Twnode::dump() const {
     std::stringstream ss;
     ss.precision( 8 );
-    ss << nid
-       << " = " << id
+    ss << nid()
+       << " = " << id()
        << ",\t\ttype " << type
-       << ",\tx " << x
-       << ",\ty " << y
+       << ",\tx " << x()
+       << ",\ty " << y()
        << ",\topen " << tw_open
        << ",\tclose " << tw_close
        << ",\tdemand " << demand
        << ",\tserviceT " << serviceTime
        << ",\t street:" << streetid
-       << ",\t hint:" << hint;
+       << ",\t hint:" << hint();
     DLOG( INFO ) << ss.str();
 }
 #endif
@@ -106,12 +106,12 @@ void Twnode::dump() const {
  * time from some problem start time of 0.0. The actual problem will specify
  * what the time units are, like seconds, minutes, hours etc.
  */
-void Twnode::set( int _nid, int _id, double _x, double _y, int _demand,
+void Twnode::set( int nid, int id, double x, double y, int _demand,
                   int _tw_open, int _tw_close, int _service ) {
-    nid = _nid;
-    id = _id;
-    x = _x;
-    y = _y;
+    set_nid(nid);
+    set_id(id);
+    set_x(x);
+    set_y(y);
     demand = _demand;
     tw_open = _tw_open;
     tw_close = _tw_close;
@@ -129,6 +129,8 @@ Twnode::Twnode( std::string line ) {
     std::istringstream buffer( line );
     demand = serviceTime = 0;
     streetid = -1;
+    int nid;
+    double x,y;
     buffer >> nid;
     buffer >> x;
     buffer >> y;
@@ -137,7 +139,10 @@ Twnode::Twnode( std::string line ) {
     buffer >> demand;
     buffer >> serviceTime;
     buffer >> streetid;
-    id = nid;
+    set_id( nid );
+    set_nid( nid );
+    set_x( x );
+    set_y( y );
     type = ( tw_open < tw_close and tw_open >= 0 and serviceTime >= 0 ) ? 0 : -1;
 }
 

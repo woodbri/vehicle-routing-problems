@@ -61,7 +61,7 @@ void Tweval::evaluate ( double cargoLimit ) {
  */
 void Tweval::evaluate ( const Tweval &pred, double cargoLimit ) {
 
-    travelTime    = twc->TravelTime( pred.nid, nid );   // Travel Time from previous node to this node
+    travelTime    = twc->TravelTime( pred.nid(), nid() );   // Travel Time from previous node to this node
     totTravelTime = pred.totTravelTime + travelTime;    // tot length travel from 1st node
     arrivalTime   = pred.departureTime + travelTime;
     twv = lateArrival( arrivalTime );           // Time Window Violation

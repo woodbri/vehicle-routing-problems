@@ -82,8 +82,10 @@ int main(int argc, char **argv) {
         Timer starttime;
 	#endif
 
+	#ifdef VRPMINTRACE
         CONFIG->dump("CONFIG");
-       
+        #endif
+ 
         FeasableSol tp(infile);
 	
 

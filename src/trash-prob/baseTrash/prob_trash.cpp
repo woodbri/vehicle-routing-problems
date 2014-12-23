@@ -176,13 +176,13 @@ void Prob_trash::loadProblem( const std::string &infile ) {
     nodes.push_back( C );
 
     for ( int i = 0; i < nodes.size(); i++ ) {
-        nodes[i].setnid( i );
-        id = nodes[i].getid();
+        nodes[i].set_nid( i );
+        id = nodes[i].id();
 
         if ( pickups.hasId( id ) )
-            pickups[ pickups.posFromId( id ) ].setnid( i );
+            pickups[ pickups.posFromId( id ) ].set_nid( i );
         else if ( otherlocs.hasId( id ) )
-            otherlocs[ otherlocs.posFromId( id ) ].setnid( i );
+            otherlocs[ otherlocs.posFromId( id ) ].set_nid( i );
     };
 
     C = nodes.back();
@@ -387,8 +387,8 @@ void Prob_trash::load_pickups( std::string infile ) {
             op += node.opens();
             cl += node.closes();
             dm += node.getDemand();
-            x += node.getx();
-            y += node.gety();
+            x += node.x();
+            y += node.y();
         }
     }
 

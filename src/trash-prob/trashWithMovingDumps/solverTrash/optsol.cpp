@@ -403,16 +403,16 @@ bool OptSol::v_applyInterSwMove( const Move &move ) {
     assert( move.getmtype() == Move::InterSw );
     assert( not ( move.getInterSwTruck1() == move.getInterSwTruck2() ) );
 
-    if ( not ( fleet[move.getInterSwTruck1()][ move.getpos1()].getnid() ==
+    if ( not ( fleet[move.getInterSwTruck1()][ move.getpos1()].nid() ==
                move.getnid1() ) ) {
         move.Dump();
         fleet[move.getInterSwTruck1()][ move.getpos1()].dump();
         fleet[move.getInterSwTruck2()][ move.getpos2()].dump();
     }
 
-    assert( fleet[move.getInterSwTruck1()][ move.getpos1()].getnid() ==
+    assert( fleet[move.getInterSwTruck1()][ move.getpos1()].nid() ==
             move.getnid1() );
-    assert( fleet[move.getInterSwTruck2()][ move.getpos2()].getnid() ==
+    assert( fleet[move.getInterSwTruck2()][ move.getpos2()].nid() ==
             move.getnid2() );
 
     fleet[move.getInterSwTruck1()].applyMoveInterSw( fleet[move.getInterSwTruck2()],
@@ -440,11 +440,11 @@ bool OptSol::testInterSwMove( const Move &move ) const {
     if ( not ( move.getpos2() < fleet[move.getInterSwTruck2()].size() ) )
         return false;
 
-    if ( not ( fleet[move.getInterSwTruck1()][ move.getpos1()].getnid() ==
+    if ( not ( fleet[move.getInterSwTruck1()][ move.getpos1()].nid() ==
                move.getnid1() ) ) return false;
 
-    if ( not ( fleet[move.getInterSwTruck2()][ move.getpos2()].getnid() ==
-               move.getnid2() ) )return false;
+    if ( not ( fleet[move.getInterSwTruck2()][ move.getpos2()].nid() ==
+	      move.getnid2() ) )return false;
 
     Vehicle truck = fleet[move.getInterSwTruck1()];
     Vehicle other = fleet[move.getInterSwTruck2()];
@@ -468,14 +468,11 @@ bool OptSol::testInsMove( const Move &move ) const {
 
     if ( ( move.getInsFromTruck() == move.getInsToTruck() ) ) return false;
 
-    if ( not ( move.getInsFromPos() <
-               fleet[move.getInsFromTruck()].size() - 1 ) ) return false;
+    if ( not ( move.getInsFromPos() < fleet[move.getInsFromTruck()].size() - 1 ) ) return false;
 
-    if ( not ( move.getInsToPos() < fleet[move.getInsToTruck()].size() - 1 ) )
-        return false;
+    if ( not ( move.getInsToPos() < fleet[move.getInsToTruck()].size() - 1 ) ) return false;
 
-    if ( not ( fleet[move.getInsFromTruck()] [ move.getInsFromPos()].getnid() ==
-               move.getInsNid() ) ) return false;
+    if ( not ( fleet[move.getInsFromTruck()] [ move.getInsFromPos()].nid() == move.getInsNid() ) ) return false;
 
     Vehicle truck = fleet[move.getInsFromTruck()];
     Vehicle other = fleet[move.getInsToTruck()];
