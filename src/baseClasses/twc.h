@@ -21,7 +21,8 @@
 #include <vector>
 #include <deque>
 #include <map>
-#include <math.h>
+#include <cmath>
+//#include <math.h>
 #include <limits>
 
 #ifdef DOVRPLOG

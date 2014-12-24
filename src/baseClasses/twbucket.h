@@ -1075,9 +1075,10 @@ class TwBucket {
      * \param[in] node The node to insert
      * \param[in] atPos The position it should be inserted at
      */
-    void insert( const knode &node, UID atPos ) {
+    bool insert( const knode &node, POS atPos ) {
         assert( atPos <= path.size() );
         path.insert( path.begin() + atPos, node );
+	return true;
     };
 
 
@@ -1085,9 +1086,10 @@ class TwBucket {
      * \brief Erase the node at location atPos
      * \param[in] atPos The position of the node to be erased.
      */
-    void erase ( int atPos ) {
+    bool erase ( POS atPos ) {
         assert( atPos < path.size() );
         path.erase( path.begin() + atPos );
+        return true;
     };
 
 
@@ -1095,39 +1097,47 @@ class TwBucket {
      * \brief Erase node from within the path.
      * \param[in] node The node to be erased.
      */
-    void erase ( const knode &node ) {
+    bool erase ( const knode &node ) {
         int atPos = pos( node.nid() );
         assert( atPos < path.size() );
         path.erase( path.begin() + atPos );
+        return true;
     };
 
 
-    /*!
-     * \brief Erase all node between fromPos and toPos inclusive.
-     * \param[in] fromPos Position of the start of the range to be erased.
-     * \param[in] toPos Position of the last in the range to be erased.
-     * \warning If fromPos and toPos are reversed it will still erase the range.
-     */
-    void erase ( int fromPos, int toPos ) {
+    /*!  * \brief Erase all node between fromPos and toPos.
+
+      \param[in] fromPos Position of the start of the range to be erased.
+      \param[in] toPos Position of the last in the range to be erased.
+
+      when  ( fromPos < toPos )  range erased: [fromPos,toPos)
+      when  ( fromPos > toPos )  range erased: [toPos,fromPos)
+
+      \warning If fromPos and toPos are reversed it will still erase the range.
+    */
+    bool erase ( POS fromPos, POS toPos ) {
         assert( fromPos < path.size() );
         assert( toPos < path.size() );
 
         if ( fromPos == toPos ) {
-            //[fromPos]
             path.erase( fromPos );
         }
-        else if ( fromPos < toPos ) {
-            //[fromPos,toPos)
+        else if ( fromPos < toPos ) {  //[fromPos,toPos)
             path.erase( path.begin() + fromPos, path.begin() + toPos );
         }
-        else {
-            //[toPos,fromPos)
+        else {  //[toPos,fromPos)
             path.erase( path.begin() + toPos, path.begin() + fromPos );
         }
     };
 
-    void push_back( const knode &n ) { path.push_back( n ); };
-    void push_front( const knode &n ) { path.push_front( n ); };
+    bool push_back( const knode &node ) {
+      path.push_back(node);
+      return true;
+    };
+    bool push_front( const knode &node ) { 
+      path.push_front( node );
+      return true;
+    };
     void pop_back() { path.pop_back(); };
     void pop_front() { path.pop_front(); };
     void resize( unsigned int n ) {
@@ -1152,9 +1162,9 @@ class TwBucket {
         assert( n < path.size() );
         return path.at( n );
     };
-    const knode &at( int n ) const  {
-        assert( n < path.size() );
-        return path.at( n );
+    const knode &at( POS pos ) const  {
+        assert( pos < path.size() );
+        return path.at( pos );
     };
     knode &front() { return path.front(); };
     const knode &front() const { return path.front(); };

@@ -418,7 +418,7 @@ bool Vehicle::e_insertIntoFeasableTruck( const Trashnode &node, POS pos ) {
     evalLast();
 
     if ( not feasable() ) {
-        path.e_remove( pos, maxcapacity );
+        path.e_erase( pos, maxcapacity );
         evalLast();
         assert( localCost == cost );
         assert( feasable() );
@@ -631,17 +631,15 @@ bool Vehicle::applyMoveIntraSw( POS  fromPos, POS withPos ) {
 }
 
 
-/*
+#if 0
 bool Vehicle::e_insertMoveDumps( const Trashnode &node, int at) {
     assert (at<=size());
-//
-//        path.insert(node,at);
-//        path.e_moveDumps(at);
-//
+    path.insert(node,at);
+    path.e_moveDumps(at);
 }
-*/
+#endif
 
-
+#if 0
 // Very TIGHT insertion
 // insertion will not be performed if
 //      TV and CV are  generated
@@ -781,7 +779,7 @@ bool Vehicle::deltaTimeGeneratesTV( const Trashnode &node, POS pos ) const {
         return path.getDeltaTime( node, pos ) +
                getDuration() > endingSite.closes();
 }
-
+#endif
 
 void Vehicle::setInitialValues( const Trashnode &node, const Bucket &picks ) {
 

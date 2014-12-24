@@ -57,6 +57,9 @@ class Twpath : public TwBucket<knode> {
   private:
 
     typedef unsigned long UID;
+    typedef unsigned long POS;
+    typedef unsigned long UINT;
+
     typedef typename std::deque<knode>::iterator iterator;
     typedef typename std::deque<knode>::reverse_iterator reverse_iterator;
     typedef typename std::deque<knode>::const_reverse_iterator
@@ -74,8 +77,9 @@ class Twpath : public TwBucket<knode> {
     using TwBucket<knode>::erase;
     using TwBucket<knode>::size;
     using TwBucket<knode>::path;
+    using TwBucket<knode>::push_back;
 
-
+#if 0
     /* ---------- operations within two  paths ------------------- */
 
     /*!
@@ -332,7 +336,7 @@ class Twpath : public TwBucket<knode> {
         i < j ? evaluate( i, maxcapacity ) : evaluate( j, maxcapacity );
         return OK;
     };
-
+#endif
 
     /*!
      * \brief Evaluated: Insert a node into an existing path.
@@ -344,33 +348,44 @@ class Twpath : public TwBucket<knode> {
      * \param[in] maxcapacity The maximum capacity of vehicle for this path.
      * \return Status of whether or not the move was made.
      */
-    E_Ret e_insert( const knode &n, UID at, double maxcapacity ) {
-        assert ( at <= size() );
-
-        if ( at < 0 or at > size() ) return INVALID;
-
-        path.insert( path.begin() + at, n );
+    bool e_insert( const knode &node, POS at, double maxcapacity ) {
+        assert (at <= size());
+        if (not TwBucket<knode>::insert(node , at) )
+           return false;
         evaluate( at, maxcapacity );
-        return OK;
+        return true;
     };
 
 
-    /*!
-     * \brief Evaluated: Append a node to an existing path.
+    /*!  * \brief Evaluated: Append a node to the path.
      *
-     * Append a node to an existing path and evaluate the resultant path.
-     *
-     * \param[in] n The node to be appended.
-     * \param[in] maxcapacity The maximum capacity of vehicle for this path.
-     * \return Status of whether or not the move was made.
+     * \param[in] node to be appended.
+     * \param[in] maxcapacity of vehicle for this path.
+     * \returns true if e_push_back was performed
      */
-    E_Ret e_push_back( const knode &n, double maxcapacity ) {
-        path.push_back( n );
+    bool e_push_back( const knode &node, double maxcapacity ) {
+        if (not TwBucket<knode>::push_back(node))
+           return false;
         evalLast( maxcapacity );
-        return OK;
+        return true;
     };
 
+    /*!  * \brief Evaluated: erases a node from the path.
+     *
+     * \param[in] node to be appended.
+     * \param[in] maxcapacity of vehicle for this path.
+     * \returns true if e_erase was performed
+     */
+    bool e_erase (POS pos, double maxcapacity ) {
+        assert ( pos < size() );
 
+        if (not TwBucket<knode>::erase(pos)) 
+          return false;
+        evaluate( pos, maxcapacity );
+        return true;
+    };
+
+#if 0
     /*!
      * \brief Evaluated: Remove a node from a path.
      *
@@ -390,6 +405,7 @@ class Twpath : public TwBucket<knode> {
         evaluate( i, maxcapacity );
         return OK;
     };
+#endif
 
     /* --------------   EVALUATION  --------------------------- */
 
@@ -428,13 +444,13 @@ class Twpath : public TwBucket<knode> {
 
         if ( from >= path.size() ) from = size() - 1;
 
-        iterator it = path.begin() + from;
+        iterator node = path.begin() + from;
 
-        while ( it != path.end() ) {
-            if ( it == path.begin() ) it->evaluate( maxcapacity );
-            else it->evaluate( *( it - 1 ), maxcapacity );
+        while ( node != path.end() ) {
+            if ( node == path.begin() ) node->evaluate( maxcapacity );
+            else node->evaluate( *(node - 1), maxcapacity );
 
-            it++;
+            node++;
         }
 
     };
@@ -622,7 +638,6 @@ class Twpath : public TwBucket<knode> {
     };
 
 };
-
 
 #endif
 

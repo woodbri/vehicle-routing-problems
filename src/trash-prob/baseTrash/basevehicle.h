@@ -43,13 +43,13 @@ class BaseVehicle  {
 
 
     int vid;
-    int ntype;
+    //int ntype;
     Twpath<Trashnode> path;
     Trashnode depot; //just for keeps
     Trashnode endingSite;
     Trashnode dumpSite;
     double startTime;
-    double endTime;;
+    double endTime;
 
     double maxcapacity;
     double cost;        // cost of the route
@@ -71,18 +71,13 @@ class BaseVehicle  {
 
     bool isvalid() const {return vid >= 0;}; //
     bool findNearestNodeTo( Bucket &unassigned,  UID &pos,  Trashnode &bestNode );
-    double getCurrentCapacity() const {return maxcapacity - path[size() - 1].getCargo();}
     bool e_setPath( const Bucket &sol );
+
     //--------------------------------------------------------------------
-    // structors
+    // constructors
     //--------------------------------------------------------------------
 
-    BaseVehicle() {
-        maxcapacity = 0;
-        cost        = 0;
-        w1 = w2 = w3 = 1.0;
-    };
-
+    BaseVehicle();
     BaseVehicle( int _vid, int _start_id, int _dump_id, int _end_id,
                  int _capacity, int _dumpservicetime, int _starttime,
                  int _endtime, const Bucket &otherlocs );
@@ -107,6 +102,7 @@ class BaseVehicle  {
     double getw2() const { return w2; };
     double getw3() const { return w3; };
     int getVid() const { return vid; };
+    inline double getCurrentCapacity() const {return (maxcapacity - path[size() - 1].getCargo());}
     const Trashnode &getDepot() const { return path[0]; };
     const Trashnode &getStartingSite() const {return path[0];}
     const Trashnode &getDumpSite() const { return dumpSite; };
@@ -116,10 +112,11 @@ class BaseVehicle  {
     Trashnode &getDumpSite()  { return dumpSite; };
     Trashnode &getEndingSite()  {return endingSite;}
 
-    //const Trashnode& getBackToDepot() const {return endingSite;}
+#if 0
+    const Trashnode& getBackToDepot() const {return endingSite;}
 
-    //ouble distancetodepot(int i) const { return path[i].distance(getdepot()); };
-    //double distancetodump(int i) const { return path[i].distance(getdumpSite()); };
+    double distancetodepot(int i) const { return path[i].distance(getdepot()); };
+    double distancetodump(int i) const { return path[i].distance(getdumpSite()); };
 
     #ifdef WITHOSRM
     //--------------------------------------------------------------------
@@ -129,14 +126,14 @@ class BaseVehicle  {
     double getTotTravelTimeOsrm() const;
     void evaluateOsrm();
     #endif
+#endif
+    const Trashnode& operator[]( int i ) const { return path[i]; };
+    Trashnode&  operator[](int i)  { return path[i]; };
 
-    const Trashnode &operator[]( int i ) const { return path[i]; };
-    //Trashnode operator[](int i) const { return path[i]; };
-
+    #ifdef DOVRPLOG
     //--------------------------------------------------------------------
     // dumps 
     //--------------------------------------------------------------------
-    #ifdef DOVRPLOG
     void dump() const;
     void dump( const std::string &title ) const;
     void dumpeval() const;
@@ -145,10 +142,10 @@ class BaseVehicle  {
     void tau() const ;
     #endif
 
+    #ifdef DOPLOT
     //--------------------------------------------------------------------
     // plots
     //--------------------------------------------------------------------
-    #ifdef DOPLOT
     void plot( std::string file, std::string title, int carnumber ) const;
     void plot( Plot<Trashnode> graph, int carnumber ) const;
     #endif
@@ -163,7 +160,7 @@ class BaseVehicle  {
     dumpSite
     endingSite
     */
-    bool feasable() const { return path[size() - 1].feasable() and dumpSite.feasable() and endingSite.feasable(); };
+    bool feasable() const { return path.feasable() and dumpSite.feasable() and endingSite.feasable(); };
     bool hascv()const { return endingSite.getcvTot() != 0; };
     bool hastwv()const { return endingSite.gettwvTot() != 0; };
 
@@ -192,8 +189,9 @@ class BaseVehicle  {
     // single path manipulators
 
     bool push_back( Trashnode node );
-    bool push_front( Trashnode node );
     bool insert( Trashnode node, int at );
+#if 0
+    bool push_front( Trashnode node );
     bool remove( int at );
     bool moverange( int rangefrom, int rangeto, int destbefore );
     bool movereverse( int rangefrom, int rangeto, int destbefore );
@@ -210,6 +208,9 @@ class BaseVehicle  {
     void restorePath( Twpath<Trashnode>
                       oldpath ); //tmp=v; v.dostuff; v=tmp restores as original
 
+#endif
+
+#if 0
     //--------------------------------------------------------------------
     // algorithm specific - intra-route manipulations
     //--------------------------------------------------------------------
@@ -246,7 +247,7 @@ class BaseVehicle  {
                     const int &i2, const int &i3, bool force );
     bool relocate( BaseVehicle &v2, const int &i1, const int &i2, bool force );
     bool relocateBest( BaseVehicle &v2, const int &i1 );
-
+#endif
 
 
 

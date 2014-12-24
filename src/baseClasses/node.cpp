@@ -12,7 +12,7 @@
  *
  ********************************************************************VRP*/
 
-#include <limits>
+#include <cmath>
 #include <string>
 #include <iostream>
 #include <sstream>
@@ -34,7 +34,6 @@
 double Node::haversineDistance(const Node &other) const {
     const double pi = 3.14159265358979323846;
     const double deg2rad = pi / 180.0;
-    //const double rad2deg = 180.0 / pi;
     const double radius = 6367000;  // Earth radius 6367 Km in meters
     double dlon = (other.x_ - x_) * deg2rad;
     double dlat = (other.y_ - y_) * deg2rad;
@@ -51,10 +50,11 @@ double Node::distance(const Node &other) const {
 }
 
 /*!  * \brief Set attributes for this node.  */
-void Node::set(UID nid, double x, double y) {
-    id_ = nid_ = nid;
+void Node::set(UID id, double x, double y) {
+    id_ = nid_ = id;
     x_ = x;
     y_ = y;
+    valid_ = true;
 }
 
 /*!  * \brief Print the contents of this node.  */
@@ -95,9 +95,9 @@ double Node::gradient(const Node &p) const {
 
     if (deltaX == 0) {
       if (deltaY >= 0)
-        return std::numeric_limits<double>::max();
+        return VRP_MAX();
       else
-        return -std::numeric_limits<double>::max();
+        return VRP_MIN();
     } else {
       return  deltaY / deltaX;
     }
@@ -194,36 +194,27 @@ double Node::distanceToSegment(double segmentX1, double segmentY1,
 
 /*! \brief Construct a new Node that needs the user to set its attributes.  */
 Node::Node()
-    :nid_(-1), id_(-1), x_(0.0), y_(0.0), hint_("") {
+    :nid_(0), id_(0), x_(0.0), y_(0.0), hint_(""), valid_(false) {
 }
 
 /*! \brief Construct a new Node and assign it \c x and \c y values.  */
 Node::Node(double x, double y)
-    :nid_(-1), id_(-1), x_(x), y_(y), hint_("") {
+    :nid_(0), id_(0), x_(x), y_(y), hint_(""), valid_(false) {
 }
 
-#if 0
-/*! \brief Construct a new Node and assign it \c nid, \c x and \c y values.  */
-Node::Node(UID nid, double x, double y) {
-    id_ = -1;
-    nid_ = nid;
-    x_ = x;
-    y_ = y;
-    hint_ = "";
-}
-#endif
 
 /*! \brief Construct a new Node and assign it the associated values.  */
 Node::Node(UID nid, int id , double x, double y)
-    :nid_(nid), id_(id), x_(x), y_(y), hint_("") {
+    :nid_(nid), id_(id), x_(x), y_(y), hint_(""), valid_(true) {
 }
 
 /*! \brief Create a new Node by parsing a string.  */
-Node::Node(const std::string &line) {
-    std::istringstream buffer(line);
-    buffer >> nid_;
-    buffer >> x_;
-    buffer >> y_;
-    id_ = nid_;
-    hint_ = "";
+Node::Node(const std::string &line)
+     : valid_(true) {
+  std::istringstream buffer(line);
+  buffer >> id_;
+  buffer >> x_;
+  buffer >> y_;
+  nid_ = id_;
+  hint_ = "";
 }

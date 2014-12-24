@@ -104,7 +104,6 @@ bool BaseVehicle::e_setPath( const Bucket &sol ) {
     return true;
 }
 
-
 bool  BaseVehicle::findNearestNodeTo( Bucket &unassigned, UID &pos,
                                       Trashnode &bestNode ) {
     #ifdef TESTED
@@ -216,33 +215,28 @@ std::deque<int> BaseVehicle::getpath() const {
 
 
 bool BaseVehicle::push_back( Trashnode node ) {
-    E_Ret ret = path.e_push_back( node, getmaxcapacity() );
-
-    if ( ret == OK ) evalLast();
-    else if ( ret == INVALID ) return false;
-
+    if (not  path.e_push_back( node, getmaxcapacity()))
+      return false;
+    evalLast();
     return true;
 }
 
-
+#if 0
 bool BaseVehicle::push_front( Trashnode node ) {
     // position 0 is the depot we can not put a node before that
     return insert( node, 1 );
 }
 
+#endif
 
 bool BaseVehicle::insert( Trashnode node, int at ) {
-    E_Ret ret = path.e_insert( node, at, getmaxcapacity() );
-
-    if ( ret == OK ) {
-        path.evaluate( at, getmaxcapacity() );
-        evalLast();
-    }
-    else if ( ret == INVALID ) return false;
-
+    if (not path.e_insert( node, at, getmaxcapacity()))
+       return false;
+    evalLast();
     return true;
 }
 
+#if 0
 bool BaseVehicle::remove( int at ) {
     E_Ret ret = path.e_remove( at, getmaxcapacity() );
 
@@ -322,7 +316,7 @@ void BaseVehicle::restorePath( Twpath<Trashnode> oldpath ) {
     path = oldpath;
     evalLast();
 }
-
+#endif
 
 void BaseVehicle::evalLast() {
     Trashnode last = path[path.size() - 1];
@@ -1106,4 +1100,10 @@ BaseVehicle::BaseVehicle( std::string line, const Bucket &otherlocs )  {
         }
         else vid = -1;  //truck is rejected
     }
+
+BaseVehicle::BaseVehicle()
+        :maxcapacity(0),
+        cost(0),
+        w1(1.0), w2(1.9),w3(1.0) {
+};
 

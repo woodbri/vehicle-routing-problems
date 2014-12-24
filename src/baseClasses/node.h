@@ -14,9 +14,8 @@
 #ifndef SRC_BASECLASSES_NODE_H_
 #define SRC_BASECLASSES_NODE_H_
 
-#include <cmath>
+#include <basictypes.h>
 #include <string>
-#include <limits>
 
 /*! \class Node
  * \brief The Node class defines a point in 2D space with an id.
@@ -29,8 +28,6 @@
  */
 
 class Node {
- protected:
-      typedef unsigned long int UID ;
  public:
   /** @name accessors */
   ///@{
@@ -47,7 +44,7 @@ class Node {
   ///@{
   bool isLatLon() const { return (x_ < 180) && (x_ > -180)
                                 && (y_ < 180) && (y_ > -180);}
-  bool isValid() const { return  id_>0;}
+  bool isValid() const { return  valid_ > 0;}
   bool isSamePos(const Node &other) const { return distance(other) == 0; }
   bool isSamePos(const Node &other, double tolerance) const {
     return distance(other) < tolerance;}
@@ -58,7 +55,10 @@ class Node {
   ///@{
   void set(UID nid, double x, double y);
   void set_nid(UID nid) {nid_ = nid;}
-  void set_id(int id) {id_ = id; }
+  void set_id(int id) {
+    id_ = id;
+    valid_ = true;
+  }
   void set_x(double x) {x_ = x; }
   void set_y(double y) {y_ = y; }
   void set_hint(const std::string &hint) {hint_ = hint;}
@@ -107,17 +107,17 @@ class Node {
   // constructors
   Node();
   Node(double x, double y);
-  //Node(UID nid, double x, double y);
   Node(UID nid, int id, double x, double y);
   explicit Node(const std::string &line);
 
   //  ~Node() {}
  private:
   UID nid_;    ///< internal node number
-  int id_;     ///< user supplied node number
+  UID id_;     ///< user supplied node number
   double x_;   ///< x or longitude of the node's location
   double y_;   ///< y or latitude of the node's location
   std::string hint_;  ///< orsrm's hint
+  bool valid_;  ///< true when id_ has being assigned
 };
 
 #endif  // SRC_BASECLASSES_NODE_H_
