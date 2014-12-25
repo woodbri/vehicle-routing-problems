@@ -136,8 +136,8 @@ class Vehicle: public BaseVehicle {
     double sumIdle, penalty;
     inline int  realN() const { return ( path.getDumpVisits() + 1 ) ;}
     inline double  totalServiceTime() {
-        return ( path.getTotServiceTime() +  dumpSite.getServiceTime() +
-                 endingSite.getServiceTime() ) ;
+        return ( path.getTotServiceTime() +  dumpSite.serviceTime() +
+                 endingSite.serviceTime() ) ;
     }
     double v_cost, workNotDonePerc;
     double getCost() const { return v_cost;};

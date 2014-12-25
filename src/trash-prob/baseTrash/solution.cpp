@@ -94,16 +94,16 @@ void Solution::dumpSolutionForPg () const {
     for ( UINT i = 0; i < fleet.size(); ++i ) {
         if ( fleet[i].size() <= 1 ) continue;
         for ( UINT j = 0; j < fleet[i].size(); ++j ) {
-          std::cout<<"VID: "<<fleet[i].getVid()<<"\tid: "<<fleet[i][j].id()<<"\tntype: "<<fleet[i][j].ntype()<<"\tDeparture: "<<fleet[i][j].getDepartureTime()<<
+          std::cout<<"VID: "<<fleet[i].getVid()<<"\tid: "<<fleet[i][j].id()<<"\tntype: "<<fleet[i][j].type()<<"\tDeparture: "<<fleet[i][j].getDepartureTime()<<
 		"\tdeltaTime:"<< fleet[i][j].getDeltaTime()<<
-		"\tdeltaCargo"<< fleet[i][j].getDemand()<<"\n";
+		"\tdeltaCargo"<< fleet[i][j].demand()<<"\n";
         }
-        std::cout<<"VID: "<<fleet[i].getVid()<<"\tid: "<<fleet[i].getDumpSite().id()<<"\tntype: "<<fleet[i].getDumpSite().ntype()<<"\tDeparture: "<<fleet[i].getDumpSite().getDepartureTime()<<
+        std::cout<<"VID: "<<fleet[i].getVid()<<"\tid: "<<fleet[i].getDumpSite().id()<<"\tntype: "<<fleet[i].getDumpSite().type()<<"\tDeparture: "<<fleet[i].getDumpSite().getDepartureTime()<<
 		"\tdeltaTime:"<<  fleet[i].getDumpSite().getDeltaTime()<<
-		"\tdeltaCargo"<< fleet[i].getDumpSite().getDemand()<<"\n";
-        std::cout<<"VID: "<<fleet[i].getVid()<<"\tid: "<<fleet[i].getEndingSite().id()<<"\tntype: "<<fleet[i].getEndingSite().ntype()<<"\tDeparture: "<<fleet[i].getEndingSite().getDepartureTime()<<
+		"\tdeltaCargo"<< fleet[i].getDumpSite().demand()<<"\n";
+        std::cout<<"VID: "<<fleet[i].getVid()<<"\tid: "<<fleet[i].getEndingSite().id()<<"\ttype: "<<fleet[i].getEndingSite().type()<<"\tDeparture: "<<fleet[i].getEndingSite().getDepartureTime()<<
 		"\tdeltaTime:"<<  fleet[i].getEndingSite().getDeltaTime()<<
-		"\tdeltaCargo"<< fleet[i].getEndingSite().getDemand()<<"\n";
+		"\tdeltaCargo"<< fleet[i].getEndingSite().demand()<<"\n";
     }
 }
         
@@ -140,10 +140,10 @@ vehicle_path_t *Solution::getSolutionForPg( UINT &count ) const {
             results[seq].seq       = seq + 1;
             results[seq].vid       = fleet[i].getVid();
             results[seq].nid       = fleet[i][j].id();
-            results[seq].ntype     = map[fleet[i][j].ntype()];
+            results[seq].ntype     = map[fleet[i][j].type()];
             //results[seq].deltatime = ( j == 0 ) ? 0 : fleet[i][j].getDepartureTime() - fleet[i][j - 1].getDepartureTime();
             results[seq].deltatime     =  fleet[i][j].getDeltaTime();
-            results[seq].cargo     =  fleet[i][j].getDemand();
+            results[seq].cargo     =  fleet[i][j].demand();
 
             ++seq;
         }
@@ -152,18 +152,18 @@ vehicle_path_t *Solution::getSolutionForPg( UINT &count ) const {
         results[seq].seq       = seq + 1;
         results[seq].vid       = fleet[i].getVid();
         results[seq].nid       = fleet[i].getDumpSite().id();
-        results[seq].ntype     = map[fleet[i].getDumpSite().ntype()];
+        results[seq].ntype     = map[fleet[i].getDumpSite().type()];
         results[seq].deltatime = fleet[i].getDumpSite().getDepartureTime() - fleet[i][fleet[i].size() - 1].getDepartureTime();
-        results[seq].cargo     = fleet[i].getDumpSite().getDemand();
+        results[seq].cargo     = fleet[i].getDumpSite().demand();
         ++seq;
 
         // add the ending location
         results[seq].seq       = seq + 1;
         results[seq].vid       = fleet[i].getVid();
         results[seq].nid       = fleet[i].getEndingSite().id();
-        results[seq].ntype     = map[fleet[i].getEndingSite().ntype()];
+        results[seq].ntype     = map[fleet[i].getEndingSite().type()];
         results[seq].deltatime = fleet[i].getEndingSite().getDepartureTime() - fleet[i].getDumpSite().getDepartureTime();
-        results[seq].cargo     = fleet[i].getEndingSite().getDemand();
+        results[seq].cargo     = fleet[i].getEndingSite().demand();
         ++seq;
     }
     #ifdef DOVRPLOG

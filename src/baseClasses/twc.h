@@ -1381,8 +1381,8 @@ template <class knode> class TWC {
 
 
 
+    #ifdef OSRMCLIENT
     void setHints( Bucket &nodes ) {
-        #ifdef OSRMCLIENT
         #ifdef DOSTATS
         Timer timer;
         #endif
@@ -1395,8 +1395,8 @@ template <class knode> class TWC {
         STATS->addto( "TWC::setHints Cumultaive time:", timer.duration() );
         #endif
 
-        #endif
     }
+    #endif
 
 
   private:
@@ -1641,7 +1641,7 @@ template <class knode> class TWC {
      * \return The earliest arrival time at \b nj
      */
     double ajli( const knode &ni, const knode &nj ) const {
-        return ni.closes() + ni.getServiceTime() + TravelTime( ni, nj );
+        return ni.closes() + ni.serviceTime() + TravelTime( ni, nj );
     }
 
     /*!
@@ -1656,7 +1656,7 @@ template <class knode> class TWC {
      * \return The earliest arrival time at \b nj
      */
     double ajei( const knode &ni, const knode &nj ) const {
-        return ni.opens() + ni.getServiceTime() + TravelTime( ni, nj );
+        return ni.opens() + ni.serviceTime() + TravelTime( ni, nj );
     }
 
 

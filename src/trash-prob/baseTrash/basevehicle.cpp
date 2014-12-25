@@ -320,7 +320,7 @@ void BaseVehicle::restorePath( Twpath<Trashnode> oldpath ) {
 
 void BaseVehicle::evalLast() {
     Trashnode last = path[path.size() - 1];
-    dumpSite.setDemand( -last.getCargo() );
+    dumpSite.set_demand( -last.getCargo() );
     dumpSite.evaluate( last, getmaxcapacity() );
     endingSite.evaluate( dumpSite, getmaxcapacity() );
 
@@ -1033,19 +1033,19 @@ BaseVehicle::BaseVehicle( int _vid, int _start_id, int _dump_id, int _end_id,
             endingSite = otherlocs[otherlocs.posFromId( endingId )];
 
             if ( endingSite.closes() > endTime )
-                endingSite.setCloses( endTime );
+                endingSite.set_closes( endTime );
 
             dumpSite = otherlocs[otherlocs.posFromId( dumpId )];
-            dumpSite.setServiceTime( dumpServiceTime );
+            dumpSite.set_serviceTime( dumpServiceTime );
             depot = otherlocs[otherlocs.posFromId( depotId )];
 
             if ( depot.opens() < startTime )
-                depot.setOpens( startTime );
+                depot.set_opens( startTime );
 
-            depot.setType( 0 );
-            depot.setDemand( 0 );
-            dumpSite.setType( 1 );
-            endingSite.setType( 3 );
+            depot.set_type( Twnode::kStart );
+            depot.set_demand( 0 );
+            dumpSite.set_type( Twnode::kDump );
+            endingSite.set_type( Twnode::kEnd );
             push_back( depot );
             evalLast();
         }
@@ -1081,18 +1081,18 @@ BaseVehicle::BaseVehicle( std::string line, const Bucket &otherlocs )  {
 
             endingSite = otherlocs[otherlocs.posFromId( endingId )];
 
-            if ( endingSite.closes() > endTime ) endingSite.setCloses( endTime );
+            if ( endingSite.closes() > endTime ) endingSite.set_closes( endTime );
 
             dumpSite = otherlocs[otherlocs.posFromId( dumpId )];
-            dumpSite.setServiceTime( dumpServiceTime );
+            dumpSite.set_serviceTime( dumpServiceTime );
             depot = otherlocs[otherlocs.posFromId( depotId )];
 
-            if ( depot.opens() < startTime ) depot.setOpens( startTime );
+            if ( depot.opens() < startTime ) depot.set_opens( startTime );
 
-            depot.setType( 0 );
-            depot.setDemand( 0 );
-            dumpSite.setType( 1 );
-            endingSite.setType( 3 );
+            depot.set_type( Twnode::kStart );
+            depot.set_demand( 0 );
+            dumpSite.set_type( Twnode::kDump );
+            endingSite.set_type( Twnode::kEnd );
             push_back( depot );
             evalLast();
             //dumpeval();

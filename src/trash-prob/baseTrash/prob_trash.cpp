@@ -196,12 +196,14 @@ void Prob_trash::loadProblem( const std::string &infile ) {
     twc->loadAndProcess_distance( datafile + ".dmatrix-time.txt", datanodes, invalid );
     load_trucks( datafile + ".vehicles.txt" );
 
+    #ifdef OSRMCLIENT
     twc->setHints( dumps );
     twc->setHints( nodes );
     twc->setHints( depots );
     twc->setHints( pickups );
     twc->setHints( endings );
     twc->settCC( C, pickups );
+    #endif  // OSRMCLIENT
 
 
     assert( trucks.size() and depots.size() and dumps.size() and endings.size() );
@@ -373,7 +375,7 @@ void Prob_trash::load_pickups( std::string infile ) {
         if ( line[0] == '#' ) continue;
 
         Trashnode node( line );
-        node.setType( 2 );
+        node.set_type( Twnode::kPickup );
 
         if ( not node.isValid() ) {
             #ifdef DOVRPLOG
@@ -383,10 +385,10 @@ void Prob_trash::load_pickups( std::string infile ) {
         }
         else {
             pickups.push_back( node );
-            st += node.getServiceTime();
+            st += node.serviceTime();
             op += node.opens();
             cl += node.closes();
-            dm += node.getDemand();
+            dm += node.demand();
             x += node.x();
             y += node.y();
         }

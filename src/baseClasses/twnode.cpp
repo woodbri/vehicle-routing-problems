@@ -17,10 +17,12 @@
 #include <string>
 
 #ifdef DOVRPLOG
-#include "logger.h"
+#include "./logger.h"
 #endif
 
-#include "twnode.h"
+#include "./twnode.h"
+
+
 
 /*!
  * \brief Check if a Twnode is valid or not.
@@ -31,120 +33,160 @@
  * - serviceTime \>= 0
  */
 bool Twnode::isValid() const {
-    if ( not  Node::isValid() ) return false;
+    if ( !Node::isValid() ) return false;
 
-    if ( not ( tw_open < tw_close
-               and tw_open >= 0
-               and serviceTime >= 0 ) ) return false;
+    if ( !(opens_ < closes_
+               && opens_ >= 0
+               && serviceTime_ >= 0) ) return false;
 
-    switch  ( type ) {
-        case 0: //depot
-            if ( not demand == 0 ) return false;
+    if ( type_ == kInvalid )  return false;
 
+    switch  (type_) {
+        case kStart:
+        case kEnd:
+            if (demand_ == 0) return true;
             break;
 
-        case 1: //dump
-            if ( demand > 0 ) return false;
-
+        case kDump:
+            if (demand_ <= 0) return true;
             break;
 
-        case 2: //pickup
-            if ( demand <= 0 ) return false;
-
+        case kDelivery:
+            if (demand_ < 0) return true;
             break;
 
-        case 3: //ending site
-            if ( not demand == 0 ) return false;
-
+        case kPickup:
+            if (demand_ > 0) return true;
             break;
 
-        case 4: //delivery site
-            if ( demand >= 0 ) return false;
-
+        case kLoad:
+            if (demand_ >= 0) return true;
             break;
+
+        case kUnknown:
+          return true;
+          break;
+
+        case kInvalid:
+          return false;
+          break;
     }
-
-    return true;
+    return false;
 }
 
 
-/*!
- * \brief Print the contents of a Twnode object.
- */
 #ifdef DOVRPLOG
 void Twnode::dump() const {
     std::stringstream ss;
-    ss.precision( 8 );
+    ss.precision(8);
     ss << nid()
        << " = " << id()
-       << ",\t\ttype " << type
+       << ",\t\ttype " << type_
        << ",\tx " << x()
        << ",\ty " << y()
-       << ",\topen " << tw_open
-       << ",\tclose " << tw_close
-       << ",\tdemand " << demand
-       << ",\tserviceT " << serviceTime
-       << ",\t street:" << streetid
+       << ",\topen " << opens_
+       << ",\tclose " << closes_
+       << ",\tdemand " << demand_
+       << ",\tserviceT " << serviceTime_
+       << ",\t street:" << streetId_
        << ",\t hint:" << hint();
-    DLOG( INFO ) << ss.str();
+    DLOG(INFO) << ss.str();
 }
 #endif
 
 
-/*!
- * \brief Set the attributes of a Twnode object.
- * \param[in] _nid Value for internal node id
- * \param[in] _id Value for user node id
- * \param[in] _x Value of the x or longitude coordinate
- * \param[in] _y Value of the y or latitude coordinate
- * \param[in] _demand Value of the demand for this node
- * \param[in] _tw_open The earliest possible arrival time
- * \param[in] _tw_close The latest possible arrivial time
- * \param[in] _service The length of time to sevice this node
- *
- * It should be noted the times are normally defined by some amount of elapsed
- * time from some problem start time of 0.0. The actual problem will specify
- * what the time units are, like seconds, minutes, hours etc.
- */
-void Twnode::set( int nid, int id, double x, double y, int _demand,
-                  int _tw_open, int _tw_close, int _service ) {
+void Twnode::set(int nid, int id, double x, double y, double demand,
+                  double opens, double closes, double serviceTime) {
     set_nid(nid);
     set_id(id);
     set_x(x);
     set_y(y);
-    demand = _demand;
-    tw_open = _tw_open;
-    tw_close = _tw_close;
-    serviceTime = _service;
+    demand_ = demand;
+    opens_ = opens;
+    closes_ = closes;
+    serviceTime_ = serviceTime;
 }
 
+void Twnode::set_demand(int demand) { demand_ = demand; }
+void Twnode::set_type(NodeType type) { type_ = type; }
+void Twnode::set_opens(int opens) { opens_ = opens; }
+void Twnode::set_closes(int closes) { closes_ = closes; }
+void Twnode::set_serviceTime(int serviceTime) { serviceTime_ = serviceTime; }
+void Twnode::set_streetId(int streetId) { streetId_ = streetId; }
+
+
+Twnode::Twnode()
+      :Node(),
+      type_(kUnknown),
+      demand_(0),
+      opens_(0),
+      closes_(0),
+      serviceTime_(0),
+      streetId_(-1) {
+}
 
 /*!
- * \brief Create an new Twnode object and populate its attributes by parsing line
  * \param[in] line A string with space separated values
- *
  * The \c line should be "nid x y tw_open tw_close demand servicetime streetid"
  */
-Twnode::Twnode( std::string line ) {
-    std::istringstream buffer( line );
-    demand = serviceTime = 0;
-    streetid = -1;
-    int nid;
-    double x,y;
-    buffer >> nid;
-    buffer >> x;
-    buffer >> y;
-    buffer >> tw_open;
-    buffer >> tw_close;
-    buffer >> demand;
-    buffer >> serviceTime;
-    buffer >> streetid;
-    set_id( nid );
-    set_nid( nid );
-    set_x( x );
-    set_y( y );
-    type = ( tw_open < tw_close and tw_open >= 0 and serviceTime >= 0 ) ? 0 : -1;
+Twnode::Twnode(std::string line)
+      :Node(),
+      type_(kUnknown),
+      demand_(0),
+      opens_(0),
+      closes_(0),
+      serviceTime_(0),
+      streetId_(-1) {
+  std::istringstream buffer(line);
+  int nid;
+  double x, y;
+  buffer >> nid;
+  buffer >> x;
+  buffer >> y;
+  buffer >> opens_;
+  buffer >> closes_;
+  buffer >> demand_;
+  buffer >> serviceTime_;
+  buffer >> streetId_;
+  set_id(nid);
+  set_nid(nid);
+  set_x(x);
+  set_y(y);
+  type_ = (opens_ < closes_ && opens_ >= 0 && serviceTime_ >= 0)
+            ? kUnknown : kInvalid;
 }
 
 
+
+
+double Twnode::opens() const {return opens_;}
+double Twnode::closes() const {return closes_;}
+double Twnode::demand() const {return demand_;}
+double Twnode::serviceTime() const { return serviceTime_;}
+double Twnode::windowLength() const { return  closes_ - opens_; }
+Twnode::NodeType Twnode::type() const {return type_;}
+int Twnode::streetId() const {return streetId_;}
+
+bool Twnode::isDepot() const {return type_ == kStart;}
+bool Twnode::isStarting() const {return type_ == kStart;}
+bool Twnode::isDump() const {return type_ == kDump;}
+bool Twnode::isPickup() const {return type_ == kPickup;}
+bool Twnode::isEnding() const {return type_ == kEnd;}
+bool Twnode::isDelivery() const {return type_ == kDelivery;}
+bool Twnode::isLoad() const {return type_ == kLoad;}
+
+bool Twnode::hasDemand() const { return demand_ > 0; }
+bool Twnode::hasSupply() const { return demand_ < 0; }
+bool Twnode::hasNoGoods() const { return demand_ == 0; }
+
+bool Twnode::earlyArrival(const double arrivalTime) const {
+  return arrivalTime < opens_;
+}
+bool Twnode::lateArrival(const double arrivalTime) const {
+  return arrivalTime > closes_;
+}
+bool Twnode::sameStreet(const Twnode &other) const {
+  return streetId_ == other.streetId_;
+}
+bool Twnode::sameStreet (int streetId) const {return streetId_ == streetId; }
 

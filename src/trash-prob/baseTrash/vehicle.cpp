@@ -789,29 +789,29 @@ void Vehicle::setInitialValues( const Trashnode &node, const Bucket &picks ) {
         ttCD = twc->getAverageTime( picks, dumpSite );
         ttDE = twc->TravelTime( dumpSite, endingSite );
         ttCC = twc->TravelTime( C, C );
-        serviceE = endingSite.getServiceTime();
+        serviceE = endingSite.serviceTime();
         shiftLength = endTime - startTime;
         e_makeFeasable( 0 );
-        Z = floor( maxcapacity / C.getDemand() );
-        arrivalEclosesLast = C.closes() + ttCD + dumpSite.getServiceTime() + ttDE;
+        Z = floor( maxcapacity / C.demand() );
+        arrivalEclosesLast = C.closes() + ttCD + dumpSite.serviceTime() + ttDE;
         totalTime = 0;
 
         N = -1;
 
         do {
             N++;
-            totalTime = depot.getServiceTime()  + ttSC + ttDE + endingSite.getServiceTime()
-                        + N * Z * C.getServiceTime() + N * ( Z - 1 ) * ttCC + ( N - 1 ) * ttDC
-                        + N * ( dumpSite.getServiceTime() + ttCD );
+            totalTime = depot.serviceTime()  + ttSC + ttDE + endingSite.serviceTime()
+                        + N * Z * C.serviceTime() + N * ( Z - 1 ) * ttCC + ( N - 1 ) * ttDC
+                        + N * ( dumpSite.serviceTime() + ttCD );
         }
         while ( totalTime < arrivalEclosesLast + serviceE );
 
         forcedWaitTime = endTime - ( arrivalEclosesLast  +  serviceE );
         totalWaitTime = endTime - ( endingSite.getArrivalTime() + serviceE );
-        idleTimeSCDE = C.closes() - ( depot.getServiceTime() + ttSC );
-        z1 = idleTimeSCDE / ( C.getServiceTime() + ttCC );
+        idleTimeSCDE = C.closes() - ( depot.serviceTime() + ttSC );
+        z1 = idleTimeSCDE / ( C.serviceTime() + ttCC );
         idleTimeSDCDE = C.closes() - ( dumpSite.getDepartureTime() + ttDC );
-        z2 = idleTimeSDCDE / ( C.getServiceTime() + ttCC );
+        z2 = idleTimeSDCDE / ( C.serviceTime() + ttCC );
         idleTime = totalWaitTime - forcedWaitTime;
     };
 
@@ -849,9 +849,9 @@ void Vehicle::setCost() {
 
         realttDE = ttDE;
 
-        realArrivalEclosesLast = last.closes() +  last.getServiceTime() +
+        realArrivalEclosesLast = last.closes() +  last.serviceTime() +
                                  twc->TravelTime( last, dumpSite ) +
-                                 dumpSite.getServiceTime() + realttDE;
+                                 dumpSite.serviceTime() + realttDE;
         //>0 the latest the truck can arrive
         arrivalEclosesLast = std::max( realArrivalEclosesLast,
                                        arrivalEclosesLast );
@@ -893,17 +893,17 @@ void Vehicle::setCost() {
         realIdleTime =  realArrivalEclosesLast -  realTotalTime ;
 
         realIdleTimeSCDE =  ( Zmissing > 0 ) ?
-                            ( C.getServiceTime() + realttCC ) * Zmissing :
+                            ( C.serviceTime() + realttCC ) * Zmissing :
                             C.closes() - ( depot.getDepartureTime() +  realttSC ) ;
 
         realz1 = std::min( ( int ) ( floor( realIdleTime /
-                ( C.getServiceTime() + realttCC ) ) ) , Zmissing ) ;
+                ( C.serviceTime() + realttCC ) ) ) , Zmissing ) ;
 
         //cant have negative idleTime
         realIdleTimeSDCDE = std::max( ( C.closes() -
                 ( dumpSite.getDepartureTime() + realttDC ) ) , 0.0 );
 
-        realz2 = floor( realIdleTimeSDCDE / ( C.getServiceTime() +  realttCC ) );
+        realz2 = floor( realIdleTimeSDCDE / ( C.serviceTime() +  realttCC ) );
 
         sumIdle = realIdleTimeSCDE + realIdleTimeSDCDE + realIdleTime;
 
@@ -992,13 +992,13 @@ double Vehicle::getDeltaCost( double deltaTravelTime, int deltan ) {
         int newz = ( realN() == 1 ) ?  newn  : newn % Z ;
         int newZmissing = ( Z > newz ) ? Z - newz : 0;
         double newrealIdleTimeSCDE =  ( newz ) ? newrealIdleTime -
-                                      ( C.getServiceTime() + realttCC ) * newZmissing :
+                                      ( C.serviceTime() + realttCC ) * newZmissing :
                                       C.closes() - ( depot.getDepartureTime() +  realttSC );
         double newrealz1 = std::min ( ( int ) ( floor( newrealIdleTime /
-                                                ( C.getServiceTime() + realttCC ) ) ) , newZmissing ) ;
+                                                ( C.serviceTime() + realttCC ) ) ) , newZmissing ) ;
         double newrealIdleTimeSDCDE =  C.closes() - ( dumpSite.getDepartureTime() +
                                        deltaTravelTime + realttDC );
-        double  newrealz2 = newrealIdleTimeSDCDE / ( C.getServiceTime() +  realttCC );
+        double  newrealz2 = newrealIdleTimeSDCDE / ( C.serviceTime() +  realttCC );
 
         double newv_cost = newrealTotalTime + ( newrealz1 + newrealz2 ) * newn +
                            newrealIdleTimeSCDE + newrealIdleTimeSDCDE;
@@ -1032,11 +1032,11 @@ void Vehicle::dumpCostValues() const {
                      << "                   realttDE\t" << realttDE << "\n"
                      << "                 service(E)\t" << serviceE << "\n"
                      << "                maxcapacity\t" << maxcapacity << "\n"
-                     << "              C.getdemand()\t" << C.getDemand() << "\n"
-                     << "         C.getservicetime()\t" << C.getServiceTime()  << "\n"
+                     << "              C.getdemand()\t" << C.demand() << "\n"
+                     << "         C.getservicetime()\t" << C.serviceTime()  << "\n"
                      << "                 C.closes()\t" << C.closes() << "\n"
                      << "    path[size()-1].closes()\t" << path[size() - 1].closes() << "\n"
-                     << "  dumpSite.getservicetime()\t" << dumpSite.getServiceTime()  << "\n"
+                     << "  dumpSite.getservicetime()\t" << dumpSite.serviceTime()  << "\n"
                      << "dumpSite.getDepartureTime()\t" << dumpSite.getDepartureTime() << "\n"
                      << "                      realN\t" << realN()  << "\n"
                      << "endingSite.getArrivalTime()\t" << endingSite.getArrivalTime()  << "\n"

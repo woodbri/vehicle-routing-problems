@@ -97,12 +97,14 @@ TrashProb::TrashProb(  container_t* p_containers, unsigned int container_count,
         return;
     };
 
+    #ifdef OSRMCLIENT
     twc->setHints( dumps );
     twc->setHints( nodes );
     twc->setHints( depots );
     twc->setHints( pickups );
     twc->setHints( endings );
     twc->settCC( C, pickups );
+    #endif  // OSRMCLIENT
 
 
     assert( trucks.size() and depots.size() and dumps.size() and endings.size() );
@@ -188,14 +190,14 @@ void TrashProb::addContainers( container_t *_containers, int count ) {
 
 
         Trashnode node( c.id, c.x, c.y, c.open, c.close, c.service, c.demand, c.sid ); //get it out of the cycle
-        node.setType( 2 );
+        node.set_type( Twnode::kPickup );
 
         if ( not dataHasError ) {
             pickups.push_back( node );
-            st += node.getServiceTime();
+            st += node.serviceTime();
             op += node.opens();
             cl += node.closes();
-            dm += node.getDemand();
+            dm += node.demand();
             x += node.x();
             y += node.y();
         }

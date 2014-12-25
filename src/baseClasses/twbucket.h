@@ -131,13 +131,13 @@ class TwBucket {
 
         if ( from.earlyArrival( arrive_f ) ) arrive_f = from.opens() ;
 
-        double depart_f = arrive_f + from.getServiceTime();
-        double arrive_m = arrive_f + from.getServiceTime() + ttfm;
+        double depart_f = arrive_f + from.serviceTime();
+        double arrive_m = arrive_f + from.serviceTime() + ttfm;
 
         if ( middle.lateArrival( arrive_m ) ) return _MAX();
         if ( middle.earlyArrival( arrive_m ) ) arrive_m = middle.opens() ;
 
-        double arrive_t = arrive_m + middle.getServiceTime() + ttmt;
+        double arrive_t = arrive_m + middle.serviceTime() + ttmt;
 
         if ( to.lateArrival( arrive_t ) ) return _MAX();
         if ( to.earlyArrival( arrive_t ) ) arrive_t = to.opens() ;

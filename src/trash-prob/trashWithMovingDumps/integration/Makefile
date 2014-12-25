@@ -49,7 +49,7 @@ endif
 # <blank> is NO
 # anything else  
 
-WITH_OSRMCLIENT = yes
+WITH_OSRMCLIENT =
 WITH_STATS =
 WITH_MD5 =
 WITH_OSRM =
