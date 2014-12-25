@@ -57,7 +57,7 @@ class Tweval: public Twnode {
     double getTotTravelTime() const { return totTravelTime; };
     double getTotWaitTime() const { return totWaitTime; };
     double getTotServiceTime() const { return totServiceTime; };
-    double getDumpVisits() const { return dumpVisits; };
+    int getDumpVisits() const { return dumpVisits; };
     double deltaGeneratesTWV( double deltaTime ) const;
     std::string getLoc() const;
 
@@ -99,7 +99,7 @@ class Tweval: public Twnode {
     double totWaitTime;     ///< Total accumulated wait time at this point in the path
     double totTravelTime;   ///< Total accumulated travel time at this point in the path
     double totServiceTime;  ///< Total accumulated service time at this point in the path
-    double dumpVisits;      ///< Total count of dump visits at this point in the path
+    int dumpVisits;      ///< Total count of dump visits at this point in the path
 
 };
 
