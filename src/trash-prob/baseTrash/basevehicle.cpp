@@ -168,26 +168,26 @@ void BaseVehicle::dump( const std::string &title ) const {
 
 void BaseVehicle::dumpeval() const {
     DLOG( INFO ) << "\nStarting site:";
-    path[0].dumpeval();
+    path[0].dumpeval(maxcapacity);
 
     for ( POS i = 1; i < path.size(); i++ ) {
         DLOG( INFO ) << "path stop #:" << i;
-        path[i].dumpeval();
+        path[i].dumpeval(maxcapacity);
     }
 
     DLOG( INFO ) << "Dump site:";
-    dumpSite.dumpeval();
+    dumpSite.dumpeval(maxcapacity);
     DLOG( INFO ) << "Ending site :";
-    endingSite.dumpeval();
+    endingSite.dumpeval(maxcapacity);
     DLOG( INFO )  << "TOTAL COST=" << cost;
 }
 
 
 void BaseVehicle::smalldump() const {
     DLOG( INFO ) << "Dump site:";
-    dumpSite.dumpeval();
+    dumpSite.dumpeval(maxcapacity);
     DLOG( INFO ) << "Ending site:";
-    endingSite.dumpeval();
+    endingSite.dumpeval(maxcapacity);
     DLOG( INFO )  << "TOTAL COST=" << cost;
 }
 

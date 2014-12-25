@@ -882,7 +882,7 @@ void Vehicle::setCost() {
 
 	#ifdef DOVRPLOG
         if ( realArrivalEclosesLast < realTotalTime ) {
-            last.dumpeval();
+            last.dumpeval(maxcapacity);
             dumpCostValues();
         };
 	#endif

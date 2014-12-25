@@ -42,9 +42,9 @@ void Tweval::evaluate ( double cargoLimit ) {
     totServiceTime = serviceTime();
     departureTime = arrivalTime + serviceTime();
     twvTot = cvTot = 0;
-    twv = cv = false;
+    //twv = cv = false;
     dumpVisits = 0;
-    cv = (cvTot = (demand() > cargoLimit ? 1 : 0) == 1);
+    cvTot = (cargo > cargoLimit ? 1 : 0) == 1;
     deltaTime=0;
 }
 
@@ -64,7 +64,7 @@ void Tweval::evaluate ( const Tweval &pred, double cargoLimit ) {
     travelTime    = twc->TravelTime( pred.nid(), nid() );   // Travel Time from previous node to this node
     totTravelTime = pred.totTravelTime + travelTime;    // tot length travel from 1st node
     arrivalTime   = pred.departureTime + travelTime;
-    twv = lateArrival( arrivalTime );           // Time Window Violation
+    //twv = lateArrival( arrivalTime );           // Time Window Violation
     waitTime      = earlyArrival( arrivalTime ) ? opens() - arrivalTime : 0; // truck arrives before node opens, so waits
     totWaitTime   = pred.totWaitTime + waitTime;
     totServiceTime = pred.totServiceTime + serviceTime();
@@ -75,10 +75,10 @@ void Tweval::evaluate ( const Tweval &pred, double cargoLimit ) {
 
     dumpVisits = ( isDump() ) ? pred.dumpVisits + 1 :  pred.dumpVisits;
     cargo = pred.cargo + demand();            // loading truck demand>0 or unloading demand<0
-    cv = cargo > cargoLimit or cargo < 0;       // capacity Violation
+    //cv = cargo > cargoLimit or cargo < 0;       // capacity Violation
     // keep a total of violations
-    twvTot = ( twv ) ? pred.twvTot + 1 : pred.twvTot;
-    cvTot =  ( cv ) ?  pred.cvTot + 1 : pred.cvTot;
+    twvTot = ( has_twv() ) ? pred.twvTot + 1 : pred.twvTot;
+    cvTot =  ( has_cv(cargoLimit) ) ?  pred.cvTot + 1 : pred.cvTot;
     deltaTime=departureTime - pred.departureTime;
 }
 
@@ -94,9 +94,9 @@ void Tweval::dump() const {
  * \brief Print the Tweval attributes for the node.
  */
 #ifdef DOVRPLOG
-void Tweval::dumpeval() const  {
-    DLOG( INFO ) << "twv=" << twv
-                 << ", cv=" << cv
+void Tweval::dumpeval(double cargoLimit) const  {
+    DLOG( INFO ) << "twv=" << has_twv()
+                 << ", cv=" << has_cv(cargoLimit)
                  << ", twvTot=" << twvTot
                  << ", cvTot=" << cvTot
                  << ", cargo=" << cargo
@@ -116,7 +116,7 @@ Tweval::Tweval(): Twnode() {
     arrivalTime = waitTime =  travelTime = 0;
     totTravelTime = totWaitTime = totServiceTime = 0;
     twvTot = cvTot = 0;
-    twv = cv = false;
+    //twv = cv = false;
     #ifdef WITHOSRM
     totTravelTimeOsrm = -1;
     osrmUrlLocs = "";
@@ -128,7 +128,7 @@ Tweval::Tweval(): Twnode() {
  * \brief Construct a Tweval node from a text string, typically read from a file.
  */
 Tweval::Tweval( std::string line ): Twnode( line ) {
-    cv = twv = false;
+    //cv = twv = false;
     cvTot = twvTot = 0;
     cargo = 0;
     arrivalTime = travelTime = waitTime = departureTime = 0;
@@ -154,7 +154,7 @@ Tweval::Tweval( int _id, double _x, double _y, int _open, int _close,
                 int _service, int _demand, int _sid ) : Twnode() {
     set( _id, _id, _x, _y, _demand, _open, _close, _service );
     set_streetId( _sid );
-    cv = twv = false;
+    //cv = twv = false;
     cvTot = twvTot = 0;
     cargo = 0;
     arrivalTime = travelTime = waitTime = departureTime = 0;

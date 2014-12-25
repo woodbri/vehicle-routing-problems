@@ -54,6 +54,7 @@ void Prob_trash::nodesdump() {
 }
 
 
+#if 0
 void Prob_trash::nodesdumpeval() {
     DLOG( INFO ) << "---- Nodes  Evaluation--------------";
 
@@ -69,7 +70,7 @@ void Prob_trash::dump() {
     nodesdumpeval();
 
 }
-
+#endif
 
 void Prob_trash::dumpdataNodes() const {
     DLOG( INFO ) << "--------- Nodes ------------";

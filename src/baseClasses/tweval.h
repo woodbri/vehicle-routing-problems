@@ -38,7 +38,7 @@ class Tweval: public Twnode {
   public:
     //static std::vector<std::vector<double> > TravelTime;
 
-    void dumpeval() const;
+    void dumpeval(double cargoLimit) const;
     void dump() const ;
     /*accessors*/
     int  gettwvTot() const { return twvTot; };
@@ -62,8 +62,13 @@ class Tweval: public Twnode {
     std::string getLoc() const;
 
 
-    bool hastwv() const { return twv; };
-    bool hascv() const { return cv; };
+    bool has_twv() const {
+      return lateArrival( arrivalTime );
+    }
+
+    bool has_cv( double cargoLimit ) const { 
+      return cargo > cargoLimit or cargo < 0; 
+    }
 
     /* mutators */
     void evaluate ( double cargoLimit );
@@ -79,10 +84,8 @@ class Tweval: public Twnode {
     ~Tweval() {};
 
   private:
-    bool twv;               ///< Has time window violations (TWV)
-    bool cv;                ///< Has capacity violations (CV)
-    int twvTot;             ///< Total count of TWV at this point in the path
-    int cvTot;              ///< Total count of CV at this point in the path
+    //bool twv;               ///< Has time window violations (TWV)
+    //bool cv;                ///< Has capacity violations (CV)
     double cargo;           ///< Total accumulated cargo at this point in the path
 
     double travelTime;      ///< Travel time from last node
@@ -91,6 +94,8 @@ class Tweval: public Twnode {
     double departureTime;   ///< Departure time from this node
     double deltaTime;   ///< Departure time from this node
 
+    int twvTot;             ///< Total count of TWV at this point in the path
+    int cvTot;              ///< Total count of CV at this point in the path
     double totWaitTime;     ///< Total accumulated wait time at this point in the path
     double totTravelTime;   ///< Total accumulated travel time at this point in the path
     double totServiceTime;  ///< Total accumulated service time at this point in the path
