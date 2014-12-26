@@ -36,21 +36,20 @@ class Tweval: public Twnode {
     void dumpeval(double cargoLimit) const;
     void dump() const;
     /*accessors*/
-    double getDistPrev() const { return travelTime_; }
-    double getTravelTime() const { return travelTime_; }
-    double getArrivalTime() const { return arrivalTime_; }
-    double getWaitTime() const {return waitTime_;}
-    double getDepartureTime() const { return departureTime_; }
-    double getDeltaTime() const { return deltaTime_; }
+    double travelTime() const { return travelTime_; }
+    double arrivalTime() const { return arrivalTime_; }
+    double waitTime() const {return waitTime_;}
+    double departureTime() const { return departureTime_; }
+    double deltaTime() const { return deltaTime_; }
 
-    int  gettwvTot() const { return twvTot_; }
-    int  getcvTot() const { return cvTot_; }
-    double getCargo() const { return cargo_; }
+    int  twvTot() const { return twvTot_; }
+    int  cvTot() const { return cvTot_; }
+    double cargo() const { return cargo_; }
     double getTotTime() const { return departureTime_;}
-    double getTotTravelTime() const { return totTravelTime_; }
-    double getTotWaitTime() const { return totWaitTime_; }
-    double getTotServiceTime() const { return totServiceTime_; }
-    int getDumpVisits() const { return dumpVisits_; }
+    double totTravelTime() const { return totTravelTime_; }
+    double totWaitTime() const { return totWaitTime_; }
+    double totServiceTime() const { return totServiceTime_; }
+    int dumpVisits() const { return dumpVisits_; }
 
 
     double deltaGeneratesTWV(double deltaTime) const;
@@ -58,7 +57,6 @@ class Tweval: public Twnode {
     bool has_twv() const {
       return twvTot_ > 0 or lateArrival( arrivalTime_ );
     }
-
     bool has_cv(double cargoLimit) const {
       return cargo_ > cargoLimit or cargo_ < 0;
     }

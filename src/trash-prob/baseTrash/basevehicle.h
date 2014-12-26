@@ -93,16 +93,16 @@ class BaseVehicle  {
     std::deque<int> getpath() const;
     UINT size() const { return path.size(); };
     double getmaxcapacity() const { return maxcapacity; };
-    int getTWV() const { return endingSite.gettwvTot(); };
-    int getCV() const { return endingSite.getcvTot(); };
-    double getCargo() const { return  path[path.size() - 1].getCargo(); };
+    int getTWV() const { return endingSite.twvTot(); };
+    int getCV() const { return endingSite.cvTot(); };
+    double getCargo() const { return  path[path.size() - 1].cargo(); };
     double getDuration() const { return ( path.size() - 1 == 0 ) ? 0.0 : endingSite.getTotTime(); };
     double getcost() const { return cost; };
     double getw1() const { return w1; };
     double getw2() const { return w2; };
     double getw3() const { return w3; };
     int getVid() const { return vid; };
-    inline double getCurrentCapacity() const {return (maxcapacity - path[size() - 1].getCargo());}
+    inline double getCurrentCapacity() const {return (maxcapacity - path[size() - 1].cargo());}
     const Trashnode &getDepot() const { return path[0]; };
     const Trashnode &getStartingSite() const {return path[0];}
     const Trashnode &getDumpSite() const { return dumpSite; };
@@ -161,8 +161,8 @@ class BaseVehicle  {
     endingSite
     */
     bool feasable() const { return path.feasable() and dumpSite.feasable() and endingSite.feasable(); };
-    bool hascv()const { return endingSite.getcvTot() != 0; };
-    bool hastwv()const { return endingSite.gettwvTot() != 0; };
+    bool hascv()const { return endingSite.cvTot() != 0; };
+    bool hastwv()const { return endingSite.twvTot() != 0; };
 
     void evalLast();
     void evaluate();
@@ -256,20 +256,20 @@ class BaseVehicle  {
     //----------------------------------------------------------------
 
     Bucket  Path() const { return path; };
-    inline int nid( int i ) const { return path[i].nid(); };
-    inline int id( int i ) const { return path[i].id(); };
-    inline double x( const int i ) const { return path[i].x(); };
-    inline double y( const int i ) const { return path[i].y(); };
-    bool hasDemand( int i ) const { return path[i].hasDemand(); };
-    bool hasSupply( int i ) const { return path[i].hasSupply(); };
-    bool hasNoGoods( int i ) const { return path[i].hasNoGoods(); };
-    bool earlyArrival( int i, const double D ) const { return path[i].earlyArrival( D ); };
-    bool lateArrival( int i, const double D ) const { return path[i].lateArrival( D ); };
-    bool onTime( int i, const double D ) const { return not earlyArrival( i, D ) and not lateArrival( i, D ); };
-    bool isDump( int i ) const { return path[i].isDump(); };
-    bool isPickup( int i ) const { return path[i].isPickup(); };
-    bool isDepot( int i ) const { return path[i].isDepot(); };
-    bool getCargo( int i ) const { return path[i].getCargo(); };
+    inline int nid(int i) const { return path[i].nid(); };
+    inline int id(int i) const { return path[i].id(); };
+    inline double x(const int i) const { return path[i].x(); };
+    inline double y(const int i) const { return path[i].y(); };
+    bool hasDemand(int i) const { return path[i].hasDemand(); };
+    bool hasSupply(int i) const { return path[i].hasSupply(); };
+    bool hasNoGoods(int i) const { return path[i].hasNoGoods(); };
+    bool earlyArrival(int i, const double D) const { return path[i].earlyArrival(D); };
+    bool lateArrival(int i, const double D) const { return path[i].lateArrival(D); };
+    bool onTime(int i, const double D) const { return not earlyArrival(i, D) and not lateArrival(i, D); };
+    bool isDump(int i) const { return path[i].isDump(); };
+    bool isPickup(int i) const { return path[i].isPickup(); };
+    bool isDepot(int i) const { return path[i].isDepot(); };
+    bool cargo(int i) const { return path[i].cargo(); };
 
 
 };

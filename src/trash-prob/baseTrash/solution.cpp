@@ -94,15 +94,22 @@ void Solution::dumpSolutionForPg () const {
     for ( UINT i = 0; i < fleet.size(); ++i ) {
         if ( fleet[i].size() <= 1 ) continue;
         for ( UINT j = 0; j < fleet[i].size(); ++j ) {
-          std::cout<<"VID: "<<fleet[i].getVid()<<"\tid: "<<fleet[i][j].id()<<"\tntype: "<<fleet[i][j].type()<<"\tDeparture: "<<fleet[i][j].getDepartureTime()<<
-		"\tdeltaTime:"<< fleet[i][j].getDeltaTime()<<
+          std::cout<<"VID: "<<fleet[i].getVid()<<
+                "\tid: "<<fleet[i][j].id()<<
+                "\tntype: "<<fleet[i][j].type()<<
+                "\tDeparture: "<<fleet[i][j].departureTime()<<
+		"\tdeltaTime:"<< fleet[i][j].deltaTime()<<
 		"\tdeltaCargo"<< fleet[i][j].demand()<<"\n";
         }
-        std::cout<<"VID: "<<fleet[i].getVid()<<"\tid: "<<fleet[i].getDumpSite().id()<<"\tntype: "<<fleet[i].getDumpSite().type()<<"\tDeparture: "<<fleet[i].getDumpSite().getDepartureTime()<<
-		"\tdeltaTime:"<<  fleet[i].getDumpSite().getDeltaTime()<<
+        std::cout<<"VID: "<<fleet[i].getVid()<<"\tid: "<<fleet[i].getDumpSite().id()<<
+                "\tntype: "<<fleet[i].getDumpSite().type()<<
+                "\tDeparture: "<<fleet[i].getDumpSite().departureTime()<<
+		"\tdeltaTime:"<<  fleet[i].getDumpSite().deltaTime()<<
 		"\tdeltaCargo"<< fleet[i].getDumpSite().demand()<<"\n";
-        std::cout<<"VID: "<<fleet[i].getVid()<<"\tid: "<<fleet[i].getEndingSite().id()<<"\ttype: "<<fleet[i].getEndingSite().type()<<"\tDeparture: "<<fleet[i].getEndingSite().getDepartureTime()<<
-		"\tdeltaTime:"<<  fleet[i].getEndingSite().getDeltaTime()<<
+        std::cout<<"VID: "<<fleet[i].getVid()<<"\tid: "<<fleet[i].getEndingSite().id()<<
+                "\ttype: "<<fleet[i].getEndingSite().type()<<
+                "\tDeparture: "<<fleet[i].getEndingSite().departureTime()<<
+		"\tdeltaTime:"<<  fleet[i].getEndingSite().deltaTime()<<
 		"\tdeltaCargo"<< fleet[i].getEndingSite().demand()<<"\n";
     }
 }
@@ -141,8 +148,7 @@ vehicle_path_t *Solution::getSolutionForPg( UINT &count ) const {
             results[seq].vid       = fleet[i].getVid();
             results[seq].nid       = fleet[i][j].id();
             results[seq].ntype     = map[fleet[i][j].type()];
-            //results[seq].deltatime = ( j == 0 ) ? 0 : fleet[i][j].getDepartureTime() - fleet[i][j - 1].getDepartureTime();
-            results[seq].deltatime     =  fleet[i][j].getDeltaTime();
+            results[seq].deltatime     =  fleet[i][j].deltaTime();
             results[seq].cargo     =  fleet[i][j].demand();
 
             ++seq;
@@ -153,7 +159,7 @@ vehicle_path_t *Solution::getSolutionForPg( UINT &count ) const {
         results[seq].vid       = fleet[i].getVid();
         results[seq].nid       = fleet[i].getDumpSite().id();
         results[seq].ntype     = map[fleet[i].getDumpSite().type()];
-        results[seq].deltatime = fleet[i].getDumpSite().getDepartureTime() - fleet[i][fleet[i].size() - 1].getDepartureTime();
+        results[seq].deltatime = fleet[i].getDumpSite().departureTime() - fleet[i][fleet[i].size() - 1].departureTime();
         results[seq].cargo     = fleet[i].getDumpSite().demand();
         ++seq;
 
@@ -162,7 +168,7 @@ vehicle_path_t *Solution::getSolutionForPg( UINT &count ) const {
         results[seq].vid       = fleet[i].getVid();
         results[seq].nid       = fleet[i].getEndingSite().id();
         results[seq].ntype     = map[fleet[i].getEndingSite().type()];
-        results[seq].deltatime = fleet[i].getEndingSite().getDepartureTime() - fleet[i].getDumpSite().getDepartureTime();
+        results[seq].deltatime = fleet[i].getEndingSite().departureTime() - fleet[i].getDumpSite().departureTime();
         results[seq].cargo     = fleet[i].getEndingSite().demand();
         ++seq;
     }

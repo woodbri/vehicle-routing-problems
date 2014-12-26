@@ -104,7 +104,7 @@ class TwBucket {
         double ttpfmt = TravelTime(prev, from , middle, to);
         double ttmt = ttpfmt - ttpfm;
 
-        double arrive_f = prev.getDepartureTime() +  ttpf;
+        double arrive_f = prev.departureTime() +  ttpf;
 
         if ( from.lateArrival(arrive_f) ) return VRP_MAX();
 
@@ -136,7 +136,7 @@ class TwBucket {
           return timePCN(path[from], path[from], path[middle], path[to], 0);
         else
           return timePCN(path[from - 1], path[from], path[middle], path[to],
-                                 path[from].getTravelTime());
+                                 path[from].travelTime());
     }
 
     double timePCN(POS from, POS middle, const knode &dump) const {
@@ -148,7 +148,7 @@ class TwBucket {
           return timePCN(path[from], path[from], path[middle], dump, 0);
         else
           return timePCN(path[from - 1], path[from], path[middle], dump,
-                         path[from].getTravelTime());
+                         path[from].travelTime());
     }
 
     double  timePCN(POS from, const knode &middle, const knode &dump) const {
@@ -158,7 +158,7 @@ class TwBucket {
         return timePCN(path[from], path[from], middle, dump, 0);
       else
         return timePCN(path[from - 1], path[from], middle , dump,
-                                 path[from].getTravelTime());
+                                 path[from].travelTime());
     }
 
     double timePCN(POS from, const knode &middle) const {
@@ -168,7 +168,7 @@ class TwBucket {
           return timePCN(path[from], path[from], middle, path[from + 2], 0 );
         else
           return timePCN(path[from - 1], path[from], middle , path[from + 2],
-                                 path[from].getTravelTime());
+                                 path[from].travelTime());
     }
 
  protected:
@@ -753,7 +753,9 @@ class TwBucket {
     ///@}
 
 
-    /*! @name End of Path tools */
+    /*! @name End of Path tools 
+      The end of the path is the \b last node of the path
+    */
     ///@{
     knode last() const {
         assert(size());
@@ -764,119 +766,58 @@ class TwBucket {
 	return  path[size() - 1];
     }
 
-    /*!
-     * \brief Get the total travel time of the path.
-     *
-     * The last node in the path contains some path statistics. This method
-     * fetches the total tavel time from start to end of path.
-     *
-     * \return The total travel time of the path.
-     * \sa Vehicle::getCost(), Vehicle::getCostOSRM()
-     */
+    /*! \brief Get the total travel time of the path.  */
     double getTotTravelTime() const {
         assert(size());
-        return last().getTotTravelTime();
+        return last().totTravelTime();
     }
 
-    /*!
-     * \brief Get the total wait time of the path.
-     *
-     * The last node in the path contains some path statistics. This method
-     * fetches the total wait time from start to end of path.
-     *
-     * \return The total wait time of the path.
-     */
-    double getTotWaitTime() const {
+    /*! \brief Get the total wait time of the path.  */
+    double totWaitTime() const {
         assert(size());
-        return last().getTotWaitTime();
+        return last().totWaitTime();
     }
 
-    /*!
-     * \brief Get the total service time of the path based on the last node in the path.
-     *
-     * The last node in the path contains some path statistics. This method
-     * fetches the total service time from start to end of path.
-     *
-     * \return The total service time of the path.
-     */
-    double getTotServiceTime() const {
+    /*! \brief Get the total service time of the path */
+    double totServiceTime() const {
         assert(size());
-        return last().getTotServiceTime();
+        return last().totServiceTime();
     }
 
-    /*!
-     * \brief Get the total number of dump visits of the path.
-     *
-     * The last node in the path contains some path statistics. This method
-     * fetches the total number of dump visits from start to end of path.
-     *
-     * \return The total number of dump visits of the path.
-     */
-    double getDumpVisits() const {
+    /*! \brief Get the total number of dump visits of the path. */
+    double dumpVisits() const {
         assert(size());
-        return last().getDumpVisits();
+        return last().dumpVisits();
     }
 
-    /*!
-     * \brief Get the departure time of the last node in the path.
-     *
-     * The last node in the path contains some path statistics. This method
-     * fetches the departure time of the last node in the path.
-     *
-     * \return The departure time of the last node in the path.
-     */
-    double getDepartureTime() const {
+    /*! \brief Get the departure time of the last node in the path. */
+    double departureTime() const {
         assert(size());
-        return last().getDepartureTime();
+        return last().departureTime();
     }
 
-    /*!
-     * \brief Get the total number of time window violations in the path.
-     *
-     * The last node in the path contains some path statistics. This method
-     * fetches the total number of time window violations in the path.
-     *
-     * \return The total number of time window violations in the path.
-     */
-    int getTwvTot() const {
+    /*! \brief Get the total number of time window violations in the path.  */
+    int twvTot() const {
         assert(size());
-        return last().gettwvTot();
+        return last().twvTot();
     }
 
-    /*!
-     * \brief Get the total number of capacity violations in the path.
-     *
-     * The last node in the path contains some path statistics. This method
-     * fetches the total number of capacity violations in the path.
-     *
-     * The smart evaluation function will always have zero capacity violations
-     * because they automaticially place dump nodes as required to avoid
-     * capacity violations, but there are methods that do not do this so
-     * this method will report if they exist in the path.
-     *
-     * \return The total number of capacity violations in the path.
-     */
-    int getCvTot() const {
+    /*! \brief Get the total number of capacity violations in the path. */
+    int cvTot() const {
         assert(size());
-        return last().gettwvTot();
+        return last().cvTot();
     }
 
-    /*!
-     * \brief Get the total cargo at the end of the route.
-     *
-     * The last node in the path contains some path statistics. This method
-     * fetches the total cargo at the end of the route.
-     *
-     * The smart evaluation function will always end the path with a final
-     * run to the dump to unload any cargo in the vehicle, but there are
-     * methods that do not do this so this method will report if there is
-     * cargo at the end of the path.
-     *
-     * \return The total cargo at the end of the route..
-     */
-    double getTotCargo() const {
+    /*! \brief Get the total cargo at the end of the path. */
+    double cargo() const {
         assert(size());
-        return last().getcargo();
+        return last().cargo();
+    }
+
+    /*! \brief True when \b last node of path is feasable. */
+    bool feasable() const {
+        assert(size());
+        return last().feasable();
     }
     ///@}
 

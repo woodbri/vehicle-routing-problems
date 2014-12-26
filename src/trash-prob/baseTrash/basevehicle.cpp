@@ -320,7 +320,7 @@ void BaseVehicle::restorePath( Twpath<Trashnode> oldpath ) {
 
 void BaseVehicle::evalLast() {
     Trashnode last = path[path.size() - 1];
-    dumpSite.set_demand( -last.getCargo() );
+    dumpSite.set_demand( -last.cargo() );
     dumpSite.evaluate( last, getmaxcapacity() );
     endingSite.evaluate( dumpSite, getmaxcapacity() );
 
@@ -331,8 +331,8 @@ void BaseVehicle::evalLast() {
         cost = 0.0;
     else
         cost = w1 * endingSite.getTotTime() +
-               w2 * endingSite.getcvTot() +
-               w3 * endingSite.gettwvTot();
+               w2 * endingSite.cvTot() +
+               w3 * endingSite.twvTot();
 }
 
 void BaseVehicle::evaluate() {

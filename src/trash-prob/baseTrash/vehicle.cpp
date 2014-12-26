@@ -51,21 +51,24 @@ double Vehicle::timePCN( POS from, POS middle, POS to ) const  {
 
     if ( to == size() ) {
         if ( ( middle == ( from + 1 ) )
-             and ( to == ( middle + 1 ) ) ) return dumpSite.getArrivalTime() -
-                         path[from].getDepartureTime();
+             and ( to == ( middle + 1 ) ) ) return dumpSite.arrivalTime() -
+                         path[from].departureTime();
 
-        if ( dumpSite.lateArrival(  path[from].getDepartureTime() + twc->TravelTime(
-                                        path[from], path[middle], dumpSite ) ) ) return _MAX();
-        else return path.timePCN( from, middle, dumpSite );
+        if ( dumpSite.lateArrival(path[from].departureTime()
+             +twc->TravelTime(path[from], path[middle], dumpSite))) 
+          return VRP_MAX();
+        else 
+          return path.timePCN(from, middle, dumpSite);
     }
     else {
-        if ( ( middle == ( from + 1 ) )
-             and ( to == ( middle + 1 ) ) ) return path[to].getArrivalTime() -
-                         path[from].getDepartureTime();
+        if ( (middle == (from + 1) ) and (to == (middle + 1)))
+          return path[to].arrivalTime() - path[from].departureTime();
 
-        if ( path[to].lateArrival( path[from].getDepartureTime() + twc->TravelTime(
-                                       path[from], path[middle], path[to] ) ) ) return _MAX();
-        else return path.timePCN( from, middle, to );
+        if ( path[to].lateArrival(path[from].departureTime()
+             + twc->TravelTime(path[from], path[middle], path[to])) )
+          return VRP_MAX();
+        else 
+          return path.timePCN( from, middle, to );
     }
 }
 
@@ -77,12 +80,16 @@ double Vehicle::timePCN( POS from, Trashnode &middle ) const  {
     assert ( ( from + 2 ) <= size() );
 
     if ( ( from + 2 ) == size() )
-        if ( dumpSite.lateArrival(  path[from].getDepartureTime() + twc->TravelTime(
-                                        path[from], middle, dumpSite ) ) ) return _MAX();
-        else return path.timePCN( from, middle, dumpSite );
-    else if ( path[from + 2].lateArrival( path[from].getDepartureTime() +
-                                          twc->TravelTime( path[from], middle, path[from + 2] ) ) ) return _MAX();
-    else return path.timePCN( from, middle );
+        if ( dumpSite.lateArrival(path[from].departureTime() 
+                                   + twc->TravelTime(path[from], middle, dumpSite)) )
+          return _MAX();
+        else 
+          return path.timePCN(from, middle, dumpSite);
+    else if ( path[from + 2].lateArrival( path[from].departureTime() +
+                                          twc->TravelTime(path[from], middle, path[from + 2])) ) 
+           return _MAX();
+    else 
+      return path.timePCN( from, middle );
 }
 
 
@@ -101,7 +108,7 @@ return the number of moves added to moves
 
 
 
-long int Vehicle::eval_intraSwapMoveDumps( Moves &moves, POS  truckPos) const {
+long int Vehicle::eval_intraSwapMoveDumps(Moves &moves, POS  truckPos) const {
     #ifdef DOSTATS
     STATS->inc( "Vehicle::eval_intraSwapMoveDumps" );
     #endif
@@ -807,17 +814,17 @@ void Vehicle::setInitialValues( const Trashnode &node, const Bucket &picks ) {
         while ( totalTime < arrivalEclosesLast + serviceE );
 
         forcedWaitTime = endTime - ( arrivalEclosesLast  +  serviceE );
-        totalWaitTime = endTime - ( endingSite.getArrivalTime() + serviceE );
+        totalWaitTime = endTime - ( endingSite.arrivalTime() + serviceE );
         idleTimeSCDE = C.closes() - ( depot.serviceTime() + ttSC );
         z1 = idleTimeSCDE / ( C.serviceTime() + ttCC );
-        idleTimeSDCDE = C.closes() - ( dumpSite.getDepartureTime() + ttDC );
+        idleTimeSDCDE = C.closes() - ( dumpSite.departureTime() + ttDC );
         z2 = idleTimeSDCDE / ( C.serviceTime() + ttCC );
         idleTime = totalWaitTime - forcedWaitTime;
     };
 
 void Vehicle::setCost() {
         last = ( size() > 1 ) ? path[size() - 1] : C ;
-        realttSC = path.size() > 1 ? path[1].getTotTravelTime()  : ttSC;
+        realttSC = path.size() > 1 ? path[1].totTravelTime()  : ttSC;
         ttSC = std::min( realttSC, ttSC );
 
         realttCC = size() > 1 ? ( path.getTotTravelTime() - realttSC ) /
@@ -828,21 +835,21 @@ void Vehicle::setCost() {
         realttDC = 0;
         double realZ = 0;
 
-        if ( path.getDumpVisits() ) {
+        if ( path.dumpVisits()!=0 ) {
             for ( UINT i = 1; i < path.size() - 1; i++ ) {
                 realZ++;
 
                 if ( path[i - 1].isDump() )
-                    realttCD += twc->TravelTime( path[i - 1], path[i] );
+                    realttCD += twc->TravelTime(path[i - 1], path[i]);
 
                 if ( path[i].isDump() )
-                    realttDC += twc->TravelTime( path[i], path[i + 1] );
+                    realttDC += twc->TravelTime(path[i], path[i + 1]);
             }
         }
         else realttDC = ttDC;
 
         realttCD = ( realttCD + twc->TravelTime( last,
-                     dumpSite ) ) / ( path.getDumpVisits() + 1.0 );
+                     dumpSite ) ) / ( path.dumpVisits() + 1.0 );
 
         ttCD = std::min( realttCD, ttCD );
         ttDC = std::min( realttDC, ttDC );
@@ -877,7 +884,7 @@ void Vehicle::setCost() {
         //its never negative
         assert( Zmissing >= 0 );
 
-        realTotalTime = endingSite.getArrivalTime();
+        realTotalTime = endingSite.arrivalTime();
         lastRealTotalTime = realTotalTime;
 
 	#ifdef DOVRPLOG
@@ -894,16 +901,16 @@ void Vehicle::setCost() {
 
         realIdleTimeSCDE =  ( Zmissing > 0 ) ?
                             ( C.serviceTime() + realttCC ) * Zmissing :
-                            C.closes() - ( depot.getDepartureTime() +  realttSC ) ;
+                            C.closes() - ( depot.departureTime() +  realttSC ) ;
 
         realz1 = std::min( ( int ) ( floor( realIdleTime /
                 ( C.serviceTime() + realttCC ) ) ) , Zmissing ) ;
 
         //cant have negative idleTime
         realIdleTimeSDCDE = std::max( ( C.closes() -
-                ( dumpSite.getDepartureTime() + realttDC ) ) , 0.0 );
+                ( dumpSite.departureTime() + realttDC ) ) , 0.0 );
 
-        realz2 = floor( realIdleTimeSDCDE / ( C.serviceTime() +  realttCC ) );
+        realz2 = floor( realIdleTimeSDCDE / (C.serviceTime() +  realttCC) );
 
         sumIdle = realIdleTimeSCDE + realIdleTimeSDCDE + realIdleTime;
 
@@ -916,16 +923,15 @@ void Vehicle::setCost() {
         // aumente contenedor y pudo puedo aumentar mas contenedores todavia
         // (no tiene sentido)
         if ( deltan >= 0 )
-            z1 = std::max ( z1 - 1, realz1 );
+            z1 = std::max(z1 - 1, realz1);
 
         //el numero de contenedores no cambio  deltaz1>0 es bueno
         if ( deltan == 0 )
-            z1 = std::max ( z1, realz1 ) ;
+            z1 = std::max(z1, realz1) ;
 
         // quite un contenedor, deltaz>0 me hace falta un contenedor z1 debe
         // de haber aumentado minimo en 1
-        if ( deltan < 0 )
-            z1 = std::max ( z1 + 1, realz1 );
+        if ( deltan < 0 ) z1 = std::max(z1 + 1, realz1);
 
 
 
@@ -993,10 +999,10 @@ double Vehicle::getDeltaCost( double deltaTravelTime, int deltan ) {
         int newZmissing = ( Z > newz ) ? Z - newz : 0;
         double newrealIdleTimeSCDE =  ( newz ) ? newrealIdleTime -
                                       ( C.serviceTime() + realttCC ) * newZmissing :
-                                      C.closes() - ( depot.getDepartureTime() +  realttSC );
+                                      C.closes() - ( depot.departureTime() +  realttSC );
         double newrealz1 = std::min ( ( int ) ( floor( newrealIdleTime /
                                                 ( C.serviceTime() + realttCC ) ) ) , newZmissing ) ;
-        double newrealIdleTimeSDCDE =  C.closes() - ( dumpSite.getDepartureTime() +
+        double newrealIdleTimeSDCDE =  C.closes() - ( dumpSite.departureTime() +
                                        deltaTravelTime + realttDC );
         double  newrealz2 = newrealIdleTimeSDCDE / ( C.serviceTime() +  realttCC );
 
@@ -1037,10 +1043,10 @@ void Vehicle::dumpCostValues() const {
                      << "                 C.closes()\t" << C.closes() << "\n"
                      << "    path[size()-1].closes()\t" << path[size() - 1].closes() << "\n"
                      << "  dumpSite.getservicetime()\t" << dumpSite.serviceTime()  << "\n"
-                     << "dumpSite.getDepartureTime()\t" << dumpSite.getDepartureTime() << "\n"
+                     << "dumpSite.getDepartureTime()\t" << dumpSite.departureTime() << "\n"
                      << "                      realN\t" << realN()  << "\n"
-                     << "endingSite.getArrivalTime()\t" << endingSite.getArrivalTime()  << "\n"
-                     << "   depot.getDepartureTime()\t" << depot.getDepartureTime() << "\n"
+                     << "endingSite.getArrivalTime()\t" << endingSite.arrivalTime()  << "\n"
+                     << "   depot.getDepartureTime()\t" << depot.departureTime() << "\n"
                      << "                       size\t" << size() << "\n"
                      //<<" \t"<<  <<"\n"
                      //<<" \t"<<  <<"\n"

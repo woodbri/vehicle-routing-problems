@@ -134,9 +134,9 @@ class Vehicle: public BaseVehicle {
     double idleTimeSCDE, idleTimeSDCDE;
     double realIdleTimeSCDE, realIdleTimeSDCDE;
     double sumIdle, penalty;
-    inline int  realN() const { return ( path.getDumpVisits() + 1 ) ;}
+    inline int  realN() const { return ( path.dumpVisits() + 1 ) ;}
     inline double  totalServiceTime() {
-        return ( path.getTotServiceTime() +  dumpSite.serviceTime() +
+        return ( path.totServiceTime() +  dumpSite.serviceTime() +
                  endingSite.serviceTime() ) ;
     }
     double v_cost, workNotDonePerc;
