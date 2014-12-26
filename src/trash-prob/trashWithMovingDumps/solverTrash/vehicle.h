@@ -26,23 +26,25 @@
 #include "plot.h"
 #endif
 
+#include "basictypes.h"
 #include "twpath.h"
 #include "trashnode.h"
 #include "twc.h"
 #include "twpath.h"
 #include "move.h"
-#include "basevehicle.h"
+#include "costvehicle.h"
 
 
 
-class Vehicle: public BaseVehicle {
+class Vehicle: public CostVehicle {
 
-  protected:
-    typedef  TwBucket<Trashnode> Bucket;
+ protected:
+/*    typedef  TwBucket<Trashnode> Bucket;
     typedef  unsigned long int UID ;
     typedef  unsigned long int POS ;
     inline double _MAX() const { return ( std::numeric_limits<double>::max() ); };
     inline double _MIN() const { return ( - std::numeric_limits<double>::max() ); };
+*/
     typedef std::set<Move, Move::compMove> Moves;
 
   public:
@@ -88,20 +90,17 @@ class Vehicle: public BaseVehicle {
     //--------------------------------------------------------------------
 
     Vehicle() {
-        maxcapacity = 0;
-        cost        = 0;
-        w1 = w2 = w3 = 1.0;
     };
 
 
-    Vehicle( std::string line, const Bucket &otherlocs ): BaseVehicle( line,
-                otherlocs )   { }
+    Vehicle( std::string line, const Bucket &otherlocs )
+        :CostVehicle( line, otherlocs )   { }
 
 
     Vehicle( int _vid, int _start_id, int _dump_id, int _end_id,
              int _capacity, int _dumpservicetime, int _starttime,
              int _endtime, const Bucket &otherlocs )
-        : BaseVehicle( _vid, _start_id, _dump_id, _end_id,
+        : CostVehicle( _vid, _start_id, _dump_id, _end_id,
                        _capacity, _dumpservicetime, _starttime,
                        _endtime, otherlocs ) {};
 
@@ -120,40 +119,6 @@ class Vehicle: public BaseVehicle {
                                    POS fromTruck, POS formPos, POS toTruck,
                                    double savings ) const;
     bool eval_erase( POS at, double &savings ) const;
-    //for cost function
-    Trashnode C , last;
-    double ttSC, ttDC, ttCD, ttDE, ttCC;
-    double realttSC, realttDC, realttCD, realttDE, realttCC;
-    int N, Nreal, minDumpVisits, maxDumpVisits, realDumpVisits;
-    int Z, z1, z2, realz1, realz2, n, z, Zmissing, lastn;
-    double arrivalEclosesLast, realArrivalEclosesLast, shiftLength;
-    double serviceE;
-    double totalTime, realTotalTime, lastRealTotalTime;
-    double forcedWaitTime, totalWaitTime, idleTime;
-    double realForcedWaitTime, realtotalWaitTime, realIdleTime;
-    double idleTimeSCDE, idleTimeSDCDE;
-    double realIdleTimeSCDE, realIdleTimeSDCDE;
-    double sumIdle, penalty;
-    inline int  realN() const { return ( path.dumpVisits() + 1 ) ;}
-    inline double  totalServiceTime() {
-        return ( path.totServiceTime() +  dumpSite.serviceTime() +
-                 endingSite.serviceTime() ) ;
-    }
-    double v_cost, workNotDonePerc;
-    double getCost() const { return v_cost;};
-    double getCost() {setCost();  return v_cost;};
-    int getz1() const  {return realz1;};
-    int getz2() const {return realz2;};
-    int getn() const {return n;};
-
-    void setInitialValues( const Trashnode &node, const Bucket &picks );
-    void setCost();
-    double getDeltaCost( double deltaTravelTime, int deltan ) ;
-
-    #ifdef DOVRPLOG
-    void dumpCostValues() const;
-    #endif
-
 };
 
 
