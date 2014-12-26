@@ -30,17 +30,17 @@
 void Tweval::evaluate(double cargoLimit) {
     assert(isStarting());
 
-    cargo = demand();
-    travelTime = 0;
-    arrivalTime = opens();
-    totTravelTime = 0;
-    totWaitTime = 0;
-    totServiceTime = serviceTime();
-    departureTime = arrivalTime + serviceTime();
-    twvTot = cvTot = 0;
-    dumpVisits = 0;
-    cvTot = (cargo > cargoLimit ? 1 : 0) == 1;
-    deltaTime = 0;
+    cargo_ = demand();
+    travelTime_ = 0;
+    arrivalTime_ = opens();
+    totTravelTime_ = 0;
+    totWaitTime_ = 0;
+    totServiceTime_ = serviceTime();
+    departureTime_ = arrivalTime_ + serviceTime();
+    twvTot_ = cvTot_ = 0;
+    dumpVisits_ = 0;
+    cvTot_ = (cargo_ > cargoLimit ? 1 : 0) == 1;
+    deltaTime_ = 0;
 }
 
 /*!
@@ -55,23 +55,23 @@ void Tweval::evaluate(double cargoLimit) {
  * \param[in] cargoLimit The cargo limit for this vehicle.
  */
 void Tweval::evaluate(const Tweval &pred, double cargoLimit) {
-    travelTime    = twc->TravelTime(pred.nid(), nid());
-    totTravelTime = pred.totTravelTime + travelTime;
-    arrivalTime   = pred.departureTime + travelTime;
-    waitTime      = earlyArrival(arrivalTime) ? opens() - arrivalTime : 0;
-    totWaitTime   = pred.totWaitTime + waitTime;
-    totServiceTime = pred.totServiceTime + serviceTime();
-    departureTime  = arrivalTime + waitTime + serviceTime();
+    travelTime_    = twc->TravelTime(pred.nid(), nid());
+    totTravelTime_ = pred.totTravelTime_ + travelTime_;
+    arrivalTime_   = pred.departureTime_ + travelTime_;
+    waitTime_      = earlyArrival(arrivalTime_) ? opens() - arrivalTime_ : 0;
+    totWaitTime_   = pred.totWaitTime_ + waitTime_;
+    totServiceTime_ = pred.totServiceTime_ + serviceTime();
+    departureTime_  = arrivalTime_ + waitTime_ + serviceTime();
 
-    if ( isDump()  and pred.cargo >= 0 )
-      set_demand(-pred.cargo);     // type 1 empties the truck (aka dumpSite)
+    if ( isDump()  and pred.cargo_ >= 0 )
+      set_demand(-pred.cargo_);     // type 1 empties the truck (aka dumpSite)
 
-    dumpVisits = isDump()? pred.dumpVisits + 1 :  pred.dumpVisits;
-    cargo = pred.cargo + demand();            // loading truck demand>0 or unloading demand<0
+    dumpVisits_ = isDump()? pred.dumpVisits_ + 1 :  pred.dumpVisits_;
+    cargo_ = pred.cargo_ + demand();            // loading truck demand>0 or unloading demand<0
 
-    twvTot = has_twv()? pred.twvTot + 1 : pred.twvTot;
-    cvTot =  has_cv(cargoLimit)? pred.cvTot + 1 : pred.cvTot;
-    deltaTime = departureTime - pred.departureTime;
+    twvTot_ = has_twv()? pred.twvTot_ + 1 : pred.twvTot_;
+    cvTot_ =  has_cv(cargoLimit)? pred.cvTot_ + 1 : pred.cvTot_;
+    deltaTime_ = departureTime_ - pred.departureTime_;
 }
 
 
@@ -85,14 +85,14 @@ void Tweval::dump() const {
 void Tweval::dumpeval(double cargoLimit) const  {
     DLOG(INFO) << "twv=" << has_twv()
                  << ", cv=" << has_cv(cargoLimit)
-                 << ", twvTot=" << twvTot
-                 << ", cvTot=" << cvTot
-                 << ", cargo=" << cargo
-                 << ", travel Time=" << travelTime
-                 << ", arrival Time=" << arrivalTime
-                 << ", wait Time=" << waitTime
+                 << ", twvTot=" << twvTot_
+                 << ", cvTot=" << cvTot_
+                 << ", cargo=" << cargo_
+                 << ", travel Time=" << travelTime_
+                 << ", arrival Time=" << arrivalTime_
+                 << ", wait Time=" << waitTime_
                  << ", service Time=" << serviceTime()
-                 << ", departure Time=" << departureTime;
+                 << ", departure Time=" << departureTime_;
 }
 #endif
 
@@ -100,18 +100,18 @@ void Tweval::dumpeval(double cargoLimit) const  {
 /*! \brief Construct a default Twnode */
 Tweval::Tweval()
        :Twnode(),
-        travelTime(0), arrivalTime(0), waitTime(0), departureTime(0), deltaTime(0),
-        cargo(0), twvTot(0), cvTot(0),
-        totWaitTime(0), totTravelTime(0), totServiceTime(0), dumpVisits(0) {
+        travelTime_(0), arrivalTime_(0), waitTime_(0), departureTime_(0), deltaTime_(0),
+        cargo_(0), twvTot_(0), cvTot_(0),
+        totWaitTime_(0), totTravelTime_(0), totServiceTime_(0), dumpVisits_(0) {
 }
 
 
 /*! \brief Construct a Tweval node from a text string, typically read from a file.  */
 Tweval::Tweval(std::string line)
        :Twnode(line),
-        travelTime(0), arrivalTime(0), waitTime(0), departureTime(0), deltaTime(0),
-        cargo(0), twvTot(0), cvTot(0),
-        totWaitTime(0), totTravelTime(0), totServiceTime(0), dumpVisits(0) {
+        travelTime_(0), arrivalTime_(0), waitTime_(0), departureTime_(0), deltaTime_(0),
+        cargo_(0), twvTot_(0), cvTot_(0),
+        totWaitTime_(0), totTravelTime_(0), totServiceTime_(0), dumpVisits_(0) {
 }
 
 /*! \brief Construct a Tweval node from arguments
@@ -128,9 +128,9 @@ Tweval::Tweval(std::string line)
 Tweval::Tweval(int id, double x, double y, int opens, int closes,
                int serviceTime, int demand, int streetId)
        :Twnode(),
-        travelTime(0), arrivalTime(0), waitTime(0), departureTime(0), deltaTime(0),
-        cargo(0), twvTot(0), cvTot(0),
-        totWaitTime(0), totTravelTime(0), totServiceTime(0), dumpVisits(0) {
+        travelTime_(0), arrivalTime_(0), waitTime_(0), departureTime_(0), deltaTime_(0),
+        cargo_(0), twvTot_(0), cvTot_(0),
+        totWaitTime_(0), totTravelTime_(0), totServiceTime_(0), dumpVisits_(0) {
     set(id, id, x, y, demand, opens, closes, serviceTime);
     set_streetId(streetId);
 }
@@ -141,7 +141,7 @@ Tweval::Tweval(int id, double x, double y, int opens, int closes,
  * \brief Test if adding some delta time to its arraive causes it to violate its time window.
  */
 double Tweval::deltaGeneratesTWV(double deltaTime) const {
-    return ( arrivalTime + deltaTime > closes() );
+    return ( arrivalTime_ + deltaTime > closes() );
 }
 
 

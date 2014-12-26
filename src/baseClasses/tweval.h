@@ -36,31 +36,31 @@ class Tweval: public Twnode {
     void dumpeval(double cargoLimit) const;
     void dump() const;
     /*accessors*/
-    double getDistPrev() const { return travelTime; }
-    double getTravelTime() const { return travelTime; }
-    double getArrivalTime() const { return arrivalTime; }
-    double getWaitTime() const {return waitTime;}
-    double getDepartureTime() const { return departureTime; }
-    double getDeltaTime() const { return deltaTime; }
+    double getDistPrev() const { return travelTime_; }
+    double getTravelTime() const { return travelTime_; }
+    double getArrivalTime() const { return arrivalTime_; }
+    double getWaitTime() const {return waitTime_;}
+    double getDepartureTime() const { return departureTime_; }
+    double getDeltaTime() const { return deltaTime_; }
 
-    int  gettwvTot() const { return twvTot; }
-    int  getcvTot() const { return cvTot; }
-    double getCargo() const { return cargo; }
-    double getTotTime() const { return departureTime;}
-    double getTotTravelTime() const { return totTravelTime; }
-    double getTotWaitTime() const { return totWaitTime; }
-    double getTotServiceTime() const { return totServiceTime; }
-    int getDumpVisits() const { return dumpVisits; }
+    int  gettwvTot() const { return twvTot_; }
+    int  getcvTot() const { return cvTot_; }
+    double getCargo() const { return cargo_; }
+    double getTotTime() const { return departureTime_;}
+    double getTotTravelTime() const { return totTravelTime_; }
+    double getTotWaitTime() const { return totWaitTime_; }
+    double getTotServiceTime() const { return totServiceTime_; }
+    int getDumpVisits() const { return dumpVisits_; }
 
 
     double deltaGeneratesTWV(double deltaTime) const;
-    bool feasable() const { return twvTot == 0 and cvTot == 0;}
+    bool feasable() const { return twvTot_ == 0 and cvTot_ == 0;}
     bool has_twv() const {
-      return twvTot > 0 or lateArrival( arrivalTime );
+      return twvTot_ > 0 or lateArrival( arrivalTime_ );
     }
 
     bool has_cv(double cargoLimit) const {
-      return cargo > cargoLimit or cargo < 0;
+      return cargo_ > cargoLimit or cargo_ < 0;
     }
 
     /* mutators */
@@ -72,24 +72,23 @@ class Tweval: public Twnode {
 
     Tweval();
     explicit Tweval(std::string line);
-    Tweval(int _id, double _x, double _y, int _open, int _close,
-           int _service, int _demand, int _sid);
-    ~Tweval() {}
+    Tweval(int id, double x, double y, int opens, int closes,
+           int serviceTime, int demand, int streetId);
 
  private:
-    double travelTime;      ///< Travel time from last node
-    double arrivalTime;     ///< Arrival time at this node
-    double waitTime;        ///< Wait time at this node is early arrival
-    double departureTime;   ///< Departure time from this node
-    double deltaTime;   ///< Departure time from this node
+    double travelTime_;      ///< Travel time from last node
+    double arrivalTime_;     ///< Arrival time at this node
+    double waitTime_;        ///< Wait time at this node is early arrival
+    double departureTime_;   ///< Departure time from this node
+    double deltaTime_;   ///< Departure time from this node
 
-    double cargo;           ///< Total accumulated cargo at this point in the path
-    int twvTot;             ///< Total count of TWV at this point in the path
-    int cvTot;              ///< Total count of CV at this point in the path
-    double totWaitTime;     ///< Total accumulated wait time at this point in the path
-    double totTravelTime;   ///< Total accumulated travel time at this point in the path
-    double totServiceTime;  ///< Total accumulated service time at this point in the path
-    int dumpVisits;      ///< Total count of dump visits at this point in the path
+    double cargo_;           ///< Total accumulated cargo at this point in the path
+    int twvTot_;             ///< Total count of TWV at this point in the path
+    int cvTot_;              ///< Total count of CV at this point in the path
+    double totWaitTime_;     ///< Total accumulated wait time at this point in the path
+    double totTravelTime_;   ///< Total accumulated travel time at this point in the path
+    double totServiceTime_;  ///< Total accumulated service time at this point in the path
+    int dumpVisits_;      ///< Total count of dump visits at this point in the path
 };
 
 

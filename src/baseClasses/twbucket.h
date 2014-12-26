@@ -750,34 +750,19 @@ class TwBucket {
         b.path.insert(b.path.begin(), diff.begin(), diff.end());
         return b;
     }
-#if 0
-    /*!
-     * \brief Perform a set DIFFERENCE operation of this and another bucket.
-     *
-     * If A and B are TwBuckets then A -= B performs
-     * a set difference of A minus B on bucket A.
-     *
-     * \warning Set difference does not preserve order of node.
-     *
-     * \param[in] other The other bucket to operate on.
-     * \return The set difference of two buckets.
-     */
-    TwBucket<knode> &operator -=(const TwBucket<knode> &other)  {
-        std::set<knode, compNode> s1;
-        std::set<knode, compNode> s2;
-        std::set<knode, compNode> diff;
-        s1.insert(path.begin(), path.end());
-        s2.insert(other.path.begin(), other.path.end());
-        std::set_difference(s1.begin(), s1.end(), s2.begin(), s2.end(),
-                            std::inserter(diff, diff.begin()));
-        path.clear();
-        path.insert(path.begin(), diff.begin(), diff.end());
-        return *this;
-    }
-#endif
     ///@}
 
-    // -------------------- End of Path Tools ----------------------------
+
+    /*! @name End of Path tools */
+    ///@{
+    knode last() const {
+        assert(size());
+	return  path[size() - 1];
+    }
+
+    knode& last() {
+	return  path[size() - 1];
+    }
 
     /*!
      * \brief Get the total travel time of the path.
@@ -790,7 +775,7 @@ class TwBucket {
      */
     double getTotTravelTime() const {
         assert(size());
-        return path[size() - 1].getTotTravelTime();
+        return last().getTotTravelTime();
     }
 
     /*!
@@ -803,7 +788,7 @@ class TwBucket {
      */
     double getTotWaitTime() const {
         assert(size());
-        return path[size() - 1].getTotWaitTime();
+        return last().getTotWaitTime();
     }
 
     /*!
@@ -816,7 +801,7 @@ class TwBucket {
      */
     double getTotServiceTime() const {
         assert(size());
-        return path[size() - 1].getTotServiceTime();
+        return last().getTotServiceTime();
     }
 
     /*!
@@ -829,7 +814,7 @@ class TwBucket {
      */
     double getDumpVisits() const {
         assert(size());
-        return path[size() - 1].getDumpVisits();
+        return last().getDumpVisits();
     }
 
     /*!
@@ -842,7 +827,7 @@ class TwBucket {
      */
     double getDepartureTime() const {
         assert(size());
-        return path[size() - 1].getDepartureTime();
+        return last().getDepartureTime();
     }
 
     /*!
@@ -855,7 +840,7 @@ class TwBucket {
      */
     int getTwvTot() const {
         assert(size());
-        return path[size() - 1].gettwvTot();
+        return last().gettwvTot();
     }
 
     /*!
@@ -873,7 +858,7 @@ class TwBucket {
      */
     int getCvTot() const {
         assert(size());
-        return path[size() - 1].gettwvTot();
+        return last().gettwvTot();
     }
 
     /*!
@@ -891,9 +876,9 @@ class TwBucket {
      */
     double getTotCargo() const {
         assert(size());
-        return path[size() - 1].getcargo();
+        return last().getcargo();
     }
-
+    ///@}
 
     // ---------- ID based tools  to NID tools ---------------------------
 
