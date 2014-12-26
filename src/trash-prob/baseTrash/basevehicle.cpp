@@ -104,8 +104,8 @@ bool BaseVehicle::e_setPath( const Bucket &sol ) {
     return true;
 }
 
-bool  BaseVehicle::findNearestNodeTo( Bucket &unassigned, UID &pos,
-                                      Trashnode &bestNode ) {
+bool BaseVehicle::findNearestNodeTo(Bucket &unassigned, POS &pos,
+                                    Trashnode &bestNode ) {
     #ifdef TESTED
     DLOG( INFO ) << "Entering BaseVehicle::findNearestNodeTo";
     #endif
@@ -147,8 +147,8 @@ void BaseVehicle::dump() const {
     #ifdef WITHOSRM
     DLOG( INFO ) << "OSRM time: " << getTotTravelTimeOsrm();
     #endif
-    DLOG( INFO ) << "TWV: " << getTWV();
-    DLOG( INFO ) << "CV: " << getCV();
+    DLOG( INFO ) << "twvTot: " << twvTot();
+    DLOG( INFO ) << "cvTot: " << cvTot();
     DLOG( INFO ) << "w1: " << getw1();
     DLOG( INFO ) << "w2: " << getw2();
     DLOG( INFO ) << "w3: " << getw3();
@@ -1005,8 +1005,8 @@ void BaseVehicle::plot( Plot<Trashnode> graph, int carnumber )const {
 
 
 BaseVehicle::BaseVehicle( int _vid, int _start_id, int _dump_id, int _end_id,
-                 int _capacity, int _dumpservicetime, int _starttime,
-                 int _endtime, const Bucket &otherlocs ) {
+                 double _capacity, double _dumpservicetime, double _starttime,
+                 double _endtime, const Bucket &otherlocs ) {
 
         assert( otherlocs.size() );
         cost        = 0;
@@ -1053,7 +1053,7 @@ BaseVehicle::BaseVehicle( int _vid, int _start_id, int _dump_id, int _end_id,
             vid = -1; //truck is rejected
     }
 
-BaseVehicle::BaseVehicle( std::string line, const Bucket &otherlocs )  {
+BaseVehicle::BaseVehicle(const std::string &line, const Bucket &otherlocs)  {
         // TESTED on running program
         assert( otherlocs.size() );
         std::istringstream buffer( line );

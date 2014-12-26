@@ -430,25 +430,23 @@ double Solution::getcost() const {
 
 // get the total number of TWV in the dolution
 
-int Solution::getTWV() const {
-    int d = 0;
-
+int Solution::twvTot() const {
+    int count = 0;
     for ( UINT i = 0; i < fleet.size(); i++ )
-        d += fleet[i].getTWV();
-
-    return d;
+        count += fleet[i].twvTot();
+    return count;
 }
 
 
 // get the total number of CV in the solution
 
-int Solution::getCV() const {
-    int d = 0;
+int Solution::cvTot() const {
+    int count = 0;
 
     for ( UINT i = 0; i < fleet.size(); i++ )
-        d += fleet[i].getCV();
+        count += fleet[i].cvTot();
 
-    return d;
+    return count;
 }
 
 
@@ -467,21 +465,7 @@ void Solution::dump() const {
     dumpDumps();
     dumpPickups();
     dumpFleet();
-    DLOG( INFO ) << "--------- Solution ------------";
-    DLOG( INFO ) << "Total path length: " << getduration();
-    DLOG( INFO ) << "Total path cost: " << getcost();
-    DLOG( INFO ) << "Total count of TWV: " << getTWV();
-    DLOG( INFO ) << "Total count of CV: " << getCV();
-    DLOG( INFO ) << "Solution: " << solutionAsText();
-    #ifdef WITHOSRM
-
-    for ( int i = 0; i < fleet.size(); i++ ) {
-        DLOG( INFO ) << "V" << i << " Total OSRM Time: "
-                     << fleet[i].getTotTravelTimeOsrm();
-    }
-
-    #endif
-
+    dumpSummary();
 }
 #endif
 
@@ -565,11 +549,11 @@ void Solution::setInitialValues() {
 
 #ifdef DOVRPLOG
 void Solution::dumpSummary() const {
-    DLOG( INFO ) << "--------- Solution ------------";
+    DLOG( INFO ) << "--------- Summary ------------";
     DLOG( INFO ) << "Total path length: " << getduration();
     DLOG( INFO ) << "Total path cost: " << getcost();
-    DLOG( INFO ) << "Total count of TWV: " << getTWV();
-    DLOG( INFO ) << "Total count of CV: " << getCV();
+    DLOG( INFO ) << "Total count of TWV: " << twvTot();
+    DLOG( INFO ) << "Total count of CV: " << cvTot();
     DLOG( INFO ) << "Solution: " << solutionAsText();
 }
 #endif

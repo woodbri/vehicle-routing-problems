@@ -124,8 +124,8 @@ class Solution: public Prob_trash {
     bool feasable() const;
     double getduration() const ;
     double getcost() const ;
-    int getTWV() const ;
-    int getCV() const ;
+    int twvTot() const ;
+    int cvTot() const ;
 
     #ifdef DOVRPLOG
     void dump() const;

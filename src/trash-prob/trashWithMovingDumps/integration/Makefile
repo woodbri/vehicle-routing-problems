@@ -188,8 +188,8 @@ BASECLASSES_HEADS = $(BASECLASSES_DIR)/twpath.h $(BASECLASSES_DIR)/twc.h $(BASEC
 BASETRASH_SRCS = $(wildcard $(BASETRASH_DIR)/*.cpp)
 BASETRASH_HDS = $(BASETRASH_SRCS:.cpp=.h) $(BASETRASH_DIR)/trashconfig.h
 
-BASETRASH_SRCS := $(filter-out $(BASETRASH_DIR)/extendedvehicle.cpp, $(BASETRASH_SRCS))
-BASETRASH_HDS := $(filter-out $(BASETRASH_DIR)/extendedvehicle.h, $(BASETRASH_HDS))
+# BASETRASH_SRCS := $(filter-out $(BASETRASH_DIR)/extendedvehicle.cpp, $(BASETRASH_SRCS))
+# BASETRASH_HDS := $(filter-out $(BASETRASH_DIR)/extendedvehicle.h, $(BASETRASH_HDS))
 
 BASETRASH_OBJS = $(addprefix $(BUILD_DIR)/$(BASETRASH)/,$(notdir $(BASETRASH_SRCS:.cpp=.o)))
 BASETRASH_HEADS = $(BASETRASH_HDS) $(BASECLASSES_HEADS)
