@@ -53,9 +53,9 @@ TrashProb::TrashProb(  container_t* p_containers, unsigned int container_count,
     }
 
     intersection = otherlocs * pickups;
-    invalid += intersection;
-    pickups -= intersection;
-    nodes -= intersection;
+    invalid = invalid + intersection;
+    pickups = pickups - intersection;
+    nodes = nodes - intersection;
 
     std::string errorStr;
     if (intersection.size()) {

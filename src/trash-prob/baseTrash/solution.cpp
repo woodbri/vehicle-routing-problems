@@ -379,8 +379,8 @@ Solution::Solution( const std::string &infile,
 
         if ( truck.e_setPath( solPath ) ) {
             fleet.push_back( truck );
-            assigned += solPath;
-            unassigned -= solPath;
+            assigned = assigned + solPath;
+            unassigned = unassigned - solPath;
         }
 
         i++;

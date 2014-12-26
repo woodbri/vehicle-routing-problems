@@ -119,9 +119,9 @@ Tweval::Tweval(std::string line)
  * \param[in] id The User node id
  * \param[in] x The X or longitude coordinate for its location
  * \param[in] y The Y or latitude coordinate for its location
- * \param[in] open The earliest arrival time (TW open)
- * \param[in] close The latest arrival time (TW close)
- * \param[in] service The service time
+ * \param[in] opens The earliest arrival time (TW open)
+ * \param[in] closes The latest arrival time (TW close)
+ * \param[in] serviceTime The service time
  * \param[in] demand The demand in units of vehicle capacity
  * \param[in] streetId The street id this node is located
  */

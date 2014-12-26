@@ -164,9 +164,9 @@ void Prob_trash::loadProblem( const std::string &infile ) {
     load_otherlocs( datafile + ".otherlocs.txt" );
 
     intersection = otherlocs * pickups;
-    invalid += intersection;
-    pickups -= intersection;
-    nodes -= intersection;
+    invalid = invalid + intersection;
+    pickups = pickups - intersection;
+    nodes = nodes - intersection;
 
     #ifdef VRPMINTRACE
     invalid.dump( "invalid" );

@@ -203,8 +203,11 @@ class TwBucket {
     }
 
  public:
-    /*!
-     * \brief Simulate changes of times within the path
+    /*! @name getDeltaTime 
+     * Simulate changes of times within the path
+    */
+    ///@{   
+    /*! \brief Simulates inserting a node between the last node and a dump
      *
      * Simulates the following change of times within the path
      * - last dump
@@ -538,7 +541,7 @@ class TwBucket {
         else
             return false;
     }
-
+    ///@}
 
     // ---------------- other tools ----------------------------------
 
@@ -601,6 +604,12 @@ class TwBucket {
 
 
     #ifdef DOVRPLOG
+    /*! @name Dumping
+     \brief Print the contents of the Twbucket 
+    */
+    ///@{
+
+
     /*! \brief Print the Twbucket 
 
        using id as node identifiers with title "Twbucket".
@@ -645,22 +654,20 @@ class TwBucket {
         DLOG(INFO) << ss.str();
     }
     #endif
+    ///@}
 
-    // --------------- set operations tools -------------------------
 
+    /*! @name hasId
 
-    /*!
-     * \brief Check if a node in the bucket has the same id as node.
-     * \param[in] node See if this node is in the bucket based on its id.
-     * \return true if a node with the same id was found.
-     */
+     \return true if a node with the same id was found in the bucket.
+    */
+    ///@{
+
+    /*! \param[in] node See if this node is in the bucket based on its id. */
     bool hasId(const knode &node) const { return hasid(node.id()); }
 
 
-    /*!
-     * \brief Check if a node in the bucket has this id.
-     * \return true if a node with this id was found.
-     */
+    /*! \param[in] id See if id is in the bucket*/
     bool hasId(UID id) const {
       const_reverse_iterator rit = path.rbegin();
 
@@ -668,82 +675,45 @@ class TwBucket {
           if ( it->id() == id ) return true;
           if ( rit->id() == id ) return true;
       }
-
       return false;
     }
+    ///@}
 
 
-    /*!
-     * \brief Check if a node in the bucket has the same nid as node.
-     * \param[in] node See if this node is in the bucket based on its nid.
-     * \return true if a node with the same nid was found.
-     */
-    bool has(const knode &node) const { return has(node.nid()); }
+    /*! @name hasNId
 
+     \return true if a node with the same id was found in the bucket.
+    */
+    ///@{
+    /*! \param[in] node See if this node is in the bucket based on its id. */
+    bool hasNid(const knode &node) const { return has(node.nid()); }
 
-    /*!
-     * \brief Check if a node in the bucket has this nid.
-     * \param[in] nid Check if a node in the bucket has this nid
-     * \return true if a node with the same nid was found.
-     */
-    bool has(UID nid) const {
+    /*! \param[in] nid See if id is in the bucket*/
+    bool hasNid(UID nid) const {
         const_reverse_iterator rit = path.rbegin();
 
         for (const_iterator it = path.begin(); it != path.end() ; it++, ++rit) {
             if ( it->nid() == nid ) return true;
-
             if ( rit->nid() == nid ) return true;
         }
-
         return false;
     }
+    ///@}
 
 
-    /*!
-     * \brief Compare two buckets and report of they are equal or not.
-     */
+    /*! @name Set operations based on the internal node id (nid) */
+    ///@{
+    /*!  * \brief True when \b this buckets is equal to the \b other bucket. */
     bool operator ==(const TwBucket<knode> &other) const  {
         if ( size() != other.size() ) return false;
-
         if ( size() == 0 && other.size() == 0 ) return true;
-
-        if ( ( ( *this ) - other ).size() != 0 ) return false;
-
-        if ( ( other - ( *this ) ).size() != 0 ) return false;
-
+        if ( ((*this) - other).size() != 0 ) return false;
+        if ( (other - (*this)).size() != 0 ) return false;
         return true;
     }
 
 
-    /*!
-     * \brief Copy assignment of another bucket to this bucket.
-     *
-     * Clears the contents of the current bucket and copies the other
-     * bucket into the current bucket.
-     *
-     * \param[in] other Bucket that will get copy assigned to this bucket.
-     */
-    TwBucket<knode> &operator =(const TwBucket<knode> &other)  {
-        TwBucket<knode> b = other;
-        path.clear();
-        path.insert(path.begin(), b.path.begin(), b.path.end());
-        return *this;
-    }
-
-
-    // ----------- set doesnt mind order of nodes ---------------------
-
-    /*!
-     * \brief Perform a set UNION operation of two buckets.
-     *
-     * If A, B, and newBucket are TwBuckets then newBucket = A + B performs
-     * a set union of A and B.
-     *
-     * \warning Set union does not preserve order of node.
-     *
-     * \param[in] other The bucket to be unioned with this bucket.
-     * \return The set union of buckets this and other.
-     */
+    /*! \brief Returns \b this  UNION \b other .  */
     TwBucket<knode> operator +(const TwBucket<knode> &other) const  {
         std::set<knode, compNode> a;
         a.insert(path.begin(), path.end());
@@ -753,37 +723,7 @@ class TwBucket {
         return b;
     }
 
-    /*!
-     * \brief Perform a set UNION operation of this bucket and another bucket.
-     *
-     * If A and B are TwBuckets then A += B is equivalent to A = A + B and
-     * performs a set union of A and B into A.
-     *
-     * \warning Set union does not preserve order of node.
-     *
-     * \param[in] other The other bucket to operate on.
-     * \return The set union of two buckets.
-     */
-    TwBucket<knode> &operator +=(const TwBucket<knode> &other)  {
-        std::set<knode, compNode> a;
-        a.insert(path.begin(), path.end());
-        a.insert(other.path.begin(), other.path.end());
-        path.clear();
-        path.insert(path.begin(), a.begin(), a.end());
-        return *this;
-    }
-
-    /*!
-     * \brief Perform a set INTERSECTION operation between two buckets.
-     *
-     * If A, B, and newBucket are TwBuckets then newBucket = A * B performs
-     * a set intersection of A and B.
-     *
-     * \warning Set intersection does not preserve order of node.
-     *
-     * \param[in] other The other bucket to operate on.
-     * \return The set intersection of two buckets.
-     */
+    /*! \brief Returns \b this INTERSECTION \b other .  */
     TwBucket<knode> operator *(const TwBucket<knode> &other) const  {
         std::set<knode, compNode> s1;
         std::set<knode, compNode> s2;
@@ -797,41 +737,7 @@ class TwBucket {
         return b;
     }
 
-    /*!
-     * \brief Perform a set INTERSECTION operation of this and another bucket.
-     *
-     * If A and B TwBuckets then A *= B is equivalent to A = A * B and performs
-     * a set intersection of A and B into A.
-     *
-     * \warning Set intersection does not preserve order of node.
-     *
-     * \param[in] other The other bucket to operate on.
-     * \return The set intersection of two buckets.
-     */
-    TwBucket<knode> &operator *=(const TwBucket<knode> &other)  {
-        std::set<knode, compNode> s1;
-        std::set<knode, compNode> s2;
-        std::set<knode, compNode> intersect;
-        s1.insert(path.begin(), path.end());
-        s2.insert(other.path.begin(), other.path.end());
-        std::set_intersection(s1.begin(), s1.end(), s2.begin(), s2.end(),
-                              std::inserter(intersect, intersect.begin()));
-        path.clear();
-        path.insert(path.begin(), intersect.begin(), intersect.end());
-        return *this;
-    }
-
-    /*!
-     * \brief Perform a set DIFFERENCE operation of this and another bucket.
-     *
-     * If A, B, and newBucket are TwBuckets then newBucket = A - B performs
-     * a set difference of A minus B.
-     *
-     * \warning Set difference does not preserve order of node.
-     *
-     * \param[in] other The other bucket to operate on.
-     * \return The set difference of two buckets.
-     */
+    /*! \brief Returns \b this DIFFERENCE \b other .  */
     TwBucket<knode> operator -(const TwBucket<knode> &other) const  {
         std::set<knode, compNode> s1;
         std::set<knode, compNode> s2;
@@ -844,7 +750,7 @@ class TwBucket {
         b.path.insert(b.path.begin(), diff.begin(), diff.end());
         return b;
     }
-
+#if 0
     /*!
      * \brief Perform a set DIFFERENCE operation of this and another bucket.
      *
@@ -868,6 +774,8 @@ class TwBucket {
         path.insert(path.begin(), diff.begin(), diff.end());
         return *this;
     }
+#endif
+    ///@}
 
     // -------------------- End of Path Tools ----------------------------
 
@@ -993,7 +901,7 @@ class TwBucket {
      * \brief Get the internal node id associated with the user id.
      * \param[in] id The user id for the node.
      * \return The internal node id or -1 if user id was not found.
-     * \TODO  put it in twc
+     * \todo TODO  put it in twc
      */
     UID getNidFromId(UID id) const {
         const_reverse_iterator rit = path.rbegin();
@@ -1008,8 +916,8 @@ class TwBucket {
     }
 
 
-    /*!
-     * \brief Get the position in the path where id is located.
+    /*!  * \brief Get the position in the path where id is located.
+
      * \param[in] id The user id for the node.
      * \return The position in the path or -1 if it is not found.
      */
@@ -1021,8 +929,10 @@ class TwBucket {
     }
 
 
-    // ------------------  NID tools  -------------------------------
-
+    /*! @name  position 
+       Gets the position of node in the path
+    */   
+    ///@{
     /*!
      * \brief Get the position of node in the path
      * \param[in] node A node object that we want to locate in the path
@@ -1041,7 +951,7 @@ class TwBucket {
         }
         return 0;
     }
-
+    ///@}
 
     /*!
      * \brief Get a deque of nids that are in the path.

@@ -343,7 +343,7 @@ class Twpath : public TwBucket<knode> {
      *
      * Insert a node into an existing path and evaluate the resultant path.
      *
-     * \param[in] n The node to insert.
+     * \param[in] node The node to insert.
      * \param[in] at The position that the node should be inserted at.
      * \param[in] maxcapacity The maximum capacity of vehicle for this path.
      * \return Status of whether or not the move was made.
@@ -372,7 +372,7 @@ class Twpath : public TwBucket<knode> {
 
     /*!  * \brief Evaluated: erases a node from the path.
      *
-     * \param[in] node to be appended.
+     * \param[in] pos to be erased.
      * \param[in] maxcapacity of vehicle for this path.
      * \returns true if e_erase was performed
      */
