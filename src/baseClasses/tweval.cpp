@@ -109,60 +109,42 @@ void Tweval::dumpeval(double cargoLimit) const  {
 #endif
 
 
-/*!
- * \brief Construct a default Twnode
- */
-Tweval::Tweval(): Twnode() {
-    arrivalTime = waitTime =  travelTime = 0;
-    totTravelTime = totWaitTime = totServiceTime = 0;
-    twvTot = cvTot = 0;
-    //twv = cv = false;
-    #ifdef WITHOSRM
-    totTravelTimeOsrm = -1;
-    osrmUrlLocs = "";
-    #endif
+/*! \brief Construct a default Twnode */
+Tweval::Tweval()
+       :Twnode(),
+	travelTime(0), arrivalTime(0), waitTime(0), departureTime(0), deltaTime(0),
+        cargo(0), twvTot(0), cvTot(0),
+        totWaitTime(0), totTravelTime(0), totServiceTime(0), dumpVisits(0) {
 }
 
 
-/*!
- * \brief Construct a Tweval node from a text string, typically read from a file.
- */
-Tweval::Tweval( std::string line ): Twnode( line ) {
-    //cv = twv = false;
-    cvTot = twvTot = 0;
-    cargo = 0;
-    arrivalTime = travelTime = waitTime = departureTime = 0;
-    totWaitTime = totTravelTime = totServiceTime = 0;
-    #ifdef WITHOSRM
-    totTravelTimeOsrm = -1;
-    osrmUrlLocs = "";
-    #endif
+/*! \brief Construct a Tweval node from a text string, typically read from a file.  */
+Tweval::Tweval( std::string line )
+       :Twnode( line ),
+	travelTime(0), arrivalTime(0), waitTime(0), departureTime(0), deltaTime(0),
+        cargo(0), twvTot(0), cvTot(0),
+        totWaitTime(0), totTravelTime(0), totServiceTime(0), dumpVisits(0) {
 };
 
-/*!
- * \brief Construct a Tweval node from arguments
- * \param[in] _id The User node id
- * \param[in] _x The X or longitude coordinate for its location
- * \param[in] _y The Y or latitude coordinate for its location
- * \param[in] _open The earliest arrival time (TW open)
- * \param[in] _close The latest arrival time (TW close)
- * \param[in] _service The service time
- * \param[in] _demand The demand in units of vehicle capacity
- * \param[in] _sid The street id this node is located
+/*! \brief Construct a Tweval node from arguments
+
+ * \param[in] id The User node id
+ * \param[in] x The X or longitude coordinate for its location
+ * \param[in] y The Y or latitude coordinate for its location
+ * \param[in] open The earliest arrival time (TW open)
+ * \param[in] close The latest arrival time (TW close)
+ * \param[in] service The service time
+ * \param[in] demand The demand in units of vehicle capacity
+ * \param[in] streetId The street id this node is located
  */
-Tweval::Tweval( int _id, double _x, double _y, int _open, int _close,
-                int _service, int _demand, int _sid ) : Twnode() {
-    set( _id, _id, _x, _y, _demand, _open, _close, _service );
-    set_streetId( _sid );
-    //cv = twv = false;
-    cvTot = twvTot = 0;
-    cargo = 0;
-    arrivalTime = travelTime = waitTime = departureTime = 0;
-    totWaitTime = totTravelTime = totServiceTime = 0;
-    #ifdef WITHOSRM
-    totTravelTimeOsrm = -1;
-    osrmUrlLocs = "";
-    #endif
+Tweval::Tweval( int id, double x, double y, int opens, int closes,
+                int serviceTime, int demand, int streetId )
+       :Twnode(),
+	travelTime(0), arrivalTime(0), waitTime(0), departureTime(0), deltaTime(0),
+        cargo(0), twvTot(0), cvTot(0),
+        totWaitTime(0), totTravelTime(0), totServiceTime(0), dumpVisits(0) {
+    set( id, id, x, y, demand, opens, closes, serviceTime );
+    set_streetId( streetId );
 };
 
 
@@ -175,7 +157,7 @@ double Tweval::deltaGeneratesTWV( double deltaTime ) const {
 }
 
 
-
+#if 0
 #ifdef WITHOSRM
 /*!
  * \brief Return the location as an OSRM loc string
@@ -251,3 +233,4 @@ void Tweval::evaluateOsrm ( const Tweval &pred,
 }
 
 #endif
+#endif  // 0

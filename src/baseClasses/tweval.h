@@ -41,29 +41,28 @@ class Tweval: public Twnode {
     void dumpeval(double cargoLimit) const;
     void dump() const ;
     /*accessors*/
-    int  gettwvTot() const { return twvTot; };
-    int  getcvTot() const { return cvTot; };
-    double getCargo() const { return cargo; };
     double getDistPrev() const { return travelTime; };
-    bool feasable() const { return twvTot == 0 and cvTot == 0;};
-
-
-    double getTotTime() const { return departureTime;};
     double getTravelTime() const { return travelTime; };
     double getArrivalTime() const { return arrivalTime; };
     double getWaitTime() const {return waitTime;};
     double getDepartureTime() const { return departureTime; };
     double getDeltaTime() const { return deltaTime; };
+
+    int  gettwvTot() const { return twvTot; };
+    int  getcvTot() const { return cvTot; };
+    double getCargo() const { return cargo; };
+    double getTotTime() const { return departureTime;};
     double getTotTravelTime() const { return totTravelTime; };
     double getTotWaitTime() const { return totWaitTime; };
     double getTotServiceTime() const { return totServiceTime; };
     int getDumpVisits() const { return dumpVisits; };
+    //std::string getLoc() const;
+
+
     double deltaGeneratesTWV( double deltaTime ) const;
-    std::string getLoc() const;
-
-
+    bool feasable() const { return twvTot == 0 and cvTot == 0;};
     bool has_twv() const {
-      return lateArrival( arrivalTime );
+      return twvTot > 0 or lateArrival( arrivalTime );
     }
 
     bool has_cv( double cargoLimit ) const { 
@@ -84,16 +83,13 @@ class Tweval: public Twnode {
     ~Tweval() {};
 
   private:
-    //bool twv;               ///< Has time window violations (TWV)
-    //bool cv;                ///< Has capacity violations (CV)
-    double cargo;           ///< Total accumulated cargo at this point in the path
-
     double travelTime;      ///< Travel time from last node
     double arrivalTime;     ///< Arrival time at this node
     double waitTime;        ///< Wait time at this node is early arrival
     double departureTime;   ///< Departure time from this node
     double deltaTime;   ///< Departure time from this node
 
+    double cargo;           ///< Total accumulated cargo at this point in the path
     int twvTot;             ///< Total count of TWV at this point in the path
     int cvTot;              ///< Total count of CV at this point in the path
     double totWaitTime;     ///< Total accumulated wait time at this point in the path
