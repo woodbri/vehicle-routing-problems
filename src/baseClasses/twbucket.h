@@ -606,13 +606,13 @@ class TwBucket {
             insert( this->path[fromi], toj );
             erase( fromi + 1 );
         }
-    };
+    }
 
 
     /*!
      * \brief Print the Twbucket using id as node identifiers with the title "Twbucket".
      */
-    void dumpid() const {dumpid( "Twbucket" );};
+    void dumpid() const {dumpid( "Twbucket" );}
 
 
     /*!
@@ -630,12 +630,12 @@ class TwBucket {
 
         DLOG( INFO ) << ss.str();
         #endif
-    };
+    }
 
     /*!
      * \brief Print the Twbucket using nid as node identifiers with the title "Twbucket".
      */
-    void dump() const {dump( "Twbucket" );};
+    void dump() const {dump( "Twbucket" );}
 
 
     /*!
@@ -653,7 +653,7 @@ class TwBucket {
 
         DLOG( INFO ) << ss.str();
 	#endif
-    };
+    }
 
     // --------------- set operations tools -------------------------
 
@@ -663,7 +663,7 @@ class TwBucket {
      * \param[in] node See if this node is in the bucket based on its id.
      * \return true if a node with the same id was found.
      */
-    bool hasId( const knode &node ) const { return hasid( node.id() ); };
+    bool hasId( const knode &node ) const { return hasid( node.id() ); }
 
 
     /*!
@@ -680,7 +680,7 @@ class TwBucket {
         }
 
         return false;
-    };
+    }
 
 
     /*!
@@ -688,7 +688,7 @@ class TwBucket {
      * \param[in] node See if this node is in the bucket based on its nid.
      * \return true if a node with the same nid was found.
      */
-    bool has( const knode &node ) const { return has( node.nid() ); };
+    bool has( const knode &node ) const { return has( node.nid() ); }
 
 
     /*!
@@ -706,7 +706,7 @@ class TwBucket {
         }
 
         return false;
-    };
+    }
 
 
     /*!
@@ -893,7 +893,7 @@ class TwBucket {
     double getTotTravelTime() const {
         assert ( size() );
         return path[size() - 1].getTotTravelTime();
-    };
+    }
 
     /*!
      * \brief Get the total wait time of the path.
@@ -906,7 +906,7 @@ class TwBucket {
     double getTotWaitTime() const {
         assert ( size() );
         return path[size() - 1].getTotWaitTime();
-    };
+    }
 
     /*!
      * \brief Get the total service time of the path based on the last node in the path.
@@ -919,7 +919,7 @@ class TwBucket {
     double getTotServiceTime() const {
         assert ( size() );
         return path[size() - 1].getTotServiceTime();
-    };
+    }
 
     /*!
      * \brief Get the total number of dump visits of the path.
@@ -932,7 +932,7 @@ class TwBucket {
     double getDumpVisits() const {
         assert ( size() );
         return path[size() - 1].getDumpVisits();
-    };
+    }
 
     /*!
      * \brief Get the departure time of the last node in the path.
@@ -945,7 +945,7 @@ class TwBucket {
     double getDepartureTime() const {
         assert ( size() );
         return path[size() - 1].getDepartureTime();
-    };
+    }
 
     /*!
      * \brief Get the total number of time window violations in the path.
@@ -958,7 +958,7 @@ class TwBucket {
     int getTwvTot() const {
         assert ( size() );
         return path[size() - 1].gettwvTot();
-    };
+    }
 
     /*!
      * \brief Get the total number of capacity violations in the path.
@@ -976,7 +976,7 @@ class TwBucket {
     int getCvTot() const {
         assert ( size() );
         return path[size() - 1].gettwvTot();
-    };
+    }
 
     /*!
      * \brief Get the total cargo at the end of the route.
@@ -994,7 +994,7 @@ class TwBucket {
     double getTotCargo() const {
         assert ( size() );
         return path[size() - 1].getcargo();
-    };
+    }
 
 
     // ---------- ID based tools  to NID tools ---------------------------
@@ -1014,7 +1014,7 @@ class TwBucket {
         }
 
         return -1;
-    };
+    }
 
 
     /*!
@@ -1028,7 +1028,7 @@ class TwBucket {
         }
 
         return -1;
-    };
+    }
 
 
     // ------------------  NID tools  -------------------------------
@@ -1038,7 +1038,7 @@ class TwBucket {
      * \param[in] node A node object that we want to locate in the path
      * \return returns the position of node in the path or -1 if it's not found.
      */
-    long int pos( const knode &node ) const { return pos( node.nid() ); };
+    long int pos( const knode &node ) const { return pos( node.nid() ); }
 
     /*!
      * \brief Get the position of node id in the path
@@ -1051,7 +1051,7 @@ class TwBucket {
         }
 
         return -1;
-    };
+    }
 
 
     /*!
@@ -1065,7 +1065,7 @@ class TwBucket {
             p.push_back( it->nid() );
 
         return p;
-    };
+    }
 
 
     // ------ deque like functions   POSITION based functions  -------
@@ -1079,7 +1079,7 @@ class TwBucket {
         assert( atPos <= path.size() );
         path.insert( path.begin() + atPos, node );
 	return true;
-    };
+    }
 
 
     /*!
@@ -1090,7 +1090,7 @@ class TwBucket {
         assert( atPos < path.size() );
         path.erase( path.begin() + atPos );
         return true;
-    };
+    }
 
 
     /*
@@ -1102,7 +1102,7 @@ class TwBucket {
         assert( atPos < path.size() );
         path.erase( path.begin() + atPos );
         return true;
-    };
+    }
 
 
     /*!  * \brief Erase all node between fromPos and toPos.
@@ -1128,48 +1128,48 @@ class TwBucket {
         else {  //[toPos,fromPos)
             path.erase( path.begin() + toPos, path.begin() + fromPos );
         }
-    };
+    }
 
-    bool push_back( const knode &node ) {
+    bool push_back(const knode &node) {
       path.push_back(node);
       return true;
-    };
-    bool push_front( const knode &node ) { 
+    }
+    bool push_front(const knode &node) { 
       path.push_front( node );
       return true;
-    };
-    void pop_back() { path.pop_back(); };
-    void pop_front() { path.pop_front(); };
-    void resize( unsigned int n ) {
-        assert( n <= path.size() );
-        path.resize( n );
-    };
-    void clear() { path.clear(); };
-    unsigned int max_size() const { return path.max_size(); };
-    unsigned int size() const { return path.size(); };
-    bool empty() const { return path.empty(); };
+    }
+    void pop_back() { path.pop_back(); }
+    void pop_front() { path.pop_front(); }
+    void resize(UINT newSize) {
+        assert(newSize <= path.size());
+        path.resize(newSize);
+    }
+    void clear() { path.clear(); }
+    unsigned int max_size() const { return path.max_size(); }
+    unsigned int size() const { return path.size(); }
+    bool empty() const { return path.empty(); }
     std::deque<knode> &Path() { return path; }
     const std::deque<knode> &Path() const  { return path; }
     knode &operator[]( unsigned int n ) {
         assert( n < path.size() );
         return path[n];
-    };
+    }
     const knode  &operator[] ( unsigned int n ) const {
         assert( n < path.size() );
         return path[n];
-    };
+    }
     knode &at( int n ) {
         assert( n < path.size() );
         return path.at( n );
-    };
+    }
     const knode &at( POS pos ) const  {
         assert( pos < path.size() );
         return path.at( pos );
-    };
-    knode &front() { return path.front(); };
-    const knode &front() const { return path.front(); };
-    knode &back() { return path.back(); };
-    const knode &back() const { return path.back(); };
+    }
+    knode &front() { return path.front(); }
+    const knode &front() const { return path.front(); }
+    knode &back() { return path.back(); }
+    const knode &back() const { return path.back(); }
 
 
 };

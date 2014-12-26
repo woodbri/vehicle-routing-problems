@@ -255,8 +255,6 @@ void TrashProb::addOtherlocs( otherloc_t *_otherlocs, int count ) {
 
 
 
-
-
 void TrashProb::addVehicles( vehicle_t *_vehicles, int count ) {
     bool dataHasError = false;
     std::string errorStr;
