@@ -11,15 +11,15 @@
  * the terms of the MIT License. Please file LICENSE for details.
  *
  ********************************************************************VRP*/
-#ifndef TWEVAL_H
-#define TWEVAL_H
+#ifndef SRC_BASECLASSES_TWEVAL_H_
+#define SRC_BASECLASSES_TWEVAL_H_
 
-#include <vector>
+// #include <vector>
 #include <string>
 
-#include "vrp_assert.h"
-#include "twnode.h"
-#include "twc.h"
+// #include "vrp_assert.h"
+#include "./twnode.h"
+#include "./twc.h"
 
 
 /*! \class Tweval
@@ -32,57 +32,51 @@
 
 
 class Tweval: public Twnode {
-  protected:
-
-
-  public:
-    //static std::vector<std::vector<double> > TravelTime;
-
+ public:
     void dumpeval(double cargoLimit) const;
-    void dump() const ;
+    void dump() const;
     /*accessors*/
-    double getDistPrev() const { return travelTime; };
-    double getTravelTime() const { return travelTime; };
-    double getArrivalTime() const { return arrivalTime; };
-    double getWaitTime() const {return waitTime;};
-    double getDepartureTime() const { return departureTime; };
-    double getDeltaTime() const { return deltaTime; };
+    double getDistPrev() const { return travelTime; }
+    double getTravelTime() const { return travelTime; }
+    double getArrivalTime() const { return arrivalTime; }
+    double getWaitTime() const {return waitTime;}
+    double getDepartureTime() const { return departureTime; }
+    double getDeltaTime() const { return deltaTime; }
 
-    int  gettwvTot() const { return twvTot; };
-    int  getcvTot() const { return cvTot; };
-    double getCargo() const { return cargo; };
-    double getTotTime() const { return departureTime;};
-    double getTotTravelTime() const { return totTravelTime; };
-    double getTotWaitTime() const { return totWaitTime; };
-    double getTotServiceTime() const { return totServiceTime; };
-    int getDumpVisits() const { return dumpVisits; };
-    //std::string getLoc() const;
+    int  gettwvTot() const { return twvTot; }
+    int  getcvTot() const { return cvTot; }
+    double getCargo() const { return cargo; }
+    double getTotTime() const { return departureTime;}
+    double getTotTravelTime() const { return totTravelTime; }
+    double getTotWaitTime() const { return totWaitTime; }
+    double getTotServiceTime() const { return totServiceTime; }
+    int getDumpVisits() const { return dumpVisits; }
 
 
-    double deltaGeneratesTWV( double deltaTime ) const;
-    bool feasable() const { return twvTot == 0 and cvTot == 0;};
+    double deltaGeneratesTWV(double deltaTime) const;
+    bool feasable() const { return twvTot == 0 and cvTot == 0;}
     bool has_twv() const {
       return twvTot > 0 or lateArrival( arrivalTime );
     }
 
-    bool has_cv( double cargoLimit ) const { 
-      return cargo > cargoLimit or cargo < 0; 
+    bool has_cv(double cargoLimit) const {
+      return cargo > cargoLimit or cargo < 0;
     }
 
     /* mutators */
-    void evaluate ( double cargoLimit );
-    void evaluate ( const Tweval &pred, double cargoLimit );
+    void evaluate(double cargoLimit);
+    void evaluate(const Tweval &pred, double cargoLimit);
 
 
     /* constructors &destructors */
 
     Tweval();
-    Tweval( std::string line );
-    Tweval( int _id, double _x, double _y, int _open, int _close,
-            int _service, int _demand, int _sid );
-    ~Tweval() {};
+    explicit Tweval(std::string line);
+    Tweval(int _id, double _x, double _y, int _open, int _close,
+           int _service, int _demand, int _sid);
+    ~Tweval() {}
 
-  private:
+ private:
     double travelTime;      ///< Travel time from last node
     double arrivalTime;     ///< Arrival time at this node
     double waitTime;        ///< Wait time at this node is early arrival
@@ -96,8 +90,7 @@ class Tweval: public Twnode {
     double totTravelTime;   ///< Total accumulated travel time at this point in the path
     double totServiceTime;  ///< Total accumulated service time at this point in the path
     int dumpVisits;      ///< Total count of dump visits at this point in the path
-
 };
 
 
-#endif
+#endif  // SRC_BASECLASSES_TWEVAL_H_
