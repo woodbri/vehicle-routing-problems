@@ -33,80 +33,93 @@
  * - serviceTime \>= 0
  */
 bool Twnode::isValid() const {
-    if ( !Node::isValid() ) return false;
+  if ( !Node::isValid() ) return false;
 
-    if ( !(opens_ < closes_
-               && opens_ >= 0
-               && serviceTime_ >= 0) ) return false;
+  if ( !(opens_ < closes_
+         && opens_ >= 0
+         && serviceTime_ >= 0) ) return false;
 
-    if ( type_ == kInvalid )  return false;
+  if ( type_ == kInvalid )  return false;
 
-    switch  (type_) {
-        case kStart:
-        case kEnd:
-            if (demand_ == 0) return true;
-            break;
+  switch  (type_) {
+    case kStart:
+    case kEnd:
+      if (demand_ == 0) return true;
+      break;
 
-        case kDump:
-            if (demand_ <= 0) return true;
-            break;
+    case kDump:
+      if (demand_ <= 0) return true;
+      break;
 
-        case kDelivery:
-            if (demand_ < 0) return true;
-            break;
+    case kDelivery:
+      if (demand_ < 0) return true;
+      break;
 
-        case kPickup:
-            if (demand_ > 0) return true;
-            break;
+    case kPickup:
+      if (demand_ > 0) return true;
+      break;
 
-        case kLoad:
-            if (demand_ >= 0) return true;
-            break;
+    case kLoad:
+      if (demand_ >= 0) return true;
+      break;
 
-        case kUnknown:
-          return true;
-          break;
+    case kUnknown:
+      return true;
+      break;
 
-        case kInvalid:
-          return false;
-          break;
+    case kInvalid:
+      return false;
+      break;
     }
-    return false;
+
+  return false;
 }
 
 
 #ifdef DOVRPLOG
 void Twnode::dump() const {
-    std::stringstream ss;
-    ss.precision(8);
-    ss << nid()
-       << " = " << id()
-       << ",\t\ttype " << type_
-       << ",\tx " << x()
-       << ",\ty " << y()
-       << ",\topen " << opens_
-       << ",\tclose " << closes_
-       << ",\tdemand " << demand_
-       << ",\tserviceT " << serviceTime_
-       << ",\t street:" << streetId_
-       << ",\t hint:" << hint();
-    DLOG(INFO) << ss.str();
+  std::stringstream ss;
+  ss.precision(8);
+  ss << nid()
+     << " = " << id()
+     << ",\t\ttype " << type_
+     << ",\tx " << x()
+     << ",\ty " << y()
+     << ",\topen " << opens_
+     << ",\tclose " << closes_
+     << ",\tdemand " << demand_
+     << ",\tserviceT " << serviceTime_
+     << ",\t street:" << streetId_
+     << ",\t hint:" << hint();
+  DLOG(INFO) << ss.str();
 }
 #endif
 
 
 void Twnode::set(int nid, int id, double x, double y, double demand,
-                  double opens, double closes, double serviceTime) {
-    set_nid(nid);
-    set_id(id);
-    set_x(x);
-    set_y(y);
-    demand_ = demand;
-    opens_ = opens;
-    closes_ = closes;
-    serviceTime_ = serviceTime;
+                 double opens, double closes, double serviceTime) {
+  set_nid(nid);
+  set_id(id);
+  set_x(x);
+  set_y(y);
+  demand_ = demand;
+  opens_ = opens;
+  closes_ = closes;
+  serviceTime_ = serviceTime;
 }
-
+void Twnode::set(int nid, int id, double x, double y, double demand,
+                 double opens, double closes, double serviceTime,
+                 int streetId) {
+  set_nid(nid);
+  set_id(id);
+  set_x(x);
+  set_y(y);
+  demand_ = demand;
+  opens_ = opens;
+  closes_ = closes;
+  serviceTime_ = serviceTime;
+  streetId_ = streetId;
+}
 void Twnode::set_demand(int demand) { demand_ = demand; }
 void Twnode::set_type(NodeType type) { type_ = type; }
 void Twnode::set_opens(int opens) { opens_ = opens; }
@@ -116,27 +129,27 @@ void Twnode::set_streetId(int streetId) { streetId_ = streetId; }
 
 
 Twnode::Twnode()
-      :Node(),
-      type_(kUnknown),
-      demand_(0),
-      opens_(0),
-      closes_(0),
-      serviceTime_(0),
-      streetId_(-1) {
+  : Node(),
+    type_(kUnknown),
+    demand_(0),
+    opens_(0),
+    closes_(0),
+    serviceTime_(0),
+    streetId_(-1) {
 }
 
 /*!
- * \param[in] line A string with space separated values
- * The \c line should be "nid x y tw_open tw_close demand servicetime streetid"
- */
+  \param[in] line A string with space separated values
+  The \c line should be "nid x y tw_open tw_close demand servicetime streetid"
+*/
 Twnode::Twnode(std::string line)
-      :Node(),
-      type_(kUnknown),
-      demand_(0),
-      opens_(0),
-      closes_(0),
-      serviceTime_(0),
-      streetId_(-1) {
+  : Node(),
+    type_(kUnknown),
+    demand_(0),
+    opens_(0),
+    closes_(0),
+    serviceTime_(0),
+    streetId_(-1) {
   std::istringstream buffer(line);
   int nid;
   double x, y;
@@ -153,7 +166,7 @@ Twnode::Twnode(std::string line)
   set_x(x);
   set_y(y);
   type_ = (opens_ < closes_ && opens_ >= 0 && serviceTime_ >= 0)
-            ? kUnknown : kInvalid;
+          ? kUnknown : kInvalid;
 }
 
 

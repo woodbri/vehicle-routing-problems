@@ -47,16 +47,16 @@
  */
 class Twnode: public Node {
  public:
-    typedef enum {
-      kInvalid = -2,  ///< an invalid or undefined move
-      kUnknown = -1,  ///< an invalid or undefined move
-      kStart = 0,     ///< starting site
-      kDump = 1,      ///< dump site, empties truck
-      kPickup = 2,    ///< pickup site
-      kEnd = 3,       ///< ending site
-      kDelivery = 4,   ///< delivery site
-      kLoad = 5       ///< load site, fills the truck
-    } NodeType;
+  typedef enum {
+    kInvalid = -2,  ///< an invalid or undefined move
+    kUnknown = -1,  ///< an invalid or undefined move
+    kStart = 0,     ///< starting site
+    kDump = 1,      ///< dump site, empties truck
+    kPickup = 2,    ///< pickup site
+    kEnd = 3,       ///< ending site
+    kDelivery = 4,   ///< delivery site
+    kLoad = 5       ///< load site, fills the truck
+  } NodeType;
 
 
   /** @name accessors */
@@ -99,7 +99,7 @@ class Twnode: public Node {
   /*!  * \brief Print the contents of a Twnode object.  */
   void dump() const;
 
-    // doc in cpp
+  // doc in cpp
   bool isValid() const;
   bool isvalid() const;
 
@@ -144,8 +144,12 @@ class Twnode: public Node {
    \param[in] demand Value of the demand for this node
    \param[in] opens The earliest possible arrival time
    \param[in] closes The latest possible arrivial time
-   \param[in] serviceTime The length of time to sevice this node
+   \param[in] serviceTime The length of time to service this node
+   \param[in] setreetId of the node
   */
+  void set(int nid, int id, double x, double y, double demand,
+           double opens, double closes, double serviceTime
+           int streetId);
   void set(int nid, int id, double x, double y, double demand,
            double opens, double closes, double serviceTime);
 
@@ -175,12 +179,12 @@ class Twnode: public Node {
   explicit Twnode(std::string line);
 
  private:
-    NodeType type_;       ///< Defines what type of Twnode
-    double demand_;       ///< The demand for the Node
-    double opens_;        ///< opening time of the node
-    double closes_;       ///< closing time of the node
-    double serviceTime_;  ///< time it takes to be served
-    int streetId_;        ///< The street id of the node
+  NodeType type_;       ///< Defines what type of Twnode
+  double demand_;       ///< The demand for the Node
+  double opens_;        ///< opening time of the node
+  double closes_;       ///< closing time of the node
+  double serviceTime_;  ///< time it takes to be served
+  int streetId_;        ///< The street id of the node
 };
 
 #endif  // SRC_BASECLASSES_TWNODE_H_
