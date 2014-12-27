@@ -154,29 +154,23 @@ class Twnode: public Node {
            int streetId);
   void set(int nid, int id, double x, double y, double demand,
            double opens, double closes, double serviceTime);
-
   /*!  * \brief Set the demand for this node.  */
-  void set_demand(int demand);
-
+  void set_demand(double demand) { demand_ = demand; }
   /*!  * \brief Set the \b \c type of this node.  */
-  void set_type(NodeType type);
-
+  void set_type(NodeType type) { type_ = type; }
   /*!  * \brief Set the time that the node \b \c opens.  */
-  void set_opens(int opens);
-
+  void set_opens(double opens) { opens_ = opens; }
   /*!  * \brief Set the time that node \b \c closes.  */
-  void set_closes(int closes);
-
+  void set_closes(double closes) { closes_ = closes; }
   /*!  * \brief Set the \b \c serviceTime for this node.  */
-  void set_serviceTime(int serviceTime);
-
+  void set_serviceTime(double serviceTime) { serviceTime_ = serviceTime; }
   /*!  * \brief Set the \b \c streetId for this node.  */
-  void set_streetId(int streetId);
+  void set_streetId(int streetId) { streetId_ = streetId; }
   ///@}
+
 
   /*! \brief Construct an undefined Twnode object.  */
   Twnode();
-
   /*! \brief Construct from a string */
   explicit Twnode(std::string line);
 

@@ -120,14 +120,9 @@ void Twnode::set(int nid, int id, double x, double y, double demand,
   serviceTime_ = serviceTime;
   streetId_ = streetId;
 }
-void Twnode::set_demand(int demand) { demand_ = demand; }
-void Twnode::set_type(NodeType type) { type_ = type; }
-void Twnode::set_opens(int opens) { opens_ = opens; }
-void Twnode::set_closes(int closes) { closes_ = closes; }
-void Twnode::set_serviceTime(int serviceTime) { serviceTime_ = serviceTime; }
-void Twnode::set_streetId(int streetId) { streetId_ = streetId; }
 
 
+//Constructors
 Twnode::Twnode()
   : Node(),
     type_(kUnknown),
