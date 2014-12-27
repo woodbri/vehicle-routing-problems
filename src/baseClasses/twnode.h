@@ -61,38 +61,39 @@ class Twnode: public Node {
 
   /** @name accessors */
   ///@{
-  /*! \brief Get the opening time.  */
-  double opens() const;
-
-  /*! \brief Get the closing time.  */
-  double closes() const;
-
-  /*! \brief Get the demand associated with this node.  */
-  double demand() const;
-
-  /*!  * \brief Get the service time for this node.  */
-  double serviceTime() const;
-
-  /*!  \brief Get the length of time between the opening and closeing.  */
-  double windowLength() const;
-
-  /*!  \brief Get the type of node.  */
-  NodeType type() const;
-
-  /*! \brief Get the street id or -1 when it is not defined.  */
-  int streetId() const;
+  /*! \brief Returns the opening time.  */
+  double opens() const {return opens_;}
+  /*! \brief Returns the closing time.  */
+  double closes() const {return closes_;}
+  /*! \brief Returns the demand associated with this node.  */
+  double demand() const {return demand_;}
+  /*!  * \brief Returns the service time for this node.  */
+  double serviceTime() const { return serviceTime_;}
+  /*!  \brief Returns the length of time between the opening and closeing.  */
+  double windowLength() const { return  closes_ - opens_; }
+  /*!  \brief Returns the type of node.  */
+  Twnode::NodeType type() const {return type_;}
+  /*! \brief Returns the street id.  */
+  int streetId() const {return streetId_;}
   ///@}
 
 
   /** @name type of node*/
   ///@{
-  bool isDepot() const;
-  bool isStarting() const;
-  bool isDump() const;
-  bool isPickup() const;
-  bool isEnding() const;
-  bool isDelivery() const;
-  bool isLoad() const;
+  /*! \brief True when its the departing site.  */
+  bool isDepot() const {return type_ == kStart;}
+  /*! \brief True when its the departing site.  */
+  bool isStarting() const {return type_ == kStart;}
+  /*! \brief True when its a dump site (truck gets emptied).  */
+  bool isDump() const {return type_ == kDump;}
+  /*! \brief True when its a pickup site.  */
+  bool isPickup() const {return type_ == kPickup;}
+  /*! \brief True when its the ending site.  */
+  bool isEnding() const {return type_ == kEnd;}
+  /*! \brief True when its a delivery site.  */
+  bool isDelivery() const {return type_ == kDelivery;}
+  /*! \brief True when its a loading site (truck gets filled).  */
+  bool isLoad() const {return type_ == kLoad;}
   ///@}
 
 
@@ -106,30 +107,31 @@ class Twnode: public Node {
   /** @name demand of node*/
   ///@{
   /*! \brief True when the node's demand is positive */
-  bool hasDemand() const;
-
+  bool hasDemand() const { return demand_ > 0; }
   /*! \brief True when the node's demand is negative */
-  bool hasSupply() const;
-
+  bool hasSupply() const { return demand_ < 0; }
   /*! \brief True when the node's demand is 0. */
-  bool hasNoGoods() const;
+  bool hasNoGoods() const { return demand_ == 0; }
   ///@}
 
-
   /*! \brief True when \b \c arrivalTime is before it \b opens */
-  bool earlyArrival(const double arrivalTime) const;
-
+  bool earlyArrival(const double arrivalTime) const {
+    return arrivalTime < opens_;
+  }
   /*! \brief True when \b \c arrivalTime is after it \b closes */
-  bool lateArrival(const double arrivalTime) const;
-
+  bool lateArrival(const double arrivalTime) const {
+    return arrivalTime > closes_;
+  }
 
   /** @name sameStreet
     \return True when the street ids match */
   ///@{
   /*! \param[in] other node. */
-  bool sameStreet(const Twnode &other) const;
+  bool sameStreet(const Twnode &other) const {
+    return streetId_ == other.streetId_;
+  }
   /*! \param[in] streetId */
-  bool sameStreet(int streetId) const;
+  bool sameStreet (int streetId) const {return streetId_ == streetId; }
   ///@}
 
 
@@ -148,7 +150,7 @@ class Twnode: public Node {
    \param[in] setreetId of the node
   */
   void set(int nid, int id, double x, double y, double demand,
-           double opens, double closes, double serviceTime
+           double opens, double closes, double serviceTime,
            int streetId);
   void set(int nid, int id, double x, double y, double demand,
            double opens, double closes, double serviceTime);

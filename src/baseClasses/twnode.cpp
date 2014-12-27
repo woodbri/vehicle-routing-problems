@@ -169,37 +169,3 @@ Twnode::Twnode(std::string line)
           ? kUnknown : kInvalid;
 }
 
-
-
-
-double Twnode::opens() const {return opens_;}
-double Twnode::closes() const {return closes_;}
-double Twnode::demand() const {return demand_;}
-double Twnode::serviceTime() const { return serviceTime_;}
-double Twnode::windowLength() const { return  closes_ - opens_; }
-Twnode::NodeType Twnode::type() const {return type_;}
-int Twnode::streetId() const {return streetId_;}
-
-bool Twnode::isDepot() const {return type_ == kStart;}
-bool Twnode::isStarting() const {return type_ == kStart;}
-bool Twnode::isDump() const {return type_ == kDump;}
-bool Twnode::isPickup() const {return type_ == kPickup;}
-bool Twnode::isEnding() const {return type_ == kEnd;}
-bool Twnode::isDelivery() const {return type_ == kDelivery;}
-bool Twnode::isLoad() const {return type_ == kLoad;}
-
-bool Twnode::hasDemand() const { return demand_ > 0; }
-bool Twnode::hasSupply() const { return demand_ < 0; }
-bool Twnode::hasNoGoods() const { return demand_ == 0; }
-
-bool Twnode::earlyArrival(const double arrivalTime) const {
-  return arrivalTime < opens_;
-}
-bool Twnode::lateArrival(const double arrivalTime) const {
-  return arrivalTime > closes_;
-}
-bool Twnode::sameStreet(const Twnode &other) const {
-  return streetId_ == other.streetId_;
-}
-bool Twnode::sameStreet (int streetId) const {return streetId_ == streetId; }
-
