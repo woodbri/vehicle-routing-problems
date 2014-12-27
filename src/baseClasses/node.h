@@ -56,6 +56,8 @@ class Node {
 
   /** @name mutators */
   ///@{
+  void clear();
+  void set(const std::string &line);
   void set(UID nid, double x, double y);
   void set_nid(UID nid) {nid_ = nid;}
   void set_id(int id) {
@@ -112,7 +114,7 @@ class Node {
   // constructors
   Node();
   Node(double x, double y);
-  Node(UID nid, int id, double x, double y);
+  Node(UID nid, UID id, double x, double y);
   explicit Node(const std::string &line);
 
   //  ~Node() {}

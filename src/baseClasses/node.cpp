@@ -58,6 +58,31 @@ void Node::set(UID id, double x, double y) {
   valid_ = true;
 }
 
+void Node::clear() {
+  nid_ = 0; id_ = 0;
+  x_ = 0.0; y_ = 0.0;
+  hint_ = "";
+  valid_ = false;
+}
+/*! \brief Set attributes by parsing a string.  */
+void Node::set(const std::string &line) {
+  clear();
+  std::istringstream buffer(line);
+  int64 id;
+  buffer >> id;
+  buffer >> x_;
+  buffer >> y_;
+  hint_ = "";
+  if (id < 0) {
+    valid_ = false;
+  } else {
+    nid_ = id;
+    id_ = id;
+  }
+}
+
+
+
 /*!  * \brief Print the contents of this node.  */
 #ifdef DOVRPLOG
 void Node::dump() const {
@@ -206,20 +231,24 @@ Node::Node(double x, double y)
   : nid_(0), id_(0), x_(x), y_(y), hint_(""), valid_(false) {
 }
 
-
 /*! \brief Construct a new Node and assign it the associated values.  */
-Node::Node(UID nid, int id , double x, double y)
+Node::Node(UID nid, UID id , double x, double y)
   : nid_(nid), id_(id), x_(x), y_(y), hint_(""), valid_(true) {
 }
 
 /*! \brief Create a new Node by parsing a string.  */
 Node::Node(const std::string &line)
-    :valid_(true),
-     nid_(nid), id_(id), x_(x), y_(y), hint_(""), valid_(true) {
+     : nid_(0), id_(0), x_(0.0), y_(0.0), hint_(""), valid_(true) {
   std::istringstream buffer(line);
-  buffer >> id_;
+  int64 id;
+  buffer >> id;
   buffer >> x_;
   buffer >> y_;
-  nid_ = id_;
   hint_ = "";
+  if (id < 0) {
+    valid_ = false;
+  } else {
+    nid_ = id;
+    id_ = id;
+  }
 }
