@@ -33,60 +33,115 @@
 
 class Tweval: public Twnode {
  public:
-    void dumpeval(double cargoLimit) const;
-    void dump() const;
-    /*accessors*/
-    double travelTime() const { return travelTime_; }
-    double arrivalTime() const { return arrivalTime_; }
-    double waitTime() const {return waitTime_;}
-    double departureTime() const { return departureTime_; }
-    double deltaTime() const { return deltaTime_; }
+  /** @name Dumps */
+  ///@{
+  /*! \brief Prints the evaluation of the truck */
+  void dumpeval(double cargoLimit) const;
+  /*! \brief Prints the Twnode */
+  void dump() const;
+  ///@}
 
-    int  twvTot() const { return twvTot_; }
-    int  cvTot() const { return cvTot_; }
-    double cargo() const { return cargo_; }
-    double getTotTime() const { return departureTime_;}
-    double totTravelTime() const { return totTravelTime_; }
-    double totWaitTime() const { return totWaitTime_; }
-    double totServiceTime() const { return totServiceTime_; }
-    int dumpVisits() const { return dumpVisits_; }
+  /** @name Node evaluation accessors */
+  ///@{
+  /*! \brief Truck's travelTime from previous node to this node.  */
+  double travelTime() const { return travelTime_; }
+  /*! \brief Truck's arrivalTime to this node.  */
+  double arrivalTime() const { return arrivalTime_; }
+  /*! \brief Truck's waitTime at this node.  */
+  double waitTime() const {return waitTime_;}
+  /*! \brief Truck's departureTime from this node.  */
+  double departureTime() const { return departureTime_; }
+  /*! \brief deltaTime= departureTime(this node) - departureTime(previous). */
+  double deltaTime() const { return deltaTime_; }
+  ///@}
+
+  /** @name Accumulated evaluation  accessors */
+  ///@{
+  /*! \brief Truck's total times it has violated time windows.  */
+  int  twvTot() const { return twvTot_; }
+  /*! \brief Truck's total times it has violated cargo limits.  */
+  int  cvTot() const { return cvTot_; }
+  /*! \brief Truck's total cargo after the node was served.  */
+  double cargo() const { return cargo_; }
+  /*! \brief Truck's travel duration up to this node.  */
+  double duration() const { return departureTime_; }
+  /*! \brief Truck's travel duration up to this node.  */
+  double getTotTime() const { return departureTime_;}
+  /*! \brief Time spent moving between nodes by the truck */
+  double totTravelTime() const { return totTravelTime_; }
+  /*! \brief Time spent by the truck waiting for nodes to open */
+  double totWaitTime() const { return totWaitTime_; }
+  /*! \brief Time spent by the truck servicing the nodes */
+  double totServiceTime() const { return totServiceTime_; }
+  /*! \brief Truck's total times it has visited a dump in the path.  */
+  int dumpVisits() const { return dumpVisits_; }
+  ///@}
+
+  /*! \brief True when \barrivalTime + \b deltaTime generates TWV.*/
+  double deltaGeneratesTWV(double deltaTime) const;
+
+  /** @name State */
+  ///@{
+  /*! \brief True when the total count for violations are 0 */
+  bool feasable() const { return twvTot_ == 0 && cvTot_ == 0;}
+  /*! \brief True doesnt have twc nor cv (including total counts) */
+  bool feasable(double cargoLimit) const {
+    return feasable() && !has_twv() && !has_cv(cargoLimit);
+  }
+  /*! \brief True when the Truck at this node doesn not violate time windows */
+  bool has_twv() const {
+    return lateArrival(arrivalTime_);
+  }
+  /*! \brief True when the Truck at this node doesn not violate capacity */
+  bool has_cv(double cargoLimit) const {
+    return cargo_ > cargoLimit || cargo_ < 0;
+  }
+  ///@}
+
+  /** @name mutators */
+  ///@{
+  void evaluate(double cargoLimit);
+  void evaluate(const Tweval &pred, double cargoLimit);
+  ///@}
+
+  /** @name Document functions*/
+  ///@{
+  /*! \brief returns the Arrival(j) opens(i) arrival time */
+  double arrival_this_opens_other(const Twnode &other) const;
+  /*! \brief returns the Arrival(j) closes(i) arrival time */
+  double arrival_this_closes_other(const Twnode &other) const;
+  ///@}
 
 
-    double deltaGeneratesTWV(double deltaTime) const;
-    bool feasable() const { return twvTot_ == 0 and cvTot_ == 0;}
-    bool has_twv() const {
-      return twvTot_ > 0 or lateArrival( arrivalTime_ );
-    }
-    bool has_cv(double cargoLimit) const {
-      return cargo_ > cargoLimit or cargo_ < 0;
-    }
 
-    /* mutators */
-    void evaluate(double cargoLimit);
-    void evaluate(const Tweval &pred, double cargoLimit);
-
-
-    /* constructors &destructors */
-
-    Tweval();
-    explicit Tweval(std::string line);
-    Tweval(int id, double x, double y, int opens, int closes,
-           int serviceTime, int demand, int streetId);
+  /*! \brief Construct a default Twnode */
+  Tweval();
+  /*! \brief Construct from a string line */
+  explicit Tweval(std::string line);
+  /*! \brief Construct from parameters */
+  Tweval(int id, double x, double y, int opens, int closes,
+         int serviceTime, int demand, int streetId);
 
  private:
-    double travelTime_;      ///< Travel time from last node
-    double arrivalTime_;     ///< Arrival time at this node
-    double waitTime_;        ///< Wait time at this node is early arrival
-    double departureTime_;   ///< Departure time from this node
-    double deltaTime_;   ///< Departure time from this node
+  /** @name Node evaluation members */
+  ///@{
+  double travelTime_;     ///< Travel time from last node
+  double arrivalTime_;    ///< Arrival time at this node
+  double waitTime_;       ///< Wait time at this node is early arrival
+  double departureTime_;  ///< Departure time from this node
+  double deltaTime_;   ///< Departure time from this node
+  ///@}
 
-    double cargo_;           ///< Total accumulated cargo at this point in the path
-    int twvTot_;             ///< Total count of TWV at this point in the path
-    int cvTot_;              ///< Total count of CV at this point in the path
-    double totWaitTime_;     ///< Total accumulated wait time at this point in the path
-    double totTravelTime_;   ///< Total accumulated travel time at this point in the path
-    double totServiceTime_;  ///< Total accumulated service time at this point in the path
-    int dumpVisits_;      ///< Total count of dump visits at this point in the path
+  /** @name Accumulated evaluation members */
+  ///@{
+  double cargo_;        ///< Accumulated cargo
+  int twvTot_;          ///< Total count of TWV
+  int cvTot_;           ///< Total count of CV
+  double totWaitTime_;  ///< Accumulated wait time
+  double totTravelTime_;   ///< Accumulated travel time
+  double totServiceTime_;  ///< Accumulated service time
+  int dumpVisits_;      ///< Total count of dump visits
+  ///@}
 };
 
 
