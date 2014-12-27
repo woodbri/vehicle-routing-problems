@@ -42,12 +42,15 @@ class Node {
 
   /** @name state */
   ///@{
-  bool isLatLon() const { return (x_ < 180) && (x_ > -180)
-                                && (y_ < 180) && (y_ > -180);}
+  bool isLatLon() const {
+    return (x_ < 180) && (x_ > -180)
+           && (y_ < 180) && (y_ > -180);
+  }
   bool isValid() const { return  valid_ > 0;}
   bool isSamePos(const Node &other) const { return distance(other) == 0; }
   bool isSamePos(const Node &other, double tolerance) const {
-    return distance(other) < tolerance;}
+    return distance(other) < tolerance;
+  }
   bool hasHint() const {return !( hint_ == "" );}
   ///@}
 
@@ -67,8 +70,10 @@ class Node {
   /** @name operators */
   ///@{
   bool operator<( const Node &n) const { return nid_ < n.nid_; }
-  bool operator==(const Node &n) const { return nid_ == n.nid_
-                                                && x_ == n.x_ && y_ == n.y_; }
+  bool operator==(const Node &n) const {
+    return nid_ == n.nid_
+           && x_ == n.x_ && y_ == n.y_;
+  }
   bool operator!=(const Node &n) const { return !( *this == n ); }
   bool operator>(const Node &n) const { return nid_ > n.nid_; }
   ///@}
@@ -98,7 +103,7 @@ class Node {
   double distanceToSegment(const Node &v, const Node &w) const;
   double distanceToSegment(const Node &v, const Node &w, Node &q) const;
   double distanceToSegment(double, double, double, double, double &,
-                              double &) const;
+                           double &) const;
   ///@}
 
   // dump
