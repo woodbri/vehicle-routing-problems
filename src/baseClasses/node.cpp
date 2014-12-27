@@ -68,16 +68,16 @@ void Node::clear() {
 void Node::set(const std::string &line) {
   clear();
   std::istringstream buffer(line);
-  int64 id;
-  buffer >> id;
+  long int ids;
+  buffer >> ids;
   buffer >> x_;
   buffer >> y_;
   hint_ = "";
-  if (id < 0) {
+  if (ids < 0) {
     valid_ = false;
   } else {
-    nid_ = id;
-    id_ = id;
+    nid_ = UID(ids);
+    id_ = UID(ids);
   }
 }
 
@@ -240,15 +240,15 @@ Node::Node(UID nid, UID id , double x, double y)
 Node::Node(const std::string &line)
      : nid_(0), id_(0), x_(0.0), y_(0.0), hint_(""), valid_(true) {
   std::istringstream buffer(line);
-  int64 id;
-  buffer >> id;
+  long int ids;
+  buffer >> ids;
   buffer >> x_;
   buffer >> y_;
   hint_ = "";
-  if (id < 0) {
+  if (ids < 0) {
     valid_ = false;
   } else {
-    nid_ = id;
-    id_ = id;
+    nid_ = UID(ids);
+    id_ = UID(ids);
   }
 }
