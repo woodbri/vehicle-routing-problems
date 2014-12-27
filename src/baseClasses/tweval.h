@@ -104,12 +104,16 @@ class Tweval: public Twnode {
   void evaluate(const Tweval &pred, double cargoLimit);
   ///@}
 
-  /** @name Document functions*/
+  /** @name Document TWC model functions*/
   ///@{
   /*! \brief returns the Arrival(j) opens(i) arrival time */
-  double arrival_this_opens_other(const Twnode &other) const;
+  double arrival_i_opens_j(const Tweval &other) const;
   /*! \brief returns the Arrival(j) closes(i) arrival time */
-  double arrival_this_closes_other(const Twnode &other) const;
+  double arrival_i_closes_j(const Tweval &other) const;
+  bool isCompatibleIJ(const Tweval &other) const;
+  bool isPartiallyCompatibleIJ(const Tweval &other) const;
+  bool isFullyCompatibleIJ(const Tweval &other) const;
+  bool isNotCompatibleIJ(const Tweval &other) const;
   ///@}
 
 

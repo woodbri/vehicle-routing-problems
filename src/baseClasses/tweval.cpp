@@ -135,7 +135,7 @@ double Tweval::deltaGeneratesTWV(double deltaTime) const {
         \bthis node is visited directly after \b other node
         and that the actual arrival time at \b other node was opens(other)
 */
-double Tweval::arrival_this_opens_other(const Twnode &other) const{
+double Tweval::arrival_i_opens_j(const Tweval &other) const{
   return  other.opens() + other.serviceTime() + twc->TravelTime(other.nid(), nid());
 }
 /*!
@@ -143,9 +143,39 @@ double Tweval::arrival_this_opens_other(const Twnode &other) const{
       \bthis node is visited directly after \b other node
       and that the actual arrival time at \b other node was opens(other)
 */
-double Tweval::arrival_this_closes_other(const Twnode &other) const {
+double Tweval::arrival_i_closes_j(const Tweval &other) const {
   return  other.closes() + other.serviceTime() + twc->TravelTime(other.nid(), nid());
 }
+
+bool Tweval::isCompatibleIJ(const Tweval &other) const {
+  return 
+          // cant go to starting site regardless of the other's type of site
+          !isStarting()
+          // all nodes after visiting an ending site are incompatible
+          && !other.isEnding()
+          // compatability based on the time window
+          && (other.closes() > arrival_i_opens_j(other));
+}
+bool Tweval::isPartiallyCompatibleIJ(const Tweval &other) const {
+  return  isCompatibleIJ(other)
+          && opens() < arrival_i_opens_j(other)
+          && closes() < arrival_i_closes_j(other);
+}
+bool Tweval::isFullyCompatibleIJ(const Tweval &other) const {
+  return  isCompatibleIJ(other)
+          && opens() < arrival_i_opens_j(other)
+          && arrival_i_closes_j(other) <= closes();
+}
+bool Tweval::isNotCompatibleIJ(const Tweval &other) const {
+  return  !isCompatibleIJ(other);
+}
+
+
+
+
+
+
+
 
 
 #if 0
