@@ -114,13 +114,17 @@ class Twnode: public Node {
   bool hasNoGoods() const { return demand_ == 0; }
   ///@}
 
-  /*! \brief True when \b \c arrivalTime is before it \b opens */
-  bool earlyArrival(const double arrivalTime) const {
+  /*! \brief True when \b arrivalTime  is before it \b opens */
+  bool earlyArrival(double arrivalTime) const {
     return arrivalTime < opens_;
   }
-  /*! \brief True when \b \c arrivalTime is after it \b closes */
-  bool lateArrival(const double arrivalTime) const {
+  /*! \brief True when \b arrivalTime  is after it \b closes */
+  bool lateArrival(double arrivalTime) const {
     return arrivalTime > closes_;
+  }
+  /*! \brief True when \b arrivalTime in the time window */
+  bool onTime(double arrivalTime) const {
+    return !earlyArrival(arrivalTime) && !lateArrival(arrivalTime);
   }
 
   /** @name sameStreet
