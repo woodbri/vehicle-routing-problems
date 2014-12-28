@@ -836,13 +836,14 @@ class TwBucket {
 
 
   /*! @name  position
-     Gets the position of node in the path
+     Gets the position of node in the bucket
   */
   ///@{
   /*!
    * \brief Get the position of node in the path
    * \param[in] node A node object that we want to locate in the path
-   * \return returns the position of node in the path or -1 if it's not found.
+   * \return returns the position of node in the path or 0 if it's not found.
+   * \warning, if the position is 0, the user has to make sure it belongs to the bucket
    */
   POS pos(const knode &node) const { return position(node.nid()); }
 
@@ -860,8 +861,13 @@ class TwBucket {
   ///@}
 
 
-  /*!
-   * \brief Swap nodes in position i and j in the path
+  /*! @name  mutators
+
+     \warning No evaluation is done
+  */
+  ///@{
+  /*! \brief  Both nodes are in the bucket
+
    * \param[in] i First node position to swap.
    * \param[in] j Second node position to swap.
    */
@@ -869,23 +875,22 @@ class TwBucket {
     std::iter_swap(this->path.begin() + i, this->path.begin() + j);
   }
 
-  /*!
-   * \brief Swap nodes between two paths.
+  /*! \brief  other node is in other bucket
    *
-   * Swap nodes nodes between two paths, like
-   * - truck.swap( t1_pos, truck2, t2_pos );
+   * Swap nodes nodes between two buckets
+   * - bucket1.swap( b1_pos, bucket2, b2_pos );
    *
-   * The node in position t1_pos of truck1 will be swapped with the node
-   * in position t2_pos of truck2.
+   * The node in position b1_pos of bucket1 will be swapped with the node
+   * in position b2_pos of bucket2.
    *
-   * \param[in] t1_pos Position of node in truck1
-   * \param[in] truck2 Truck2, a \ref TwBucket
-   * \param[in] t2_pos Position of node in truck2
+   * \param[in] b1_pos Position of node in bucket1
+   * \param[in] bucket2 other bucket
+   * \param[in] b2_pos Position of node in bucket2
    * \return true
    */
-  bool swap(POS t1_pos, TwBucket<knode> &truck2, POS t2_pos) {
-    assert(t1_pos < size() && t2_pos < truck2.size());
-    std::iter_swap(path.begin() + t1_pos, truck2.path.begin() + t2_pos);
+  bool swap(POS b1_pos, TwBucket<knode> &bucket2, POS b2_pos) {
+    assert(b1_pos < size() && b2_pos < bucket2.size());
+    std::iter_swap(path.begin() + b1_pos, bucket2.path.begin() + b2_pos);
     return true;
   }
 
@@ -902,11 +907,11 @@ class TwBucket {
       erase(fromi + 1);
     }
   }
+  ///@}
 
 
+  /*! \brief Get a deque of nids that are in the path.
 
-  /*!
-   * \brief Get a deque of nids that are in the path.
    * \return A deque of the nids in the path.
    */
   std::deque<int> getpath() const {
@@ -919,12 +924,15 @@ class TwBucket {
   }
 
 
-  // ------ deque like functions   POSITION based functions  -------
-
-  /*!
-   * \brief Insert node into path at position atPos
-   * \param[in] node The node to insert
+  /*! @name   deque like functions
+    assertions added
+    Please refer to cpp deque documentation
+    \returns True when the operation was completed
+  */
+  ///@{
+  /*! \brief Insert node into deque
    * \param[in] atPos The position it should be inserted at
+   * \param[in] node The node to insert
    */
   bool insert(const knode &node, POS atPos) {
     assert(atPos <= path.size());
@@ -933,8 +941,7 @@ class TwBucket {
   }
 
 
-  /*!
-   * \brief Erase the node at location atPos
+  /*! \brief Erase the node from deque at location atPos
    * \param[in] atPos The position of the node to be erased.
    */
   bool erase(POS atPos) {
@@ -944,11 +951,11 @@ class TwBucket {
   }
 
 
-  /*
-   * \brief Erase node from within the path.
+  /* \brief Erase node from within the path.
    * \param[in] node The node to be erased.
    */
   bool erase(const knode &node) {
+    if ( !hasNid(node) ) return false;
     int atPos = pos(node.nid());
     assert(atPos < path.size());
     path.erase(path.begin() + atPos);
@@ -956,11 +963,12 @@ class TwBucket {
   }
 
 
-  /*!  * \brief Erase all node between fromPos and toPos.
+  /*!  * \brief Erase all nodes between fromPos and toPos.
 
     \param[in] fromPos Position of the start of the range to be erased.
     \param[in] toPos Position of the last in the range to be erased.
 
+    \warning Notice that the right side of the range is not included 
     when  ( fromPos < toPos )  range erased: [fromPos,toPos)
     when  ( fromPos > toPos )  range erased: [toPos,fromPos)
 
@@ -991,6 +999,7 @@ class TwBucket {
   }
   void pop_back() { path.pop_back(); }
   void pop_front() { path.pop_front(); }
+  /*! \brief disables resizing to a larger bucket */
   void resize(UINT newSize) {
     assert(newSize <= path.size());
     path.resize(newSize);
@@ -999,28 +1008,28 @@ class TwBucket {
   unsigned int max_size() const { return path.max_size(); }
   unsigned int size() const { return path.size(); }
   bool empty() const { return path.empty(); }
-  std::deque<knode> &Path() { return path; }
-  const std::deque<knode> &Path() const  { return path; }
-  knode &operator[](POS at) {
+  std::deque<knode>& Path() { return path; }
+  const std::deque<knode>& Path() const  { return path; }
+  knode& operator[](POS at) {
     assert(at < path.size());
     return path[at];
   }
-  const knode  &operator[] (POS at) const {
+  const knode& operator[] (POS at) const {
     assert(at < path.size());
     return path[at];
   }
-  knode &at(POS pos) {
+  knode& at(POS pos) {
     assert(pos < path.size());
     return path.at(pos);
   }
-  const knode &at(POS pos) const  {
+  const knode& at(POS pos) const  {
     assert(pos < path.size());
     return path.at( pos );
   }
-  knode &front() { return path.front(); }
-  const knode &front() const { return path.front(); }
+  knode& front() { return path.front(); }
+  const knode& front() const { return path.front(); }
   knode &back() { return path.back(); }
-  const knode &back() const { return path.back(); }
+  const knode& back() const { return path.back(); }
 };
 
 #endif  // SRC_BASECLASSES_TWBUCKET_H_
