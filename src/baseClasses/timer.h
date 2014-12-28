@@ -11,8 +11,8 @@
  * the terms of the MIT License. Please file LICENSE for details.
  *
  ********************************************************************VRP*/
-#ifndef TIMER_H
-#define TIMER_H
+#ifndef SRC_BASECLASSES_TIMER_H_
+#define SRC_BASECLASSES_TIMER_H_
 
 #include <time.h>
 
@@ -23,39 +23,27 @@
  * since it was created. It is used to measure how long certain functions
  * take to run and for collecting performance stats.
  */
-class Timer {
+class Timer
+{
 
-    //  public:
-    //    typedef struct timespec {
-    //        time_t tv_sec;
-    //        long   tv_nsec;
-    //    } Time;
+private:
+  struct timespec startTime;   
+  struct timespec stopTime;
 
-  private:
-    struct timespec t0;    ///< start time
-    struct timespec t1;    ///< duration time
+public:
+  /*! \brief Construct a new Timer object and remember its creation time*/
+  Timer() { clock_gettime( CLOCK_MONOTONIC_RAW, &startTime ); };
 
-  public:
-    /*!
-     * \brief Construct a new Timer object and remember its time of creation
-     */
-    Timer() { clock_gettime( CLOCK_MONOTONIC_RAW, &t0 ); };
+  /*! \brief Resets the Timer start time to now.  */
+  inline void restart() { clock_gettime( CLOCK_MONOTONIC_RAW, &startTime ); };
 
-    /*!
-     * \brief Reset the Timer start time to now.
-     */
-    inline void restart() { clock_gettime( CLOCK_MONOTONIC_RAW, &t0 ); };
-
-    /*!
-     * \brief Compute the duration of time since the Timer was set or reset.
-     * \return The number of second as a double since the Timer as set or reset.
-     */
-    inline double duration() {
-        clock_gettime( CLOCK_MONOTONIC_RAW, &t1 );
-        double dt0 = t0.tv_nsec / 1000000000.0 + t0.tv_sec;
-        double dt1 = t1.tv_nsec / 1000000000.0 + t1.tv_sec;
-        return dt1 - dt0;
-    };
+  /*! \brief Returns the time lapse since the Timer was set or reset.  */
+  inline double duration() {
+    clock_gettime( CLOCK_MONOTONIC_RAW, &stopTime );
+    double dt0 = startTime.tv_nsec / 1000000000.0 + startTime.tv_sec;
+    double dt1 = stopTime.tv_nsec / 1000000000.0 + stopTime.tv_sec;
+    return dt1 - dt0;
+  };
 };
 
-#endif
+#endif  // SRC_BASECLASSES_TIMER_H_
