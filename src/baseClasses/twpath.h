@@ -59,14 +59,6 @@ class Twpath : public TwBucket<knode> {
   const_reverse_iterator;
   typedef typename std::deque<knode>::const_iterator const_iterator;
 
-  /*
- public: 
-  enum E_Ret {
-    OK        = 0,  ///< OK - the path was updated
-    NO_CHANGE = 1,  ///< NO_CHANGE - there was no need to change the path
-    INVALID   = 2   ///< INVALID - the requested move is not valid, no change was made
-  }
-  */
 
  public:
   // ------------------------------------------------------------------
@@ -74,7 +66,7 @@ class Twpath : public TwBucket<knode> {
   // If a new evaluationg funtion uses a method of Twbucket not listed here
   //     add a new line with the correspondig name
   // ------------------------------------------------------------------
-  //using TwBucket<knode>::swap;
+  using TwBucket<knode>::swap;
   using TwBucket<knode>::insert;
   using TwBucket<knode>::erase;
   using TwBucket<knode>::size;
@@ -346,7 +338,6 @@ class Twpath : public TwBucket<knode> {
 
 
 
-#if 0
   /*! @name  operations within two  paths
       \todo TODO fix return to be true when operation is performed
   */
@@ -364,18 +355,18 @@ class Twpath : public TwBucket<knode> {
    * \param[in] rhs Vehicle B
    * \param[in] j Position of node in path B
    * \param[in] rhs_maxcap The maximum capacity of vehicle B
-   * \return E_Ret to indicate status of the move request
+   * \return true when the swap was performed
    */
-  E_Ret e_swap( UID i, double maxcap, Twpath<knode> &rhs, UID j,
-                double rhs_maxcap ) {
-    assert ( i < size() and j < rhs.size() );
+  bool e_swap(POS i, double maxcap, Twpath<knode> &rhs, POS j,
+                double rhs_maxcap) {
+    assert(i < size() and j < rhs.size());
 
-    if ( i < 0 or j<0 or i>size() - 1 or j > rhs.size() - 1 ) return INVALID;
+    if ( i < 0 or j<0 or i>size() - 1 or j > rhs.size() - 1 ) return false;
 
-    std::iter_swap( path.begin() + i, rhs.path.begin() + j );
+    std::iter_swap(path.begin() + i, rhs.path.begin() + j);
     evaluate( i, maxcap );
     rhs.evaluate( j, rhs_maxcap );
-    return OK;
+    return true;
   }
 
 
@@ -392,35 +383,34 @@ class Twpath : public TwBucket<knode> {
    * \param[in] maxcapacity The maximum capacity of vehicle for this path.
    * \return Status of whether or not the move was made.
    */
-  E_Ret e_move( UID fromi, UID toDest, double maxcapacity ) {
-    assert ( fromi < size() and toDest < size() );
-
+  bool e_move( POS fromi, POS toDest, double maxcapacity ) {
+    assert(fromi < size() and toDest < size());
     if ( fromi < 0 or toDest<0 or fromi>size() - 1 or toDest > size() - 1 )
-      return INVALID;
+      return false;
 
-    if ( fromi == toDest ) return NO_CHANGE;
+    assert(fromi != toDest);
+    if ( fromi == toDest ) return false;
 
     if ( fromi < toDest ) {
       if ( toDest + 1 > path.size() )
         //I think this will never be executed
         path.push_back( path[fromi] );
       else
-        insert( path[fromi], toDest + 1 );
+        insert(path[fromi], toDest + 1);
 
-      erase( fromi );
+      erase(fromi);
     } else {
-      insert( path[fromi], toDest );
-      erase( fromi + 1 );
+      insert(path[fromi], toDest);
+      erase(fromi + 1 );
     }
 
-    fromi < toDest ? evaluate( fromi, maxcapacity ) : evaluate( toDest,
-        maxcapacity );
-    return OK;
+    fromi < toDest ? evaluate(fromi, maxcapacity) 
+                    : evaluate(toDest, maxcapacity);
+    return true;
   }
 
 
-  /*!
-   * \brief Evaluated: Resize a path by trucating it.
+  /*! \brief Evaluated: Resize a path by trucating it.
    *
    * This resize will only trucate a path as a fast way to remove nodes
    * from the end of the path. The resulting path is evaluated.
@@ -429,15 +419,14 @@ class Twpath : public TwBucket<knode> {
    * \param[in] maxcapacity The maximum capacity of vehicle for this path.
    * \return Status of whether or not the move was made.
    */
-  E_Ret e_resize( UID numb, double maxcapacity ) {
-    assert ( numb <= size() );
+  bool e_resize(UINT newSize, double maxcapacity) {
+    assert ( newSize <= size() );
+    if ( newSize<0 or newSize>size() ) return false;
 
-    if ( numb<0 or numb>size() ) return INVALID;
-
-    path.resize( numb );
-    //its reduced so the last node's value its not affected so no need of
-    evalLast( maxcapacity ); //<--- can this one be avoided????
-    return OK;
+    path.resize(newSize);
+    // its reduced so the last node's value its not affected so no need of
+    evalLast(maxcapacity); // TODO <--- can this one be avoided????
+    return true;
   }
 
 
@@ -452,20 +441,18 @@ class Twpath : public TwBucket<knode> {
    * \param[in] maxcapacity The maximum capacity of vehicle for this path.
    * \return Status of whether or not the move was made.
    */
-  E_Ret e_swap( UID i, UID j, double maxcapacity ) {
-    if ( i == j ) return NO_CHANGE;
+  bool e_swap(UID i, UID j, double maxcapacity) {
+    if (i == j) return false;
 
-    //if (i<0 or j<0 or i>size()-1 or j>size()-1) return INVALID;
-    swap( i, j );
-    i < j ? evaluate( i, maxcapacity ) : evaluate( j, maxcapacity );
-    return OK;
+    swap(i, j);
+    i < j ? evaluate(i, maxcapacity) : evaluate(j, maxcapacity);
+    return true;
   }
 
 
-  /*!
-   * \brief Evaluated: Move a range of nodes to a new position.
+  /*! \brief Evaluated: Move a range of nodes to a new position.
    *
-   * Moves a range of nodes (i-j) to position k without reversing them
+   * Moves a range of nodes (i-j) to position k without
    * and evaluate the resultant path.
    *
    * \todo Probably more efficient with iterators
@@ -475,10 +462,10 @@ class Twpath : public TwBucket<knode> {
    * \param[in] maxcapacity The maximum capacity of vehicle for this path.
    * \return Status of whether or not the move was made.
    */
-  E_Ret e_move( UID i, UID j, UID k, double maxcapacity ) {
-    if ( ! ( i <= j and ( k > j or k < i ) ) ) return INVALID;
+  bool e_move(UID i, UID j, UID k, double maxcapacity) {
+    if ( !(i <= j and (k > j or k < i ))) return false;
 
-    if ( j > size() - 1 or k > size() ) return INVALID;
+    if ( j > size() - 1 or k > size() ) return false;
 
     // moving range to right of the range
     if ( k > j ) {
@@ -511,14 +498,13 @@ class Twpath : public TwBucket<knode> {
       }
     }
 
-    //i < k ? path[i].evaluate(maxcapacity) : path[k].evaluate(maxcapacity);
-    evaluate( maxcapacity );
-    return OK;
+    // TODO i < k ? path[i].evaluate(maxcapacity) : path[k].evaluate(maxcapacity);
+    evaluate(maxcapacity);
+    return true;
   }
 
 
-  /*!
-   * \brief Evaluated: Move a range of nodes to a new position and reverse the order of the moved range of nodes.
+  /*! \brief Evaluated: Move a range of nodes to a new position and reverse the order of the moved range of nodes.
    *
    * Moves a range of nodes (i-j) to position k and reverses the order of
    * the nodes in the range getting moved and evaluate the resultant path.
@@ -530,18 +516,18 @@ class Twpath : public TwBucket<knode> {
    * \param[in] maxcapacity The maximum capacity of vehicle for this path.
    * \return Status of whether or not the move was made.
    */
-  E_Ret e_movereverse( UID i, UID j, int k, double maxcapacity ) {
+  bool e_movereverse( UID i, UID j, int k, double maxcapacity ) {
     // path: 0 1 2 [3 4 5] 6 7 8 9
     // invalid moves are:
     //      rangeFrom > size-1 or rangeTo > size-1 or dest > size
     //      dest < 0 or to < 0 or from < 0 or to < from
     //      dest >= from and dest <= to+1
     if ( i > path.size() - 1 or j > path.size() - 1  or
-         k > path.size() ) return INVALID;
+         k > path.size() ) return false;
 
-    if ( i < 0 or j < 0 or k < 0 or j < i ) return INVALID;
+    if ( i < 0 or j < 0 or k < 0 or j < i ) return false;
 
-    if ( k >= i and k <= j + 1 ) return INVALID;
+    if ( k >= i and k <= j + 1 ) return false;
 
     // moving range to right of the range
     if ( k > j ) {
@@ -561,7 +547,7 @@ class Twpath : public TwBucket<knode> {
     }
 
     evaluate( maxcapacity );
-    return OK;
+    return true;
   }
 
 
@@ -576,16 +562,16 @@ class Twpath : public TwBucket<knode> {
    * \param[in] maxcapacity The maximum capacity of vehicle for this path.
    * \return Status of whether or not the move was made.
    */
-  E_Ret e_reverse( UID i, UID j, double maxcapacity ) {
-    assert ( i < size() and j < size() );
+  bool  e_reverse( UID i, UID j, double maxcapacity ) {
+    assert (i < size() and j < size());
 
     if ( i<0 or j<0 or i >= path.size() or j >= path.size() )
-      return INVALID;
+      return false;
 
     int m = i;
     int n = j;
 
-    if ( i == j ) return NO_CHANGE;
+    if ( i == j ) return false;
 
     if ( i > j ) {
       m = j;
@@ -595,46 +581,28 @@ class Twpath : public TwBucket<knode> {
     iterator itM = path.begin() + m;
     iterator itN = path.begin() + n;
 
-    while ( itM < itN ) {
+    while ( itM < itN ) {  // TODO I dont think this comparison of iterators its correct
       std::iter_swap( itM, itN );
       itM++;
       itN--;
     }
 
-    i < j ? evaluate( i, maxcapacity ) : evaluate( j, maxcapacity );
-    return OK;
+    i < j ? evaluate(i, maxcapacity) : evaluate(j, maxcapacity);
+    return true;
   }
-#endif
 
 
-#if 0
-  /*!
-   * \brief Evaluated: Remove a node from a path.
-   *
-   * Remove the node at the given position from a path and evaluate
-   * the resultant path.
-   *
-   * \param[in] i The position of the node to be removed.
-   * \param[in] maxcapacity The maximum capacity of vehicle for this path.
-   * \return Status of whether or not the move was made.
-   */
-  E_Ret e_remove ( UID i, double maxcapacity ) {
-    assert ( i < size() );
-
-    if ( i<0 or i>size() - 1 ) return INVALID;
-
-    path.erase( path.begin() + i );
-    evaluate( i, maxcapacity );
-    return OK;
+  /*! \brief Evaluated: Remove a node from a path is e_erase.  */
+  bool e_remove(UID i, double maxcapacity) {
+    return e_erase(i,maxcapacity);
   }
-#endif
 
  
 
 
-#if 0
+ #if 0
   void evaluateOsrm( const std::string &osrmBaseUrl ) {
-    assert ( size() > 0 );
+    assert( size() > 0 );
     evaluateOsrm( 0, osrmBaseUrl );
   }
 
@@ -661,10 +629,6 @@ class Twpath : public TwBucket<knode> {
 
   double getTotTravelTimeOsrm() const {
     return path[path.size() - 1].getTotTravelTimeOsrm();
-  }
-
-  bool feasable() const {
-    return ( path[path.size() - 1].feasable() );
   }
 #endif  // 0
 
