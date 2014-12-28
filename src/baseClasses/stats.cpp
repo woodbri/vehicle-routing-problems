@@ -23,14 +23,15 @@
  * \param[in] key The key that we want to retrieve the value of.
  * \return The current value of \b key if it is defined or 0.0.
  */
-double Stats::getval( const std::string key ) const {
-    std::map<const std::string, double>::const_iterator it;
-    it = stats.find( key );
+double Stats::getval( const std::string key ) const
+{
+  std::map<const std::string, double>::const_iterator it;
+  it = stats.find( key );
 
-    if ( it == stats.end() )
-        return 0.0;
-    else
-        return it->second;
+  if ( it == stats.end() )
+    return 0.0;
+  else
+    return it->second;
 }
 
 
@@ -38,14 +39,15 @@ double Stats::getval( const std::string key ) const {
  * \brief Fetch all keys into a std::vector of std::strings.
  * \return A std::vector of std::strings of all the defined keys.
  */
-std::vector<std::string> Stats::getkeys() const {
-    std::vector<std::string> keys;
-    std::map<std::string, double>::const_iterator it;
+std::vector<std::string> Stats::getkeys() const
+{
+  std::vector<std::string> keys;
+  std::map<std::string, double>::const_iterator it;
 
-    for ( it = stats.begin(); it != stats.end(); ++it )
-        keys.push_back( it->first );
+  for ( it = stats.begin(); it != stats.end(); ++it )
+    keys.push_back( it->first );
 
-    return keys;
+  return keys;
 }
 
 
@@ -53,15 +55,16 @@ std::vector<std::string> Stats::getkeys() const {
  * \brief Print out all the key: value pairs currently in the Stats object.
  * \param[in] title A std::string title that will get printed along with the output.
  */
-void Stats::dump( const std::string title ) const {
-    std::map<std::string, double>::const_iterator it;
+void Stats::dump( const std::string title ) const
+{
+  std::map<std::string, double>::const_iterator it;
 
-    DLOG( INFO ) << "---------- Stats: " << title << " --------------";
+  DLOG( INFO ) << "---------- Stats: " << title << " --------------";
 
-    for ( it = stats.begin(); it != stats.end(); ++it )
-        DLOG( INFO ) << it->first << ":\t" << it->second;
+  for ( it = stats.begin(); it != stats.end(); ++it )
+    DLOG( INFO ) << it->first << ":\t" << it->second;
 
-    DLOG( INFO ) << "----------------------------------------";
+  DLOG( INFO ) << "----------------------------------------";
 }
 
 
@@ -69,14 +72,15 @@ void Stats::dump( const std::string title ) const {
  * \brief Increment (or initialize) the value associated with the key.
  * \param[in] key The key we want to increment.
  */
-void Stats::inc( const std::string key ) {
-    std::map<std::string, double>::iterator it;
-    it = stats.find( key );
+void Stats::inc( const std::string key )
+{
+  std::map<std::string, double>::iterator it;
+  it = stats.find( key );
 
-    if ( it == stats.end() )
-        stats[key] = 1.0;
-    else
-        stats[key] = stats[key] + 1.0;
+  if ( it == stats.end() )
+    stats[key] = 1.0;
+  else
+    stats[key] = stats[key] + 1.0;
 }
 
 
@@ -91,8 +95,9 @@ void Stats::inc( const std::string key ) {
  * \param[in] key The key as a std::string that we want to assign \b val to.
  * \param[in] val The value as a double that we want associated to \b key.
  */
-void Stats::set( const std::string key, double val ) {
-    stats[key] = val;
+void Stats::set( const std::string key, double val )
+{
+  stats[key] = val;
 }
 
 
@@ -101,14 +106,15 @@ void Stats::set( const std::string key, double val ) {
  * \param[in] key The key as a std::string that we want to assign \b val to.
  * \param[in] val The value as a double that we want associated to \b key.
  */
-void Stats::addto( const std::string key, double val ) {
-    std::map<std::string, double>::iterator it;
-    it = stats.find( key );
+void Stats::addto( const std::string key, double val )
+{
+  std::map<std::string, double>::iterator it;
+  it = stats.find( key );
 
-    if ( it == stats.end() )
-        stats[key] = val;
-    else
-        stats[key] = stats[key] + val;
+  if ( it == stats.end() )
+    stats[key] = val;
+  else
+    stats[key] = stats[key] + val;
 }
 
 

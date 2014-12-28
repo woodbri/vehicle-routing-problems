@@ -18,11 +18,12 @@
 
 #include "config.h"
 
-class TrashConfig : public Config {
-  public:
+class TrashConfig : public Config
+{
+public:
 
-    TrashConfig(); 
-    ~TrashConfig() {};
+  TrashConfig();
+  ~TrashConfig() {};
 };
 #endif
 

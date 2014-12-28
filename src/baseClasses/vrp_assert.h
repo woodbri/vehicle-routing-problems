@@ -74,13 +74,14 @@
 /*! \class AssertFailedException
  * \brief Extends std::exception and is the exception that we throw if an assert fails.
  */
-class AssertFailedException : public std::exception {
-  private:
-    const char *str;    ///< str Holds the what() string for the exception.
+class AssertFailedException : public std::exception
+{
+private:
+  const char *str;    ///< str Holds the what() string for the exception.
 
-  public:
-    virtual const char *what() const throw();
-    AssertFailedException( const char *_str );
+public:
+  virtual const char *what() const throw();
+  AssertFailedException( const char *_str );
 };
 
 #endif

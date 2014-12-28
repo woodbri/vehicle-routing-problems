@@ -1,5 +1,5 @@
 
-ASTYLE=/usr/local/bin/astyle
+ASTYLE=/usr/bin/astyle
 
 all:
 	@echo "Usage: make astyle|doxygen|clean|fileheader"
@@ -7,7 +7,7 @@ all:
 	@echo "Usage: make astyle|doxygen|clean|fileheader"
 
 astyle:
-	$(ASTYLE) --options=astyle.conf "../*.cpp" "../*.h"
+	$(ASTYLE) --options=google-style.conf "../*.cpp" "../*.h"
 
 doxygen:
 	mkdir -p ../build/doxy/

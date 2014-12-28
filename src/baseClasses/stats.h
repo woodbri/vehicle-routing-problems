@@ -44,23 +44,24 @@
  *
  * where method is one of the various methods documented for the class.
  */
-class Stats {
-  private:
-    std::map<std::string, double> stats;
+class Stats
+{
+private:
+  std::map<std::string, double> stats;
 
-  public:
+public:
 
-    Stats() { stats.clear(); };
-    ~Stats() {};
+  Stats() { stats.clear(); };
+  ~Stats() {};
 
-    double getval( const std::string key ) const;
-    std::vector<std::string> getkeys() const;
-    void dump( const std::string title ) const;
+  double getval( const std::string key ) const;
+  std::vector<std::string> getkeys() const;
+  void dump( const std::string title ) const;
 
-    void inc( const std::string key );
-    void set( const std::string key, double val );
-    void addto( const std::string key, double val );
-    void clear() { stats.clear(); };
+  void inc( const std::string key );
+  void set( const std::string key, double val );
+  void addto( const std::string key, double val );
+  void clear() { stats.clear(); };
 };
 
 typedef Singleton<Stats> VrpStats; // Global declaration

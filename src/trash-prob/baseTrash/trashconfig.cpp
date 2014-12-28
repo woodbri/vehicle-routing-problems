@@ -34,32 +34,35 @@
  *
  */
 
-    TrashConfig::TrashConfig() : Config() {
-	#ifdef DOPLOT
-        set( "Plotting"," set to be done" );
-        set( "plotDir",     "./" );
-        set( "plotFontFile", "/usr/share/fonts/truetype/msttcorefonts/Verdana.ttf" );
-	#endif
+TrashConfig::TrashConfig() : Config()
+{
+#ifdef DOPLOT
+  set( "Plotting", " set to be done" );
+  set( "plotDir",     "./" );
+  set( "plotFontFile", "/usr/share/fonts/truetype/msttcorefonts/Verdana.ttf" );
+#endif
 
-        #ifdef OSRMCLIENT
-        osrm->useOsrm( true );
-        #ifdef DOVRPLOG
-           if ( osrm->getConnection() ) set ("osrmClient", " is available");
-           else set( "OsrmClient", " is not available");
-        #endif
-        osrm->useOsrm( false );
-        #else
-        set( "osrmClient"," not set to be used" );
-	#endif
-	
-	#ifdef DOSTATS
-        set( "Statistics"," set to be calculated" );
-	#endif
+#ifdef OSRMCLIENT
+  osrm->useOsrm( true );
+#ifdef DOVRPLOG
 
-	#ifdef DOVRPLOG
-        set( "Logging"," set to be done" );
-	#endif
+  if ( osrm->getConnection() ) set ("osrmClient", " is available");
+  else set( "OsrmClient", " is not available");
 
-    };
+#endif
+  osrm->useOsrm( false );
+#else
+  set( "osrmClient", " not set to be used" );
+#endif
+
+#ifdef DOSTATS
+  set( "Statistics", " set to be calculated" );
+#endif
+
+#ifdef DOVRPLOG
+  set( "Logging", " set to be done" );
+#endif
+
+};
 
 

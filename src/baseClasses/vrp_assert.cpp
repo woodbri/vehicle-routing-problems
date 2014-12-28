@@ -25,10 +25,12 @@
 #define __TOSTRING(x) __STRING(x)
 
 
-    const char * AssertFailedException::what() const throw() {
-        return str;
-    };
+const char *AssertFailedException::what() const throw()
+{
+  return str;
+};
 
-    AssertFailedException::AssertFailedException( const char *_str ) : str( _str ) {};
+AssertFailedException::AssertFailedException( const char *_str ) : str(
+    _str ) {};
 
 

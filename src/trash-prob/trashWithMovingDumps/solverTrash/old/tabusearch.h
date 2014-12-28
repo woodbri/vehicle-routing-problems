@@ -24,21 +24,22 @@
 #include "neighborhoods.h"
 #include "tabubase.h"
 
-class TabuSearch : public TabuBase<Neighborhoods> {
+class TabuSearch : public TabuBase<Neighborhoods>
+{
 
-  public:
-    TabuSearch( const Neighborhoods initialSolution ) :
-        TabuBase( initialSolution ) {
-        bestSolution.computeCosts();
-        bestSolution.dump();
-        bestSolutionCost = bestSolution.getCost();
-    };
+public:
+  TabuSearch( const Neighborhoods initialSolution ) :
+    TabuBase( initialSolution ) {
+    bestSolution.computeCosts();
+    bestSolution.dump();
+    bestSolutionCost = bestSolution.getCost();
+  };
 
-    void search();
-    void generateNeighborhood( neighborMovesName whichNeighborhood,
-                               std::deque<Move> &neighborhood, const Move &lastMove ) const;
-    bool doNeighborhoodMoves( neighborMovesName whichNeighborhood,
-                              int maxStagnation );
+  void search();
+  void generateNeighborhood( neighborMovesName whichNeighborhood,
+                             std::deque<Move> &neighborhood, const Move &lastMove ) const;
+  bool doNeighborhoodMoves( neighborMovesName whichNeighborhood,
+                            int maxStagnation );
 
 };
 

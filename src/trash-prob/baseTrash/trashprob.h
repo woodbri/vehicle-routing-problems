@@ -20,36 +20,36 @@
 //#include "vrptools.h"
 #include "prob_trash.h"
 
-class TrashProb : public Prob_trash {
-    std::vector<std::string> errorsFound;
-    bool dataIsLatLon;
+class TrashProb : public Prob_trash
+{
+  std::vector<std::string> errorsFound;
+  bool dataIsLatLon;
 
   template <typename T>
-  std::string numbertoString ( T Number )
-  {
-     std::stringstream ss;
-     ss << Number;
-     return ss.str();
+  std::string numbertoString ( T Number ) {
+    std::stringstream ss;
+    ss << Number;
+    return ss.str();
   }
 
-  public:
+public:
 
-    TrashProb(  container_t * p_containers, unsigned int container_count,
-                          otherloc_t * p_otherlocs, unsigned int otherloc_count,
-                          ttime_t * p_ttimes, unsigned int ttime_count,
-                          vehicle_t * p_vehicles, unsigned int vehicle_count);
+  TrashProb(  container_t *p_containers, unsigned int container_count,
+              otherloc_t *p_otherlocs, unsigned int otherloc_count,
+              ttime_t *p_ttimes, unsigned int ttime_count,
+              vehicle_t *p_vehicles, unsigned int vehicle_count);
 
 
-    void addContainers( container_t *containers, int count );
-    void addOtherlocs( otherloc_t *otherlocs, int count );
-    void addTtimes( ttime_t *ttimes, int count );
-    void addVehicles( vehicle_t *vehicles, int count );
+  void addContainers( container_t *containers, int count );
+  void addOtherlocs( otherloc_t *otherlocs, int count );
+  void addTtimes( ttime_t *ttimes, int count );
+  void addVehicles( vehicle_t *vehicles, int count );
 
-    char** getErrorsForPg( int &count );
-    bool isValid() const;
-    //std::string whatIsWrong() const;
-    std::string getErrorsString() const;
-    void  whatIsWrong() ;
+  char **getErrorsForPg( int &count );
+  bool isValid() const;
+  //std::string whatIsWrong() const;
+  std::string getErrorsString() const;
+  void  whatIsWrong() ;
 
 };
 

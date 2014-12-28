@@ -272,7 +272,7 @@ build/libvrptools.a: $(OBJS) $(BASECLASSES_OBJS) $(BASETRASH_OBJS) $(INITTRASH_O
 
 valgrind: 
 	@echo "Output will be in valgrindlog"
-	valgrind -v --track-origins=yes --undef-value-errors=yes --leak-check=full ./bin/trash ../muni-b/muni-b --log-file=logs/valgrindlog
+	valgrind -v --track-origins=yes --undef-value-errors=yes --leak-check=full --show-leak-kinds=all ./bin/trash ../muni-b/muni-b &> logs/valgrindlog
 
 callgrind-8: ./bin/trash ./montevideo/muni-b.*
 	valgrind --tool=callgrind --callgrind-out-file=logs/callgrind-008.out ./bin/trash montevideo/muni-b

@@ -25,42 +25,43 @@
 
 
 
-class OneTruckAllNodesInit : public Solution {
-  private:
-    typedef  TwBucket<Trashnode> Bucket;
-    typedef  unsigned long int UID;
+class OneTruckAllNodesInit : public Solution
+{
+private:
+  typedef  TwBucket<Trashnode> Bucket;
+  typedef  unsigned long int UID;
 
 
 
-  public:
+public:
 
-    OneTruckAllNodesInit( const std::string &infile ): Solution( infile ) {
-        process();
-    };
-
-
-
-
-    // get solution
-    std::string solutionAsText() const;
-    std::vector<int> solutionAsVector() const;
-
-    Vehicle getVehicle( int i ) const { return fleet[i]; };
-
-
-    void dumpFleet() const;
-    void dump() const;
-    void dumpSummary() const;
-
-
-    // mutators
-    void clearFleet() { fleet.clear(); };
+  OneTruckAllNodesInit( const std::string &infile ): Solution( infile ) {
+    process();
+  };
 
 
 
-    // methods to build initial solution
-    void stepOne( Vehicle &truck, Bucket &unassigned, Bucket &assigned );
-    void process();
+
+  // get solution
+  std::string solutionAsText() const;
+  std::vector<int> solutionAsVector() const;
+
+  Vehicle getVehicle( int i ) const { return fleet[i]; };
+
+
+  void dumpFleet() const;
+  void dump() const;
+  void dumpSummary() const;
+
+
+  // mutators
+  void clearFleet() { fleet.clear(); };
+
+
+
+  // methods to build initial solution
+  void stepOne( Vehicle &truck, Bucket &unassigned, Bucket &assigned );
+  void process();
 
 };
 

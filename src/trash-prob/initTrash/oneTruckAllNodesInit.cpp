@@ -27,48 +27,50 @@
 #include "oneTruckAllNodesInit.h"
 
 void OneTruckAllNodesInit::stepOne( Vehicle &truck, Bucket &unassigned,
-                                    Bucket &assigned ) {
-    if ( not unassigned.size() ) return;
+                                    Bucket &assigned )
+{
+  if ( not unassigned.size() ) return;
 
-    Trashnode bestNode;
-    UID bestPos;
+  Trashnode bestNode;
+  UID bestPos;
 
-    if ( truck.findNearestNodeTo( unassigned,   bestPos,  bestNode ) ) {
-        truck.insert( bestNode, bestPos );
-        assigned.push_back( bestNode );
-        unassigned.erase( bestNode );
-        stepOne( truck, unassigned, assigned );
-    }
+  if ( truck.findNearestNodeTo( unassigned,   bestPos,  bestNode ) ) {
+    truck.insert( bestNode, bestPos );
+    assigned.push_back( bestNode );
+    unassigned.erase( bestNode );
+    stepOne( truck, unassigned, assigned );
+  }
 }
 
-void OneTruckAllNodesInit::process() {
+void OneTruckAllNodesInit::process()
+{
 
-    Bucket unassigned = pickups;
-    Bucket assigned;
+  Bucket unassigned = pickups;
+  Bucket assigned;
 
-    assert( not assigned.size() );
+  assert( not assigned.size() );
 
-    std::deque<Vehicle> unusedTrucks = trucks;
-    std::deque<Vehicle> usedTrucks = trucks;
-
-
-    Vehicle truck;
-
-    clearFleet();
-    truck = unusedTrucks[0];
-    unusedTrucks.erase( unusedTrucks.begin() );
-    usedTrucks.push_back( truck );
+  std::deque<Vehicle> unusedTrucks = trucks;
+  std::deque<Vehicle> usedTrucks = trucks;
 
 
-    stepOne( truck, unassigned, assigned );
+  Vehicle truck;
 
-    // plot displays the route to be plotted
+  clearFleet();
+  truck = unusedTrucks[0];
+  unusedTrucks.erase( unusedTrucks.begin() );
+  usedTrucks.push_back( truck );
 
-    #ifdef DOPLOT
-    truck.plot( "OneTruckAllNodes", "OneTruckAllNodes", truck.getVid() );
-    #endif
 
-    fleet.push_back( truck );
-    assert( pickups ==  assigned );
+  stepOne( truck, unassigned, assigned );
+
+  // plot displays the route to be plotted
+
+#ifdef DOPLOT
+  truck.plot( "OneTruckAllNodes", "OneTruckAllNodes", truck.getVid() );
+#endif
+
+  fleet.push_back( truck );
+  assert( pickups ==  assigned );
 
 }

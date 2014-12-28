@@ -28,50 +28,50 @@
 // input data model
 
 typedef struct container_ {
-    int id;
-    double x;
-    double y;
-    double open;
-    double close;
-    double service;
-    double demand;
-    int sid;
+  int id;
+  double x;
+  double y;
+  double open;
+  double close;
+  double service;
+  double demand;
+  int sid;
 } container_t;
 
 typedef struct otherloc_ {
-    int id;
-    double x;
-    double y;
-    double open;
-    double close;
+  int id;
+  double x;
+  double y;
+  double open;
+  double close;
 } otherloc_t;
 
 typedef struct vehicle_ {
-    int vid;
-    int start_id;
-    int dump_id;
-    int end_id;
-    double capacity;
-    double dumpservicetime;
-    double starttime;
-    double endtime;
+  int vid;
+  int start_id;
+  int dump_id;
+  int end_id;
+  double capacity;
+  double dumpservicetime;
+  double starttime;
+  double endtime;
 } vehicle_t;
 
 typedef struct ttime_ {
-    int from_id;
-    int to_id;
-    double ttime;
+  int from_id;
+  int to_id;
+  double ttime;
 } ttime_t;
 
 // Output data structure
 
 typedef struct vehicle_path_ {
-    int seq;
-    int vid;
-    int nid;
-    int ntype;
-    double deltatime;
-    double cargo;
+  int seq;
+  int vid;
+  int nid;
+  int ntype;
+  double deltatime;
+  double cargo;
 } vehicle_path_t;
 
 #endif

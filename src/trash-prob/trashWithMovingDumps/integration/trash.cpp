@@ -37,8 +37,9 @@
 #include "tabuopt.h"
 
 
-void Usage() {
-    std::cout << "Usage: trash file (no extension)\n";
+void Usage()
+{
+  std::cout << "Usage: trash file (no extension)\n";
 }
 
 
@@ -58,93 +59,95 @@ void Usage() {
     GLOG_logtostderr=1 ./bin/trash ...  // to get output to terminal
 */
 
-int main(int argc, char **argv) {
+int main(int argc, char **argv)
+{
 
-    #ifdef DOVRPLOG
-        if ( not google::IsGoogleLoggingInitialized() ) {                                                                                                                                                                        
-            FLAGS_log_dir = "./logs/";
-            google::InitGoogleLogging( "vrp_trash_collection" );
-            FLAGS_logtostderr = 0;
-            FLAGS_stderrthreshold = google::FATAL;                                                                                                                                                                               
-            FLAGS_minloglevel = google::INFO;
-        }                                                                                                                                                                                                                        
-    #endif
+#ifdef DOVRPLOG
 
-    if (argc < 2) {
-        Usage();
-        return 1;
-    }
+  if ( not google::IsGoogleLoggingInitialized() ) {
+    FLAGS_log_dir = "./logs/";
+    google::InitGoogleLogging( "vrp_trash_collection" );
+    FLAGS_logtostderr = 0;
+    FLAGS_stderrthreshold = google::FATAL;
+    FLAGS_minloglevel = google::INFO;
+  }
 
-    std::string infile = argv[1];
+#endif
 
-    try {
-	#ifdef DOSTATS
-        Timer starttime;
-	#endif
+  if (argc < 2) {
+    Usage();
+    return 1;
+  }
 
-	#ifdef VRPMINTRACE
-        CONFIG->dump("CONFIG");
-        #endif
- 
-        FeasableSol tp(infile);
-	
+  std::string infile = argv[1];
 
-	#ifdef VRPMINTRACE
-        tp.dumpCostValues();
-	#ifdef DOSTATS
-        DLOG(INFO) << "FeasableSol time: " << starttime.duration();
-	#endif
-	#endif
+  try {
+#ifdef DOSTATS
+    Timer starttime;
+#endif
 
-	#ifdef DOSTATS
-        STATS->set("FeasableSol time", starttime.duration());
-	#endif
+#ifdef VRPMINTRACE
+    CONFIG->dump("CONFIG");
+#endif
 
-        tp.setInitialValues();
-        tp.computeCosts();
-	#ifdef DOSTATS
-        STATS->set("Initial cost", tp.getCost());
-        STATS->set("Node count", tp.getNodeCount());
-        STATS->set("Vehicle count", tp.getFleetSize());
-        Timer searchtime;
-	#endif
+    FeasableSol tp(infile);
 
-	int iteration=1;
-        TabuOpt ts(tp,iteration);
 
-	#ifdef DOSTATS
-        STATS->set("Search time", searchtime.duration());
-	#endif
+#ifdef VRPMINTRACE
+    tp.dumpCostValues();
+#ifdef DOSTATS
+    DLOG(INFO) << "FeasableSol time: " << starttime.duration();
+#endif
+#endif
 
-        Solution best = ts.getBestSolution();
-        best.computeCosts();
+#ifdef DOSTATS
+    STATS->set("FeasableSol time", starttime.duration());
+#endif
 
-	#ifdef DOSTATS
-        STATS->set("Total time", starttime.duration());
-	#endif
+    tp.setInitialValues();
+    tp.computeCosts();
+#ifdef DOSTATS
+    STATS->set("Initial cost", tp.getCost());
+    STATS->set("Node count", tp.getNodeCount());
+    STATS->set("Vehicle count", tp.getFleetSize());
+    Timer searchtime;
+#endif
 
-	#ifdef VRPMINTRACE
-        best.dumpCostValues();
-	best.tau();
-	#endif
+    int iteration = 5;
+    TabuOpt ts(tp, iteration);
 
-	#ifdef DOSTATS
-        STATS->set("best cost", best.getCost());
-        STATS->set("Best distance", best.getDistance());
+#ifdef DOSTATS
+    STATS->set("Search time", searchtime.duration());
+#endif
 
-        STATS->dump("Final");
-	#endif
+    Solution best = ts.getBestSolution();
+    best.computeCosts();
 
-	best.dumpSolutionForPg();
-	twc->cleanUp();
+#ifdef DOSTATS
+    STATS->set("Total time", starttime.duration());
+#endif
 
-    }
-    catch (const std::exception &e) {
-        std::cerr << e.what() << std::endl;
-        return 1;
-    }
+#ifdef VRPMINTRACE
+    best.dumpCostValues();
+    best.tau();
+#endif
 
-    return 0;
+#ifdef DOSTATS
+    STATS->set("best cost", best.getCost());
+    STATS->set("Best distance", best.getDistance());
+
+    STATS->dump("Final");
+#endif
+
+    best.dumpSolutionForPg();
+    twc->cleanUp();
+
+  } catch (const std::exception &e) {
+    std::cerr << e.what() << std::endl;
+    return 1;
+  }
+
+  return 0;
 }
 
 

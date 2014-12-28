@@ -25,35 +25,36 @@
 #include "oneTruckAllNodesInit.h"
 
 
-class TruckManyVisitsDump : public Solution {
-  private:
-    typedef  TwBucket<Trashnode> Bucket;
-    typedef  unsigned long int UID;
+class TruckManyVisitsDump : public Solution
+{
+private:
+  typedef  TwBucket<Trashnode> Bucket;
+  typedef  unsigned long int UID;
 
 
-    std::deque<Vehicle> unusedTrucks;
-    std::deque<Vehicle> usedTrucks;
-    Bucket unassigned;
-    Bucket problematic;
-    Bucket assigned;
+  std::deque<Vehicle> unusedTrucks;
+  std::deque<Vehicle> usedTrucks;
+  Bucket unassigned;
+  Bucket problematic;
+  Bucket assigned;
 
 
-    int tmp;
-  public:
+  int tmp;
+public:
 
-    TruckManyVisitsDump( const Solution &sol ): Solution( sol ) {
-        unusedTrucks = trucks;
-        unassigned = pickups;
-        tmp = 0;
-        process();
-    };
+  TruckManyVisitsDump( const Solution &sol ): Solution( sol ) {
+    unusedTrucks = trucks;
+    unassigned = pickups;
+    tmp = 0;
+    process();
+  };
 
 
-  private:
-    void insertGoing( Bucket &bigTruck, Vehicle &truck, UID goingPos );
-    void insertComming( Bucket &bigTruck, Vehicle &truck, UID goingPos );
-    Vehicle getTruck();
-    void process();
+private:
+  void insertGoing( Bucket &bigTruck, Vehicle &truck, UID goingPos );
+  void insertComming( Bucket &bigTruck, Vehicle &truck, UID goingPos );
+  Vehicle getTruck();
+  void process();
 
 };
 

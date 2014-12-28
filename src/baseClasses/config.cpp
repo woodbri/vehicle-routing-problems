@@ -35,14 +35,15 @@
  * \warning set(double) converts double values with only 6 digits percision.
  *
  */
-double Config::getDouble( const std::string &key ) const {
-    std::map<std::string, std::string>::const_iterator it;
-    it = data.find( key );
+double Config::getDouble( const std::string &key ) const
+{
+  std::map<std::string, std::string>::const_iterator it;
+  it = data.find( key );
 
-    if ( it == data.end() )
-        return 0.0;
-    else
-        return strtod( it->second.c_str(), NULL );
+  if ( it == data.end() )
+    return 0.0;
+  else
+    return strtod( it->second.c_str(), NULL );
 }
 
 
@@ -57,14 +58,15 @@ double Config::getDouble( const std::string &key ) const {
  * \return The string value converted to a integer or 0
  *
  */
-int Config::getInt( const std::string &key ) const {
-    std::map<std::string, std::string>::const_iterator it;
-    it = data.find( key );
+int Config::getInt( const std::string &key ) const
+{
+  std::map<std::string, std::string>::const_iterator it;
+  it = data.find( key );
 
-    if ( it == data.end() )
-        return 0;
-    else
-        return strtol( it->second.c_str(), NULL, 10 );
+  if ( it == data.end() )
+    return 0;
+  else
+    return strtol( it->second.c_str(), NULL, 10 );
 }
 
 
@@ -77,14 +79,15 @@ int Config::getInt( const std::string &key ) const {
  * \return The string value associated with the key or a null string.
  *
  */
-const std::string Config::getString( const std::string &key ) const {
-    std::map<std::string, std::string>::const_iterator it;
-    it = data.find( key );
+const std::string Config::getString( const std::string &key ) const
+{
+  std::map<std::string, std::string>::const_iterator it;
+  it = data.find( key );
 
-    if ( it == data.end() )
-        return "";
-    else
-        return it->second;
+  if ( it == data.end() )
+    return "";
+  else
+    return it->second;
 }
 
 
@@ -97,37 +100,40 @@ const std::string Config::getString( const std::string &key ) const {
  * \return A string vector with all defined keys in it.
  *
  */
-std::vector<std::string> Config::getKeys() const {
-    std::vector<std::string> keys( data.size() );
-    std::map<std::string, std::string>::const_iterator it;
+std::vector<std::string> Config::getKeys() const
+{
+  std::vector<std::string> keys( data.size() );
+  std::map<std::string, std::string>::const_iterator it;
 
-    for ( it = data.begin(); it != data.end(); ++it )
-        keys.push_back( it->first );
+  for ( it = data.begin(); it != data.end(); ++it )
+    keys.push_back( it->first );
 
-    return keys;
+  return keys;
 }
 
 
 #ifdef DOVRPLOG
 /*!  \brief Print the contents of the Config object.  */
-void Config::dump( const std::string &title ) const {
-    std::map<std::string, std::string>::const_iterator it;
+void Config::dump( const std::string &title ) const
+{
+  std::map<std::string, std::string>::const_iterator it;
 
-    DLOG( INFO ) << "---------- CONFIG "<<title<<"-------------";
+  DLOG( INFO ) << "---------- CONFIG " << title << "-------------";
 
-    for ( it = data.begin(); it != data.end(); ++it )
-        DLOG( INFO ) << it->first << ": '" << it->second << "'";
+  for ( it = data.begin(); it != data.end(); ++it )
+    DLOG( INFO ) << it->first << ": '" << it->second << "'";
 
-    DLOG( INFO ) << "-------------------------------";
+  DLOG( INFO ) << "-------------------------------";
 }
-    #endif
+#endif
 
 
 /*! \brief Returns true when the \c key exists in the config data store.  */
-bool Config::keyExists( const std::string &key ) const {
-    std::map<std::string, std::string>::const_iterator it;
-    it = data.find( key );
-    return it != data.end();
+bool Config::keyExists( const std::string &key ) const
+{
+  std::map<std::string, std::string>::const_iterator it;
+  it = data.find( key );
+  return it != data.end();
 }
 
 
@@ -137,10 +143,11 @@ bool Config::keyExists( const std::string &key ) const {
  * \param[in] val A double value to be converted to a string and associated with key.
  * \warning val is converted to a string with only 6 decimals of percision for storage in the config data store.
  */
-void Config::set( const std::string &key, double val ) {
-    char buf[50];
-    snprintf( buf, 50, "%e", val );
-    data[key] = std::string( buf );
+void Config::set( const std::string &key, double val )
+{
+  char buf[50];
+  snprintf( buf, 50, "%e", val );
+  data[key] = std::string( buf );
 }
 
 
@@ -149,10 +156,11 @@ void Config::set( const std::string &key, double val ) {
  * \param[in] key The config key that the val should be associated with.
  * \param[in] val An integer value to be converted to a string and associated with key.
  */
-void Config::set(const std::string &key, int val ) {
-    char buf[50];
-    snprintf( buf, 50, "%d", val );
-    data[key] = std::string( buf );
+void Config::set(const std::string &key, int val )
+{
+  char buf[50];
+  snprintf( buf, 50, "%d", val );
+  data[key] = std::string( buf );
 }
 
 
@@ -161,18 +169,20 @@ void Config::set(const std::string &key, int val ) {
  * \param[in] key The config key that the val should be associated with.
  * \param[in] val The value to be associated with key.
  */
-void Config::set(const std::string &key,const std::string &val ) {
-    data[key] = val;
+void Config::set(const std::string &key, const std::string &val )
+{
+  data[key] = val;
 }
 
 
 /*! \brief Remove the key and associated value from the config data store..  */
-void Config::deleteKey( const std::string &key ) {
-    std::map<std::string, std::string>::iterator it;
-    it = data.find( key );
+void Config::deleteKey( const std::string &key )
+{
+  std::map<std::string, std::string>::iterator it;
+  it = data.find( key );
 
-    if ( it != data.end() )
-        data.erase( it );
+  if ( it != data.end() )
+    data.erase( it );
 }
 
 

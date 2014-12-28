@@ -33,25 +33,26 @@
  * \date 2014-10-26
  *
  */
-class Config {
-  private:
-    std::map<std::string, std::string> data;
+class Config
+{
+private:
+  std::map<std::string, std::string> data;
 
-  public:
-    Config() { data.clear(); };
-    ~Config() {};
+public:
+  Config() { data.clear(); };
+  ~Config() {};
 
-    double getDouble( const std::string &key ) const;
-    int getInt( const std::string &key ) const;
-    const std::string getString( const std::string &key ) const;
-    std::vector<std::string> getKeys() const;
-    void dump( const std::string &title ) const;
-    bool keyExists( const std::string &key ) const;
+  double getDouble( const std::string &key ) const;
+  int getInt( const std::string &key ) const;
+  const std::string getString( const std::string &key ) const;
+  std::vector<std::string> getKeys() const;
+  void dump( const std::string &title ) const;
+  bool keyExists( const std::string &key ) const;
 
-    void set(const  std::string &key, double val );
-    void set(const  std::string &key, int val );
-    void set(const  std::string &key, const std::string &val );
-    void deleteKey( const std::string &key );
+  void set(const  std::string &key, double val );
+  void set(const  std::string &key, int val );
+  void set(const  std::string &key, const std::string &val );
+  void deleteKey( const std::string &key );
 
 };
 

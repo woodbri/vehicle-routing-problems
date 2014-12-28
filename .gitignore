@@ -49,6 +49,7 @@ trash
 *.pdf
 *.ods
 *.ggb
+*.orig
 
 callgrind-*
 
