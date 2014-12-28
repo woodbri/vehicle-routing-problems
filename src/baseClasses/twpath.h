@@ -11,69 +11,70 @@
  * the terms of the MIT License. Please file LICENSE for details.
  *
  ********************************************************************VRP*/
-#ifndef TWPATH_H
-#define TWPATH_H
+#ifndef SRC_BASECLASSES_TWPATH_H_
+#define SRC_BASECLASSES_TWPATH_H_
 
 #include <deque>
 #include <iostream>
 #include <algorithm>
 
 #ifdef DOVRPLOG
-#include "logger.h"
+#include "./logger.h"
 #endif
 
-#include "node.h"
-#include "twbucket.h"
+#include "./node.h"
+#include "./twbucket.h"
 
-/*!
- * \brief  Enumeration to indicate if evaluation has to be done
-enum E_Ret {
-  OK        = 0,  ///< OK - the path was updated
-  NO_CHANGE = 1,  ///< NO_CHANGE - there was no need to change the path
-  INVALID   = 2   ///< INVALID - the requested move is not valid, no change was made
-};
-*/
 
 /*! \class Twpath
- * \brief Twpath class provides a path container that is auto evaluating.
+ * \brief Twpath class members are auto evaluating.
+ * 
+ * The intention for this class is to have GENERAL functions that can
+ *   be used in different types of problems. Therefore is strongly
+ *   recommended that especific problem functions be coded in the
+ *   problems vehicle
  *
- * A path is an ordered sequence of nodes from start to end. This class
- * provides a self evaluating container for maintaining a path. The path has
- * attributes that are maintained with \ref Tweval along the path on each
- * node in the path such that the attributes on the last node in the path
- * reflect the totals for the whle path. Twpath also inherits all the non
- * evaluating methods as it extends \ref TwBucket.
+ * \warning prefix: e_ performs the operation and evaluates
+ * \warning prefix: ef_ performs the operation only if the resulting
+ *   path is feasable
+ * \warning prefix: e__ performs the operation on especific problems and
+ *   eventually shall be removed
+ * 
+ * \note All members return \b true when the operation is succesfull
+ * 
+ * Twpath also inherits all the non evaluating methods of \ref TwBucket.
+ *  
+ * A path is an ordered sequence of nodes from starting site to ending site.
+ * The problem will define which type of nodes belongs to the twpath and
+ * which shall be outside twpath.
  *
  * \sa \ref TwBucket a non evaluating container for nodes
  */
 template <class knode>
-class Twpath : public TwBucket<knode>
-{
-  // ------------------------------------------------------------------
-  // TwBucket has the non evaluating methods
-  // Twpath has the evaluating methods &
-  //      inherits the all the non evaluating methods
-  // ------------------------------------------------------------------
-
-private:
-
-  // typedef unsigned long UID;
-  // typedef unsigned long POS;
-  // typedef unsigned long UINT;
-
+class Twpath : public TwBucket<knode> {
+ private:
   typedef typename std::deque<knode>::iterator iterator;
   typedef typename std::deque<knode>::reverse_iterator reverse_iterator;
   typedef typename std::deque<knode>::const_reverse_iterator
   const_reverse_iterator;
   typedef typename std::deque<knode>::const_iterator const_iterator;
 
-public:
+  /*
+ public: 
+  enum E_Ret {
+    OK        = 0,  ///< OK - the path was updated
+    NO_CHANGE = 1,  ///< NO_CHANGE - there was no need to change the path
+    INVALID   = 2   ///< INVALID - the requested move is not valid, no change was made
+  }
+  */
+
+ public:
   // ------------------------------------------------------------------
   // methods from TwBucket class used in the evaluating functions
   // If a new evaluationg funtion uses a method of Twbucket not listed here
   //     add a new line with the correspondig name
   // ------------------------------------------------------------------
-  using TwBucket<knode>::swap;
+  //using TwBucket<knode>::swap;
   using TwBucket<knode>::insert;
   using TwBucket<knode>::erase;
   using TwBucket<knode>::size;
@@ -83,84 +84,97 @@ public:
   using TwBucket<knode>::twvTot;
   using TwBucket<knode>::cvTot;
 
-
-  /*!
-   * \brief Evaluated: Insert a node into an existing path.
-   *
-   * Insert a node into an existing path and evaluate the resultant path.
+  /*! @name deque like functions 
+    
+    \returns True if the operation was performed
+    \warning Assertions are performed for out of range operations
+    \warning no feasability nor time window or capacity violations 
+      checks are performed
+    \todo TODO more deque like functions here 
+  */
+  ///@{
+  /*! \brief Evaluated: Insert a node into an existing path.
    *
    * \param[in] node The node to insert.
-   * \param[in] at The position that the node should be inserted at.
+   * \param[in] at The position that the node should be inserted.
    * \param[in] maxcapacity The maximum capacity of vehicle for this path.
-   * \return Status of whether or not the move was made.
    */
   bool e_insert( const knode &node, POS at, double maxcapacity ) {
     assert (at <= size());
-
-    if (not TwBucket<knode>::insert(node , at) )
+    if (not insert(node , at) )
       return false;
-
     evaluate(at, maxcapacity);
     return true;
-  };
+  }
 
 
-  /*!  * \brief Evaluated: Append a node to the path.
+  /*! \brief Evaluated: push_back a node to the path.
    *
-   * \param[in] node to be appended.
+   * \param[in] node to be push_back.
    * \param[in] maxcapacity of vehicle for this path.
-   * \returns true if e_push_back was performed
    */
-  bool e_push_back( const knode &node, double maxcapacity ) {
-    if (not TwBucket<knode>::push_back(node))
+  bool e_push_back(const knode &node, double maxcapacity) {
+    if (not push_back(node))
       return false;
-
     evalLast(maxcapacity);
     return true;
-  };
+  }
 
-  /*!  * \brief Evaluated: erases a node from the path.
+  /*!  * \brief Evaluated: erase a node from the path.
    *
    * \param[in] pos to be erased.
    * \param[in] maxcapacity of vehicle for this path.
-   * \returns true if e_erase was performed
    */
-  bool e_erase (POS pos, double maxcapacity ) {
+  bool e_erase(POS pos, double maxcapacity) {
     assert (pos < size());
 
-    if (not TwBucket<knode>::erase(pos))
+    if (not erase(pos))
       return false;
 
     evaluate(pos, maxcapacity);
     return true;
-  };
+  }
  
-   /* --------------   EVALUATION  --------------------------- */
-
-
-  /*!
-   * \brief Evaluated: Evaluate the whole path from the start.
+  /*!  * \brief Evaluated: erase a node from the path.
    *
-   * Path evaluation is done incrementally from a change to the
-   * end of the path and intermediate values are cached on each node.
-   * So if we change the path at position 10, it only needs to be evaluated
-   * from that position forward. Thise evaluates the whole path.
+   * \param[in] node to be erased.
+   * \param[in] maxcapacity of vehicle for this path.
+   */
+  bool e_erase(const knode &node, double maxcapacity) {
+    if ( !hasNid(node) )
+      return false;
+    int atPos = pos(node);
+    assert (atPos < size());
+
+    if (not erase(atPos))
+      return false;
+
+    evaluate(atPos, maxcapacity);
+    return true;
+  }
+  ///@}
+
+
+  /*! @name Evaluation 
+   * Path evaluation is done incrementally: from a given position to the
+   * end of the path, and intermediate values are cached on each node.
+   * So, for example, changing the path at position 100:
+   * the evaluation function should be called as
+   *  \c evaluate(100,maxcapacity)
+   * and from that position to the end of the path will be evaluated.
+   * None of the "unaffected" positions get reevaluated
+  */
+  ///@{
+  /*! \brief Evaluated: Evaluate the whole path from the start.
    *
    * \param[in] maxcapacity The maximum capacity of vehicle for this path.
    */
   void evaluate(double maxcapacity) {
     assert (size() > 0);
     evaluate(0, maxcapacity);
-  };
+  }
 
-
-  /*!
-   * \brief Evaluated: Evaluate a path from the given position.
-   *
-   * Path evaluation is done incrementally from a change to the
-   * end of the path and intermediate values are cached on each node.
-   * So if we change the path at position 10, it only needs to be evaluated
-   * from that position forward.
+  /*! \brief Evaluated: Evaluate a path from the given position.
    *
    * \param[in] from The starting position in the path for evaluation to
    * the end of the path.
@@ -181,14 +195,21 @@ public:
       node++;
     }
 
-  };
+  }
   
-  
+  /*! \brief Evaluated: Evaluate the last node of the path.
+   *
+   * \param[in] maxcapacity The maximum capacity of vehicle for this path.
+   */
   void evalLast( double maxcapacity ) {
     assert ( size() > 0 );
     evaluate( path.size() - 1, maxcapacity );
-  };
+  }
+  ///@}
 
+
+  /*! @name operators */
+  ///@{
   bool operator ==( const Twpath<knode> &other ) {
     if ( size() != other.size() ) return false;
 
@@ -202,22 +223,30 @@ public:
     }
   }
 
-  void dumpeval() const {
-    for ( int i = 0; i < path.size(); i++ )
-      path[i].dumpeval();
-  }
-
   Twpath<knode> &operator =( const TwBucket<knode> &other ) {
     TwBucket<knode>::operator = ( other );
     return *this;
   }
-  
-  
-    ////// (double underscore) (considers  Dumps;)
+  ///@}
 
-  bool createsViolation( UID from, double maxcapacity ) {
+  #ifdef DOVRPLOG
+  void dumpeval() const {
+    for ( int i = 0; i < path.size(); i++ )
+      path[i].dumpeval();
+  }
+  #endif
+
+  
+  
+
+  /*! @name Very Uruguay project especific for trash problem with moving dumps
+    \warning be carfull when using in other problems
+    \todo TODO move to trash problem with moving dump's vehicle
+  */
+  ///@{
+  bool e__createsViolation( UID from, double maxcapacity ) {
 #ifdef TESTED
-    DLOG( INFO ) << "Entering twpath::createsViolation";
+    DLOG( INFO ) << "Entering twpath::e__createsViolation";
 #endif
     assert (from <= size()); //the equal just in case the last operation was erase
 
@@ -234,13 +263,13 @@ public:
         if ( not it->feasable() ) return true;
       }
 
-      if ( it->isDump() ) break;
+      if ( it->isDump() ) break; // TODO why not continue???
 
       it++;
     }
 
     return false;
-  };
+  }
 
 
   // doesnt insert if it creates a CV or TWV violation
@@ -256,17 +285,15 @@ public:
     assert(feasable());
     path.insert(path.begin() + at, n);
 
-    if ( createsViolation(at, maxcapacity) ) {
+    if ( e__createsViolation(at, maxcapacity) ) {
       erase(at);
-
-      if (not createsViolation(at, maxcapacity)) return false;
-
-      assert (true == false);
+      if (not e__createsViolation(at, maxcapacity)) return false;
+      assert(std::string("rollback went wrong") == std::string(" "));
     }
 
     assert (feasable());
     return true;
-  };
+  }
 
   bool e__adjustDumpsToMaxCapacity( int currentPos, const knode &dumpS,
                                     double maxcapacity ) {
@@ -281,7 +308,7 @@ public:
     while ( i < path.size() ) {
       if ( path[i].isDump() ) erase(i);
       else i++;
-    };
+    }
 
     evaluate(currentPos, maxcapacity); //make sure everything is evaluated
 
@@ -293,7 +320,7 @@ public:
     //add dumps because of CV
     while ( cvTot() != 0 )  {
       //cycle until we find the first non CV
-      for ( i = path.size() - 1; i >= currentPos - 1 and path[i].cvTot(); i-- ) {};
+      for ( i = path.size() - 1; i >= currentPos - 1 and path[i].cvTot(); i-- ) {}
 
       insert(dumpSite, i + 1); // the dump should be after pos i
 
@@ -310,18 +337,20 @@ public:
 
       // added a dump and created a twv, so why bother adding another dump
       if (  twvTot() ) return false;  // no roll back
-    };
+    }
 
     return  feasable() ;
-  };
+  }
+  ///@}
 
-};
 
 
 
 #if 0
-  /* ---------- operations within two  paths ------------------- */
-
+  /*! @name  operations within two  paths
+      \todo TODO fix return to be true when operation is performed
+  */
+  ///@{
   /*!
    * \brief Swap a node in path A with some node in path B
    *
@@ -387,7 +416,7 @@ public:
     fromi < toDest ? evaluate( fromi, maxcapacity ) : evaluate( toDest,
         maxcapacity );
     return OK;
-  };
+  }
 
 
   /*!
@@ -409,7 +438,7 @@ public:
     //its reduced so the last node's value its not affected so no need of
     evalLast( maxcapacity ); //<--- can this one be avoided????
     return OK;
-  };
+  }
 
 
   /*!
@@ -430,7 +459,7 @@ public:
     swap( i, j );
     i < j ? evaluate( i, maxcapacity ) : evaluate( j, maxcapacity );
     return OK;
-  };
+  }
 
 
   /*!
@@ -574,7 +603,7 @@ public:
 
     i < j ? evaluate( i, maxcapacity ) : evaluate( j, maxcapacity );
     return OK;
-  };
+  }
 #endif
 
 
@@ -597,7 +626,7 @@ public:
     path.erase( path.begin() + i );
     evaluate( i, maxcapacity );
     return OK;
-  };
+  }
 #endif
 
  
@@ -624,11 +653,11 @@ public:
 
       ++it;
     }
-  };
+  }
 
   bool isOsrmTtimeValid() const {
     return path[path.size() - 1].isOsrmTtimeValid();
-  };
+  }
 
   double getTotTravelTimeOsrm() const {
     return path[path.size() - 1].getTotTravelTimeOsrm();
@@ -636,12 +665,12 @@ public:
 
   bool feasable() const {
     return ( path[path.size() - 1].feasable() );
-  };
-#endif
+  }
+#endif  // 0
 
 
+};
 
-
-#endif
+#endif  // SRC_BASECLASSES_TWPATH_H_
 
 
