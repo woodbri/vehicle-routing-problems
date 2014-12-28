@@ -1030,7 +1030,9 @@ class TwBucket {
   const knode& front() const { return path.front(); }
   knode &back() { return path.back(); }
   const knode& back() const { return path.back(); }
+  ///@}
 };
+
 
 #endif  // SRC_BASECLASSES_TWBUCKET_H_
 
