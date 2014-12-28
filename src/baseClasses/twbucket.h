@@ -545,7 +545,7 @@ class TwBucket {
       return false;
   }
   ///@}
-#endif
+#endif // 0
 
  public:
   // ---------------- other tools ----------------------------------
@@ -562,49 +562,6 @@ class TwBucket {
   double segmentDistanceToPoint(POS pos, const knode &node) const {
     assert(pos + 1 < path.size());
     return node.distanceToSegment(path[pos], path[pos + 1]);
-  }
-
-  /*!
-   * \brief Swap nodes in position i and j in the path
-   * \param[in] i First node position to swap.
-   * \param[in] j Second node position to swap.
-   */
-  void swap(POS i, POS j) {
-    std::iter_swap(this->path.begin() + i, this->path.begin() + j);
-  }
-
-  /*!
-   * \brief Swap nodes between two paths.
-   *
-   * Swap nodes nodes between two paths, like
-   * - truck.swap( t1_pos, truck2, t2_pos );
-   *
-   * The node in position t1_pos of truck1 will be swapped with the node
-   * in position t2_pos of truck2.
-   *
-   * \param[in] t1_pos Position of node in truck1
-   * \param[in] truck2 Truck2, a \ref TwBucket
-   * \param[in] t2_pos Position of node in truck2
-   * \return true
-   */
-  bool swap(POS t1_pos, TwBucket<knode> &truck2, POS t2_pos) {
-    assert(t1_pos < size() && t2_pos < truck2.size());
-    std::iter_swap(path.begin() + t1_pos, truck2.path.begin() + t2_pos);
-    return true;
-  }
-
-
-  /*!  \brief Move node fromi to the new position of toj in this TwBucket */
-  void move(int fromi, int toj) {
-    if ( fromi == toj ) return;
-
-    if ( fromi < toj ) {
-      insert(this->path[fromi], toj + 1);
-      erase(fromi);
-    } else {
-      insert(this->path[fromi], toj);
-      erase(fromi + 1);
-    }
   }
 
 
@@ -764,53 +721,55 @@ class TwBucket {
     return  path[size() - 1];
   }
 
-  knode &last() {
-    return  path[size() - 1];
-  }
-
-  /*! \brief Get the total travel time of the path.  */
+  /*! \brief \returns the total travel time of the path.  */
   double getTotTravelTime() const {
     assert(size());
     return last().totTravelTime();
   }
 
-  /*! \brief Get the total wait time of the path.  */
+  /*! \brief \returns the duration of the path.  */
+  double duration() const {
+    assert(size());
+    return last().duration();
+  }
+  
+  /*! \brief \returns the total wait time of the path.  */
   double totWaitTime() const {
     assert(size());
     return last().totWaitTime();
   }
 
-  /*! \brief Get the total service time of the path */
+  /*! \brief \returns the total service time of the path */
   double totServiceTime() const {
     assert(size());
     return last().totServiceTime();
   }
 
-  /*! \brief Get the total number of dump visits of the path. */
-  double dumpVisits() const {
+  /*! \brief \returns the total number of dump visits of the path. */
+  int dumpVisits() const {
     assert(size());
     return last().dumpVisits();
   }
 
-  /*! \brief Get the departure time of the last node in the path. */
+  /*! \brief \returns the departure time of the last node in the path. */
   double departureTime() const {
     assert(size());
     return last().departureTime();
   }
 
-  /*! \brief Get the total number of time window violations in the path.  */
+  /*! \brief \returns the total number of time window violations in the path.  */
   int twvTot() const {
     assert(size());
     return last().twvTot();
   }
 
-  /*! \brief Get the total number of capacity violations in the path. */
+  /*! \brief \returns the total number of capacity violations in the path. */
   int cvTot() const {
     assert(size());
     return last().cvTot();
   }
 
-  /*! \brief Get the total cargo at the end of the path. */
+  /*! \brief \returns the total cargo at the end of the path. */
   double cargo() const {
     assert(size());
     return last().cargo();
@@ -820,6 +779,24 @@ class TwBucket {
   bool feasable() const {
     assert(size());
     return last().feasable();
+  }
+
+  /*! \brief True when \b last node of path is feasable. */
+  bool feasable(double cargoLimit) const {
+    assert(size());
+    return last().feasable(cargoLimit);
+  }
+
+  /*! \brief True when \b last node of path has time window violation. */
+  bool has_twv() const {
+    assert(size());
+    return last().has_twv();
+  }
+
+  /*! \brief True when \b last node of path has capacity violation. */
+  bool has_cv(double cargoLimit) const {
+    assert(size());
+    return last().has_cv(cargoLimit);
   }
   ///@}
 
@@ -878,10 +855,55 @@ class TwBucket {
     for ( const_iterator it = path.begin(); it != path.end() ; it++ ) {
       if ( it->nid() == nid ) return POS( it - path.begin() );
     }
-
     return 0;
   }
   ///@}
+
+
+  /*!
+   * \brief Swap nodes in position i and j in the path
+   * \param[in] i First node position to swap.
+   * \param[in] j Second node position to swap.
+   */
+  void swap(POS i, POS j) {
+    std::iter_swap(this->path.begin() + i, this->path.begin() + j);
+  }
+
+  /*!
+   * \brief Swap nodes between two paths.
+   *
+   * Swap nodes nodes between two paths, like
+   * - truck.swap( t1_pos, truck2, t2_pos );
+   *
+   * The node in position t1_pos of truck1 will be swapped with the node
+   * in position t2_pos of truck2.
+   *
+   * \param[in] t1_pos Position of node in truck1
+   * \param[in] truck2 Truck2, a \ref TwBucket
+   * \param[in] t2_pos Position of node in truck2
+   * \return true
+   */
+  bool swap(POS t1_pos, TwBucket<knode> &truck2, POS t2_pos) {
+    assert(t1_pos < size() && t2_pos < truck2.size());
+    std::iter_swap(path.begin() + t1_pos, truck2.path.begin() + t2_pos);
+    return true;
+  }
+
+
+  /*!  \brief Move node fromi to the new position of toj in this TwBucket */
+  void move(int fromi, int toj) {
+    if ( fromi == toj ) return;
+
+    if ( fromi < toj ) {
+      insert(this->path[fromi], toj + 1);
+      erase(fromi);
+    } else {
+      insert(this->path[fromi], toj);
+      erase(fromi + 1);
+    }
+  }
+
+
 
   /*!
    * \brief Get a deque of nids that are in the path.
