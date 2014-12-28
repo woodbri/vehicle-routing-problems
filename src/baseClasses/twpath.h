@@ -27,12 +27,12 @@
 
 /*!
  * \brief  Enumeration to indicate if evaluation has to be done
-*/
 enum E_Ret {
   OK        = 0,  ///< OK - the path was updated
   NO_CHANGE = 1,  ///< NO_CHANGE - there was no need to change the path
   INVALID   = 2   ///< INVALID - the requested move is not valid, no change was made
 };
+*/
 
 /*! \class Twpath
  * \brief Twpath class provides a path container that is auto evaluating.
@@ -82,6 +82,242 @@ public:
   using TwBucket<knode>::feasable;
   using TwBucket<knode>::twvTot;
   using TwBucket<knode>::cvTot;
+
+
+  /*!
+   * \brief Evaluated: Insert a node into an existing path.
+   *
+   * Insert a node into an existing path and evaluate the resultant path.
+   *
+   * \param[in] node The node to insert.
+   * \param[in] at The position that the node should be inserted at.
+   * \param[in] maxcapacity The maximum capacity of vehicle for this path.
+   * \return Status of whether or not the move was made.
+   */
+  bool e_insert( const knode &node, POS at, double maxcapacity ) {
+    assert (at <= size());
+
+    if (not TwBucket<knode>::insert(node , at) )
+      return false;
+
+    evaluate(at, maxcapacity);
+    return true;
+  };
+
+
+  /*!  * \brief Evaluated: Append a node to the path.
+   *
+   * \param[in] node to be appended.
+   * \param[in] maxcapacity of vehicle for this path.
+   * \returns true if e_push_back was performed
+   */
+  bool e_push_back( const knode &node, double maxcapacity ) {
+    if (not TwBucket<knode>::push_back(node))
+      return false;
+
+    evalLast(maxcapacity);
+    return true;
+  };
+
+  /*!  * \brief Evaluated: erases a node from the path.
+   *
+   * \param[in] pos to be erased.
+   * \param[in] maxcapacity of vehicle for this path.
+   * \returns true if e_erase was performed
+   */
+  bool e_erase (POS pos, double maxcapacity ) {
+    assert (pos < size());
+
+    if (not TwBucket<knode>::erase(pos))
+      return false;
+
+    evaluate(pos, maxcapacity);
+    return true;
+  };
+ 
+   /* --------------   EVALUATION  --------------------------- */
+
+
+  /*!
+   * \brief Evaluated: Evaluate the whole path from the start.
+   *
+   * Path evaluation is done incrementally from a change to the
+   * end of the path and intermediate values are cached on each node.
+   * So if we change the path at position 10, it only needs to be evaluated
+   * from that position forward. Thise evaluates the whole path.
+   *
+   * \param[in] maxcapacity The maximum capacity of vehicle for this path.
+   */
+  void evaluate(double maxcapacity) {
+    assert (size() > 0);
+    evaluate(0, maxcapacity);
+  };
+
+
+  /*!
+   * \brief Evaluated: Evaluate a path from the given position.
+   *
+   * Path evaluation is done incrementally from a change to the
+   * end of the path and intermediate values are cached on each node.
+   * So if we change the path at position 10, it only needs to be evaluated
+   * from that position forward.
+   *
+   * \param[in] from The starting position in the path for evaluation to
+   * the end of the path.
+   * \param[in] maxcapacity The maximum capacity of vehicle for this path.
+   */
+  void evaluate( UID from, double maxcapacity ) {
+    // the equal just in case the last operation was erase
+    assert (from <= size());
+
+    if ( from >= path.size() ) from = size() - 1;
+
+    iterator node = path.begin() + from;
+
+    while ( node != path.end() ) {
+      if ( node == path.begin() ) node->evaluate(maxcapacity);
+      else node->evaluate(*(node - 1), maxcapacity);
+
+      node++;
+    }
+
+  };
+  
+  
+  void evalLast( double maxcapacity ) {
+    assert ( size() > 0 );
+    evaluate( path.size() - 1, maxcapacity );
+  };
+
+  bool operator ==( const Twpath<knode> &other ) {
+    if ( size() != other.size() ) return false;
+
+    iterator it = path.begin();
+    iterator ito = other.path.begin();
+
+    while ( it != path.end() ) {
+      if ( it->getnid() != ito->getnid() ) return false;
+
+      ito++; it++;
+    }
+  }
+
+  void dumpeval() const {
+    for ( int i = 0; i < path.size(); i++ )
+      path[i].dumpeval();
+  }
+
+  Twpath<knode> &operator =( const TwBucket<knode> &other ) {
+    TwBucket<knode>::operator = ( other );
+    return *this;
+  }
+  
+  
+    ////// (double underscore) (considers  Dumps;)
+
+  bool createsViolation( UID from, double maxcapacity ) {
+#ifdef TESTED
+    DLOG( INFO ) << "Entering twpath::createsViolation";
+#endif
+    assert (from <= size()); //the equal just in case the last operation was erase
+
+    if ( from >= path.size() ) from = size() - 1;
+
+    iterator it = path.begin() + from;
+
+    while ( it != path.end() ) {
+      if ( it == path.begin() ) {
+        it->evaluate(maxcapacity);
+      } else {
+        it->evaluate(*( it - 1 ), maxcapacity);
+
+        if ( not it->feasable() ) return true;
+      }
+
+      if ( it->isDump() ) break;
+
+      it++;
+    }
+
+    return false;
+  };
+
+
+  // doesnt insert if it creates a CV or TWV violation
+  // dosnt move dumps
+  bool e__insert( const knode &n, UID at, double maxcapacity ) {
+#ifdef TESTED
+    DLOG( INFO ) << "Entering twpath::e__insert";
+#endif
+    assert(at <= size());
+    assert(at > 0);
+    evaluate(at, maxcapacity);
+    //if ( not path[size()-1].feasable() ) return false;
+    assert(feasable());
+    path.insert(path.begin() + at, n);
+
+    if ( createsViolation(at, maxcapacity) ) {
+      erase(at);
+
+      if (not createsViolation(at, maxcapacity)) return false;
+
+      assert (true == false);
+    }
+
+    assert (feasable());
+    return true;
+  };
+
+  bool e__adjustDumpsToMaxCapacity( int currentPos, const knode &dumpS,
+                                    double maxcapacity ) {
+    // TODO move to vehicle of trashwithmovingdumps
+
+#ifdef TESTED
+    DLOG( INFO ) << "Entering twpath::e__adjustDumpsToMaxCapacity";
+#endif
+    knode dumpSite = dumpS;
+    int i = currentPos;
+
+    while ( i < path.size() ) {
+      if ( path[i].isDump() ) erase(i);
+      else i++;
+    };
+
+    evaluate(currentPos, maxcapacity); //make sure everything is evaluated
+
+    if ( feasable() ) return true; // no need to add a dump
+
+    if ( twvTot() != 0 ) return false; // without dumps its unfeasable
+
+    //the path is dumpless from the currentpos
+    //add dumps because of CV
+    while ( cvTot() != 0 )  {
+      //cycle until we find the first non CV
+      for ( i = path.size() - 1; i >= currentPos - 1 and path[i].cvTot(); i-- ) {};
+
+      insert(dumpSite, i + 1); // the dump should be after pos i
+
+      evaluate(i, maxcapacity); //reevaluate the rest of the route
+
+#ifdef TESTED
+      DLOG( INFO ) << "Entering twpath::e__adjustDumpsToMaxCapacity: inserted a dump";
+
+#endif
+
+      // dont bother going to what we had before
+      // added a dump and  is no cv and no twv
+      if (  feasable() ) return true;
+
+      // added a dump and created a twv, so why bother adding another dump
+      if (  twvTot() ) return false;  // no roll back
+    };
+
+    return  feasable() ;
+  };
+
+};
+
+
 
 #if 0
   /* ---------- operations within two  paths ------------------- */
@@ -341,56 +577,6 @@ public:
   };
 #endif
 
-  /*!
-   * \brief Evaluated: Insert a node into an existing path.
-   *
-   * Insert a node into an existing path and evaluate the resultant path.
-   *
-   * \param[in] node The node to insert.
-   * \param[in] at The position that the node should be inserted at.
-   * \param[in] maxcapacity The maximum capacity of vehicle for this path.
-   * \return Status of whether or not the move was made.
-   */
-  bool e_insert( const knode &node, POS at, double maxcapacity ) {
-    assert (at <= size());
-
-    if (not TwBucket<knode>::insert(node , at) )
-      return false;
-
-    evaluate(at, maxcapacity);
-    return true;
-  };
-
-
-  /*!  * \brief Evaluated: Append a node to the path.
-   *
-   * \param[in] node to be appended.
-   * \param[in] maxcapacity of vehicle for this path.
-   * \returns true if e_push_back was performed
-   */
-  bool e_push_back( const knode &node, double maxcapacity ) {
-    if (not TwBucket<knode>::push_back(node))
-      return false;
-
-    evalLast(maxcapacity);
-    return true;
-  };
-
-  /*!  * \brief Evaluated: erases a node from the path.
-   *
-   * \param[in] pos to be erased.
-   * \param[in] maxcapacity of vehicle for this path.
-   * \returns true if e_erase was performed
-   */
-  bool e_erase (POS pos, double maxcapacity ) {
-    assert (pos < size());
-
-    if (not TwBucket<knode>::erase(pos))
-      return false;
-
-    evaluate(pos, maxcapacity);
-    return true;
-  };
 
 #if 0
   /*!
@@ -414,53 +600,7 @@ public:
   };
 #endif
 
-  /* --------------   EVALUATION  --------------------------- */
-
-
-  /*!
-   * \brief Evaluated: Evaluate the whole path from the start.
-   *
-   * Path evaluation is done incrementally from a change to the
-   * end of the path and intermediate values are cached on each node.
-   * So if we change the path at position 10, it only needs to be evaluated
-   * from that position forward. Thise evaluates the whole path.
-   *
-   * \param[in] maxcapacity The maximum capacity of vehicle for this path.
-   */
-  void evaluate(double maxcapacity) {
-    assert (size() > 0);
-    evaluate(0, maxcapacity);
-  };
-
-
-  /*!
-   * \brief Evaluated: Evaluate a path from the given position.
-   *
-   * Path evaluation is done incrementally from a change to the
-   * end of the path and intermediate values are cached on each node.
-   * So if we change the path at position 10, it only needs to be evaluated
-   * from that position forward.
-   *
-   * \param[in] from The starting position in the path for evaluation to
-   * the end of the path.
-   * \param[in] maxcapacity The maximum capacity of vehicle for this path.
-   */
-  void evaluate( UID from, double maxcapacity ) {
-    // the equal just in case the last operation was erase
-    assert (from <= size());
-
-    if ( from >= path.size() ) from = size() - 1;
-
-    iterator node = path.begin() + from;
-
-    while ( node != path.end() ) {
-      if ( node == path.begin() ) node->evaluate(maxcapacity);
-      else node->evaluate(*(node - 1), maxcapacity);
-
-      node++;
-    }
-
-  };
+ 
 
 
 #if 0
@@ -499,152 +639,8 @@ public:
   };
 #endif
 
-  void evalLast( double maxcapacity ) {
-    assert ( size() > 0 );
-    evaluate( path.size() - 1, maxcapacity );
-  };
-
-  bool operator ==( const Twpath<knode> &other ) {
-    if ( size() != other.size() ) return false;
-
-    iterator it = path.begin();
-    iterator ito = other.path.begin();
-
-    while ( it != path.end() ) {
-      if ( it->getnid() != ito->getnid() ) return false;
-
-      ito++; it++;
-    }
-  }
-
-  void dumpeval() const {
-    for ( int i = 0; i < path.size(); i++ )
-      path[i].dumpeval();
-  }
-
-  Twpath<knode> &operator =( const TwBucket<knode> &other ) {
-    TwBucket<knode>::operator = ( other );
-    return *this;
-  }
-
-#if 0
-  Twpath<knode> &operator -=( const TwBucket<knode> &other ) {
-    assert( std::string("Set operation not allowed on derived class of Twpath, Overload -= if this is required")
-            == std::string(" "));
-  }
-  Twpath<knode> &operator *=( const TwBucket<knode> &other ) {
-    assert( std::string("Set operation not allowed on derived class of Twpath, Overload *= if this is required")
-            == std::string(" "));
-  }
-  Twpath<knode> &operator +=( const TwBucket<knode> &other ) {
-    assert( std::string("Set operation not allowed on derived class of Twpath, Overload += if this is required")
-            == std::string(" "));
-    return *this;
-  }
-#endif
-  ////// (double underscore) (considers  Dumps;)
-
-  bool createsViolation( UID from, double maxcapacity ) {
-#ifdef TESTED
-    DLOG( INFO ) << "Entering twpath::createsViolation";
-#endif
-    assert (from <= size()); //the equal just in case the last operation was erase
-
-    if ( from >= path.size() ) from = size() - 1;
-
-    iterator it = path.begin() + from;
-
-    while ( it != path.end() ) {
-      if ( it == path.begin() ) {
-        it->evaluate(maxcapacity);
-      } else {
-        it->evaluate(*( it - 1 ), maxcapacity);
-
-        if ( not it->feasable() ) return true;
-      }
-
-      if ( it->isDump() ) break;
-
-      it++;
-    }
-
-    return false;
-  };
 
 
-  // doesnt insert if it creates a CV or TWV violation
-  // dosnt move dumps
-  bool e__insert( const knode &n, UID at, double maxcapacity ) {
-#ifdef TESTED
-    DLOG( INFO ) << "Entering twpath::e__insert";
-#endif
-    assert(at <= size());
-    assert(at > 0);
-    evaluate(at, maxcapacity);
-    //if ( not path[size()-1].feasable() ) return false;
-    assert(feasable());
-    path.insert(path.begin() + at, n);
-
-    if ( createsViolation(at, maxcapacity) ) {
-      erase(at);
-
-      if (not createsViolation(at, maxcapacity)) return false;
-
-      assert (true == false);
-    }
-
-    assert (feasable());
-    return true;
-  };
-
-  bool e__adjustDumpsToMaxCapacity( int currentPos, const knode &dumpS,
-                                    double maxcapacity ) {
-    // TODO move to vehicle of trashwithmovingdumps
-
-#ifdef TESTED
-    DLOG( INFO ) << "Entering twpath::e__adjustDumpsToMaxCapacity";
-#endif
-    knode dumpSite = dumpS;
-    int i = currentPos;
-
-    while ( i < path.size() ) {
-      if ( path[i].isDump() ) erase(i);
-      else i++;
-    };
-
-    evaluate(currentPos, maxcapacity); //make sure everything is evaluated
-
-    if ( feasable() ) return true; // no need to add a dump
-
-    if ( twvTot() != 0 ) return false; // without dumps its unfeasable
-
-    //the path is dumpless from the currentpos
-    //add dumps because of CV
-    while ( cvTot() != 0 )  {
-      //cycle until we find the first non CV
-      for ( i = path.size() - 1; i >= currentPos - 1 and path[i].cvTot(); i-- ) {};
-
-      insert(dumpSite, i + 1); // the dump should be after pos i
-
-      evaluate(i, maxcapacity); //reevaluate the rest of the route
-
-#ifdef TESTED
-      DLOG( INFO ) << "Entering twpath::e__adjustDumpsToMaxCapacity: inserted a dump";
-
-#endif
-
-      // dont bother going to what we had before
-      // added a dump and  is no cv and no twv
-      if (  feasable() ) return true;
-
-      // added a dump and created a twv, so why bother adding another dump
-      if (  twvTot() ) return false;  // no roll back
-    };
-
-    return  feasable() ;
-  };
-
-};
 
 #endif
 
