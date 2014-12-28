@@ -3,11 +3,21 @@
 
 #include <stdint.h>
 
-  typedef uint64_t POS;
-  typedef uint64_t UINT;
-  typedef uint64_t UID;
+/*! uniform types for all unsigned integers used as:
+   - position  POS
+   - cycle iterator UINT
+   - any kind of ID
+*/
+///@{
+typedef uint64_t POS;
+typedef uint64_t UINT;
+typedef uint64_t UID;
+///@}
 
-  double VRP_MAX();
-  double VRP_MIN();
+/*! @name \bdouble infinity & -infinity */
+///@{
+double VRP_MAX();
+double VRP_MIN();
+///@}
 
 #endif
