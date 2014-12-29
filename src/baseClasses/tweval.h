@@ -102,6 +102,9 @@ class Tweval: public Twnode {
   ///@{
   void evaluate(double cargoLimit);
   void evaluate(const Tweval &pred, double cargoLimit);
+  #ifdef OSRMCLIENT
+  void evaluateOsrm(const Tweval &pred, double cargoLimit);
+  #endif
   ///@}
 
   /** @name Document TWC model functions*/

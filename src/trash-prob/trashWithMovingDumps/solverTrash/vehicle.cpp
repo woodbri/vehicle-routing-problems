@@ -49,6 +49,9 @@ double Vehicle::timePCN( POS from, POS middle, POS to ) const
 #ifdef DOSTATS
   STATS->inc( "Vehicle::timePCN positions" );
 #endif
+  assert(from < path.size());
+  assert(middle < path.size());
+  assert(to <= path.size());
 
   if ( to == size() ) {
     if ( ( middle == ( from + 1 ) )
@@ -78,9 +81,10 @@ double Vehicle::timePCN( POS from, Trashnode &middle ) const
 #ifdef DOSTATS
   STATS->inc( "Vehicle::timePCN nodes" );
 #endif
-  assert ( ( from + 2 ) <= size() );
+  assert(from < path.size());
+  assert ((from + 2) <= size());
 
-  if ( ( from + 2 ) == size() )
+  if ( (from + 2) == size() )
     if ( dumpSite.lateArrival(path[from].departureTime()
                               + twc->TravelTime(path[from], middle, dumpSite)) )
       return VRP_MAX();
@@ -251,26 +255,27 @@ long int Vehicle::eval_interSwapMoveDumps( Moves &moves,
   Move move;
 
   int iLowLimit = std::max( POS(1), fromPos - 5 );
-  int iHighLimit = std::min( size(), fromPos + 5 );
+  int iHighLimit = std::min( truck.size(), fromPos + 5 );
   int jLowLimit = std::max( POS(1), toPos - 5 );
   int jHighLimit = std::min( other.size(), toPos + 5 );
 
   for ( int i = iLowLimit; i < iHighLimit; i++ ) {
-    assert( not ( i == 0 ) );
+    if (i == 0) continue;
+    if (!(i < truck.size())) continue;;
 
     if ( truck.path[i].isDump() ) continue;
 
     fromNodeId = truck.path[i].nid();
 
-    for ( int j = jLowLimit; j < jHighLimit; j++ ) {
-      assert( not ( j == 0 ) );
-
+    for ( int j = jLowLimit; j < jHighLimit - 1; j++ ) {
+      if (j == 0) continue;
+      if (!(j < other.size())) continue;
       if ( other.path[j].isDump() ) continue;
 
-      otherDelta = other.timePCN( j - 1, truck.path[i] ) - other.timePCN( j - 1, j,
-                   j + 1 );
-      truckDelta = truck.timePCN( i - 1, other.path[j] ) - truck.timePCN( i - 1, i,
-                   i + 1 );
+      otherDelta = other.timePCN(j - 1, truck.path[i]) 
+                    - other.timePCN(j - 1, j, j + 1);
+      truckDelta = truck.timePCN(i - 1, other.path[j]) 
+                    - truck.timePCN(i - 1, i, i + 1);
 
       toNodeId = other.path[j].nid();
 

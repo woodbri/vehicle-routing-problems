@@ -25,6 +25,9 @@
 #include "./node.h"
 #include "./twbucket.h"
 
+#ifdef OSRMCLIENT
+#include "./osrmclient.h"
+#endif
 
 /*! \class Twpath
  * \brief Twpath class members are auto evaluating.
@@ -162,7 +165,7 @@ class Twpath : public TwBucket<knode> {
    * \param[in] maxcapacity The maximum capacity of vehicle for this path.
    */
   void evaluate(double maxcapacity) {
-    assert (size() > 0);
+    assert(size() > 0);
     evaluate(0, maxcapacity);
   }
 
@@ -174,14 +177,14 @@ class Twpath : public TwBucket<knode> {
    */
   void evaluate( UID from, double maxcapacity ) {
     // the equal just in case the last operation was erase
-    assert (from <= size());
+    assert(from <= size());
 
     if ( from >= path.size() ) from = size() - 1;
 
     iterator node = path.begin() + from;
 
-    while ( node != path.end() ) {
-      if ( node == path.begin() ) node->evaluate(maxcapacity);
+    while (node != path.end()) {
+      if (node == path.begin()) node->evaluate(maxcapacity);
       else node->evaluate(*(node - 1), maxcapacity);
 
       node++;
@@ -194,9 +197,40 @@ class Twpath : public TwBucket<knode> {
    * \param[in] maxcapacity The maximum capacity of vehicle for this path.
    */
   void evalLast( double maxcapacity ) {
-    assert ( size() > 0 );
+    assert(size() > 0);
     evaluate( path.size() - 1, maxcapacity );
   }
+
+  /*! \brief Evaluates the whole path with OSRM
+
+   \warning all values in twc->time_Table (2 dim) involved on the path
+      are updated to the structure of the path.
+      (this especially affects the values on 2 way streets)
+   \note the benefit of modifying those values is that the next
+      non OSRM evaluation gives the same evaluating results
+ */
+  #ifdef OSRMCLIENT
+  void evaluateOsrm(double maxcapacity) {
+    assert(size() > 0);
+    assert(osrm->getUse());
+    if (!osrm->getConnection()) {
+      #ifdef VRPMINTRACE
+      DLOG(INFO)<<"OSRM connection not found: using normal evaluation";
+      #endif
+      evaluate(0, maxcapacity);
+      return;
+    };
+    osrm->clear();
+    for ( iterator node = path.begin(); node != path.end(); node++) {
+      if ( node == path.begin() ) {
+        node->evaluate(maxcapacity);
+        osrm->addViaPoint(*node);
+      } else {
+        node->evaluateOsrm(*(node - 1), maxcapacity);
+      }
+    }
+  }
+  #endif
   ///@}
 
 
@@ -337,7 +371,7 @@ class Twpath : public TwBucket<knode> {
 
 
 
-
+#if 0
   /*! @name  operations within two  paths
       \todo TODO fix return to be true when operation is performed
   */
@@ -597,10 +631,8 @@ class Twpath : public TwBucket<knode> {
     return e_erase(i,maxcapacity);
   }
 
- 
 
 
- #if 0
   void evaluateOsrm( const std::string &osrmBaseUrl ) {
     assert( size() > 0 );
     evaluateOsrm( 0, osrmBaseUrl );

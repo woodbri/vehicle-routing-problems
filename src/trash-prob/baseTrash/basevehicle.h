@@ -135,6 +135,7 @@ public:
 
   void evalLast();
   void evaluate();
+  void evaluateOsrm();
 
   //--------------------------------------------------------------------
   // mutators

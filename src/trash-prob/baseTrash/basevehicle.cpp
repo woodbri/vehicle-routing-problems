@@ -36,32 +36,8 @@
 
 
 
+
 #ifdef WITHOSRM
-
-// *OSRM() REQUIRES the main() to call cURLpp::Cleanup myCleanup; ONCE!
-void BaseVehicle::evaluateOsrm()
-{
-  double otime = path.getTotTravelTimeOsrm();
-
-  if ( otime == -1 ) {
-    Timer osrmtime;
-
-    std::string osrmBaseUrl = CONFIG->getString( "osrmBaseUrl" );
-    path.evaluateOsrm( osrmBaseUrl );
-    dumpSite.evaluateOsrm( path[path.size() - 1] , osrmBaseUrl );
-    endingSite.evaluateOsrm( dumpSite, osrmBaseUrl );
-
-    // stats collection
-    if ( otime == -1 )
-      STATS->inc( "failed To Get Time OSRM" );
-
-    STATS->addto( "cum Time Get Time OSRM", osrmtime.duration() );
-    STATS->inc( "cnt Get Time OSRM" );
-  }
-
-};
-
-
 double BaseVehicle::getCostOsrm() const
 {
   double otime = getTotTravelTimeOsrm();
@@ -365,6 +341,26 @@ void BaseVehicle::evaluate()
   path.evaluate(0, getmaxcapacity());
   evalLast();
 }
+
+
+#ifdef OSRMCLIENT
+void BaseVehicle::evaluateOsrm() {
+  if (!osrm->getConnection()) {
+    DLOG(INFO)<<"OSRM connection not found: using normal evaluation";
+    evaluate();
+    return;
+  };
+  bool oldUse=osrm->getUse();
+  osrm->useOsrm(true);
+  path.evaluateOsrm(getmaxcapacity());
+
+  Trashnode last = path[path.size() - 1];
+  dumpSite.evaluateOsrm(last, getmaxcapacity());
+  endingSite.evaluate(dumpSite, getmaxcapacity());
+  osrm->clear();
+  osrm->useOsrm(oldUse);
+};
+#endif
 
 
 

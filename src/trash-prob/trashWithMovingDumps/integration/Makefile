@@ -49,7 +49,7 @@ endif
 # <blank> is NO
 # anything else  
 
-WITH_OSRMCLIENT =
+WITH_OSRMCLIENT = yes
 WITH_STATS =
 WITH_MD5 =
 WITH_OSRM =
@@ -135,8 +135,9 @@ endif
 
 
 
-INCLUDES = -I$(BASECLASSES_DIR) -I$(BASETRASH_DIR) -I$(INITTRASH_DIR) -I$(SOLVERTRASH_DIR) -I.
+INCLUDES = -I$(BASECLASSES_DIR) -I$(BASETRASH_DIR) -I$(INITTRASH_DIR) -I$(SOLVERTRASH_DIR) -I. 
 CPPCOMPILEFLAGS = -Wreorder -Wall -Wextra -Wdouble-promotion 
+CPPCOMPILEFLAGS =
 CPPFLAGS = -g -O0 -MMD  -MP -fPIC $(CPPCOMPILEFLAGS) $(OSRMCLIENT_CFLAGS) $(DEFINES) $(STATS_CFLAGS) $(PLOT_CFLAGS) $(LOGGER_CFLAGS) $(DEBUG_CFLAGS) $(TRACE_CFLAGS)
 LDFLAGS = -lgd $(INCLUDES) -L$(BASECLASSES) -L$(BASETRASH) -L$(INITTRASH)  $(JSON_LIBS) $(OSRMCLIENT_LIBS) $(LOGGER_LIBS)
 
@@ -253,7 +254,7 @@ build/%.o: %.cpp %.h $(BASECLASSES_HEADS) $(BASETRASH_HEADS) $(INITTRASH_HEADS) 
 	$(CPP) $(CPPFLAGS) $(INCLUDES) -c $< -o $@
 
 bin/trash: build/trash.o $(OBJS) $(BASECLASSES_OBJS) $(BASETRASH_OBJS) $(INITTRASH_OBJS) $(SOLVERTRASH_OBJS) $(BASECLASSES_HEADS) $(BASETRASH_HEADS) $(INITTRASH_HEADS) $(SOLVERTRASH_HEADS)
-	$(CPP) $^ -o $@ $(LDFLAGS)
+	$(CPP) $(CPPFLAGS_OUT) $^ -o $@ $(LDFLAGS)
 
 test: ./bin/trash ../muni-b/muni-b.containers.txt ../muni-b/muni-b.otherlocs.txt ../muni-b/muni-b.dmatrix-time.txt ../muni-b/muni-b.vehicles.txt
 	./bin/trash ../muni-b/muni-b >./logs/muni-b.out

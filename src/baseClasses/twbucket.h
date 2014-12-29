@@ -139,7 +139,6 @@ class TwBucket {
     assert(to < path.size());
     assert(middle != from);
     assert(middle != to);
-    assert(from != to);
 
     if ( from == 0 )
       return timePCN(path[from], path[from], path[middle], path[to], 0);
@@ -256,6 +255,7 @@ class TwBucket {
    * \return \f$ tt_dump,node + service(node) + tt_node,dump + service(dump) \f$
    * \return infinity when there is a TWV
   */
+ // NOT USED
   double getDeltaTimeAfterDump(const knode &dump, const knode &node) const {
     double nodeArrival = dump.getDepartureTime() + TravelTime(dump, node);
 
@@ -286,6 +286,7 @@ class TwBucket {
    * \param[in] pos2 Position of the other node to be swapped.
    * \return The delta time or infinity if if creates a path violation.
   */
+ // NOT USED
   double getDeltaTimeSwap(POS pos1, POS pos2) const {
     assert(pos1 < path.size() - 1 && pos2 < path.size());
 #ifdef TESTED
@@ -392,6 +393,7 @@ class TwBucket {
    * \param[in] pos1 The next node following pos.
    * \return The change in cost or infinity if a TWV would be generated.
    */
+ // NOT USED
   double getDeltaTime(const knode &node, POS pos , POS pos1) const {
     assert(pos1 <= path.size());
     assert(pos > 0 && pos1 == (pos + 1));
@@ -489,6 +491,7 @@ class TwBucket {
    * \param[in] pos The position before which the node will be inserted.
    * \return The change in travel time or infinity if the move is invalid.
    */
+ // NOT USED
   double  getDeltaTimeTVcheck(const knode &node, POS pos) const {
     assert(pos <= path.size());
     assert(pos > 0);
@@ -538,6 +541,7 @@ class TwBucket {
    * \param[in] pos The position to start evaluating.
    * \return true if delta would generate a time violation.
    */
+ // NOT USED
   bool deltaGeneratesTV(double delta, POS pos) const {
     if (pos < size())
       return  deltaGeneratesTVupTo(delta, pos, size() - 1);
@@ -550,16 +554,17 @@ class TwBucket {
  public:
   // ---------------- other tools ----------------------------------
 
-  /*!
-   * \brief Compute the shortest distance from a line segment to a node.
-   *
-   *
-   *
-   * \param[in] pos Position of start of segment.
-   * \param[in] node The node to compute the distance to.
-   * \return The shortest distance from node to line segment.
+  /*! \brief \returns the distance from a point to the segmnet (\b pos, \b pos+1)
+   
+    \warning assert(pos + 1 < path.size());
+    \warning assert(path.size() > 1);
+
+    \param[in] pos Position of start of segment.
+    \param[in] node The node to compute the distance to.
+    \return The shortest distance from node to line segment.
    */
   double segmentDistanceToPoint(POS pos, const knode &node) const {
+    assert(path.size() > 1);
     assert(pos + 1 < path.size());
     return node.distanceToSegment(path[pos], path[pos + 1]);
   }

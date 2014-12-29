@@ -69,6 +69,37 @@ void Tweval::evaluate(const Tweval &pred, double cargoLimit) {
 }
 
 
+
+#ifdef OSRMCLIENT
+void Tweval::evaluateOsrm(const Tweval &pred, double cargoLimit) {
+  if (!osrm->getConnection() || !osrm->getUse() ) {
+    #ifdef VRPMINTRACE
+    DLOG(INFO)<<"No connection found: using normal evaluation";
+    #endif
+    evaluate(pred, cargoLimit);
+    return;
+  };
+  
+  #ifdef VRPMINTRACE
+  DLOG(INFO)<<"Connection found: forcing OSRM evaluation";
+  #endif
+  osrm->addViaPoint(*this);
+  double totalTime;
+  if (!osrm->getOsrmTime(totalTime)) {
+    #ifdef VRPMINTRACE
+    DLOG(INFO)<<"Something went wrong getting the time: using normal evaluation";
+    #endif
+    evaluate(pred, cargoLimit);
+    return;
+  }
+ 
+  // forcing a change on the matrix values so next evaluation without OSRM
+  // gives the same result
+  twc->set_TravelTime(pred.nid(),nid(), (totalTime - pred.totTravelTime_));
+  evaluate(pred, cargoLimit);
+}
+#endif
+
 #ifdef DOVRPLOG
 void Tweval::dump() const {
   Twnode::dump();

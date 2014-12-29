@@ -38,11 +38,11 @@
 #include "stats.h"
 #endif
 
+#include "basictypes.h"
 #include "node.h"
 #include "twpath.h"
-#include "pg_types_vrp.h"
 #include "singleton.h"
-
+#include "pg_types_vrp.h"
 
 
 /*! \class TWC
@@ -85,8 +85,6 @@ template <class knode> class TWC
 private:
 
   typedef TwBucket<knode> Bucket;
-  typedef unsigned long int UID;
-  typedef unsigned long int POS;
 
 #ifdef OSRMCLIENT
   /*! \todo */
@@ -113,8 +111,6 @@ private:
   mutable std::vector<std::vector<double> > twcij;
   mutable std::vector<std::vector<double> > travel_Time;
 
-  inline double _MIN() const { return -std::numeric_limits<double>::max();};
-  inline double _MAX() const { return std::numeric_limits<double>::max();};
 
 #ifdef OSRMCLIENT
   mutable TT4 travel_Time4;
@@ -165,7 +161,7 @@ public:
                            double &bestDist ) const {
     assert( unassigned.size() );
     int flag = false;
-    bestDist = _MAX();   // dist to minimize
+    bestDist = VRP_MAX();   // dist to minimize
     pos = 0;        // position in path to insert
     double d;
 
@@ -195,7 +191,7 @@ public:
                                         double &bestDist ) const {
     assert( unassigned.size() );
     int flag = false;
-    bestDist = _MAX();   // dist to minimize
+    bestDist = VRP_MAX();   // dist to minimize
     pos = 0;        // position in path to insert
     double d;
 
@@ -404,105 +400,92 @@ public:
 
   /*! \todo comments   */
 private:
-  double getTravelTime( UID from,
-                        UID to ) const { //this one does all the work gets &sets if needed
+  void setTravelTimeNonOsrm( UID from, UID to ) const {
+    assert( from < original.size() and to < original.size() );
+    double time;
+    time = original[from].distance( original[to] ) / 250;
+
+    if ( not sameStreet( from, to ) ) {
+      time = time *
+             ( std::abs( std::sin( gradient( from, to ) ) ) 
+               + std::abs( std::cos( gradient( from, to ) ) )
+             );
+    }
+
+    travel_Time[from][to] = time;
+    setTwcij(from, to);
+  }
+
+#ifdef OSRMCLIENT
+  void setTravelTimeOsrm(UID from, UID to) const {
+    assert( from < original.size() and to < original.size() );
+    double time;
+    if (!osrm->getConnection()) {
+      setTravelTimeNonOsrm(from,to);
+      return;
+    }
+
+    bool oldStateOsrm = osrm->getUse();
+    osrm->useOsrm( true );
+
+    if (!osrm->getOsrmTime(original[from], original[to], time) ) {
+      setTravelTimeNonOsrm(from,to);
+      return;
+    }
+
+    osrm->useOsrm( oldStateOsrm );
+    travel_Time[from][to] = time;
+    setTwcij(from, to);
+  }
+#endif
+
+  void setTravelTime(UID from, UID to) const {
+    assert(travel_Time[from][to]==-1);
+    #ifndef OSRMCLIENT
+    setTravelTimeNonOsrm(from, to);
+    return;
+    #else
+    if (!osrm->getConnection()) {
+      setTravelTimeNonOsrm(from,to);
+      return;
+    }
+    setTravelTimeOsrm(from, to);
+    return;
+    #endif
+  }
+
+  void fillTravelTime() const {
+    int siz = travel_Time.size();
+    for ( int i = 0; i < siz; i++ )
+      for ( int j = i; j < siz; j++ ) {
+        if ( i == j ) travel_Time[i][i] = 0.0;
+        else {
+          if (travel_Time[i][j] == -1)
+             setTravelTime(i, j);
+          if (travel_Time[j][i] == -1)
+             setTravelTime(j, i);
+        }
+      }
+  }
+
+  double getTravelTime(UID from, UID to) const { 
 
     assert( from < original.size() and to < original.size() );
     double time;
-#ifndef OSRMCLIENT
-
-    if ( travel_Time[from][to] == -1 ) {
-      time = original[from].distance( original[to] ) / 250;
-
-      if ( not sameStreet( from, to ) ) {
-        time = time *
-               ( std::abs( std::sin( gradient( from, to ) ) ) +
-                 std::abs( std::cos( gradient( from, to ) ) )
-               );
-      }
-
-      travel_Time[from][to] = time;
-    }
-
+    if (travel_Time[from][to] == -1) fillTravelTime();
     return travel_Time[from][to];
-#else
-
-
-    bool oldStateOsrm = osrm->getUse();
-
-    if ( travel_Time[from][to] == -1 ) {
-#ifdef DOSTATS
-      STATS->inc( "TWC::getTravelTime(2 parameters) travel_time==-1" );
-#endif
-
-      osrm->useOsrm( true );
-
-      if ( not original[from].isLatLon() or not original[to].isLatLon()
-           or not osrm->getOsrmTime( original[from], original[to], time ) ) {
-        time = original[from].distance( original[to] ) / 250;
-
-        if ( not sameStreet( from, to ) ) {
-          time = time *
-                 ( std::abs( std::sin( gradient( from, to ) ) ) +
-                   std::abs( std::cos( gradient( from, to ) ) )
-                 );
-        }
-
-#ifdef DOSTATS
-        STATS->inc( "TWC::getTravelTime(2 parameters) euclidean calculated" );
-#endif
-      } else {
-#ifdef DOSTATS
-        STATS->inc( "TWC::getTravelTime(2 parameters) osrm calculated" );
-#endif
-      }
-
-      osrm->useOsrm( oldStateOsrm );
-      travel_Time[from][to] = time;
-      setTwcij( from, to );
-
-      //TODO if is not compatible set travel_time as infinity
-    }
-
-    return travel_Time[from][to];
-#endif
   }
 
 public:
-  /*!
-   * \brief Fetch the travel time from node id \b from to node id \b to. (interface)
-   *
-   * The travel time matrix is and N x N containter that holds the travel
-   * times. This caching in a matrix provides a performance boost, but
-   * it also consumes a lot of memory (node_count * node_count *
-   * sizeof(double)). The user should check if the returned value is negative
-   * which indicates that there is not path between the nodes.
-   *
-   * \warning Presumes that the travel time matrix has been loaded.
-   *
-   * \param[in] from Node id of the from node.
-   * \param[in] to Node id of the to node.
-   * \return The value from the travel time matrix.
-   */
-  double TravelTime( UID from, UID to ) const {
-    return getTravelTime( from, to );
+  /*!  \brief Retruns travel time from node id \b from to node id \b to. (interface) */
+  double TravelTime(UID from, UID to) const {
+    return getTravelTime(from, to);
   }
 
-  /*!
-   * \brief Fetch the travel time from node \b from to node \b to (interface).
-   *
-   * Fetch results from a preloaded travel time matrix.
-   *
-   * \warning Presumes that the travel time matrix has been loaded.
-   *
-   * \param[in] from Node of the from node.
-   * \param[in] to Node of the to node.
-   * \return The travel time or plus infinity if the node is not reachable.
-   */
+  /*! \brief Fetch the travel time from node \b from to node \b to (interface). */
   double TravelTime( const knode &from, const knode &to ) const {
-    return getTravelTime( from.nid(), to.nid() );
+    return getTravelTime(from.nid(), to.nid());
   }
-
 
   /*! \todo comments   */
 private:
@@ -510,100 +493,62 @@ private:
   double getTravelTime( UID prev, UID from, UID middle, UID to ) const {
     assert( prev < original.size() and from < original.size()
             and middle < original.size() and to < original.size() );
+
+    if (prev == from and from == middle) return getTravelTime(middle, to);
+
 #ifndef OSRMCLIENT
+    if ( prev == from ) return  getTravelTime(from, middle) + getTravelTime(middle, to);
+    else return getTravelTime(prev, from) + getTravelTime( from, middle ) 
+                 + getTravelTime( middle, to );
+#else  //with ORSRM
 
-    if ( prev == from ) return  getTravelTime( from,
-                                  middle ) + getTravelTime( middle, to );
-    else return getTravelTime( prev, from ) + getTravelTime( from,
-                  middle ) + getTravelTime( middle, to );
-
-#else
-
-    if ( prev == from and from == middle ) return TravelTime( middle, to );
 
     TTindex index = {prev, from, middle, to};
     p_TT4 it = travel_Time4.find( index );
 
-    if ( it != travel_Time4.end() ) {
+    if (it != travel_Time4.end()) {
+
 #ifdef DOSTATS
-
       if ( prev == from )
-        STATS->inc( "TWC::getTravelTime(3 parameters) 4 dim Table access" );
-      else  STATS->inc( "TWC::getTravelTime(4 parameters) 4 dim Table access" );
-
+        STATS->inc( "TWC::getTravelTime(3 parameters) found in table" );
+      else  STATS->inc( "TWC::getTravelTime(4 parameters) found in table" );
 #endif
+
       return it->second;
     }
 
     double time;
 
-    if ( prev == from ) {
-      if ( TravelTime( from, middle ) == TravelTime( middle, from )
-           or TravelTime( middle, to ) == TravelTime( to, middle )
-           or TravelTime( from, to ) == TravelTime( to, from ) ) {
-        if ( osrm->getOsrmTime( original[from], original[middle], original[to],
-                                time ) ) {
-#ifdef DOSTATS
-          STATS->inc( "TWC::getTravelTime(3 parameters) osrm Calculated" );
-#endif
+    if ( prev == from ) {  // 3 parameters
+      if (osrm->getOsrmTime(original[from], original[middle], original[to]
+                            , time)) {
           travel_Time4[index] = time;
           return time;
-        } else {
-
-#ifdef DOSTATS
-          STATS->inc( "TWC::getTravelTime(3 parameters) 2 dim Table access" );
-#endif
-          return getTravelTime( from, middle ) + getTravelTime( middle, to );
-        }
-      } else {
-#ifdef DOSTATS
-        STATS->inc( "TWC::getTravelTime(3 parameters) combination based on 1 way streets" );
-#endif
-        //assuming that all 3 nodes are in single way street all times are the best (to avoid calls to ORSM)
-        //no need to make all combinations
-        time =  getTravelTime( from, middle ) + getTravelTime( middle, to );
-        travel_Time4[index] =  time;
-        return time;
-      }
-    }
-
-    if ( TravelTime( prev, from ) == TravelTime( from, prev )
-         or TravelTime( from, middle ) == TravelTime( middle, from )
-         or TravelTime( middle, to ) == TravelTime( to, middle )
-         or TravelTime( from, to ) == TravelTime( to, from ) ) {
-      if ( osrm->getOsrmTime( original[prev], original[from], original[middle],
-                              original[to], time ) ) {
-#ifdef DOSTATS
-        STATS->inc( "TWC::getTravelTime(4 parameters) osrm Calculated" );
-#endif
-        travel_Time4[index] = time;
-        return time;
-      } else  {
-        time =  getTravelTime( prev, from ) + getTravelTime( from,
-                middle ) + getTravelTime( middle, to );
-#ifdef DOSTATS
-        STATS->inc( "TWC::getTravelTime(4 parameters) 2 dim Table access" );
-#endif
-        return time;
-      }
-    } else {
-#ifdef DOSTATS
-      STATS->inc( "TWC::getTravelTime(4 parameters) combination based on 1 way streets" );
-#endif
-      //assuming that all 3 nodes are in single way street all times are the best (to avoid calls to ORSM)
-      //no need to make all combinations
-      time =  getTravelTime( prev, prev, from, middle ) + getTravelTime( middle, to );
-      travel_Time4[index] =  time;
+      } 
+        
+      time = getTravelTime(from, middle) + getTravelTime(middle, to);
+      travel_Time4[index] = time;
       return time;
     }
-
-#endif
+    // 4 parameters
+    if (osrm->getOsrmTime( original[prev], original[from], original[middle],
+                              original[to], time )) {
+        travel_Time4[index] = time;
+        return time;
+    }
+    time =  getTravelTime(prev, from) + getTravelTime(from, middle) 
+            + getTravelTime(middle, to);
+    return time;
+#endif  // with OSRM
   }
 
 
 public:
   //this one is an interface , the previous one is the one that does all the work
   double TravelTime( UID from, UID middle, UID to ) const {
+    assert(from < original.size());
+    assert(middle < original.size());
+    assert(to < original.size());
     return getTravelTime( from, from, middle, to );
   }
 
@@ -623,6 +568,10 @@ public:
 
   //this one is an interface, the other one is the one that does all the work
   double TravelTime( UID prev, UID from, UID middle, UID to ) const {
+    assert(prev < original.size());
+    assert(from < original.size());
+    assert(middle < original.size());
+    assert(to < original.size());
     return getTravelTime( prev, from, middle, to );
   }
 
@@ -693,7 +642,7 @@ public:
    */
   bool isCompatibleIJ( UID fromNid, UID toNid ) const {
     assert( fromNid < original.size() and toNid < original.size() );
-    return not ( getTwcij( fromNid, toNid )  == _MIN() );
+    return not ( getTwcij( fromNid, toNid )  == VRP_MIN() );
   }
 
   /*!
@@ -705,7 +654,7 @@ public:
    */
   bool isReachableIJ( UID fromNid, UID toNid ) const {
     assert( fromNid < original.size() and toNid < original.size() );
-    return not ( TravelTime( fromNid, toNid )  == _MAX() );
+    return not ( TravelTime( fromNid, toNid )  == VRP_MAX() );
   }
 
 
@@ -769,7 +718,7 @@ public:
     if ( not reachable.size() ) return nodes[0];
 
     knode best = reachable[0];
-    double bestTime = _MAX();
+    double bestTime = VRP_MAX();
 
     for ( int i = 0; i < reachable.size(); i++ ) {
       if ( reachable[i].nid() != from
@@ -801,7 +750,7 @@ public:
     if ( not reachable.size() ) return nodes[0];
 
     knode best = reachable[0];
-    double bestTime = _MAX();
+    double bestTime = VRP_MAX();
 
     for ( int i = 0; i < reachable.size(); i++ ) {
       if ( reachable[i].nid() != to
@@ -834,7 +783,7 @@ public:
     if ( not reachable.size() ) return nodes[0];
 
     knode worse = reachable[0];
-    double worseTime = _MIN();
+    double worseTime = VRP_MIN();
 
     for ( int i = 0; i < reachable.size(); i++ ) {
       if ( reachable[i].nid() != from
@@ -867,7 +816,7 @@ public:
     if ( not reachable.size() ) return nodes[0];
 
     knode worse = reachable[0];
-    double worseTime = _MIN();
+    double worseTime = VRP_MIN();
 
     for ( int i = 0; i < reachable.size(); i++ ) {
       if ( reachable[i].nid() != to
@@ -899,7 +848,7 @@ public:
     double bestEc2;
     int Id;
     int bestCount = 0;
-    bestEc2 = - _MIN();
+    bestEc2 = - VRP_MIN();
 
     for ( int i = 0; i < nodes.size(); i++ ) {
       if ( i == 0 ) bestId = nodes[0].nid();
@@ -946,7 +895,7 @@ public:
       }
     }
 
-    if ( compat( fromNid, bestId ) != _MIN() ) return bestId;
+    if ( compat( fromNid, bestId ) != VRP_MIN() ) return bestId;
     else return -1;
   }
 
@@ -971,12 +920,12 @@ public:
     double ec2_tot = 0;
 
     for ( int j = 0; j < nodes.size(); j++ ) {
-      if ( not ( getTwcij( at, j )  == _MIN() ) ) ec2_tot += getTwcij( at, j );
+      if ( not ( getTwcij( at, j )  == VRP_MIN() ) ) ec2_tot += getTwcij( at, j );
 
-      if ( not ( getTwcij( j, at )  == _MIN() ) ) ec2_tot += getTwcij( j, at );
+      if ( not ( getTwcij( j, at )  == VRP_MIN() ) ) ec2_tot += getTwcij( j, at );
     };
 
-    if ( getTwcij( at, at ) == _MIN() ) ec2_tot -= getTwcij( at, at );
+    if ( getTwcij( at, at ) == VRP_MIN() ) ec2_tot -= getTwcij( at, at );
 
     return ec2_tot;
   }
@@ -997,7 +946,7 @@ public:
     int count = 0;
 
     for ( UID j = 0; j < nodes.size(); j++ ) {
-      if ( getTwcij( at, j )  == _MIN() ) count++;
+      if ( getTwcij( at, j )  == VRP_MIN() ) count++;
     }
 
     return count;
@@ -1014,7 +963,7 @@ public:
     int count = 0;
 
     for ( UID j = 0; j < nodes.size(); j++ ) {
-      if ( getTwcij( j, at )  == _MIN() ) count++;
+      if ( getTwcij( j, at )  == VRP_MIN() ) count++;
     }
 
     return count;
@@ -1119,7 +1068,7 @@ public:
       ss << nodes[i].nid() << "=" << nodes[i].id() << "\t";
 
       for ( int j = 0; j < nodes.size(); j++ ) {
-        if ( travel_Time[i][j] !=  _MAX() )
+        if ( travel_Time[i][j] !=  VRP_MAX() )
           ss << travel_Time[i][j] << "\t";
         else
           ss << "--\t";
@@ -1210,8 +1159,8 @@ public:
    */
   void setIncompatible( UID fromNid, UID toNid ) {
     assert( fromNid < original.size() and toNid < original.size() );
-    twcij[fromNid][toNid] = _MIN();
-    travel_Time[fromNid][toNid] =  _MAX();
+    twcij[fromNid][toNid] = VRP_MIN();
+    travel_Time[fromNid][toNid] =  VRP_MAX();
   }
 
 
@@ -1225,8 +1174,8 @@ public:
     assert( nid < original.size() );
 
     for ( int j = 0; j < nodes.size(); j++ ) {
-      twcij[nid][nodes[j].nid()] =  _MIN();
-      travel_Time[nid][nodes[j].nid()] =  _MAX();
+      twcij[nid][nodes[j].nid()] =  VRP_MIN();
+      travel_Time[nid][nodes[j].nid()] =  VRP_MAX();
     }
 
   }
@@ -1242,8 +1191,8 @@ public:
     assert( nid < original.size() );
 
     for ( int i = 0; i < nodes.size(); i++ ) {
-      twcij[nodes[i].nid()][nid] =  _MIN();
-      travel_Time[nodes[i].nid()][nid] =  _MAX();
+      twcij[nodes[i].nid()][nid] =  VRP_MIN();
+      travel_Time[nodes[i].nid()][nid] =  VRP_MAX();
     }
   }
 
@@ -1256,7 +1205,7 @@ public:
    */
   void setUnreachable( UID fromNid, UID toNid ) {
     assert( fromNid < original.size() and toNid < original.size() );
-    travel_Time[fromNid][toNid] = _MAX();
+    travel_Time[fromNid][toNid] = VRP_MAX();
   }
 
 
@@ -1270,7 +1219,7 @@ public:
     assert( nid < original.size() );
 
     for ( int j = 0; j < nodes.size(); j++ )
-      travel_Time[nid][nodes[j].nid()] =  _MAX();
+      travel_Time[nid][nodes[j].nid()] =  VRP_MAX();
   }
 
   /*!
@@ -1283,7 +1232,7 @@ public:
     assert( nid < original.size() );
 
     for ( int i = 0; i < nodes.size(); i++ )
-      travel_Time[nodes[i].nid()][nid] =  _MAX();
+      travel_Time[nodes[i].nid()][nid] =  VRP_MAX();
   }
 
 
@@ -1676,15 +1625,15 @@ private:
     int i = ni.nid();
     int j = nj.nid();
 
-    if ( travel_Time[i][j] == -1 ) return  _MIN();
+    if ( travel_Time[i][j] == -1 ) return  VRP_MIN();
 
-    if ( TravelTime( i, j ) == _MAX() ) return  _MIN();
+    if ( TravelTime( i, j ) == VRP_MAX() ) return  VRP_MIN();
 
     if ( ( nj.closes() - ajei( ni, nj ) ) > 0 ) {
       result = std::min ( ajli( ni, nj ) , nj.closes() )
                - std::max ( ajei( ni, nj ) , nj.opens()  ) ;
     } else
-      result = _MIN();
+      result = VRP_MIN();
 
     return result;
   }
@@ -1744,6 +1693,15 @@ private:
     return true;
   }
 
+ public:
+  void set_TravelTime(UID fromId, UID toId, double time) {
+     #ifdef VRPMINTRACE
+     if (!travel_Time[fromId][toId]==time)
+        DLOG(INFO)<<"<travel_time["<<fromId<<"]["<<toId<<"]="
+        << travel_Time[fromId][toId]<<" ---> "<<time;
+     #endif
+     travel_Time[fromId][toId]=time;
+  }
 
 
 }; // end of class
