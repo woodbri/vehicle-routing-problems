@@ -39,13 +39,20 @@
 class CostVehicle: public BaseVehicle
 {
 public:
+const Trashnode& last() const;
+double shiftLength() const;
+double estimatedZ() const ;
+double arrivalEclosesLast(const Trashnode &last) const;
+double serviceE() const;
+
+
+
+
   CostVehicle()
     : ttSC(0.0), ttDC(0.0), ttCD(0.0), ttDE(0.0), ttCC(0.0),
       realttSC(0.0), realttDC(0.0), realttCD(0.0), realttDE(0.0), realttCC(0.0),
       N(0), Nreal(0), minDumpVisits(0), maxDumpVisits(0), realDumpVisits(0),
       Z(0), z1(0), z2(0), realz1(0), realz2(0), n(0), z(0), Zmissing(0), lastn(0),
-      arrivalEclosesLast(0.0), realArrivalEclosesLast(0), shiftLength(0),
-      serviceE(0.0),
       totalTime(0.0), realTotalTime(0.0), lastRealTotalTime(0.0),
       forcedWaitTime(0.0), totalWaitTime(0.0), idleTime(0.0),
       realForcedWaitTime(0.0), realtotalWaitTime(0.0), realIdleTime(0.0),
@@ -62,8 +69,6 @@ public:
       realttSC(0.0), realttDC(0.0), realttCD(0.0), realttDE(0.0), realttCC(0.0),
       N(0), Nreal(0), minDumpVisits(0), maxDumpVisits(0), realDumpVisits(0),
       Z(0), z1(0), z2(0), realz1(0), realz2(0), n(0), z(0), Zmissing(0), lastn(0),
-      arrivalEclosesLast(0.0), realArrivalEclosesLast(0), shiftLength(0),
-      serviceE(0.0),
       totalTime(0.0), realTotalTime(0.0), lastRealTotalTime(0.0),
       forcedWaitTime(0.0), totalWaitTime(0.0), idleTime(0.0),
       realForcedWaitTime(0.0), realtotalWaitTime(0.0), realIdleTime(0.0),
@@ -84,8 +89,6 @@ public:
     realttSC(0.0), realttDC(0.0), realttCD(0.0), realttDE(0.0), realttCC(0.0),
     N(0), Nreal(0), minDumpVisits(0), maxDumpVisits(0), realDumpVisits(0),
     Z(0), z1(0), z2(0), realz1(0), realz2(0), n(0), z(0), Zmissing(0), lastn(0),
-    arrivalEclosesLast(0.0), realArrivalEclosesLast(0), shiftLength(0),
-    serviceE(0.0),
     totalTime(0.0), realTotalTime(0.0), lastRealTotalTime(0.0),
     forcedWaitTime(0.0), totalWaitTime(0.0), idleTime(0.0),
     realForcedWaitTime(0.0), realtotalWaitTime(0.0), realIdleTime(0.0),
@@ -123,13 +126,11 @@ public:
 #endif
   //for cost function
 private:
-  Trashnode C, last;
+  Trashnode C;
   double ttSC, ttDC, ttCD, ttDE, ttCC;
   double realttSC, realttDC, realttCD, realttDE, realttCC;
   int N, Nreal, minDumpVisits, maxDumpVisits, realDumpVisits;
   int Z, z1, z2, realz1, realz2, n, z, Zmissing, lastn;
-  double arrivalEclosesLast, realArrivalEclosesLast, shiftLength;
-  double serviceE;
   double totalTime, realTotalTime, lastRealTotalTime;
   double forcedWaitTime, totalWaitTime, idleTime;
   double realForcedWaitTime, realtotalWaitTime, realIdleTime;

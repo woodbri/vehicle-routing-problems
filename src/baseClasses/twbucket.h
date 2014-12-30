@@ -721,7 +721,7 @@ class TwBucket {
     The end of the path is the \b last node of the path
   */
   ///@{
-  knode last() const {
+  const knode& last() const {
     assert(size());
     return  path[size() - 1];
   }

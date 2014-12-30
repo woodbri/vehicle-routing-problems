@@ -655,15 +655,14 @@ bool Vehicle::applyMoveIntraSw( POS  fromPos, POS withPos )
 
 
 #if 0
+//NOT USED
 bool Vehicle::e_insertMoveDumps( const Trashnode &node, int at)
 {
   assert (at <= size());
   path.insert(node, at);
   path.e_moveDumps(at);
 }
-#endif
 
-#if 0
 // Very TIGHT insertion
 // insertion will not be performed if
 //      TV and CV are  generated
