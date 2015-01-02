@@ -79,7 +79,7 @@ int vrp_trash_collection( container_t *containers, unsigned int container_count,
 
     THROW_ON_SIGINT
 
-    FeasableSol tp( prob );
+    FeasableSolLoop tp( prob );
     tp.computeCosts();
 
     THROW_ON_SIGINT
