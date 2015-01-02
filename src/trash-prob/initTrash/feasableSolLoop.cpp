@@ -20,9 +20,8 @@
 #include <sstream>
 #include <fstream>
 
-#include "logger.h"
-#include "plot.h"
-#include "feasableSolLoop.h"
+#include "../../src/baseClasses/logger.h"
+#include "./feasableSolLoop.h"
 
 
 
@@ -33,47 +32,46 @@
 //      not to look for best Position on
 //      the first part of ther Route????
 
-void FeasableSolLoop::stepOneLoop( Vehicle &truck )
-{
+void FeasableSolLoop::stepOneLoop(Vehicle &truck) {
   int iteration = 0;
 
-  while ( unassigned.size() ) {
+  while (unassigned.size()) {
     // THE INVARIANT
     // union must be pickups
-    assert( pickups == unassigned + problematic + assigned );
+    assert(pickups == unassigned + problematic + assigned);
     // all intersections must be empty set
-    assert( not ( unassigned * problematic ).size()  ) ;
-    assert( not ( unassigned * assigned ).size()  ) ;
-    assert( not ( problematic * assigned ).size()  ) ;
-    assert ( truck.feasable() ) ;
-    //END INVARIANT
-
+    assert(!(unassigned * problematic).size());
+    assert(!(unassigned * assigned).size());
+    assert(!(problematic * assigned).size());
+    assert(truck.feasable());
+    // END INVARIANT
 
     Trashnode bestNode;
     UID bestPos;
 
-    if ( truck.findNearestNodeTo( unassigned,  bestPos, bestNode ) ) {
-      if ( not  truck.e_insertIntoFeasableTruck( bestNode, bestPos ) ) {
-        fleet.push_back( truck );
-        truck.plot( "Feasable-", "", truck.getVid() );
-
-        if ( unusedTrucks.size() ) {
-          truck = unusedTrucks[0];
-          unusedTrucks.erase( unusedTrucks.begin() );
-          usedTrucks.push_back( truck );
+    if (truck.findNearestNodeTo(unassigned, bestPos, bestNode)) {
+      if (!truck.e_insertIntoFeasableTruck(bestNode, bestPos)) {
+        if (unusedTrucks.size()) {
+          fleet.push_back(truck);
+          truck = getTruck();
         } else {
-          DLOG( INFO ) << "No more trucks available. unassigned containers: " <<
+          #ifdef VRPMINTRACE
+          DLOG(INFO) << "No more trucks available. unassigned containers: " <<
                        unassigned.size();
+          #endif
           return;
         }
 
       } else {
-        assigned.push_back( bestNode );
-        unassigned.erase( bestNode );
+        assigned.push_back(bestNode);
+        unassigned.erase(bestNode);
       }
     } else {
-      DLOG( WARNING ) << "no nearest node was found";
-      assert( "FeasableSolLoop::stepOneLoop" == "no nearest node was found" );
+      #ifdef VRPMINTRACE
+      DLOG(WARNING) << "no nearest node was found";
+      #endif
+      assert(std::string("FeasableSolLoop::stepOneLoop")
+             == std::string("no nearest node was found"));
     }
 
     ++iteration;
@@ -83,11 +81,11 @@ void FeasableSolLoop::stepOneLoop( Vehicle &truck )
 
 
 
-Vehicle  FeasableSolLoop::getTruck()
-{
+Vehicle FeasableSolLoop::getTruck() {
+  assert(unusedTrucks.size());
   Vehicle truck = unusedTrucks[0];
-  unusedTrucks.erase( unusedTrucks.begin() );
-  usedTrucks.push_back( truck );
+  unusedTrucks.erase(unusedTrucks.begin());
+  usedTrucks.push_back(truck);
   return truck;
 }
 
@@ -96,24 +94,21 @@ Vehicle  FeasableSolLoop::getTruck()
 //
 //    This implements a feasable solution
 
-void FeasableSolLoop::process()
-{
+void FeasableSolLoop::process() {
   // THE INVARIANT
   // union must be pickups
-  assert( pickups == unassigned + problematic + assigned );
+  assert(pickups == unassigned + problematic + assigned);
   // all intersections must be empty set
-  assert( not ( unassigned * problematic ).size()  ) ;
-  assert( not ( unassigned * assigned ).size()  ) ;
-  assert( not ( problematic * assigned ).size()  ) ;
-  //END INVARIANT
+  assert(!(unassigned * problematic).size());
+  assert(!(unassigned * assigned).size());
+  assert(!(problematic * assigned).size());
+  // END INVARIANT
 
   Vehicle truck;
 
   truck = getTruck();
 
-  stepOneLoop( truck );
-  fleet.push_back( truck ); //need to save the last truck
-
-  truck.plot( "Feasable-", "", truck.getVid() );
+  stepOneLoop(truck);
+  fleet.push_back(truck);  // need to save the last truck
   return;
 }

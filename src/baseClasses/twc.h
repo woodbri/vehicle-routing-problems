@@ -11,38 +11,40 @@
  * the terms of the MIT License. Please file LICENSE for details.
  *
  ********************************************************************VRP*/
-#ifndef COMPATIBLE_H
-#define COMPATIBLE_H
+#ifndef SRC_BASECLASSES_TWC_H_
+#define SRC_BASECLASSES_TWC_H_
 
-#include <iostream>
+// #include <iostream>
 #include <fstream>
-#include <sstream>
+// #include <sstream>
 #include <string>
 #include <vector>
 #include <deque>
 #include <map>
-#include <cmath>
-//#include <math.h>
-#include <limits>
+// #include <cmath>
+#include <algorithm>
+#include <utility>
+// #include <math.h>
+// #include <limits>
 
 #ifdef DOVRPLOG
-#include "logger.h"
+#include "./logger.h"
 #endif
 
 #ifdef OSRMCLIENT
-#include "osrmclient.h"
+#include "./osrmclient.h"
 #endif
 
 #ifdef DOSTATS
-#include "timer.h"
-#include "stats.h"
+#include "./timer.h"
+#include "./stats.h"
 #endif
 
-#include "basictypes.h"
-#include "node.h"
-#include "twpath.h"
-#include "singleton.h"
-#include "pg_types_vrp.h"
+#include "./basictypes.h"
+#include "./node.h"
+#include "./twpath.h"
+#include "./singleton.h"
+#include "./pg_types_vrp.h"
 
 
 /*! \class TWC
@@ -80,43 +82,47 @@
  * values appropriately if you plan to use the reachability functions.
  *
  */
-template <class knode> class TWC
-{
-private:
-
+template <class knode> class TWC {
+ private:
   typedef TwBucket<knode> Bucket;
 
 #ifdef OSRMCLIENT
   /*! \todo */
-  typedef struct { //all are ids when prev==from its a 3 node call
-    UID prev;
-    UID from;
-    UID middle;
-    UID last;
-  } TTindex;
+  class TTindex {  // all are ids when prev==from its a 3 node call
+    UID prev_;
+    UID from_;
+    UID middle_;
+    UID to_;
+   public:
+    UID prev() const { return prev_;}
+    UID from() const { return from_;}
+    UID middle() const { return middle_;}
+    UID to() const { return to_;}
+    TTindex()
+      :prev_(0), from_(0), middle_(0), to_(0) {
+    }
+    TTindex(UID prev, UID from, UID middle, UID to)
+      :prev_(prev), from_(from), middle_(middle), to_(to) {
+    }
+  };
+
   struct classcomp {
-    bool operator() ( const TTindex &lhs, const TTindex &rhs ) const {
-      return lhs.prev < rhs.prev ? true : lhs.from < rhs.from ? true :  lhs.middle <
-             rhs.middle ? true : lhs.last < rhs.last;
-    };
+    bool operator() (const TTindex &lhs, const TTindex &rhs) const {
+      return lhs.prev() < rhs.prev() ? true : lhs.from() < rhs.from() ? true : lhs.middle() <
+             rhs.middle() ? true : lhs.to() < rhs.to();
+    }
   };
   typedef std::map<TTindex, double, classcomp>  TT4;
-  typedef typename std::map<TTindex, double>::iterator p_TT4;
-
+  typedef typename std::map<TTindex, double, classcomp>::iterator p_TT4;
+  mutable TT4 travel_Time4;
 #endif
-
-
 
   TwBucket<knode> original;
   mutable std::vector<std::vector<double> > twcij;
   mutable std::vector<std::vector<double> > travel_Time;
 
 
-#ifdef OSRMCLIENT
-  mutable TT4 travel_Time4;
-#endif
-
-public:
+ public:
   bool emptiedTruck;
   int z1Tot;
   int z2Tot;
@@ -136,30 +142,37 @@ public:
 
   // -------------------  major tools  ----------------------------
 
-  /*!
-   * \brief Searches a bucket of unassigned nodes for one that is nearest to the exist path and compatible with time windows.
-   *
-   * For each node in the unassigned bucket, check the time window
-   * compatibility for each existing node in the path can compute the
-   * shortest distance to that node. We save the node, position and
-   * distance for the node with the shortest distance and return them.
-   *
-   * The best node is returned if found, but it is not removed from
-   * the unassigned bucket and it is not added to the truck.
-   *
-   * \param[in] truck The truck that we want to find the best node for.
-   * \param[in] unassigned The bucket of unassined nodes to look through.
-   * \param[out] pos The position in the truck to insert the best node.
-   * \param[out] bestNode The best node from the unassigned bucket.
-   * \param[out] bestDist The distance to the segment for the best node.
-   * \return True if it found a compatible node, False otherwise.
+  /*! @name findNearestNodeTo
+    \brief Searches a bucket of unassigned nodes for one that is 
+       nearest to the existing path (truck) and is compatible with
+       the time windows.
+
+    \warning  size(unsassigned)>0
+    \warning  compatability checks:
+       path[pos] -> bestNode && bestNode -> path[pos]
+   
+    given a \b trucks path and a set of unassigned nodes
+       finds the closest node to the path that is locally compatible
+       at position pos.
+   
+    path's segment: (pos-1, \b pos)
+    \b bestNode distance to path segment: \b besDist
+   
+    \param[in] truck The truck that we want to find the best node for.
+    \param[in] unassigned The bucket of unassined nodes to look through.
+    \param[out] pos The right position of the segment in the truck:
+    \param[out] bestNode The best node from the unassigned bucket
+    \param[out] bestDist has the best distance
+   
+    \return True if valid results where found
    */
-  bool  findNearestNodeTo( const TwBucket<knode> &truck,
-                           const  TwBucket<knode> &unassigned,
-                           POS &pos,
-                           knode &bestNode,
-                           double &bestDist ) const {
-    assert( unassigned.size() );
+  ///@{
+  bool findNearestNodeTo(const TwBucket<knode> &truck,
+                          const  TwBucket<knode> &unassigned,
+                          POS &pos,
+                          knode &bestNode,
+                          double &bestDist) const {
+    assert(unassigned.size());
     int flag = false;
     bestDist = VRP_MAX();   // dist to minimize
     pos = 0;        // position in path to insert
@@ -168,10 +181,10 @@ public:
 
     for ( int i = 0; i < unassigned.size(); i++ ) {
       for ( int j = 0; j < truck.size() - 1; j++ ) {
-        if ( isCompatibleIAJ( truck[j], unassigned[i], truck[j + 1] ) ) {
-          d = truck.segmentDistanceToPoint( j , unassigned[i] );
+        if ( isCompatibleIAJ(truck[j], unassigned[i], truck[j + 1]) ) {
+          d = truck.segmentDistanceToPoint(j , unassigned[i]);
 
-          if ( d < bestDist ) {
+          if (d < bestDist) {
             bestDist = d;
             pos = j + 1;
             bestNode = unassigned[i];
@@ -180,16 +193,15 @@ public:
         }
       }
     }
-
     return flag;
   }
 
-  bool  findNearestNodeUseExistingData( const TwBucket<knode> &truck,
-                                        const  TwBucket<knode> &unassigned,
-                                        POS &pos,
-                                        knode &bestNode,
-                                        double &bestDist ) const {
-    assert( unassigned.size() );
+  bool  findNearestNodeUseExistingData(const TwBucket<knode> &truck,
+                                       const  TwBucket<knode> &unassigned,
+                                       POS &pos,
+                                       knode &bestNode,
+                                       double &bestDist) const {
+    assert(unassigned.size());
     int flag = false;
     bestDist = VRP_MAX();   // dist to minimize
     pos = 0;        // position in path to insert
@@ -198,14 +210,14 @@ public:
 
     for ( int i = 0; i < unassigned.size(); i++ ) {
       for ( int j = 0; j < truck.size() - 1; j++ ) {
-        if ( not ( j ==
-                   0 ) // all nodes from the depot that are missing should be calculated
-             and (   ( travel_Time[ truck[j].nid() ][ unassigned[i].nid() ] == -1 )
-                     or ( travel_Time[ unassigned[i].nid() ][ truck[j + 1].nid() ] == -1 ) ) )
+        if (!(j == 0)
+             && ((travel_Time[truck[j].nid()][unassigned[i].nid()] == -1)
+                  || (travel_Time[unassigned[i].nid()][truck[j + 1].nid()] == -1)))
+          // all nodes from the depot that are missing should be calculated
           continue;
 
-        if ( isCompatibleIAJ( truck[j], unassigned[i], truck[j + 1] ) ) {
-          d = truck.segmentDistanceToPoint( j , unassigned[i] );
+        if ( isCompatibleIAJ(truck[j], unassigned[i], truck[j + 1]) ) {
+          d = truck.segmentDistanceToPoint(j , unassigned[i]);
 
           if ( d < bestDist ) {
             bestDist = d;
@@ -217,11 +229,12 @@ public:
       }
     }
 
-    if ( not flag ) return findNearestNodeTo( truck, unassigned, pos, bestNode,
-                             bestDist ) ;
+    if (!flag) return findNearestNodeTo(truck, unassigned, pos, bestNode
+                      , bestDist);
 
     return flag;
   }
+  ///@}
 
   /*!
    * \brief Select all nodes in a bucket from which you can not reach node id \b to.
@@ -238,13 +251,13 @@ public:
    * \param[in] to The target node id we are trying to get to.
    * \return A bucket of nodes from which you are unable to reach node to.
    */
-  TwBucket<knode> getUnreachable( const TwBucket<knode> &nodes, UID to ) const {
-    assert( to < original.size() );
+  TwBucket<knode> getUnreachable(const TwBucket<knode> &nodes, UID to) const {
+    assert(to < original.size());
     Bucket unreachable;
 
     for ( int i = 0; i < nodes.size(); i++ )
-      if ( not isReachableIJ( nodes[i].nid(), to ) )
-        unreachable.push_back( nodes[i] );
+      if (!isReachableIJ(nodes[i].nid(), to))
+        unreachable.push_back(nodes[i]);
 
     return unreachable;
   }
@@ -259,19 +272,18 @@ public:
    * \param[in] nodes The bucket of nodes we want to get to.
    * \return A bucket of nodes that are not reachable from \b from
    */
-  TwBucket<knode> getUnreachable( UID from, const TwBucket<knode> &nodes ) const {
-    assert( from < original.size() );
+  TwBucket<knode> getUnreachable(UID from, const TwBucket<knode> &nodes) const {
+    assert(from < original.size());
     Bucket unreachable;
 
     for ( int i = 0; i < nodes.size(); i++ )
-      if ( not isReachableIJ( from, nodes[i].nid() ) )
-        unreachable.push_back( nodes[i] );
+      if ( !isReachableIJ(from, nodes[i].nid()) )
+        unreachable.push_back(nodes[i]);
 
     return unreachable;
   }
 
-  /*!
-   * \brief Select all nodes in a bucket from which we can reach node id \b to
+  /*! \brief Select from \b nodes from which node id \b to can be reached
    *
    * Given a bucket of nodes, return all the nodes from which we can reach
    * node is \b to without creating logical inconsistencies.
@@ -280,34 +292,33 @@ public:
    * \param[in] to The target node id we want to get to.
    * \return A bucket of nodes from which we can get to node id \b to
    */
-  TwBucket<knode> getReachable( const TwBucket<knode> &nodes, UID to ) const {
-    assert( to < original.size() );
+  TwBucket<knode> getReachable(const TwBucket<knode> &nodes, UID to) const {
+    assert(to < original.size());
     Bucket reachable;
 
     for ( int i = 0; i < nodes.size(); i++ )
-      if ( isReachableIJ( nodes[i].nid(), to ) )
-        reachable.push_back( nodes[i] );
+      if ( isReachableIJ(nodes[i].nid(), to) )
+        reachable.push_back(nodes[i]);
 
     return reachable;
   }
 
-  /*!
-   * \brief Select all the nodes in the bucket that we can get to from node id \b from
+  /*! \brief Select from \b nodes that can bre reached from node \b id
    *
    * Given a source node id and a bucket of nodes, return all the nodes in
    * the bucket that are directly reachable from node id \b from.
    *
    * \param[in] from The node id for the source node.
-   * \param[in] nodes A bucket of potential target nodes.
-   * \return A bucket of nodes that are reachable from node if \b from
+   * \param[in] nodes A bucket of target nodes.
+   * \return A bucket of nodes that are reachable from node \b from
    */
-  TwBucket<knode> getReachable( UID from, const TwBucket<knode> &nodes ) const {
-    assert( from < original.size() );
+  TwBucket<knode> getReachable(UID from, const TwBucket<knode> &nodes) const {
+    assert(from < original.size());
     Bucket reachable;
 
-    for ( int i = 0; i < nodes.size(); i++ )
-      if ( isReachableIJ( from, nodes[i].nid() ) )
-        reachable.push_back( nodes[i] );
+    for (int i = 0; i < nodes.size(); i++ )
+      if (isReachableIJ(from, nodes[i].nid()) )
+        reachable.push_back(nodes[i]);
 
     return reachable;
   }
@@ -322,13 +333,13 @@ public:
    * \param[in] to The node id that we want to get to.
    * \return A bucket of nodes that are incompatible as predecessors to node id \b to.
    */
-  TwBucket<knode> getIncompatible( const TwBucket<knode> &nodes, UID to ) const {
-    assert( to < original.size() );
+  TwBucket<knode> getIncompatible(const TwBucket<knode> &nodes, UID to) const {
+    assert(to < original.size());
     Bucket incompatible;
 
     for ( int i = 0; i < nodes.size(); i++ )
-      if ( not isCompatibleIJ( nodes[i].nid(), to ) )
-        incompatible.push_back( nodes[i] );
+      if ( !isCompatibleIJ(nodes[i].nid(), to) )
+        incompatible.push_back(nodes[i]);
 
     return incompatible;
   }
@@ -343,14 +354,14 @@ public:
    * \param[in] nodes A bucket of potential successor nodes.
    * \return A bucket of incompatible successor nodes.
    */
-  TwBucket<knode> getIncompatible( UID from,
-                                   const TwBucket<knode> &nodes ) const {
-    assert( from < original.size() );
+  TwBucket<knode> getIncompatible(UID from,
+                                   const TwBucket<knode> &nodes) const {
+    assert(from < original.size());
     Bucket incompatible;
 
     for ( int i = 0; i < nodes.size(); i++ )
-      if ( not isCompatibleIJ( from, nodes[i].nid() ) )
-        incompatible.push_back( nodes[i] );
+      if ( !isCompatibleIJ(from, nodes[i].nid()) )
+        incompatible.push_back(nodes[i]);
 
     return incompatible;
   }
@@ -365,13 +376,13 @@ public:
    * \param[in] to The node id that we want to be a successor of nodes in the bucket.
    * \return A bucket of nodes that can be predecessor nodes to node id \b to.
    */
-  TwBucket<knode> getCompatible( const TwBucket<knode> &nodes, UID to ) const {
-    assert( to < original.size() );
+  TwBucket<knode> getCompatible(const TwBucket<knode> &nodes, UID to) const {
+    assert(to < original.size());
     Bucket compatible;
 
     for ( int i = 0; i < nodes.size(); i++ )
       if ( isCompatibleIJ( nodes[i].nid(), to ) )
-        compatible.push_back( nodes[i] );
+        compatible.push_back(nodes[i]);
 
     return compatible;
   }
@@ -386,30 +397,29 @@ public:
    * \param[in] nodes A bucket of potential successor nodes.
    * \return A bucket of compatible successors to node id \b from.
    */
-  TwBucket<knode> getCompatible( UID from, const TwBucket<knode> &nodes ) const {
-    assert( from < original.size() );
+  TwBucket<knode> getCompatible(UID from, const TwBucket<knode> &nodes) const {
+    assert(from < original.size());
     Bucket compatible;
 
     for ( int i = 0; i < nodes.size(); i++ )
-      if ( isCompatibleIJ( from, nodes[i].nid() ) )
-        compatible.push_back( nodes[i] );
+      if (isCompatibleIJ(from, nodes[i].nid()))
+        compatible.push_back(nodes[i]);
 
     return compatible;
   }
 
 
   /*! \todo comments   */
-private:
-  void setTravelTimeNonOsrm( UID from, UID to ) const {
-    assert( from < original.size() and to < original.size() );
+ private:
+  void setTravelTimeNonOsrm(UID from, UID to) const {
+    assert(from < original.size() && to < original.size());
     double time;
-    time = original[from].distance( original[to] ) / 250;
+    time = original[from].distance(original[to]) / 250;
 
-    if ( not sameStreet( from, to ) ) {
+    if ( !sameStreet(from, to) ) {
       time = time *
-             ( std::abs( std::sin( gradient( from, to ) ) ) 
-               + std::abs( std::cos( gradient( from, to ) ) )
-             );
+             (std::abs(std::sin(gradient(from, to)))
+               + std::abs(std::cos(gradient(from, to))));
     }
 
     travel_Time[from][to] = time;
@@ -418,35 +428,35 @@ private:
 
 #ifdef OSRMCLIENT
   void setTravelTimeOsrm(UID from, UID to) const {
-    assert( from < original.size() and to < original.size() );
+    assert(from < original.size() && to < original.size());
     double time;
     if (!osrm->getConnection()) {
-      setTravelTimeNonOsrm(from,to);
+      setTravelTimeNonOsrm(from, to);
       return;
     }
 
     bool oldStateOsrm = osrm->getUse();
-    osrm->useOsrm( true );
+    osrm->useOsrm(true);
 
-    if (!osrm->getOsrmTime(original[from], original[to], time) ) {
-      setTravelTimeNonOsrm(from,to);
+    if (!osrm->getOsrmTime(original[from], original[to], time)) {
+      setTravelTimeNonOsrm(from, to);
       return;
     }
 
-    osrm->useOsrm( oldStateOsrm );
+    osrm->useOsrm(oldStateOsrm);
     travel_Time[from][to] = time;
     setTwcij(from, to);
   }
 #endif
 
   void setTravelTime(UID from, UID to) const {
-    assert(travel_Time[from][to]==-1);
+    assert(travel_Time[from][to] == -1);
     #ifndef OSRMCLIENT
     setTravelTimeNonOsrm(from, to);
     return;
     #else
     if (!osrm->getConnection()) {
-      setTravelTimeNonOsrm(from,to);
+      setTravelTimeNonOsrm(from, to);
       return;
     }
     setTravelTimeOsrm(from, to);
@@ -458,8 +468,9 @@ private:
     int siz = travel_Time.size();
     for ( int i = 0; i < siz; i++ )
       for ( int j = i; j < siz; j++ ) {
-        if ( i == j ) travel_Time[i][i] = 0.0;
-        else {
+        if ( i == j ) {
+          travel_Time[i][i] = 0.0;
+        } else {
           if (travel_Time[i][j] == -1)
              setTravelTime(i, j);
           if (travel_Time[j][i] == -1)
@@ -468,52 +479,59 @@ private:
       }
   }
 
-  double getTravelTime(UID from, UID to) const { 
-
-    assert( from < original.size() and to < original.size() );
+  double getTravelTime(UID from, UID to) const {
+    assert(from < original.size() && to < original.size());
     double time;
     if (travel_Time[from][to] == -1) fillTravelTime();
     return travel_Time[from][to];
   }
 
-public:
-  /*!  \brief Retruns travel time from node id \b from to node id \b to. (interface) */
+ public:
+  /*!  \brief Retruns travel time from node id \b from to node id \b to.
+   (interface)
+  */
   double TravelTime(UID from, UID to) const {
     return getTravelTime(from, to);
   }
 
-  /*! \brief Fetch the travel time from node \b from to node \b to (interface). */
-  double TravelTime( const knode &from, const knode &to ) const {
+  /*! \brief Fetch the travel time from node \b from to node \b to
+   (interface)
+  */
+  double TravelTime(const knode &from, const knode &to) const {
     return getTravelTime(from.nid(), to.nid());
   }
 
   /*! \todo comments   */
-private:
-  //this one does all the work
-  double getTravelTime( UID prev, UID from, UID middle, UID to ) const {
-    assert( prev < original.size() and from < original.size()
-            and middle < original.size() and to < original.size() );
-
-    if (prev == from and from == middle) return getTravelTime(middle, to);
-
+ private:
 #ifndef OSRMCLIENT
-    if ( prev == from ) return  getTravelTime(from, middle) + getTravelTime(middle, to);
-    else return getTravelTime(prev, from) + getTravelTime( from, middle ) 
-                 + getTravelTime( middle, to );
-#else  //with ORSRM
+  double getTravelTime(UID prev, UID from, UID middle, UID to) const {
+    assert(prev < original.size() && from < original.size()
+            && middle < original.size() && to < original.size());
 
+    if (prev == from && from == middle)
+      return getTravelTime(middle, to);
+    else
+      return getTravelTime(prev, from) + getTravelTime(from, middle)
+                 + getTravelTime(middle, to);
+  }
+#else  // with OSRM
 
-    TTindex index = {prev, from, middle, to};
-    p_TT4 it = travel_Time4.find( index );
+  double getTravelTime(UID prev, UID from, UID middle, UID to) const {
+    assert(prev < original.size() && from < original.size()
+            && middle < original.size() && to < original.size());
+
+    if (prev == from && from == middle) return getTravelTime(middle, to);
+
+    TTindex index(prev, from, middle, to);
+
+    p_TT4 it = travel_Time4.find(index);
 
     if (it != travel_Time4.end()) {
-
 #ifdef DOSTATS
       if ( prev == from )
-        STATS->inc( "TWC::getTravelTime(3 parameters) found in table" );
-      else  STATS->inc( "TWC::getTravelTime(4 parameters) found in table" );
+        STATS->inc("TWC::getTravelTime(3 parameters) found in table");
+      else  STATS->inc("TWC::getTravelTime(4 parameters) found in table");
 #endif
-
       return it->second;
     }
 
@@ -522,57 +540,59 @@ private:
     if ( prev == from ) {  // 3 parameters
       if (osrm->getOsrmTime(original[from], original[middle], original[to]
                             , time)) {
-          travel_Time4[index] = time;
+          travel_Time4.insert(std::pair<TTindex, double>(index, time));
           return time;
-      } 
-        
+      }
+
       time = getTravelTime(from, middle) + getTravelTime(middle, to);
-      travel_Time4[index] = time;
+      travel_Time4.insert(std::pair<TTindex,double>(index,time));
       return time;
     }
     // 4 parameters
-    if (osrm->getOsrmTime( original[prev], original[from], original[middle],
-                              original[to], time )) {
-        travel_Time4[index] = time;
-        return time;
+    if (osrm->getOsrmTime(original[prev], original[from], original[middle],
+                              original[to], time)) {
+      travel_Time4.insert(std::pair<TTindex,double>(index,time));
+      return time;
     }
-    time =  getTravelTime(prev, from) + getTravelTime(from, middle) 
+    time =  getTravelTime(prev, from) + getTravelTime(from, middle)
             + getTravelTime(middle, to);
+    travel_Time4.insert(std::pair<TTindex,double>(index,time));
     return time;
-#endif  // with OSRM
   }
+#endif  // with OSRM
 
 
-public:
-  //this one is an interface , the previous one is the one that does all the work
-  double TravelTime( UID from, UID middle, UID to ) const {
+
+ public:
+  // this one is an interface
+  double TravelTime(UID from, UID middle, UID to) const {
     assert(from < original.size());
     assert(middle < original.size());
     assert(to < original.size());
-    return getTravelTime( from, from, middle, to );
+    return getTravelTime(from, from, middle, to);
   }
 
-  //this one is an interface, the other one is the one that does all the work
-  double TravelTime( const knode &from, const knode &middle,
-                     const knode &to ) const {
-    return getTravelTime( from.nid(), from.nid(), middle.nid(),
-                          to.nid() );
+  // this one is an interface, the other one is the one that does all the work
+  double TravelTime(const knode &from, const knode &middle,
+                     const knode &to) const {
+    return getTravelTime(from.nid(), from.nid(), middle.nid(),
+                          to.nid());
   }
 
-  //this one is an interface, the other one is the one that does all the work
-  double TravelTime( const knode &prev, const knode &from, const knode &middle,
-                     const knode &to ) const {
-    return getTravelTime( prev.nid(), from.nid(), middle.nid(),
-                          to.nid() );
+  // this one is an interface, the other one is the one that does all the work
+  double TravelTime(const knode &prev, const knode &from, const knode &middle,
+                     const knode &to) const {
+    return getTravelTime(prev.nid(), from.nid(), middle.nid(),
+                          to.nid());
   }
 
-  //this one is an interface, the other one is the one that does all the work
-  double TravelTime( UID prev, UID from, UID middle, UID to ) const {
+  // this one is an interface, the other one is the one that does all the work
+  double TravelTime(UID prev, UID from, UID middle, UID to) const {
     assert(prev < original.size());
     assert(from < original.size());
     assert(middle < original.size());
     assert(to < original.size());
-    return getTravelTime( prev, from, middle, to );
+    return getTravelTime(prev, from, middle, to);
   }
 
 
@@ -604,9 +624,9 @@ public:
    * \param[in] toNid Nid of the to node.
    * \return The time window compatibility of traveling directly \b fromNid to \b toNide.
    */
-  double compatibleIJ( UID fromNid, UID toNid ) const {
-    assert( fromNid < original.size() and toNid < original.size() );
-    return  getTwcij( fromNid, toNid ) ;
+  double compatibleIJ(UID fromNid, UID toNid) const {
+    assert(fromNid < original.size() && toNid < original.size());
+    return  getTwcij(fromNid, toNid);
   }
 
   /*!
@@ -615,10 +635,10 @@ public:
    * \param[in] nid The node id of the desired node.
    * \return A copy of the node from the original container of nodes.
    */
-  const knode &node( UID nid ) const {
-    assert( nid < original.size() );
+  const knode &node(UID nid) const {
+    assert(nid < original.size());
     return original[nid];
-  };
+  }
 
   /*!
    * \brief Fetch a node by its node id from the original container of nodes.
@@ -626,10 +646,10 @@ public:
    * \param[in] nid The node id of the desired node.
    * \return A copy of the node from the original container of nodes.
    */
-  const knode &getNode( UID nid ) const {
-    assert( nid < original.size() );
+  const knode &getNode(UID nid) const {
+    assert(nid < original.size());
     return original[nid];
-  };
+  }
 
   // ---------------- state -----------------------------------
 
@@ -640,21 +660,20 @@ public:
    * \param[in] toNid Nid of the to node.
    * \return True if compatibile, false otherwise.
    */
-  bool isCompatibleIJ( UID fromNid, UID toNid ) const {
-    assert( fromNid < original.size() and toNid < original.size() );
-    return not ( getTwcij( fromNid, toNid )  == VRP_MIN() );
+  bool isCompatibleIJ(UID fromNid, UID toNid) const {
+    assert(fromNid < original.size() && toNid < original.size());
+    return !(getTwcij(fromNid, toNid)  == VRP_MIN());
   }
 
-  /*!
-   * \brief Report toNide is logically reachable from fromNid.
+  /*! \brief Report toNide is logically reachable from fromNid.
    *
    * \param[in] fromNid Nid of the from node.
    * \param[in] toNid Nid of the to node.
    * \return True if reachable, false otherwise.
    */
-  bool isReachableIJ( UID fromNid, UID toNid ) const {
-    assert( fromNid < original.size() and toNid < original.size() );
-    return not ( TravelTime( fromNid, toNid )  == VRP_MAX() );
+  bool isReachableIJ(UID fromNid, UID toNid) const {
+    assert(fromNid < original.size() && toNid < original.size());
+    return !(TravelTime( fromNid, toNid )  == VRP_MAX());
   }
 
 
@@ -670,13 +689,13 @@ public:
    * \return True if it is compatible to travel fromNid to middleNid to toNid.
    * \bug I (vicky)  dont think transitivity applies, and I think the process is more complex
    */
-  bool isCompatibleIAJ( UID fromNid, UID middleNid, UID toNid ) const {
-    assert( fromNid < original.size() and middleNid < original.size()
-            and toNid < original.size() );
-    isCompatibleIJ( fromNid, middleNid );
-    isCompatibleIJ( middleNid, toNid );
-    return isCompatibleIJ( fromNid, middleNid )
-           and isCompatibleIJ( middleNid, toNid );
+  bool isCompatibleIAJ(UID fromNid, UID middleNid, UID toNid) const {
+    assert(fromNid < original.size() && middleNid < original.size()
+            && toNid < original.size());
+    isCompatibleIJ(fromNid, middleNid);
+    isCompatibleIJ(middleNid, toNid);
+    return isCompatibleIJ(fromNid, middleNid)
+           && isCompatibleIJ(middleNid, toNid);
   }
 
 
@@ -691,9 +710,9 @@ public:
    * \param[in] to Third node in three node sequence to be checked.
    * \return True if it is compatible to travel fromNid to middleNid to toNid.
    */
-  bool isCompatibleIAJ( const knode &from, const knode &middle,
-                        const knode &to ) const {
-    return isCompatibleIAJ( from.nid(), middle.nid() , to.nid() );
+  bool isCompatibleIAJ(const knode &from, const knode &middle,
+                        const knode &to) const {
+    return isCompatibleIAJ(from.nid(), middle.nid() , to.nid());
   }
 
   // ----------------- The best or the worses -----------------------
@@ -711,20 +730,20 @@ public:
    * \return The node with the best travel time from node id \b from.
    * \return Or the first node in the bucket if all are unReachable.
    */
-  knode findBestTravelTime( UID from, const Bucket &nodes ) const {
-    assert ( nodes.size() and from < original.size() );
-    Bucket reachable = getReachable( from, nodes );
+  knode findBestTravelTime(UID from, const Bucket &nodes) const {
+    assert(nodes.size() && from < original.size());
+    Bucket reachable = getReachable(from, nodes);
 
-    if ( not reachable.size() ) return nodes[0];
+    if ( !reachable.size() ) return nodes[0];
 
     knode best = reachable[0];
     double bestTime = VRP_MAX();
 
     for ( int i = 0; i < reachable.size(); i++ ) {
       if ( reachable[i].nid() != from
-           and travelTime( from, reachable[i].id() ) < bestTime ) {
+           && travelTime(from, reachable[i].id()) < bestTime ) {
         best = reachable[i];
-        bestTime = travelTime( from, reachable[i].id() );
+        bestTime = travelTime(from, reachable[i].id());
       }
     }
 
@@ -743,20 +762,20 @@ public:
    * \return The node with the best travel time to node id \b to.
    * \return Or the first node in the bucket if all are unReachable.
    */
-  knode findBestTravelTime( const Bucket &nodes, UID to ) const {
-    assert ( nodes.size() and to < original.size() );
-    Bucket reachable = getReachable( nodes, to );
+  knode findBestTravelTime(const Bucket &nodes, UID to) const {
+    assert(nodes.size() && to < original.size());
+    Bucket reachable = getReachable(nodes, to);
 
-    if ( not reachable.size() ) return nodes[0];
+    if ( !reachable.size() ) return nodes[0];
 
     knode best = reachable[0];
     double bestTime = VRP_MAX();
 
     for ( int i = 0; i < reachable.size(); i++ ) {
       if ( reachable[i].nid() != to
-           and travelTime( reachable[i].id(), to ) < bestTime ) {
+           && travelTime(reachable[i].id(), to) < bestTime ) {
         best = reachable[i];
-        bestTime = travelTime( reachable[i].id(), to );
+        bestTime = travelTime(reachable[i].id(), to);
       }
     }
 
@@ -775,21 +794,21 @@ public:
    * \return The node with the best travel time from node id \b from.
    * \return Or the first node in the bucket if all are unReachable.
    */
-  knode findWorseTravelTime( UID from, const Bucket &nodes ) const {
+  knode findWorseTravelTime(UID from, const Bucket &nodes) const {
     // from the reachable nodes finds the worse
-    assert ( nodes.size() and from < original.size() );
-    Bucket reachable = getReachable( from, nodes );
+    assert(nodes.size() && from < original.size());
+    Bucket reachable = getReachable(from, nodes);
 
-    if ( not reachable.size() ) return nodes[0];
+    if ( !reachable.size() ) return nodes[0];
 
     knode worse = reachable[0];
     double worseTime = VRP_MIN();
 
     for ( int i = 0; i < reachable.size(); i++ ) {
       if ( reachable[i].nid() != from
-           and travelTime( from, reachable[i].id() ) > worseTime ) {
+           && travelTime(from, reachable[i].id()) > worseTime ) {
         worse = reachable[i];
-        worseTime = travelTime( from, reachable[i].id() );
+        worseTime = travelTime(from, reachable[i].id());
       }
     }
 
@@ -808,21 +827,21 @@ public:
    * \return The node with the best travel time to node id \b to.
    * \return Or the first node in the bucket if all are unReachable.
    */
-  knode findWorseTravelTime( const Bucket &nodes, UID to ) const {
+  knode findWorseTravelTime(const Bucket &nodes, UID to) const {
     // from the reachable nodes finds the worse
-    assert ( nodes.size() and to < original.size() );
-    Bucket reachable = getReachable( nodes, to );
+    assert(nodes.size() && to < original.size());
+    Bucket reachable = getReachable(nodes, to);
 
-    if ( not reachable.size() ) return nodes[0];
+    if ( !reachable.size() ) return nodes[0];
 
     knode worse = reachable[0];
     double worseTime = VRP_MIN();
 
-    for ( int i = 0; i < reachable.size(); i++ ) {
-      if ( reachable[i].nid() != to
-           and travelTime( reachable[i].id(), to ) > worseTime ) {
+    for (int i = 0; i < reachable.size(); i++) {
+      if (reachable[i].nid() != to
+           && travelTime(reachable[i].id(), to) > worseTime) {
         worse = reachable[i];
-        worseTime = travelTime( reachable[i].id(), to );
+        worseTime = travelTime(reachable[i].id(), to);
       }
     }
 
@@ -842,8 +861,8 @@ public:
    * \param[in] nodes A bucket of nodes from which we want to select a seed.
    * \return The node id of a seed node.
    */
-  int getSeed( int foo, const Bucket &nodes ) const {
-    //ec2 get seed (needs revision)
+  int getSeed(int foo, const Bucket &nodes) const {
+    // ec2 get seed (needs revision)
     int bestId, count;
     double bestEc2;
     int Id;
@@ -857,7 +876,7 @@ public:
       count = 0;
 
       for ( int j = 0; j < nodes.size(); j++ ) {
-        if ( i != j and  isCompatibleIJ( Id , nodes[j].nid() ) ) count++;
+        if ( i != j &&  isCompatibleIJ( Id , nodes[j].nid() ) ) count++;
 
         bestCount = count;
         bestId = Id;
@@ -878,8 +897,8 @@ public:
    * \return The node id of the most most compatible node, or
    * \return -1 if empty bucket or there are no compatible nodes.
    */
-  int  getBestCompatible( UID fromNid, const Bucket &nodes ) const {
-    assert( fromNid < original.size() );
+  int  getBestCompatible(UID fromNid, const Bucket &nodes) const {
+    assert(fromNid < original.size());
     UID bestId;
     UID toId;
 
@@ -890,13 +909,15 @@ public:
     for ( int j = 0; j < nodes.size(); j++ ) {
       toId = nodes[j].nid();
 
-      if ( getTwcij( fromNid, toId ) > getTwcij( fromNid, bestId ) ) {
+      if ( getTwcij(fromNid, toId) > getTwcij(fromNid, bestId) ) {
         bestId = toId;
       }
     }
 
-    if ( compat( fromNid, bestId ) != VRP_MIN() ) return bestId;
-    else return -1;
+    if (compat(fromNid, bestId) != VRP_MIN())
+      return bestId;
+    else
+      return -1;
   }
 
   /*!
@@ -915,17 +936,16 @@ public:
    * \param[in] nodes A bucket of nodes containing node id \b at.
    * \return The total TW compatibility value for node id \b at.
    */
-  double ec2( UID at, const Bucket &nodes ) {
-    assert( at < original.size() );
+  double ec2(UID at, const Bucket &nodes) {
+    assert(at < original.size());
     double ec2_tot = 0;
 
     for ( int j = 0; j < nodes.size(); j++ ) {
-      if ( not ( getTwcij( at, j )  == VRP_MIN() ) ) ec2_tot += getTwcij( at, j );
+      if ( !(getTwcij(at, j)  == VRP_MIN()) ) ec2_tot += getTwcij(at, j);
+      if ( !(getTwcij(j, at)  == VRP_MIN()) ) ec2_tot += getTwcij(j, at);
+    }
 
-      if ( not ( getTwcij( j, at )  == VRP_MIN() ) ) ec2_tot += getTwcij( j, at );
-    };
-
-    if ( getTwcij( at, at ) == VRP_MIN() ) ec2_tot -= getTwcij( at, at );
+    if (getTwcij(at, at) == VRP_MIN()) ec2_tot -= getTwcij(at, at);
 
     return ec2_tot;
   }
@@ -941,12 +961,12 @@ public:
    * \param[in] nodes A bucket that is to be used in counting.
    * \return The number of nodes that are incompatible from node id \b at.
    */
-  int countIncompatibleFrom( UID at, const Bucket &nodes ) {
-    assert( at < original.size() );
+  int countIncompatibleFrom(UID at, const Bucket &nodes) {
+    assert(at < original.size());
     int count = 0;
 
     for ( UID j = 0; j < nodes.size(); j++ ) {
-      if ( getTwcij( at, j )  == VRP_MIN() ) count++;
+      if ( getTwcij(at, j)  == VRP_MIN() ) count++;
     }
 
     return count;
@@ -959,11 +979,11 @@ public:
    * \param[in] nodes A bucket that is to be used in counting.
    * \return The number of nodes that are incompatibleas sucessors to node id \b at.
    */
-  int countIncompatibleTo( UID at, const Bucket &nodes ) {
+  int countIncompatibleTo(UID at, const Bucket &nodes) {
     int count = 0;
 
     for ( UID j = 0; j < nodes.size(); j++ ) {
-      if ( getTwcij( j, at )  == VRP_MIN() ) count++;
+      if ( getTwcij(j, at)  == VRP_MIN() ) count++;
     }
 
     return count;
@@ -977,8 +997,8 @@ public:
 
   /*! \brief Print the original nodes.  */
   void dump() const  {
-    assert( original.size() );
-    dump( original );
+    assert(original.size());
+    dump(original);
   }
 
 
@@ -986,27 +1006,27 @@ public:
    * \brief Print the nodes in the bucket.
    * \param[in] nodes A bucket of nodes to print.
    */
-  void dump( const Bucket &nodes ) const  {
-    assert( nodes.size() );
-    dumpCompatability( nodes );
-    dumpTravelTime( nodes );
+  void dump(const Bucket &nodes) const  {
+    assert(nodes.size());
+    dumpCompatability(nodes);
+    dumpTravelTime(nodes);
   }
 
   /*! \brief Print the TW Compatibility matrix for the original nodes.  */
   void dumpCompatability() const  {
-    assert( original.size() );
-    dumpCompatability( original );
+    assert(original.size());
+    dumpCompatability(original);
   }
 
   /*!
    * \brief Print the TW Compatibility matrix for the input bucket.
    * \param[in] nodes  A bucket of nodes to print the TWC matrix.
    */
-  void dumpCompatability( const Bucket &nodes ) const  {
+  void dumpCompatability(const Bucket &nodes) const  {
     std::stringstream ss;
-    assert( nodes.size() );
+    assert(nodes.size());
 
-    ss.precision( 8 );
+    ss.precision(8);
     ss << "COMPATABILITY TABLE \n\t";
 
     for ( int i = 0; i < nodes.size(); i++ )
@@ -1023,23 +1043,24 @@ public:
       ss << nodes[i].nid() << "=" << nodes[i].id() << "\t";
 
       for ( int j = 0; j < nodes.size(); j++ ) {
-        if ( twcij[i][j] !=  -std::numeric_limits<double>::max() )
+        if (twcij[i][j] !=  VRP_MIN())
           ss << twcij[i][j] << "\t";
-        else ss << "--\t";
+        else
+          ss << "--\t";
       }
 
       ss << "\n";
     }
 
-    DLOG( INFO ) << ss.str();
+    DLOG(INFO) << ss.str();
   }
 
   /*!
    * \brief Print the travel time matrix for the original nodes.
    */
   void dumpTravelTime() const {
-    assert( original.size() );
-    dumpTravelTime( original );
+    assert(original.size());
+    dumpTravelTime(original);
   }
 
   /*!
@@ -1047,12 +1068,12 @@ public:
    *
    * \param[in] nodes A bucket of nodes to print the travel time matrix for.
    */
-  void dumpTravelTime( const Bucket &nodes ) const {
+  void dumpTravelTime(const Bucket &nodes) const {
     std::stringstream ss;
-    assert( nodes.size() );
+    assert(nodes.size());
     ss << "\n\n\n\nTRAVEL TIME TABLE \n\t";
 
-    ss.precision( 2 );
+    ss.precision(2);
 
     for ( int i = 0; i < nodes.size(); i++ )
       ss << "nid " << nodes[i].nid() << "\t";
@@ -1077,7 +1098,7 @@ public:
       ss << "\n";
     }
 
-    DLOG( INFO ) << ss.str();
+    DLOG(INFO) << ss.str();
   }
 
 
@@ -1085,8 +1106,8 @@ public:
    * \brief Print the compatibility matrix using an alternate format for the original nodes.
    */
   void dumpCompatible3() const  {
-    assert( original.size() );
-    dumpCompatible3( original );
+    assert(original.size());
+    dumpCompatible3(original);
   }
 
   /*!
@@ -1094,9 +1115,9 @@ public:
    *
    * \param[in] nodes The bucket of nodes to print the TWC for.
    */
-  void dumpCompatible3( const Bucket &nodes ) const {
+  void dumpCompatible3(const Bucket &nodes) const {
     std::stringstream ss;
-    assert( nodes.size() );
+    assert(nodes.size());
 
     for ( int i = 0; i < nodes.size(); i++ ) {
       for ( int j = 0; j < nodes.size(); j++ ) {
@@ -1104,16 +1125,16 @@ public:
           ss << "\t ( " << nodes[i].nid() << " , "
              << nodes[j].nid() << " , "
              << nodes[k].nid() << ") = "
-             << ( isCompatibleIAJ( i, j, k ) ? "COMP" : "not" );
+             << (isCompatibleIAJ(i, j, k) ? "COMP" : "not");
         }
 
         ss << "\n";
       }
     }
 
-    DLOG( INFO ) << ss.str();
+    DLOG(INFO) << ss.str();
   }
-#endif  //logs
+#endif  // logs
 
   // ------------ go back to CALCULATED state -------------------
 
@@ -1122,12 +1143,12 @@ public:
    *
    * \param[in] nid The node id to update the TWC matrix entries for.
    */
-  void recreateCompatible( UID nid ) {
-    assert( nid < original.size() );
+  void recreateCompatible(UID nid) {
+    assert(nid < original.size());
 
-    for ( int j = 0; j < twcij.size(); j++ ) {
-      twcij[nid][j] = twc_for_ij( original[nid], original[j] );
-      twcij[j][nid] = twc_for_ij( original[j], original[nid] );
+    for (int j = 0; j < twcij.size(); j++) {
+      twcij[nid][j] = twc_for_ij(original[nid], original[j]);
+      twcij[j][nid] = twc_for_ij(original[j], original[nid]);
     }
   }
 
@@ -1146,8 +1167,8 @@ public:
    *                 - 1 = Haversine distance for lat-lon values
    *                 - 2 = Call getTimeOSRM()
    */
-  void recreateTravelTime( UID nid, int mode ) {
-    assert( "needs to be re-read from file" == "" );
+  void recreateTravelTime(UID nid, int mode) {
+    assert("needs to be re-read from file" == "");
   }
 #endif
 
@@ -1157,8 +1178,8 @@ public:
    * \param[in] fromNid The predecessor node id.
    * \param[in] toNid The successor node id.
    */
-  void setIncompatible( UID fromNid, UID toNid ) {
-    assert( fromNid < original.size() and toNid < original.size() );
+  void setIncompatible(UID fromNid, UID toNid) {
+    assert(fromNid < original.size() && toNid < original.size());
     twcij[fromNid][toNid] = VRP_MIN();
     travel_Time[fromNid][toNid] =  VRP_MAX();
   }
@@ -1170,14 +1191,13 @@ public:
    * \param[in] nid The from node id that we want set as incompatible.
    * \param[in] nodes A bucket of successor nodes that are incompatible from \b nid.
    */
-  void setIncompatible( UID nid, const Bucket &nodes ) {
-    assert( nid < original.size() );
+  void setIncompatible(UID nid, const Bucket &nodes) {
+    assert(nid < original.size());
 
-    for ( int j = 0; j < nodes.size(); j++ ) {
+    for (int j = 0; j < nodes.size(); j++) {
       twcij[nid][nodes[j].nid()] =  VRP_MIN();
       travel_Time[nid][nodes[j].nid()] =  VRP_MAX();
     }
-
   }
 
 
@@ -1187,10 +1207,10 @@ public:
    * \param[in] nodes A bucket of predecessor nodes that are incompatible with \b nid.
    * \param[in] nid The successor node id that we want set as incompatible.
    */
-  void setIncompatible( const Bucket &nodes, UID &nid ) {
-    assert( nid < original.size() );
+  void setIncompatible(const Bucket &nodes, UID &nid) {
+    assert(nid < original.size());
 
-    for ( int i = 0; i < nodes.size(); i++ ) {
+    for (int i = 0; i < nodes.size(); i++) {
       twcij[nodes[i].nid()][nid] =  VRP_MIN();
       travel_Time[nodes[i].nid()][nid] =  VRP_MAX();
     }
@@ -1203,8 +1223,8 @@ public:
    * \param[in] fromNid The from node id to set.
    * \param[in] toNid The to node id to set.
    */
-  void setUnreachable( UID fromNid, UID toNid ) {
-    assert( fromNid < original.size() and toNid < original.size() );
+  void setUnreachable(UID fromNid, UID toNid) {
+    assert(fromNid < original.size() && toNid < original.size());
     travel_Time[fromNid][toNid] = VRP_MAX();
   }
 
@@ -1215,8 +1235,8 @@ public:
    * \param[in] nid The from node id we are set as unReachable.
    * \param[in] nodes A bucket of successor nodes to set as unReachable.
    */
-  void setUnreachable( UID nid, const Bucket &nodes ) {
-    assert( nid < original.size() );
+  void setUnreachable(UID nid, const Bucket &nodes) {
+    assert(nid < original.size());
 
     for ( int j = 0; j < nodes.size(); j++ )
       travel_Time[nid][nodes[j].nid()] =  VRP_MAX();
@@ -1228,10 +1248,10 @@ public:
    * \param[in] nodes A bucket of predecessor nodes to set as unReachable.
    * \param[in] nid The successor node that is unRechable from the bucket nodes.
    */
-  void setUnreachable( const Bucket &nodes, UID &nid ) {
-    assert( nid < original.size() );
+  void setUnreachable(const Bucket &nodes, UID &nid) {
+    assert(nid < original.size());
 
-    for ( int i = 0; i < nodes.size(); i++ )
+    for ( int i = 0; i < nodes.size(); i++)
       travel_Time[nodes[i].nid()][nid] =  VRP_MAX();
   }
 
@@ -1241,12 +1261,12 @@ public:
    *
    * \param[in] _original A bucket of nodes to assign to TWC class.
    */
-  void setNodes( Bucket _original ) {
+  void setNodes(Bucket _original) {
     original.clear();
     original = _original;
     twcij_calculate();
-    assert ( original == _original );
-    assert ( check_integrity() );
+    assert(original == _original);
+    assert(check_integrity());
   }
 
 
@@ -1258,13 +1278,13 @@ public:
    * \param[in] to A node to be used as the destination node.
    * \return The average travel time from start to destination.
    */
-  double getAverageTime( const Bucket &from, const knode &to ) const {
-    assert( to.nid() < original.size() );
+  double getAverageTime(const Bucket &from, const knode &to) const {
+    assert(to.nid() < original.size());
     double time = 0;
     int j = to.nid();
 
     for ( int i = 0; i < from.size(); i++ ) {
-      time += TravelTime( from[i].nid() , j ) ;
+      time += TravelTime(from[i].nid(), j);
     }
 
     time = time / from.size();
@@ -1278,13 +1298,13 @@ public:
    * \param[in] to A bucket of destination nodes.
    * \return The average travel time from start to destination.
    */
-  double getAverageTime( const knode &from, const Bucket &to ) const {
-    assert( from.nid() < original.size() );
+  double getAverageTime(const knode &from, const Bucket &to) const {
+    assert(from.nid() < original.size());
     double time = 0;
     int j = from.nid();
 
     for ( int i = 0; i < to.size(); i++ )
-      time += travel_Time[j][ to[i].nid() ];
+      time += travel_Time[j][to[i].nid()];
 
     time = time / to.size();
     return time;
@@ -1298,9 +1318,9 @@ public:
    * \param[in] C
    * \param[in] picks
    */
-  void settCC ( const knode &C, const Bucket &picks ) {
+  void settCC(const knode &C, const Bucket &picks) {
     int pos = C.nid();
-    travel_Time[pos][pos] = getAverageTime( C, picks );
+    travel_Time[pos][pos] = getAverageTime(C, picks);
   }
 
   /*!
@@ -1312,9 +1332,9 @@ public:
    * \param[in] j Node id 2
    * \return True if both nodes are on the same street.
    */
-  bool sameStreet( UID i, UID j ) const {
-    assert( i < original.size() and j < original.size() );
-    return original[i].sameStreet( original[j] );
+  bool sameStreet(UID i, UID j) const {
+    assert(i < original.size() && j < original.size());
+    return original[i].sameStreet(original[j]);
   }
 
   /*!
@@ -1326,47 +1346,47 @@ public:
    * \param[in] j Node id 2
    * \return The gradient of the line.
    */
-  double gradient( UID i, UID j ) const {
-    assert( i < original.size() and j < original.size() );
+  double gradient(UID i, UID j) const {
+    assert(i < original.size() && j < original.size());
     return original[i].gradient( original[j] );
   }
 
 
 
 #ifdef OSRMCLIENT
-  void setHints( Bucket &nodes ) {
+  void setHints(Bucket &nodes) {
 #ifdef DOSTATS
     Timer timer;
 #endif
 
     for ( int i = 0; i < nodes.size(); i++ ) {
-      nodes[i].set_hint( original[nodes[i].nid()].hint() );
+      nodes[i].set_hint(original[nodes[i].nid()].hint());
     }
 
 #ifdef DOSTATS
-    STATS->addto( "TWC::setHints Cumultaive time:", timer.duration() );
+    STATS->addto("TWC::setHints Cumultaive time:", timer.duration());
 #endif
-
   }
 #endif
 
 
-private:
+ private:
   void prepareTravelTime() {
     int siz = original.size();
-    travel_Time.resize( siz );
+    travel_Time.resize(siz);
 
     for ( int i = 0; i < siz; i++ )
-      travel_Time[i].resize( siz );
+      travel_Time[i].resize(siz);
 
-    //travel_Time default value is 250m/min
+    // travel_Time default value is 250m/min
     for ( int i = 0; i < siz; i++ )
       for ( int j = i; j < siz; j++ ) {
-        if ( i == j ) travel_Time[i][i] = 0.0;
-        else {
+        if ( i == j ) {
+          travel_Time[i][i] = 0.0;
+        } else {
           travel_Time[i][j] = travel_Time[j][i] = -1.0;
 #ifndef OSRMCLIENT
-          travel_Time[i][j] = travel_Time[j][i] = getTravelTime( i, j );
+          travel_Time[i][j] = travel_Time[j][i] = getTravelTime(i, j);
 #endif
         }
       }
@@ -1384,29 +1404,29 @@ private:
     int from, to;
     int i, j, k;
 
-    for ( i = 0; ( i * 100 ) < total; i++ ) {
+    for ( i = 0; (i * 100) < total; i++ ) {
       from = i * 100;
-      to = std::min ( ( i + 1 ) * 100 , total ) ;
+      to = std::min((i + 1) * 100, total);
       hints.clear();
       osrm->clear();
 
-      for ( j = from; j < to ; j++ ) osrm->addViaPoint( original[j] );
+      for ( j = from; j < to ; j++ ) osrm->addViaPoint(original[j]);
 
-      if ( osrm->getOsrmViaroute() and osrm->getOsrmHints( hints ) )
-        for ( j = from, k = 0; j < to ; j++, k++ ) {
-          original[j].set_hint( hints[k] );
+      if (osrm->getOsrmViaroute() && osrm->getOsrmHints(hints)) {
+        for (j = from, k = 0; j < to; j++, k++) {
+          original[j].set_hint(hints[k]);
         }
+      }
     }
 
 #ifdef DOSTATS
-    STATS->addto( "TWC::getAllHints Cumultaive time:", timer.duration() );
+    STATS->addto("TWC::getAllHints Cumultaive time:", timer.duration());
 #endif
-
   }
 #endif
 
 
-public:
+ public:
   /*!
    * \brief Assign the travel time matrix to TWC from Pg
    * \bug TODO needs to be tested when conected to the database
@@ -1420,12 +1440,12 @@ public:
    * \param[in] datanodes The data nodes Bucket previous loaded from PostgreSQL
    * \param[in] invalid The bucket of invalid nodes generated when load the data nodes.
    */
-  void loadAndProcess_distance( ttime_t *ttimes, int count,
-                                const Bucket &datanodes, const Bucket &invalid ) {
+  void loadAndProcess_distance(ttime_t *ttimes, int count,
+                               const Bucket &datanodes, const Bucket &invalid) {
 #ifdef DOVRPLOG
-    DLOG( INFO ) << "POSTGRES: loadAndProcess_distance needs to be TESTED";
+    DLOG(INFO) << "POSTGRES: loadAndProcess_distance needs to be TESTED";
 #endif
-    assert( datanodes.size() );
+    assert(datanodes.size());
     original.clear();
     original = datanodes;
 
@@ -1435,24 +1455,24 @@ public:
 
     prepareTravelTime();
 
-    for ( int i = 0; i < count; ++i ) {
+    for (int i = 0; i < count; ++i) {
       int from    = ttimes[i].from_id;
       int to      = ttimes[i].to_id;
       double time = ttimes[i].ttime;
 
-      if ( invalid.hasId( from ) or invalid.hasId( to ) ) continue;
+      if (invalid.hasId(from) || invalid.hasId(to)) continue;
 
-      int fromId = getNidFromId( from );
-      int toId = getNidFromId( to );
+      int fromId = getNidFromId(from);
+      int toId = getNidFromId(to);
 
-      if ( fromId == -1 or toId == -1 ) continue;
+      if ( fromId == -1 || toId == -1 ) continue;
 
       travel_Time[fromId][toId] = time;
     }
 
     twcij_calculate();
-    assert ( original == datanodes );
-    assert ( check_integrity() );
+    assert(original == datanodes);
+    assert(check_integrity());
   }
 
 
@@ -1469,18 +1489,18 @@ public:
    * \param[in] datanodes The bucket of data nodes that has already been loaded.
    * \param[in] invalid A bucket of invalid nodes found in the data nodes.
    */
-  void loadAndProcess_distance( std::string infile, const Bucket &datanodes,
-                                const Bucket &invalid ) {
-    assert( datanodes.size() );
+  void loadAndProcess_distance(std::string infile, const Bucket &datanodes,
+                                const Bucket &invalid) {
+    assert(datanodes.size());
 #ifdef DOVRPLOG
-    DLOG( INFO ) << "COMMANDLINE: loadAndProcess_distance";
+    DLOG(INFO) << "COMMANDLINE: loadAndProcess_distance";
 #endif
 
     original.clear();
     original = datanodes;
     POS siz = original.size();
 
-    std::ifstream in( infile.c_str() );
+    std::ifstream in(infile.c_str());
     std::string line;
 
 #ifdef OSRMCLIENT
@@ -1495,23 +1515,23 @@ public:
     double time;
     int cnt = 0;
 
-    while ( getline( in, line ) ) {
+    while ( getline(in, line) ) {
       cnt++;
 
       // skip comment lines
       if ( line[0] == '#' ) continue;
 
-      std::istringstream buffer( line );
+      std::istringstream buffer(line);
       buffer >> from;
       buffer >> to;
       buffer >> time;
 
-      if ( invalid.hasId( from ) or invalid.hasId( to ) ) continue;
+      if ( invalid.hasId(from) || invalid.hasId(to) ) continue;
 
-      fromId = getNidFromId( from );
-      toId = getNidFromId( to );
+      fromId = getNidFromId(from);
+      toId = getNidFromId(to);
 
-      if ( fromId == -1 or toId == -1 ) continue;
+      if ( fromId == -1 || toId == -1 ) continue;
 
       travel_Time[fromId][toId] = time;
     }
@@ -1519,48 +1539,40 @@ public:
     in.close();
 
     twcij_calculate();
-    assert ( original == datanodes );
-    assert ( check_integrity() );
+    assert(original == datanodes);
+    assert(check_integrity());
   }
 
-  /*!
-   * \brief Get a reference to the travel time matrix.
-   *
-   * \return A reference to the travel time matrix.
-   */
-  const std::vector<std::vector<double> > &TravelTime() {
+  /*! \brief Returns a constant reference to the travel time matrix. */
+  const std::vector<std::vector<double> >& TravelTime() {
     return travel_Time;
   }
 
-  /*!
-   * \brief Get the node id for a user id for a node.
+  /*! \brief Retrieves the internal node id (NID) from the users node id (ID)
    *
    * \param[in] id A user node identifier
    * \return The internal nid corresponding to id or -1 if not found.
    */
-  long int getNidFromId( int id ) const {
-    return original.getNidFromId( id );
+  UID getNidFromId(UID id) const {
+    return original.getNidFromId(id);
   }
 
 
-  static TWC<knode> *p_twc;
-  static TWC<knode> *Instance() {
-    if ( !p_twc ) // Only allow one instance of class to be generated.
+  static TWC<knode>* Instance() {
+    if ( p_twc == NULL )  // Only allow one instance of class to be generated.
       p_twc = new TWC<knode>;
-
     return p_twc;
   }
 
 
-
-
-
-
-private:
+ private:
   // constructors
-  TWC() {};
-  TWC( const TWC & ) {};
-  TWC &operator=( const TWC & ) {};
+  static TWC<knode>* p_twc;
+  TWC() :z1Tot(0), z2Tot(0), emptiedTruck(false) {
+    cleanUp();
+  };
+  TWC(const TWC &) {};
+  TWC& operator=(const TWC &) {}
 
 
 
@@ -1576,10 +1588,10 @@ private:
    * \param[in] j Nid of the to node.
    * \return The time window compatibility of traveling directly \b fromNid to \b toNide.
    */
-  double compat( int i, int j ) const {
-    assert( i < original.size() and j < original.size() );
+  double compat(int i, int j) const {
+    assert(i < original.size() && j < original.size());
     return twcij[i][j];
-  };
+  }
 
 
   /*!
@@ -1593,8 +1605,8 @@ private:
    * \param[in] nj The node we arrived at.
    * \return The earliest arrival time at \b nj
    */
-  double ajli( const knode &ni, const knode &nj ) const {
-    return ni.closes() + ni.serviceTime() + TravelTime( ni, nj );
+  double ajli(const knode &ni, const knode &nj) const {
+    return ni.closes() + ni.serviceTime() + TravelTime(ni, nj);
   }
 
   /*!
@@ -1608,8 +1620,8 @@ private:
    * \param[in] nj The node we arrived at.
    * \return The earliest arrival time at \b nj
    */
-  double ajei( const knode &ni, const knode &nj ) const {
-    return ni.opens() + ni.serviceTime() + TravelTime( ni, nj );
+  double ajei(const knode &ni, const knode &nj) const {
+    return ni.opens() + ni.serviceTime() + TravelTime(ni, nj);
   }
 
 
@@ -1620,7 +1632,7 @@ private:
    * \param[in] nj To this node
    * \return The TWC value traveling from node \b ni directly to \b nj
    */
-  double twc_for_ij( const knode &ni, const knode &nj ) const {
+  double twc_for_ij(const knode &ni, const knode &nj) const {
     double result;
     int i = ni.nid();
     int j = nj.nid();
@@ -1629,27 +1641,28 @@ private:
 
     if ( TravelTime( i, j ) == VRP_MAX() ) return  VRP_MIN();
 
-    if ( ( nj.closes() - ajei( ni, nj ) ) > 0 ) {
-      result = std::min ( ajli( ni, nj ) , nj.closes() )
-               - std::max ( ajei( ni, nj ) , nj.opens()  ) ;
-    } else
+    if ( (nj.closes() - ajei(ni, nj)) > 0 ) {
+      result = std::min(ajli(ni, nj) , nj.closes())
+               - std::max(ajei(ni, nj) , nj.opens());
+    } else {
       result = VRP_MIN();
+    }
 
     return result;
   }
 
 
-  double getTwcij( UID i, UID j ) const { //this one makes twcij dynamical
+  double getTwcij(UID i, UID j) const {  // this one makes twcij dynamical
     if  ( travel_Time[i][j] == -1 ) {
-      TravelTime( i, j );
-      twcij[i][j] = twc_for_ij( original[i], original[j] );
+      TravelTime(i, j);
+      twcij[i][j] = twc_for_ij(original[i], original[j]);
     }
 
     return twcij[i][j];
   }
 
-  double setTwcij( UID i, UID j) const {
-    twcij[i][j] = twc_for_ij( original[i], original[j] );
+  double setTwcij(UID i, UID j) const {
+    twcij[i][j] = twc_for_ij(original[i], original[j]);
     return twcij[i][j];
   }
 
@@ -1661,17 +1674,16 @@ private:
    * \brief Compute all TWC values and populate the TWC matrix.
    */
   void twcij_calculate() {
-    assert ( original.size() == travel_Time.size() );
-    twcij.resize( original.size() );
+    assert(original.size() == travel_Time.size());
+    twcij.resize(original.size());
 
-    for ( int i = 0; i < original.size(); i++ )
-      twcij[i].resize( original.size() );
-
+    for (int i = 0; i < original.size(); i++)
+      twcij[i].resize(original.size());
 
     for ( int i = 0; i < original.size(); i++ ) {
       for ( int j = i; j < original.size(); j++ ) {
-        twcij[i][j] = twc_for_ij( original[i], original[j] );
-        twcij[j][i] = twc_for_ij( original[j], original[i] );
+        twcij[i][j] = twc_for_ij(original[i], original[j]);
+        twcij[j][i] = twc_for_ij(original[j], original[i]);
       }
     }
   }
@@ -1680,12 +1692,12 @@ private:
    * \brief Check that a TWC matrix entry exists for all original nodes.
    */
   bool check_integrity() const {
-    assert ( original.size() == twcij.size() );
+    assert(original.size() == twcij.size());
 
     if ( original.size() != twcij.size() ) return false;
 
     for ( int i = 0; i < original.size(); i++ ) {
-      assert ( twcij[i].size() == original.size() );
+      assert(twcij[i].size() == original.size());
 
       if ( twcij[i].size() != original.size() ) return false;
     }
@@ -1696,15 +1708,13 @@ private:
  public:
   void set_TravelTime(UID fromId, UID toId, double time) {
      #ifdef VRPMINTRACE
-     if (!travel_Time[fromId][toId]==time)
-        DLOG(INFO)<<"<travel_time["<<fromId<<"]["<<toId<<"]="
-        << travel_Time[fromId][toId]<<" ---> "<<time;
+     if (!travel_Time[fromId][toId] == time)
+        DLOG(INFO) << "<travel_time[" << fromId << "][" << toId << "]="
+        << travel_Time[fromId][toId] << " ---> " << time;
      #endif
-     travel_Time[fromId][toId]=time;
+     travel_Time[fromId][toId] = time;
   }
-
-
-}; // end of class
+};  // end of class
 
 
 
@@ -1715,5 +1725,4 @@ TWC<knode>  *TWC<knode>::p_twc = NULL;
 #define twc TWC<Tweval>::Instance()
 
 
-
-#endif
+#endif  // SRC_BASECLASSES_TWC_H_

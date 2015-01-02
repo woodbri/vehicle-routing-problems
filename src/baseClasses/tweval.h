@@ -109,10 +109,13 @@ class Tweval: public Twnode {
 
   /** @name Document TWC model functions*/
   ///@{
-  /*! \brief returns the Arrival(j) opens(i) arrival time */
+  /*! \brief returns the Arrival(this) opens(other) arrival time */
   double arrival_i_opens_j(const Tweval &other) const;
-  /*! \brief returns the Arrival(j) closes(i) arrival time */
+  /*! \brief returns the Arrival(this) closes(other) arrival time */
   double arrival_i_closes_j(const Tweval &other) const;
+  /*! \brief returns the arriaval(this) arrival(other) arrival time */
+  double arrival_i_arrival_j(const Tweval &other) const;
+
   bool isCompatibleIJ(const Tweval &other) const;
   bool isPartiallyCompatibleIJ(const Tweval &other) const;
   bool isFullyCompatibleIJ(const Tweval &other) const;

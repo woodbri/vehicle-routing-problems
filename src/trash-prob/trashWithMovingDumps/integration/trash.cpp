@@ -33,7 +33,7 @@
 
 
 #include "trashconfig.h"
-#include "feasableSol.h"
+#include "feasableSolLoop.h"
 #include "tabuopt.h"
 
 
@@ -90,7 +90,7 @@ int main(int argc, char **argv)
     CONFIG->dump("CONFIG");
 #endif
 
-    FeasableSol tp(infile);
+    FeasableSolLoop tp(infile);
 
 
 #ifdef VRPMINTRACE
@@ -113,7 +113,7 @@ int main(int argc, char **argv)
     Timer searchtime;
 #endif
 
-    int iteration = 5;
+    int iteration = 3;
     TabuOpt ts(tp, iteration);
 
 #ifdef DOSTATS

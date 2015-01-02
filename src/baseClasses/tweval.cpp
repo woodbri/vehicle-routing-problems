@@ -178,6 +178,18 @@ double Tweval::arrival_i_closes_j(const Tweval &other) const {
   return  other.closes() + other.serviceTime() + twc->TravelTime(other.nid(), nid());
 }
 
+/*! \todo \TODO
+  The actual arrival time at \b This node,  given that:
+      \b this node is visited directly after \b other node
+      and that the actual arrival time at \b other node was arrival(other)
+*/
+double Tweval::arrival_i_closes_j(const Tweval &other, double arrival) const {
+  return  other.closes() + other.serviceTime() + twc->TravelTime(other.nid(), nid());
+}
+
+
+
+
 bool Tweval::isCompatibleIJ(const Tweval &other) const {
   return 
           // cant go to starting site regardless of the other's type of site
