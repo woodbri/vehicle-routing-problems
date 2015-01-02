@@ -114,7 +114,7 @@ class Tweval: public Twnode {
   /*! \brief returns the Arrival(this) closes(other) arrival time */
   double arrival_i_closes_j(const Tweval &other) const;
   /*! \brief returns the arriaval(this) arrival(other) arrival time */
-  double arrival_i_arrives_j(const Tweval &other) const;
+  double arrival_i_arrives_j(const Tweval &other, double arrival) const;
 
   bool isCompatibleIJ(const Tweval &other) const;
   bool isPartiallyCompatibleIJ(const Tweval &other) const;
