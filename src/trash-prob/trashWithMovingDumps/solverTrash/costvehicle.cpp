@@ -27,7 +27,6 @@
 #endif
 
 #include "trashnode.h"
-#include "trashconfig.h"
 #include "twpath.h"
 
 #include "move.h"

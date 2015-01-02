@@ -26,7 +26,6 @@
 #include "timer.h"
 #endif
 
-#include "trashconfig.h"
 #include "twpath.h"
 #include "basevehicle.h"
 #ifdef WITHOSRM

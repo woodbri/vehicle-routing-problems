@@ -87,7 +87,7 @@ int main(int argc, char **argv)
 #endif
 
 #ifdef VRPMINTRACE
-    CONFIG->dump("CONFIG");
+    //CONFIG->dump("CONFIG");
 #endif
 
     FeasableSolLoop tp(infile);

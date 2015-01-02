@@ -178,6 +178,8 @@ BASECLASSES_SRCS := $(filter-out $(BASECLASSES_DIR)/vrposrm.cpp, $(BASECLASSES_S
 BASECLASSES_HDS := $(filter-out $(BASECLASSES_DIR)/vrposrm.h, $(BASECLASSES_HDS))
 endif
 
+BASECLASSES_SRCS := $(filter-out $(BASECLASSES_DIR)/config.cpp, $(BASECLASSES_SRCS))
+BASECLASSES_HDS := $(filter-out $(BASECLASSES_DIR)/config.h, $(BASECLASSES_HDS))
 
 BASECLASSES_OBJS = $(addprefix $(BUILD_DIR)/$(BASECLASSES)/,$(notdir $(BASECLASSES_SRCS:.cpp=.o)))
 BASECLASSES_HEADS = $(BASECLASSES_DIR)/twpath.h $(BASECLASSES_DIR)/twc.h $(BASECLASSES_DIR)/twbucket.h  $(BASECLASSES_DIR)/singleton.h $(BASECLASSES_HDS) $(PLOT_HEADER)
@@ -187,8 +189,9 @@ BASECLASSES_HEADS = $(BASECLASSES_DIR)/twpath.h $(BASECLASSES_DIR)/twc.h $(BASEC
 
 
 BASETRASH_SRCS = $(wildcard $(BASETRASH_DIR)/*.cpp)
-BASETRASH_HDS = $(BASETRASH_SRCS:.cpp=.h) $(BASETRASH_DIR)/trashconfig.h
 
+BASETRASH_SRCS := $(filter-out $(BASETRASH_DIR)/trashconfig.cpp, $(BASETRASH_SRCS))
+BASETRASH_HDS := $(filter-out $(BASETRASH_DIR)/trashconfig.h, $(BASETRASH_HDS))
 BASETRASH_SRCS := $(filter-out $(BASETRASH_DIR)/extendedvehicle.cpp, $(BASETRASH_SRCS))
 BASETRASH_HDS := $(filter-out $(BASETRASH_DIR)/extendedvehicle.h, $(BASETRASH_HDS))
 
