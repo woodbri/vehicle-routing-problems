@@ -833,7 +833,10 @@ static int solve_trash_collection(
         ereport( ERROR, ( errcode( ERRCODE_E_R_E_CONTAINING_SQL_NOT_PERMITTED ),
                           errmsg( "Error computing solution: %s:\n", err_msg ) ) );
     }
-
+    pfree(containers);
+    pfree(otherlocs);
+    pfree(vehicles);
+    pfree(ttimes);
     return finish( SPIcode, ret );
 }
 
