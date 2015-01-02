@@ -27,7 +27,7 @@
 #endif
 
 #include "trashprob.h"
-#include "feasableSol.h"
+#include "feasableSolLoop.h"
 #include "tabuopt.h"
 
 int vrp_trash_collection( container_t *containers, unsigned int container_count,
