@@ -1,0 +1,59 @@
+#!/bin/bash
+
+DBUSER=postgres
+DBHOST=localhost
+
+if [ "$USER" == "woodbri" ] ; then
+DBPORT=5433
+else
+DBPORT=5432
+fi
+
+DBNAME=vrptools_test
+
+
+dropdb  -h $DBHOST -U $DBUSER -p $DBPORT $DBNAME
+createdb -h $DBHOST -U $DBUSER -p $DBPORT $DBNAME
+
+psql -h $DBHOST -U $DBUSER -p $DBPORT $DBNAME < ../muni-b/muni-b-latlon.sql
+
+psql -h $DBHOST -U $DBUSER -p $DBPORT $DBNAME -c "create extension vrptools with schema public"
+
+psql -h $DBHOST -U $DBUSER -p $DBPORT $DBNAME -c "alter database $DBNAME set search_path to data, public"
+
+if [ "$1" == "" ] ; then
+
+psql -P pager=off -h $DBHOST -U $DBUSER -p $DBPORT $DBNAME -f test.sql
+
+else
+
+#
+# The above test.sql does the same as the following multiple psql queries
+# EXCEPT the multiple psql queries create new connections on each request
+# instead of running all the command on a single connection.
+#
+# The code below crashes on the last request but the above does not.
+# this may indicate that we have a problem with leaking a resource on a per
+# connection basis. I spent two days trying to track trace this down to
+# something concrete without any success. :(
+#
+
+psql -P pager=off -h $DBHOST -U $DBUSER -p $DBPORT $DBNAME -c "select * from  vrp_trashcollectioncheck( 'select * from containers limit 10 ', 'select * from other_locs', 'select * from vehicles', 'select * from distance_matrix',0)"
+
+psql -P pager=off -h $DBHOST -U $DBUSER -p $DBPORT $DBNAME -c "select * from  vrp_trashcollectioncheck( 'select * from containers ', 'select * from other_locs', 'select * from vehicles', 'select * from distance_matrix',0)"
+
+psql -P pager=off -h $DBHOST -U $DBUSER -p $DBPORT $DBNAME -c "select * from  vrp_trashcollectioncheck( 'select * from containers where demand <>0 limit 10 ', 'select * from other_locs', 'select * from vehicles', 'select * from distance_matrix',0)"
+
+psql -P pager=off -h $DBHOST -U $DBUSER -p $DBPORT $DBNAME -c "select * from  vrp_trashcollectioncheck( 'select * from containers where demand <>0 ', 'select * from other_locs', 'select * from vehicles', 'select * from distance_matrix',0)"
+
+psql -P pager=off -h $DBHOST -U $DBUSER -p $DBPORT $DBNAME -c "select * from  vrp_trashcollection( 'select * from containers where demand <> 0', 'select * from other_locs', 'select * from vehicles', 'select * from distance_matrix',0)"
+
+psql -P pager=off -h $DBHOST -U $DBUSER -p $DBPORT $DBNAME -c "select * from  vrp_trashcollection( 'select * from containers where demand <> 0', 'select * from other_locs', 'select * from vehicles', 'select * from distance_matrix',1)"
+
+psql -P pager=off -h $DBHOST -U $DBUSER -p $DBPORT $DBNAME -c "select * from  vrp_trashcollection( 'select * from containers limit 10 ', 'select * from other_locs', 'select * from vehicles', 'select * from distance_matrix',0)"
+
+psql -P pager=off -h $DBHOST -U $DBUSER -p $DBPORT $DBNAME -c "select * from  vrp_trashcollection( 'select * from containers ', 'select * from other_locs', 'select * from vehicles', 'select * from distance_matrix',0)"
+
+psql -P pager=off -h $DBHOST -U $DBUSER -p $DBPORT $DBNAME -c "select * from  vrp_trashcollection( 'select * from containers where demand <> 0', 'select * from other_locs', 'select * from vehicles', 'select * from distance_matrix',2)"
+
+fi

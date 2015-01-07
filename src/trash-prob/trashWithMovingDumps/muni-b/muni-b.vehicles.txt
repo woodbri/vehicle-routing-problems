@@ -1,0 +1,6 @@
+# vehicle
+#
+# vid depot_id dump_id end_id dumpsServiceTime capacity 
+0 10001 10003 10001 20 192000 0 500
+1 10001 10003 10001 20 192000 0 500
+2 10002 10003 10001 20 192000 0 500

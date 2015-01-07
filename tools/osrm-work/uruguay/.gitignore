@@ -1,0 +1,16 @@
+log.prepare
+montevideo.osm.pbf
+montevideo.osrm
+montevideo.osrm.edges
+montevideo.osrm.fileIndex
+montevideo.osrm.hsgr
+montevideo.osrm.names
+montevideo.osrm.nodes
+montevideo.osrm.ramIndex
+montevideo.osrm.restrictions
+stxxl.errlog
+stxxl.log
+uruguay-download.md5
+uruguay-latest.osm.pbf
+uruguay-latest.osm.pbf.md5
+

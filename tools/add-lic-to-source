@@ -1,0 +1,136 @@
+#! /usr/bin/perl -w
+    eval 'exec /usr/bin/perl -S $0 ${1+"$@"}'
+        if 0; #$running_under_some_shell
+
+use strict;
+use File::Find ();
+use File::Basename;
+
+# Set the variable $File::Find::dont_use_nlink if you're using AFS,
+# since AFS cheats.
+
+# for the convenience of &wanted calls, including -eval statements:
+use vars qw/*name *dir *prune/;
+*name   = *File::Find::name;
+*dir    = *File::Find::dir;
+*prune  = *File::Find::prune;
+
+sub wanted;
+
+sub Usage {
+    die "Usage: add-lic-to-source dir [exclude.txt]\n";
+}
+
+my $DOUPDATES = 1;
+
+my @files = ();
+my %exclude = (
+    'md5.h' => 1,
+    'md5.cpp' => 1
+);
+
+my @HEADER = ();
+my $head = "vrp-header.txt";
+loadHeader($head);
+
+my $dir    = shift @ARGV || Usage();
+my $xfile  = shift @ARGV;
+
+if ($xfile) {
+    open(IN, $xfile) || die "Failed to open '$xfile' : $!\n";
+    while (my $x = <IN>) {
+        chomp($x);
+        $exclude{$x} = 1;
+    }
+    close(IN);
+}
+
+# Traverse desired filesystems
+File::Find::find({wanted => \&wanted}, $dir);
+
+for my $x (sort @files) {
+    next if $x =~ m/\barchive\//;
+    my $f = basename($x);
+    next if $exclude{$f};
+    next if headerok($x);
+    print "Need to update: $x\n";
+    updateheader($x) if $DOUPDATES;
+}
+
+exit;
+
+
+sub wanted {
+    /^.*\.(h|cpp|c)\z/s &&
+    push @files, $name;
+}
+
+sub loadHeader {
+    my $f = shift;
+    open(IN, $f) || die "Failed to open '$f' : $!\n";
+    @HEADER = <IN>;
+    close(IN);
+}
+
+sub headerok {
+    my $f = shift;
+
+    open(IN, $f) || return 0;
+
+    for (my $i=0; $i<@HEADER; $i++) {
+        my $x = <IN>;
+        if ($HEADER[$i] ne $x) {
+            close(IN);
+            return 0;
+        }
+    }
+
+    return 1;
+}
+
+sub updateheader {
+    my $f = shift;
+
+    # read the file
+    my @file = ();
+    open(IN, $f) || die "Failed to read '$f' : $!\n";
+    @file = <IN>;
+    close(IN);
+
+    my ($first, $last);
+
+    # check if header exists and remove it
+    for (my $i=0; $i<@file; $i++) {
+        $first = $i if $file[$i] =~ m/\/\*VRP\*\*/;
+        $last = $i if $file[$i] =~ m/\*\*VRP\*\//;
+        last if $first && $last;
+    }
+
+    if ((defined $first || defined $last) && ! (defined $first && defined $last)) {
+        print "ERROR: '$f' appears to have a header but it does not look complete. SKIPPING!\n";
+        return;
+    }
+
+    if (defined $first && defined $last) {
+        # remove the old header
+        if ($last > $first && $last - $first < 20) {
+            splice @file, $first, $last-$first+1;
+        }
+    }
+
+    # add the current header
+    @file = (@HEADER, @file);
+
+    # rewrite the file
+    if (defined $first && defined $last) {
+        print "UPDATE: '$f', old header ($first - $last) removed\n";
+    }
+    else {
+        print "UPDATE: '$f', added header\n";
+    }
+    open(OUT, ">$f") || die "Failed to rewrite '$f' : $!\n";
+    print OUT @file;
+    close(OUT);
+
+}
+
