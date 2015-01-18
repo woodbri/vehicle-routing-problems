@@ -16,7 +16,7 @@ There are two Makefiles that manage the build process.
 ### Makefile for the core library classes
 ``Makefile`` manages build the core vehicle_routing_problem source for Step 1 above. *Read* this file and make changes to the defines as needed. We recommend the settings for production use:
 
-```
+\code{.bash}
 OSRMBACKEND_DIR = <location where you compiled osrm-backend>
 NO_TRACE = yes
 WITH_OSRMCLIENT = yes
@@ -29,19 +29,19 @@ DEBUG_MODE =
 OSRMCLIENT_HEADER =$(BASECLASSES_DIR)/osrmclient.h
 OSRMCLIENT_CFLAGS = -DOSRMCLIENT -I$(OSRMBACKEND_DIR)
 OSRMCLIENT_LIBS = -L/usr/local/lib -lboost_filesystem -lboost_iostreams -lboost_program_options -lboost_regex -lboost_system -lboost_thread -lpthread -lOSRM -lUUID -lGITDESCRIPTION -lz -lrt -lboost_filesystem -lboost_iostreams -lboost_program_options -lboost_regex -lboost_system -lboost_thread -lpthread -lstxxl
-```
+\endcode
 
 NOTE: ``OSRMCLIENT_LIBS`` must be set to the same value as used when linking the osrm-datastore executable.
 
 Compile and installation for postgresql can be done using the following commands after you have installed all the required dependencies:
 
-```
+\code{.bash}
 git clone https://github.com/woodbri/vehicle-routing-problems.git
 cd vehicle-routing-problems
 git checkout develop    # note this change to a version tag in the future
 cd src/trash-prob/trashWithMovingDumps/integration
 ./make-compile
-```
+\endcode
 
 ### Makefile.library to integrate with postgresql
 
@@ -57,7 +57,7 @@ This is required if you have WITH_OSRMCLIENT set.
 
 Note we built and tested against a fairly old version of osrm-backend as defined by the git checkout command below. osrm-backend is rapidly changing so we recommend that you use the the command below and NOT a newer or older version without testing and verifing that it works as expected.
 
-```
+\code{.bash}
 git clone https://github.com/Project-OSRM/osrm-backend.git
 cd orsm-backend
 git checkout 8f18ba3 -b orsm-tools
@@ -66,7 +66,7 @@ cd build
 cmake ..
 pwd  # to get an appropriate path for 
 make  # remember to copy the link parameters needed for OSRMCLIENT_LIBS above
-```
+\endcode
 
 ### rapidjson
 
@@ -74,12 +74,12 @@ This is required if you have WITH_OSRMCLIENT set.
 
 Osrm returns data as json documents. We use rapidjson C++ library for parsing the json documents. It was not available as a package on our Ubuntu systems, so we installed it with the following commands. It is a header only library so there is nothing to compile and we just copy the directory tree into ``/usr/local/include/rapidjson``.
 
-```
+\code{.bash}
 git clone https://github.com/miloyip/rapidjson.git
 cd rapidjson
 git checkout master
 sudo rsync -a include/rapidjson /usr/local/include/.
-```
+\endcode
 
 ### google-glog
 
@@ -89,14 +89,14 @@ This is an application logging facility. If you use any of the options in the ma
 
 It can be found here: https://code.google.com/p/google-glog/
 
-```
+\code{.bash}
 wget https://code.google.com/p/google-glog/downloads/detail?name=glog-0.3.3.tar.gz
 tar xzf glog-0.3.3.tar.gz
 cd glog-0.3.3
 ./configure
 make
 sudo make install
-```
+\endcode
 
 NOTE: the make file assumes that this is installed in /usr/local/. If this is not the case please change ``Makefile``.
 
@@ -104,9 +104,9 @@ NOTE: the make file assumes that this is installed in /usr/local/. If this is no
 
 This is required if you have WITH_PLOT set in Makefile. On Ubuntu and Debian where can be installed from the system package mamager.
 
-```
+\code{.bash}
 sudo apt-get install libgd2-xpm libgd2-xpm-dev
-```
+\endcode
 
 
 
@@ -114,17 +114,17 @@ sudo apt-get install libgd2-xpm libgd2-xpm-dev
 
 With your extension built and installed as above. you can now create a database and add the extensions to it.
 
-```
+\code{.bash}
 createdb -U postgres -h localhost mytestdb
 psql -U postgres -h localhost mytestdb -c "create extension postgis"
 psql -U postgres -h localhost mytestdb -c "create extension vrptools"
-```
+\endcode
 
 If you built using the ``WITH_OSRM`` rather than the ``WITH_OSRMCLIENT``, then you will also need to load. This also presumes that you have downloaded and built the osrm-tools postgresql extension which can be found at: https://github.com/woodbri/osrm-tools/ in the postgresql directory.
 
-```
+\code{.bash}
 psql -U postgres -h localhost mytestdb -c "create extension osrm"
-```
+\endcode
 
 This function solves a trash collection problem with multiple hetrogeneous
 vehicles that can make multiple runs to a dump. The input is defined in
@@ -134,7 +134,7 @@ that are passed to the function as SQL queries.
 This example queries identifies the required column names for each table.
 More detailed information is below.
 
-```
+\code{.sql}
     SELECT seq, vehicle_id, node_id, node_type, delta_time, cargo
       FROM vrp_trashCollection(
         'select id, x, y, open, close, service, demand from containers',
@@ -143,7 +143,7 @@ More detailed information is below.
                 starttime, endtime from vehicles',
         'select from_id, to_id, ttime from ttimes'
         );
-```
+\endcode
 
 ## containers table
 
@@ -202,7 +202,7 @@ Given that most of the locations for an give locality are relatively static from
 
 Because these queries can take considerable time to run and there is a lot of complex relationships between the input, we have provided a query that analyzes the proposed query input and reports on data errors in the input. These need to be fixed before the query can be run.
 
-```
+\code{.sql}
     SELECT messages
       FROM vrp_trashCollectionCheck(
         'select id, x, y, open, close, service, demand from containers',
@@ -211,7 +211,7 @@ Because these queries can take considerable time to run and there is a lot of co
                 starttime, endtime from vehicles',
         'select from_id, to_id, ttime from ttimes'
         );
-```
+\endcode
 
 The checking follows this process:
 
