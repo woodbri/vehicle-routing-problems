@@ -24,11 +24,11 @@ Other requirments:
  * You need to have OSRM datastore running on the same host with OSM data
    for your coverage area. We are using a sharedmemory connection to that.
  * Follow the following to install rapidjson
-   ```
+   \code{.bash}
    git clone https://github.com/miloyip/rapidjson.git
    cd rapidjson
    sudo rsync -a include/* /usr/local/include/.
-   ``` 
+   \endcode
    Then in the Makefile, ensure -I/usr/local/include is included in CFLAGS
 
 INSTALLATION
@@ -36,19 +36,19 @@ INSTALLATION
 
 The installation is straight forward on Ubuntu:
 
-```
+\code{.bash}
 make
 sudo make install
-```
+\endcode
 
 This should build the extension and install it in your database server. To be able to access the functions you will need to create a database and create an extension.
 
-```
+\code{.bash}
 createdb -U postgres -h localhost mytestdb
 psql -U postgres -h localhost mytestdb -c "create extension postgis"
 psql -U postgres -h localhost mytestdb -c "create extension osrm"
 psql -U postgres -h localhost mytestdb -c "create extension vrptools"
-```
+\endcode
 
 Now you can load your data and will have access to the vrptools commands.
 
