@@ -139,6 +139,14 @@ int get_osrm_route_geom( float8 *lat, float8 *lon, int num, char **gtext,
 
 #endif
 
+    if (not osrm->getConnection()) {
+#ifdef DOVRPLOG
+        DLOG(INFO) << "in wrapper, OSRM connection is not available!";
+#endif
+        *err_msg = strdup( "OSRM connection is not available!" );
+        return -1;
+    }
+
     osrm->useOsrm( true );
     osrm->clear();
     osrm->setWantGeometryText( true );
