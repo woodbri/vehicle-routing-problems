@@ -116,3 +116,83 @@ int vrp_trash_collection( container_t *containers, unsigned int container_count,
 
   return EXIT_SUCCESS;
 }
+
+
+int get_osrm_route_geom( float8 *lat, float8 *lon, int num, char **gtext,
+          char **err_msg ) {
+
+  bool ret;
+
+  try {
+    // register the signal handler
+    REG_SIGINT
+
+#ifdef DOVRPLOG
+
+    if ( not google::IsGoogleLoggingInitialized() ) {
+      FLAGS_log_dir = "/tmp/";
+      google::InitGoogleLogging( "vrp_trash_collection" );
+      FLAGS_logtostderr = 0;
+      FLAGS_stderrthreshold = google::FATAL;
+      FLAGS_minloglevel = google::INFO;
+    }
+
+#endif
+
+    osrm->useOsrm( true );
+    osrm->clear();
+    osrm->setWantGeometryText( true );
+
+    for (int i=0; i<num; i++) {
+        osrm->addViaPoint(lat[i], lon[i]);
+#ifdef DOVRPLOG
+        DLOG(INFO) << i << "\t" << lat[i] << "\t" << lon[i];
+#endif
+    }
+
+    THROW_ON_SIGINT
+
+    std::string geom;
+
+    if (osrm->getOsrmViaroute()) {
+        // success
+        if (osrm->getOsrmGeometryText( geom )) {
+            *gtext = strdup( geom.c_str() );
+        }
+        else {
+#ifdef DOVRPLOG
+            DLOG(INFO) << "in wrapper, failed to extract geometry text!";
+#endif
+            *err_msg = strdup( "getOsrmViaroute failed to extract geometry text!" );
+            return -1;
+        }
+    }
+    else {
+#ifdef DOVRPLOG
+        DLOG(INFO) << "in wrapper, getOsrmViaroute failed to return a route!";
+#endif
+        *err_msg = strdup( "getOsrmViaroute failed to return a route!" );
+        return -1;
+    }
+
+
+  } catch ( std::exception &e ) {
+#ifdef DOVRPLOG
+    DLOG(INFO) << "in wrapper, caught exception: " << e.what();
+#endif
+    *err_msg = strdup( e.what() );
+    return -1;
+  } catch ( ... ) {
+#ifdef DOVRPLOG
+    DLOG(INFO) << "in wrapper, caught unknown expection!";
+#endif
+    *err_msg = strdup( "Caught unknown expection!" );
+    return -1;
+  }
+
+  *err_msg = (char *)0;
+
+  return EXIT_SUCCESS;
+}
+
+

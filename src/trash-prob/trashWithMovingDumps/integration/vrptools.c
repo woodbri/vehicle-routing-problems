@@ -17,7 +17,9 @@
 #include "executor/spi.h"
 #include "funcapi.h"
 #include "catalog/pg_type.h"
+#include "utils/array.h"
 #include "utils/builtins.h"
+#include "utils/lsyscache.h"
 
 #if PG_VERSION_NUM/100 > 902
 #include "access/htup_details.h"
@@ -32,6 +34,7 @@ PG_MODULE_MAGIC;
 
 Datum vrp_trash_collection_run( PG_FUNCTION_ARGS );
 Datum vrp_trash_collection_check( PG_FUNCTION_ARGS );
+Datum vrp_get_osrm_route_compressed_geom( PG_FUNCTION_ARGS );
 
 #undef DEBUG
 #define DEBUG 1
@@ -1009,7 +1012,7 @@ Datum vrp_trash_collection_check( PG_FUNCTION_ARGS ) {
                   text2char( PG_GETARG_TEXT_P( 2 ) ), // vehicles
                   text2char( PG_GETARG_TEXT_P( 3 ) ), // ttimes
                   PG_GETARG_INT32(4),                 // interation
-                  1,                                  // dont check
+                  1,                                  // check only
 
                   &result,
                   &result_count,
@@ -1034,5 +1037,144 @@ Datum vrp_trash_collection_check( PG_FUNCTION_ARGS ) {
      PG_RETURN_TEXT_P( cstring_to_text( pmsg ) );
 }
 
+/*----------------------------------------------------------------------*/
+/*  OSRM FUNCTIONS                                                      */
+/*----------------------------------------------------------------------*/
+
+#define DTYPE float8
+
+static DTYPE *get_pgarray(int *num, ArrayType *input)
+{
+    int         ndims, *dims, *lbs;
+    bool       *nulls;
+    Oid         i_eltype;
+    int16       i_typlen;
+    bool        i_typbyval;
+    char        i_typalign;
+    Datum      *i_data;
+    int         i, n;
+    DTYPE      *data;
+
+    /* get input array element type */
+    i_eltype = ARR_ELEMTYPE(input);
+    get_typlenbyvalalign(i_eltype, &i_typlen, &i_typbyval, &i_typalign);
 
 
+    /* validate input data type */
+    switch(i_eltype){
+    case INT2OID:
+    case INT4OID:
+    case FLOAT4OID:
+    case FLOAT8OID:
+            break;
+    default:
+            elog(ERROR, "Invalid input data type");
+            break;
+    }
+
+    /* get various pieces of data from the input array */
+    ndims = ARR_NDIM(input);
+    dims = ARR_DIMS(input);
+    lbs = ARR_LBOUND(input);
+
+    if (ndims != 1) {
+        elog(ERROR, "Error: array[num] in its definition.");
+    }
+
+    /* get src data */
+    deconstruct_array(input, i_eltype, i_typlen, i_typbyval, i_typalign,
+&i_data, &nulls, &n);
+
+    DBG("get_pgarray: ndims=%d, n=%d", ndims, n);
+
+#ifdef DEBUG
+    for (i=0; i<ndims; i++) {
+        DBG("   dims[%d]=%d, lbs[%d]=%d", i, dims[i], i, lbs[i]);
+    }
+#endif
+
+    /* construct a C array */
+    data = (DTYPE *) palloc(n * sizeof(DTYPE));
+    if (!data) {
+        elog(ERROR, "Error: Out of memory!");
+    }
+
+    for (i=0; i<n; i++) {
+        if (nulls[i]) {
+            data[i] = INFINITY;
+        }
+        else {
+            switch(i_eltype){
+                case INT2OID:
+                    data[i] = (DTYPE) DatumGetInt16(i_data[i]);
+                    break;
+                case INT4OID:
+                    data[i] = (DTYPE) DatumGetInt32(i_data[i]);
+                    break;
+                case FLOAT4OID:
+                    data[i] = (DTYPE) DatumGetFloat4(i_data[i]);
+                    break;
+                case FLOAT8OID:
+                    data[i] = (DTYPE) DatumGetFloat8(i_data[i]);
+                    break;
+            }
+        }
+        DBG("    data[%d]=%.4f", i, data[i]);
+    }
+
+    pfree(nulls);
+    pfree(i_data);
+
+    *num = dims[0];
+
+    return data;
+}
+
+
+
+/*
+ * select geomtext from vrp_getOsrmRouteCompressedGeom(lat float8[], lon float8[]);
+ *
+*/
+
+PG_FUNCTION_INFO_V1( vrp_get_osrm_route_compressed_geom );
+Datum vrp_get_osrm_route_compressed_geom( PG_FUNCTION_ARGS ) {
+    float8  *lat;
+    float8  *lon;
+    int      numlat;
+    int      numlon;
+    char    *gtext = NULL;
+    int      ret = -1;
+    char    *ptext;
+    char    *err_msg;
+
+    DBG("Calling get_pgarray() for lat and lon.");
+
+    lat = get_pgarray(&numlat, PG_GETARG_ARRAYTYPE_P(0));
+    lon = get_pgarray(&numlon, PG_GETARG_ARRAYTYPE_P(1));
+
+    if (numlat != numlon && numlat <= 0) {
+        elog(ERROR, "Error, lat and lon must be arrays of equal length and be greater than 1 in length!");
+    }
+
+    DBG("Calling get_osrm_route_geom()");
+
+    ret = get_osrm_route_geom(lat, lon, numlat, &gtext, &err_msg);
+
+    DBG("Returned with ret=%d", ret);
+
+    if (ret < 0 ) {
+        elog(ERROR, "Error getting route geometry from OSRM, %s", err_msg);
+    }
+
+    if (gtext == NULL) {
+        elog(ERROR, "OSRM failed to return the route!");
+    }
+
+    DBG("strlen(gtext) = %d", (int) strlen(gtext));
+    
+    ptext = pstrdup( gtext );
+    free( gtext );
+
+    PG_RETURN_TEXT_P( cstring_to_text( ptext ) );
+}

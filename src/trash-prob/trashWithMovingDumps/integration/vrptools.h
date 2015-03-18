@@ -47,4 +47,15 @@ int vrp_trash_collection (
   char **data_err_msg
 );
 
+#ifdef __cplusplus
+extern "C"
+#endif
+
+int get_osrm_route_geom(
+  float8 *lat,
+  float8 *lon,
+  int num,
+  char **gtext,
+  char **err_msg
+);
 #endif
