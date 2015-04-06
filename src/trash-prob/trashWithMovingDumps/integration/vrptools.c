@@ -1119,7 +1119,7 @@ static DTYPE *get_pgarray(int *num, ArrayType *input)
                     break;
             }
         }
-        DBG("    data[%d]=%.4f", i, data[i]);
+        //DBG("    data[%d]=%.4f", i, data[i]);
     }
 
     pfree(nulls);
@@ -1167,7 +1167,7 @@ Datum vrp_get_osrm_route_compressed_geom( PG_FUNCTION_ARGS ) {
         elog(ERROR, "Error getting route geometry from OSRM, %s", err_msg);
     }
 
-    if (gtext == NULL) {
+    if (gtext == NULL || strlen(gtext)==0) {
         elog(ERROR, "OSRM failed to return the route!");
     }
 

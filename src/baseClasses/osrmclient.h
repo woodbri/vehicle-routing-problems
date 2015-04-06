@@ -120,6 +120,7 @@ public:
   int getStatus() const { return status; };
   int getConnection() const { return connectionAvailable; };
   std::string getErrorMsg() const { return err_msg; };
+  std::string getHttpContent() const { return httpContent; };
   bool testOsrmClient();
 
 private:

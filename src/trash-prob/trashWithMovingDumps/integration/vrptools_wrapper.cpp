@@ -26,9 +26,17 @@
 #include "logger.h"
 #endif
 
+#ifdef OSRMCLIENT
+#include "osrmclient.h"
+#endif
+
 #include "trashprob.h"
 #include "feasableSolLoop.h"
 #include "tabuopt.h"
+
+//#define PGR_LOGGER_ON
+#include "./minilog.h"
+
 
 int vrp_trash_collection( container_t *containers, unsigned int container_count,
                           otherloc_t *otherlocs, unsigned int otherloc_count,
@@ -121,6 +129,7 @@ int vrp_trash_collection( container_t *containers, unsigned int container_count,
 int get_osrm_route_geom( float8 *lat, float8 *lon, int num, char **gtext,
           char **err_msg ) {
 
+#ifdef OSRMCLIENT
   bool ret;
 
   try {
@@ -135,19 +144,28 @@ int get_osrm_route_geom( float8 *lat, float8 *lon, int num, char **gtext,
       FLAGS_logtostderr = 0;
       FLAGS_stderrthreshold = google::FATAL;
       FLAGS_minloglevel = google::INFO;
+      PGR_LOG("Initializing InitGoogleLogging");
     }
 
 #endif
+
+    DLOG(INFO) << "Called get_osrm_route_geom";
+    PGR_LOG("Called get_osrm_route_geom");
+
+    osrm->useOsrm( true );
+
+    std::string err = osrm->getErrorMsg();
+    PGR_LOG( err.c_str() );
 
     if (not osrm->getConnection()) {
 #ifdef DOVRPLOG
         DLOG(INFO) << "in wrapper, OSRM connection is not available!";
 #endif
+        PGR_LOG("in wrapper, OSRM connection is not available!");
         *err_msg = strdup( "OSRM connection is not available!" );
         return -1;
     }
 
-    osrm->useOsrm( true );
     osrm->clear();
     osrm->setWantGeometryText( true );
 
@@ -164,6 +182,7 @@ int get_osrm_route_geom( float8 *lat, float8 *lon, int num, char **gtext,
 
     if (osrm->getOsrmViaroute()) {
         // success
+        PGR_LOG( osrm->getHttpContent().c_str() );
         if (osrm->getOsrmGeometryText( geom )) {
             *gtext = strdup( geom.c_str() );
         }
@@ -201,6 +220,10 @@ int get_osrm_route_geom( float8 *lat, float8 *lon, int num, char **gtext,
   *err_msg = (char *)0;
 
   return EXIT_SUCCESS;
+#else   // OSRMCLIENT
+  *err_msg = strdup( "OSRM was not complied into this extension!" );
+  return -1;
+#endif  // OSRMCLIENT
 }
 
 
