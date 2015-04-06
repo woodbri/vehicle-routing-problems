@@ -26,9 +26,17 @@
 #include "logger.h"
 #endif
 
+#ifdef OSRMCLIENT
+#include "osrmclient.h"
+#endif
+
 #include "trashprob.h"
 #include "feasableSolLoop.h"
 #include "tabuopt.h"
+
+//#define PGR_LOGGER_ON
+#include "./minilog.h"
+
 
 int vrp_trash_collection( container_t *containers, unsigned int container_count,
                           otherloc_t *otherlocs, unsigned int otherloc_count,
@@ -116,3 +124,106 @@ int vrp_trash_collection( container_t *containers, unsigned int container_count,
 
   return EXIT_SUCCESS;
 }
+
+
+int get_osrm_route_geom( float8 *lat, float8 *lon, int num, char **gtext,
+          char **err_msg ) {
+
+#ifdef OSRMCLIENT
+  bool ret;
+
+  try {
+    // register the signal handler
+    REG_SIGINT
+
+#ifdef DOVRPLOG
+
+    if ( not google::IsGoogleLoggingInitialized() ) {
+      FLAGS_log_dir = "/tmp/";
+      google::InitGoogleLogging( "vrp_trash_collection" );
+      FLAGS_logtostderr = 0;
+      FLAGS_stderrthreshold = google::FATAL;
+      FLAGS_minloglevel = google::INFO;
+      PGR_LOG("Initializing InitGoogleLogging");
+    }
+
+#endif
+
+    DLOG(INFO) << "Called get_osrm_route_geom";
+    PGR_LOG("Called get_osrm_route_geom");
+
+    osrm->useOsrm( true );
+
+    std::string err = osrm->getErrorMsg();
+    PGR_LOG( err.c_str() );
+
+    if (not osrm->getConnection()) {
+#ifdef DOVRPLOG
+        DLOG(INFO) << "in wrapper, OSRM connection is not available!";
+#endif
+        PGR_LOG("in wrapper, OSRM connection is not available!");
+        *err_msg = strdup( "OSRM connection is not available!" );
+        return -1;
+    }
+
+    osrm->clear();
+    osrm->setWantGeometryText( true );
+
+    for (int i=0; i<num; i++) {
+        osrm->addViaPoint(lat[i], lon[i]);
+#ifdef DOVRPLOG
+        DLOG(INFO) << i << "\t" << lat[i] << "\t" << lon[i];
+#endif
+    }
+
+    THROW_ON_SIGINT
+
+    std::string geom;
+
+    if (osrm->getOsrmViaroute()) {
+        // success
+        PGR_LOG( osrm->getHttpContent().c_str() );
+        if (osrm->getOsrmGeometryText( geom )) {
+            *gtext = strdup( geom.c_str() );
+        }
+        else {
+#ifdef DOVRPLOG
+            DLOG(INFO) << "in wrapper, failed to extract geometry text!";
+#endif
+            *err_msg = strdup( "getOsrmViaroute failed to extract geometry text!" );
+            return -1;
+        }
+    }
+    else {
+#ifdef DOVRPLOG
+        DLOG(INFO) << "in wrapper, getOsrmViaroute failed to return a route!";
+#endif
+        *err_msg = strdup( "getOsrmViaroute failed to return a route!" );
+        return -1;
+    }
+
+
+  } catch ( std::exception &e ) {
+#ifdef DOVRPLOG
+    DLOG(INFO) << "in wrapper, caught exception: " << e.what();
+#endif
+    *err_msg = strdup( e.what() );
+    return -1;
+  } catch ( ... ) {
+#ifdef DOVRPLOG
+    DLOG(INFO) << "in wrapper, caught unknown expection!";
+#endif
+    *err_msg = strdup( "Caught unknown expection!" );
+    return -1;
+  }
+
+  *err_msg = (char *)0;
+
+  return EXIT_SUCCESS;
+#else   // OSRMCLIENT
+  *err_msg = strdup( "OSRM was not complied into this extension!" );
+  return -1;
+#endif  // OSRMCLIENT
+}
+
+

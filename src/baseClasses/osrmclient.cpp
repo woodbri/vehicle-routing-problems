@@ -116,6 +116,7 @@ void OsrmClient::clear()
   route_parameters.coordinates.clear();
   route_parameters.hints.clear();
   route_parameters.geometry = false;
+  route_parameters.compression = false;
   httpContent = "";
   err_msg = "";
 
@@ -517,6 +518,45 @@ bool OsrmClient::getOsrmGeometry( std::deque<Node> &geom )
   return true;
 }
 
+
+bool OsrmClient::getOsrmGeometryText( std::string &geomText )
+{
+  if ( not connectionAvailable ) return false;
+
+  if ( not use ) return false;
+
+#ifdef DOSTATS
+  Timer timer;
+  STATS->inc( "OsrmClient::getOsrmGeometry (does the work) " );
+#endif
+
+  if ( status != 1 or httpContent.size() == 0 ) {
+    err_msg = "OsrmClient::getOsrmGeometry does not have a valid OSRM response!";
+#ifdef DOSTATS
+    STATS->inc( err_msg );
+#endif
+    return false;
+}
+
+  rapidjson::Document jsondoc;
+  jsondoc.Parse( httpContent.c_str() );
+
+  if ( jsondoc.HasParseError() ) {
+    err_msg = "OsrmClient:getOsrmGeometry invalid json document in OSRM response!";
+#ifdef DOSTATS
+    STATS->inc( err_msg );
+#endif
+    return false;
+  }
+
+  if ( not getGeomText( jsondoc, geomText ) ) {
+    return false;
+  }
+
+  return true;
+}
+
+
 bool OsrmClient::getOsrmHints( std::deque<std::string> &hints )
 {
   if ( not connectionAvailable ) return false;
@@ -705,6 +745,34 @@ bool OsrmClient::getGeom( rapidjson::Document &jsondoc,
 
   return true;
 }
+
+
+/*!
+ * \brief Parse the actual json document and extract the geometry text
+ * \param[in] jsondoc The json parse tree pointer.
+ * \param[out] geomText A std::string which it the compressed geometry
+ * \return True if an error and err_msg will be set. False otherwise.
+ */
+bool OsrmClient::getGeomText( rapidjson::Document &jsondoc,
+                          std::string &geomText )
+{
+  if ( not connectionAvailable ) return false;
+
+  if ( not jsondoc.HasMember("route_geometry") and
+       not jsondoc["route_geometry"].IsString() ) {
+    err_msg = "OsrmClient:getGeomText failed to find 'geometry' key in OSRM response!";
+#ifdef DOSTATS
+    STATS->inc( err_msg );
+#endif
+    return false;
+  }
+
+  // find the route 'geometry' key in the response
+  geomText = jsondoc["route_geometry"].GetString();
+
+  return true;
+}
+
 
 bool OsrmClient::getHints( rapidjson::Document &jsondoc,
                            std::deque<std::string> &hints )

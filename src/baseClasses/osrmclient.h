@@ -89,7 +89,16 @@ public:
    *
    * \param[in] want True or False if you want the geometry returned.
    */
-  void setWantGeometry( bool want ) { route_parameters.geometry = want; };
+  void setWantGeometry( bool want )
+  {
+    route_parameters.geometry = want;
+    route_parameters.compression = false;
+  };
+  void setWantGeometryText( bool want )
+  {
+    route_parameters.geometry = want;
+    route_parameters.compression = true;
+  };
   void usePenalty( bool desition ) { addPenalty = desition; };
   bool getPenalty() const { return addPenalty; };
   void useOsrm( bool desition ) { use = desition; };
@@ -106,15 +115,18 @@ public:
                     const Node &node4, double &time );
   bool getOsrmTime( double &time );
   bool getOsrmGeometry( std::deque<Node> &geom );
+  bool getOsrmGeometryText( std::string &geomText );
   bool getOsrmHints( std::deque<std::string> &hints );
   int getStatus() const { return status; };
   int getConnection() const { return connectionAvailable; };
   std::string getErrorMsg() const { return err_msg; };
+  std::string getHttpContent() const { return httpContent; };
   bool testOsrmClient();
 
 private:
   bool getTime( rapidjson::Document &jtree, double &time );
   bool getGeom( rapidjson::Document &jtree, std::deque<Node> &geom );
+  bool getGeomText( rapidjson::Document &jtree, std::string &geomText );
   bool getHints( rapidjson::Document &jtree, std::deque<std::string> &hints );
   bool getOsrmPenalty( double &penalty );
   bool getPenalty( rapidjson::Document &jtree, double &penalty );

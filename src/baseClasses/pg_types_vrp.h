@@ -25,6 +25,8 @@
  * The structures defined in this file define the data structures being passed.
  */
 
+typedef double float8;
+
 // input data model
 
 typedef struct container_ {
