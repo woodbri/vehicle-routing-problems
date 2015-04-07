@@ -30,7 +30,6 @@
 #include "stats.h"
 #endif
 
-
 OsrmClient *OsrmClient::p_osrm = NULL;
 OSRM *OsrmClient::routing_machine = NULL;
 bool OsrmClient::connectionAvailable = true;
@@ -118,6 +117,7 @@ void OsrmClient::clear()
 #ifdef DOSTATS
   Timer timer;
 #endif
+
   route_parameters.coordinates.clear();
   route_parameters.hints.clear();
   route_parameters.geometry = false;
@@ -713,6 +713,11 @@ bool OsrmClient::getTime( double &time )
   //time = ( double ) jsondoc["route_summary"]["total_time"].GetDouble() / 60.0;
   osrm::json::Number n = mapbox::util::get< osrm::json::Number >( total_time.values["total_time"] );
   time = n.value / 60.0;
+
+#ifdef OSRMCLIENTTRACE
+  DLOG( INFO ) << "OsrmClient:getTime - time: " << time << " min\n";
+#endif
+
   double penalty;
 
   if ( addPenalty and getPenalty( penalty ) ) time += penalty;
@@ -752,6 +757,11 @@ bool OsrmClient::getGeom( std::deque<Node> &geom )
     osrm::json::Number xn = mapbox::util::get< osrm::json::Number > ( elem_arr.values[1] );
     osrm::json::Number yn = mapbox::util::get< osrm::json::Number > ( elem_arr.values[0] );
     Node n( xn.value, yn.value );
+
+#ifdef OSRMCLIENTTRACE
+  DLOG( INFO ) << "OsrmClient:getGeom - geom: (" << xn.value << "," << yn.value << ")\n";
+#endif
+
     geom.push_back( n );
   }
 
@@ -782,6 +792,11 @@ bool OsrmClient::getGeomText( std::string &geomText )
   // "route_geometry" = [[lat,lon],[lat,lon], ... ]
   osrm::json::String osrm_str = mapbox::util::get< osrm::json::String > ( osrm_reply.values["route_geometry"] );
   geomText = osrm_str.value;
+
+#ifdef OSRMCLIENTTRACE
+  DLOG( INFO ) << "OsrmClient:getGeomText- geom: " << geomText << "\n";
+#endif
+
   return true;
 }
 

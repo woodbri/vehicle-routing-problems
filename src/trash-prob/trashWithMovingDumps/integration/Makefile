@@ -28,17 +28,17 @@ BIN_DIR = ./bin
 # setting NO_TRACE = <something>  invalidates the other traces
 NO_TRACE =
 TRACE_MIN = yes
-TRACE_ALL =
+TRACE_ALL = 
 
 ifeq ("$(NO_TRACE)", "")
   ifeq ("$(TRACE_ALL)", "")
     ifeq ("$(TRACE_MIN)", "")
       TRACE_CFLAGS =
     else
-      TRACE_CFLAGS = -DVRPMINTRACE
+      TRACE_CFLAGS = -DVRPMINTRACE -DOSRMCLIENTTRACE
     endif
   else
-    TRACE_CFLAGS = -DVRPMINTRACE -DVRPMAXTRACE
+    TRACE_CFLAGS = -DVRPMINTRACE -DVRPMAXTRACE -DOSRMCLIENTTRACE
   endif
 else
   TRACE_CFLAGS =
@@ -132,7 +132,7 @@ else
 OSRMCLIENT_HEADER =$(BASECLASSES_DIR)/osrmclient.h
 OSRMCLIENT_CFLAGS = -std=c++11 -DOSRMCLIENT -I$(OSRMBACKEND_DIR)
 OSRMCLIENT_LIBS = -L/usr/local/lib -lboost_filesystem -lboost_iostreams -lboost_program_options -lboost_regex \
-	-lboost_system -lboost_thread -lpthread -lOSRM -lUUID -lGITDESCRIPTION -lz -lrt \
+	-lboost_system -lboost_thread -lpthread -lOSRM -lz -lrt \
 	-lboost_filesystem -lboost_iostreams -lboost_program_options -lboost_regex -lboost_system -lboost_thread -lpthread -lstxxl
 endif
 
