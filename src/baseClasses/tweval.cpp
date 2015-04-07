@@ -72,7 +72,7 @@ void Tweval::evaluate(const Tweval &pred, double cargoLimit) {
 
 #ifdef OSRMCLIENT
 void Tweval::evaluateOsrm(const Tweval &pred, double cargoLimit) {
-  if (!osrm->getConnection() || !osrm->getUse() ) {
+  if (!osrmi->getConnection() || !osrmi->getUse() ) {
     #ifdef VRPMINTRACE
     DLOG(INFO)<<"No connection found: using normal evaluation";
     #endif
@@ -83,9 +83,9 @@ void Tweval::evaluateOsrm(const Tweval &pred, double cargoLimit) {
   #ifdef VRPMINTRACE
   DLOG(INFO)<<"Connection found: forcing OSRM evaluation";
   #endif
-  osrm->addViaPoint(*this);
+  osrmi->addViaPoint(*this);
   double totalTime;
-  if (!osrm->getOsrmTime(totalTime)) {
+  if (!osrmi->getOsrmTime(totalTime)) {
     #ifdef VRPMINTRACE
     DLOG(INFO)<<"Something went wrong getting the time: using normal evaluation";
     #endif
