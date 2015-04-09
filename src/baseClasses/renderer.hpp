@@ -13,7 +13,6 @@
 
 #include <osrm/json_container.hpp>
 
-
 struct Renderer : mapbox::util::static_visitor<>
 {
   Renderer(std::ostream& _out) : out(_out) {}

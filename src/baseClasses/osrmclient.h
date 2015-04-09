@@ -22,8 +22,6 @@
 #include <osrm/route_parameters.hpp>
 #include <osrm/json_container.hpp>
 
-#include "renderer.hpp"
-
 #ifdef DOVRPLOG
 #include "logger.h"
 #endif
@@ -38,6 +36,7 @@
 
 #include "timer.h"
 #include "stats.h"
+
 
 /*! \class OsrmClient
  * \brief This class provides a shared memory connection to OSRM.
@@ -58,11 +57,13 @@ class OsrmClient
 
 private:
 
-  RouteParameters route_parameters;       ///< The OSRM request structure
-  int status;                             ///< Current state of the object
-  std::string err_msg;                    ///< An error message if an error is reported.
-  osrm::json::Object osrm_reply;          ///<  osrm response variant values
-  static bool connectionAvailable;        ///< once set to false, it doesnt try to make a connection
+  RouteParameters route_parameters;   ///< The OSRM request structure
+  int status;                         ///< Current state of the object
+  std::string
+  err_msg;                ///< An error message if an error is reported.
+  std::string httpContent;            ///< the json response document
+  static bool
+  connectionAvailable;           ///< once set to false, it doesnt try to make a connection
   static OSRM  *routing_machine;
   static OsrmClient *p_osrm;
   OsrmClient();
@@ -122,17 +123,16 @@ public:
   int getStatus() const { return status; };
   int getConnection() const { return connectionAvailable; };
   std::string getErrorMsg() const { return err_msg; };
-  // RFPV - TODO
-  std::string getHttpContent() const { return ""; };
+  std::string getHttpContent() const { return httpContent; };
   bool testOsrmClient();
 
 private:
-  bool getTime( double &time );
-  bool getGeom( std::deque<Node> &geom );
-  bool getGeomText( std::string &geomText );
-  bool getHints( std::deque<std::string> &hints );
+  bool getTime( rapidjson::Document &jtree, double &time );
+  bool getGeom( rapidjson::Document &jtree, std::deque<Node> &geom );
+  bool getGeomText( rapidjson::Document &jtree, std::string &geomText );
+  bool getHints( rapidjson::Document &jtree, std::deque<std::string> &hints );
   bool getOsrmPenalty( double &penalty );
-  bool getPenalty( double &penalty );
+  bool getPenalty( rapidjson::Document &jtree, double &penalty );
 
 public:
 #ifdef DOVRPLOG
@@ -140,8 +140,8 @@ public:
     DLOG( INFO ) << "----- OsrmClient ----------"
                  << "\nstatus: " << status
                  << "\nerr_msg: " << err_msg
-                 << "\ncoordinates.size(): " << route_parameters.coordinates.size();
-                 //<< "\nhttpContent: " << httpContent;
+                 << "\ncoordinates.size(): " << route_parameters.coordinates.size()
+                 << "\nhttpContent: " << httpContent;
   };
 #endif
 };

@@ -13,14 +13,10 @@
  ********************************************************************VRP*/
 #include <osrm/osrm.hpp>
 #include <osrm/libosrm_config.hpp>
-
+#include "renderer.hpp"
 
 #include <climits>
 #include <sstream>
-#include <ostream>
-
-#include <iostream>
-#include <fstream>
 #include <string>
 
 #ifdef DOVRPLOG
@@ -108,8 +104,6 @@ OsrmClient::OsrmClient()
 #endif
 }
 
-
-
 /*!
  * \brief Clear out any old points and reset the OsrmClient to a clean state.
  */
@@ -122,13 +116,11 @@ void OsrmClient::clear()
 #ifdef DOSTATS
   Timer timer;
 #endif
-
   route_parameters.coordinates.clear();
   route_parameters.hints.clear();
   route_parameters.geometry = false;
   route_parameters.compression = false;
-  // C++11 only
-  osrm_reply = {};
+  httpContent = "";
   err_msg = "";
 
   if ( status > 0 ) status = 0;
@@ -310,11 +302,9 @@ bool OsrmClient::getOsrmTime( const Node &node1, const Node &node2,
   return false;
 }
 
-
-
 /*!
  * \brief Connect to the OSRM engine, issue the request and save the json response back in the object.
- * \return True if an error happened and err_msg will be set. False if ok.
+ * \return False if an error happened and err_msg will be set. True if ok.
  */
 bool OsrmClient::getOsrmViaroute()
 {
@@ -348,10 +338,11 @@ bool OsrmClient::getOsrmViaroute()
   }
 
   err_msg = "";
-  osrm_reply = {};
+  //http::Reply osrm_reply;
+  osrm::json::Object json_result;
 
   try {
-    routing_machine->RunQuery( route_parameters, osrm_reply );
+    routing_machine->RunQuery( route_parameters, json_result );
   } catch ( std::exception &e ) {
     err_msg = std::string( "OsrmClient:getOsrmViaRoute caught exception: " )
               + e.what();
@@ -364,6 +355,12 @@ bool OsrmClient::getOsrmViaroute()
     return false;
   }
 
+  httpContent = "";
+
+  std::stringstream tmp_ss;
+  tmp_ss << json_result;
+  httpContent = tmp_ss.str();
+
   status = 1;
 #ifdef DOSTATS
   STATS->addto( "OsrmClient::getOsrmViaRoute (does the work) Cumulative time",
@@ -371,7 +368,6 @@ bool OsrmClient::getOsrmViaroute()
 #endif
   return true;
 }
-
 
 /*!
  * \brief Get the OSRM travel time for the requested route.
@@ -389,7 +385,7 @@ bool OsrmClient::getOsrmTime( double &time )
   STATS->inc( "OsrmClient::getOsrmTime (does the work)" );
 #endif
 
-  if ( status != 1 or osrm_reply.values.size() == 0 ) {
+  if ( status != 1 or httpContent.size() == 0 ) {
     err_msg = "OsrmClient:getOsrmTime does not have a valid OSRM response!";
 #ifdef DOSTATS
     STATS->inc( err_msg );
@@ -399,7 +395,6 @@ bool OsrmClient::getOsrmTime( double &time )
     return false;
   }
 
-  /*
   rapidjson::Document jsondoc;
   jsondoc.Parse( httpContent.c_str() );
 
@@ -412,9 +407,8 @@ bool OsrmClient::getOsrmTime( double &time )
 #endif
     return false;
   }
-  */
 
-  if ( not getTime( time ) ) {
+  if ( not getTime( jsondoc, time ) ) {
 #ifdef DOSTATS
     STATS->addto( "OsrmClient::getOsrmTime (errors) Cumulative time:",
                   timer.duration() );
@@ -440,7 +434,7 @@ bool OsrmClient::getOsrmPenalty( double &penalty )
   STATS->inc( "OsrmClient::getOsrmTurns" );
 #endif
 
-  if ( status != 1 or osrm_reply.values.size() == 0 ) {
+  if ( status != 1 or httpContent.size() == 0 ) {
     err_msg = "OsrmClient:getOsrmTurns does not have a valid OSRM response!";
 #ifdef DOSTATS
     STATS->inc( err_msg );
@@ -450,7 +444,6 @@ bool OsrmClient::getOsrmPenalty( double &penalty )
     return false;
   }
 
-  /*
   rapidjson::Document jsondoc;
   jsondoc.Parse( httpContent.c_str() );
 
@@ -463,9 +456,8 @@ bool OsrmClient::getOsrmPenalty( double &penalty )
 #endif
     return false;
   }
-  */
 
-  if ( not getPenalty( penalty ) ) {
+  if ( not getPenalty( jsondoc, penalty ) ) {
 #ifdef DOSTATS
     STATS->addto( "OsrmClient::getOsrmTurns (interface) Cumultaive time:",
                   timer.duration() );
@@ -497,7 +489,7 @@ bool OsrmClient::getOsrmGeometry( std::deque<Node> &geom )
   STATS->inc( "OsrmClient::getOsrmGeometry (does the work) " );
 #endif
 
-  if ( status != 1 or osrm_reply.values.size() == 0 ) {
+  if ( status != 1 or httpContent.size() == 0 ) {
     err_msg = "OsrmClient::getOsrmGeometry does not have a valid OSRM response!";
 #ifdef DOSTATS
     STATS->inc( err_msg );
@@ -505,7 +497,6 @@ bool OsrmClient::getOsrmGeometry( std::deque<Node> &geom )
     return false;
   }
 
-  /*
   rapidjson::Document jsondoc;
   jsondoc.Parse( httpContent.c_str() );
 
@@ -516,9 +507,8 @@ bool OsrmClient::getOsrmGeometry( std::deque<Node> &geom )
 #endif
     return false;
   }
-  */
 
-  if ( not getGeom( geom ) ) {
+  if ( not getGeom( jsondoc, geom ) ) {
     return false;
   }
 
@@ -537,7 +527,7 @@ bool OsrmClient::getOsrmGeometryText( std::string &geomText )
   STATS->inc( "OsrmClient::getOsrmGeometry (does the work) " );
 #endif
 
-  if ( status != 1 or osrm_reply.values.size() == 0 ) {
+  if ( status != 1 or httpContent.size() == 0 ) {
     err_msg = "OsrmClient::getOsrmGeometry does not have a valid OSRM response!";
 #ifdef DOSTATS
     STATS->inc( err_msg );
@@ -545,7 +535,6 @@ bool OsrmClient::getOsrmGeometryText( std::string &geomText )
     return false;
 }
 
-  /*
   rapidjson::Document jsondoc;
   jsondoc.Parse( httpContent.c_str() );
 
@@ -556,9 +545,8 @@ bool OsrmClient::getOsrmGeometryText( std::string &geomText )
 #endif
     return false;
   }
-  */
 
-  if ( not getGeomText( geomText ) ) {
+  if ( not getGeomText( jsondoc, geomText ) ) {
     return false;
   }
 
@@ -577,7 +565,7 @@ bool OsrmClient::getOsrmHints( std::deque<std::string> &hints )
   STATS->inc( "OsrmClient::getOsrmHint (interface) " );
 #endif
 
-  if ( status != 1 or osrm_reply.values.size() == 0 ) {
+  if ( status != 1 or httpContent.size() == 0 ) {
     err_msg = "OsrmClient::getOsrmHint (interface) does not have a valid OSRM response!";
 #ifdef DOSTATS
     STATS->inc( err_msg );
@@ -585,7 +573,6 @@ bool OsrmClient::getOsrmHints( std::deque<std::string> &hints )
     return false;
   }
 
-  /*
   rapidjson::Document jsondoc;
   jsondoc.Parse( httpContent.c_str() );
 
@@ -596,9 +583,8 @@ bool OsrmClient::getOsrmHints( std::deque<std::string> &hints )
 #endif
     return false;
   }
-  */
 
-  if ( not getHints( hints ) ) {
+  if ( not getHints( jsondoc, hints ) ) {
     return false;
   }
 
@@ -682,19 +668,19 @@ bool OsrmClient::testOsrmClient()
 
 
 // --------- private ----------------
+
+
 /*!
  * \brief Parse the actual json document and extract the OSRM Travel time.
+ * \param[in] jsondoc The json parse tree pointer.
  * \param[out] time The OSRM travel time as decimal minutes.
- * \return False if an error and err_msg will be set. False otherwise.
+ * \return True if an error and err_msg will be set. False otherwise.
  */
-bool OsrmClient::getTime( double &time )
+bool OsrmClient::getTime( rapidjson::Document &jsondoc, double &time )
 {
   if ( not connectionAvailable ) return false;
 
-  // find 'route_summary'
-  auto got_rs = osrm_reply.values.find("route_summary");
-
-  if ( got_rs == osrm_reply.values.end() ) {
+  if ( not jsondoc.HasMember( "route_summary" ) ) {
     err_msg = "OsrmClient:getTime failed to find 'route_summary' key in OSRM response!";
 #ifdef DOSTATS
     STATS->inc( err_msg );
@@ -703,10 +689,7 @@ bool OsrmClient::getTime( double &time )
   }
 
   // find the 'total_time' in the 'route_summary'
-  osrm::json::Object total_time = mapbox::util::get< osrm::json::Object >( osrm_reply.values["route_summary"] );
-  auto got_tt = total_time.values.find("total_time");
-
-  if ( got_tt == total_time.values.end() ) {
+  if ( not jsondoc["route_summary"].HasMember( "total_time" ) ) {
     err_msg = "OsrmClient:getTime failed to find 'total_time' key in OSRM response!";
 #ifdef DOSTATS
     STATS->inc( err_msg );
@@ -715,37 +698,24 @@ bool OsrmClient::getTime( double &time )
   }
 
   // extract the total_time and convert from seconds to minutes
-  //time = ( double ) jsondoc["route_summary"]["total_time"].GetDouble() / 60.0;
-  osrm::json::Number n = mapbox::util::get< osrm::json::Number >( total_time.values["total_time"] );
-  time = n.value / 60.0;
+  time = ( double ) jsondoc["route_summary"]["total_time"].GetDouble() / 60.0;
 
 #ifdef OSRMCLIENTTRACE
-  DLOG( INFO ) << "OsrmClient:getTime - time: " << time << " min\n";
-  std::ofstream out("/tmp/out.txt", std::fstream::app);
-  std::streambuf *coutbuf = std::cout.rdbuf();      //save old buf
-  std::cout.rdbuf(out.rdbuf());                     //redirect std::cout to out.txt!
-  std::cout << osrm_reply << std::endl;
-  std::cout.rdbuf(coutbuf);                         //reset to standard output again
-
   /*
-  std::ostream& moss = std::ostream();
-  moss << osrm_reply;
-  std::stringstream ss;
-  ss << moss.rdbuf();
-  std::string str =  ss.str();
-  const char* chr = str.c_str();
-  DLOG( INFO ) << "OsrmClient:getTime - str: " << chr << "\n";
-
-  //std::ostream& moss = std::stringstream();
-  std::ostream& moss = std::cout;
-  std::cout << osrm_reply << std::endl;;
-  std::stringstream ss;
+  DLOG( INFO ) << "OsrmClient:getTime - json: " << httpContent << std::endl;
+  DLOG( INFO ) << "OsrmClient:getTime - time: " << time << " min" << std::endl;
   */
 #endif
 
   double penalty;
 
-  if ( addPenalty and getPenalty( penalty ) ) time += penalty;
+  if ( addPenalty and getPenalty( jsondoc, penalty ) ) time += penalty;
+
+#ifdef OSRMCLIENTTRACE
+  /*
+  DLOG( INFO ) << "OsrmClient:getTime - time + penalty: " << time << " min" << std::endl;
+  */
+#endif
 
   return true;
 }
@@ -753,40 +723,34 @@ bool OsrmClient::getTime( double &time )
 
 /*!
  * \brief Parse the actual json document and extract the geometry Nodes
+ * \param[in] jsondoc The json parse tree pointer.
  * \param[out] geom A std::deque<Node> with each point in the path.
- * \return False if an error and err_msg will be set. False otherwise.
+ * \return True if an error and err_msg will be set. False otherwise.
  */
-bool OsrmClient::getGeom( std::deque<Node> &geom )
+bool OsrmClient::getGeom( rapidjson::Document &jsondoc,
+                          std::deque<Node> &geom )
 {
   if ( not connectionAvailable ) return false;
 
   // clear the path
   geom.clear();
 
-  // find the 'route_geometry' key in the response
-  auto got_rg = osrm_reply.values.find("route_geometry");
+  // find the route 'geometry' key in the response
+  const rapidjson::Value &jgeom = jsondoc["route_geometry"];
 
-  if ( got_rg == osrm_reply.values.end() ) {
-    err_msg = "OsrmClient:getGeom failed to find 'route_geometry' key in OSRM response!";
+  if ( not jgeom.IsArray() ) {
+    err_msg = "OsrmClient:getGeom failed to find 'geometry' key in OSRM response!";
 #ifdef DOSTATS
     STATS->inc( err_msg );
 #endif
     return false;
   }
 
-  // "route_geometry" = [[lat,lon],[lat,lon], ... ]
-  osrm::json::Array rg_arr = mapbox::util::get< osrm::json::Array > ( osrm_reply.values["route_geometry"] );
+  for ( rapidjson::Value::ConstValueIterator itr = jgeom.Begin();
+        itr != jgeom.End(); ++itr ) {
 
-  for (auto it = rg_arr.values.begin() ; it != rg_arr.values.end(); ++it) {
-    osrm::json::Array elem_arr = mapbox::util::get< osrm::json::Array > ( (*it) );
-    osrm::json::Number xn = mapbox::util::get< osrm::json::Number > ( elem_arr.values[1] );
-    osrm::json::Number yn = mapbox::util::get< osrm::json::Number > ( elem_arr.values[0] );
-    Node n( xn.value, yn.value );
-
-#ifdef OSRMCLIENTTRACE
-  DLOG( INFO ) << "OsrmClient:getGeom - geom: (" << xn.value << "," << yn.value << ")\n";
-#endif
-
+    // osrm returns [lat, lon], node expects [lon, lat]
+    Node n( (*itr)[1].GetDouble(), (*itr)[0].GetDouble() );
     geom.push_back( n );
   }
 
@@ -796,17 +760,17 @@ bool OsrmClient::getGeom( std::deque<Node> &geom )
 
 /*!
  * \brief Parse the actual json document and extract the geometry text
+ * \param[in] jsondoc The json parse tree pointer.
  * \param[out] geomText A std::string which it the compressed geometry
- * \return False if an error and err_msg will be set. False otherwise.
+ * \return True if an error and err_msg will be set. False otherwise.
  */
-bool OsrmClient::getGeomText( std::string &geomText )
+bool OsrmClient::getGeomText( rapidjson::Document &jsondoc,
+                          std::string &geomText )
 {
   if ( not connectionAvailable ) return false;
 
-  // find the 'route_geometry' key in the response
-  auto got_rg = osrm_reply.values.find("route_geometry");
-
-  if ( got_rg == osrm_reply.values.end() ) {
+  if ( not jsondoc.HasMember("route_geometry") and
+       not jsondoc["route_geometry"].IsString() ) {
     err_msg = "OsrmClient:getGeomText failed to find 'geometry' key in OSRM response!";
 #ifdef DOSTATS
     STATS->inc( err_msg );
@@ -814,67 +778,58 @@ bool OsrmClient::getGeomText( std::string &geomText )
     return false;
   }
 
-  // "route_geometry" = [[lat,lon],[lat,lon], ... ]
-  osrm::json::String osrm_str = mapbox::util::get< osrm::json::String > ( osrm_reply.values["route_geometry"] );
-  geomText = osrm_str.value;
-
-#ifdef OSRMCLIENTTRACE
-  DLOG( INFO ) << "OsrmClient:getGeomText- geom: " << geomText << "\n";
-#endif
+  // find the route 'geometry' key in the response
+  geomText = jsondoc["route_geometry"].GetString();
 
   return true;
 }
 
-/*!
- * \brief Parse the actual json document and extract the geometry text
- * \param[out] geomText A std::string which it the compressed geometry
- * \return False if an error and err_msg will be set. False otherwise.
- */
-bool OsrmClient::getHints( std::deque<std::string> &hints )
+
+bool OsrmClient::getHints( rapidjson::Document &jsondoc,
+                           std::deque<std::string> &hints )
 {
   if ( not connectionAvailable ) return false;
 
   hints.clear();
 
-  // find 'hint_data'
-  auto got_hd = osrm_reply.values.find("hint_data");
+  // find the route 'hint_data' key in the response
+  const rapidjson::Value &jHintData = jsondoc["hint_data"];
 
-  if ( got_hd == osrm_reply.values.end() ) {
-    err_msg = "OsrmClient:getHints (private) failed to find 'hint_data' key in OSRM response!";
+  if ( not jHintData.IsObject() ) {
+    err_msg = "OsrmClient:getHints (private)  failed to find 'hint_data' key in OSRM response!";
 #ifdef DOSTATS
     STATS->inc( err_msg );
 #endif
     return false;
   }
 
-  // find the 'locations' in the 'hint_data'
-  osrm::json::Object hint_data = mapbox::util::get< osrm::json::Object >( osrm_reply.values["hint_data"] );
-  auto got_loc = hint_data.values.find("locations");
+  //const rapidjson::Value &jLocations = jHintData["locations"];
 
-  if ( got_loc == hint_data.values.end() ) {
-    err_msg = "OsrmClient:getHints (private) failed to find 'locations' key in OSRM response!";
+  if ( not jHintData.IsArray() ) {
+    err_msg = "OsrmClient:getHints (private)  failed to find 'locations' key in OSRM response!";
 #ifdef DOSTATS
     STATS->inc( err_msg );
 #endif
     return false;
   }
 
-  osrm::json::Array loc_arr = mapbox::util::get< osrm::json::Array >( hint_data.values["locations"] );
 
-  for (auto it = loc_arr.values.begin() ; it != loc_arr.values.end(); ++it) {
-    osrm::json::String str_elem = mapbox::util::get< osrm::json::String > ( (*it) );
-    hints.push_back( str_elem.value );
+  std::string hint;
+
+  for ( rapidjson::Value::ConstValueIterator itr = jHintData.Begin();
+        itr != jHintData.End(); ++itr) {
+
+    hint = std::string( itr->GetString() );
+    hints.push_back( hint );
+
   }
 
   return true;
 }
 
-/*!
- * \brief Parse the actual json document and extract the geometry text
- * \param[out] geomText A std::string which it the compressed geometry
- * \return False if an error and err_msg will be set. False otherwise.
- */
-bool OsrmClient::getPenalty( double &penalty )   //in munutes
+
+bool OsrmClient::getPenalty( rapidjson::Document &jsondoc,
+                             double &penalty )   //in munutes
 {
   if ( not connectionAvailable ) return false;
 
@@ -884,10 +839,10 @@ bool OsrmClient::getPenalty( double &penalty )   //in munutes
 
   penalty = 0;
 
-  // find the 'route_geometry' key in the response
-  auto got_ri = osrm_reply.values.find("route_instructions");
+  // find the route 'hint_data' key in the response
+  const rapidjson::Value &jInstructionsArray = jsondoc["route_instructions"];
 
-  if ( got_ri == osrm_reply.values.end() ) {
+  if ( not jInstructionsArray.IsArray() ) {
     err_msg = "OsrmClient:getTurns (private) failed to find 'route_instructions' key in OSRM response!";
 #ifdef DOSTATS
     STATS->inc( err_msg );
@@ -895,14 +850,12 @@ bool OsrmClient::getPenalty( double &penalty )   //in munutes
     return false;
   }
 
-  // "route_instructions" = [["10","Avenida General Rivera",42,0,13,"42m","NE",57,1], ...]
-  osrm::json::Array ri_arr = mapbox::util::get< osrm::json::Array > ( osrm_reply.values["route_instructions"] );
+  for (rapidjson::Value::ConstValueIterator itr = jInstructionsArray.Begin();
+       itr != jInstructionsArray.End(); ++itr) {
 
-  for (auto it = ri_arr.values.begin() ; it != ri_arr.values.end(); ++it) {
-    osrm::json::Array elem_arr = mapbox::util::get< osrm::json::Array > ( (*it) );
-    osrm::json::String ti = mapbox::util::get< osrm::json::String > ( elem_arr.values[0] );
-    turn = std::stoi( ti.value );
-    trace = ti.value;
+    turn = strtol( (*itr)[0].GetString(), NULL, 10 );
+
+    trace = std::string( (*itr)[0].GetString() );
 #ifdef DOVRPLOG
     DLOG( INFO ) << "InstructionsData " << trace;
     DLOG( INFO ) << "Instruction " << turn;
@@ -931,4 +884,3 @@ bool OsrmClient::getPenalty( double &penalty )   //in munutes
 #endif
   return true;
 }
-
