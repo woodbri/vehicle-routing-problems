@@ -17,6 +17,11 @@
 
 #include <climits>
 #include <sstream>
+#include <ostream>
+
+#include <iostream>
+#include <fstream>
+#include <string>
 
 #ifdef DOVRPLOG
 #include "logger.h"
@@ -716,6 +721,26 @@ bool OsrmClient::getTime( double &time )
 
 #ifdef OSRMCLIENTTRACE
   DLOG( INFO ) << "OsrmClient:getTime - time: " << time << " min\n";
+  std::ofstream out("/tmp/out.txt", std::fstream::app);
+  std::streambuf *coutbuf = std::cout.rdbuf();      //save old buf
+  std::cout.rdbuf(out.rdbuf());                     //redirect std::cout to out.txt!
+  std::cout << osrm_reply << std::endl;
+  std::cout.rdbuf(coutbuf);                         //reset to standard output again
+
+  /*
+  std::ostream& moss = std::ostream();
+  moss << osrm_reply;
+  std::stringstream ss;
+  ss << moss.rdbuf();
+  std::string str =  ss.str();
+  const char* chr = str.c_str();
+  DLOG( INFO ) << "OsrmClient:getTime - str: " << chr << "\n";
+
+  //std::ostream& moss = std::stringstream();
+  std::ostream& moss = std::cout;
+  std::cout << osrm_reply << std::endl;;
+  std::stringstream ss;
+  */
 #endif
 
   double penalty;

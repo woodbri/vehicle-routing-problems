@@ -22,6 +22,7 @@
 #include <osrm/route_parameters.hpp>
 #include <osrm/json_container.hpp>
 
+#include "renderer.hpp"
 
 #ifdef DOVRPLOG
 #include "logger.h"
