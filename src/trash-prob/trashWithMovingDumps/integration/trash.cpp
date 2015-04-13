@@ -21,8 +21,9 @@
 #include <math.h>
 #include <stdio.h>
 
-#ifdef LOG
+#ifdef DOVRPLOG
 #include "logger.h"
+//#include "glog/utilities.h"
 #endif
 
 #ifdef DOSTATS

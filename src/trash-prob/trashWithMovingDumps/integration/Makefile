@@ -49,8 +49,8 @@ endif
 # <blank> is NO
 # anything else  
 
-WITH_OSRMCLIENT = yes
-WITH_STATS =
+WITH_OSRMCLIENT = 
+WITH_STATS = yes
 WITH_MD5 =
 WITH_OSRM =
 WITH_PLOT =
@@ -116,7 +116,7 @@ LOGGER_CFLAGS =
 LOGGER_LIBS =
 else
 LOGGER_HEADER = $(BASECLASSES_DIR)/logger.h
-LOGGER_CFLAGS = -DDOVRPLOG -I/usr/local/include
+LOGGER_CFLAGS = -DDOVRPLOG -I/usr/local/include/
 LOGGER_LIBS = -L/usr/local/lib -lglog
 endif
 

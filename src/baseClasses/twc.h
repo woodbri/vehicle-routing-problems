@@ -21,7 +21,7 @@
 #include <vector>
 #include <deque>
 #include <map>
-// #include <cmath>
+ #include <cmath>
 #include <algorithm>
 #include <utility>
 // #include <math.h>
@@ -1662,6 +1662,20 @@ template <class knode> class TWC {
   }
 
   double setTwcij(UID i, UID j) const {
+#ifdef VRPMAXTRACE
+    DLOG( INFO ) << "twcij size: " << twcij.size() << "\n";
+    DLOG( INFO ) << "original size: " << original.size() << "\n";
+#endif
+    if ( twcij.size() == 0 ) {
+      twcij.resize(original.size());
+
+      for (int k = 0; k < original.size(); k++)
+        twcij[k].resize(original.size());
+    }
+#ifdef VRPMAXTRACE
+    DLOG( INFO ) << "twcij size: " << twcij.size() << "\n";
+    DLOG( INFO ) << "original size: " << original.size() << "\n";
+#endif
     twcij[i][j] = twc_for_ij(original[i], original[j]);
     return twcij[i][j];
   }
