@@ -23,7 +23,7 @@ CURL_CFLAGS := $(shell pkg-config --cflags curlpp)
 CURL_LIBS := $(shell pkg-config --libs curlpp)
 SHLIB_LINK = build/libvrptools.a $(CURL_LIBS) $(VRP_LDFLAGS)
 
-PG_CONFIG = /usr/lib/postgresql/$(PGVER)/bin/pg_config
+PG_CONFIG = /usr/bin/pg_config
 PGXS := $(shell $(PG_CONFIG) --pgxs)
 include $(PGXS)
 
