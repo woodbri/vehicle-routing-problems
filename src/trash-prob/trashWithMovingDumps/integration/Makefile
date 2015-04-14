@@ -10,7 +10,8 @@ CPP = g++
 
 # when blank, even when set to compile with OSRM it will compile without osrm
 #OSRMBACKEND_DIR = $(HOME)/work/osrm-backend/
-OSRMBACKEND_DIR = /home/fpacheco/workspace/idm/osrm-backend
+#OSRMBACKEND_DIR = /home/fpacheco/workspace/idm/osrm-backend
+OSRMBACKEND_DIR = /usr/local/include/osrm
  
 BASETRASH = baseTrash
 BASECLASSES = baseClasses

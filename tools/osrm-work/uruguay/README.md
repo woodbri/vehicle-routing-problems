@@ -125,3 +125,9 @@ Starting the routing process and pointing it to shared memory is also very, very
 ```Bash
 $ ./osrm-routed --sharedmemory=yes
 ```
+
+To verify the service is running via TCP/IP
+
+```Bash
+GET 'http://127.0.0.1:5000/viaroute?loc=-34.848845,-56.21662&loc=-34.848821,-56.0948369999999&alt=false'
+```
