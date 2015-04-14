@@ -5,6 +5,10 @@
 
 http://wiki.openstreetmap.org/wiki/Osmconvert
 
+## A truck profile
+This should probalby be changed for you specific vehicles.
+
+https://github.com/rodo/osrm-profiles/blob/master/truck.lua
 
 
 ```
