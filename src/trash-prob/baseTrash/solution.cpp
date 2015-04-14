@@ -151,7 +151,7 @@ vehicle_path_t *Solution::getSolutionForPg( UINT &count ) const
   }
 
   // remap internal node types to pg node types
-  int map[] = {0, 2, 1, 3};
+  int map[] = {0, 1, 2, 3};  // uselsss now, because internally we are using the same numbers now
 
   UINT seq = 0;
 
@@ -371,10 +371,11 @@ Solution::Solution( const std::string &infile,
                     const std::string &solFile )
  : Prob_trash( infile )
 {
-  std::vector<int> sol;
+  std::vector< Twnode::NodeType > soltype;
+  std::vector<int> solid;
   std::ifstream in( solFile.c_str() );
   std::string line;
-  int number;
+  int type, id;
 
   if (!in)  {
 #ifdef DOVRPLOG
@@ -383,63 +384,90 @@ Solution::Solution( const std::string &infile,
     return;
   }
 
-  while ( in >> number )  {
-         sol.push_back(number);
+  while ( in >> type >> id )  {
+         solid.push_back(id);
+         soltype.push_back( (Twnode::NodeType)type);
   }
   int nid, vid;
   Vehicle truck;
   Bucket unassigned = pickups;
   Bucket assigned;
-  bool idSol = true;
+#ifdef VRPMAXTRACE
+    unassigned.dumpid("Unassigned");
+    assigned.dumpid("Assigned");
+#endif
+
 
   fleet.clear();
   Bucket solPath;
+  Bucket stops;
 
   UINT i = 0;
+  while ( i < solid.size()) {
+    // with both negatives we are done
+    if ( (solid[i] < 0) && soltype[i] < 0 ) break; 
 
-  while ( i < sol.size() ) {
-    if ( (sol[i] < 0) && (i == sol.size() - 1) ) {
-      break; 
-    }
-    ++i;
-    vid = sol[i];
-
-    //get the truck from the truks:
-    for ( UINT tr = 0; tr < trucks.size(); tr++ )
-      if ( trucks[tr].getVid() == vid ) {
-        truck = trucks[tr];
-        break;
-      }
-
-    i = i + 2;
-    solPath.clear();
-
-    while ( i<sol.size() and sol[i] >= 0 ) {
-
-      if ( idSol ) nid = pickups.getNidFromId( sol[i] );
-      else nid = sol[i];
-
-      solPath.push_back( datanodes[nid] );
-      i++;
+    // with type negative its the truck id
+    if ( soltype[i] < 0 ) { 
+        //get the truck from the truks:
+        for ( UINT tr = 0; tr < trucks.size(); tr++ ) {
+            if ( trucks[tr].getVid() == vid ) {
+                truck = trucks[tr];
+                break;
+            }
+        }
+        solPath.clear();
+        ++i;
+        continue;
     }
 
-    solPath.dumpid( "solPath" );
+    // both numbers are positive
+    while ( i < solid.size() && soltype[i] >= 0) {
+      switch (soltype[i]) {
 
-    if ( truck.e_setPath( solPath ) ) {
-      fleet.push_back( truck );
-      assigned = assigned + solPath;
-      unassigned = unassigned - solPath;
-    }
+      case  Twnode::kStart:
+      	    solPath.push_back( truck.getStartingSite() );
+            break;
 
-    i++;
-  };
+      case  Twnode::kPickup:
+            nid = pickups.getNidFromId( solid[i] );
+      	    solPath.push_back( datanodes[nid] );
+      	    stops.push_back( datanodes[nid] );
+            break;
 
+      case Twnode::kDump:
+      	    solPath.push_back( truck.getDumpSite() );
+            break;
+
+      case  Twnode::kEnd:
+      	    solPath.push_back( truck.getEndingSite() );
+            solPath.dumpid( "solPath" );
+            if ( truck.e_setPath( solPath ) ) {
+                fleet.push_back( truck );
+                assigned = assigned + stops;
+                unassigned = unassigned - stops;
+            };
+            break;
+      }  // switch
+      ++i;
+    }  // while     
+
+
+  }  //while
+
+  //dumpEval();
+  //setInitialValues();
+  //dumpCostValues();
   computeCosts();
 
-#ifdef DOVRPLOG
-  if (unassigned.size() ||  !(assigned == pickups))
+  if (unassigned.size() ||  !(assigned == pickups)) {
+#ifdef VRPMINTRACE
     DLOG( INFO ) << "Something went wrong creating the solution \n";
+    unassigned.dumpid("Unassigned");
+    assigned.dumpid("Assigned");
+    pickups.dumpid("Pickups");
 #endif
+  }
 
 }
 
@@ -497,7 +525,8 @@ Solution::Solution( const std::string &infile,
     i++;
   };
 
-  computeCosts();
+  //computeCosts();
+  evaluate();
 
 #ifdef DOVRPLOG
   if ( unassigned.size() or ( assigned == pickups ) )
@@ -653,15 +682,17 @@ void Solution::dumpCostValues()
     fleet[i].getCost();
 
 #ifdef DOVRPLOG
-
   for ( UINT i = 0; i < fleet.size(); i++ )
     fleet[i].dumpCostValues();
-
 #endif
 }
 
 void Solution::setInitialValues()
 {
+#ifdef DOVRPLOG
+  DLOG( INFO ) << "Average Container: \n" ;
+  C.dump();
+#endif
   for ( UINT i = 0; i < fleet.size(); i++ )
     fleet[i].setInitialValues( C, pickups );
 }

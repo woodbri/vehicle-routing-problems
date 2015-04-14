@@ -72,11 +72,15 @@ bool BaseVehicle::e_setPath( const Bucket &sol )
              and ( sol[sol.size() - 2] == dumpSite ) ) )
     return false;
 
-  path = sol;
-  path.pop_back();
-  path.pop_back();
-  path[0].evaluate( getmaxcapacity() );
-  path.evaluate( 1 , getmaxcapacity() );
+  Bucket tempSol = sol;
+  
+  tempSol.pop_back();
+  tempSol.pop_back();
+  tempSol.pop_front();
+  
+  for (UINT i = 0; i < tempSol.size(); i++) {
+      push_back(tempSol[i]);
+  }
 
   assert( ( sol[0] == path[0] ) and ( sol[sol.size() - 1] == endingSite )
           and ( sol[sol.size() - 2] == dumpSite ) );

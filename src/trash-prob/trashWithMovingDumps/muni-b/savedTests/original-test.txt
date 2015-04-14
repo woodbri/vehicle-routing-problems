@@ -1,0 +1,847 @@
+Log file created at: 2015/04/13 20:29:42
+Running on machine: cvergara
+Log line format: [IWEF]mmdd hh:mm:ss.uuuuuu threadid file:line] msg
+I0413 20:29:42.852205 26319 prob_trash.cpp:152] Prob_trash---- string Constructor --------------
+I0413 20:29:42.853494 26319 prob_trash.cpp:164] Prob_trash LoadProblem --------------../muni-b/muni-b--------
+I0413 20:29:42.853711 26319 prob_trash.cpp:398] ERROR: line: 1: 781 -56.184264 -34.892256 0 360 0 2 4178
+I0413 20:29:42.853950 26319 prob_trash.cpp:398] ERROR: line: 17: 1889 -56.184727 -34.891436 0 360 0 2 3313
+I0413 20:29:42.853978 26319 prob_trash.cpp:398] ERROR: line: 18: 1890 -56.185784 -34.891610 0 360 0 2 3313
+I0413 20:29:42.854398 26319 prob_trash.cpp:398] ERROR: line: 50: 2253 -56.181691 -34.894191 0 360 0 2 4992
+I0413 20:29:42.854616 26319 prob_trash.cpp:398] ERROR: line: 66: 2269 -56.166719 -34.890238 0 360 0 2 2456
+I0413 20:29:42.854642 26319 prob_trash.cpp:398] ERROR: line: 67: 2270 -56.170812 -34.889054 0 360 0 2 3742
+I0413 20:29:42.855110 26319 prob_trash.cpp:398] ERROR: line: 105: 2824 -56.186090 -34.893759 0 360 0 2 4529
+I0413 20:29:42.855159 26319 prob_trash.cpp:398] ERROR: line: 108: 2827 -56.183789 -34.893031 0 360 0 2 870
+I0413 20:29:42.855185 26319 prob_trash.cpp:398] ERROR: line: 109: 2840 -56.183710 -34.893168 0 360 0 2 870
+I0413 20:29:42.855209 26319 prob_trash.cpp:398] ERROR: line: 110: 2846 -56.182956 -34.894414 0 360 0 2 870
+I0413 20:29:42.855236 26319 prob_trash.cpp:398] ERROR: line: 111: 2847 -56.183599 -34.893916 0 360 0 2 3983
+I0413 20:29:42.855260 26319 prob_trash.cpp:398] ERROR: line: 112: 2850 -56.183460 -34.893639 0 360 0 2 870
+I0413 20:29:42.855284 26319 prob_trash.cpp:398] ERROR: line: 113: 2892 -56.183948 -34.892723 0 360 0 2 870
+I0413 20:29:42.855792 26319 prob_trash.cpp:398] ERROR: line: 152: 3226 -56.189025 -34.894551 0 360 0 2 778
+I0413 20:29:42.855878 26319 prob_trash.cpp:398] ERROR: line: 158: 6375 -56.182648 -34.894886 0 360 0 2 870
+I0413 20:29:42.855974 26319 prob_trash.cpp:398] ERROR: line: 164: 8447 -56.174384 -34.890394 0 360 0 2 2150
+I0413 20:29:42.856001 26319 prob_trash.cpp:398] ERROR: line: 165: 8452 -56.184911 -34.892626 0 360 0 2 4178
+I0413 20:29:42.856144 26319 prob_trash.cpp:320] Prob_trash:Load_otherlocs../muni-b/muni-b.otherlocs.txt
+I0413 20:29:42.857626 26319 twbucket.h:613] invalid 781 1889 1890 2253 2269 2270 2824 2827 2840 2846 2847 2850 2892 3226 6375 8447 8452
+I0413 20:29:42.865226 26319 twc.h:1496] COMMANDLINE: loadAndProcess_distance
+I0413 20:29:48.279796 26319 prob_trash.cpp:259] Prob_trash:LoadTrucks../muni-b/muni-b.vehicles.txt
+I0413 20:29:49.805519 26319 costvehicle.cpp:303]  +++++++++++++++++++++  	 TRUCK #<<0      +++++++++++++++++++++
+I0413 20:29:49.805534 26319 costvehicle.cpp:305]  Average Container:
+I0413 20:29:49.805574 26319 twnode.cpp:94] 158 = -1,		type -1,	x -56.181012,	y -34.893203,	open 0,	close 360,	demand 2611.6129,	serviceT 2,	 street:-1,	 hint:
+I0413 20:29:49.805580 26319 costvehicle.cpp:307]  ------  current path -------
+I0413 20:29:49.805619 26319 basevehicle.cpp:189]  10001 2234 2231 2292 2232 2286 2298 9545 2291 2290 2274 2288 2265 2281 2296 2297 2224 2260 2223 2262 2222 2278 2220 2271 2247 2244 1843 2259 2252 2239 1844 2261 2235 2250 2249 2719 2257 2245 2258 2236 2248 2246 2280 2273 2300 7324 2226 2279 2282 2275 2264 2263 2225 2276 2230 2284 2285 8379 2208 2277 2294 2299 2233 1846 2228 2293 2227 2268 2272 2266 2267 2295 2289 2229 2283 6377 10003 10001
+I0413 20:29:49.805624 26319 costvehicle.cpp:310]  ------  truck time limits -------
+I0413 20:29:49.805629 26319 costvehicle.cpp:311] Shift Starts	0
+I0413 20:29:49.805634 26319 costvehicle.cpp:312] Shift ends	500
+I0413 20:29:49.805639 26319 costvehicle.cpp:313] Shift length	500
+I0413 20:29:49.805646 26319 costvehicle.cpp:316] ------Real  Values of current truck in the solution -------
+                   realttSC	20.0067
+                   realttCC	0.369111
+                   realttCD	48.0129
+                   realttDC	56.4537
+                   realttDE	25.0081
+                 service(E)	0
+                maxcapacity	192000
+              C.getdemand()	2611.61
+         C.getservicetime()	2
+                 C.closes()	360
+    path[size()-1].closes()	360
+  dumpSite.getservicetime()	20
+dumpSite.getDepartureTime()	265.703
+                      realN	1
+endingSite.getArrivalTime()	290.711
+   depot.getDepartureTime()	0
+                       size	76
+                     Z =	75	= floor( maxcapacity/C.getdemand() )	75
+                     n =	75	=size() - 1 - ( realN()-1 )  	75
+                     z =	75	=(realN()==1)  z = n  : n % Z	75
+              Zmissing =	0	=Z-z	0
+                realz1 =	0	== min ( floor ( realIdleTimeSCDE / (C.getservicetime() + realttCC) ) , Zmissing )	0
+                realz2 =	15	=idleTimeSDCDE / (C.getservicetime() + realttCC)	15
+realArrivalEclosesLast =	455.021	=path[size()-1].closes() + realttCD + dumpSite.getservicetime() + realttDE 	    realForcedWaitTime =	44.9789	=shiftEnds -( realArrivalEclosesLast  +  serviceE() )	44.9789
+         realTotalTime =	290.711	=endingSite.getArrivalTime()	290.711
+          realIdleTime =	164.31	=realArrivalEclosesLast -  realTotalTime	164.31
+      realIdleTimeSCDE =	339.993	=( Zmissing>0 )?  (C.getservicetime() + realttCC ) * Zmissing :
+		(Zmissing==0? C.closes() - ( depot.getDepartureTime() +  realttSC):0) ;	339.993
+     realIdleTimeSDCDE =	37.8433	=C.closes() - ( dumpSite.getDepartureTime() + realttDC)	37.8433
+                sumIdle=	542.146	=sumIdle=realIdleTimeSCDE+realIdleTimeSDCDE+realIdleTime	542.146
+        workNotDonePerc=	0	=(double (realz1 + realz2))  /(double (n + realz1+realz2))
+     1+ workNotDonePerc=	1	=(double (realz1 + realz2))  /(double (n + realz1+realz2))
+realTotalTime + sumIdle)=	832.858
+I0413 20:29:49.805742 26319 costvehicle.cpp:303]  +++++++++++++++++++++  	 TRUCK #<<1      +++++++++++++++++++++
+I0413 20:29:49.805747 26319 costvehicle.cpp:305]  Average Container:
+I0413 20:29:49.805760 26319 twnode.cpp:94] 158 = -1,		type -1,	x -56.181012,	y -34.893203,	open 0,	close 360,	demand 2611.6129,	serviceT 2,	 street:-1,	 hint:
+I0413 20:29:49.805765 26319 costvehicle.cpp:307]  ------  current path -------
+I0413 20:29:49.805800 26319 basevehicle.cpp:189]  10001 3098 3047 3049 3043 3053 3078 3095 3076 3096 9465 3082 3080 3094 3091 3097 3050 2821 3086 3093 3077 3051 3048 3074 3046 3070 3063 9006 3042 2822 1702 3090 3297 9083 2825 3254 7866 3041 3253 9277 8884 1731 5055 3052 1875 1874 1700 2307 2308 7833 3179 3085 3044 3088 1699 3084 1716 3079 3083 9477 3081 2820 3087 1714 2823 2209 2287 2237 2251 2254 2255 2256 2238 10003 10001
+I0413 20:29:49.805805 26319 costvehicle.cpp:310]  ------  truck time limits -------
+I0413 20:29:49.805809 26319 costvehicle.cpp:311] Shift Starts	0
+I0413 20:29:49.805814 26319 costvehicle.cpp:312] Shift ends	500
+I0413 20:29:49.805819 26319 costvehicle.cpp:313] Shift length	500
+I0413 20:29:49.805827 26319 costvehicle.cpp:316] ------Real  Values of current truck in the solution -------
+                   realttSC	25.3541
+                   realttCC	0.406944
+                   realttCD	57.2104
+                   realttDC	56.4537
+                   realttDE	25.0081
+                 service(E)	0
+                maxcapacity	192000
+              C.getdemand()	2611.61
+         C.getservicetime()	2
+                 C.closes()	360
+    path[size()-1].closes()	360
+  dumpSite.getservicetime()	20
+dumpSite.getDepartureTime()	275.865
+                      realN	1
+endingSite.getArrivalTime()	300.873
+   depot.getDepartureTime()	0
+                       size	73
+                     Z =	72	= floor( maxcapacity/C.getdemand() )	72
+                     n =	72	=size() - 1 - ( realN()-1 )  	72
+                     z =	72	=(realN()==1)  z = n  : n % Z	72
+              Zmissing =	0	=Z-z	0
+                realz1 =	0	== min ( floor ( realIdleTimeSCDE / (C.getservicetime() + realttCC) ) , Zmissing )	0
+                realz2 =	11	=idleTimeSDCDE / (C.getservicetime() + realttCC)	11
+realArrivalEclosesLast =	464.219	=path[size()-1].closes() + realttCD + dumpSite.getservicetime() + realttDE 	    realForcedWaitTime =	35.7815	=shiftEnds -( realArrivalEclosesLast  +  serviceE() )	35.7815
+         realTotalTime =	300.873	=endingSite.getArrivalTime()	300.873
+          realIdleTime =	163.346	=realArrivalEclosesLast -  realTotalTime	163.346
+      realIdleTimeSCDE =	334.646	=( Zmissing>0 )?  (C.getservicetime() + realttCC ) * Zmissing :
+		(Zmissing==0? C.closes() - ( depot.getDepartureTime() +  realttSC):0) ;	334.646
+     realIdleTimeSDCDE =	27.6818	=C.closes() - ( dumpSite.getDepartureTime() + realttDC)	27.6818
+                sumIdle=	525.674	=sumIdle=realIdleTimeSCDE+realIdleTimeSDCDE+realIdleTime	525.674
+        workNotDonePerc=	0	=(double (realz1 + realz2))  /(double (n + realz1+realz2))
+     1+ workNotDonePerc=	1	=(double (realz1 + realz2))  /(double (n + realz1+realz2))
+realTotalTime + sumIdle)=	826.546
+I0413 20:29:49.805884 26319 costvehicle.cpp:303]  +++++++++++++++++++++  	 TRUCK #<<2      +++++++++++++++++++++
+I0413 20:29:49.805889 26319 costvehicle.cpp:305]  Average Container:
+I0413 20:29:49.805902 26319 twnode.cpp:94] 158 = -1,		type -1,	x -56.181012,	y -34.893203,	open 0,	close 360,	demand 2611.6129,	serviceT 2,	 street:-1,	 hint:
+I0413 20:29:49.805907 26319 costvehicle.cpp:307]  ------  current path -------
+I0413 20:29:49.805917 26319 basevehicle.cpp:189]  10002 6366 1877 1703 1701 1901 3045 2826 1883 10003 10001
+I0413 20:29:49.805922 26319 costvehicle.cpp:310]  ------  truck time limits -------
+I0413 20:29:49.805925 26319 costvehicle.cpp:311] Shift Starts	0
+I0413 20:29:49.805930 26319 costvehicle.cpp:312] Shift ends	500
+I0413 20:29:49.805935 26319 costvehicle.cpp:313] Shift length	500
+I0413 20:29:49.805943 26319 costvehicle.cpp:316] ------Real  Values of current truck in the solution -------
+                   realttSC	30.5919
+                   realttCC	0.441667
+                   realttCD	57.8044
+                   realttDC	56.4537
+                   realttDE	25.0081
+                 service(E)	0
+                maxcapacity	192000
+              C.getdemand()	2611.61
+         C.getservicetime()	2
+                 C.closes()	360
+    path[size()-1].closes()	360
+  dumpSite.getservicetime()	20
+dumpSite.getDepartureTime()	127.93
+                      realN	1
+endingSite.getArrivalTime()	152.938
+   depot.getDepartureTime()	0
+                       size	9
+                     Z =	8	= floor( maxcapacity/C.getdemand() )	8
+                     n =	8	=size() - 1 - ( realN()-1 )  	8
+                     z =	8	=(realN()==1)  z = n  : n % Z	8
+              Zmissing =	0	=Z-z	0
+                realz1 =	0	== min ( floor ( realIdleTimeSCDE / (C.getservicetime() + realttCC) ) , Zmissing )	0
+                realz2 =	71	=idleTimeSDCDE / (C.getservicetime() + realttCC)	71
+realArrivalEclosesLast =	464.813	=path[size()-1].closes() + realttCD + dumpSite.getservicetime() + realttDE 	    realForcedWaitTime =	35.1874	=shiftEnds -( realArrivalEclosesLast  +  serviceE() )	35.1874
+         realTotalTime =	152.938	=endingSite.getArrivalTime()	152.938
+          realIdleTime =	311.875	=realArrivalEclosesLast -  realTotalTime	311.875
+      realIdleTimeSCDE =	329.408	=( Zmissing>0 )?  (C.getservicetime() + realttCC ) * Zmissing :
+		(Zmissing==0? C.closes() - ( depot.getDepartureTime() +  realttSC):0) ;	329.408
+     realIdleTimeSDCDE =	175.617	=C.closes() - ( dumpSite.getDepartureTime() + realttDC)	175.617
+                sumIdle=	816.899	=sumIdle=realIdleTimeSCDE+realIdleTimeSDCDE+realIdleTime	816.899
+        workNotDonePerc=	0	=(double (realz1 + realz2))  /(double (n + realz1+realz2))
+     1+ workNotDonePerc=	1	=(double (realz1 + realz2))  /(double (n + realz1+realz2))
+realTotalTime + sumIdle)=	969.837
+I0413 20:29:49.805984 26319 trash.cpp:100] FeasableSol time: 6.95384
+I0413 20:29:49.807140 26319 solution.cpp:331] Tau:
+I0413 20:29:49.807183 26319 basevehicle.cpp:189]  10001 2234 2231 2292 2232 2286 2298 9545 2291 2290 2274 2288 2265 2281 2296 2297 2224 2260 2223 2262 2222 2278 2220 2271 2247 2244 1843 2259 2252 2239 1844 2261 2235 2250 2249 2719 2257 2245 2258 2236 2248 2246 2280 2273 2300 7324 2226 2279 2282 2275 2264 2263 2225 2276 2230 2284 2285 8379 2208 2277 2294 2299 2233 1846 2228 2293 2227 2268 2272 2266 2267 2295 2289 2229 2283 6377 10003 10001
+I0413 20:29:49.807219 26319 basevehicle.cpp:189]  10001 3098 3047 3049 3043 3053 3078 3095 3076 3096 9465 3082 3080 3094 3091 3097 3050 2821 3086 3093 3077 3051 3048 3074 3046 3070 3063 9006 3042 2822 1702 3090 3297 9083 2825 3254 7866 3041 3253 9277 8884 1731 5055 3052 1875 1874 1700 2307 2308 7833 3179 3085 3044 3088 1699 3084 1716 3079 3083 9477 3081 2820 3087 1714 2823 2209 2287 2237 2251 2254 2255 2256 2238 10003 10001
+I0413 20:29:49.807250 26319 basevehicle.cpp:189]  10002 6366 1877 1703 1701 1901 3045 2826 1883 10003 10001
+I0413 20:29:49.926054 26319 tabuopt.cpp:59] TABUSEARCH: Removal of truck time: 0.119006
+I0413 20:29:49.926208 26319 costvehicle.cpp:303]  +++++++++++++++++++++  	 TRUCK #<<0      +++++++++++++++++++++
+I0413 20:29:49.926213 26319 costvehicle.cpp:305]  Average Container:
+I0413 20:29:49.926228 26319 twnode.cpp:94] 158 = -1,		type -1,	x -56.181012,	y -34.893203,	open 0,	close 360,	demand 2611.6129,	serviceT 2,	 street:-1,	 hint:
+I0413 20:29:49.926231 26319 costvehicle.cpp:307]  ------  current path -------
+I0413 20:29:49.926272 26319 basevehicle.cpp:189]  10001 2234 2231 2292 2232 2286 2298 9545 2291 2290 2274 2288 2265 2281 2296 2297 2224 2260 2223 2262 2222 2278 2220 2271 2247 2244 1843 2259 2252 1883 6366 1877 1703 1701 1901 2826 3045 2239 1844 2261 2235 2250 2249 2719 2257 2245 2258 2236 2248 2246 2280 2273 2300 7324 2226 2279 2282 2275 2264 2263 2225 2276 2230 2284 2285 8379 2208 2277 2294 2299 2233 1846 2228 2293 2227 10003 2268 2272 2266 2267 2295 2289 2229 2283 6377 10003 10001
+I0413 20:29:49.926276 26319 costvehicle.cpp:310]  ------  truck time limits -------
+I0413 20:29:49.926280 26319 costvehicle.cpp:311] Shift Starts	0
+I0413 20:29:49.926285 26319 costvehicle.cpp:312] Shift ends	500
+I0413 20:29:49.926291 26319 costvehicle.cpp:313] Shift length	500
+I0413 20:29:49.926297 26319 costvehicle.cpp:316] ------Real  Values of current truck in the solution -------
+                   realttSC	20.0067
+                   realttCC	1.56622
+                   realttCD	48.8191
+                   realttDC	49.6253
+                   realttDE	25.0081
+                 service(E)	0
+                maxcapacity	192000
+              C.getdemand()	2611.61
+         C.getservicetime()	2
+                 C.closes()	360
+    path[size()-1].closes()	360
+  dumpSite.getservicetime()	20
+dumpSite.getDepartureTime()	405.582
+                      realN	2
+endingSite.getArrivalTime()	430.59
+   depot.getDepartureTime()	0
+                       size	85
+                     Z =	75	= floor( maxcapacity/C.getdemand() )	75
+                     n =	83	=size() - 1 - ( realN()-1 )  	83
+                     z =	8	=(realN()==1)  z = n  : n % Z	8
+              Zmissing =	67	=Z-z	67
+                realz1 =	6	== min ( floor ( realIdleTimeSCDE / (C.getservicetime() + realttCC) ) , Zmissing )	6
+                realz2 =	0	=idleTimeSDCDE / (C.getservicetime() + realttCC)	0
+realArrivalEclosesLast =	455.021	=path[size()-1].closes() + realttCD + dumpSite.getservicetime() + realttDE 	    realForcedWaitTime =	44.9789	=shiftEnds -( realArrivalEclosesLast  +  serviceE() )	44.9789
+         realTotalTime =	430.59	=endingSite.getArrivalTime()	430.59
+          realIdleTime =	24.4307	=realArrivalEclosesLast -  realTotalTime	24.4307
+      realIdleTimeSCDE =	238.937	=( Zmissing>0 )?  (C.getservicetime() + realttCC ) * Zmissing :
+		(Zmissing==0? C.closes() - ( depot.getDepartureTime() +  realttSC):0) ;	238.937
+     realIdleTimeSDCDE =	0	=C.closes() - ( dumpSite.getDepartureTime() + realttDC)	0
+                sumIdle=	263.368	=sumIdle=realIdleTimeSCDE+realIdleTimeSDCDE+realIdleTime	263.368
+        workNotDonePerc=	0	=(double (realz1 + realz2))  /(double (n + realz1+realz2))
+     1+ workNotDonePerc=	1	=(double (realz1 + realz2))  /(double (n + realz1+realz2))
+realTotalTime + sumIdle)=	693.958
+I0413 20:29:49.926337 26319 costvehicle.cpp:303]  +++++++++++++++++++++  	 TRUCK #<<1      +++++++++++++++++++++
+I0413 20:29:49.926340 26319 costvehicle.cpp:305]  Average Container:
+I0413 20:29:49.926352 26319 twnode.cpp:94] 158 = -1,		type -1,	x -56.181012,	y -34.893203,	open 0,	close 360,	demand 2611.6129,	serviceT 2,	 street:-1,	 hint:
+I0413 20:29:49.926357 26319 costvehicle.cpp:307]  ------  current path -------
+I0413 20:29:49.926391 26319 basevehicle.cpp:189]  10001 3098 3047 3049 3043 3053 3078 3095 3076 3096 9465 3082 3080 3094 3091 3097 3050 2821 3086 3093 3077 3051 3048 3074 3046 3070 3063 9006 3042 2822 1702 3090 3297 9083 2825 3254 7866 3041 3253 9277 8884 1731 5055 3052 1875 1874 1700 2307 2308 7833 3179 3085 3044 3088 1699 3084 1716 3079 3083 9477 3081 2820 3087 1714 2823 2209 2287 2237 2251 2254 2255 2256 2238 10003 10001
+I0413 20:29:49.926419 26319 costvehicle.cpp:310]  ------  truck time limits -------
+I0413 20:29:49.926424 26319 costvehicle.cpp:311] Shift Starts	0
+I0413 20:29:49.926429 26319 costvehicle.cpp:312] Shift ends	500
+I0413 20:29:49.926434 26319 costvehicle.cpp:313] Shift length	500
+I0413 20:29:49.926441 26319 costvehicle.cpp:316] ------Real  Values of current truck in the solution -------
+                   realttSC	25.3541
+                   realttCC	0.406944
+                   realttCD	57.2104
+                   realttDC	56.4537
+                   realttDE	25.0081
+                 service(E)	0
+                maxcapacity	192000
+              C.getdemand()	2611.61
+         C.getservicetime()	2
+                 C.closes()	360
+    path[size()-1].closes()	360
+  dumpSite.getservicetime()	20
+dumpSite.getDepartureTime()	275.865
+                      realN	1
+endingSite.getArrivalTime()	300.873
+   depot.getDepartureTime()	0
+                       size	73
+                     Z =	72	= floor( maxcapacity/C.getdemand() )	72
+                     n =	72	=size() - 1 - ( realN()-1 )  	72
+                     z =	72	=(realN()==1)  z = n  : n % Z	72
+              Zmissing =	0	=Z-z	0
+                realz1 =	0	== min ( floor ( realIdleTimeSCDE / (C.getservicetime() + realttCC) ) , Zmissing )	0
+                realz2 =	11	=idleTimeSDCDE / (C.getservicetime() + realttCC)	11
+realArrivalEclosesLast =	464.219	=path[size()-1].closes() + realttCD + dumpSite.getservicetime() + realttDE 	    realForcedWaitTime =	35.7815	=shiftEnds -( realArrivalEclosesLast  +  serviceE() )	35.7815
+         realTotalTime =	300.873	=endingSite.getArrivalTime()	300.873
+          realIdleTime =	163.346	=realArrivalEclosesLast -  realTotalTime	163.346
+      realIdleTimeSCDE =	334.646	=( Zmissing>0 )?  (C.getservicetime() + realttCC ) * Zmissing :
+		(Zmissing==0? C.closes() - ( depot.getDepartureTime() +  realttSC):0) ;	334.646
+     realIdleTimeSDCDE =	27.6818	=C.closes() - ( dumpSite.getDepartureTime() + realttDC)	27.6818
+                sumIdle=	525.674	=sumIdle=realIdleTimeSCDE+realIdleTimeSDCDE+realIdleTime	525.674
+        workNotDonePerc=	0	=(double (realz1 + realz2))  /(double (n + realz1+realz2))
+     1+ workNotDonePerc=	1	=(double (realz1 + realz2))  /(double (n + realz1+realz2))
+realTotalTime + sumIdle)=	826.546
+I0413 20:29:49.926481 26319 solution.cpp:331] Tau:
+I0413 20:29:49.926522 26319 basevehicle.cpp:189]  10001 2234 2231 2292 2232 2286 2298 9545 2291 2290 2274 2288 2265 2281 2296 2297 2224 2260 2223 2262 2222 2278 2220 2271 2247 2244 1843 2259 2252 1883 6366 1877 1703 1701 1901 2826 3045 2239 1844 2261 2235 2250 2249 2719 2257 2245 2258 2236 2248 2246 2280 2273 2300 7324 2226 2279 2282 2275 2264 2263 2225 2276 2230 2284 2285 8379 2208 2277 2294 2299 2233 1846 2228 2293 2227 10003 2268 2272 2266 2267 2295 2289 2229 2283 6377 10003 10001
+I0413 20:29:49.926558 26319 basevehicle.cpp:189]  10001 3098 3047 3049 3043 3053 3078 3095 3076 3096 9465 3082 3080 3094 3091 3097 3050 2821 3086 3093 3077 3051 3048 3074 3046 3070 3063 9006 3042 2822 1702 3090 3297 9083 2825 3254 7866 3041 3253 9277 8884 1731 5055 3052 1875 1874 1700 2307 2308 7833 3179 3085 3044 3088 1699 3084 1716 3079 3083 9477 3081 2820 3087 1714 2823 2209 2287 2237 2251 2254 2255 2256 2238 10003 10001
+I0413 20:29:49.926568 26319 tabuopt.cpp:130] TABUSEARCH: Starting iteration: 0
+I0413 20:29:49.928879 26319 tabuopt.cpp:323] apply moves: IntraSw applied: 
+I0413 20:29:49.928885 26319 move.cpp:177] Move: IntraSw	    NodeID:136	  At Truck:1	  From Pos:1	  with NID:106	    To Pos:2	   savings:0.69252
+I0413 20:29:49.929124 26319 tabuopt.cpp:323] apply moves: IntraSw applied: 
+I0413 20:29:49.929131 26319 move.cpp:177] Move: IntraSw	    NodeID:28	  At Truck:0	  From Pos:2	  with NID:82	    To Pos:3	   savings:0.0333333
+I0413 20:29:49.929159 26319 tabuopt.cpp:159] ----------------- TABUSEARCH: InterSw: 0
+I0413 20:29:49.981001 26319 tabuopt.cpp:323] apply moves: aspirational non tabu applied: 
+I0413 20:29:49.981009 26319 move.cpp:187] Move: InterSw	    NodeID:21	  (at Truck:0	  at Pos:16)	 with NodeID:35	    (at Truck:1	      at Pos:72)	   savings:1.23509
+I0413 20:29:49.982589 26319 tabuopt.cpp:323] apply moves: aspirational non tabu applied: 
+I0413 20:29:49.982595 26319 move.cpp:187] Move: InterSw	    NodeID:42	  (at Truck:0	  at Pos:42)	 with NodeID:34	    (at Truck:1	      at Pos:67)	   savings:1.03333
+I0413 20:29:49.982605 26319 tabuopt.cpp:159] ----------------- TABUSEARCH: InterSw: 1
+I0413 20:29:50.033743 26319 tabuopt.cpp:323] apply moves: aspirational non tabu applied: 
+I0413 20:29:50.033749 26319 move.cpp:187] Move: InterSw	    NodeID:93	  (at Truck:0	  at Pos:43)	 with NodeID:77	    (at Truck:1	      at Pos:66)	   savings:0.55
+I0413 20:29:50.033759 26319 tabuopt.cpp:159] ----------------- TABUSEARCH: InterSw: 2
+I0413 20:29:50.084031 26319 tabuopt.cpp:323] apply moves: aspirational non tabu applied: 
+I0413 20:29:50.084038 26319 move.cpp:187] Move: InterSw	    NodeID:43	  (at Truck:0	  at Pos:41)	 with NodeID:44	    (at Truck:1	      at Pos:68)	   savings:0.433333
+I0413 20:29:50.084048 26319 tabuopt.cpp:159] ----------------- TABUSEARCH: InterSw: 3
+I0413 20:29:50.134584 26319 tabuopt.cpp:323] apply moves: aspirational non tabu applied: 
+I0413 20:29:50.134590 26319 move.cpp:187] Move: InterSw	    NodeID:87	  (at Truck:0	  at Pos:15)	 with NodeID:48	    (at Truck:1	      at Pos:71)	   savings:0.0333333
+I0413 20:29:50.137301 26319 tabuopt.cpp:323] apply moves: aspirational Tabu applied: 
+I0413 20:29:50.137306 26319 move.cpp:187] Move: InterSw	    NodeID:38	  (at Truck:0	  at Pos:45)	 with NodeID:93	    (at Truck:1	      at Pos:66)	   savings:0.0833333
+I0413 20:29:50.137317 26319 tabuopt.cpp:159] ----------------- TABUSEARCH: InterSw: 4
+I0413 20:29:50.198025 26319 tabuopt.cpp:323] apply moves: aspirational non tabu applied: 
+I0413 20:29:50.198031 26319 move.cpp:187] Move: InterSw	    NodeID:86	  (at Truck:0	  at Pos:14)	 with NodeID:47	    (at Truck:1	      at Pos:70)	   savings:0.05
+I0413 20:29:50.198042 26319 solution.cpp:331] Tau:
+I0413 20:29:50.198084 26319 basevehicle.cpp:189]  10001 2234 2292 2231 2232 2286 2298 9545 2291 2290 2274 2288 2265 2281 2255 2256 2238 2260 2223 2262 2222 2278 2220 2271 2247 2244 1843 2259 2252 1883 6366 1877 1703 1701 1901 2826 3045 2239 1844 2261 2235 2251 2237 2287 2257 2719 2258 2236 2248 2246 2280 2273 2300 7324 2226 2279 2282 2275 2264 2263 2225 2276 2230 2284 2285 8379 2208 2277 2294 2299 2233 1846 2228 2293 2227 10003 2268 2272 2266 2267 2295 2289 2229 2283 6377 10003 10001
+I0413 20:29:50.198120 26319 basevehicle.cpp:189]  10001 3047 3098 3049 3043 3053 3078 3095 3076 3096 9465 3082 3080 3094 3091 3097 3050 2821 3086 3093 3077 3051 3048 3074 3046 3070 3063 9006 3042 2822 1702 3090 3297 9083 2825 3254 7866 3041 3253 9277 8884 1731 5055 3052 1875 1874 1700 2307 2308 7833 3179 3085 3044 3088 1699 3084 1716 3079 3083 9477 3081 2820 3087 1714 2823 2209 2245 2249 2250 2254 2296 2297 2224 10003 10001
+I0413 20:29:50.198125 26319 tabuopt.cpp:170] ------------------TABUSEARCH: Ins: 0
+I0413 20:29:54.501559 26319 tabuopt.cpp:323] apply moves: aspirational non tabu applied: 
+I0413 20:29:54.501581 26319 move.cpp:167] Move: Ins	    NodeID:0	From Truck:1	  From Pos:54	  To Truck:0	    To Pos:30	   savings:1.57575
+I0413 20:29:54.501631 26319 tabuopt.cpp:170] ------------------TABUSEARCH: Ins: 1
+I0413 20:29:58.802966 26319 tabuopt.cpp:323] apply moves: aspirational Tabu applied: 
+I0413 20:29:58.802986 26319 move.cpp:167] Move: Ins	    NodeID:138	From Truck:1	  From Pos:38	  To Truck:0	    To Pos:31	   savings:1.34241
+I0413 20:29:58.803030 26319 tabuopt.cpp:170] ------------------TABUSEARCH: Ins: 2
+I0413 20:30:03.469744 26319 tabuopt.cpp:323] apply moves: IntraSw applied: 
+I0413 20:30:03.469768 26319 move.cpp:177] Move: IntraSw	    NodeID:116	  At Truck:1	  From Pos:8	  with NID:151	    To Pos:38	   savings:0.5
+I0413 20:30:03.751868 26319 tabuopt.cpp:323] apply moves: IntraSw applied: 
+I0413 20:30:03.751889 26319 move.cpp:177] Move: IntraSw	    NodeID:82	  At Truck:0	  From Pos:2	  with NID:84	    To Pos:69	   savings:0.15
+I0413 20:30:03.768012 26319 tabuopt.cpp:323] apply moves: tabu applied: 
+I0413 20:30:03.768030 26319 move.cpp:167] Move: Ins	    NodeID:25	From Truck:1	  From Pos:70	  To Truck:0	    To Pos:73	   savings:126.78
+I0413 20:30:03.768057 26319 tabuopt.cpp:170] ------------------TABUSEARCH: Ins: 3
+I0413 20:30:08.075978 26319 tabuopt.cpp:323] apply moves: aspirational Tabu applied: 
+I0413 20:30:08.076002 26319 move.cpp:167] Move: Ins	    NodeID:148	From Truck:1	  From Pos:39	  To Truck:0	    To Pos:30	   savings:1.24241
+I0413 20:30:08.076030 26319 tabuopt.cpp:170] ------------------TABUSEARCH: Ins: 4
+I0413 20:30:12.807203 26319 tabuopt.cpp:323] apply moves: IntraSw applied: 
+I0413 20:30:12.807224 26319 move.cpp:177] Move: IntraSw	    NodeID:84	  At Truck:0	  From Pos:2	  with NID:28	    To Pos:3	   savings:0.266667
+I0413 20:30:13.064417 26319 tabuopt.cpp:323] apply moves: IntraSw applied: 
+I0413 20:30:13.064642 26319 move.cpp:177] Move: IntraSw	    NodeID:151	  At Truck:1	  From Pos:8	  with NID:135	    To Pos:15	   savings:0.133333
+I0413 20:30:13.082113 26319 tabuopt.cpp:323] apply moves: tabu applied: 
+I0413 20:30:13.082132 26319 move.cpp:167] Move: Ins	    NodeID:25	From Truck:1	  From Pos:70	  To Truck:0	    To Pos:73	   savings:126.78
+I0413 20:30:13.082157 26319 solution.cpp:331] Tau:
+I0413 20:30:13.082207 26319 basevehicle.cpp:189]  10001 2234 2231 2294 2232 2286 2298 9545 2291 2290 2274 2288 2265 2281 2256 2238 2260 2223 2262 2222 2278 2220 2271 2247 1843 2259 2252 1883 1699 8884 3253 6366 1877 1703 1701 1901 2826 3045 2239 1844 2261 2235 2251 2237 2287 2719 2258 2236 2248 2246 2280 2273 2300 7324 2226 2279 2282 2275 2264 2263 2225 2276 2230 2284 2285 8379 2208 2277 2292 2299 2233 1846 2228 2293 2227 10003 2268 2272 2266 2267 2295 2289 2229 2283 6377 10003 10001
+I0413 20:30:13.082247 26319 basevehicle.cpp:189]  10001 3047 3098 3049 3043 3053 3078 3095 3097 3096 9465 3082 3080 3094 3091 9277 3050 2821 3086 3093 3077 3051 3048 3074 3046 3070 3063 9006 3042 2822 1702 3090 3297 9083 2825 3254 7866 3041 3076 1731 5055 3052 1875 1874 1700 2307 2308 7833 3179 3085 3044 3088 3084 1716 3079 3083 9477 3081 2820 3087 1714 2823 2209 2255 2257 2245 2249 2250 2254 2244 2296 2297 2224 10003 10001
+I0413 20:30:13.082252 26319 tabuopt.cpp:185] TABUSEARCH: Finished iteration: 0
+old cost731.463
+new cost721.819
+best cost721.819
+difference9.64427
+I0413 20:30:13.082265 26319 tabuopt.cpp:193] , run time in seconds: 23.1557
+I0413 20:30:13.082279 26319 tabubase.h:248] TabuList Stats at iteration: 0
+I0413 20:30:13.082284 26319 stats.cpp:62] ---------- Stats:  --------------
+I0413 20:30:13.082289 26319 stats.cpp:65]  Vehicle::e_makeFeasable:	184558
+I0413 20:30:13.082295 26319 stats.cpp:65] Best Cost After:	721.819
+I0413 20:30:13.082301 26319 stats.cpp:65] FeasableSol time:	6.95385
+I0413 20:30:13.082308 26319 stats.cpp:65] Initial cost:	744.522
+I0413 20:30:13.082312 26319 stats.cpp:65] Iteration:	0
+I0413 20:30:13.082319 26319 stats.cpp:65] Move::Move (copy) :	258691
+I0413 20:30:13.082324 26319 stats.cpp:65] Move::Move (invalid) :	60917
+I0413 20:30:13.082329 26319 stats.cpp:65] Move::setInsMove :	61009
+I0413 20:30:13.082335 26319 stats.cpp:65] Move::setInterSwMove :	338
+I0413 20:30:13.082341 26319 stats.cpp:65] Move::setIntraSwMove :	73
+I0413 20:30:13.082347 26319 stats.cpp:65] Node count:	159
+I0413 20:30:13.082352 26319 stats.cpp:65] Number of moves of type IntraSw:	6
+I0413 20:30:13.082357 26319 stats.cpp:65] Number of moves of type aspirational Tabu:	3
+I0413 20:30:13.082363 26319 stats.cpp:65] Number of moves of type aspirational non tabu:	7
+I0413 20:30:13.082368 26319 stats.cpp:65] Number of moves of type tabu:	2
+I0413 20:30:13.082373 26319 stats.cpp:65] OptSol::getInterSwNeighborhood :	0.197757
+I0413 20:30:13.082379 26319 stats.cpp:65] TabuOpt::TabuOpt:	1
+I0413 20:30:13.082384 26319 stats.cpp:65] TabuOpt::applyAmove:	23
+I0413 20:30:13.082389 26319 stats.cpp:65] TabuOpt::classifyMoves:	10
+I0413 20:30:13.082396 26319 stats.cpp:65] TabuOpt::cleanUpInsMoves:	9
+I0413 20:30:13.082401 26319 stats.cpp:65] TabuOpt::cleanUpInterSwMoves:	23
+I0413 20:30:13.082406 26319 stats.cpp:65] TabuOpt::cleanUpIntraSwMoves :	4
+I0413 20:30:13.082412 26319 stats.cpp:65] TabuOpt::cleanUpMoves:	18
+I0413 20:30:13.082417 26319 stats.cpp:65] TabuOpt::computeCosts:	60042
+I0413 20:30:13.082422 26319 stats.cpp:65] TabuOpt::doNeighborhoodMoves:	13
+I0413 20:30:13.082428 26319 stats.cpp:65] TabuOpt::getNeighborhood:	13
+I0413 20:30:13.082433 26319 stats.cpp:65] TabuOpt::search:	1
+I0413 20:30:13.082439 26319 stats.cpp:65] Tabubase::cleanExpired:	23
+I0413 20:30:13.082444 26319 stats.cpp:65] Tabubase::dumpStats:	1
+I0413 20:30:13.082449 26319 stats.cpp:65] Tabubase::generateNeighborhoodStats:	13
+I0413 20:30:13.082455 26319 stats.cpp:65] Tabubase::isTabu:	60007
+I0413 20:30:13.082461 26319 stats.cpp:65] Tabubase::makeTabu:	23
+I0413 20:30:13.082466 26319 stats.cpp:65] Tabubase::removeTruckFromTabuList:	23
+I0413 20:30:13.082473 26319 stats.cpp:65] Tabubase::savingsStats:	23
+I0413 20:30:13.082551 26319 stats.cpp:65] Tabubase::setBestAsCurrent:	1
+I0413 20:30:13.082557 26319 stats.cpp:65] Tabubase::setCurrentAsBest:	17
+I0413 20:30:13.082563 26319 stats.cpp:65] Vehicle count:	3
+I0413 20:30:13.082569 26319 stats.cpp:65] Vehicle::applyMoveINSerasePart:	59805
+I0413 20:30:13.082574 26319 stats.cpp:65] Vehicle::applyMoveINSinsertPart:	59805
+I0413 20:30:13.082581 26319 stats.cpp:65] Vehicle::applyMoveInterSw:	895
+I0413 20:30:13.082587 26319 stats.cpp:65] Vehicle::applyMoveIntraSw:	79
+I0413 20:30:13.082592 26319 stats.cpp:65] Vehicle::e_insertIntoFeasableTruck:	157
+I0413 20:30:13.082597 26319 stats.cpp:65] Vehicle::eval_erase:	791
+I0413 20:30:13.082602 26319 stats.cpp:65] Vehicle::eval_insertMoveDumps:	791
+I0413 20:30:13.082608 26319 stats.cpp:65] Vehicle::eval_interSwapMoveDumps:	5
+I0413 20:30:13.082613 26319 stats.cpp:65] Vehicle::eval_interSwapMoveDumps (10 limit window):	25
+I0413 20:30:13.082619 26319 stats.cpp:65] Vehicle::eval_intraSwapMoveDumps:	6
+I0413 20:30:13.082624 26319 stats.cpp:65] Vehicle::timePCN nodes:	12134
+I0413 20:30:13.082630 26319 stats.cpp:65] Vehicle::timePCN positions:	17262
+I0413 20:30:13.082636 26319 stats.cpp:65] best Updated Last At Iteration:	0
+I0413 20:30:13.082641 26319 stats.cpp:65] cnt Calls Gen Ins:	5
+I0413 20:30:13.082646 26319 stats.cpp:65] cnt Calls Gen InterSw:	5
+I0413 20:30:13.082651 26319 stats.cpp:65] cnt Calls Gen IntraSw:	3
+I0413 20:30:13.082656 26319 stats.cpp:65] cnt Ins Applied:	10
+I0413 20:30:13.082662 26319 stats.cpp:65] cnt InterSw Applied:	7
+I0413 20:30:13.082667 26319 stats.cpp:65] cnt IntraSw Applied:	6
+I0413 20:30:13.082672 26319 stats.cpp:65] cum Moves Ins:	59782
+I0413 20:30:13.082679 26319 stats.cpp:65] cum Moves InterSw:	225
+I0413 20:30:13.082684 26319 stats.cpp:65] cum Moves IntraSw:	6
+I0413 20:30:13.082690 26319 stats.cpp:65] limitIns:	1
+I0413 20:30:13.082695 26319 stats.cpp:65] limitInterSw:	2
+I0413 20:30:13.082700 26319 stats.cpp:65] limitIntraSw:	2
+I0413 20:30:13.082705 26319 stats.cpp:65] neg sav Ins applied:	3
+I0413 20:30:13.082710 26319 stats.cpp:65] neg savings applied:	3
+I0413 20:30:13.082715 26319 stats.cpp:65] number of times best was Updated :	17
+I0413 20:30:13.082721 26319 stats.cpp:65] pos sav Ins applied:	7
+I0413 20:30:13.082726 26319 stats.cpp:65] pos sav InterSw applied:	7
+I0413 20:30:13.082731 26319 stats.cpp:65] pos sav IntraSw applied:	6
+I0413 20:30:13.082737 26319 stats.cpp:65] pos savings applied:	20
+I0413 20:30:13.082743 26319 stats.cpp:65] tabu Ins Moves Added:	10
+I0413 20:30:13.082748 26319 stats.cpp:65] tabu InterSw Moves Added:	7
+I0413 20:30:13.082754 26319 stats.cpp:65] tabu IntraSw Moves Added:	6
+I0413 20:30:13.082759 26319 stats.cpp:65] tabu Length Ins:	31
+I0413 20:30:13.082764 26319 stats.cpp:65] tabu Length InterSw:	10
+I0413 20:30:13.082770 26319 stats.cpp:65] tabu Length IntraSw:	15
+I0413 20:30:13.082775 26319 stats.cpp:65] tabu Moves resulted:	48024
+I0413 20:30:13.082782 26319 stats.cpp:65] time Gen Ins:	6.34423
+I0413 20:30:13.082787 26319 stats.cpp:65] time Gen InterSw:	0.197784
+I0413 20:30:13.082792 26319 stats.cpp:65] time Gen IntraSw:	0.0322576
+I0413 20:30:13.082798 26319 stats.cpp:67] ----------------------------------------
+I0413 20:30:13.082803 26319 tabuopt.cpp:200] --------------------------------------------
+I0413 20:30:13.082808 26319 tabuopt.cpp:130] TABUSEARCH: Starting iteration: 1
+I0413 20:30:13.096886 26319 tabuopt.cpp:323] apply moves: IntraSw applied: 
+I0413 20:30:13.096891 26319 move.cpp:177] Move: IntraSw	    NodeID:28	  At Truck:0	  From Pos:2	  with NID:62	    To Pos:77	   savings:0.633333
+I0413 20:30:13.097247 26319 tabuopt.cpp:323] apply moves: IntraSw applied: 
+I0413 20:30:13.097252 26319 move.cpp:177] Move: IntraSw	    NodeID:133	  At Truck:1	  From Pos:7	  with NID:117	    To Pos:20	   savings:0.466667
+I0413 20:30:13.097262 26319 tabuopt.cpp:159] ----------------- TABUSEARCH: InterSw: 0
+I0413 20:30:13.142215 26319 tabuopt.cpp:323] apply moves: aspirational Tabu applied: 
+I0413 20:30:13.142221 26319 move.cpp:187] Move: InterSw	    NodeID:78	  (at Truck:0	  at Pos:11)	 with NodeID:21	    (at Truck:1	      at Pos:72)	   savings:1.43127
+I0413 20:30:13.142257 26319 tabuopt.cpp:159] ----------------- TABUSEARCH: InterSw: 1
+I0413 20:30:13.197466 26319 tabuopt.cpp:323] apply moves: aspirational non tabu applied: 
+I0413 20:30:13.197474 26319 move.cpp:187] Move: InterSw	    NodeID:15	  (at Truck:0	  at Pos:35)	 with NodeID:116	    (at Truck:1	      at Pos:38)	   savings:0.383333
+I0413 20:30:13.198515 26319 tabuopt.cpp:323] apply moves: aspirational non tabu applied: 
+I0413 20:30:13.198520 26319 move.cpp:187] Move: InterSw	    NodeID:142	  (at Truck:0	  at Pos:31)	 with NodeID:139	    (at Truck:1	      at Pos:35)	   savings:0.366667
+I0413 20:30:13.198530 26319 tabuopt.cpp:159] ----------------- TABUSEARCH: InterSw: 2
+I0413 20:30:13.249837 26319 tabuopt.cpp:323] apply moves: aspirational non tabu applied: 
+I0413 20:30:13.249843 26319 move.cpp:187] Move: InterSw	    NodeID:99	  (at Truck:0	  at Pos:36)	 with NodeID:123	    (at Truck:1	      at Pos:55)	   savings:0.0166667
+I0413 20:30:13.249855 26319 tabuopt.cpp:159] ----------------- TABUSEARCH: InterSw: 3
+I0413 20:30:13.305318 26319 tabuopt.cpp:323] apply moves: aspirational non tabu applied: 
+I0413 20:30:13.305325 26319 move.cpp:187] Move: InterSw	    NodeID:36	  (at Truck:0	  at Pos:38)	 with NodeID:46	    (at Truck:1	      at Pos:68)	   savings:0.192413
+I0413 20:30:13.305335 26319 tabuopt.cpp:159] ----------------- TABUSEARCH: InterSw: 4
+I0413 20:30:13.396035 26319 tabuopt.cpp:323] apply moves: aspirational Tabu applied: 
+I0413 20:30:13.396042 26319 move.cpp:187] Move: InterSw	    NodeID:21	  (at Truck:0	  at Pos:11)	 with NodeID:86	    (at Truck:1	      at Pos:70)	   savings:0.783333
+I0413 20:30:13.396054 26319 solution.cpp:331] Tau:
+I0413 20:30:13.396095 26319 basevehicle.cpp:189]  10001 2234 2272 2294 2232 2286 2298 9545 2291 2290 2274 2296 2265 2281 2256 2238 2260 2223 2262 2222 2278 2220 2271 2247 1843 2259 2252 1883 1699 8884 3253 3254 1877 1703 1701 3076 3083 3045 2254 1844 2261 2235 2251 2237 2287 2719 2258 2236 2248 2246 2280 2273 2300 7324 2226 2279 2282 2275 2264 2263 2225 2276 2230 2284 2285 8379 2208 2277 2292 2299 2233 1846 2228 2293 10003 2227 2268 2231 2266 2267 2295 2289 2229 2283 6377 10003 10001
+I0413 20:30:13.396132 26319 basevehicle.cpp:189]  10001 3047 3098 3049 3043 3053 3078 3077 3097 3096 9465 3082 3080 3094 3091 9277 3050 2821 3086 3093 3095 3051 3048 3074 3046 3070 3063 9006 3042 2822 1702 3090 3297 9083 2825 6366 7866 3041 1901 1731 5055 3052 1875 1874 1700 2307 2308 7833 3179 3085 3044 3088 3084 1716 3079 2826 9477 3081 2820 3087 1714 2823 2209 2255 2257 2245 2249 2250 2239 2244 2224 2297 2288 10003 10001
+I0413 20:30:13.396137 26319 tabuopt.cpp:170] ------------------TABUSEARCH: Ins: 0
+I0413 20:30:17.768431 26319 tabuopt.cpp:323] apply moves: aspirational Tabu applied: 
+I0413 20:30:17.768455 26319 move.cpp:167] Move: Ins	    NodeID:128	From Truck:1	  From Pos:51	  To Truck:0	    To Pos:29	   savings:0.565713
+I0413 20:30:17.768481 26319 tabuopt.cpp:170] ------------------TABUSEARCH: Ins: 1
+I0413 20:30:21.901295 26319 tabuopt.cpp:323] apply moves: aspirational Tabu applied: 
+I0413 20:30:21.901319 26319 move.cpp:167] Move: Ins	    NodeID:143	From Truck:0	  From Pos:84	  To Truck:1	    To Pos:73	   savings:2.41784
+I0413 20:30:21.901346 26319 tabuopt.cpp:170] ------------------TABUSEARCH: Ins: 2
+I0413 20:30:26.030495 26319 tabuopt.cpp:323] apply moves: aspirational Tabu applied: 
+I0413 20:30:26.030517 26319 move.cpp:167] Move: Ins	    NodeID:71	From Truck:0	  From Pos:13	  To Truck:1	    To Pos:71	   savings:0.750954
+I0413 20:30:26.030545 26319 tabuopt.cpp:170] ------------------TABUSEARCH: Ins: 3
+I0413 20:30:30.071138 26319 tabuopt.cpp:323] apply moves: aspirational Tabu applied: 
+I0413 20:30:30.071162 26319 move.cpp:167] Move: Ins	    NodeID:86	From Truck:0	  From Pos:11	  To Truck:1	    To Pos:70	   savings:0.66762
+I0413 20:30:30.071192 26319 tabuopt.cpp:170] ------------------TABUSEARCH: Ins: 4
+I0413 20:30:34.109949 26319 tabuopt.cpp:323] apply moves: aspirational Tabu applied: 
+I0413 20:30:34.109972 26319 move.cpp:167] Move: Ins	    NodeID:41	From Truck:0	  From Pos:49	  To Truck:1	    To Pos:63	   savings:1.29211
+I0413 20:30:34.110080 26319 solution.cpp:331] Tau:
+I0413 20:30:34.110132 26319 basevehicle.cpp:189]  10001 2234 2272 2294 2232 2286 2298 9545 2291 2290 2274 2265 2256 2238 2260 2223 2262 2222 2278 2220 2271 2247 1843 2259 2252 1883 1699 3088 3179 8884 3253 3254 1877 1703 1701 3074 2825 3096 3083 3045 2254 1844 2261 2235 2251 2237 2287 2719 2258 2236 2246 2280 2273 2300 7324 2226 2279 2282 2275 2264 2263 2225 2276 2230 2284 2285 8379 2208 2277 2292 2299 2233 1846 2228 10003 2293 2227 2268 2231 2266 2267 2295 2289 2229 2283 10003 10001
+I0413 20:30:34.110175 26319 basevehicle.cpp:189]  10001 3047 3098 3049 3043 3053 3078 3077 3097 9465 3082 3080 3094 3091 9277 3050 2821 3086 3093 3095 3051 3048 3046 3070 3063 9006 3042 2822 1702 3090 3297 9083 6366 7866 3041 1901 1731 5055 3052 1875 1874 1700 2307 2308 7833 3085 3044 3076 3084 1716 3079 2826 9477 3081 2820 3087 1714 2823 2209 2255 2257 2245 2248 2249 2250 2239 2244 2224 2297 2296 2281 2288 6377 10003 10001
+I0413 20:30:34.110180 26319 tabuopt.cpp:185] TABUSEARCH: Finished iteration: 1
+old cost721.819
+new cost710.428
+best cost710.428
+difference11.3906
+I0413 20:30:34.110196 26319 tabuopt.cpp:193] , run time in seconds: 21.0274
+I0413 20:30:34.110208 26319 tabubase.h:248] TabuList Stats at iteration: 1
+I0413 20:30:34.110213 26319 stats.cpp:62] ---------- Stats:  --------------
+I0413 20:30:34.110219 26319 stats.cpp:65]  Vehicle::e_makeFeasable:	369916
+I0413 20:30:34.110224 26319 stats.cpp:65] Best Cost After:	710.428
+I0413 20:30:34.110230 26319 stats.cpp:65] FeasableSol time:	6.95385
+I0413 20:30:34.110235 26319 stats.cpp:65] Initial cost:	744.522
+I0413 20:30:34.110241 26319 stats.cpp:65] Iteration:	1
+I0413 20:30:34.110246 26319 stats.cpp:65] Move::Move (copy) :	443929
+I0413 20:30:34.110252 26319 stats.cpp:65] Move::Move (invalid) :	122820
+I0413 20:30:34.110258 26319 stats.cpp:65] Move::setInsMove :	121756
+I0413 20:30:34.110265 26319 stats.cpp:65] Move::setInterSwMove :	787
+I0413 20:30:34.110270 26319 stats.cpp:65] Move::setIntraSwMove :	109
+I0413 20:30:34.110275 26319 stats.cpp:65] Node count:	159
+I0413 20:30:34.110281 26319 stats.cpp:65] Number of moves of type IntraSw:	8
+I0413 20:30:34.110286 26319 stats.cpp:65] Number of moves of type aspirational Tabu:	10
+I0413 20:30:34.110292 26319 stats.cpp:65] Number of moves of type aspirational non tabu:	11
+I0413 20:30:34.110297 26319 stats.cpp:65] Number of moves of type tabu:	2
+I0413 20:30:34.110302 26319 stats.cpp:65] OptSol::getInterSwNeighborhood :	0.414938
+I0413 20:30:34.110308 26319 stats.cpp:65] TabuOpt::TabuOpt:	1
+I0413 20:30:34.110313 26319 stats.cpp:65] TabuOpt::applyAmove:	41
+I0413 20:30:34.110319 26319 stats.cpp:65] TabuOpt::classifyMoves:	20
+I0413 20:30:34.110326 26319 stats.cpp:65] TabuOpt::cleanUpInsMoves:	20
+I0413 20:30:34.110330 26319 stats.cpp:65] TabuOpt::cleanUpInterSwMoves:	44
+I0413 20:30:34.110337 26319 stats.cpp:65] TabuOpt::cleanUpIntraSwMoves :	4
+I0413 20:30:34.110342 26319 stats.cpp:65] TabuOpt::cleanUpMoves:	31
+I0413 20:30:34.110347 26319 stats.cpp:65] TabuOpt::computeCosts:	121099
+I0413 20:30:34.110352 26319 stats.cpp:65] TabuOpt::doNeighborhoodMoves:	24
+I0413 20:30:34.110357 26319 stats.cpp:65] TabuOpt::getNeighborhood:	24
+I0413 20:30:34.110363 26319 stats.cpp:65] TabuOpt::search:	1
+I0413 20:30:34.110368 26319 stats.cpp:65] Tabubase::cleanExpired:	41
+I0413 20:30:34.110373 26319 stats.cpp:65] Tabubase::dumpStats:	2
+I0413 20:30:34.110378 26319 stats.cpp:65] Tabubase::generateNeighborhoodStats:	24
+I0413 20:30:34.110383 26319 stats.cpp:65] Tabubase::isTabu:	121036
+I0413 20:30:34.110389 26319 stats.cpp:65] Tabubase::makeTabu:	41
+I0413 20:30:34.110395 26319 stats.cpp:65] Tabubase::removeTruckFromTabuList:	41
+I0413 20:30:34.110400 26319 stats.cpp:65] Tabubase::savingsStats:	41
+I0413 20:30:34.110406 26319 stats.cpp:65] Tabubase::setBestAsCurrent:	1
+I0413 20:30:34.110411 26319 stats.cpp:65] Tabubase::setCurrentAsBest:	34
+I0413 20:30:34.110416 26319 stats.cpp:65] Vehicle count:	3
+I0413 20:30:34.110422 26319 stats.cpp:65] Vehicle::applyMoveINSerasePart:	120567
+I0413 20:30:34.110446 26319 stats.cpp:65] Vehicle::applyMoveINSinsertPart:	120567
+I0413 20:30:34.110455 26319 stats.cpp:65] Vehicle::applyMoveInterSw:	1958
+I0413 20:30:34.110460 26319 stats.cpp:65] Vehicle::applyMoveIntraSw:	117
+I0413 20:30:34.110466 26319 stats.cpp:65] Vehicle::e_insertIntoFeasableTruck:	157
+I0413 20:30:34.110471 26319 stats.cpp:65] Vehicle::eval_erase:	1566
+I0413 20:30:34.110476 26319 stats.cpp:65] Vehicle::eval_insertMoveDumps:	1566
+I0413 20:30:34.110482 26319 stats.cpp:65] Vehicle::eval_interSwapMoveDumps:	10
+I0413 20:30:34.110488 26319 stats.cpp:65] Vehicle::eval_interSwapMoveDumps (10 limit window):	41
+I0413 20:30:34.110493 26319 stats.cpp:65] Vehicle::eval_intraSwapMoveDumps:	8
+I0413 20:30:34.110499 26319 stats.cpp:65] Vehicle::timePCN nodes:	22482
+I0413 20:30:34.110505 26319 stats.cpp:65] Vehicle::timePCN positions:	29894
+I0413 20:30:34.110512 26319 stats.cpp:65] best Updated Last At Iteration:	1
+I0413 20:30:34.110517 26319 stats.cpp:65] cnt Calls Gen Ins:	10
+I0413 20:30:34.110522 26319 stats.cpp:65] cnt Calls Gen InterSw:	10
+I0413 20:30:34.110527 26319 stats.cpp:65] cnt Calls Gen IntraSw:	4
+I0413 20:30:34.110533 26319 stats.cpp:65] cnt Ins Applied:	20
+I0413 20:30:34.110538 26319 stats.cpp:65] cnt InterSw Applied:	13
+I0413 20:30:34.110543 26319 stats.cpp:65] cnt IntraSw Applied:	8
+I0413 20:30:34.110549 26319 stats.cpp:65] cum Moves Ins:	120529
+I0413 20:30:34.110555 26319 stats.cpp:65] cum Moves InterSw:	507
+I0413 20:30:34.110560 26319 stats.cpp:65] cum Moves IntraSw:	8
+I0413 20:30:34.110566 26319 stats.cpp:65] limitIns:	1
+I0413 20:30:34.110571 26319 stats.cpp:65] limitInterSw:	2
+I0413 20:30:34.110576 26319 stats.cpp:65] limitIntraSw:	2
+I0413 20:30:34.110581 26319 stats.cpp:65] neg sav Ins applied:	4
+I0413 20:30:34.110586 26319 stats.cpp:65] neg savings applied:	4
+I0413 20:30:34.110592 26319 stats.cpp:65] number of times best was Updated :	34
+I0413 20:30:34.110597 26319 stats.cpp:65] pos sav Ins applied:	16
+I0413 20:30:34.110604 26319 stats.cpp:65] pos sav InterSw applied:	13
+I0413 20:30:34.110608 26319 stats.cpp:65] pos sav IntraSw applied:	8
+I0413 20:30:34.110615 26319 stats.cpp:65] pos savings applied:	37
+I0413 20:30:34.110620 26319 stats.cpp:65] tabu Ins Moves Added:	20
+I0413 20:30:34.110625 26319 stats.cpp:65] tabu InterSw Moves Added:	13
+I0413 20:30:34.110630 26319 stats.cpp:65] tabu IntraSw Moves Added:	8
+I0413 20:30:34.110636 26319 stats.cpp:65] tabu Length Ins:	31
+I0413 20:30:34.110641 26319 stats.cpp:65] tabu Length InterSw:	10
+I0413 20:30:34.110647 26319 stats.cpp:65] tabu Length IntraSw:	15
+I0413 20:30:34.110652 26319 stats.cpp:65] tabu Moves resulted:	108973
+I0413 20:30:34.110658 26319 stats.cpp:65] time Gen Ins:	12.6025
+I0413 20:30:34.110664 26319 stats.cpp:65] time Gen InterSw:	0.414992
+I0413 20:30:34.110669 26319 stats.cpp:65] time Gen IntraSw:	0.0459513
+I0413 20:30:34.110676 26319 stats.cpp:67] ----------------------------------------
+I0413 20:30:34.110680 26319 tabuopt.cpp:200] --------------------------------------------
+I0413 20:30:34.110684 26319 tabuopt.cpp:130] TABUSEARCH: Starting iteration: 2
+I0413 20:30:34.123565 26319 tabuopt.cpp:323] apply moves: IntraSw applied: 
+I0413 20:30:34.123571 26319 move.cpp:177] Move: IntraSw	    NodeID:135	  At Truck:1	  From Pos:8	  with NID:95	    To Pos:16	   savings:0.2
+I0413 20:30:34.124044 26319 tabuopt.cpp:323] apply moves: IntraSw applied: 
+I0413 20:30:34.124049 26319 move.cpp:177] Move: IntraSw	    NodeID:62	  At Truck:0	  From Pos:2	  with NID:29	    To Pos:4	   savings:0.0833333
+I0413 20:30:34.124059 26319 tabuopt.cpp:159] ----------------- TABUSEARCH: InterSw: 0
+I0413 20:30:34.221757 26319 tabuopt.cpp:323] apply moves: aspirational non tabu applied: 
+I0413 20:30:34.221765 26319 move.cpp:187] Move: InterSw	    NodeID:2	  (at Truck:0	  at Pos:34)	 with NodeID:150	    (at Truck:1	      at Pos:31)	   savings:0.366667
+I0413 20:30:34.224624 26319 tabuopt.cpp:323] apply moves: aspirational Tabu applied: 
+I0413 20:30:34.224630 26319 move.cpp:187] Move: InterSw	    NodeID:51	  (at Truck:0	  at Pos:23)	 with NodeID:36	    (at Truck:1	      at Pos:65)	   savings:0.416667
+I0413 20:30:34.224676 26319 tabuopt.cpp:159] ----------------- TABUSEARCH: InterSw: 1
+I0413 20:30:34.341579 26319 tabuopt.cpp:323] apply moves: aspirational non tabu applied: 
+I0413 20:30:34.341588 26319 move.cpp:187] Move: InterSw	    NodeID:115	  (at Truck:0	  at Pos:35)	 with NodeID:140	    (at Truck:1	      at Pos:30)	   savings:0.233333
+I0413 20:30:34.346915 26319 tabuopt.cpp:323] apply moves: aspirational Tabu applied: 
+I0413 20:30:34.346921 26319 move.cpp:187] Move: InterSw	    NodeID:52	  (at Truck:0	  at Pos:14)	 with NodeID:21	    (at Truck:1	      at Pos:67)	   savings:0.0166667
+I0413 20:30:34.346931 26319 tabuopt.cpp:159] ----------------- TABUSEARCH: InterSw: 2
+I0413 20:30:34.500352 26319 tabuopt.cpp:323] apply moves: aspirational non tabu applied: 
+I0413 20:30:34.500360 26319 move.cpp:187] Move: InterSw	    NodeID:66	  (at Truck:0	  at Pos:62)	 with NodeID:87	    (at Truck:1	      at Pos:68)	   savings:0.0333333
+I0413 20:30:34.500370 26319 tabuopt.cpp:159] ----------------- TABUSEARCH: InterSw: 3
+I0413 20:30:34.651893 26319 tabuopt.cpp:323] apply moves: aspirational Tabu applied: 
+I0413 20:30:34.651900 26319 move.cpp:187] Move: InterSw	    NodeID:57	  (at Truck:0	  at Pos:11)	 with NodeID:52	    (at Truck:1	      at Pos:67)	   savings:0.334287
+I0413 20:30:34.660727 26319 tabuopt.cpp:323] apply moves: aspirational Tabu applied: 
+I0413 20:30:34.660732 26319 move.cpp:187] Move: InterSw	    NodeID:4	  (at Truck:0	  at Pos:33)	 with NodeID:115	    (at Truck:1	      at Pos:30)	   savings:0.184287
+I0413 20:30:34.660742 26319 tabuopt.cpp:159] ----------------- TABUSEARCH: InterSw: 4
+I0413 20:30:34.818022 26319 tabuopt.cpp:323] apply moves: aspirational non tabu applied: 
+I0413 20:30:34.818028 26319 move.cpp:187] Move: InterSw	    NodeID:13	  (at Truck:0	  at Pos:32)	 with NodeID:129	    (at Truck:1	      at Pos:29)	   savings:0.816667
+I0413 20:30:34.818040 26319 solution.cpp:331] Tau:
+I0413 20:30:34.818083 26319 basevehicle.cpp:189]  10001 2234 2232 2294 2272 2286 2298 9545 2291 2290 2274 2260 2256 2238 2224 2223 2262 2222 2278 2220 2271 2247 1843 2239 2252 1883 1699 3088 3179 8884 3253 3254 3090 3074 9083 3297 2825 3096 3083 3045 2254 1844 2261 2235 2251 2237 2287 2719 2258 2236 2246 2280 2273 2300 7324 2226 2279 2282 2275 2264 2263 2225 2297 2230 2284 2285 8379 2208 2277 2292 2299 2233 1846 2228 2293 10003 2227 2268 2231 2266 2267 2295 2289 2229 2283 10003 10001
+I0413 20:30:34.818120 26319 basevehicle.cpp:189]  10001 3047 3098 3049 3043 3053 3078 3077 2821 9465 3082 3080 3094 3091 9277 3050 3097 3086 3093 3095 3051 3048 3046 3070 3063 9006 3042 2822 1702 1877 1703 1701 6366 7866 3041 1901 1731 5055 3052 1875 1874 1700 2307 2308 7833 3085 3044 3076 3084 1716 3079 2826 9477 3081 2820 3087 1714 2823 2209 2255 2257 2245 2248 2249 2250 2259 2244 2265 2276 2296 2281 2288 6377 10003 10001
+I0413 20:30:34.818125 26319 tabuopt.cpp:170] ------------------TABUSEARCH: Ins: 0
+I0413 20:30:39.206437 26319 tabuopt.cpp:323] apply moves: aspirational Tabu applied: 
+I0413 20:30:39.206465 26319 move.cpp:167] Move: Ins	    NodeID:15	From Truck:1	  From Pos:35	  To Truck:0	    To Pos:26	   savings:0.349046
+I0413 20:30:39.206493 26319 tabuopt.cpp:170] ------------------TABUSEARCH: Ins: 1
+I0413 20:30:43.538336 26319 tabuopt.cpp:323] apply moves: aspirational Tabu applied: 
+I0413 20:30:43.538581 26319 move.cpp:167] Move: Ins	    NodeID:145	From Truck:1	  From Pos:43	  To Truck:0	    To Pos:30	   savings:0.165713
+I0413 20:30:43.538611 26319 tabuopt.cpp:170] ------------------TABUSEARCH: Ins: 2
+I0413 20:30:48.252288 26319 tabuopt.cpp:323] apply moves: IntraSw applied: 
+I0413 20:30:48.252313 26319 move.cpp:177] Move: IntraSw	    NodeID:62	  At Truck:0	  From Pos:4	  with NID:76	    To Pos:5	   savings:0.133333
+I0413 20:30:48.517838 26319 tabuopt.cpp:323] apply moves: IntraSw applied: 
+I0413 20:30:48.517863 26319 move.cpp:177] Move: IntraSw	    NodeID:120	  At Truck:1	  From Pos:11	  with NID:133	    To Pos:19	   savings:0.0166667
+I0413 20:30:48.535138 26319 tabuopt.cpp:323] apply moves: tabu applied: 
+I0413 20:30:48.535166 26319 move.cpp:167] Move: Ins	    NodeID:1	From Truck:1	  From Pos:40	  To Truck:0	    To Pos:27	   savings:-0.16762
+I0413 20:30:48.535190 26319 tabuopt.cpp:170] ------------------TABUSEARCH: Ins: 3
+I0413 20:30:52.873072 26319 tabuopt.cpp:323] apply moves: aspirational Tabu applied: 
+I0413 20:30:52.873100 26319 move.cpp:167] Move: Ins	    NodeID:46	From Truck:1	  From Pos:57	  To Truck:0	    To Pos:47	   savings:0.0823798
+I0413 20:30:52.873127 26319 tabuopt.cpp:170] ------------------TABUSEARCH: Ins: 4
+I0413 20:30:57.602732 26319 tabuopt.cpp:323] apply moves: IntraSw applied: 
+I0413 20:30:57.602754 26319 move.cpp:177] Move: IntraSw	    NodeID:29	  At Truck:0	  From Pos:2	  with NID:62	    To Pos:5	   savings:0.283333
+I0413 20:30:57.867225 26319 tabuopt.cpp:323] apply moves: IntraSw applied: 
+I0413 20:30:57.867249 26319 move.cpp:177] Move: IntraSw	    NodeID:132	  At Truck:1	  From Pos:13	  with NID:120	    To Pos:20	   savings:0.1
+I0413 20:30:57.883960 26319 tabuopt.cpp:323] apply moves: tabu applied: 
+I0413 20:30:57.883985 26319 move.cpp:167] Move: Ins	    NodeID:114	From Truck:1	  From Pos:24	  To Truck:0	    To Pos:36	   savings:-0.234287
+I0413 20:30:57.884011 26319 solution.cpp:331] Tau:
+I0413 20:30:57.884063 26319 basevehicle.cpp:189]  10001 2234 2272 2294 2286 2232 2298 9545 2291 2290 2274 2260 2256 2238 2224 2223 2262 2222 2278 2220 2271 2247 1843 2239 2252 1883 1901 1700 1699 3088 3179 7833 8884 3253 3254 3090 3070 3074 9083 3297 2825 3096 3083 3045 1844 2261 2235 2251 2254 2237 2287 2719 2258 2236 2280 2273 2300 7324 2226 2279 2282 2275 2264 2263 2230 2284 2285 8379 2208 2277 2292 2299 2233 1846 2228 10003 2293 2227 2268 2231 2266 2295 2289 2229 2283 10003 10001
+I0413 20:30:57.884104 26319 basevehicle.cpp:189]  10001 2267 2225 3047 3098 3049 3043 3053 3078 3077 2821 9465 3082 3095 3080 3091 9277 3050 3097 3086 3093 3094 3051 3048 3046 3063 9006 3042 2822 1702 1877 1703 1701 6366 7866 3041 1731 5055 3052 1875 1874 2307 2308 3085 3044 3076 3084 1716 3079 2826 9477 3081 2820 3087 1714 2823 2209 2255 2257 2245 2246 2248 2249 2250 2259 2244 2265 2297 2276 2296 2281 2288 6377 10003 10001
+I0413 20:30:57.884109 26319 tabuopt.cpp:185] TABUSEARCH: Finished iteration: 2
+old cost710.428
+new cost702.545
+best cost702.545
+difference7.8827
+I0413 20:30:57.884124 26319 tabuopt.cpp:193] , run time in seconds: 23.7734
+I0413 20:30:57.884135 26319 tabubase.h:248] TabuList Stats at iteration: 2
+I0413 20:30:57.884140 26319 stats.cpp:62] ---------- Stats:  --------------
+I0413 20:30:57.884145 26319 stats.cpp:65]  Vehicle::e_makeFeasable:	555844
+I0413 20:30:57.884151 26319 stats.cpp:65] Best Cost After:	702.545
+I0413 20:30:57.884156 26319 stats.cpp:65] FeasableSol time:	6.95385
+I0413 20:30:57.884162 26319 stats.cpp:65] Initial cost:	744.522
+I0413 20:30:57.884168 26319 stats.cpp:65] Iteration:	2
+I0413 20:30:57.884173 26319 stats.cpp:65] Move::Move (copy) :	709711
+I0413 20:30:57.884178 26319 stats.cpp:65] Move::Move (invalid) :	184861
+I0413 20:30:57.884184 26319 stats.cpp:65] Move::setInsMove :	182651
+I0413 20:30:57.884191 26319 stats.cpp:65] Move::setInterSwMove :	1127
+I0413 20:30:57.884196 26319 stats.cpp:65] Move::setIntraSwMove :	213
+I0413 20:30:57.884202 26319 stats.cpp:65] Node count:	159
+I0413 20:30:57.884207 26319 stats.cpp:65] Number of moves of type IntraSw:	14
+I0413 20:30:57.884212 26319 stats.cpp:65] Number of moves of type aspirational Tabu:	17
+I0413 20:30:57.884299 26319 stats.cpp:65] Number of moves of type aspirational non tabu:	15
+I0413 20:30:57.884305 26319 stats.cpp:65] Number of moves of type tabu:	4
+I0413 20:30:57.884310 26319 stats.cpp:65] OptSol::getInterSwNeighborhood :	0.983794
+I0413 20:30:57.884315 26319 stats.cpp:65] TabuOpt::TabuOpt:	1
+I0413 20:30:57.884321 26319 stats.cpp:65] TabuOpt::applyAmove:	65
+I0413 20:30:57.884326 26319 stats.cpp:65] TabuOpt::classifyMoves:	30
+I0413 20:30:57.884331 26319 stats.cpp:65] TabuOpt::cleanUpInsMoves:	29
+I0413 20:30:57.884337 26319 stats.cpp:65] TabuOpt::cleanUpInterSwMoves:	71
+I0413 20:30:57.884342 26319 stats.cpp:65] TabuOpt::cleanUpIntraSwMoves :	8
+I0413 20:30:57.884347 26319 stats.cpp:65] TabuOpt::cleanUpMoves:	50
+I0413 20:30:57.884353 26319 stats.cpp:65] TabuOpt::computeCosts:	182285
+I0413 20:30:57.884358 26319 stats.cpp:65] TabuOpt::doNeighborhoodMoves:	37
+I0413 20:30:57.884364 26319 stats.cpp:65] TabuOpt::getNeighborhood:	37
+I0413 20:30:57.884369 26319 stats.cpp:65] TabuOpt::search:	1
+I0413 20:30:57.884374 26319 stats.cpp:65] Tabubase::cleanExpired:	65
+I0413 20:30:57.884379 26319 stats.cpp:65] Tabubase::dumpStats:	3
+I0413 20:30:57.884384 26319 stats.cpp:65] Tabubase::generateNeighborhoodStats:	37
+I0413 20:30:57.884390 26319 stats.cpp:65] Tabubase::isTabu:	182188
+I0413 20:30:57.884395 26319 stats.cpp:65] Tabubase::makeTabu:	65
+I0413 20:30:57.884402 26319 stats.cpp:65] Tabubase::removeTruckFromTabuList:	65
+I0413 20:30:57.884407 26319 stats.cpp:65] Tabubase::savingsStats:	65
+I0413 20:30:57.884413 26319 stats.cpp:65] Tabubase::setBestAsCurrent:	1
+I0413 20:30:57.884418 26319 stats.cpp:65] Tabubase::setCurrentAsBest:	55
+I0413 20:30:57.884423 26319 stats.cpp:65] Vehicle count:	3
+I0413 20:30:57.884428 26319 stats.cpp:65] Vehicle::applyMoveINSerasePart:	181477
+I0413 20:30:57.884434 26319 stats.cpp:65] Vehicle::applyMoveINSinsertPart:	181477
+I0413 20:30:57.884440 26319 stats.cpp:65] Vehicle::applyMoveInterSw:	3122
+I0413 20:30:57.884445 26319 stats.cpp:65] Vehicle::applyMoveIntraSw:	227
+I0413 20:30:57.884451 26319 stats.cpp:65] Vehicle::e_insertIntoFeasableTruck:	157
+I0413 20:30:57.884457 26319 stats.cpp:65] Vehicle::eval_erase:	2341
+I0413 20:30:57.884464 26319 stats.cpp:65] Vehicle::eval_insertMoveDumps:	2341
+I0413 20:30:57.884469 26319 stats.cpp:65] Vehicle::eval_interSwapMoveDumps:	15
+I0413 20:30:57.884475 26319 stats.cpp:65] Vehicle::eval_interSwapMoveDumps (10 limit window):	56
+I0413 20:30:57.884480 26319 stats.cpp:65] Vehicle::eval_intraSwapMoveDumps:	14
+I0413 20:30:57.884486 26319 stats.cpp:65] Vehicle::timePCN nodes:	74632
+I0413 20:30:57.884492 26319 stats.cpp:65] Vehicle::timePCN positions:	91336
+I0413 20:30:57.884497 26319 stats.cpp:65] best Updated Last At Iteration:	2
+I0413 20:30:57.884503 26319 stats.cpp:65] cnt Calls Gen Ins:	15
+I0413 20:30:57.884508 26319 stats.cpp:65] cnt Calls Gen InterSw:	15
+I0413 20:30:57.884515 26319 stats.cpp:65] cnt Calls Gen IntraSw:	7
+I0413 20:30:57.884520 26319 stats.cpp:65] cnt Ins Applied:	30
+I0413 20:30:57.884524 26319 stats.cpp:65] cnt InterSw Applied:	21
+I0413 20:30:57.884531 26319 stats.cpp:65] cnt IntraSw Applied:	14
+I0413 20:30:57.884536 26319 stats.cpp:65] cum Moves Ins:	181424
+I0413 20:30:57.884541 26319 stats.cpp:65] cum Moves InterSw:	764
+I0413 20:30:57.884547 26319 stats.cpp:65] cum Moves IntraSw:	14
+I0413 20:30:57.884552 26319 stats.cpp:65] limitIns:	1
+I0413 20:30:57.884557 26319 stats.cpp:65] limitInterSw:	2
+I0413 20:30:57.884562 26319 stats.cpp:65] limitIntraSw:	2
+I0413 20:30:57.884568 26319 stats.cpp:65] neg sav Ins applied:	11
+I0413 20:30:57.884573 26319 stats.cpp:65] neg savings applied:	11
+I0413 20:30:57.884579 26319 stats.cpp:65] number of times best was Updated :	55
+I0413 20:30:57.884584 26319 stats.cpp:65] pos sav Ins applied:	19
+I0413 20:30:57.884590 26319 stats.cpp:65] pos sav InterSw applied:	21
+I0413 20:30:57.884595 26319 stats.cpp:65] pos sav IntraSw applied:	14
+I0413 20:30:57.884601 26319 stats.cpp:65] pos savings applied:	54
+I0413 20:30:57.884606 26319 stats.cpp:65] tabu Ins Moves Added:	30
+I0413 20:30:57.884629 26319 stats.cpp:65] tabu InterSw Moves Added:	21
+I0413 20:30:57.884636 26319 stats.cpp:65] tabu IntraSw Moves Added:	14
+I0413 20:30:57.884642 26319 stats.cpp:65] tabu Length Ins:	31
+I0413 20:30:57.884647 26319 stats.cpp:65] tabu Length InterSw:	10
+I0413 20:30:57.884652 26319 stats.cpp:65] tabu Length IntraSw:	15
+I0413 20:30:57.884657 26319 stats.cpp:65] tabu Moves resulted:	170000
+I0413 20:30:57.884665 26319 stats.cpp:65] time Gen Ins:	18.9646
+I0413 20:30:57.884670 26319 stats.cpp:65] time Gen InterSw:	0.983875
+I0413 20:30:57.884675 26319 stats.cpp:65] time Gen IntraSw:	0.0975795
+I0413 20:30:57.884681 26319 stats.cpp:67] ----------------------------------------
+I0413 20:30:57.884685 26319 tabuopt.cpp:200] --------------------------------------------
+I0413 20:30:57.884691 26319 tabuopt.cpp:237] TABUSEARCH: Total time: 23.774
+I0413 20:30:57.884697 26319 solution.cpp:331] Tau:
+I0413 20:30:57.884743 26319 basevehicle.cpp:189]  10001 2234 2272 2294 2286 2232 2298 9545 2291 2290 2274 2260 2256 2238 2224 2223 2262 2222 2278 2220 2271 2247 1843 2239 2252 1883 1901 1700 1699 3088 3179 7833 8884 3253 3254 3090 3070 3074 9083 3297 2825 3096 3083 3045 1844 2261 2235 2251 2254 2237 2287 2719 2258 2236 2280 2273 2300 7324 2226 2279 2282 2275 2264 2263 2230 2284 2285 8379 2208 2277 2292 2299 2233 1846 2228 10003 2293 2227 2268 2231 2266 2295 2289 2229 2283 10003 10001
+I0413 20:30:57.884784 26319 basevehicle.cpp:189]  10001 2267 2225 3047 3098 3049 3043 3053 3078 3077 2821 9465 3082 3095 3080 3091 9277 3050 3097 3086 3093 3094 3051 3048 3046 3063 9006 3042 2822 1702 1877 1703 1701 6366 7866 3041 1731 5055 3052 1875 1874 2307 2308 3085 3044 3076 3084 1716 3079 2826 9477 3081 2820 3087 1714 2823 2209 2255 2257 2245 2246 2248 2249 2250 2259 2244 2265 2297 2276 2296 2281 2288 6377 10003 10001
+I0413 20:30:57.885283 26319 costvehicle.cpp:303]  +++++++++++++++++++++  	 TRUCK #<<0      +++++++++++++++++++++
+I0413 20:30:57.885288 26319 costvehicle.cpp:305]  Average Container:
+I0413 20:30:57.885304 26319 twnode.cpp:94] 158 = -1,		type -1,	x -56.181012,	y -34.893203,	open 0,	close 360,	demand 2611.6129,	serviceT 2,	 street:-1,	 hint:
+I0413 20:30:57.885308 26319 costvehicle.cpp:307]  ------  current path -------
+I0413 20:30:57.885350 26319 basevehicle.cpp:189]  10001 2234 2272 2294 2286 2232 2298 9545 2291 2290 2274 2260 2256 2238 2224 2223 2262 2222 2278 2220 2271 2247 1843 2239 2252 1883 1901 1700 1699 3088 3179 7833 8884 3253 3254 3090 3070 3074 9083 3297 2825 3096 3083 3045 1844 2261 2235 2251 2254 2237 2287 2719 2258 2236 2280 2273 2300 7324 2226 2279 2282 2275 2264 2263 2230 2284 2285 8379 2208 2277 2292 2299 2233 1846 2228 10003 2293 2227 2268 2231 2266 2295 2289 2229 2283 10003 10001
+I0413 20:30:57.885354 26319 costvehicle.cpp:310]  ------  truck time limits -------
+I0413 20:30:57.885359 26319 costvehicle.cpp:311] Shift Starts	0
+I0413 20:30:57.885365 26319 costvehicle.cpp:312] Shift ends	500
+I0413 20:30:57.885370 26319 costvehicle.cpp:313] Shift length	500
+I0413 20:30:57.885377 26319 costvehicle.cpp:316] ------Real  Values of current truck in the solution -------
+                   realttSC	20.0067
+                   realttCC	1.45601
+                   realttCD	48.8295
+                   realttDC	49.3995
+                   realttDE	25.0081
+                 service(E)	0
+                maxcapacity	192000
+              C.getdemand()	2611.61
+         C.getservicetime()	2
+                 C.closes()	360
+    path[size()-1].closes()	360
+  dumpSite.getservicetime()	20
+dumpSite.getDepartureTime()	396.571
+                      realN	2
+endingSite.getArrivalTime()	421.579
+   depot.getDepartureTime()	0
+                       size	85
+                     Z =	75	= floor( maxcapacity/C.getdemand() )	75
+                     n =	83	=size() - 1 - ( realN()-1 )  	83
+                     z =	8	=(realN()==1)  z = n  : n % Z	8
+              Zmissing =	67	=Z-z	67
+                realz1 =	9	== min ( floor ( realIdleTimeSCDE / (C.getservicetime() + realttCC) ) , Zmissing )	9
+                realz2 =	0	=idleTimeSDCDE / (C.getservicetime() + realttCC)	0
+realArrivalEclosesLast =	455.268	=path[size()-1].closes() + realttCD + dumpSite.getservicetime() + realttDE 	    realForcedWaitTime =	44.7323	=shiftEnds -( realArrivalEclosesLast  +  serviceE() )	44.7323
+         realTotalTime =	421.579	=endingSite.getArrivalTime()	421.579
+          realIdleTime =	33.6888	=realArrivalEclosesLast -  realTotalTime	33.6888
+      realIdleTimeSCDE =	231.552	=( Zmissing>0 )?  (C.getservicetime() + realttCC ) * Zmissing :
+		(Zmissing==0? C.closes() - ( depot.getDepartureTime() +  realttSC):0) ;	231.552
+     realIdleTimeSDCDE =	0	=C.closes() - ( dumpSite.getDepartureTime() + realttDC)	0
+                sumIdle=	265.241	=sumIdle=realIdleTimeSCDE+realIdleTimeSDCDE+realIdleTime	265.241
+        workNotDonePerc=	0	=(double (realz1 + realz2))  /(double (n + realz1+realz2))
+     1+ workNotDonePerc=	1	=(double (realz1 + realz2))  /(double (n + realz1+realz2))
+realTotalTime + sumIdle)=	686.82
+I0413 20:30:57.885438 26319 costvehicle.cpp:303]  +++++++++++++++++++++  	 TRUCK #<<1      +++++++++++++++++++++
+I0413 20:30:57.885443 26319 costvehicle.cpp:305]  Average Container:
+I0413 20:30:57.885457 26319 twnode.cpp:94] 158 = -1,		type -1,	x -56.181012,	y -34.893203,	open 0,	close 360,	demand 2611.6129,	serviceT 2,	 street:-1,	 hint:
+I0413 20:30:57.885462 26319 costvehicle.cpp:307]  ------  current path -------
+I0413 20:30:57.885498 26319 basevehicle.cpp:189]  10001 2267 2225 3047 3098 3049 3043 3053 3078 3077 2821 9465 3082 3095 3080 3091 9277 3050 3097 3086 3093 3094 3051 3048 3046 3063 9006 3042 2822 1702 1877 1703 1701 6366 7866 3041 1731 5055 3052 1875 1874 2307 2308 3085 3044 3076 3084 1716 3079 2826 9477 3081 2820 3087 1714 2823 2209 2255 2257 2245 2246 2248 2249 2250 2259 2244 2265 2297 2276 2296 2281 2288 6377 10003 10001
+I0413 20:30:57.885501 26319 costvehicle.cpp:310]  ------  truck time limits -------
+I0413 20:30:57.885505 26319 costvehicle.cpp:311] Shift Starts	0
+I0413 20:30:57.885510 26319 costvehicle.cpp:312] Shift ends	500
+I0413 20:30:57.885516 26319 costvehicle.cpp:313] Shift length	500
+I0413 20:30:57.885524 26319 costvehicle.cpp:316] ------Real  Values of current truck in the solution -------
+                   realttSC	20.3289
+                   realttCC	0.328009
+                   realttCD	48.0129
+                   realttDC	52.792
+                   realttDE	25.0081
+                 service(E)	0
+                maxcapacity	192000
+              C.getdemand()	2611.61
+         C.getservicetime()	2
+                 C.closes()	360
+    path[size()-1].closes()	360
+  dumpSite.getservicetime()	20
+dumpSite.getDepartureTime()	255.958
+                      realN	1
+endingSite.getArrivalTime()	280.967
+   depot.getDepartureTime()	0
+                       size	73
+                     Z =	73	= floor( maxcapacity/C.getdemand() )	73
+                     n =	72	=size() - 1 - ( realN()-1 )  	72
+                     z =	72	=(realN()==1)  z = n  : n % Z	72
+              Zmissing =	1	=Z-z	1
+                realz1 =	1	== min ( floor ( realIdleTimeSCDE / (C.getservicetime() + realttCC) ) , Zmissing )	1
+                realz2 =	22	=idleTimeSDCDE / (C.getservicetime() + realttCC)	22
+realArrivalEclosesLast =	455.021	=path[size()-1].closes() + realttCD + dumpSite.getservicetime() + realttDE 	    realForcedWaitTime =	44.9789	=shiftEnds -( realArrivalEclosesLast  +  serviceE() )	44.9789
+         realTotalTime =	280.967	=endingSite.getArrivalTime()	280.967
+          realIdleTime =	174.054	=realArrivalEclosesLast -  realTotalTime	174.054
+      realIdleTimeSCDE =	2.32801	=( Zmissing>0 )?  (C.getservicetime() + realttCC ) * Zmissing :
+		(Zmissing==0? C.closes() - ( depot.getDepartureTime() +  realttSC):0) ;	2.32801
+     realIdleTimeSDCDE =	51.2495	=C.closes() - ( dumpSite.getDepartureTime() + realttDC)	51.2495
+                sumIdle=	227.632	=sumIdle=realIdleTimeSCDE+realIdleTimeSDCDE+realIdleTime	227.632
+        workNotDonePerc=	0	=(double (realz1 + realz2))  /(double (n + realz1+realz2))
+     1+ workNotDonePerc=	1	=(double (realz1 + realz2))  /(double (n + realz1+realz2))
+realTotalTime + sumIdle)=	508.599
+I0413 20:30:57.885578 26319 solution.cpp:331] Tau:
+I0413 20:30:57.885619 26319 basevehicle.cpp:189]  10001 2234 2272 2294 2286 2232 2298 9545 2291 2290 2274 2260 2256 2238 2224 2223 2262 2222 2278 2220 2271 2247 1843 2239 2252 1883 1901 1700 1699 3088 3179 7833 8884 3253 3254 3090 3070 3074 9083 3297 2825 3096 3083 3045 1844 2261 2235 2251 2254 2237 2287 2719 2258 2236 2280 2273 2300 7324 2226 2279 2282 2275 2264 2263 2230 2284 2285 8379 2208 2277 2292 2299 2233 1846 2228 10003 2293 2227 2268 2231 2266 2295 2289 2229 2283 10003 10001
+I0413 20:30:57.885656 26319 basevehicle.cpp:189]  10001 2267 2225 3047 3098 3049 3043 3053 3078 3077 2821 9465 3082 3095 3080 3091 9277 3050 3097 3086 3093 3094 3051 3048 3046 3063 9006 3042 2822 1702 1877 1703 1701 6366 7866 3041 1731 5055 3052 1875 1874 2307 2308 3085 3044 3076 3084 1716 3079 2826 9477 3081 2820 3087 1714 2823 2209 2255 2257 2245 2246 2248 2249 2250 2259 2244 2265 2297 2276 2296 2281 2288 6377 10003 10001
+I0413 20:30:57.885663 26319 stats.cpp:62] ---------- Stats: Final --------------
+I0413 20:30:57.885668 26319 stats.cpp:65]  Vehicle::e_makeFeasable:	555844
+I0413 20:30:57.885674 26319 stats.cpp:65] Best Cost After:	702.545
+I0413 20:30:57.885680 26319 stats.cpp:65] Best distance:	0
+I0413 20:30:57.885685 26319 stats.cpp:65] FeasableSol time:	6.95385
+I0413 20:30:57.885690 26319 stats.cpp:65] Initial cost:	744.522
+I0413 20:30:57.885695 26319 stats.cpp:65] Iteration:	2
+I0413 20:30:57.885701 26319 stats.cpp:65] Move::Move (copy) :	709711
+I0413 20:30:57.885706 26319 stats.cpp:65] Move::Move (invalid) :	184861
+I0413 20:30:57.885712 26319 stats.cpp:65] Move::setInsMove :	182651
+I0413 20:30:57.885717 26319 stats.cpp:65] Move::setInterSwMove :	1127
+I0413 20:30:57.885723 26319 stats.cpp:65] Move::setIntraSwMove :	213
+I0413 20:30:57.885728 26319 stats.cpp:65] Node count:	159
+I0413 20:30:57.885735 26319 stats.cpp:65] Number of moves of type IntraSw:	14
+I0413 20:30:57.885740 26319 stats.cpp:65] Number of moves of type aspirational Tabu:	17
+I0413 20:30:57.885746 26319 stats.cpp:65] Number of moves of type aspirational non tabu:	15
+I0413 20:30:57.885751 26319 stats.cpp:65] Number of moves of type tabu:	4
+I0413 20:30:57.885756 26319 stats.cpp:65] OptSol::getInterSwNeighborhood :	0.983794
+I0413 20:30:57.885761 26319 stats.cpp:65] Search time:	68.0785
+I0413 20:30:57.885766 26319 stats.cpp:65] TabuOpt::TabuOpt:	1
+I0413 20:30:57.885771 26319 stats.cpp:65] TabuOpt::applyAmove:	65
+I0413 20:30:57.885776 26319 stats.cpp:65] TabuOpt::classifyMoves:	30
+I0413 20:30:57.885782 26319 stats.cpp:65] TabuOpt::cleanUpInsMoves:	29
+I0413 20:30:57.885787 26319 stats.cpp:65] TabuOpt::cleanUpInterSwMoves:	71
+I0413 20:30:57.885792 26319 stats.cpp:65] TabuOpt::cleanUpIntraSwMoves :	8
+I0413 20:30:57.885797 26319 stats.cpp:65] TabuOpt::cleanUpMoves:	50
+I0413 20:30:57.885803 26319 stats.cpp:65] TabuOpt::computeCosts:	182285
+I0413 20:30:57.885808 26319 stats.cpp:65] TabuOpt::doNeighborhoodMoves:	37
+I0413 20:30:57.885814 26319 stats.cpp:65] TabuOpt::getNeighborhood:	37
+I0413 20:30:57.885819 26319 stats.cpp:65] TabuOpt::search:	1
+I0413 20:30:57.885824 26319 stats.cpp:65] Tabubase::cleanExpired:	65
+I0413 20:30:57.885829 26319 stats.cpp:65] Tabubase::dumpStats:	3
+I0413 20:30:57.885834 26319 stats.cpp:65] Tabubase::generateNeighborhoodStats:	37
+I0413 20:30:57.885840 26319 stats.cpp:65] Tabubase::isTabu:	182188
+I0413 20:30:57.885845 26319 stats.cpp:65] Tabubase::makeTabu:	65
+I0413 20:30:57.885850 26319 stats.cpp:65] Tabubase::removeTruckFromTabuList:	65
+I0413 20:30:57.885856 26319 stats.cpp:65] Tabubase::savingsStats:	65
+I0413 20:30:57.885861 26319 stats.cpp:65] Tabubase::setBestAsCurrent:	1
+I0413 20:30:57.885866 26319 stats.cpp:65] Tabubase::setCurrentAsBest:	55
+I0413 20:30:57.885871 26319 stats.cpp:65] Total time:	75.0331
+I0413 20:30:57.885877 26319 stats.cpp:65] Vehicle count:	3
+I0413 20:30:57.885882 26319 stats.cpp:65] Vehicle::applyMoveINSerasePart:	181477
+I0413 20:30:57.885889 26319 stats.cpp:65] Vehicle::applyMoveINSinsertPart:	181477
+I0413 20:30:57.885893 26319 stats.cpp:65] Vehicle::applyMoveInterSw:	3122
+I0413 20:30:57.885900 26319 stats.cpp:65] Vehicle::applyMoveIntraSw:	227
+I0413 20:30:57.885921 26319 stats.cpp:65] Vehicle::e_insertIntoFeasableTruck:	157
+I0413 20:30:57.885928 26319 stats.cpp:65] Vehicle::eval_erase:	2341
+I0413 20:30:57.885934 26319 stats.cpp:65] Vehicle::eval_insertMoveDumps:	2341
+I0413 20:30:57.885939 26319 stats.cpp:65] Vehicle::eval_interSwapMoveDumps:	15
+I0413 20:30:57.885946 26319 stats.cpp:65] Vehicle::eval_interSwapMoveDumps (10 limit window):	56
+I0413 20:30:57.885951 26319 stats.cpp:65] Vehicle::eval_intraSwapMoveDumps:	14
+I0413 20:30:57.885956 26319 stats.cpp:65] Vehicle::timePCN nodes:	74632
+I0413 20:30:57.885962 26319 stats.cpp:65] Vehicle::timePCN positions:	91336
+I0413 20:30:57.885967 26319 stats.cpp:65] best Updated Last At Iteration:	2
+I0413 20:30:57.885972 26319 stats.cpp:65] best cost:	702.545
+I0413 20:30:57.885977 26319 stats.cpp:65] cnt Calls Gen Ins:	15
+I0413 20:30:57.885982 26319 stats.cpp:65] cnt Calls Gen InterSw:	15
+I0413 20:30:57.885988 26319 stats.cpp:65] cnt Calls Gen IntraSw:	7
+I0413 20:30:57.885993 26319 stats.cpp:65] cnt Ins Applied:	30
+I0413 20:30:57.885998 26319 stats.cpp:65] cnt InterSw Applied:	21
+I0413 20:30:57.886003 26319 stats.cpp:65] cnt IntraSw Applied:	14
+I0413 20:30:57.886008 26319 stats.cpp:65] cum Moves Ins:	181424
+I0413 20:30:57.886014 26319 stats.cpp:65] cum Moves InterSw:	764
+I0413 20:30:57.886019 26319 stats.cpp:65] cum Moves IntraSw:	14
+I0413 20:30:57.886025 26319 stats.cpp:65] limitIns:	1
+I0413 20:30:57.886030 26319 stats.cpp:65] limitInterSw:	2
+I0413 20:30:57.886035 26319 stats.cpp:65] limitIntraSw:	2
+I0413 20:30:57.886040 26319 stats.cpp:65] neg sav Ins applied:	11
+I0413 20:30:57.886045 26319 stats.cpp:65] neg savings applied:	11
+I0413 20:30:57.886050 26319 stats.cpp:65] number of times best was Updated :	55
+I0413 20:30:57.886056 26319 stats.cpp:65] pos sav Ins applied:	19
+I0413 20:30:57.886061 26319 stats.cpp:65] pos sav InterSw applied:	21
+I0413 20:30:57.886066 26319 stats.cpp:65] pos sav IntraSw applied:	14
+I0413 20:30:57.886072 26319 stats.cpp:65] pos savings applied:	54
+I0413 20:30:57.886077 26319 stats.cpp:65] tabu Ins Moves Added:	30
+I0413 20:30:57.886082 26319 stats.cpp:65] tabu InterSw Moves Added:	21
+I0413 20:30:57.886087 26319 stats.cpp:65] tabu IntraSw Moves Added:	14
+I0413 20:30:57.886093 26319 stats.cpp:65] tabu Length Ins:	31
+I0413 20:30:57.886098 26319 stats.cpp:65] tabu Length InterSw:	10
+I0413 20:30:57.886103 26319 stats.cpp:65] tabu Length IntraSw:	15
+I0413 20:30:57.886109 26319 stats.cpp:65] tabu Moves resulted:	170000
+I0413 20:30:57.886114 26319 stats.cpp:65] time Gen Ins:	18.9646
+I0413 20:30:57.886121 26319 stats.cpp:65] time Gen InterSw:	0.983875
+I0413 20:30:57.886126 26319 stats.cpp:65] time Gen IntraSw:	0.0975795
+I0413 20:30:57.886132 26319 stats.cpp:67] ----------------------------------------
+I0413 20:30:57.886386 26319 solution.cpp:194] Solution::getSolutionForPg: seq: 162, count: 162
