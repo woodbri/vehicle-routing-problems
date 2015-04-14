@@ -441,7 +441,9 @@ Solution::Solution( const std::string &infile,
 
       case  Twnode::kEnd:
       	    solPath.push_back( truck.getEndingSite() );
+#ifdef VRPMINTRACE
             solPath.dumpid( "solPath" );
+#endif
             if ( truck.e_setPath( solPath ) ) {
                 fleet.push_back( truck );
                 assigned = assigned + stops;
@@ -455,9 +457,6 @@ Solution::Solution( const std::string &infile,
 
   }  //while
 
-  //dumpEval();
-  //setInitialValues();
-  //dumpCostValues();
   computeCosts();
 
   if (unassigned.size() ||  !(assigned == pickups)) {
