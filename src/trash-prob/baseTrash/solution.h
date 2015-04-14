@@ -53,6 +53,7 @@ public:
 
   Solution( const Prob_trash &P ): Prob_trash( P ) {};
   Solution( const std::string &infile, const std::vector<int> &solution );
+  Solution( const std::string &infile, const std::string &soliFile );
 
 
   void setweights( double _w1, double _w2, double _w3 ) {w1 = _w1; w2 = _w2; w3 = _w3;};

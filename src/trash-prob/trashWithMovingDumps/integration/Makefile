@@ -200,7 +200,7 @@ BASETRASH_HEADS = $(BASETRASH_HDS) $(BASECLASSES_HEADS)
 
 
 
-INITTRASH_SRCS =  $(INITTRASH_DIR)/feasableSolLoop.cpp
+INITTRASH_SRCS =  $(INITTRASH_DIR)/feasableSolLoop.cpp  $(INITTRASH_DIR)/givenInitialSol.cpp
 INITTRASH_HDS = $(INITTRASH_SRCS:.cpp=.h)
 INITTRASH_OBJS = $(addprefix $(BUILD_DIR)/$(INITTRASH)/,$(notdir $(INITTRASH_SRCS:.cpp=.o)))
 INITTRASH_HEADS = $(INITTRASH_HDS)  $(BASECLASSES_HEADS)
@@ -217,11 +217,14 @@ DEPS = $(addprefix $(BUILD_DIR)/,$(SRCS:.cpp=.d))
 
 
 
-all:   $(OBJS) $(BASECLASSES_OBJS) $(BASETRASH_OBJS) $(INITTRASH_OBJS) $(SOLVERTRASH_OBJS) build/trash.o ./bin/trash ./build/libvrptools.a
+all:   $(OBJS) $(BASECLASSES_OBJS) $(BASETRASH_OBJS) $(INITTRASH_OBJS) $(SOLVERTRASH_OBJS) build/trash.o build/trash_given_sol.o ./build/libvrptools.a
 
 
 
 build/trash.o: trash.cpp $(OSRMCLIENT_HEADER) $(BASECLASSES_HEADS) $(BASETRASH_HEADS) $(INITTRASH_HEADS) $(SOLVERTRASH_HDS) $(HEADS)
+	$(CPP) $(CPPFLAGS) $(INCLUDES) -c $< -o $@
+
+build/trash_given_sol.o: trash_given_sol.cpp $(OSRMCLIENT_HEADER) $(BASECLASSES_HEADS) $(BASETRASH_HEADS) $(INITTRASH_HEADS) $(SOLVERTRASH_HDS) $(HEADS)
 	$(CPP) $(CPPFLAGS) $(INCLUDES) -c $< -o $@
 
 
@@ -259,9 +262,14 @@ build/%.o: %.cpp %.h $(BASECLASSES_HEADS) $(BASETRASH_HEADS) $(INITTRASH_HEADS) 
 bin/trash: build/trash.o $(OBJS) $(BASECLASSES_OBJS) $(BASETRASH_OBJS) $(INITTRASH_OBJS) $(SOLVERTRASH_OBJS) $(BASECLASSES_HEADS) $(BASETRASH_HEADS) $(INITTRASH_HEADS) $(SOLVERTRASH_HEADS)
 	$(CPP) $(CPPFLAGS_OUT) $^ -o $@ $(LDFLAGS)
 
+bin/trash_given_sol: build/trash_given_sol.o $(OBJS) $(BASECLASSES_OBJS) $(BASETRASH_OBJS) $(INITTRASH_OBJS) $(SOLVERTRASH_OBJS) $(BASECLASSES_HEADS) $(BASETRASH_HEADS) $(INITTRASH_HEADS) $(SOLVERTRASH_HEADS)
+	$(CPP) $(CPPFLAGS_OUT) $^ -o $@ $(LDFLAGS)
+
 test: ./bin/trash ../muni-b/muni-b.containers.txt ../muni-b/muni-b.otherlocs.txt ../muni-b/muni-b.dmatrix-time.txt ../muni-b/muni-b.vehicles.txt
 	./bin/trash ../muni-b/muni-b >./logs/muni-b.out
 
+test1: ./bin/trash_given_sol ../muni-b/muni-b.containers.txt ../muni-b/muni-b.otherlocs.txt ../muni-b/muni-b.dmatrix-time.txt ../muni-b/muni-b.vehicles.txt
+	./bin/trash_given_sol ../muni-b/muni-b >./logs/muni-b.out
 
 build/libvrptools.a: $(OBJS) $(BASECLASSES_OBJS) $(BASETRASH_OBJS) $(INITTRASH_OBJS) $(SOLVERTRASH_OBJS) $(BASECLASSES_HEADS) $(BASETRASH_HEADS) $(INITTRASH_HEADS) $(SOLVERTRASH_HEADS)
 	$(AR) -cq $@ $(OBJS) $(BASECLASSES_OBJS) $(BASETRASH_OBJS) $(INITTRASH_OBJS) $(SOLVERTRASH_OBJS)

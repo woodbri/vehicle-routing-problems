@@ -368,6 +368,84 @@ double Solution::getAverageRouteDurationLength()
 
 
 Solution::Solution( const std::string &infile,
+                    const std::string &solFile )
+ : Prob_trash( infile )
+{
+  std::vector<int> sol;
+  std::ifstream in( solFile.c_str() );
+  std::string line;
+  int number;
+
+  if (!in)  {
+#ifdef DOVRPLOG
+    DLOG( INFO ) << "\nFailed to open file " << solFile << "\n";
+#endif
+    return;
+  }
+
+  while ( in >> number )  {
+         sol.push_back(number);
+  }
+  int nid, vid;
+  Vehicle truck;
+  Bucket unassigned = pickups;
+  Bucket assigned;
+  bool idSol = true;
+
+  fleet.clear();
+  Bucket solPath;
+
+  UINT i = 0;
+
+  while ( i < sol.size() ) {
+    if ( (sol[i] < 0) && (i == sol.size() - 1) ) {
+      break; 
+    }
+    ++i;
+    vid = sol[i];
+
+    //get the truck from the truks:
+    for ( UINT tr = 0; tr < trucks.size(); tr++ )
+      if ( trucks[tr].getVid() == vid ) {
+        truck = trucks[tr];
+        break;
+      }
+
+    i = i + 2;
+    solPath.clear();
+
+    while ( i<sol.size() and sol[i] >= 0 ) {
+
+      if ( idSol ) nid = pickups.getNidFromId( sol[i] );
+      else nid = sol[i];
+
+      solPath.push_back( datanodes[nid] );
+      i++;
+    }
+
+    solPath.dumpid( "solPath" );
+
+    if ( truck.e_setPath( solPath ) ) {
+      fleet.push_back( truck );
+      assigned = assigned + solPath;
+      unassigned = unassigned - solPath;
+    }
+
+    i++;
+  };
+
+  computeCosts();
+
+#ifdef DOVRPLOG
+  if (unassigned.size() ||  !(assigned == pickups))
+    DLOG( INFO ) << "Something went wrong creating the solution \n";
+#endif
+
+}
+
+
+
+Solution::Solution( const std::string &infile,
                     const std::vector<int> &sol ): Prob_trash( infile )
 {
 
