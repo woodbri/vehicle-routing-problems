@@ -17,8 +17,10 @@
 #include <string>
 #include <deque>
 #include <vector>
-#include "DataStructures/Coordinate.h"
-#include "Server/DataStructures/RouteParameters.h"
+
+#include <osrm/coordinate.hpp>
+#include <osrm/route_parameters.hpp>
+#include <osrm/json_container.hpp>
 
 #ifdef DOVRPLOG
 #include "logger.h"
@@ -34,6 +36,7 @@
 
 #include "timer.h"
 #include "stats.h"
+
 
 /*! \class OsrmClient
  * \brief This class provides a shared memory connection to OSRM.
@@ -143,6 +146,6 @@ public:
 #endif
 };
 
-#define osrm OsrmClient::Instance()
+#define osrmi OsrmClient::Instance()
 
 #endif

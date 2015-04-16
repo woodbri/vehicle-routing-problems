@@ -212,19 +212,19 @@ class Twpath : public TwBucket<knode> {
   #ifdef OSRMCLIENT
   void evaluateOsrm(double maxcapacity) {
     assert(size() > 0);
-    assert(osrm->getUse());
-    if (!osrm->getConnection()) {
+    assert(osrmi->getUse());
+    if (!osrmi->getConnection()) {
       #ifdef VRPMINTRACE
       DLOG(INFO)<<"OSRM connection not found: using normal evaluation";
       #endif
       evaluate(0, maxcapacity);
       return;
     };
-    osrm->clear();
+    osrmi->clear();
     for ( iterator node = path.begin(); node != path.end(); node++) {
       if ( node == path.begin() ) {
         node->evaluate(maxcapacity);
-        osrm->addViaPoint(*node);
+        osrmi->addViaPoint(*node);
       } else {
         node->evaluateOsrm(*(node - 1), maxcapacity);
       }
