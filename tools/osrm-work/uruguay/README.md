@@ -123,7 +123,7 @@ In this case, data will be swapped to a cache on disk, and you will still be abl
 Starting the routing process and pointing it to shared memory is also very, very easy:
 
 ```Bash
-$ ./osrm-routed --sharedmemory=yes
+$ ./osrm-routed --shared-memory=yes
 ```
 
 To verify the service is running via TCP/IP

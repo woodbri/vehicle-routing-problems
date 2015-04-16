@@ -188,9 +188,13 @@ int get_osrm_route_geom( float8 *lat, float8 *lon, int num, char **gtext,
         }
         else {
 #ifdef DOVRPLOG
+            DLOG(INFO) << osrmi->getErrorMsg();
             DLOG(INFO) << "in wrapper, failed to extract geometry text!";
 #endif
-            *err_msg = strdup( "getOsrmViaroute failed to extract geometry text!" );
+            std::string msg;
+            msg = "getOsrmViaroute failed to extract geometry text! : " + osrmi->getErrorMsg();
+            PGR_LOG( msg.c_str() );
+            *err_msg = strdup( msg.c_str() );
             return -1;
         }
     }

@@ -13,13 +13,57 @@
 
 #include <osrm/json_container.hpp>
 
+inline std::string escape_JSON(const std::string &input)
+{
+    // escape and skip reallocations if possible
+    std::string output;
+    output.reserve(input.size() + 4); // +4 assumes two backslashes on avg
+    for (const char letter : input)
+    {
+        switch (letter)
+        {
+        case '\\':
+            output += "\\\\";
+            break;
+        case '"':
+            output += "\\\"";
+            break;
+        case '/':
+            output += "\\/";
+            break;
+        case '\b':
+            output += "\\b";
+            break;
+        case '\f':
+            output += "\\f";
+            break;
+        case '\n':
+            output += "\\n";
+            break;
+        case '\r':
+            output += "\\r";
+            break;
+        case '\t':
+            output += "\\t";
+            break;
+        default:
+            output.append(1, letter);
+            break;
+        }
+    }
+    return output;
+}
+
+
 struct Renderer : mapbox::util::static_visitor<>
 {
   Renderer(std::ostream& _out) : out(_out) {}
 
   void operator () (const osrm::json::String& string) const
   {
-    out << "\"" << string.value << "\"";
+    out << "\"";
+    out << escape_JSON(string.value);
+    out << "\"";
   }
 
   void operator () (const osrm::json::Number& number) const
@@ -34,7 +78,10 @@ struct Renderer : mapbox::util::static_visitor<>
     std::unordered_map<std::string, osrm::json::Value>::const_iterator iterator;
     iterator = object.values.begin();
     while (iterator != object.values.end()) {
-      out << "\"" << (*iterator).first << "\":";
+      const auto string_to_insert = (*iterator).first;
+      out << "\"";
+      out << escape_JSON(string_to_insert);
+      out << "\":";
       mapbox::util::apply_visitor(Renderer(out), (*iterator).second);
       if (++iterator != object.values.end()) {
         out << ",";
