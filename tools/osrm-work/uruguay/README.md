@@ -106,10 +106,10 @@ session    required   pam_limits.so
 Using Shared Memory
 ---
 
-With all these changes done, you should now load all shared memory directly into RAM. Loading data into shared memory is as easy as 
+With all these changes done, you should now load all shared memory directly into RAM. Because we want to be able to access the datastore from postgres it is important that it be started as the postgres user otherwise it will have access denied error issues. Loading data into shared memory is as easy as 
 
 ```Bash
-$ ./osrm-datastore /path/to/data.osrm
+$ sudo -u postgres ./osrm-datastore -s /path/to/data.osrm
 ```
 
 If there is insufficient available RAM (or not enough space configured), you will receive the following warning when loading data with `osrm-datastore`:
@@ -123,7 +123,7 @@ In this case, data will be swapped to a cache on disk, and you will still be abl
 Starting the routing process and pointing it to shared memory is also very, very easy:
 
 ```Bash
-$ ./osrm-routed --shared-memory=yes
+$ sudo -u postgres ./osrm-routed -s
 ```
 
 To verify the service is running via TCP/IP
@@ -131,3 +131,13 @@ To verify the service is running via TCP/IP
 ```Bash
 GET 'http://127.0.0.1:5000/viaroute?loc=-34.848845,-56.21662&loc=-34.848821,-56.0948369999999&alt=false'
 ```
+
+To verify that vrptools extension can also access the datastore, you will need to connect to a database with vrptools extension installed and run a query similar to this:
+
+```Psql
+select * from vrp_getOsrmRouteCompressedGeom(array[-34.848845,-34.848821]::float8[],array[-56.21662,-56.0948369999999]::float[]);
+```
+
+and make sure that this does not throw an error. You might need to change the coordinates to be in your coverage area.
+
+
