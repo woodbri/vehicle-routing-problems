@@ -43,14 +43,14 @@ TrashConfig::TrashConfig() : Config()
 #endif
 
 #ifdef OSRMCLIENT
-  osrm->useOsrm( true );
+  osrmi->useOsrm( true );
 #ifdef DOVRPLOG
 
-  if ( osrm->getConnection() ) set ("osrmClient", " is available");
+  if ( osrmi->getConnection() ) set ("osrmClient", " is available");
   else set( "OsrmClient", " is not available");
 
 #endif
-  osrm->useOsrm( false );
+  osrmi->useOsrm( false );
 #else
   set( "osrmClient", " not set to be used" );
 #endif

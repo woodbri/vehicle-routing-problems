@@ -348,20 +348,20 @@ void BaseVehicle::evaluate()
 
 #ifdef OSRMCLIENT
 void BaseVehicle::evaluateOsrm() {
-  if (!osrm->getConnection()) {
+  if (!osrmi->getConnection()) {
     DLOG(INFO)<<"OSRM connection not found: using normal evaluation";
     evaluate();
     return;
   };
-  bool oldUse=osrm->getUse();
-  osrm->useOsrm(true);
+  bool oldUse=osrmi->getUse();
+  osrmi->useOsrm(true);
   path.evaluateOsrm(getmaxcapacity());
 
   Trashnode last = path[path.size() - 1];
   dumpSite.evaluateOsrm(last, getmaxcapacity());
   endingSite.evaluate(dumpSite, getmaxcapacity());
-  osrm->clear();
-  osrm->useOsrm(oldUse);
+  osrmi->clear();
+  osrmi->useOsrm(oldUse);
 };
 #endif
 

@@ -45,7 +45,7 @@ cd src/trash-prob/trashWithMovingDumps/integration
 
 ### Makefile.library to integrate with postgresql
 
-This make file has one required parameter ``PGVER=9.2|9.3`` and is used to define which postgresql version you are building against. It also requires that you have already run ``make -f Makefile.vrptools`` or it will remind you to do so.
+This make file has one required parameter ``PGVER=9.2|9.3|9.4`` and is used to define which postgresql version you are building against. It also requires that you have already run ``make -f Makefile.vrptools`` or it will remind you to do so.
 
 NOTE: This makefile looks for ``/usr/lib/postgresql/$(PGVER)/bin/pg_config``, if you have not installed postgresql-server-dev-$(PGVER) in this location you will need to edit the ``Makefile.library``.
 
@@ -60,12 +60,14 @@ Note we built and tested against a fairly old version of osrm-backend as defined
 \code{.bash}
 git clone https://github.com/Project-OSRM/osrm-backend.git
 cd orsm-backend
-git checkout 8f18ba3 -b orsm-tools
+ # git checkout 8f18ba3 -b orsm-tools   # old version
+git checkout 61dca4a -b orsm-tools      # circa 2015-04-13 develop
 mkdir build
 cd build
 cmake ..
 pwd  # to get an appropriate path for 
 make  # remember to copy the link parameters needed for OSRMCLIENT_LIBS above
+sudo make install
 \endcode
 
 ### rapidjson
@@ -135,6 +137,18 @@ This example queries identifies the required column names for each table.
 More detailed information is below.
 
 \code{.sql}
+    -- check that the data you are passing is ok
+    -- and report explicit problems if it is not ok
+    SELECT *
+      FROM vrp_trashCollectionCheck(
+        'select id, x, y, open, close, service, demand from containers',
+        'select id, x, y, open, close from otherlocs',
+        'select vid, start_id, dump_id, end_id, capacity, dumpservicetime,
+                starttime, endtime from vehicles',
+        'select from_id, to_id, ttime from ttimes'
+        );
+
+    -- run the vrp optimization
     SELECT seq, vehicle_id, node_id, node_type, delta_time, cargo
       FROM vrp_trashCollection(
         'select id, x, y, open, close, service, demand from containers',
@@ -142,6 +156,14 @@ More detailed information is below.
         'select vid, start_id, dump_id, end_id, capacity, dumpservicetime,
                 starttime, endtime from vehicles',
         'select from_id, to_id, ttime from ttimes'
+        );
+
+    -- this is useful to test whether the osrm shared memory connection is
+    -- working and it is used to fetch the actual route geometry for display
+    -- in a browser application.
+    select * from vrp_getOsrmRouteCompressedGeom(
+        array[-34.848845,-34.848821]::float8[],
+        array[-56.21662,-56.0948369999999]::float[]
         );
 \endcode
 

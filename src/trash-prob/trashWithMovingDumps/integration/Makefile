@@ -9,7 +9,9 @@ CPP = g++
 CPP = g++
 
 # when blank, even when set to compile with OSRM it will compile without osrm
-OSRMBACKEND_DIR = $(HOME)/work/osrm-backend/
+#OSRMBACKEND_DIR = $(HOME)/work/osrm-backend/
+#OSRMBACKEND_DIR = /home/fpacheco/workspace/idm/osrm-backend
+OSRMBACKEND_DIR = /usr/local/include/osrm
  
 BASETRASH = baseTrash
 BASECLASSES = baseClasses
@@ -27,17 +29,17 @@ BIN_DIR = ./bin
 # setting NO_TRACE = <something>  invalidates the other traces
 NO_TRACE =
 TRACE_MIN = yes
-TRACE_ALL =
+TRACE_ALL = 
 
 ifeq ("$(NO_TRACE)", "")
   ifeq ("$(TRACE_ALL)", "")
     ifeq ("$(TRACE_MIN)", "")
       TRACE_CFLAGS =
     else
-      TRACE_CFLAGS = -DVRPMINTRACE
+      TRACE_CFLAGS = -DVRPMINTRACE -DOSRMCLIENTTRACE
     endif
   else
-    TRACE_CFLAGS = -DVRPMINTRACE -DVRPMAXTRACE
+    TRACE_CFLAGS = -DVRPMINTRACE -DVRPMAXTRACE -DOSRMCLIENTTRACE
   endif
 else
   TRACE_CFLAGS =
@@ -129,8 +131,10 @@ OSRMCLIENT_LIBS =
 OSRMCLIENT_HEADER =
 else
 OSRMCLIENT_HEADER =$(BASECLASSES_DIR)/osrmclient.h
-OSRMCLIENT_CFLAGS = -DOSRMCLIENT -I$(OSRMBACKEND_DIR)
-OSRMCLIENT_LIBS = -L/usr/local/lib -lboost_filesystem -lboost_iostreams -lboost_program_options -lboost_regex -lboost_system -lboost_thread -lpthread -lOSRM -lUUID -lGITDESCRIPTION -lz -lrt -lboost_filesystem -lboost_iostreams -lboost_program_options -lboost_regex -lboost_system -lboost_thread -lpthread -lstxxl
+OSRMCLIENT_CFLAGS = -std=c++11 -DOSRMCLIENT -I$(OSRMBACKEND_DIR)
+OSRMCLIENT_LIBS = -L/usr/local/lib -lboost_filesystem -lboost_iostreams -lboost_program_options -lboost_regex \
+	-lboost_system -lboost_thread -lpthread -lOSRM -lz -lrt \
+	-lboost_filesystem -lboost_iostreams -lboost_program_options -lboost_regex -lboost_system -lboost_thread -lpthread -lstxxl
 endif
 
 
@@ -139,7 +143,7 @@ INCLUDES = -I$(BASECLASSES_DIR) -I$(BASETRASH_DIR) -I$(INITTRASH_DIR) -I$(SOLVER
 CPPCOMPILEFLAGS = -Wreorder -Wall -Wextra -Wdouble-promotion 
 CPPCOMPILEFLAGS =
 CPPFLAGS = -g -O0 -MMD  -MP -fPIC $(CPPCOMPILEFLAGS) $(OSRMCLIENT_CFLAGS) $(DEFINES) $(STATS_CFLAGS) $(PLOT_CFLAGS) $(LOGGER_CFLAGS) $(DEBUG_CFLAGS) $(TRACE_CFLAGS)
-LDFLAGS = -lgd $(INCLUDES) -L$(BASECLASSES) -L$(BASETRASH) -L$(INITTRASH)  $(JSON_LIBS) $(OSRMCLIENT_LIBS) $(LOGGER_LIBS)
+LDFLAGS = -L/usr/lib/x86_64-linux-gnu -lgd $(INCLUDES) -L$(BASECLASSES) -L$(BASETRASH) -L$(INITTRASH)  $(JSON_LIBS) $(OSRMCLIENT_LIBS) $(LOGGER_LIBS)
 
 CPPFLAGS_OUT = $(INCLUDES) $(OSRMCLIENT_CFLAGS) $(DEFINES) $(STATS_CFLAGS) $(PLOT_CFLAGS) $(LOGGER_CFLAGS) $(DEBUG_CFLAGS) $(TRACE_CFLAGS)
 LDFLAGS_OUT = -L$(BASECLASSES) -L$(BASETRASH) -L$(INITTRASH)  $(OSRMCLIENT_LIBS) $(LOGGER_LIBS)

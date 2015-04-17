@@ -430,20 +430,20 @@ template <class knode> class TWC {
   void setTravelTimeOsrm(UID from, UID to) const {
     assert(from < original.size() && to < original.size());
     double time;
-    if (!osrm->getConnection()) {
+    if (!osrmi->getConnection()) {
       setTravelTimeNonOsrm(from, to);
       return;
     }
 
-    bool oldStateOsrm = osrm->getUse();
-    osrm->useOsrm(true);
+    bool oldStateOsrm = osrmi->getUse();
+    osrmi->useOsrm(true);
 
-    if (!osrm->getOsrmTime(original[from], original[to], time)) {
+    if (!osrmi->getOsrmTime(original[from], original[to], time)) {
       setTravelTimeNonOsrm(from, to);
       return;
     }
 
-    osrm->useOsrm(oldStateOsrm);
+    osrmi->useOsrm(oldStateOsrm);
     travel_Time[from][to] = time;
     setTwcij(from, to);
   }
@@ -455,7 +455,7 @@ template <class knode> class TWC {
     setTravelTimeNonOsrm(from, to);
     return;
     #else
-    if (!osrm->getConnection()) {
+    if (!osrmi->getConnection()) {
       setTravelTimeNonOsrm(from, to);
       return;
     }
@@ -538,7 +538,7 @@ template <class knode> class TWC {
     double time;
 
     if ( prev == from ) {  // 3 parameters
-      if (osrm->getOsrmTime(original[from], original[middle], original[to]
+      if (osrmi->getOsrmTime(original[from], original[middle], original[to]
                             , time)) {
           travel_Time4.insert(std::pair<TTindex, double>(index, time));
           return time;
@@ -549,7 +549,7 @@ template <class knode> class TWC {
       return time;
     }
     // 4 parameters
-    if (osrm->getOsrmTime(original[prev], original[from], original[middle],
+    if (osrmi->getOsrmTime(original[prev], original[from], original[middle],
                               original[to], time)) {
       travel_Time4.insert(std::pair<TTindex,double>(index,time));
       return time;
@@ -1408,11 +1408,11 @@ template <class knode> class TWC {
       from = i * 100;
       to = std::min((i + 1) * 100, total);
       hints.clear();
-      osrm->clear();
+      osrmi->clear();
 
-      for ( j = from; j < to ; j++ ) osrm->addViaPoint(original[j]);
+      for ( j = from; j < to ; j++ ) osrmi->addViaPoint(original[j]);
 
-      if (osrm->getOsrmViaroute() && osrm->getOsrmHints(hints)) {
+      if (osrmi->getOsrmViaroute() && osrmi->getOsrmHints(hints)) {
         for (j = from, k = 0; j < to; j++, k++) {
           original[j].set_hint(hints[k]);
         }

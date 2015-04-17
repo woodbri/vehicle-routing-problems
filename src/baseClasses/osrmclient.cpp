@@ -11,7 +11,13 @@
  * the terms of the MIT License. Please file LICENSE for details.
  *
  ********************************************************************VRP*/
-#include "Library/OSRM.h"
+#include <osrm/osrm.hpp>
+#include <osrm/libosrm_config.hpp>
+#include "renderer.hpp"
+
+#include <climits>
+#include <sstream>
+#include <string>
 
 #ifdef DOVRPLOG
 #include "logger.h"
@@ -24,7 +30,6 @@
 #include "timer.h"
 #include "stats.h"
 #endif
-
 
 OsrmClient *OsrmClient::p_osrm = NULL;
 OSRM *OsrmClient::routing_machine = NULL;
@@ -50,8 +55,17 @@ OsrmClient::OsrmClient()
 #endif
 
   try {
+    // No server paths needed (shared memory)
     ServerPaths server_paths;
-    OsrmClient::routing_machine = new OSRM( server_paths, true );
+    // Develop branch
+    libosrm_config losrm_config;
+    losrm_config.server_paths = server_paths;
+    losrm_config.use_shared_memory = true;
+    // Default
+    losrm_config.max_locations_distance_table = 100;
+    // Default
+    losrm_config.max_locations_map_matching = -1;
+    OsrmClient::routing_machine = new OSRM( losrm_config );
   } catch ( std::exception &e ) {
     status = -1;
     err_msg = std::string( "OsrmClient::OsrmClient caught exception: " ) + e.what();
@@ -63,24 +77,15 @@ OsrmClient::OsrmClient()
     return;
   };
 
-  route_parameters.zoomLevel = 18;
-
-  route_parameters.printInstructions = true;
-
-  route_parameters.alternateRoute = false;
-
+  route_parameters.zoom_level = 18;
+  route_parameters.print_instructions = true;
+  route_parameters.alternate_route = false;
   route_parameters.geometry = false;
-
   route_parameters.compression = false;
-
-  route_parameters.checkSum = UINT_MAX;
-
+  route_parameters.check_sum = UINT_MAX;
   route_parameters.service = "viaroute";
-
-  route_parameters.outputFormat = "json";
-
-  route_parameters.jsonpParameter = "";
-
+  route_parameters.output_format = "json";
+  route_parameters.jsonp_parameter = "";
   route_parameters.language = "";
 
   status = 0;
@@ -98,8 +103,6 @@ OsrmClient::OsrmClient()
 
 #endif
 }
-
-
 
 /*!
  * \brief Clear out any old points and reset the OsrmClient to a clean state.
@@ -299,11 +302,9 @@ bool OsrmClient::getOsrmTime( const Node &node1, const Node &node2,
   return false;
 }
 
-
-
 /*!
  * \brief Connect to the OSRM engine, issue the request and save the json response back in the object.
- * \return True if an error happened and err_msg will be set. False if ok.
+ * \return False if an error happened and err_msg will be set. True if ok.
  */
 bool OsrmClient::getOsrmViaroute()
 {
@@ -337,10 +338,11 @@ bool OsrmClient::getOsrmViaroute()
   }
 
   err_msg = "";
-  http::Reply osrm_reply;
+  //http::Reply osrm_reply;
+  osrm::json::Object json_result;
 
   try {
-    routing_machine->RunQuery( route_parameters, osrm_reply );
+    routing_machine->RunQuery( route_parameters, json_result );
   } catch ( std::exception &e ) {
     err_msg = std::string( "OsrmClient:getOsrmViaRoute caught exception: " )
               + e.what();
@@ -353,15 +355,11 @@ bool OsrmClient::getOsrmViaroute()
     return false;
   }
 
-
-
   httpContent = "";
-  std::vector<std::string>::iterator sit;
 
-  for ( sit = osrm_reply.content.begin();
-        sit != osrm_reply.content.end();
-        ++sit )
-    httpContent += *sit;
+  std::stringstream tmp_ss;
+  tmp_ss << json_result;
+  httpContent = tmp_ss.str();
 
   status = 1;
 #ifdef DOSTATS
@@ -370,7 +368,6 @@ bool OsrmClient::getOsrmViaroute()
 #endif
   return true;
 }
-
 
 /*!
  * \brief Get the OSRM travel time for the requested route.
@@ -702,9 +699,23 @@ bool OsrmClient::getTime( rapidjson::Document &jsondoc, double &time )
 
   // extract the total_time and convert from seconds to minutes
   time = ( double ) jsondoc["route_summary"]["total_time"].GetDouble() / 60.0;
+
+#ifdef OSRMCLIENTTRACE
+  /*
+  DLOG( INFO ) << "OsrmClient:getTime - json: " << httpContent << std::endl;
+  DLOG( INFO ) << "OsrmClient:getTime - time: " << time << " min" << std::endl;
+  */
+#endif
+
   double penalty;
 
   if ( addPenalty and getPenalty( jsondoc, penalty ) ) time += penalty;
+
+#ifdef OSRMCLIENTTRACE
+  /*
+  DLOG( INFO ) << "OsrmClient:getTime - time + penalty: " << time << " min" << std::endl;
+  */
+#endif
 
   return true;
 }
@@ -873,4 +884,3 @@ bool OsrmClient::getPenalty( rapidjson::Document &jsondoc,
 #endif
   return true;
 }
-

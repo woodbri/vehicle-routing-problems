@@ -152,12 +152,12 @@ int get_osrm_route_geom( float8 *lat, float8 *lon, int num, char **gtext,
     DLOG(INFO) << "Called get_osrm_route_geom";
     PGR_LOG("Called get_osrm_route_geom");
 
-    osrm->useOsrm( true );
+    osrmi->useOsrm( true );
 
-    std::string err = osrm->getErrorMsg();
+    std::string err = osrmi->getErrorMsg();
     PGR_LOG( err.c_str() );
 
-    if (not osrm->getConnection()) {
+    if (not osrmi->getConnection()) {
 #ifdef DOVRPLOG
         DLOG(INFO) << "in wrapper, OSRM connection is not available!";
 #endif
@@ -166,11 +166,11 @@ int get_osrm_route_geom( float8 *lat, float8 *lon, int num, char **gtext,
         return -1;
     }
 
-    osrm->clear();
-    osrm->setWantGeometryText( true );
+    osrmi->clear();
+    osrmi->setWantGeometryText( true );
 
     for (int i=0; i<num; i++) {
-        osrm->addViaPoint(lat[i], lon[i]);
+        osrmi->addViaPoint(lat[i], lon[i]);
 #ifdef DOVRPLOG
         DLOG(INFO) << i << "\t" << lat[i] << "\t" << lon[i];
 #endif
@@ -180,17 +180,21 @@ int get_osrm_route_geom( float8 *lat, float8 *lon, int num, char **gtext,
 
     std::string geom;
 
-    if (osrm->getOsrmViaroute()) {
+    if (osrmi->getOsrmViaroute()) {
         // success
-        PGR_LOG( osrm->getHttpContent().c_str() );
-        if (osrm->getOsrmGeometryText( geom )) {
+        PGR_LOG( osrmi->getHttpContent().c_str() );
+        if (osrmi->getOsrmGeometryText( geom )) {
             *gtext = strdup( geom.c_str() );
         }
         else {
 #ifdef DOVRPLOG
+            DLOG(INFO) << osrmi->getErrorMsg();
             DLOG(INFO) << "in wrapper, failed to extract geometry text!";
 #endif
-            *err_msg = strdup( "getOsrmViaroute failed to extract geometry text!" );
+            std::string msg;
+            msg = "getOsrmViaroute failed to extract geometry text! : " + osrmi->getErrorMsg();
+            PGR_LOG( msg.c_str() );
+            *err_msg = strdup( msg.c_str() );
             return -1;
         }
     }

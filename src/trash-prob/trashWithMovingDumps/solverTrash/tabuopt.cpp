@@ -122,7 +122,7 @@ void TabuOpt::search()
 
   //first cycle with osrm
 #ifdef OSRMCLIENT
-  osrm->useOsrm( true );
+  osrmi->useOsrm( true );
 #endif
 
   for ( int i = 0; i < maxIteration; i++ ) {
@@ -132,7 +132,7 @@ void TabuOpt::search()
 
 #if defined (OSRMCLIENT) && defined (VRPMINTRACE)
 
-    if ( osrm->getUse() )
+    if ( osrmi->getUse() )
       DLOG( INFO ) << "OSRM set to be used";
     else DLOG( INFO ) << "OSRM set to be not used";
 
@@ -147,7 +147,7 @@ void TabuOpt::search()
 
 #ifdef OSRMCLIENT
 
-    if ( osrm->getUse() ) cycleLimit = 1;
+    if ( osrmi->getUse() ) cycleLimit = 1;
     else cycleLimit = 5;
 
 #endif
@@ -214,9 +214,9 @@ void TabuOpt::search()
 #else
 
 
-    if ( std::abs( newCost - oldCost ) > 0.5 )   osrm->useOsrm ( false );
+    if ( std::abs( newCost - oldCost ) > 0.5 )   osrmi->useOsrm ( false );
     else {
-      if ( osrm->getUse() == true ) {
+      if ( osrmi->getUse() == true ) {
 #ifdef VRPMINTRACE
         DLOG( INFO ) << "costs didnt change quiting";
 #endif
@@ -225,7 +225,7 @@ void TabuOpt::search()
 #ifdef VRPMINTRACE
         DLOG( INFO ) << "costs didnt change TRYING with OSRM";
 #endif
-        osrm->useOsrm ( true );
+        osrmi->useOsrm ( true );
         continue;
       }
     }
