@@ -398,12 +398,13 @@ bool TabuOpt::doNeighborhoodMoves( Move::Mtype whichNeighborhood, int maxMoves)
   do {
 
 
-#ifdef VRPMAXTRACE
+#ifdef VRPMINTRACE
     DLOG( INFO ) << ( getTotalMovesMade() - actualMoveCount ) << " > " << maxMoves
                  << " ***************************************************";
     DLOG( INFO ) << " Factor  " << factor;
 #endif
 
+    if (factor > 1 ) break;
     if ( ( getTotalMovesMade() - actualMoveCount ) > maxMoves ) break;
 
     //if (whichNeighborhood==Move::Ins) factor=1;

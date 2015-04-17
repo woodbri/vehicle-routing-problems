@@ -116,7 +116,7 @@ void CostVehicle::setCost(const Trashnode &last) {
 
   realttCD = 0;
   realttDC = 0;
-  double realZ = 0;
+  int realZ = 0;
 
   if ( path.dumpVisits() != 0 ) {
     for ( UINT i = 1; i < path.size() - 1; i++ ) {
@@ -151,6 +151,7 @@ void CostVehicle::setCost(const Trashnode &last) {
   //setting this n as the last
   lastn = n;
 
+  if (Z == 0) Z = realZ;
   z = ( realN() == 1 ) ?  n  : n % Z ;
   //>0 good, we can work more containers/trip
   //double deltaZ = Z - z;

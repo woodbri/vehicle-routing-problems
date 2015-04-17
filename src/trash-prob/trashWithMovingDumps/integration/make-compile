@@ -2,8 +2,8 @@
 
 make clean all
 
-make -f Makefile.library PGVER=9.3 clean all
+make -f Makefile.library PGVER=9.4 clean all
 
-sudo make -f Makefile.library PGVER=9.3 install
+sudo make -f Makefile.library PGVER=9.4 install
 
 

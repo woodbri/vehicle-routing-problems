@@ -34,6 +34,8 @@
  * - 1: Dump site
  * - 2: Pickup location
  * - 3: End site
+ * - 4: delivery site
+ * - 5: load site
  * Currently the pick & delivery problem is using node type values of:
  * - -1: Invalid
  * - 0: Depot or Start location also as ending site
@@ -48,11 +50,11 @@
 class Twnode: public Node {
  public:
   typedef enum {
-    kInvalid = -2,  ///< an invalid or undefined move
-    kUnknown = -1,  ///< an invalid or undefined move
+    kInvalid = -2,  ///< invalid node
+    kUnknown = -1,  ///< undefined node
     kStart = 0,     ///< starting site
-    kDump = 1,      ///< dump site, empties truck
-    kPickup = 2,    ///< pickup site
+    kPickup = 1,    ///< pickup site
+    kDump = 2,      ///< dump site, empties truck
     kEnd = 3,       ///< ending site
     kDelivery = 4,   ///< delivery site
     kLoad = 5       ///< load site, fills the truck

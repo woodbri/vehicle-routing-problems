@@ -23,7 +23,6 @@
 
 #ifdef DOVRPLOG
 #include "logger.h"
-//#include "glog/utilities.h"
 #endif
 
 #ifdef DOSTATS
@@ -34,7 +33,7 @@
 
 
 #include "trashconfig.h"
-#include "feasableSolLoop.h"
+#include "givenInitialSol.h"
 #include "tabuopt.h"
 
 
@@ -80,7 +79,11 @@ int main(int argc, char **argv)
     return 1;
   }
 
-  std::string infile = argv[1];
+  std::string infile;
+  std::string solFile;
+  infile = argv[1];
+  solFile = infile + ".sol.txt";
+
 
   try {
 #ifdef DOSTATS
@@ -91,22 +94,15 @@ int main(int argc, char **argv)
     //CONFIG->dump("CONFIG");
 #endif
 
-    FeasableSolLoop tp(infile);
+    givenInitialSol tp(infile,solFile);
+    tp.dumpSolutionForPg();
 
-
-#ifdef VRPMINTRACE
-    tp.dumpCostValues();
-#ifdef DOSTATS
-    DLOG(INFO) << "FeasableSol time: " << starttime.duration();
-#endif
-#endif
 
 #ifdef DOSTATS
-    STATS->set("FeasableSol time", starttime.duration());
+    DLOG(INFO) << "Initial solution processing  time: " << starttime.duration();
 #endif
-
-    tp.setInitialValues();
-    tp.computeCosts();
+    //tp.setInitialValues();
+    //tp.computeCosts();
 #ifdef DOSTATS
     STATS->set("Initial cost", tp.getCost());
     STATS->set("Node count", tp.getNodeCount());
@@ -114,9 +110,10 @@ int main(int argc, char **argv)
     Timer searchtime;
 #endif
 
-    int iteration = 3;
+    int iteration = 2;
     TabuOpt ts(tp, iteration);
 
+#if 0
 #ifdef DOSTATS
     STATS->set("Search time", searchtime.duration());
 #endif
@@ -142,6 +139,7 @@ int main(int argc, char **argv)
 
     best.dumpSolutionForPg();
     twc->cleanUp();
+#endif
 
   } catch (const std::exception &e) {
     std::cerr << e.what() << std::endl;
