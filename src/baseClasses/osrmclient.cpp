@@ -18,6 +18,7 @@
 #include <climits>
 #include <sstream>
 #include <string>
+#include <cstring>
 
 #ifdef DOVRPLOG
 #include "logger.h"
@@ -423,6 +424,57 @@ bool OsrmClient::getOsrmTime( double &time )
   return true;
 }
 
+
+bool OsrmClient::getOsrmTimes( std::deque<double> &times )
+{
+  if ( not connectionAvailable ) return false;
+
+  if ( not use ) return false;
+
+#ifdef DOSTATS
+  Timer timer;
+  STATS->inc( "OsrmClient::getOsrmTimes (does the work)" );
+#endif
+
+  if ( status != 1 or httpContent.size() == 0 ) {
+    err_msg = "OsrmClient:getOsrmTimes does not have a valid OSRM response!";
+#ifdef DOSTATS
+    STATS->inc( err_msg );
+    STATS->addto( "OsrmClient::getOsrmTimes (errors) Cumulative time:",
+                  timer.duration() );
+#endif
+    return false;
+  }
+
+  rapidjson::Document jsondoc;
+  jsondoc.Parse( httpContent.c_str() );
+
+  if ( jsondoc.HasParseError() ) {
+    err_msg = "OsrmClient:getOsrmTimes invalid json document in OSRM response!";
+#ifdef DOSTATS
+    STATS->inc( err_msg );
+    STATS->addto( "OsrmClient::getOsrmTimes (errors) Cumulative time:",
+                  timer.duration() );
+#endif
+    return false;
+  }
+
+  if ( not getTimes( jsondoc, times ) ) {
+#ifdef DOSTATS
+    STATS->addto( "OsrmClient::getOsrmTimes (errors) Cumulative time:",
+                  timer.duration() );
+#endif
+    return false;
+  }
+
+#ifdef DOSTATS
+  STATS->addto( "OsrmClient::getOsrmTimes (does the work) Cumulative time:",
+                timer.duration() );
+#endif
+  return true;
+}
+
+
 bool OsrmClient::getOsrmPenalty( double &penalty )
 {
   if ( not connectionAvailable ) return false;
@@ -714,6 +766,59 @@ bool OsrmClient::getTime( rapidjson::Document &jsondoc, double &time )
 #ifdef OSRMCLIENTTRACE
   /*
   DLOG( INFO ) << "OsrmClient:getTime - time + penalty: " << time << " min" << std::endl;
+  */
+#endif
+
+  return true;
+}
+
+/*!
+ * \brief Parse the actual json document and extract via point times
+ * \param[in] jsondoc The json parse tree pointer.
+ * \param[out] time The OSRM travel time as decimal minutes.
+ * \return True if an error and err_msg will be set. False otherwise.
+ */
+bool OsrmClient::getTimes( rapidjson::Document &jsondoc, std::deque<double> &times )
+{
+  if ( not connectionAvailable ) return false;
+
+  if ( not jsondoc.HasMember( "route_instructions" ) ) {
+    err_msg = "OsrmClient:getTimes failed to find 'route_instructions' key in OSRM response!";
+#ifdef DOSTATS
+    STATS->inc( err_msg );
+#endif
+    return false;
+  }
+
+  const rapidjson::Value& instructions = jsondoc["route_instructions"];
+
+  // find the 'total_time' in the 'route_summary'
+  if ( not instructions.IsArray() or instructions.Size() < 2 ) {
+    err_msg = "OsrmClient:getTimes route_instructions is not an array of at least 2 in OSRM response!";
+#ifdef DOSTATS
+    STATS->inc( err_msg );
+#endif
+    return false;
+  }
+
+  // extract the total_time and convert from seconds to minutes
+  times.clear();
+  double time = 0.0;        // accumulate times
+  times.push_back( time );  // push the start time is always 0.0
+  for (rapidjson::SizeType i=0; i<instructions.Size(); i++) {
+    const char * inst = instructions[i][0].GetString();
+    if ( not strcmp(inst, "9") or not strcmp(inst, "15") )
+      times.push_back( time );
+    time += ( double ) instructions[i][4].GetDouble() / 60.0;
+  }
+
+#ifdef OSRMCLIENTTRACE
+  /*
+  DLOG( INFO ) << "OsrmClient:getTime - json: " << httpContent << std::endl;
+  std::stringstream tmp2_ss;
+  for (int i=0; i<times.size(); i++)
+    tmp2_ss << times[i] << ", ";
+  DLOG( INFO ) << "OsrmClient:getTime - times: " << tmp2_ss.str() << " min" << std::endl;
   */
 #endif
 

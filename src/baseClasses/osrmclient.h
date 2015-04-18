@@ -117,6 +117,7 @@ public:
   bool getOsrmTime( const Node &node1, const Node &node2, const Node &node3,
                     const Node &node4, double &time );
   bool getOsrmTime( double &time );
+  bool getOsrmTimes( std::deque<double> &times );
   bool getOsrmGeometry( std::deque<Node> &geom );
   bool getOsrmGeometryText( std::string &geomText );
   bool getOsrmHints( std::deque<std::string> &hints );
@@ -128,6 +129,7 @@ public:
 
 private:
   bool getTime( rapidjson::Document &jtree, double &time );
+  bool getTimes( rapidjson::Document &jsondoc, std::deque<double> &times );
   bool getGeom( rapidjson::Document &jtree, std::deque<Node> &geom );
   bool getGeomText( rapidjson::Document &jtree, std::string &geomText );
   bool getHints( rapidjson::Document &jtree, std::deque<std::string> &hints );

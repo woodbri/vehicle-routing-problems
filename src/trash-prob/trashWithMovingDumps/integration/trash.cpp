@@ -76,6 +76,40 @@ int main(int argc, char **argv)
 
 #endif
 
+//#define MAKETEST
+#ifdef MAKETEST
+
+//  expected output when ran as:
+//  sudo -u postgres bin/maketest
+//
+//  i: 0, time: 0
+//  i: 1, time: 1.18333
+//  i: 2, time: 1.81667
+
+    osrmi->clear();
+    osrmi->useOsrm( true );
+    osrmi->addViaPoint( -34.905113,-56.157043 );
+    osrmi->addViaPoint( -34.906807,-56.158463 );
+    osrmi->addViaPoint( -34.9076,-56.157028 );
+    if ( osrmi->getOsrmViaroute() ) {
+        std::deque<double> times;
+        if ( osrmi->getOsrmTimes( times ) ) {
+            for (int i=0; i<times.size(); i++)
+                std::cout << "i: " << i << ", time: " << times[i] << std::endl;
+        }
+        else {
+            std::cout << "getOsrmTimes Failed!" << std::endl;
+            return 1;
+        }
+    }
+    else {
+        std::cout << "getOsrmViaroute Failed!" << std::endl;
+        return 1;
+    }
+
+    return 0;
+#endif
+
   if (argc < 2) {
     Usage();
     return 1;
