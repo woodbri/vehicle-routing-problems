@@ -20,13 +20,12 @@
 
 #include "trashnode.h"
 #include "prob_trash.h"
+#include "twbucket.h"
 #include "solution.h"
 #include "vehicle.h"
-#include "oneTruckAllNodesInit.h"
 
 
-class TruckManyVisitsDump : public Solution
-{
+class TruckManyVisitsDump : public Solution {
 private:
   typedef  TwBucket<Trashnode> Bucket;
   typedef  unsigned long int UID;
@@ -42,15 +41,23 @@ private:
   int tmp;
 public:
 
-  TruckManyVisitsDump( const Solution &sol ): Solution( sol ) {
+  TruckManyVisitsDump(const std::string &infile): Solution(infile) {
     unusedTrucks = trucks;
     unassigned = pickups;
     tmp = 0;
     process();
   };
-
+#if 0
+  TruckManyVisitsDump(const Solution &sol): Solution(sol) {
+    unusedTrucks = trucks;
+    unassigned = pickups;
+    tmp = 0;
+    process();
+  };
+#endif
 
 private:
+  void fillOneTruck(Vehicle &truck, Bucket &unassigned, Bucket &assigned);
   void insertGoing( Bucket &bigTruck, Vehicle &truck, UID goingPos );
   void insertComming( Bucket &bigTruck, Vehicle &truck, UID goingPos );
   Vehicle getTruck();

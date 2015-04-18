@@ -227,7 +227,7 @@ void Prob_trash::loadProblem( const std::string &infile )
     trucks[i].setInitialValues( C, pickups );
   }
 
-#ifdef VRPMAXTRACE
+#ifdef VRPMINTRACE
   C.dump();
   nodes.dump( "nodes" );
   dumps.dump( "dumps" );
@@ -241,10 +241,10 @@ void Prob_trash::loadProblem( const std::string &infile )
   for ( int i = 0; i < trucks.size(); i++ ) trucks[i].tau();
 
   DLOG( INFO ) << "INVALID TRUCKS";
-
+  if (invalidTrucks.size()==0) DLOG( INFO ) << " NONE\n";
   for ( int i = 0; i < invalidTrucks.size(); i++ ) invalidTrucks[i].tau();
 
-  twc->dump();
+  //twc->dump();
 #endif
 }
 

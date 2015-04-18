@@ -45,6 +45,9 @@ void FeasableSolLoop::stepOneLoop(Vehicle &truck) {
     assert(!(problematic * assigned).size());
     assert(truck.feasable());
     // END INVARIANT
+    #ifdef VRPMINTRACE
+    DLOG(WARNING) << "Entering stepOneLoop \n";
+    #endif
 
     Trashnode bestNode;
     UID bestPos;
@@ -56,7 +59,7 @@ void FeasableSolLoop::stepOneLoop(Vehicle &truck) {
           truck = getTruck();
         } else {
           #ifdef VRPMINTRACE
-          DLOG(INFO) << "No more trucks available. unassigned containers: " <<
+          DLOG(INFO) << "No more trucks available. unassigned containers:  \n" <<
                        unassigned.size();
           #endif
           return;
@@ -68,10 +71,10 @@ void FeasableSolLoop::stepOneLoop(Vehicle &truck) {
       }
     } else {
       #ifdef VRPMINTRACE
-      DLOG(WARNING) << "no nearest node was found";
+      DLOG(WARNING) << "no nearest node was found \n";
       #endif
-      assert(std::string("FeasableSolLoop::stepOneLoop")
-             == std::string("no nearest node was found"));
+      assert(std::string("FeasableSolLoop::stepOneLoop \n")
+             == std::string("no nearest node was found \n"));
     }
 
     ++iteration;

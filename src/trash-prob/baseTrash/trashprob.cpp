@@ -148,7 +148,7 @@ TrashProb::TrashProb(  container_t *p_containers, unsigned int container_count,
   for ( UINT i = 0; i < invalidTrucks.size(); i++ ) invalidTrucks[i].tau();
 
 #endif
-#ifdef VRPMINTRACE
+#ifdef VRPMAXTRACE
   twc->dump();
 #endif
 }

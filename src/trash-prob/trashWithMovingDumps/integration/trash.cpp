@@ -34,7 +34,8 @@
 
 
 #include "trashconfig.h"
-#include "feasableSolLoop.h"
+//#include "feasableSolLoop.h"
+#include "truckManyVisitsDump.h"
 #include "tabuopt.h"
 
 
@@ -91,7 +92,9 @@ int main(int argc, char **argv)
     //CONFIG->dump("CONFIG");
 #endif
 
-    FeasableSolLoop tp(infile);
+    // FeasableSolLoop tp(infile);
+    TruckManyVisitsDump tp(infile);
+
 
 
 #ifdef VRPMINTRACE

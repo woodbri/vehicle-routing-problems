@@ -37,34 +37,26 @@ TODO  refine the code
 void OptSol::optimizeTruckNumber()
 {
   /** Stores the trucks position in the fleet */
-  std::deque<int>
-  fullz1;    /**< Trucks that cant receive a container in the current trip  */
-  std::deque<int>
-  fullz2;     /**< Trucks that cant receive a container in the next (non-existing) trip */
-  std::deque<int>
-  notFullz1; /**< Trucks that CAN receive a container in the current trip  */
-  std::deque<int>
-  notFullz2; /**< Trucks that CAN  receive a container in the next (non-existing) trip  */
+  std::deque<int> fullz1;    /**< Trucks that cant receive a container in the current trip  */
+  std::deque<int> fullz2;     /**< Trucks that cant receive a container in the next (non-existing) trip */
+  std::deque<int> notFullz1; /**< Trucks that CAN receive a container in the current trip  */
+  std::deque<int> notFullz2; /**< Trucks that CAN  receive a container in the next (non-existing) trip  */
   std::deque<int> allTrucks; /**< All trucks  */
 
-  int z1Tot =
-    0;         /**< total number of containers that can be picked in the current trip */
-  int z2Tot =
-    0;         /**< total number of containers that can be picked in the next (non-exisiting)  trip */
+  int z1Tot = 0;         /**< total number of containers that can be picked in the current trip */
+  int z2Tot = 0;         /**< total number of containers that can be picked in the next (non-exisiting)  trip */
   int minn =
     datanodes.size(); /**< setting a minimum to see if it is requiered to minimize */
   int truckWithMinn = -1;    /**< the trucks position that has that minimun */
-  int z1AtMin =
-    0;           /**< the trucks that has the min number of containers has the most number of avaliable spots in the current trip*/
-  int z2AtMin =
-    0;           /**< the trucks that has the min number of containers has the most number of avaliable spots in the next (non-exisiting) trip*/
+  int z1AtMin = 0;           /**< the trucks that has the min number of containers has the most number of avaliable spots in the current trip*/
+  int z2AtMin = 0;           /**< the trucks that has the min number of containers has the most number of avaliable spots in the next (non-exisiting) trip*/
 
   /** requiered by the evaluation of a move */
   int fromTruck;        /**< truck from where a container is moved */
   bool emptiedTruck = false;
 
   for ( UINT i = 0; i < fleet.size(); i++ ) {
-    allTrucks.push_back( i );
+    allTrucks.push_back(i);
 
     if ( fleet[i].getz1() ) {
       notFullz1.push_back( i );

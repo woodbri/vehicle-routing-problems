@@ -609,7 +609,7 @@ class TwBucket {
 
     for ( const_iterator it = path.begin(); it != path.end(); it++ )
       ss << " " << it->nid();
-
+    ss << " <----- end \n";
     DLOG(INFO) << ss.str();
   }
 #endif

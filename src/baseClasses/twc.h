@@ -730,24 +730,26 @@ template <class knode> class TWC {
    * \return The node with the best travel time from node id \b from.
    * \return Or the first node in the bucket if all are unReachable.
    */
-  knode findBestTravelTime(UID from, const Bucket &nodes) const {
-    assert(nodes.size() && from < original.size());
-    Bucket reachable = getReachable(from, nodes);
+ public:
+  //knode findBestTravelTime(UID from, const Bucket &nodes) const {
+  bool findBestTravelTime(const knode &from, const Bucket &nodes, knode &bestNode) const {
+    assert(nodes.size() && from.nid() < original.size());
+    Bucket reachable = getReachable(from.nid(), nodes);
 
-    if ( !reachable.size() ) return nodes[0];
+    bestNode = from;
+    if ( !reachable.size() ) return false;
 
-    knode best = reachable[0];
     double bestTime = VRP_MAX();
 
     for ( int i = 0; i < reachable.size(); i++ ) {
-      if ( reachable[i].nid() != from
-           && travelTime(from, reachable[i].id()) < bestTime ) {
-        best = reachable[i];
-        bestTime = travelTime(from, reachable[i].id());
+      if (reachable[i].nid() != from.nid()
+           && TravelTime(from.nid(), reachable[i].nid()) < bestTime ) {
+        bestNode = reachable[i];
+        bestTime = TravelTime(from.nid(), reachable[i].nid());
       }
     }
 
-    return best;
+    return (bestNode != from);
   }
 
   /*!
@@ -1442,9 +1444,6 @@ template <class knode> class TWC {
    */
   void loadAndProcess_distance(ttime_t *ttimes, int count,
                                const Bucket &datanodes, const Bucket &invalid) {
-#ifdef DOVRPLOG
-    DLOG(INFO) << "POSTGRES: loadAndProcess_distance needs to be TESTED";
-#endif
     assert(datanodes.size());
     original.clear();
     original = datanodes;

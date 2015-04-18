@@ -60,7 +60,7 @@ public:
 
 
   // methods to build initial solution
-  void stepOne( Vehicle &truck, Bucket &unassigned, Bucket &assigned );
+  void stepOne(Vehicle &truck, Bucket &unassigned, Bucket &assigned);
   void process();
 
 };

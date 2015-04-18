@@ -19,14 +19,16 @@
 #include <algorithm>
 #include <sstream>
 #include <fstream>
+#include "twc.h"
+#include "twbucket.h"
+//#include "plot.h"
 
-#include "plot.h"
 #include "truckManyVisitsDump.h"
-//#include "oneTruckAllNodesInit.h"
 
-void TruckManyVisitsDump::insertComming( Bucket &bigTruck, Vehicle &truck,
+void TruckManyVisitsDump::insertComming(Bucket &bigTruck, Vehicle &truck,
     UID goingPos )
 {
+#if 0
   // THE INVARIANT
   // union must be pickups
   assert( pickups == unassigned + problematic + assigned );
@@ -38,9 +40,9 @@ void TruckManyVisitsDump::insertComming( Bucket &bigTruck, Vehicle &truck,
   //END INVARIANT
   //truck.plot("truckManyVisitsDump-","Insert Comming",tmp++);
 
-  if ( not unassigned.size() ) { return; }; //something has to be done before return
+  if (not unassigned.size())  {return;};  // something has to be done before return
 
-  assert( bigTruck.size() > 1 );
+  assert(bigTruck.size() > 1);
 
   Trashnode comming;
 
@@ -55,7 +57,7 @@ void TruckManyVisitsDump::insertComming( Bucket &bigTruck, Vehicle &truck,
     bigTruck.erase( comming );
     goingPos++;
   } else {
-    truck.plot( "truckManyVisitsDump-", "Pushing: ", truck.getVid() );
+    //truck.plot( "truckManyVisitsDump-", "Pushing: ", truck.getVid() );
     fleet.push_back( truck );
     truck = getTruck();
     goingPos = 1;
@@ -71,15 +73,15 @@ void TruckManyVisitsDump::insertComming( Bucket &bigTruck, Vehicle &truck,
   assert( not ( unassigned * assigned ).size()  ) ;
   assert( not ( problematic * assigned ).size()  ) ;
   return;
+#endif
 }
 
 
 
-//
-
 void TruckManyVisitsDump::insertGoing( Bucket &bigTruck, Vehicle &truck,
                                        UID goingPos )
 {
+#if 0
   // THE INVARIANT
   // union must be pickups
   assert( pickups == unassigned + problematic + assigned );
@@ -111,19 +113,19 @@ void TruckManyVisitsDump::insertGoing( Bucket &bigTruck, Vehicle &truck,
 #endif
 
   if ( truck.e_insertSteadyDumpsTight( going, goingPos ) ) {
-    assigned.push_back( going );
-    unassigned.erase( going );
+    // the container going is inserted
+    assigned.push_back(going);
+    unassigned.erase(going);
     bigTruck.erase( 1 );
   } else {
-    if ( truck.e_insertDumpInPath(
-           going ) ) { //true when the insertion was performed (no TV)
+    if (truck.e_insertDumpInPath(going)) { //true when the insertion was performed (no TV)
       goingPos = truck.size() - 1;
       assigned.push_back( going );
       unassigned.erase( going );
       bigTruck.erase( 1 );
     } else {   //adding the Dump and the going node creates a TV
       //we need a new truck
-      truck.plot( "truckManyVisitsDump-", "Many Visits", truck.getVid() );
+      //truck.plot( "truckManyVisitsDump-", "Many Visits", truck.getVid() );
       fleet.push_back( truck );
       truck = getTruck();
       goingPos = 1;
@@ -139,8 +141,33 @@ void TruckManyVisitsDump::insertGoing( Bucket &bigTruck, Vehicle &truck,
   assert( not ( unassigned * assigned ).size()  ) ;
   assert( not ( problematic * assigned ).size()  ) ;
   return;
+#endif
 }
 
+
+void TruckManyVisitsDump::fillOneTruck(
+         Vehicle &truck,       // truck to be filled
+         Bucket &unassigned,   // unassigned containers
+         Bucket &assigned ) {  // assigned containers
+  
+  // nothing left to be assigned
+  if (unassigned.size() == 0) return;
+
+  Trashnode bestNode;
+  UID bestPos;
+  double bestDist;
+
+  while (unassigned.size() != 0) {
+
+    if (twc->findBestTravelTime(truck[truck.size()-1], unassigned, bestNode)) {
+      truck.push_back(bestNode);
+      assigned.push_back(bestNode);
+      unassigned.erase(bestNode);
+      // fillOneTruck(truck, unassigned, assigned);
+    } else break;
+  }
+  truck.dumpeval();
+}
 
 
 
@@ -161,16 +188,23 @@ void TruckManyVisitsDump::process()
 {
   // THE INVARIANT
   // union must be pickups
-  assert( pickups == unassigned + problematic + assigned );
+  assert(pickups == (unassigned + problematic + assigned));
   // all intersections must be empty set
-  assert( not ( unassigned * problematic ).size()  ) ;
-  assert( not ( unassigned * assigned ).size()  ) ;
-  assert( not ( problematic * assigned ).size()  ) ;
+  assert(!(unassigned * problematic).size());
+  assert(!(unassigned * assigned).size());
+  assert(!(problematic * assigned).size());
   //END INVARIANT
 
-  //reteriving the result of oneTruckAllNodesInit
-  Bucket bigTruck;
-  assert( fleet.size() );
+  // preparing a big truck where to store everything
+  Vehicle bigTruck = getTruck();
+  bigTruck.tau();
+  fillOneTruck(bigTruck, unassigned, assigned);
+
+  bigTruck.evaluate();
+bigTruck.dump();
+assert(true==false);
+#if 0
+  assert(fleet.size());
 #ifdef DOVRPLOG
   fleet[0].dump( "fleet[0]" );
 #endif
@@ -184,9 +218,10 @@ void TruckManyVisitsDump::process()
   truck.dump( "Truck" );
 #endif
   insertGoing( bigTruck, truck, goingPos );
-  fleet.push_back( truck ); //need to save the last truck
+  fleet.push_back( truck ); //need to save the last truck ??
 
 
-  truck.plot( "truckManyVisitsDump-", "Many Visits", truck.getVid() );
+  //truck.plot( "truckManyVisitsDump-", "Many Visits", truck.getVid() );
   return;
+#endif
 }

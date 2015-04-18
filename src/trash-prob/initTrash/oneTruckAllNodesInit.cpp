@@ -48,7 +48,7 @@ void OneTruckAllNodesInit::process()
   Bucket unassigned = pickups;
   Bucket assigned;
 
-  assert( not assigned.size() );
+  assert(not assigned.size());
 
   std::deque<Vehicle> unusedTrucks = trucks;
   std::deque<Vehicle> usedTrucks = trucks;
