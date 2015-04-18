@@ -122,21 +122,12 @@ bool BaseVehicle::findNearestNodeTo(Bucket &unassigned, POS &pos,
 
 
 #ifdef DOVRPLOG
-void BaseVehicle::dump() const
-{
+void BaseVehicle::dump() const {
   DLOG( INFO ) << "---------- BaseVehicle ---------------";
   DLOG( INFO ) << "maxcapacity: " << getmaxcapacity();
   DLOG( INFO ) << "cargo: " << getCargo();
-  DLOG( INFO ) << "duration: " << getDuration();
-  DLOG( INFO ) << "cost: " << getcost();
-#ifdef WITHOSRM
-  DLOG( INFO ) << "OSRM time: " << getTotTravelTimeOsrm();
-#endif
   DLOG( INFO ) << "twvTot: " << twvTot();
   DLOG( INFO ) << "cvTot: " << cvTot();
-  DLOG( INFO ) << "w1: " << getw1();
-  DLOG( INFO ) << "w2: " << getw2();
-  DLOG( INFO ) << "w3: " << getw3();
   DLOG( INFO ) << "path nodes: -----------------";
   path.dump();
 }

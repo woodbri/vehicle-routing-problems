@@ -163,9 +163,10 @@ void TruckManyVisitsDump::fillOneTruck(
       truck.push_back(bestNode);
       assigned.push_back(bestNode);
       unassigned.erase(bestNode);
-      // fillOneTruck(truck, unassigned, assigned);
     } else break;
   }
+  truck.dumpeval();
+  truck.e_makeFeasable(0);
   truck.dumpeval();
 }
 
@@ -201,7 +202,7 @@ void TruckManyVisitsDump::process()
   fillOneTruck(bigTruck, unassigned, assigned);
 
   bigTruck.evaluate();
-bigTruck.dump();
+bigTruck.tau();
 assert(true==false);
 #if 0
   assert(fleet.size());
