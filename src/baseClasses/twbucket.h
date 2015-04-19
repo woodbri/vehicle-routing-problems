@@ -597,20 +597,18 @@ class TwBucket {
   /*! \brief Using nid as node identifiers with title "Twbucket".  */
   void dump() const {dump("Twbucket");}
 
-
   /*! \brief Using nid as node identifiers with title "Twbucket".  
-
    * \param[in] title Title to print with the output of the Twbucket.
    */
   void dump(const std::string &title) const {
-    std::stringstream ss;
-    ss << title;
+    //std::stringstream ss;
+    DLOG(INFO) << title;
     const_iterator it = path.begin();
 
-    for ( const_iterator it = path.begin(); it != path.end(); it++ )
-      ss << " " << it->nid();
-    ss << " <----- end \n";
-    DLOG(INFO) << ss.str();
+    for (const_iterator it = path.begin(); it != path.end(); it++)
+      it->dump();
+    DLOG(INFO) << " <----- end \n";
+    // DLOG(INFO) << ss.str();
   }
 #endif
   ///@}

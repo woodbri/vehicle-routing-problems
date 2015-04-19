@@ -88,7 +88,8 @@ void Node::set(const std::string &line) {
 void Node::dump() const {
   DLOG(INFO) << nid_
              << ", " << x_
-             << ", " << y_;
+             << ", " << y_
+             << ", " << hint_;
 }
 #endif
 

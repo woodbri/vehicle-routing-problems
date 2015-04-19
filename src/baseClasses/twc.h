@@ -1003,15 +1003,15 @@ template <class knode> class TWC {
     dump(original);
   }
 
-
   /*!
    * \brief Print the nodes in the bucket.
    * \param[in] nodes A bucket of nodes to print.
    */
   void dump(const Bucket &nodes) const  {
     assert(nodes.size());
-    dumpCompatability(nodes);
-    dumpTravelTime(nodes);
+    original.dump("original");
+    // dumpCompatability(nodes);
+    // dumpTravelTime(nodes);
   }
 
   /*! \brief Print the TW Compatibility matrix for the original nodes.  */
@@ -1401,6 +1401,9 @@ template <class knode> class TWC {
     Timer timer;
 #endif
 
+#ifdef VRPMINTRACE
+    DLOG(INFO) << "GETTING HINTS\n";
+#endif
     std::deque<std::string> hints;
     int total = original.size();
     int from, to;
@@ -1417,7 +1420,15 @@ template <class knode> class TWC {
       if (osrmi->getOsrmViaroute() && osrmi->getOsrmHints(hints)) {
         for (j = from, k = 0; j < to; j++, k++) {
           original[j].set_hint(hints[k]);
+#ifdef VRPMINTRACE
+          DLOG(INFO) << "hint";
+          original[j].dump();
+#endif
         }
+      } else {
+#ifdef VRPMINTRACE
+          DLOG(INFO) << "NO HINTS WERE FOUND\n";
+#endif
       }
     }
 
@@ -1503,6 +1514,9 @@ template <class knode> class TWC {
     std::string line;
 
 #ifdef OSRMCLIENT
+#ifdef VRPMINTRACE
+    DLOG(INFO) << "going to GET HINTS\n";
+#endif
     getAllHints();
 #endif
 

@@ -42,9 +42,11 @@ const Trashnode& CostVehicle::last() const {
   return path.size() > 1? path.last(): C;
 }
 double CostVehicle::shiftLength() const {return endTime - startTime; }
-/*! \brief Estimated number of nodes in each trip */
+
+/*! \brief Estimated number of containers in each trip */
 double CostVehicle::estimatedZ() const {return  floor(maxcapacity / C.demand()); }
-/*! \brief arrival time at endsite when departing from the average closing 
+
+/*! \brief Arrival time at endsite when departing from the average closing 
   time of the nodes*/
 double CostVehicle::arrivalEclosesLast(const Trashnode &last) const {
    double value = last.closes() + last.serviceTime()
@@ -164,7 +166,7 @@ void CostVehicle::setCost(const Trashnode &last) {
   //its never negative
   assert( Zmissing >= 0 );
 
-  realTotalTime = endingSite.arrivalTime();
+  realTotalTime = endingSite.arrivalTime() - path[0].departureTime();
   lastRealTotalTime = realTotalTime;
 
 #ifdef DOVRPLOG
@@ -179,7 +181,7 @@ void CostVehicle::setCost(const Trashnode &last) {
   //otherwise we are in a TWV and something is wrong on the calculation
   //assert ( realArrivalEclosesLast > realTotalTime );
 
-  realIdleTime =  realArrivalEclosesLast -  realTotalTime ;
+  realIdleTime =  shiftLength() -  realTotalTime ;
 
   realIdleTimeSCDE =  ( Zmissing > 0 ) ?
                       ( C.serviceTime() + realttCC ) * Zmissing :
@@ -330,7 +332,7 @@ void CostVehicle::dumpCostValues() const
                << "dumpSite.getDepartureTime()\t" << dumpSite.departureTime() << "\n"
                << "                      realN\t" << realN()  << "\n"
                << "endingSite.getArrivalTime()\t" << endingSite.arrivalTime()  << "\n"
-               << "   depot.getDepartureTime()\t" << depot.departureTime() << "\n"
+               << "   depot.departureTime()\t" << path[0].departureTime() << "\n"
                << "                       size\t" << size() << "\n"
                //<<" \t"<<  <<"\n"
                //<<" \t"<<  <<"\n"
@@ -351,15 +353,22 @@ void CostVehicle::dumpCostValues() const
 
                << "realArrivalEclosesLast =\t" << arrivalEclosesLast(this->last()) <<
                "\t=path[size()-1].closes() + realttCD + dumpSite.getservicetime() + realttDE \t"
+               << "\n"
+
                << "    realForcedWaitTime =\t" << realForcedWaitTime  <<
                "\t=shiftEnds -( realArrivalEclosesLast  +  serviceE() )\t" << realForcedWaitTime
                << "\n"
-               << "         realTotalTime =\t" << realTotalTime  <<
-               "\t=endingSite.getArrivalTime()\t" << realTotalTime << "\n"
 
+               << "         realTotalTime =\t" << realTotalTime  
+               << "\t =endingSite.arrivalTime()  - path[0].departureTime()\t"
+               << endingSite.arrivalTime() <<" - " << path[0].departureTime() 
+               << "\n"
 
-               << "          realIdleTime =\t" << realIdleTime <<
-               "\t=realArrivalEclosesLast -  realTotalTime\t" << realIdleTime << "\n"
+               << "          realIdleTime =\t" << realIdleTime 
+               << "\t = shiftLength  -  realTotalTime\t"
+               << shiftLength() << " - " << realTotalTime
+               << "\n"
+
                << "      realIdleTimeSCDE =\t" << realIdleTimeSCDE  <<
                "\t=( Zmissing>0 )?  (C.getservicetime() + realttCC ) * Zmissing :\n"
                "\t\t(Zmissing==0? C.closes() - ( depot.getDepartureTime() +  realttSC):0) ;\t"

@@ -212,6 +212,7 @@ void Prob_trash::loadProblem( const std::string &infile )
   load_trucks( datafile + ".vehicles.txt" );
 
 #ifdef OSRMCLIENT
+  DLOG(INFO) << "Setting hints";
   twc->setHints( dumps );
   twc->setHints( nodes );
   twc->setHints( depots );
@@ -219,7 +220,6 @@ void Prob_trash::loadProblem( const std::string &infile )
   twc->setHints( endings );
   twc->settCC( C, pickups );
 #endif  // OSRMCLIENT
-
 
   assert( trucks.size() and depots.size() and dumps.size() and endings.size() );
 

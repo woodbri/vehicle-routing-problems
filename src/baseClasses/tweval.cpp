@@ -116,6 +116,7 @@ void Tweval::dumpeval(double cargoLimit) const {
              << ", wait Time=" << waitTime_
              << ", service Time=" << serviceTime()
              << ", departure Time=" << departureTime_;
+  dump();
 }
 #endif
 

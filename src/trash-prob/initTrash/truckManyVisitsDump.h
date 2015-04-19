@@ -29,6 +29,7 @@ class TruckManyVisitsDump : public Solution {
 private:
   typedef  TwBucket<Trashnode> Bucket;
   typedef  unsigned long int UID;
+  typedef  unsigned long int POS;
 
 
   std::deque<Vehicle> unusedTrucks;
@@ -60,6 +61,10 @@ private:
   void fillOneTruck(Vehicle &truck, Bucket &unassigned, Bucket &assigned);
   void insertGoing( Bucket &bigTruck, Vehicle &truck, UID goingPos );
   void insertComming( Bucket &bigTruck, Vehicle &truck, UID goingPos );
+  double e_evalIntraSw(Vehicle &truck, POS i, POS j);
+  double e_evalIns(Vehicle &truck, POS i, POS j);
+  void IntraSwMoves(Vehicle &truck);
+  void InsMoves(Vehicle &truck);
   Vehicle getTruck();
   void process();
 

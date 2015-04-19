@@ -16,6 +16,7 @@
 #include <stdexcept>
 #include <string>
 #include <iostream>
+#include <iomanip>
 #include <algorithm>
 #include <sstream>
 #include <fstream>
@@ -25,124 +26,135 @@
 
 #include "truckManyVisitsDump.h"
 
-void TruckManyVisitsDump::insertComming(Bucket &bigTruck, Vehicle &truck,
-    UID goingPos )
-{
-#if 0
-  // THE INVARIANT
-  // union must be pickups
-  assert( pickups == unassigned + problematic + assigned );
-  // all intersections must be empty set
-  assert( not ( unassigned * problematic ).size()  ) ;
-  assert( not ( unassigned * assigned ).size()  ) ;
-  assert( not ( problematic * assigned ).size()  ) ;
 
-  //END INVARIANT
-  //truck.plot("truckManyVisitsDump-","Insert Comming",tmp++);
+// evalSwap position i with position j on the same truck
+// j > i
+//  ....  i-1 i i+1 ..... j-1 j j+1
+// esto va en twPath
+double TruckManyVisitsDump::e_evalIntraSw(Vehicle &truck, POS i, POS j){
+  assert(i > 0);
+  assert(j > i);
+  assert(j < truck.size()-1);
 
-  if (not unassigned.size())  {return;};  // something has to be done before return
+  if (truck[i].isDump() || truck[j].isDump())
+      return VRP_MAX();
+  double deltaTravelTime;
+  if (j > i + 1) {
+    double originalTravelTimeI = twc->TravelTime(truck[i-1], truck[i], truck[i+1]);
+    double originalTravelTimeJ = twc->TravelTime(truck[j-1], truck[j], truck[j+1]);
+    double newTravelTimeI = twc->TravelTime(truck[i-1], truck[j], truck[i+1]);
+    double newTravelTimeJ = twc->TravelTime(truck[j-1], truck[i], truck[j+1]);
+    deltaTravelTime = (newTravelTimeI + newTravelTimeJ)
+                   - (newTravelTimeI - newTravelTimeI);
 
-  assert(bigTruck.size() > 1);
-
-  Trashnode comming;
-
-  comming = bigTruck[bigTruck.size() - 1];
-
-  if ( truck.e_insertSteadyDumpsTight( comming, goingPos + 1 ) ) {
-#ifdef DOVRPLOG
-    truck.dumpeval();
+  
+#ifdef VRPMAXTRACE
+    DLOG(INFO) << std::fixed << std::setprecision(4);
+    DLOG(INFO) << "travelTime (" << i-1 <<" , " << i << " , " << i + 1 << ")= " 
+               << originalTravelTimeI;
+    DLOG(INFO) << "travelTime (" << j-1 <<" , " << j << " , " << j + 1 << ")= " 
+               << originalTravelTimeJ;
+    DLOG(INFO) << "travelTime (" << i-1 <<" , " << j << " , " << i + 1 << ")= " 
+               << newTravelTimeI;
+    DLOG(INFO) << "travelTime (" << j-1 <<" , " << i << " , " << j + 1 << ")= " 
+               << newTravelTimeJ;
+    DLOG(INFO)  << "Delta TravelTime: " << deltaTravelTime;
 #endif
-    assigned.push_back( comming );
-    unassigned.erase( comming );
-    bigTruck.erase( comming );
-    goingPos++;
-  } else {
-    //truck.plot( "truckManyVisitsDump-", "Pushing: ", truck.getVid() );
-    fleet.push_back( truck );
-    truck = getTruck();
-    goingPos = 1;
-    insertGoing( bigTruck, truck, goingPos );
+  } else { // i-1 (i == j-1) (i + 1 == j) j+1 son contiguos
+    double originalTravelTime = twc->TravelTime(truck[i-1], truck[i], truck[j], truck[j+1]);
+    double newTravelTime = twc->TravelTime(truck[i-1], truck[j], truck[i], truck[j+1]);
+    deltaTravelTime = newTravelTime - originalTravelTime;
+#ifdef VRPMAXTRACE
+    DLOG(INFO) << std::fixed << std::setprecision(4);
+    DLOG(INFO) << "travelTime (" << i-1 <<" , " << i << " , " << j << " , " << j + 1 << ")= " 
+               << originalTravelTime;
+    DLOG(INFO) << "travelTime (" << i-1 <<" , " << j << " , " << i << " , " << j + 1 << ")= " 
+               << newTravelTime;
+#endif
 
-    return;
   }
+  return deltaTravelTime;
+};
 
-  insertGoing( bigTruck, truck, goingPos );
-  //the invariant must hold before a return
-  assert( pickups == unassigned + problematic + assigned );
-  assert( not ( unassigned * problematic ).size()  ) ;
-  assert( not ( unassigned * assigned ).size()  ) ;
-  assert( not ( problematic * assigned ).size()  ) ;
-  return;
-#endif
-}
-
-
-
-void TruckManyVisitsDump::insertGoing( Bucket &bigTruck, Vehicle &truck,
-                                       UID goingPos )
-{
-#if 0
-  // THE INVARIANT
-  // union must be pickups
-  assert( pickups == unassigned + problematic + assigned );
-  // all intersections must be empty set
-  assert( not ( unassigned * problematic ).size()  ) ;
-  assert( not ( unassigned * assigned ).size()  ) ;
-  assert( not ( problematic * assigned ).size()  ) ;
-  //END INVARIANT
-
-  //truck.plot("truckManyVisitsDump-","Insert Going",tmp++);
-  if ( not unassigned.size() ) {
-    //asomething has to be done before return
-    return;
-  };
-
-  assert( bigTruck.size() > 1 );
-
-  Trashnode going;
-
-  going = bigTruck[1];
-
-  // alternate code
-
-#ifdef DOVRPLOG
-  truck.dump( "Truck" );
-
-  truck.smalldump();
-
-#endif
-
-  if ( truck.e_insertSteadyDumpsTight( going, goingPos ) ) {
-    // the container going is inserted
-    assigned.push_back(going);
-    unassigned.erase(going);
-    bigTruck.erase( 1 );
-  } else {
-    if (truck.e_insertDumpInPath(going)) { //true when the insertion was performed (no TV)
-      goingPos = truck.size() - 1;
-      assigned.push_back( going );
-      unassigned.erase( going );
-      bigTruck.erase( 1 );
-    } else {   //adding the Dump and the going node creates a TV
-      //we need a new truck
-      //truck.plot( "truckManyVisitsDump-", "Many Visits", truck.getVid() );
-      fleet.push_back( truck );
-      truck = getTruck();
-      goingPos = 1;
-      insertGoing( bigTruck, truck, goingPos );
-      return;
+void TruckManyVisitsDump::IntraSwMoves(Vehicle &truck) {
+  double deltaTravelTime;
+  for (POS i = 1; i < truck.size(); ++i) {
+    for (POS j = i + 1; j < truck.size()-1; ++j) {
+      deltaTravelTime = e_evalIntraSw(truck,i,j);
+      if (deltaTravelTime == VRP_MAX()) continue;
+      //if (deltaTravelTime < 0)
+        DLOG(INFO) << "delete: " << i <<" insert after: " << j << " = "
+                   << "Delta TravelTime: " << deltaTravelTime;
     }
   }
-
-  insertComming( bigTruck, truck, goingPos );
-  //the invariant must hold before a return
-  assert( pickups == unassigned + problematic + assigned );
-  assert( not ( unassigned * problematic ).size()  ) ;
-  assert( not ( unassigned * assigned ).size()  ) ;
-  assert( not ( problematic * assigned ).size()  ) ;
-  return;
-#endif
 }
+
+void TruckManyVisitsDump::InsMoves(Vehicle &truck) {
+  double deltaTravelTime;
+  for (POS i = 1; i < truck.size(); ++i) {
+    for (POS j = i + 1; j < truck.size()-1; ++j) {
+      deltaTravelTime = e_evalIns(truck,i,j);
+      if (deltaTravelTime == VRP_MAX()) continue;
+      //if (deltaTravelTime < 0)
+        DLOG(INFO) << "swap: (" << i <<" , " << j << ")= "
+                   << "Delta TravelTime: " << deltaTravelTime;
+    }
+  }
+}
+
+// delteting node at position i, inserting it after node in position j
+// 0 ..... i-1  i  i+1 ...       j-1 j  j+1
+// 0 ......i-1 i+1 ......    j-1  j  i  j+1    
+
+double TruckManyVisitsDump::e_evalIns(Vehicle &truck, POS i, POS j){
+  assert(i > 0);
+  assert(j > i);
+  assert(j < truck.size()-1);
+
+  if (truck[i].isDump()) // not deleting a dump
+      return VRP_MAX();
+  double deltaTravelTime;
+  // if (j > i + 1) {
+    double originalTravelTimeI = twc->TravelTime(truck[i-1], truck[i], truck[i+1]);
+    double originalTravelTimeJ = twc->TravelTime(truck[j-1], truck[j], truck[j+1]);
+    double newTravelTimeI = twc->TravelTime(truck[i-1], truck[i+1]);
+    double newTravelTimeJ = twc->TravelTime(truck[j-1], truck[j], truck[i], truck[j+1]);
+    deltaTravelTime = (newTravelTimeI + newTravelTimeJ)
+                   - (newTravelTimeI - newTravelTimeI);
+
+
+#ifdef VRPMAXTRACE
+    DLOG(INFO) << std::fixed << std::setprecision(4);
+    DLOG(INFO) << "travelTime (" << i-1 <<", " << i << ", " << i + 1 << ")= "
+               << originalTravelTimeI;
+    DLOG(INFO) << "travelTime (" << j-1 <<", " << j << ", " << j + 1 << ")= "
+               << originalTravelTimeJ;
+    DLOG(INFO) << "travelTime (" << i-1 <<", " << i + 1 << ")= "
+               << newTravelTimeI;
+    DLOG(INFO) << "travelTime (" << j-1 <<", " << j << ", "<< i << ", " << j + 1 << ")= "
+               << newTravelTimeJ;
+    DLOG(INFO)  << "Delta TravelTime: " << deltaTravelTime;
+#endif
+#if 0
+  } else { // i-1 (i == j-1) (i + 1 == j) j+1 son contiguos
+    double originalTravelTime = twc->TravelTime(truck[i-1], truck[i], truck[j], truck[j+1]);
+    double newTravelTime = twc->TravelTime(truck[i-1], truck[j], truck[i], truck[j+1]);
+    deltaTravelTime = newTravelTime - originalTravelTime;
+#ifdef VRPMAXTRACE
+    DLOG(INFO) << std::fixed << std::setprecision(4);
+    DLOG(INFO) << "travelTime (" << i-1 <<" , " << i << " , " << j << " , " << j + 1 << ")= "
+               << originalTravelTime;
+    DLOG(INFO) << "travelTime (" << i-1 <<" , " << j << " , " << i << " , " << j + 1 << ")= "
+               << newTravelTime;
+#endif
+
+  }
+#endif
+  return deltaTravelTime;
+};
+
+
+
 
 
 void TruckManyVisitsDump::fillOneTruck(
@@ -168,6 +180,8 @@ void TruckManyVisitsDump::fillOneTruck(
   truck.dumpeval();
   truck.e_makeFeasable(0);
   truck.dumpeval();
+  truck.getCost();
+  truck.dumpCostValues();
 }
 
 
@@ -189,13 +203,18 @@ void TruckManyVisitsDump::process()
 {
   // THE INVARIANT
   // union must be pickups
+#ifdef VRPMAXTRACE
   assert(pickups == (unassigned + problematic + assigned));
   // all intersections must be empty set
   assert(!(unassigned * problematic).size());
   assert(!(unassigned * assigned).size());
   assert(!(problematic * assigned).size());
   //END INVARIANT
+#endif
 
+  twc->dump();
+  pickups.dumpid("pickups");
+  unassigned.dumpid("unassigned");
   // preparing a big truck where to store everything
   Vehicle bigTruck = getTruck();
   bigTruck.tau();
@@ -203,6 +222,8 @@ void TruckManyVisitsDump::process()
 
   bigTruck.evaluate();
 bigTruck.tau();
+  IntraSwMoves(bigTruck);
+  InsMoves(bigTruck);
 assert(true==false);
 #if 0
   assert(fleet.size());
