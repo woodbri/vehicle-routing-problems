@@ -198,8 +198,8 @@ void Move::Dump() const
     DLOG( INFO ) << "Move: Invalid";
   }
 
-#endif
 }
+#endif
 
 void Move::setInsMove( POS fromTruck, POS fromPos, UID fromId, POS toTruck,
                        POS toPos, double save )
