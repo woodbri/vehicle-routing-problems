@@ -614,11 +614,11 @@ bool OsrmClient::getOsrmHints( std::deque<std::string> &hints )
 
 #ifdef DOSTATS
   Timer timer;
-  STATS->inc( "OsrmClient::getOsrmHint (interface) " );
+  STATS->inc( "OsrmClient::getOsrmHints (interface) " );
 #endif
 
   if ( status != 1 or httpContent.size() == 0 ) {
-    err_msg = "OsrmClient::getOsrmHint (interface) does not have a valid OSRM response!";
+    err_msg = "OsrmClient::getOsrmHints (interface) does not have a valid OSRM response!";
 #ifdef DOSTATS
     STATS->inc( err_msg );
 #endif
@@ -629,7 +629,7 @@ bool OsrmClient::getOsrmHints( std::deque<std::string> &hints )
   jsondoc.Parse( httpContent.c_str() );
 
   if ( jsondoc.HasParseError() ) {
-    err_msg = "OsrmClient:getOsrmHint (interface) invalid json document in OSRM response!";
+    err_msg = "OsrmClient:getOsrmHints (interface) invalid json document in OSRM response!";
 #ifdef DOSTATS
     STATS->inc( err_msg );
 #endif
@@ -637,6 +637,44 @@ bool OsrmClient::getOsrmHints( std::deque<std::string> &hints )
   }
 
   if ( not getHints( jsondoc, hints ) ) {
+    return false;
+  }
+
+  return true;
+}
+
+
+bool OsrmClient::getOsrmStreetNames( std::deque<std::string> &names )
+{
+  if ( not connectionAvailable ) return false;
+
+  if ( not use ) return false;
+
+#ifdef DOSTATS
+  Timer timer;
+  STATS->inc( "OsrmClient::getOsrmStreetNames (interface) " );
+#endif
+
+  if ( status != 1 or httpContent.size() == 0 ) {
+    err_msg = "OsrmClient::getOsrmStreetNames (interface) does not have a valid OSRM response!";
+#ifdef DOSTATS
+    STATS->inc( err_msg );
+#endif
+    return false;
+  }
+
+  rapidjson::Document jsondoc;
+  jsondoc.Parse( httpContent.c_str() );
+
+  if ( jsondoc.HasParseError() ) {
+    err_msg = "OsrmClient:getOsrmStreetNames (interface) invalid json document in OSRM response!";
+#ifdef DOSTATS
+    STATS->inc( err_msg );
+#endif
+    return false;
+  }
+
+  if ( not getNames( jsondoc, names ) ) {
     return false;
   }
 
@@ -908,9 +946,9 @@ bool OsrmClient::getHints( rapidjson::Document &jsondoc,
     return false;
   }
 
-  //const rapidjson::Value &jLocations = jHintData["locations"];
+  const rapidjson::Value &jLocations = jHintData["locations"];
 
-  if ( not jHintData.IsArray() ) {
+  if ( not jLocations.IsArray() ) {
     err_msg = "OsrmClient:getHints (private)  failed to find 'locations' key in OSRM response!";
 #ifdef DOSTATS
     STATS->inc( err_msg );
@@ -921,12 +959,51 @@ bool OsrmClient::getHints( rapidjson::Document &jsondoc,
 
   std::string hint;
 
-  for ( rapidjson::Value::ConstValueIterator itr = jHintData.Begin();
-        itr != jHintData.End(); ++itr) {
+  for ( rapidjson::Value::ConstValueIterator itr = jLocations.Begin();
+        itr != jLocations.End(); ++itr) {
 
     hint = std::string( itr->GetString() );
     hints.push_back( hint );
 
+  }
+
+  return true;
+}
+
+
+bool OsrmClient::getNames( rapidjson::Document &jsondoc,
+                           std::deque<std::string> &names )
+{
+  if ( not connectionAvailable ) return false;
+
+  if ( not jsondoc.HasMember( "route_instructions" ) ) {
+    err_msg = "OsrmClient:getNames failed to find 'route_instructions' key in OSRM response!";
+#ifdef DOSTATS
+    STATS->inc( err_msg );
+#endif
+    return false;
+  }
+
+  const rapidjson::Value& instructions = jsondoc["route_instructions"];
+
+  // find the 'total_time' in the 'route_summary'
+  if ( not instructions.IsArray() or instructions.Size() < 2 ) {
+    err_msg = "OsrmClient:getNames route_instructions is not an array of at least 2 in OSRM response!";
+#ifdef DOSTATS
+    STATS->inc( err_msg );
+#endif
+    return false;
+  }
+
+  // extract the total_time and convert from seconds to minutes
+  names.clear();
+  names.push_back( instructions[0][1].GetString() );
+  for (rapidjson::SizeType i=0; i<instructions.Size(); i++) {
+    const char * inst = instructions[i][0].GetString();
+    if ( not strcmp(inst, "9") )
+      names.push_back( instructions[i][1].GetString() );
+    else if (not strcmp(inst, "15") and i-1 > 0)
+      names.push_back( instructions[i-1][1].GetString() );
   }
 
   return true;
