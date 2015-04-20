@@ -118,7 +118,7 @@ int main(int argc, char **argv)
         if ( osrmi->getOsrmStreetNames( names ) ) {
             std::cout << "StreetNames:" << std::endl;
             for (int i=0; i<names.size(); i++)
-                std::cout << "i: " << i << ", hint: " << names[i] << std::endl;
+                std::cout << "i: " << i << ", name: " << names[i] << std::endl;
         }
         else {
             std::cout << "getOsrmStreetNames Failed!" << std::endl;
