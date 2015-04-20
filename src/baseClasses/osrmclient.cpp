@@ -36,19 +36,16 @@ OsrmClient *OsrmClient::p_osrm = NULL;
 OSRM *OsrmClient::routing_machine = NULL;
 bool OsrmClient::connectionAvailable = true;
 
-OsrmClient::OsrmClient(const OsrmClient &other)
-{
+OsrmClient::OsrmClient(const OsrmClient &other) {
   connectionAvailable = other.connectionAvailable;
 };
 
-OsrmClient &OsrmClient::operator=(const OsrmClient &other)
-{
+OsrmClient &OsrmClient::operator=(const OsrmClient &other) {
   connectionAvailable = other.connectionAvailable;
 };
 
 /*!  * \brief The OsrmClient constructor.  */
-OsrmClient::OsrmClient()
-{
+OsrmClient::OsrmClient() {
   if ( not connectionAvailable ) return;
 
 #ifdef DOSTATS
@@ -90,19 +87,13 @@ OsrmClient::OsrmClient()
   route_parameters.language = "";
 
   status = 0;
-
   use = false;
-
   addPenalty = false;
 
-#ifdef DOVRPLOG
-  testOsrmClient();
-
-#endif
 #ifdef DOSTATS
   STATS->addto( "OsrmClient::OsrmClient Cumulative time", timer.duration() );
-
 #endif
+
 }
 
 /*!
@@ -217,7 +208,6 @@ bool OsrmClient::getOsrmTime( double lat1, double lon1 , double lat2,
                               double &time )
 {
   if ( not connectionAvailable ) return false;
-
   if ( not use ) return false;
 
 #ifdef DOSTATS
@@ -682,13 +672,30 @@ bool OsrmClient::getOsrmStreetNames( std::deque<std::string> &names )
 }
 
 
-bool OsrmClient::testOsrmClient()
-{
-  if ( not use ) return false;
+//! testOsrmClient
+/*!
+    returns false when something failes
+    #1 use: must be true
+    #2 connection
+*/
+bool OsrmClient::testOsrmClient(
+    double x1, double y1,
+    double x2, double y2,
+    double x3, double y3) {
+#ifdef DOVRPLOG
+    DLOG( INFO ) << "testing OsrmClient class";
+#endif
 
-  if ( not connectionAvailable ) return false;
+  if (!use) return false;
+#ifdef DOVRPLOG
+    DLOG( INFO ) << "#1 OsrmClient set to Use";
+#endif
 
-  std::deque<std::string> hints;
+  if (!connectionAvailable) return false;
+#ifdef DOVRPLOG
+    DLOG( INFO ) << "#2 OsrmClient Connection available";
+#endif
+
 
   if ( getStatus() == -1 ) {
 #ifdef DOVRPLOG
@@ -697,33 +704,66 @@ bool OsrmClient::testOsrmClient()
     return false;
   }
 
+#ifdef DOVRPLOG
+    DLOG( INFO ) << "#3 Status != -1";
+#endif
+
+  std::deque<std::string> hints;
   double penalty;
   bool oldPenalty = addPenalty;
   double time;
+  std::string hint1;
+  std::string hint2;
 
-  // TODO Make this location a config value
-  //34.890816,-56.165529
-  if ( getOsrmTime( -34.8917, -56.167694, -34.890816, -56.165529, time ) ) {
+  // test 4
+  if (getOsrmTime(x1, y1, x2, y2, time)) {
 #ifdef DOVRPLOG
-    DLOG( INFO ) << "test time:" << time;
+    DLOG( INFO ) << "#4 test time:" << time;
 #endif
-  } else return false;
-
-  getOsrmPenalty( penalty );
-
-  if ( getOsrmHints( hints ) ) {
-    std::string hint1 = hints[0];
-    std::string hint2 = hints[1];
-
-    if ( getOsrmTime( -34.8917, -56.167694, -34.890816, -56.165529,
-                      hint1, hint2, time ) ) {
+  } else {
 #ifdef DOVRPLOG
-      DLOG( INFO ) << "test time:" << time;
+    DLOG( INFO ) << "#4 test time FAIL";
 #endif
-    } else return false;
-  } else
     return false;
+  }
 
+
+  // test 5
+  if (getOsrmHints(hints)) {
+    hint1 = hints[0];
+    hint2 = hints[1];
+#ifdef DOVRPLOG
+    DLOG( INFO ) << "#5 get stored hints";
+    DLOG( INFO ) << "#5 hint1" << hint1;
+    DLOG( INFO ) << "#5 hint2" << hint2;
+#endif
+  } else {
+#ifdef DOVRPLOG
+    DLOG( INFO ) << "#5 get stored hints FAIL";
+#endif
+    return false;
+  }
+
+  // test 6
+  hint1="";
+  hint2="";
+  if (getOsrmTime(x1, y1, x2, y2, hint1, hint2, time)) {
+#ifdef DOVRPLOG
+    DLOG( INFO ) << "#6 get hint and time:" << time;
+    DLOG( INFO ) << "#6 time:" << time;
+    DLOG( INFO ) << "#6 hint1" << hint1;
+    DLOG( INFO ) << "#6 hint2" << hint2;
+#endif
+  } else {
+#ifdef DOVRPLOG
+      DLOG( INFO ) << "#6 get hint and time FAIL";
+#endif
+      return false;
+  }
+
+//TODO make a test for testing penalties
+#if 0
+  // test 7
   if ( not getOsrmPenalty( penalty ) )
     return false;
 
@@ -750,6 +790,53 @@ bool OsrmClient::testOsrmClient()
   } else return false;
 
   addPenalty = oldPenalty;
+#endif
+
+  // more tests
+  clear();
+  addViaPoint(x1, y1);
+  addViaPoint(x2, y2);
+  addViaPoint(x3, y3);
+
+  std::deque<double> times;
+  // test 7 (with three points)
+  if (!getOsrmViaroute()) {
+    DLOG(INFO) << "#7 getOsrmViaroute Failed!" << std::endl;
+    return false;
+  }
+
+  //test 8 (times array)
+  if (getOsrmTimes(times)) {
+      DLOG(INFO) << "#8 Times:" << std::endl;
+      for (int i=0; i<times.size(); i++)
+          DLOG(INFO) << "i: " << i << ", time: " << times[i] << std::endl;
+  }
+  else {
+      DLOG(INFO) << "#8 getOsrmTimes Failed!";
+      return false;
+  }
+
+  //test 8 (hints array)
+  if (getOsrmHints(hints)) {
+      DLOG(INFO) << "#9 Hints:" << std::endl;
+      for (int i=0; i<hints.size(); i++)
+          DLOG(INFO) << "i: " << i << ", hint: " << hints[i] << std::endl;
+  }
+  else {
+      DLOG(INFO) << "#9 getOsrmHints Failed!" << std::endl;
+      return false;
+  }
+
+  std::deque<std::string> names;
+  if ( getOsrmStreetNames( names ) ) {
+      DLOG(INFO) << "#10 StreetNames:" << std::endl;
+      for (int i=0; i<names.size(); i++)
+          DLOG(INFO) << "i: " << i << ", name: " << names[i] << std::endl;
+  }
+  else {
+      DLOG(INFO) << "#10 getOsrmStreetNames Failed!" << std::endl;
+      return false;
+  }
 
   return true;
 };

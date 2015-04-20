@@ -126,7 +126,11 @@ public:
   int getConnection() const { return connectionAvailable; };
   std::string getErrorMsg() const { return err_msg; };
   std::string getHttpContent() const { return httpContent; };
-  bool testOsrmClient();
+  bool testOsrmClient(
+    double x1, double y1,
+    double x2, double y2,
+    double x3, double y3);
+
 
 private:
   bool getTime( rapidjson::Document &jtree, double &time );

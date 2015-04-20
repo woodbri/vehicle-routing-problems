@@ -23,7 +23,6 @@
 
 #ifdef DOVRPLOG
 #include "logger.h"
-//#include "glog/utilities.h"
 #endif
 
 #ifdef DOSTATS
@@ -34,7 +33,6 @@
 
 
 #include "trashconfig.h"
-//#include "feasableSolLoop.h"
 #include "truckManyVisitsDump.h"
 #include "tabuopt.h"
 
@@ -65,7 +63,6 @@ int main(int argc, char **argv)
 {
 
 #ifdef DOVRPLOG
-
   if ( not google::IsGoogleLoggingInitialized() ) {
     FLAGS_log_dir = "./logs/";
     google::InitGoogleLogging( "vrp_trash_collection" );
@@ -73,65 +70,6 @@ int main(int argc, char **argv)
     FLAGS_stderrthreshold = google::FATAL;
     FLAGS_minloglevel = google::INFO;
   }
-
-#endif
-
-//#define MAKETEST
-#ifdef MAKETEST
-
-//  expected output when ran as:
-//  sudo -u postgres bin/maketest
-//
-//  i: 0, time: 0
-//  i: 1, time: 1.18333
-//  i: 2, time: 1.81667
-
-    osrmi->clear();
-    osrmi->useOsrm( true );
-    osrmi->addViaPoint( -34.905113,-56.157043 );
-    osrmi->addViaPoint( -34.906807,-56.158463 );
-    osrmi->addViaPoint( -34.9076,-56.157028 );
-    if ( osrmi->getOsrmViaroute() ) {
-
-        std::deque<double> times;
-        if ( osrmi->getOsrmTimes( times ) ) {
-            std::cout << "Times:" << std::endl;
-            for (int i=0; i<times.size(); i++)
-                std::cout << "i: " << i << ", time: " << times[i] << std::endl;
-        }
-        else {
-            std::cout << "getOsrmTimes Failed!" << std::endl;
-            return 1;
-        }
-
-        std::deque<std::string> hints;
-        if ( osrmi->getOsrmHints( hints ) ) {
-            std::cout << "Hints:" << std::endl;
-            for (int i=0; i<hints.size(); i++)
-                std::cout << "i: " << i << ", hint: " << hints[i] << std::endl;
-        }
-        else {
-            std::cout << "getOsrmHints Failed!" << std::endl;
-            return 1;
-        }
-
-        std::deque<std::string> names;
-        if ( osrmi->getOsrmStreetNames( names ) ) {
-            std::cout << "StreetNames:" << std::endl;
-            for (int i=0; i<names.size(); i++)
-                std::cout << "i: " << i << ", name: " << names[i] << std::endl;
-        }
-        else {
-            std::cout << "getOsrmStreetNames Failed!" << std::endl;
-            return 1;
-        }
-    }
-    else {
-        std::cout << "getOsrmViaroute Failed!" << std::endl;
-        return 1;
-    }
-
-    return 0;
 #endif
 
   if (argc < 2) {
@@ -150,10 +88,22 @@ int main(int argc, char **argv)
     //CONFIG->dump("CONFIG");
 #endif
 
-    // FeasableSolLoop tp(infile);
+#ifdef OSRMCLIENT
+    osrmi->useOsrm(true);
+    bool testResult = osrmi->testOsrmClient(
+          -34.905113, -56.157043,
+          -34.906807, -56.158463,
+          -34.9076,   -56.157028);
+#ifdef VRPMINTRACE
+    if (testResult)
+     DLOG(INFO) << "osrm test passed";
+   else
+     DLOG(INFO) << "osrm test FAIL";
+#endif  // VRPMINTRACE
+#endif  // OSRMCLIENT
+   
+assert(true==false);
     TruckManyVisitsDump tp(infile);
-
-
 
 #ifdef VRPMINTRACE
     tp.dumpCostValues();

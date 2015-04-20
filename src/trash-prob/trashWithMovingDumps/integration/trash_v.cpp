@@ -65,7 +65,6 @@ int main(int argc, char **argv)
 {
 
 #ifdef DOVRPLOG
-
   if ( not google::IsGoogleLoggingInitialized() ) {
     FLAGS_log_dir = "./logs/";
     google::InitGoogleLogging( "vrp_trash_collection" );
@@ -73,7 +72,6 @@ int main(int argc, char **argv)
     FLAGS_stderrthreshold = google::FATAL;
     FLAGS_minloglevel = google::INFO;
   }
-
 #endif
 
   if (argc < 2) {
@@ -92,10 +90,10 @@ int main(int argc, char **argv)
     //CONFIG->dump("CONFIG");
 #endif
 
-    // FeasableSolLoop tp(infile);
+    osrmi->useOsrm(true);
+    osrmi->testOsrmClient();
+assert(true==false);
     TruckManyVisitsDump tp(infile);
-
-
 
 #ifdef VRPMINTRACE
     tp.dumpCostValues();
