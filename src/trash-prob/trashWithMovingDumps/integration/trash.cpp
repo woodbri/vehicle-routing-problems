@@ -92,13 +92,37 @@ int main(int argc, char **argv)
     osrmi->addViaPoint( -34.906807,-56.158463 );
     osrmi->addViaPoint( -34.9076,-56.157028 );
     if ( osrmi->getOsrmViaroute() ) {
+
         std::deque<double> times;
         if ( osrmi->getOsrmTimes( times ) ) {
+            std::cout << "Times:" << std::endl;
             for (int i=0; i<times.size(); i++)
                 std::cout << "i: " << i << ", time: " << times[i] << std::endl;
         }
         else {
             std::cout << "getOsrmTimes Failed!" << std::endl;
+            return 1;
+        }
+
+        std::deque<std::string> hints;
+        if ( osrmi->getOsrmHints( hints ) ) {
+            std::cout << "Hints:" << std::endl;
+            for (int i=0; i<hints.size(); i++)
+                std::cout << "i: " << i << ", hint: " << hints[i] << std::endl;
+        }
+        else {
+            std::cout << "getOsrmHints Failed!" << std::endl;
+            return 1;
+        }
+
+        std::deque<std::string> names;
+        if ( osrmi->getOsrmStreetNames( names ) ) {
+            std::cout << "StreetNames:" << std::endl;
+            for (int i=0; i<names.size(); i++)
+                std::cout << "i: " << i << ", name: " << names[i] << std::endl;
+        }
+        else {
+            std::cout << "getOsrmStreetNames Failed!" << std::endl;
             return 1;
         }
     }
