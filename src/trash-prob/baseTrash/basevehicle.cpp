@@ -101,8 +101,8 @@ bool BaseVehicle::findNearestNodeTo(Bucket &unassigned, POS &pos,
   double bestDist = -1;
   double d;
 
-  flag = twc->findNearestNodeUseExistingData( path, unassigned,  pos , bestNode,
-         bestDist );
+  flag = twc->findNearestNodeUseExistingData(path, unassigned,  pos , bestNode,
+         bestDist);
 
   for ( POS i = 0; i < unassigned.size(); i++ ) {
     if ( twc->isCompatibleIAJ( path[size() - 1]  , unassigned[i], dumpSite ) ) {
@@ -119,6 +119,35 @@ bool BaseVehicle::findNearestNodeTo(Bucket &unassigned, POS &pos,
 
   return flag;
 }
+
+bool BaseVehicle::findFastestNodeTo(Bucket &unassigned, POS &pos,
+                                    Trashnode &bestNode) {
+
+#ifdef VRPMAXTRACE
+  DLOG( INFO ) << "Entering BaseVehicle::findFastestNodeTo";
+#endif
+  assert ( unassigned.size() );
+
+  if ( not unassigned.size() ) return false;
+
+  bool flag = false;
+  double bestTime = VRP_MAX();
+  double t;
+  bool oldStateOsrm = osrmi->getUse();
+  osrmi->useOsrm(true);
+  flag = twc->findFastestNodeTo(path, unassigned, dumpSite,
+         pos, bestNode, bestTime);
+
+#ifdef VRPMAXTRACE 
+DLOG(INFO) << "bestTime: " << bestTime 
+           << "\t after position: "  << (pos-1)
+           << "\t node:" << bestNode.id() 
+           << "\t truck.size():" << path.size();
+#endif 
+  osrmi->useOsrm(oldStateOsrm);
+  return flag;
+}
+
 
 
 #ifdef DOVRPLOG
@@ -176,8 +205,10 @@ void BaseVehicle::tau() const
   std::stringstream ss;
   ss << " ";
 
-  for ( POS i = 0; i < path.size(); i++ )
-    ss << id( i ) << " ";
+  for (POS i = 0; i < path.size(); i++) {
+    ss << id(i) << " ";
+    if (path[i].isDump()) ss << "\n" << id(i) << " ";
+  }
 
   ss << dumpSite.id() << " ";
   ss << endingSite.id();
@@ -214,7 +245,7 @@ bool BaseVehicle::push_front( Trashnode node )
 
 #endif
 
-bool BaseVehicle::insert( Trashnode node, int at )
+bool BaseVehicle::e_insert( Trashnode node, int at )
 {
   if (not path.e_insert( node, at, getmaxcapacity()))
     return false;
@@ -223,18 +254,22 @@ bool BaseVehicle::insert( Trashnode node, int at )
   return true;
 }
 
-#if 0
-bool BaseVehicle::remove( int at )
+ void BaseVehicle::e_swap(int i,int j){  
+        if (i==j) return; //nothing to swap
+        path.e_swap(i,j,maxcapacity);
+        evalLast();
+ }
+
+
+bool BaseVehicle::e_remove( int at )
 {
-  E_Ret ret = path.e_remove( at, getmaxcapacity() );
-
-  if ( ret == OK ) evalLast();
-  else if ( ret == INVALID ) return false;
-
-  return true;
+  bool ret = path.e_remove(at, getmaxcapacity());
+  evalLast();
+  return ret;
 }
 
 
+#if 0
 bool BaseVehicle::moverange( int rangefrom, int rangeto, int destbefore )
 {
   E_Ret ret = path.e_move( rangefrom, rangeto, destbefore, getmaxcapacity() );

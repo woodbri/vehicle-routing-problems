@@ -118,6 +118,7 @@ template <class knode> class TWC {
 #endif
 
   TwBucket<knode> original;
+  std::map< std::string, int> streetNames; 
   mutable std::vector<std::vector<double> > twcij;
   mutable std::vector<std::vector<double> > travel_Time;
 
@@ -234,6 +235,224 @@ template <class knode> class TWC {
 
     return flag;
   }
+
+/*!
+truck: 0 1 2 3 4 5 6 D 
+call: 0 n 1   0 1 n 2  1 2 n 3   2 3 n 4   3 4 n 5   4 5 n 6   5 6 n D 
+        |     |____________________________________________|    |
+note: special                 cycle                           special
+Retrievable time triplets
+0 n 1  n 1 0         not: 1 0 1
+0 1 n  1 n 2  n 2 1  not: 2 1 2
+1 2 n  2 n 3  n 3 2  
+2 3 n  3 n 4  n 4 3
+3 4 n  4 n 5  n 5 4
+4 5 n  5 n 6  n 6 5
+5 6 n  6 n D
+
+Retrievable caudraplets
+0 1 n 2  1 2 n 3   2 3 n 4   3 4 n 5   4 5 n 6   5 6 n D
+
+Special case:  When truck.size() == 1
+truck: 0 D
+call: 0 n D
+Uses TravelTime(0, n, D)
+
+Special case:
+truck: 0 1 D
+call: 0 n 1  0 1 n D
+triplets:
+0 n 1  n 1 0  0 1 n  1 n D
+
+*/
+bool getTravelingTimesInsertingOneNode(
+   const TwBucket<knode> &truck,
+   const knode &dumpSite,
+   const knode &node) const {
+#ifndef OSRMCLIENT
+  DLOG(INFO) << "NO OSRM";
+  return false;
+#else  // with OSRMCLIENT
+
+ 
+  bool oldStateOsrm = osrmi->getUse();
+  osrmi->useOsrm(true);  //forcing osrm usage
+
+  if (truck.size() == 1) {
+     TravelTime(truck[0], node, dumpSite);
+     osrmi->useOsrm(oldStateOsrm);  
+     return false;
+  }
+
+  // buld call
+  unsigned int tSize = truck.size();
+  std::deque< Node > call;
+  std::deque< double > times; 	
+  // special case  0 n 1
+  call.push_back(truck[0]);
+  call.push_back(node);
+  call.push_back(truck[1]);
+  // cycle:
+  if (tSize > 2) {
+    for (unsigned int i= 0; i < tSize - 3; ++i) {
+      call.push_back(truck[i]);
+      call.push_back(truck[i+1]);
+      call.push_back(node);
+      call.push_back(truck[i+2]);
+    }
+  }
+  // special case 5 6 n   // 0 1 n D
+  call.push_back(truck[tSize - 2]);
+  call.push_back(truck[tSize - 1]);
+  call.push_back(node);
+  call.push_back(dumpSite);
+
+  // process osrm
+  osrmi->addViaPoints(call);
+  if (!osrmi->getOsrmViaroute()) {
+     DLOG(INFO) << "getOsrmViaroute failed";
+     osrmi->useOsrm(oldStateOsrm);  
+     return false;
+  }
+  if (!osrmi->getOsrmTimes(times)){
+     DLOG(INFO) << "getOsrmTimes failed";
+     osrmi->useOsrm(oldStateOsrm);  
+     return false;
+  }
+
+
+  // lets have a peek
+  #ifdef VRPMAXTRACE 
+  DLOG(INFO) << "squential";
+  for (unsigned int i= 0; i < call.size(); ++i) {
+    DLOG(INFO) << call[i].id() << "," << times[i];
+  }
+  #endif 
+
+  // extract triplets and store in table
+  #ifdef VRPMAXTRACE 
+  DLOG(INFO) << "triplets";
+  #endif 
+  for (unsigned int i = 0; i < call.size()-1; ++i) {
+    if (call[i].id() == call[i+2].id()) continue;
+    TTindex index(call[i].nid(), call[i].nid(), call[i+1].nid(), call[i+2].nid());
+    travel_Time4.insert(std::pair<TTindex,double>(index, times[i+2]-times[i]));
+    #ifdef VRPMAXTRACE 
+    DLOG(INFO) << call[i].id() << " -> " 
+               << call[i+1].id() << " -> "
+               << call[i+2].id() << " = " << times[i+2] - times[i];
+    #endif 
+  }
+
+   
+  // extract quadraplets and store in table
+  #ifdef VRPMAXTRACE 
+  DLOG(INFO) << "quadruplets";
+  #endif 
+  for (unsigned int i= 3; i < call.size()-1; i+=4) {
+    TTindex index(call[i].nid(), call[i+1].nid(), call[i+2].nid(), call[i+3].nid());
+    travel_Time4.insert(std::pair<TTindex,double>(index, times[i+3]-times[i]));
+    #ifdef VRPMAXTRACE 
+    DLOG(INFO) << call[i].id() << " -> " 
+               << call[i+1].id() << " -> " 
+               << call[i+2].id() << " -> " 
+               << call[i+3].id() << " = " <<  times[i+3]-times[i];
+    #endif 
+  }
+
+  osrmi->useOsrm(oldStateOsrm);  
+#endif  // with OSRMCLIENT
+}
+
+
+  /*!
+  .....  j j+1 .....
+  .....  j pos j+1 ...
+ 
+  pos = j+1 
+  min ( TT(j,node,j+1) )
+ 
+  returns false when:
+    no compatible node fits in the truck
+  */
+  bool findFastestNodeTo(const TwBucket<knode> &truck,
+                         const  TwBucket<knode> &unassigned,
+                         const knode &dumpSite,
+                         POS &pos,
+                         knode &bestNode,
+                         double &bestTime) const {
+    assert(unassigned.size());
+    int flag = false;
+    bestTime = VRP_MAX();   // time to minimize
+    pos = 0;        // position in path to insert
+    double tAdd;
+    double tSubs;
+    double deltaTime;
+    
+    for ( int i = 0; i < unassigned.size(); i++ ) {
+      getTravelingTimesInsertingOneNode(truck, dumpSite, unassigned[i]);
+      for ( int j = 0; j < truck.size(); j++ ) {
+
+        // special case 
+        if (j ==  truck.size()-1) {
+          if (j == 0) {
+            tAdd = TravelTime(truck[j], unassigned[i], dumpSite);
+            tSubs = TravelTime(truck[j], dumpSite);
+          } else {
+            tAdd = TravelTime(truck[j-1], truck[j], unassigned[i], dumpSite);
+            tSubs = TravelTime(truck[j-1], truck[j], dumpSite);
+          }
+        } else {
+          if (j == 0) {
+            tAdd = TravelTime(truck[j], unassigned[i], truck[j+1]);
+            tSubs = TravelTime(truck[j], truck[j+1]);
+          } else {
+            tAdd = TravelTime(truck[j-1], truck[j], unassigned[i], truck[j+1]);
+            tSubs = TravelTime(truck[j-1], truck[j], truck[j+1]);
+          }
+
+        }
+        deltaTime = tAdd - tSubs;
+#ifdef VRPMAXTRACE
+        if (j==truck.size()-1)
+          DLOG(INFO) << "+(" << truck[j].id() << " " << unassigned[i].id() << " " << dumpSite.id() << ")" << "time= " <<tAdd;
+        else
+          DLOG(INFO) << "+(" << truck[j].id() << " " << unassigned[i].id() << " " << truck[j+1].id() << ")" << "time= " <<tAdd;
+
+        if (j==truck.size()-1)
+          DLOG(INFO) << "-(" << truck[j].id() << " "  << dumpSite.id() << ")" << "time= " << tSubs;
+        else
+          DLOG(INFO) << "-(" << truck[j].id() << " "  << truck[j+1].id() << ")" << "time= " << tSubs;
+
+          DLOG(INFO) << "delta Time= " << deltaTime;
+#endif
+          if ((truck.size() == 1) && ((-tAdd) < bestTime)) {
+            bestTime = -tAdd;
+            pos = j + 1;
+            bestNode = unassigned[i];
+            flag = true;
+          }
+          if ((truck.size() > 1) && (deltaTime < bestTime)) {
+            bestTime = deltaTime;
+            pos = j + 1;
+            bestNode = unassigned[i];
+            flag = true;
+            if (bestTime < 0.0001) return flag;
+          }
+        // }
+      }  //for j
+#if 0   //  1 = STORES MORE TTRAVEL TME TABLE
+    }  // for i
+#else
+      if (flag) return flag;
+    }  // for i
+#endif
+//assert(true==false);
+    return flag;
+}
+
+
+
   ///@}
 
   /*!
@@ -752,6 +971,66 @@ template <class knode> class TWC {
     return (bestNode != from);
   }
 
+
+  /// \brief find best node to arrive to from "from"
+  /*!  
+
+  \param[in] from
+  \param[in] nodes: main nodes bucket
+  \param[in/out] streetNodes: secundary nodes bucket
+  \param[out] bestNode: Node that minimizes TravelTime[from,bestNode]
+  \returns true when a bestNode was found
+  */
+  bool findBestTravelTimeUseStreetUseHint(
+      const knode &from,
+      const Bucket &nodes,
+      Bucket &streetNodes,
+      knode &bestNode) const {
+    assert(nodes.size() && from.nid() < original.size());
+
+    Bucket reachable;
+    uint64_t streetId;
+    if (streetNodes.size() == 0) {
+      streetId = from.streetId();
+      reachable  = getReachable(from.nid(), nodes);
+      // from the reachable nodes get the nodes that belong to the
+      // same street
+      for (int i = 0; i < reachable.size(); i++) {
+        if (reachable[i].streetId() == streetId) { 
+          streetNodes.push_back(reachable[i]);
+        }
+      }
+      if (streetNodes.size() != 0) {
+        reachable = streetNodes;
+      } 
+    } else {
+      reachable = getReachable(from.nid(),streetNodes);
+    } 
+
+    
+    bestNode = from;
+    if (!reachable.size()) return false;
+
+    double bestTime = VRP_MAX();
+
+    for (int i = 0; i < reachable.size(); i++) {
+      // the node we are looking for is not the node we are comming from
+      assert (reachable[i].nid() != from.nid());
+      if (reachable[i].nid() == from.nid()) continue;
+      if (reachable[i].hint() == from.hint()) {
+        bestNode = reachable[i];
+        return true;
+      }
+      if (TravelTime(from.nid(), reachable[i].nid()) < bestTime ) {
+        bestNode = reachable[i];
+        // bestTime = TravelTime(from.nid(), reachable[i].nid());
+      }
+    }
+
+    return (bestNode != from);
+  }
+
+
   /*!
    * \brief Search a bucket for the node with the best travel time to node id \b to.
    *
@@ -1010,8 +1289,8 @@ template <class knode> class TWC {
   void dump(const Bucket &nodes) const  {
     assert(nodes.size());
     original.dump("original");
-    // dumpCompatability(nodes);
-    // dumpTravelTime(nodes);
+    dumpCompatability(nodes);
+    dumpTravelTime(nodes);
   }
 
   /*! \brief Print the TW Compatibility matrix for the original nodes.  */
@@ -1355,6 +1634,14 @@ template <class knode> class TWC {
 
 
 
+/// \brief Sets the hints and the street's id to the nodes in the bucket
+/**
+
+  The hint & street when id stored in "original" is copyied into the bucket's
+  nodes.
+
+  To be used after "original" has being filled with the appropiate values
+*/
 #ifdef OSRMCLIENT
   void setHints(Bucket &nodes) {
 #ifdef DOSTATS
@@ -1363,6 +1650,7 @@ template <class knode> class TWC {
 
     for ( int i = 0; i < nodes.size(); i++ ) {
       nodes[i].set_hint(original[nodes[i].nid()].hint());
+      nodes[i].set_streetId(original[nodes[i].nid()].streetId());
     }
 
 #ifdef DOSTATS
@@ -1396,15 +1684,18 @@ template <class knode> class TWC {
 
 
 #ifdef OSRMCLIENT
-  void getAllHints() {
+ private:
+  void getAllHintsAndStreets() {
 #ifdef DOSTATS
     Timer timer;
-#endif
+#endif  //DOSTATS
 
-#ifdef VRPMINTRACE
-    DLOG(INFO) << "GETTING HINTS\n";
-#endif
+#ifdef VRPMAXTRACE
+    DLOG(INFO) << "GgetAllHintsAndStreets\n";
+#endif  
     std::deque<std::string> hints;
+    std::deque<std::string> streets;
+    std::map< std::string, int>::const_iterator street_ptr;
     int total = original.size();
     int from, to;
     int i, j, k;
@@ -1417,41 +1708,48 @@ template <class knode> class TWC {
 
       for ( j = from; j < to ; j++ ) osrmi->addViaPoint(original[j]);
 
-      if (osrmi->getOsrmViaroute() && osrmi->getOsrmHints(hints)) {
+      if (   osrmi->getOsrmViaroute()
+          && osrmi->getOsrmHints(hints) 
+          && osrmi->getOsrmStreetNames(streets)) {
         for (j = from, k = 0; j < to; j++, k++) {
+          // setting the hint
           original[j].set_hint(hints[k]);
-#ifdef VRPMINTRACE
-          DLOG(INFO) << "hint";
-          original[j].dump();
-#endif
+          // setting the street
+          street_ptr = streetNames.find(streets[k]);
+          if (street_ptr == streetNames.end()) {
+            original[j].set_streetId(streetNames.size());
+            streetNames[streets[k]] = streetNames.size();
+          } else {
+            original[j].set_streetId(street_ptr->second);
+          }
+          
         }
       } else {
-#ifdef VRPMINTRACE
+#ifdef VRPAMXTRACE
           DLOG(INFO) << "NO HINTS WERE FOUND\n";
 #endif
       }
     }
 
 #ifdef DOSTATS
-    STATS->addto("TWC::getAllHints Cumultaive time:", timer.duration());
+    STATS->addto("TWC::getAllHintsAndStreets Cumultaive time:", timer.duration());
 #endif
   }
-#endif
+#endif  // OSRMCLIENT
 
 
  public:
-  /*!
-   * \brief Assign the travel time matrix to TWC from Pg
-   * \bug TODO needs to be tested when conected to the database
-   * This method is specific for PostgreSQL integration. It receives a
-   * ttime_t structure array containing the travel time matrix values passed
-   * from the database and loads them into the problem and does some
-   * additional needed computations.
-   *
-   * \param[in] ttimes The travel time data array from PosgreSQL
-   * \param[in] count The count of entries in \b ttimes
-   * \param[in] datanodes The data nodes Bucket previous loaded from PostgreSQL
-   * \param[in] invalid The bucket of invalid nodes generated when load the data nodes.
+  /*!  \brief Assign the travel time matrix to TWC from Pg
+
+    This method is specific for PostgreSQL integration. It receives a
+    ttime_t structure array containing the travel time matrix values passed
+    from the database and loads them into the problem and does some
+    additional needed computations.
+   
+    \param[in] ttimes The travel time data array from PosgreSQL
+    \param[in] count The count of entries in \b ttimes
+    \param[in] datanodes The data nodes Bucket previous loaded from PostgreSQL
+    \param[in] invalid The bucket of invalid nodes generated when load the data nodes.
    */
   void loadAndProcess_distance(ttime_t *ttimes, int count,
                                const Bucket &datanodes, const Bucket &invalid) {
@@ -1460,7 +1758,7 @@ template <class knode> class TWC {
     original = datanodes;
 
 #ifdef OSRMCLIENT
-    getAllHints();
+    getAllHintsAndStreets();
 #endif
 
     prepareTravelTime();
@@ -1486,18 +1784,26 @@ template <class knode> class TWC {
   }
 
 
+ public:
   /*!
    * \brief Load the travel time matrix from a text file and process the results.
    *
-   * Reads \b infile and loads it into the travel time matrix and populates
-   * any missing entries we=ith an approx distance. It also computes the TWC
-   * matrix.
-   *
-   * \todo Add description of file format.
-   *
-   * \param[in] infile The file name to load.
-   * \param[in] datanodes The bucket of data nodes that has already been loaded.
-   * \param[in] invalid A bucket of invalid nodes found in the data nodes.
+    Reads \b infile and loads it into the travel time matrix and populates
+    any missing entries we=ith an approx distance. It also computes the TWC
+    matrix.
+   
+    file format (separated by spaces):
+    # comment
+    from to time
+
+    where
+    from: id of the node 
+    to:   id of the node 
+    time:  time to go from node "from" to node "to"
+   
+    \param[in] infile: The file name to load.
+    \param[in] datanodes: The bucket of data nodes that has already been loaded.
+    \param[in] invalid: A bucket of invalid nodes found in the data nodes.
    */
   void loadAndProcess_distance(std::string infile, const Bucket &datanodes,
                                 const Bucket &invalid) {
@@ -1517,7 +1823,7 @@ template <class knode> class TWC {
 #ifdef VRPMINTRACE
     DLOG(INFO) << "going to GET HINTS\n";
 #endif
-    getAllHints();
+    getAllHintsAndStreets();
 #endif
 
     prepareTravelTime();
@@ -1715,20 +2021,15 @@ template <class knode> class TWC {
     }
   }
 
-  /*!
-   * \brief Check that a TWC matrix entry exists for all original nodes.
-   */
+  /*!  \brief Check's that the twcij was created
+    O(N) where N is the number of nodes
+  */
   bool check_integrity() const {
     assert(original.size() == twcij.size());
 
-    if ( original.size() != twcij.size() ) return false;
-
     for ( int i = 0; i < original.size(); i++ ) {
       assert(twcij[i].size() == original.size());
-
-      if ( twcij[i].size() != original.size() ) return false;
     }
-
     return true;
   }
 

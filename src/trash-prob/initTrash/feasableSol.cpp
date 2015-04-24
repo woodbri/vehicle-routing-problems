@@ -69,7 +69,7 @@ void FeasableSol::stepOne( Vehicle &truck )
       assert ( truck.feasable() ) ;
       stepOne( truck );
     } else {
-      //            truck.insert(bestNode,bestPos);
+      truck.e_insert(bestNode,bestPos);
       assigned.push_back( bestNode );
       unassigned.erase( bestNode );
 

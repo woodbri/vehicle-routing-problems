@@ -120,7 +120,7 @@ class Twpath : public TwBucket<knode> {
    * \param[in] pos to be erased.
    * \param[in] maxcapacity of vehicle for this path.
    */
-  bool e_erase(POS pos, double maxcapacity) {
+  bool e_remove(POS pos, double maxcapacity) {
     assert (pos < size());
 
     if (not erase(pos))
@@ -130,20 +130,34 @@ class Twpath : public TwBucket<knode> {
     return true;
   }
  
+
+  /*!
+   * \brief Evaluated: Swap two nodes in the path.
+   *
+   * This method exchanges two nodes without a given path for the other
+   * swapping them and then evaluating the resultant path.
+   *
+   * \param[in] i The position of the first node to swap.
+   * \param[in] j The position of the second node to swap.
+   * \param[in] maxcapacity The maximum capacity of vehicle for this path.
+   * \return Status of whether or not the move was made.
+   */
+  bool e_swap(UID i, UID j, double maxcapacity) {
+    if (i == j) return false;
+    swap(i, j);
+    i < j ? evaluate(i, maxcapacity) : evaluate(j, maxcapacity);
+    return true;
+  }
+
   /*!  * \brief Evaluated: erase a node from the path.
    *
    * \param[in] node to be erased.
    * \param[in] maxcapacity of vehicle for this path.
    */
-  bool e_erase(const knode &node, double maxcapacity) {
-    if ( !hasNid(node) )
-      return false;
-    int atPos = pos(node);
+  bool e_erase(UID atPos, double maxcapacity) {
     assert (atPos < size());
-
     if (not erase(atPos))
       return false;
-
     evaluate(atPos, maxcapacity);
     return true;
   }
@@ -460,26 +474,6 @@ class Twpath : public TwBucket<knode> {
     path.resize(newSize);
     // its reduced so the last node's value its not affected so no need of
     evalLast(maxcapacity); // TODO <--- can this one be avoided????
-    return true;
-  }
-
-
-  /*!
-   * \brief Evaluated: Swap two nodes in the path.
-   *
-   * This method exchanges two nodes without a given path for the other
-   * swapping them and then evaluating the resultant path.
-   *
-   * \param[in] i The position of the first node to swap.
-   * \param[in] j The position of the second node to swap.
-   * \param[in] maxcapacity The maximum capacity of vehicle for this path.
-   * \return Status of whether or not the move was made.
-   */
-  bool e_swap(UID i, UID j, double maxcapacity) {
-    if (i == j) return false;
-
-    swap(i, j);
-    i < j ? evaluate(i, maxcapacity) : evaluate(j, maxcapacity);
     return true;
   }
 

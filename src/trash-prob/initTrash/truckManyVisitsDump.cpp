@@ -34,18 +34,29 @@
 double TruckManyVisitsDump::e_evalIntraSw(Vehicle &truck, POS i, POS j){
   assert(i > 0);
   assert(j > i);
-  assert(j < truck.size()-1);
+  assert(j < truck.size());
 
   if (truck[i].isDump() || truck[j].isDump())
       return VRP_MAX();
   double deltaTravelTime;
+  double originalTravelTimeI;
+  double originalTravelTimeJ;
+  double newTravelTimeI;
+  double newTravelTimeJ;
+    
   if (j > i + 1) {
-    double originalTravelTimeI = twc->TravelTime(truck[i-1], truck[i], truck[i+1]);
-    double originalTravelTimeJ = twc->TravelTime(truck[j-1], truck[j], truck[j+1]);
-    double newTravelTimeI = twc->TravelTime(truck[i-1], truck[j], truck[i+1]);
-    double newTravelTimeJ = twc->TravelTime(truck[j-1], truck[i], truck[j+1]);
+    originalTravelTimeI = twc->TravelTime(truck[i-1], truck[i], truck[i+1]);
+    newTravelTimeI = twc->TravelTime(truck[i-1], truck[j], truck[i+1]);
+
+    if (j != truck.size() - 1) {
+      originalTravelTimeJ = twc->TravelTime(truck[j-1], truck[j], truck[j+1]);
+      newTravelTimeJ = twc->TravelTime(truck[j-1], truck[i], truck[j+1]);
+    } else {
+      originalTravelTimeJ = twc->TravelTime(truck[j-1], truck[j], truck.getDumpSite());
+      newTravelTimeJ = twc->TravelTime(truck[j-1], truck[i], truck.getDumpSite());
+    }
     deltaTravelTime = (newTravelTimeI + newTravelTimeJ)
-                   - (newTravelTimeI - newTravelTimeI);
+                   - (originalTravelTimeI + originalTravelTimeJ);
 
   
 #ifdef VRPMAXTRACE
@@ -54,6 +65,7 @@ double TruckManyVisitsDump::e_evalIntraSw(Vehicle &truck, POS i, POS j){
                << originalTravelTimeI;
     DLOG(INFO) << "travelTime (" << j-1 <<" , " << j << " , " << j + 1 << ")= " 
                << originalTravelTimeJ;
+
     DLOG(INFO) << "travelTime (" << i-1 <<" , " << j << " , " << i + 1 << ")= " 
                << newTravelTimeI;
     DLOG(INFO) << "travelTime (" << j-1 <<" , " << i << " , " << j + 1 << ")= " 
@@ -77,51 +89,105 @@ double TruckManyVisitsDump::e_evalIntraSw(Vehicle &truck, POS i, POS j){
 };
 
 void TruckManyVisitsDump::IntraSwMoves(Vehicle &truck) {
+  DLOG(INFO) << "starting IntraSwMoves";
   double deltaTravelTime;
-  for (POS i = 1; i < truck.size(); ++i) {
-    for (POS j = i + 1; j < truck.size()-1; ++j) {
+  int count = 0;
+  for (int i = 1; i < truck.size()-1; ++i) {
+    for (int j = i + 1; j < truck.size()-1; ++j) {
       deltaTravelTime = e_evalIntraSw(truck,i,j);
-      if (deltaTravelTime == VRP_MAX()) continue;
-      //if (deltaTravelTime < 0)
-        DLOG(INFO) << "delete: " << i <<" insert after: " << j << " = "
+      if (deltaTravelTime == VRP_MAX()) {
+        continue;
+      }
+      if (deltaTravelTime < 0) {
+#if 0
+        DLOG(INFO) << "swap: (" << i <<" , " << j << ")= "
                    << "Delta TravelTime: " << deltaTravelTime;
-    }
+#endif
+        truck.e_swap(i,j);
+        ++count;
+      }
+    }  // for j
+  }  // for i
+  DLOG(INFO) << "count:" << count;
+  if (count > 0) {
+    // truck.tau();
+    if ( osrmi->getUse() == true) return;
+    IntraSwMoves(truck);
   }
 }
 
 void TruckManyVisitsDump::InsMoves(Vehicle &truck) {
+  DLOG(INFO) << "starting InsMoves";
   double deltaTravelTime;
-  for (POS i = 1; i < truck.size(); ++i) {
+  Trashnode deletedNode;
+  int count = 0;
+  for (POS i = 1; i < truck.size()-1; ++i) {
     for (POS j = i + 1; j < truck.size()-1; ++j) {
-      deltaTravelTime = e_evalIns(truck,i,j);
-      if (deltaTravelTime == VRP_MAX()) continue;
-      //if (deltaTravelTime < 0)
-        DLOG(INFO) << "swap: (" << i <<" , " << j << ")= "
+      if (i == j) continue;
+      if ((i + 1)== j) continue;
+      deltaTravelTime = e_evalIns(truck,i,j);  // i adelante de j
+      if (deltaTravelTime < 0) {
+        ++count;
+#if 0
+        DLOG(INFO) << "delete: " << i <<" insert after: " << j << " = "
                    << "Delta TravelTime: " << deltaTravelTime;
-    }
+#endif
+        deletedNode = truck[i];
+        truck.e_remove(i);
+        truck.e_insert(deletedNode,j);
+        //assert(true==false);
+        continue;
+      }
+#if 1
+      deltaTravelTime = e_evalIns(truck,j,i); // j after i
+      if (deltaTravelTime == VRP_MAX()) continue;
+      if (deltaTravelTime < 0) {
+        ++count;
+#if 0
+        DLOG(INFO) << "delete: " << j <<" insert after: " << i << " = "
+                   << "Delta TravelTime: " << deltaTravelTime;
+#endif
+        deletedNode = truck[i];
+	truck.e_remove(i);
+        truck.e_insert(deletedNode,j);
+        continue;
+      }
+#endif
+    }  // for j
+  }  // for i
+#if 1
+  DLOG(INFO) << "count:" << count;
+  if (count > 0) {
+    truck.tau();
+//    osrmi->useOsrm(!osrmi->getUse());
+    InsMoves(truck);
   }
+#endif
 }
 
-// delteting node at position i, inserting it after node in position j
+/// deleting node at position i, insert it after node in position j
+
 // 0 ..... i-1  i  i+1 ...       j-1 j  j+1
 // 0 ......i-1 i+1 ......    j-1  j  i  j+1    
 
 double TruckManyVisitsDump::e_evalIns(Vehicle &truck, POS i, POS j){
   assert(i > 0);
-  assert(j > i);
+  assert(j > 0);
   assert(j < truck.size()-1);
+  assert(i < truck.size()-1);
 
-  if (truck[i].isDump()) // not deleting a dump
+  if (truck[i].isDump())  // not deleting a dump
       return VRP_MAX();
+  if ((j + 1) == i )  // i is already after j
+      return 0;
   double deltaTravelTime;
-  // if (j > i + 1) {
+   // if (j > i + 1) {
     double originalTravelTimeI = twc->TravelTime(truck[i-1], truck[i], truck[i+1]);
     double originalTravelTimeJ = twc->TravelTime(truck[j-1], truck[j], truck[j+1]);
     double newTravelTimeI = twc->TravelTime(truck[i-1], truck[i+1]);
     double newTravelTimeJ = twc->TravelTime(truck[j-1], truck[j], truck[i], truck[j+1]);
     deltaTravelTime = (newTravelTimeI + newTravelTimeJ)
-                   - (newTravelTimeI - newTravelTimeI);
-
+                   - (originalTravelTimeI + originalTravelTimeJ);
 
 #ifdef VRPMAXTRACE
     DLOG(INFO) << std::fixed << std::setprecision(4);
@@ -168,20 +234,43 @@ void TruckManyVisitsDump::fillOneTruck(
   Trashnode bestNode;
   UID bestPos;
   double bestDist;
-
+  Bucket streetNodes;
+  uint64_t  street_id;
   while (unassigned.size() != 0) {
+    if (truck.findFastestNodeTo(unassigned, bestPos, bestNode)) {
+      truck.e_insert(bestNode, bestPos);
+      truck.tau();
+      assigned.push_back(bestNode);
+      unassigned.erase(bestNode);
+      // lets process same street
+      street_id = bestNode.streetId();
+      for (unsigned int i = 0; i < unassigned.size(); ++i) {
+        if (unassigned[i].streetId() == street_id) 
+          streetNodes.push_back(unassigned[i]);
+      }
+      while (streetNodes.size() != 0) {
+        if (truck.findFastestNodeTo(streetNodes, bestPos, bestNode)) {
+          truck.e_insert(bestNode, bestPos);
+          truck.tau();
+          assigned.push_back(bestNode);
+          streetNodes.erase(bestNode);
+          unassigned.erase(bestNode);
+        }
+      }
+    } else break;
+  }
 
-    if (twc->findBestTravelTime(truck[truck.size()-1], unassigned, bestNode)) {
+#if 0
+assert(true==false);
+  // add unassigned nodes at end
+  while (unassigned.size() != 0) {
+      bestNode = unassigned[0];
       truck.push_back(bestNode);
       assigned.push_back(bestNode);
       unassigned.erase(bestNode);
-    } else break;
+assert(true==false);
   }
-  truck.dumpeval();
-  truck.e_makeFeasable(0);
-  truck.dumpeval();
-  truck.getCost();
-  truck.dumpCostValues();
+#endif
 }
 
 
@@ -212,20 +301,82 @@ void TruckManyVisitsDump::process()
   //END INVARIANT
 #endif
 
-  twc->dump();
-  pickups.dumpid("pickups");
-  unassigned.dumpid("unassigned");
   // preparing a big truck where to store everything
   Vehicle bigTruck = getTruck();
-  bigTruck.tau();
-  fillOneTruck(bigTruck, unassigned, assigned);
-
-  bigTruck.evaluate();
 bigTruck.tau();
+  fillOneTruck(bigTruck, unassigned, assigned);
+  bigTruck.evaluate();
+    STATS->dump("intermidiate");
+#if 0
+  bigTruck.e_makeFeasable(0);
+  bigTruck.dumpeval();
+  bigTruck.tau();
+
+assert(true==false);
+#endif 
+  //bigTruck.e_makeFeasable(0);
+  for (int i = 0; i < 10; i++) {
+  osrmi->useOsrm(false);
+  //IntraSwMoves(bigTruck);
+  InsMoves(bigTruck);
+  bigTruck.tau();
+  }
+  bigTruck.e_makeFeasable(0);
+  bigTruck.evaluate();
+  bigTruck.dumpCostValues();
+  bigTruck.tau();
+  STATS->dump("intermidiate");
+
+assert(true==false);
+  IntraSwMoves(bigTruck);
+  osrmi->useOsrm(true);
   IntraSwMoves(bigTruck);
   InsMoves(bigTruck);
-assert(true==false);
+  osrmi->useOsrm(false);
+  IntraSwMoves(bigTruck);
+
+  bigTruck.getCost();
+  bigTruck.dumpCostValues();
+#ifdef DOSTATS
+    STATS->dump("intermidiate");
+#endif
+  // adding the dumps
+  bigTruck.e_makeFeasable(0);
+
+  bigTruck.getCost();
+  bigTruck.dumpCostValues();
+
+  //repeat the same process
+  for (int i = 0; i < 20; i++) {
+  osrmi->useOsrm(!osrmi->getUse());
+  IntraSwMoves(bigTruck);
+  bigTruck.tau();
+  }
+
+  osrmi->useOsrm(true);
+  IntraSwMoves(bigTruck);
+  osrmi->useOsrm(false);
+  IntraSwMoves(bigTruck);
+
+  bigTruck.getCost();
+  bigTruck.dumpCostValues();
+#ifdef DOSTATS
+    STATS->dump("intermidiate");
+#endif
+  assert(true==false);
+
+
 #if 0
+  bigTruck.evaluate();
+bigTruck.tau();
+DLOG(INFO) << "first round";
+  //InsMoves(bigTruck);
+DLOG(INFO) << "second round";
+  osrmi->useOsrm(false);
+  IntraSwMoves(bigTruck);
+  //InsMoves(bigTruck);
+bigTruck.tau();
+assert(true==false);
   assert(fleet.size());
 #ifdef DOVRPLOG
   fleet[0].dump( "fleet[0]" );

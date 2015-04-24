@@ -55,6 +55,7 @@ protected:
 public:
   bool isvalid() const {return vid >= 0;};  // more complicated than this
   bool findNearestNodeTo(Bucket &unassigned, POS &pos, Trashnode &bestNode);
+  bool findFastestNodeTo(Bucket &unassigned, POS &pos, Trashnode &bestNode);
   bool e_setPath(const Bucket &sol);
 
   //--------------------------------------------------------------------
@@ -158,8 +159,11 @@ public:
 
   // single path manipulators
 
-  bool push_back( Trashnode node );
-  bool insert( Trashnode node, int at );
+  bool push_back(Trashnode node);
+  bool e_insert(Trashnode node, int at);
+  bool e_remove(int at);
+  void e_swap(int i,int j);
+  //void e_insert(Trashnode, int i);
 
   //----------------------------------------------------------------
   // I really hate these shortcuts & I love them but I'll think about them really hard

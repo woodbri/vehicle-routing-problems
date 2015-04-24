@@ -227,7 +227,7 @@ void Prob_trash::loadProblem( const std::string &infile )
     trucks[i].setInitialValues( C, pickups );
   }
 
-#ifdef VRPMINTRACE
+#ifdef VRPMAXTRACE
   C.dump();
   nodes.dump( "nodes" );
   dumps.dump( "dumps" );

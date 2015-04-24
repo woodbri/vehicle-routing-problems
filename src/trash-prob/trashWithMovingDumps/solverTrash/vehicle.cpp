@@ -522,7 +522,7 @@ long int Vehicle::eval_insertMoveDumps( const Trashnode &node, Moves &moves,
   while ( unTestedPos.size() ) {
     currentPos = unTestedPos.back();
     unTestedPos.pop_back();
-    truck.insert( node, currentPos );
+    truck.e_insert( node, currentPos );
 
     if ( not truck.e_makeFeasable( currentPos ) ) {
 #ifdef TESTED
