@@ -35,6 +35,13 @@
 
 
 
+void  BaseVehicle::setTravelingTimesOfRoute() const {
+    twc->setTravelingTimesOfRoute(path,dumpSite);
+}
+
+
+
+
 
 #ifdef WITHOSRM
 double BaseVehicle::getCostOsrm() const

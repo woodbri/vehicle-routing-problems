@@ -130,7 +130,6 @@ class Twpath : public TwBucket<knode> {
     return true;
   }
  
-
   /*!
    * \brief Evaluated: Swap two nodes in the path.
    *

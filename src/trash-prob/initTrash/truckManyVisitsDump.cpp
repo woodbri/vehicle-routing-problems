@@ -160,7 +160,7 @@ void TruckManyVisitsDump::InsMoves(Vehicle &truck) {
   if (count > 0) {
     truck.tau();
 //    osrmi->useOsrm(!osrmi->getUse());
-    InsMoves(truck);
+//    InsMoves(truck);
   }
 #endif
 }
@@ -239,7 +239,7 @@ void TruckManyVisitsDump::fillOneTruck(
   while (unassigned.size() != 0) {
     if (truck.findFastestNodeTo(unassigned, bestPos, bestNode)) {
       truck.e_insert(bestNode, bestPos);
-      truck.tau();
+//      truck.tau();
       assigned.push_back(bestNode);
       unassigned.erase(bestNode);
       // lets process same street
@@ -251,12 +251,13 @@ void TruckManyVisitsDump::fillOneTruck(
       while (streetNodes.size() != 0) {
         if (truck.findFastestNodeTo(streetNodes, bestPos, bestNode)) {
           truck.e_insert(bestNode, bestPos);
-          truck.tau();
+//          truck.tau();
           assigned.push_back(bestNode);
           streetNodes.erase(bestNode);
           unassigned.erase(bestNode);
         }
       }
+      if (!truck.feasable()) truck.e_makeFeasable(0);
     } else break;
   }
 
@@ -307,8 +308,11 @@ bigTruck.tau();
   fillOneTruck(bigTruck, unassigned, assigned);
   bigTruck.evaluate();
     STATS->dump("intermidiate");
-#if 0
+#if 1
   bigTruck.e_makeFeasable(0);
+  bigTruck.setTravelingTimesOfRoute();
+assert(true==false);
+  bigTruck.evaluate();
   bigTruck.dumpeval();
   bigTruck.tau();
 
@@ -316,9 +320,9 @@ assert(true==false);
 #endif 
   //bigTruck.e_makeFeasable(0);
   for (int i = 0; i < 10; i++) {
-  osrmi->useOsrm(false);
-  //IntraSwMoves(bigTruck);
-  InsMoves(bigTruck);
+  osrmi->useOsrm(true);
+  IntraSwMoves(bigTruck);
+  // InsMoves(bigTruck);
   bigTruck.tau();
   }
   bigTruck.e_makeFeasable(0);

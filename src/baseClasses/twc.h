@@ -236,6 +236,140 @@ template <class knode> class TWC {
     return flag;
   }
 
+
+/*!
+
+\returns array of times for route 0 1 2 3 4 5 6 D
+
+truck: 0 1 2 3 4 5 6 D  
+call: 0 1 2 3 4 5 6 D       D 6 5 4 3 2 1 0
+      |_____________|       |_____________|
+         cycle 1               cycle 2
+
+retrievable pairs
+0 1  1 2  .... 6 D
+D 6  5 4  .... 1 0  
+
+Retrievable time triplets
+0 1 2  1 2 3  .....  5 6 D
+0 6 5  6 5 4  .....  2 1 D
+
+Retrievable caudraplets
+0 1 2 3  1 2 3 4  ..... 5 6 D E
+0 6 5 4  6 5 4 3  ..... 2 1 D E  
+
+
+Special case:  When truck.size() == 1
+truck: 0 D 
+call: 0 D  D 0
+
+pairs: 0 D   D 0
+triplets: NONE
+quadruplets: NONE
+
+Special case:
+truck: 0 1 D  
+call: 0 1 D  D 1 0 
+
+pairs:
+0 1  1 D  D 1  1 0
+triplets:
+0 1 D  D 1 0
+quadruplets:
+NONE
+
+*/
+bool setTravelingTimesOfRoute(
+   const TwBucket<knode> &truck,
+   const knode &dumpSite) const {
+#ifndef OSRMCLIENT
+  DLOG(INFO) << "NO OSRM";
+  return false;
+#else  // with OSRMCLIENT
+
+ 
+  bool oldStateOsrm = osrmi->getUse();
+  osrmi->useOsrm(true);  //forcing osrm usage
+
+  // buld call
+  unsigned int tSize = truck.size();
+  std::deque< Node > call;
+  std::deque< double > times; 	
+  // cycle 1:
+  for (unsigned int i = 0; i < tSize; ++i) {
+      call.push_back(truck[i]);
+  }
+  call.push_back(dumpSite);
+
+#if 0
+  // cycle 2:
+  call.push_back(dumpSite);
+  for (int i = tSize - 1; i >= 0; --i) {
+      call.push_back(truck[i]);
+  }
+#endif
+  // process osrm
+  osrmi->addViaPoints(call);
+  if (!osrmi->getOsrmViaroute()) {
+     DLOG(INFO) << "getOsrmViaroute failed";
+     osrmi->useOsrm(oldStateOsrm);  
+     return false;
+  }
+  if (!osrmi->getOsrmTimes(times)){
+     DLOG(INFO) << "getOsrmTimes failed";
+     osrmi->useOsrm(oldStateOsrm);  
+     return false;
+  }
+
+
+  // lets have a peek
+  #ifdef VRPMINTRACE 
+  DLOG(INFO) << "squential";
+  for (unsigned int i= 0; i < call.size(); ++i) {
+    DLOG(INFO) << call[i].id() << "," << times[i];
+  }
+  #endif 
+assert(true==false);
+
+  // extract triplets and store in table
+  #ifdef VRPMAXTRACE 
+  DLOG(INFO) << "triplets";
+  #endif 
+  for (unsigned int i = 0; i < call.size()-1; ++i) {
+    if (call[i].id() == call[i+2].id()) continue;
+    TTindex index(call[i].nid(), call[i].nid(), call[i+1].nid(), call[i+2].nid());
+    travel_Time4.insert(std::pair<TTindex,double>(index, times[i+2]-times[i]));
+    #ifdef VRPMAXTRACE 
+    DLOG(INFO) << call[i].id() << " -> " 
+               << call[i+1].id() << " -> "
+               << call[i+2].id() << " = " << times[i+2] - times[i];
+    #endif 
+  }
+
+   
+  // extract quadraplets and store in table
+  #ifdef VRPMAXTRACE 
+  DLOG(INFO) << "quadruplets";
+  #endif 
+  for (unsigned int i= 3; i < call.size()-1; i+=4) {
+    TTindex index(call[i].nid(), call[i+1].nid(), call[i+2].nid(), call[i+3].nid());
+    travel_Time4.insert(std::pair<TTindex,double>(index, times[i+3]-times[i]));
+    #ifdef VRPMAXTRACE 
+    DLOG(INFO) << call[i].id() << " -> " 
+               << call[i+1].id() << " -> " 
+               << call[i+2].id() << " -> " 
+               << call[i+3].id() << " = " <<  times[i+3]-times[i];
+    #endif 
+  }
+
+  osrmi->useOsrm(oldStateOsrm);  
+#endif  // with OSRMCLIENT
+}
+
+
+
+
+
 /*!
 truck: 0 1 2 3 4 5 6 D 
 call: 0 n 1   0 1 n 2  1 2 n 3   2 3 n 4   3 4 n 5   4 5 n 6   5 6 n D 

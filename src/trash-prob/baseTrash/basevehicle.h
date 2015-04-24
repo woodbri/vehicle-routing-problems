@@ -57,6 +57,7 @@ public:
   bool findNearestNodeTo(Bucket &unassigned, POS &pos, Trashnode &bestNode);
   bool findFastestNodeTo(Bucket &unassigned, POS &pos, Trashnode &bestNode);
   bool e_setPath(const Bucket &sol);
+  void setTravelingTimesOfRoute() const;
 
   //--------------------------------------------------------------------
   // constructors
