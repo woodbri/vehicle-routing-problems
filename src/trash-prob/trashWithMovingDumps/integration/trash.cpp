@@ -87,9 +87,14 @@ int main(int argc, char **argv)
 
     osrmi->clear();
     osrmi->useOsrm( true );
-    osrmi->addViaPoint( -34.905113,-56.157043 );
-    osrmi->addViaPoint( -34.906807,-56.158463 );
-    osrmi->addViaPoint( -34.9076,-56.157028 );
+    //loc=-34.905422,-56.161236
+    //loc=-34.905815,-56.161892
+    //loc=-34.849224,-56.095463
+    //loc=-34.905109,-56.161789
+    osrmi->addViaPoint( -34.905422,-56.161236 );
+    osrmi->addViaPoint( -34.905815,-56.161892 );
+    osrmi->addViaPoint( -34.849224,-56.095463 );
+    osrmi->addViaPoint( -34.905109,-56.161789 );
     if ( osrmi->getOsrmViaroute() ) {
 
         std::deque<double> times;
