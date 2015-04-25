@@ -60,17 +60,19 @@ double TruckManyVisitsDump::e_evalIntraSw(Vehicle &truck, POS i, POS j){
 
   
 #ifdef VRPMAXTRACE
+  if (newTravelTimeI < originalTravelTimeI) {
     DLOG(INFO) << std::fixed << std::setprecision(4);
-    DLOG(INFO) << "travelTime (" << i-1 <<" , " << i << " , " << i + 1 << ")= " 
+    DLOG(INFO) << "travelTime (" << truck[i-1].id() <<" , " << truck[i].id() << " , " << truck[i + 1].id() << ")= " 
                << originalTravelTimeI;
-    DLOG(INFO) << "travelTime (" << j-1 <<" , " << j << " , " << j + 1 << ")= " 
+    DLOG(INFO) << "travelTime (" << truck[j-1].id() <<" , " << truck[j].id() << " , " << truck[j + 1].id() << ")= " 
                << originalTravelTimeJ;
 
-    DLOG(INFO) << "travelTime (" << i-1 <<" , " << j << " , " << i + 1 << ")= " 
+    DLOG(INFO) << "travelTime (" << truck[i-1].id() <<" , " << truck[j].id() << " , " << truck[i + 1].id() << ")= " 
                << newTravelTimeI;
-    DLOG(INFO) << "travelTime (" << j-1 <<" , " << i << " , " << j + 1 << ")= " 
+    DLOG(INFO) << "travelTime (" << truck[j-1].id() <<" , " << truck[i].id() << " , " << truck[j + 1].id() << ")= " 
                << newTravelTimeJ;
     DLOG(INFO)  << "Delta TravelTime: " << deltaTravelTime;
+  }
 #endif
   } else { // i-1 (i == j-1) (i + 1 == j) j+1 son contiguos
     double originalTravelTime = twc->TravelTime(truck[i-1], truck[i], truck[j], truck[j+1]);
@@ -85,6 +87,7 @@ double TruckManyVisitsDump::e_evalIntraSw(Vehicle &truck, POS i, POS j){
 #endif
 
   }
+  //if ((originalTravelTimeI - newTravelTimeI) < 0) return originalTravelTimeI - newTravelTimeI;
   return deltaTravelTime;
 };
 
@@ -99,19 +102,21 @@ void TruckManyVisitsDump::IntraSwMoves(Vehicle &truck) {
         continue;
       }
       if (deltaTravelTime < 0) {
+        truck.e_swap(i,j);
 #if 0
-        DLOG(INFO) << "swap: (" << i <<" , " << j << ")= "
+        DLOG(INFO) << "swap: (" << truck[i].id() <<" , " << truck[j].id() << ")= "
                    << "Delta TravelTime: " << deltaTravelTime;
 #endif
-        truck.e_swap(i,j);
         ++count;
+        //continue;
+//if (count == 5) assert(true==false);
       }
     }  // for j
   }  // for i
   DLOG(INFO) << "count:" << count;
   if (count > 0) {
     // truck.tau();
-    if ( osrmi->getUse() == true) return;
+    if (osrmi->getUse() == true) return;
     IntraSwMoves(truck);
   }
 }
@@ -239,6 +244,7 @@ void TruckManyVisitsDump::fillOneTruck(
   while (unassigned.size() != 0) {
     if (truck.findFastestNodeTo(unassigned, bestPos, bestNode)) {
       truck.e_insert(bestNode, bestPos);
+      truck.evaluate();
 //      truck.tau();
       assigned.push_back(bestNode);
       unassigned.erase(bestNode);
@@ -251,13 +257,14 @@ void TruckManyVisitsDump::fillOneTruck(
       while (streetNodes.size() != 0) {
         if (truck.findFastestNodeTo(streetNodes, bestPos, bestNode)) {
           truck.e_insert(bestNode, bestPos);
+          truck.evaluate();
 //          truck.tau();
           assigned.push_back(bestNode);
           streetNodes.erase(bestNode);
           unassigned.erase(bestNode);
         }
       }
-      if (!truck.feasable()) truck.e_makeFeasable(0);
+      // if (!truck.feasable()) truck.e_makeFeasable(0);
     } else break;
   }
 
@@ -303,27 +310,41 @@ void TruckManyVisitsDump::process()
 #endif
 
   // preparing a big truck where to store everything
+  osrmi->useOsrm(true);
   Vehicle bigTruck = getTruck();
-bigTruck.tau();
   fillOneTruck(bigTruck, unassigned, assigned);
+  //osrmi->useOsrm(false);
+  //InsMoves(bigTruck);
   bigTruck.evaluate();
-    STATS->dump("intermidiate");
+STATS->dump(" Dump 1 ");
 #if 1
   bigTruck.e_makeFeasable(0);
-  bigTruck.setTravelingTimesOfRoute();
-assert(true==false);
+DLOG(INFO) << "evaluation before updating tables";
   bigTruck.evaluate();
-  bigTruck.dumpeval();
-  bigTruck.tau();
+  bigTruck.getCost();
+  bigTruck.dumpCostValues();
+
+ osrmi->useOsrm(false);
+ for (int i = 0 ; i < 2; ++i) {
+  osrmi->useOsrm(false);
+  IntraSwMoves(bigTruck);
+  bigTruck.evaluate();
+  //InsMoves(bigTruck);
+  //bigTruck.evaluate();
+  bigTruck.getCost();
+  bigTruck.dumpCostValues();
+  // bigTruck.tau();
+}
 
 assert(true==false);
 #endif 
   //bigTruck.e_makeFeasable(0);
-  for (int i = 0; i < 10; i++) {
+  for (int i = 0; i < 20; i++) {
   osrmi->useOsrm(true);
   IntraSwMoves(bigTruck);
-  // InsMoves(bigTruck);
-  bigTruck.tau();
+  osrmi->useOsrm(false);
+   InsMoves(bigTruck);
+  // bigTruck.tau();
   }
   bigTruck.e_makeFeasable(0);
   bigTruck.evaluate();

@@ -372,8 +372,8 @@ void BaseVehicle::evalLast()
            w3 * endingSite.twvTot();
 }
 
-void BaseVehicle::evaluate()
-{
+void BaseVehicle::evaluate() {
+  setTravelingTimesOfRoute();  // uses osrm
   path.evaluate(0, getmaxcapacity());
   evalLast();
 }

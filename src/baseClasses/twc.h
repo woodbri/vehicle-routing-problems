@@ -294,14 +294,15 @@ bool setTravelingTimesOfRoute(
   // buld call
   unsigned int tSize = truck.size();
   std::deque< Node > call;
-  std::deque< double > times; 	
+  std::deque< double > times;
+  osrmi->clear();
   // cycle 1:
   for (unsigned int i = 0; i < tSize; ++i) {
       call.push_back(truck[i]);
   }
   call.push_back(dumpSite);
 
-#if 0
+#if 1
   // cycle 2:
   call.push_back(dumpSite);
   for (int i = tSize - 1; i >= 0; --i) {
@@ -323,20 +324,31 @@ bool setTravelingTimesOfRoute(
 
 
   // lets have a peek
-  #ifdef VRPMINTRACE 
+  #ifdef VRPMAXTRACE 
   DLOG(INFO) << "squential";
   for (unsigned int i= 0; i < call.size(); ++i) {
     DLOG(INFO) << call[i].id() << "," << times[i];
   }
   #endif 
-assert(true==false);
+
+
+  // extract triplets and store in table
+  #ifdef VRPMAXTRACE 
+  DLOG(INFO) << "pairs";
+  #endif 
+  for (unsigned int i = 0; i < call.size()-1; ++i) {
+    travel_Time[call[i].nid()][call[i+1].nid()] = times[i+1]-times[i];
+    #ifdef VRPMAXTRACE 
+    DLOG(INFO) << call[i].id() << " -> " 
+               << call[i+1].id() << " = " << times[i+1] - times[i];
+    #endif 
+  }
 
   // extract triplets and store in table
   #ifdef VRPMAXTRACE 
   DLOG(INFO) << "triplets";
   #endif 
-  for (unsigned int i = 0; i < call.size()-1; ++i) {
-    if (call[i].id() == call[i+2].id()) continue;
+  for (unsigned int i = 0; i < call.size()-2; ++i) {
     TTindex index(call[i].nid(), call[i].nid(), call[i+1].nid(), call[i+2].nid());
     travel_Time4.insert(std::pair<TTindex,double>(index, times[i+2]-times[i]));
     #ifdef VRPMAXTRACE 
@@ -351,7 +363,7 @@ assert(true==false);
   #ifdef VRPMAXTRACE 
   DLOG(INFO) << "quadruplets";
   #endif 
-  for (unsigned int i= 3; i < call.size()-1; i+=4) {
+  for (unsigned int i= 0; i < call.size()-3; ++i) {
     TTindex index(call[i].nid(), call[i+1].nid(), call[i+2].nid(), call[i+3].nid());
     travel_Time4.insert(std::pair<TTindex,double>(index, times[i+3]-times[i]));
     #ifdef VRPMAXTRACE 
@@ -420,6 +432,8 @@ bool getTravelingTimesInsertingOneNode(
 
   // buld call
   unsigned int tSize = truck.size();
+  osrmi->clear();
+
   std::deque< Node > call;
   std::deque< double > times; 	
   // special case  0 n 1
@@ -575,7 +589,7 @@ bool getTravelingTimesInsertingOneNode(
           }
         // }
       }  //for j
-#if 0   //  1 = STORES MORE TTRAVEL TME TABLE
+#if 1   //  1 = STORES MORE TTRAVEL TME TABLE
     }  // for i
 #else
       if (flag) return flag;
