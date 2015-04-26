@@ -14,7 +14,7 @@ OSRMBACKEND_DIR = /usr/local/include/osrm
 OSRMCLIENT_CFLAGS = -DOSRMCLIENT -I$(OSRMBACKEND_DIR)
 OSRMCLIENT_LIBS = -L/usr/local/lib -lboost_filesystem -lboost_iostreams -lboost_program_options -lboost_regex -lboost_system -lboost_thread -lpthread -lOSRM -lz -lrt -lboost_filesystem -lboost_iostreams -lboost_program_options -lboost_regex -lboost_system -lboost_thread -lpthread -lstxxl
 
-CPPFLAGS = -g -O0 -std=c++11 -MMD -MP -I$(UTIL) $(CURL_CFLAGS) $(OSRMCLIENT_CFLAGS) -DNDEBUG -I/usr/local/include
+CPPFLAGS = -g -O0 -std=c++11 -MMD -MP -I$(UTIL) $(CURL_CFLAGS) $(OSRMCLIENT_CFLAGS) -DNDEBUG -I/usr/local/include -DDOVRPLOG
 LDFLAGS = -lgd -I$(UTIL) -L$(UTIL) $(CURL_LIBS) $(JSON_LIBS) $(OSRMCLIENT_LIBS) -L/usr/local/lib -lglog
 
 SRCS = $(wildcard *.cpp)
@@ -30,6 +30,12 @@ $(UTIL)/%.o: $(UTIL)/%.cpp
 	$(MAKE) -C $(UTIL)
 
 tester: $(UTILOBJS) tester.o
+	$(CPP) $(CPPFLAGS) $^ -o $@ $(LDFLAGS)
+
+tester2: tester2.cpp ../node.o
+	$(CPP) $(CPPFLAGS) $^ -o $@ ../node.o $(LDFLAGS)
+
+../node.o: ../node.cpp ../node.h
 	$(CPP) $(CPPFLAGS) $^ -o $@ $(LDFLAGS)
 
 testosrm: $(UTILOBJS) testosrm.o

@@ -850,9 +850,7 @@ bool OsrmClient::testOsrmClient(
   if (getOsrmTimes(times)) {
 #ifdef DOVRPLOG
       DLOG(INFO) << "#8 Times:" << std::endl;
-#endif
       for (int i=0; i<times.size(); i++)
-#ifdef DOVRPLOG
           DLOG(INFO) << "i: " << i << ", time: " << times[i] << std::endl;
 #endif
   }
@@ -867,9 +865,7 @@ bool OsrmClient::testOsrmClient(
   if (getOsrmHints(hints)) {
 #ifdef DOVRPLOG
       DLOG(INFO) << "#9 Hints:" << std::endl;
-#endif
       for (int i=0; i<hints.size(); i++)
-#ifdef DOVRPLOG
           DLOG(INFO) << "i: " << i << ", hint: " << hints[i] << std::endl;
 #endif
   }
@@ -884,9 +880,7 @@ bool OsrmClient::testOsrmClient(
   if ( getOsrmStreetNames( names ) ) {
 #ifdef DOVRPLOG
       DLOG(INFO) << "#10 StreetNames:" << std::endl;
-#endif
       for (int i=0; i<names.size(); i++)
-#ifdef DOVRPLOG
           DLOG(INFO) << "i: " << i << ", name: " << names[i] << std::endl;
 #endif
   }
@@ -902,10 +896,8 @@ bool OsrmClient::testOsrmClient(
   if ( osrmi->getOsrmNamesOnRoute( names ) ) {
 #ifdef DOVRPLOG
     DLOG(INFO) << "#11 NamesOnRoute:" << std::endl;
-#endif
     for (int i=0; i<names.size(); i++)
-#ifdef DOVRPLOG
-    DLOG(INFO) << "i: " << i << ", name: " << names[i] << std::endl;
+        DLOG(INFO) << "i: " << i << ", name: " << names[i] << std::endl;
 #endif
   } else {
 #ifdef DOVRPLOG

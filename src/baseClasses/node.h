@@ -108,6 +108,8 @@ class Node {
                            double &) const;
   ///@}
 
+  double positionAlongSegment(const Node &v, const Node &w, double tol) const;
+
   // dump
   void dump() const;
 

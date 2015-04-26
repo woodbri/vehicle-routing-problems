@@ -10,7 +10,7 @@ CURL_CFLAGS := $(shell pkg-config --cflags curlpp)
 CURL_LIBS := $(shell pkg-config --libs curlpp)
 JSON_LIBS = -L /lib/x86_64-linux-gnu/ -ljson
 
-CPPFLAGS = -g -O0 -std=c++11 -MMD -MP -I/usr/local/include -I.  
+CPPFLAGS = -g -O0 -std=c++11 -MMD -MP -I/usr/local/include -I.  -DVRPMINTRACE -DOSRMCLIENTTRACE -DDOVRPLOG 
 LDFLAGS = -lgd 
 
 SRCS = $(wildcard *.cpp)
