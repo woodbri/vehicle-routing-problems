@@ -244,7 +244,7 @@ template <class knode> class TWC {
 void getNodesOnPath(
    const TwBucket<knode> &truck,
    const knode &dumpSite,
-   TwBucket<knode> &unassigned,
+   const TwBucket<knode> &unassigned,
    TwBucket<knode> &orderedStreetNodes) {
 #ifndef OSRMCLIENT
   DLOG(INFO) << "NO OSRM";
@@ -257,6 +257,7 @@ void getNodesOnPath(
   osrmi->clear();
 
   // buld call
+  osrmi->setWantGeometry(true);
   std::deque< Node > call;
   for (unsigned int i = 0; i < truck.size(); ++i) {
       call.push_back(truck[i]);
@@ -264,7 +265,7 @@ void getNodesOnPath(
   call.push_back(dumpSite);
   osrmi->addViaPoints(call);
   if (!osrmi->getOsrmViaroute()) {
-#ifdef DOMINTRACE
+#ifdef VRPMINTRACE
      DLOG(INFO) << "getOsrmViaroute failed";
 #endif
      osrmi->useOsrm(oldStateOsrm);
@@ -274,7 +275,7 @@ void getNodesOnPath(
 
   std::deque<std::string> names;
   if (!osrmi->getOsrmNamesOnRoute(names) ) {
-#ifdef DOMINTRACE
+#ifdef VRPMINTRACE
      DLOG(INFO) << "getOsrmNamesOnRoute failed";
 #endif
      osrmi->useOsrm(oldStateOsrm);
@@ -282,10 +283,9 @@ void getNodesOnPath(
   }
 
 
-  osrmi->setWantGeometry(true);
   std::deque< Node > geometry;
   if (!osrmi->getOsrmGeometry(geometry) ) {
-#ifdef DOMINTRACE
+#ifdef VRPMINTRACE
      DLOG(INFO) << "getOsrmGeometry failed";
 #endif
      osrmi->useOsrm(oldStateOsrm);
@@ -293,7 +293,6 @@ void getNodesOnPath(
   }
 
 
-assert(true==false);
 
   std::set < int > streetIDs;
   std::map < std::string, int >::const_iterator streetMapPtr;
@@ -301,29 +300,46 @@ assert(true==false);
      streetMapPtr = streetNames.find(names[i]);
      if (streetMapPtr == streetNames.end()) continue;
      streetIDs.insert(streetMapPtr->second);
+    DLOG(INFO) << "name:" << names[i] << "\tid:" << streetMapPtr->second;
   }
   
 
-assert(true==false);
 
   std::set < int >::const_iterator streetsPtr;
-#ifdef DOMINTRACE
+#ifdef VRPMINTRACE
+  DLOG(INFO) << "streetIDs.size" << streetIDs.size();
+  int count =0;
   for (streetsPtr = streetIDs.begin();
        streetsPtr != streetIDs.end();
        ++streetsPtr) {
-    DLOG(INFO) << (*streetPtr);
+    DLOG(INFO) << count << ":" << (*streetsPtr);
   }
 #endif
+  
 
+  if (streetIDs.size() == 0) {
+     osrmi->useOsrm(oldStateOsrm);
+     return;
+  }
 
-assert(true==false);
 
   TwBucket<knode> streetNodes;
-  unsigned int j;
-  while (j < unassigned.size()) {
-    if (streetIDs.find(unassigned[j].streetId()) != streetIDs.end()) {
-      streetNodes.push_back(unassigned[j]);
-    } else j++;
+  for (unsigned int i = 0; i < unassigned.size(); ++i) {
+    if (streetIDs.find(unassigned[i].streetId()) != streetIDs.end()) {
+#ifdef VRPMINTRACE
+    DLOG(INFO) << "Posible on route inserting: " << unassigned[i].id();
+#endif
+      streetNodes.push_back(unassigned[i]);
+    } 
+  }
+#ifdef VRPMINTRACE
+  DLOG(INFO) << "StreetNodes.size" << streetNodes.size();
+  streetNodes.dump("streetNodes");
+#endif
+
+  if (streetNodes.size() == 0) {
+     osrmi->useOsrm(oldStateOsrm);
+     return;
   }
 
   /************************************************************
@@ -340,7 +356,7 @@ assert(true==false);
 
 
 #ifdef DOMINTRACE
-  streetNodes.dump("streetNodes");
+  orderedStreetNodes.dump("orderedStreetNodes");
 #endif
 assert(true==false);
   /************************************************************/
