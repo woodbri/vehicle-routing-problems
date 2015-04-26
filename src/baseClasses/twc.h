@@ -355,7 +355,7 @@ void getNodesOnPath(
 
 
 
-#ifdef DOMINTRACE
+#ifdef VRPMINTRACE
   orderedStreetNodes.dump("orderedStreetNodes");
 #endif
 assert(true==false);
