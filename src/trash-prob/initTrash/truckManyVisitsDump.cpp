@@ -244,6 +244,7 @@ void TruckManyVisitsDump::fillOneTruck(
   Bucket aux;
   uint64_t  street_id;
   bool first = true;
+  
 
   //insert 1 node from each street
   while (unassigned.size() != 0) {
@@ -255,6 +256,7 @@ DLOG(INFO) << "1) inserting: " << bestNode.id()  << "\tfrom street: " << bestNod
       assigned.push_back(bestNode);
       unassigned.erase(bestNode);
 
+      twc->getNodesOnPath(truck.Path(), truck.getDumpSite(), unassigned, streetNodes);
       // store same street
       street_id = bestNode.streetId();
       unsigned int i = 0;

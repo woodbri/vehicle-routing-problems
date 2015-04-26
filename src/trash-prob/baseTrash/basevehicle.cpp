@@ -40,9 +40,6 @@ void  BaseVehicle::setTravelingTimesOfRoute() const {
 }
 
 
-
-
-
 #ifdef WITHOSRM
 double BaseVehicle::getCostOsrm() const
 {
