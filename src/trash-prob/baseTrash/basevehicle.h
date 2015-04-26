@@ -55,9 +55,10 @@ protected:
 public:
   bool isvalid() const {return vid >= 0;};  // more complicated than this
   bool findNearestNodeTo(Bucket &unassigned, POS &pos, Trashnode &bestNode);
-  bool findFastestNodeTo(Bucket &unassigned, POS &pos, Trashnode &bestNode);
+  bool findFastestNodeTo(bool first, Bucket &unassigned, POS &pos, Trashnode &bestNode, double &bestTime);
   bool e_setPath(const Bucket &sol);
   void setTravelingTimesOfRoute() const;
+  bool e_adjustDumpsToNoCV(int currentPos);
 
   //--------------------------------------------------------------------
   // constructors
@@ -185,6 +186,7 @@ public:
   bool isPickup(int i) const { return path[i].isPickup(); };
   bool isDepot(int i) const { return path[i].isDepot(); };
   bool cargo(int i) const { return path[i].cargo(); };
+  bool has_cv() const { return path[path.size() - 1].has_cv(maxcapacity); };
 
 
 };

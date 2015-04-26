@@ -380,6 +380,57 @@ class Twpath : public TwBucket<knode> {
 
     return  feasable() ;
   }
+
+  bool e_adjustDumpsToNoCV( int currentPos, 
+                            const knode &dumpS,
+                            double maxcapacity ) {
+#ifdef TESTED
+    DLOG( INFO ) << "Entering twpath::e_adjustDumpsToNoCV";
+#endif
+    knode dumpSite = dumpS;
+    int startFrom = currentPos;
+    int i;
+
+    //make sure everything is evaluated
+    evaluate(currentPos, maxcapacity); 
+
+    // no need to move dumps 
+    if (cvTot() == 0) return true;
+
+    // start checking from point i to the end of path
+    // stop when // there is a capacity violation
+    i = currentPos;
+    while (i < path.size() && !path[i].has_cv(maxcapacity)) {i++;}
+
+    // remove dumps from i to end of path 
+    startFrom = i - 1;
+    i = startFrom;
+    while (i < path.size()) {
+      if (path[i].isDump()) erase(i);
+      else i++;
+    }
+
+    //make sure everything is evaluated
+    evaluate(startFrom, maxcapacity); 
+
+    //the path is dumpless from the startFrom position
+    //add dumps when there is a CV
+
+    // while we still have a CV
+    while (cvTot() != 0) {  // while we still have a CV
+      //cycle until we find the first non CV
+      for (i = path.size() - 1; i >= startFrom - 1 && path[i].cvTot(); --i) {}
+      // // the dump should be after pos i
+      insert(dumpSite, i + 1); 
+      evaluate(i, maxcapacity); //reevaluate the rest of the route
+    }
+
+    return  cvTot() ;
+  }
+
+
+
+
   ///@}
 
 

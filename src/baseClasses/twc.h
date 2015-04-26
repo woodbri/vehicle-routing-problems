@@ -411,7 +411,7 @@ triplets:
 0 n 1  n 1 0  0 1 n  1 n D
 
 */
-bool getTravelingTimesInsertingOneNode(
+bool setTravelingTimesInsertingOneNode(
    const TwBucket<knode> &truck,
    const knode &dumpSite,
    const knode &node) const {
@@ -523,29 +523,37 @@ bool getTravelingTimesInsertingOneNode(
   returns false when:
     no compatible node fits in the truck
   */
-  bool findFastestNodeTo(const TwBucket<knode> &truck,
-                         const  TwBucket<knode> &unassigned,
-                         const knode &dumpSite,
-                         POS &pos,
-                         knode &bestNode,
-                         double &bestTime) const {
+  bool findFastestNodeTo(
+       bool first,
+       const TwBucket<knode> &truck,
+       TwBucket<knode> &unassigned,
+       const knode &dumpSite,
+       POS &pos,
+       knode &bestNode,
+       double &bestTime) const {
     assert(unassigned.size());
-    int flag = false;
+    bool flag = false;
     bestTime = VRP_MAX();   // time to minimize
     pos = 0;        // position in path to insert
     double tAdd;
     double tSubs;
     double deltaTime;
+    int bestIndex;
     
-    for ( int i = 0; i < unassigned.size(); i++ ) {
-      getTravelingTimesInsertingOneNode(truck, dumpSite, unassigned[i]);
-      for ( int j = 0; j < truck.size(); j++ ) {
+    for ( int j = 0; j < truck.size(); j++ ) {
+      for ( int i = 0; i < unassigned.size(); i++ ) {
+        if (j == 0)setTravelingTimesInsertingOneNode(truck, dumpSite, unassigned[i]);
 
         // special case 
         if (j ==  truck.size()-1) {
           if (j == 0) {
+#if 1
             tAdd = TravelTime(truck[j], unassigned[i], dumpSite);
             tSubs = TravelTime(truck[j], dumpSite);
+#else
+            tAdd = TravelTime(truck[j], unassigned[i]);
+            tSubs = 0;
+#endif 
           } else {
             tAdd = TravelTime(truck[j-1], truck[j], unassigned[i], dumpSite);
             tSubs = TravelTime(truck[j-1], truck[j], dumpSite);
@@ -574,28 +582,32 @@ bool getTravelingTimesInsertingOneNode(
 
           DLOG(INFO) << "delta Time= " << deltaTime;
 #endif
-          if ((truck.size() == 1) && ((-tAdd) < bestTime)) {
+          if (first && ((-tAdd) < bestTime)) {
+          // if ((truck.size() == 1) && ((-tAdd) < bestTime)) {
             bestTime = -tAdd;
             pos = j + 1;
             bestNode = unassigned[i];
+            bestIndex = i;
             flag = true;
           }
-          if ((truck.size() > 1) && (deltaTime < bestTime)) {
+          if (!first && (deltaTime < bestTime)) {
+          //if ((truck.size() > 1) && (deltaTime < bestTime)) {
             bestTime = deltaTime;
             pos = j + 1;
             bestNode = unassigned[i];
+            bestIndex = i;
             flag = true;
-            if (bestTime < 0.0001) return flag;
+            if (bestTime < 0.00005) break;
           }
         // }
-      }  //for j
-#if 1   //  1 = STORES MORE TTRAVEL TME TABLE
-    }  // for i
-#else
-      if (flag) return flag;
-    }  // for i
-#endif
-//assert(true==false);
+      }  //for i
+      if (bestTime < 0.00005) break;
+    }  // for j
+    // before returning all i < bestIndex place them at end of unassigned
+    for (int i = 0; i < bestIndex; i++) {
+      unassigned.push_back(unassigned[0]);
+      unassigned.erase(unassigned[0]);
+    }
     return flag;
 }
 

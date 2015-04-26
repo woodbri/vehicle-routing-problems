@@ -127,8 +127,8 @@ bool BaseVehicle::findNearestNodeTo(Bucket &unassigned, POS &pos,
   return flag;
 }
 
-bool BaseVehicle::findFastestNodeTo(Bucket &unassigned, POS &pos,
-                                    Trashnode &bestNode) {
+bool BaseVehicle::findFastestNodeTo(bool first, Bucket &unassigned, POS &pos,
+                                    Trashnode &bestNode, double &bestTime) {
 
 #ifdef VRPMAXTRACE
   DLOG( INFO ) << "Entering BaseVehicle::findFastestNodeTo";
@@ -138,11 +138,10 @@ bool BaseVehicle::findFastestNodeTo(Bucket &unassigned, POS &pos,
   if ( not unassigned.size() ) return false;
 
   bool flag = false;
-  double bestTime = VRP_MAX();
-  double t;
+  bestTime = VRP_MAX();
   bool oldStateOsrm = osrmi->getUse();
   osrmi->useOsrm(true);
-  flag = twc->findFastestNodeTo(path, unassigned, dumpSite,
+  flag = twc->findFastestNodeTo(first, path, unassigned, dumpSite,
          pos, bestNode, bestTime);
 
 #ifdef VRPMAXTRACE 
@@ -231,6 +230,10 @@ std::deque<int> BaseVehicle::getpath() const
   p.push_back( getDumpSite().nid() );
   p.push_back( getDepot().nid() );
   return p;
+}
+
+bool BaseVehicle::e_adjustDumpsToNoCV(int currentPos) {
+  path.e_adjustDumpsToNoCV(currentPos, dumpSite, maxcapacity);
 }
 
 

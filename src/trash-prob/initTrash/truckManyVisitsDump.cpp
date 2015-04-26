@@ -238,35 +238,74 @@ void TruckManyVisitsDump::fillOneTruck(
 
   Trashnode bestNode;
   UID bestPos;
-  double bestDist;
+  double bestTime;
   Bucket streetNodes;
+  Bucket unassignedStreetNodes;
+  Bucket aux;
   uint64_t  street_id;
+  bool first = true;
+
+  //insert 1 node from each street
   while (unassigned.size() != 0) {
-    if (truck.findFastestNodeTo(unassigned, bestPos, bestNode)) {
+    if (truck.findFastestNodeTo(first, unassigned, bestPos, bestNode, bestTime)) {
+DLOG(INFO) << "1) inserting: " << bestNode.id()  << "\tfrom street: " << bestNode.streetId() << "\t time:" <<bestTime;
       truck.e_insert(bestNode, bestPos);
-      truck.evaluate();
-//      truck.tau();
+    truck.tau();
+      //truck.e_adjustDumpsToNoCV(bestPos);
       assigned.push_back(bestNode);
       unassigned.erase(bestNode);
-      // lets process same street
+
+      // store same street
       street_id = bestNode.streetId();
-      for (unsigned int i = 0; i < unassigned.size(); ++i) {
-        if (unassigned[i].streetId() == street_id) 
+      unsigned int i = 0;
+      while (i < unassigned.size()) {
+        if (unassigned[i].streetId() == street_id) {
           streetNodes.push_back(unassigned[i]);
+          unassigned.erase(unassigned[i]);
+        } else i++;
       }
-      while (streetNodes.size() != 0) {
-        if (truck.findFastestNodeTo(streetNodes, bestPos, bestNode)) {
-          truck.e_insert(bestNode, bestPos);
-          truck.evaluate();
-//          truck.tau();
-          assigned.push_back(bestNode);
-          streetNodes.erase(bestNode);
-          unassigned.erase(bestNode);
-        }
-      }
-      // if (!truck.feasable()) truck.e_makeFeasable(0);
+    // TODO insert all containers in rout that have cost 0 HERE
+
+
+
+    first = false;
     } else break;
   }
+#if 1  // insert only nodes that dont change the route 
+      while (streetNodes.size() != 0) {
+        aux.clear();
+        aux.push_back(streetNodes[0]);
+        if (truck.findFastestNodeTo(false, aux, bestPos, bestNode, bestTime) && bestTime < 0.00005) {
+DLOG(INFO) << "2) inserting: " << bestNode.id()  << "\tfrom street: " << bestNode.streetId() << "\t time:" <<bestTime;
+          truck.e_insert(bestNode, bestPos);
+          assigned.push_back(bestNode);
+          // truck.e_adjustDumpsToNoCV(bestPos);
+    truck.tau();
+        } else {
+          unassigned.push_back(bestNode);
+        }
+        streetNodes.erase(bestNode);
+      }
+#endif
+  assert(streetNodes.size() == 0);
+  if (unassigned.size() != 0) fillOneTruck(truck, unassigned, assigned);
+
+
+#if 0
+      while (streetNodes.size() != 0) {
+        if (truck.findFastestNodeTo(streetNodes, bestPos, bestNode, bestTime)) {
+DLOG(INFO) << "3) inserting: " << bestNode.id()  << "\tfrom street: " << bestNode.streetId() << "\t time:" <<bestTime;
+          truck.e_insert(bestNode, bestPos);
+    truck.tau();
+          //truck.e_adjustDumpsToNoCV(bestPos);
+          assigned.push_back(bestNode);
+          streetNodes.erase(bestNode);
+          // unassigned.erase(bestNode);
+        }
+      }
+#endif
+
+
 
 #if 0
 assert(true==false);
@@ -308,25 +347,30 @@ void TruckManyVisitsDump::process()
   assert(!(problematic * assigned).size());
   //END INVARIANT
 #endif
+DLOG(INFO) << "Starting initial Solution Proccess\n";
 
   // preparing a big truck where to store everything
   osrmi->useOsrm(true);
   Vehicle bigTruck = getTruck();
+  bigTruck.getCost();
   fillOneTruck(bigTruck, unassigned, assigned);
   //osrmi->useOsrm(false);
   //InsMoves(bigTruck);
   bigTruck.evaluate();
 STATS->dump(" Dump 1 ");
 #if 1
-  bigTruck.e_makeFeasable(0);
 DLOG(INFO) << "evaluation before updating tables";
   bigTruck.evaluate();
   bigTruck.getCost();
   bigTruck.dumpCostValues();
 
- osrmi->useOsrm(false);
+  bigTruck.e_adjustDumpsToNoCV(1);
+  bigTruck.getCost();
+  bigTruck.dumpCostValues();
+
+ osrmi->useOsrm(true);
  for (int i = 0 ; i < 2; ++i) {
-  osrmi->useOsrm(false);
+  osrmi->useOsrm(true);
   IntraSwMoves(bigTruck);
   bigTruck.evaluate();
   //InsMoves(bigTruck);
