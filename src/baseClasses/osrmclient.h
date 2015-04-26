@@ -122,6 +122,7 @@ public:
   bool getOsrmGeometryText( std::string &geomText );
   bool getOsrmHints( std::deque<std::string> &hints );
   bool getOsrmStreetNames( std::deque<std::string> &names);
+  bool getOsrmNamesOnRoute( std::deque<std::string> &names);
   int getStatus() const { return status; };
   int getConnection() const { return connectionAvailable; };
   std::string getErrorMsg() const { return err_msg; };
@@ -139,6 +140,7 @@ private:
   bool getGeomText( rapidjson::Document &jtree, std::string &geomText );
   bool getHints( rapidjson::Document &jtree, std::deque<std::string> &hints );
   bool getNames( rapidjson::Document &jtree, std::deque<std::string> &names );
+  bool getNamesOnRoute( rapidjson::Document &jsondoc, std::deque<std::string> &names );
   bool getOsrmPenalty( double &penalty );
   bool getPenalty( rapidjson::Document &jtree, double &penalty );
 

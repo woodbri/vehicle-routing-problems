@@ -672,6 +672,43 @@ bool OsrmClient::getOsrmStreetNames( std::deque<std::string> &names )
 }
 
 
+bool OsrmClient::getOsrmNamesOnRoute( std::deque<std::string> &names )
+{
+  if ( not connectionAvailable ) return false;
+
+  if ( not use ) return false;
+
+#ifdef DOSTATS
+  Timer timer;
+  STATS->inc( "OsrmClient::getOsrmNamesOnRoute (interface) " );
+#endif
+
+  if ( status != 1 or httpContent.size() == 0 ) {
+    err_msg = "OsrmClient::getOsrmNamesOnRoute (interface) does not have a valid OSRM response!";
+#ifdef DOSTATS
+    STATS->inc( err_msg );
+#endif
+    return false;
+  }
+
+  rapidjson::Document jsondoc;
+  jsondoc.Parse( httpContent.c_str() );
+
+  if ( jsondoc.HasParseError() ) {
+    err_msg = "OsrmClient:getOsrmNamesOnRoute (interface) invalid json document in OSRM response!";
+#ifdef DOSTATS
+    STATS->inc( err_msg );
+#endif
+    return false;
+  }
+
+  if ( not getNamesOnRoute( jsondoc, names ) ) {
+    return false;
+  }
+
+  return true;
+}
+
 //! testOsrmClient
 /*!
     returns false when something failes
@@ -797,46 +834,86 @@ bool OsrmClient::testOsrmClient(
   addViaPoint(x1, y1);
   addViaPoint(x2, y2);
   addViaPoint(x3, y3);
+  addViaPoint(x1, y1);
+
 
   std::deque<double> times;
   // test 7 (with three points)
   if (!getOsrmViaroute()) {
+#ifdef DOVRPLOG
     DLOG(INFO) << "#7 getOsrmViaroute Failed!" << std::endl;
+#endif
     return false;
   }
 
   //test 8 (times array)
   if (getOsrmTimes(times)) {
+#ifdef DOVRPLOG
       DLOG(INFO) << "#8 Times:" << std::endl;
+#endif
       for (int i=0; i<times.size(); i++)
+#ifdef DOVRPLOG
           DLOG(INFO) << "i: " << i << ", time: " << times[i] << std::endl;
+#endif
   }
   else {
+#ifdef DOVRPLOG
       DLOG(INFO) << "#8 getOsrmTimes Failed!";
+#endif
       return false;
   }
 
   //test 8 (hints array)
   if (getOsrmHints(hints)) {
+#ifdef DOVRPLOG
       DLOG(INFO) << "#9 Hints:" << std::endl;
+#endif
       for (int i=0; i<hints.size(); i++)
+#ifdef DOVRPLOG
           DLOG(INFO) << "i: " << i << ", hint: " << hints[i] << std::endl;
+#endif
   }
   else {
+#ifdef DOVRPLOG
       DLOG(INFO) << "#9 getOsrmHints Failed!" << std::endl;
+#endif
       return false;
   }
 
   std::deque<std::string> names;
   if ( getOsrmStreetNames( names ) ) {
+#ifdef DOVRPLOG
       DLOG(INFO) << "#10 StreetNames:" << std::endl;
+#endif
       for (int i=0; i<names.size(); i++)
+#ifdef DOVRPLOG
           DLOG(INFO) << "i: " << i << ", name: " << names[i] << std::endl;
+#endif
   }
   else {
+#ifdef DOVRPLOG
       DLOG(INFO) << "#10 getOsrmStreetNames Failed!" << std::endl;
+#endif
       return false;
   }
+
+
+  names.clear();
+  if ( osrmi->getOsrmNamesOnRoute( names ) ) {
+#ifdef DOVRPLOG
+    DLOG(INFO) << "#11 NamesOnRoute:" << std::endl;
+#endif
+    for (int i=0; i<names.size(); i++)
+#ifdef DOVRPLOG
+    DLOG(INFO) << "i: " << i << ", name: " << names[i] << std::endl;
+#endif
+  } else {
+#ifdef DOVRPLOG
+    DLOG(INFO) << "#11 getOsrmNamesOnRoute Failed!" << std::endl;
+#endif
+    return false;
+  }
+
 
   return true;
 };
@@ -1091,6 +1168,42 @@ bool OsrmClient::getNames( rapidjson::Document &jsondoc,
       names.push_back( instructions[i][1].GetString() );
     else if (not strcmp(inst, "15") and i-1 > 0)
       names.push_back( instructions[i-1][1].GetString() );
+  }
+
+  return true;
+}
+
+
+bool OsrmClient::getNamesOnRoute( rapidjson::Document &jsondoc,
+                           std::deque<std::string> &names )
+{
+  if ( not connectionAvailable ) return false;
+
+  if ( not jsondoc.HasMember( "route_instructions" ) ) {
+    err_msg = "OsrmClient:getNames failed to find 'route_instructions' key in OSRM response!";
+#ifdef DOSTATS
+    STATS->inc( err_msg );
+#endif
+    return false;
+  }
+
+  const rapidjson::Value& instructions = jsondoc["route_instructions"];
+
+  // find the 'total_time' in the 'route_summary'
+  if ( not instructions.IsArray() or instructions.Size() < 2 ) {
+    err_msg = "OsrmClient:getNames route_instructions is not an array of at least 2 in OSRM response!";
+#ifdef DOSTATS
+    STATS->inc( err_msg );
+#endif
+    return false;
+  }
+
+  // extract the total_time and convert from seconds to minutes
+  names.clear();
+  for (rapidjson::SizeType i=0; i<instructions.Size(); i++) {
+    const char * name = instructions[i][1].GetString();
+    if ( strlen(name) )
+      names.push_back( name );
   }
 
   return true;

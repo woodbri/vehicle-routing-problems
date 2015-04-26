@@ -1,11 +1,16 @@
 
 CPP = g++
 
+#OSRMBACKEND_DIR = $(HOME)/work/osrm-backend/
+#OSRMBACKEND_DIR = /home/fpacheco/workspace/idm/osrm-backend
+OSRMBACKEND_DIR = /usr/local/include/osrm
+
+
 CURL_CFLAGS := $(shell pkg-config --cflags curlpp)
 CURL_LIBS := $(shell pkg-config --libs curlpp)
 JSON_LIBS = -L /lib/x86_64-linux-gnu/ -ljson
 
-CPPFLAGS = -g -O0 -MMD -MP -I/usr/local/include -I.  
+CPPFLAGS = -g -O0 -std=c++11 -MMD -MP -I/usr/local/include -I.  
 LDFLAGS = -lgd 
 
 SRCS = $(wildcard *.cpp)
@@ -54,12 +59,12 @@ endif
 ifeq ("$(WITH_OSRMCLIENT)", "")
 OSRMCLIENT_CFLAGS =
 OSRMCLIENT_LIBS =
-OSRMCLIENT_HEADER =
+OSRMCLIENT_HEADER = 
 SRCS := $(filter-out osrmclient.cpp, $(SRCS))
 else
 OSRMCLIENT_HEADER =../../$(BASECLASSES)/osrmclient.h
-OSRMCLIENT_CFLAGS = -DOSRMCLIENT -I$(HOME)/work/osrm-backend/
-OSRMCLIENT_LIBS = -L/usr/local/lib -lboost_filesystem -lboost_iostreams -lboost_program_options -lboost_regex -lboost_system -lboost_thread -lpthread -lOSRM -lUUID -lGITDESCRIPTION -lz -lrt -lboost_filesystem -lboost_iostreams -lboost_program_options -lboost_regex -lboost_system -lboost_thread -lpthread -lstxxl  $(JSON_LIBS)
+OSRMCLIENT_CFLAGS = -DOSRMCLIENT -I$(OSRMBACKEND_DIR)
+OSRMCLIENT_LIBS = -L/usr/local/lib -lboost_filesystem -lboost_iostreams -lboost_program_options -lboost_regex -lboost_system -lboost_thread -lpthread -lOSRM -lz -lrt -lboost_filesystem -lboost_iostreams -lboost_program_options -lboost_regex -lboost_system -lboost_thread -lpthread -lstxxl  $(JSON_LIBS)
 endif
 
 
