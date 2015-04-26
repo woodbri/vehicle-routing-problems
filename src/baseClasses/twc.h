@@ -351,7 +351,7 @@ void getNodesOnPath(
     orderedStreetNodes
   ************************************************************/
 
-#ifndef STEVE_TEST
+#ifdef STEVE_TEST
   do {
     Node v(1.0,1.0);
     Node w(3.0,2.0);
@@ -375,8 +375,52 @@ void getNodesOnPath(
   } while (false);
 #endif
 
+  // tolerance to determine if a container is "on" the segment
+  // Node::.positionAlongSegment() is doing Euclidean calcuations
+  // so this needs to be set in degrees or meters depending on the
+  // underlying projection the the node x,y values are in.
 
+  // Approximate meters in degrees longitude at equator
+  // 0.00009 degrees === 10 meters
+  // 0.00027 degrees === 30 meters
+  const double tol = 0.00027;
 
+  std::deque< Node >::iterator git = geometry.begin();
+  git++;    // we need pairs segment( (git-1), git )
+  while ( git != geometry.end() ) {
+
+    // container to hold nodes for this segment
+    std::deque< std::pair< double, unsigned int > > seg;
+
+    // loop through the nodes and see which are on this segment
+    for ( unsigned int i=0; i<streetNodes.size(); i++ ) {
+      double pos = streetNodes[i].positionAlongSegment( *(git-1), *git, tol );
+      if ( pos > 0 ) {
+        // found one on the segment so save it so we can order them
+        std::pair< double, unsigned int > p( pos, i );
+        seg.push_back( p );
+      }
+    }
+
+    // sort the seg container based on pos to order them
+    // NOTE: using C++11 lambda
+    std::sort(seg.begin(), seg.end(),
+        [](const std::pair<double,int> &left,
+           const std::pair<double,int> &right) {
+                return left.first < right.first;
+    });
+
+    // move the nodes to orderedStreetNodes
+    std::deque< std::pair< double, unsigned int > >::iterator it;
+    for (it = seg.begin(); it != seg.end(); it++) {
+        orderedStreetNodes.push_back( streetNodes[it->second] );
+        streetNodes.erase(it->second);
+    }
+    
+    // and repeat for next segment
+    git++;
+  }
+  // orderedStreetNodes should be ready now
 
 #ifdef VRPMINTRACE
   orderedStreetNodes.dump("orderedStreetNodes");
