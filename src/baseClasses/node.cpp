@@ -231,12 +231,20 @@ double Node::positionAlongSegment(const Node &v, const Node &w, double tol) cons
   double t = ((*this) - v).dotProduct(w - v) / distSq;
 
   // beyond the v end of the segment
-  if ( t < 0.0 and distanceToSquared(v) > tolSq )
-    return -1.0;
+  if ( t < 0.0 ) {
+    if (distanceToSquared(v) > tolSq )
+      return -1.0;
+    else
+      return 0.0;
+  }
 
   // beyond the w end of the segment
-  if ( t > 1.0 and distanceToSquared(w) > tolSq )
-    return -1.0;
+  if ( t > 1.0 ) {
+    if ( distanceToSquared(w) > tolSq )
+      return -1.0;
+    else
+      return 1.0;
+  }
 
   // projection falls on the segment
   Node projection = v + ((w - v) * t);

@@ -351,6 +351,29 @@ void getNodesOnPath(
     orderedStreetNodes
   ************************************************************/
 
+#ifndef STEVE_TEST
+  do {
+    Node v(1.0,1.0);
+    Node w(3.0,2.0);
+    Node f0(0,0);
+    Node p1(0.9,0.9);
+    Node p2(2.0,1.5);
+    Node p3(1.1,1.1);
+    Node p4(3.1,2.1);
+    Node f5(4.0,4.0);
+    Node f6(2.5,0.0);
+
+    double tol = 0.2;
+
+    DLOG(INFO) << "f0(0,0): " << f0.positionAlongSegment(v, w, tol);
+    DLOG(INFO) << "p1(0.9,0.9): " << p1.positionAlongSegment(v, w, tol);
+    DLOG(INFO) << "p2(2.0,1.5): " << p2.positionAlongSegment(v, w, tol);
+    DLOG(INFO) << "p3(1.1,1.1): " << p3.positionAlongSegment(v, w, tol);
+    DLOG(INFO) << "p4(3.1,2.1): " << p4.positionAlongSegment(v, w, tol);
+    DLOG(INFO) << "f5(4.0,4.0): " << f5.positionAlongSegment(v, w, tol);
+    DLOG(INFO) << "f6(2.5,0.0): " << f6.positionAlongSegment(v, w, tol);
+  } while (false);
+#endif
 
 
 
