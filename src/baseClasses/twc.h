@@ -236,6 +236,121 @@ template <class knode> class TWC {
     return flag;
   }
 
+/*!
+ From the unassigned bucket all nodes that are in the truck's path
+  will be placed on streetNodes Bucket
+
+*/
+void getNodesOnPath(
+   const TwBucket<knode> &truck,
+   const knode &dumpSite,
+   TwBucket<knode> &unassigned,
+   TwBucket<knode> &orderedStreetNodes) {
+#ifndef OSRMCLIENT
+  DLOG(INFO) << "NO OSRM";
+  return;
+#else  // with OSRMCLIENT
+
+
+  bool oldStateOsrm = osrmi->getUse();
+  osrmi->useOsrm(true);  //forcing osrm usage
+  osrmi->clear();
+
+  // buld call
+  std::deque< Node > call;
+  for (unsigned int i = 0; i < truck.size(); ++i) {
+      call.push_back(truck[i]);
+  }
+  call.push_back(dumpSite);
+  osrmi->addViaPoints(call);
+  if (!osrmi->getOsrmViaroute()) {
+#ifdef DOMINTRACE
+     DLOG(INFO) << "getOsrmViaroute failed";
+#endif
+     osrmi->useOsrm(oldStateOsrm);
+     return;
+  }
+
+
+  std::deque<std::string> names;
+  if (!osrmi->getOsrmNamesOnRoute(names) ) {
+#ifdef DOMINTRACE
+     DLOG(INFO) << "getOsrmNamesOnRoute failed";
+#endif
+     osrmi->useOsrm(oldStateOsrm);
+     return;
+  }
+
+
+  osrmi->setWantGeometry(true);
+  std::deque< Node > geometry;
+  if (!osrmi->getOsrmGeometry(geometry) ) {
+#ifdef DOMINTRACE
+     DLOG(INFO) << "getOsrmGeometry failed";
+#endif
+     osrmi->useOsrm(oldStateOsrm);
+     return;
+  }
+
+
+assert(true==false);
+
+  std::set < int > streetIDs;
+  std::map < std::string, int >::const_iterator streetMapPtr;
+  for (unsigned int i = 0; i < names.size(); ++i) {
+     streetMapPtr = streetNames.find(names[i]);
+     if (streetMapPtr == streetNames.end()) continue;
+     streetIDs.insert(streetMapPtr->second);
+  }
+  
+
+assert(true==false);
+
+  std::set < int >::const_iterator streetsPtr;
+#ifdef DOMINTRACE
+  for (streetsPtr = streetIDs.begin();
+       streetsPtr != streetIDs.end();
+       ++streetsPtr) {
+    DLOG(INFO) << (*streetPtr);
+  }
+#endif
+
+
+assert(true==false);
+
+  TwBucket<knode> streetNodes;
+  unsigned int j;
+  while (j < unassigned.size()) {
+    if (streetIDs.find(unassigned[j].streetId()) != streetIDs.end()) {
+      streetNodes.push_back(unassigned[j]);
+    } else j++;
+  }
+
+  /************************************************************
+  At this point we have
+    geometry
+    streetNodes
+
+  This needs to be filled
+    orderedStreetNodes
+  ************************************************************/
+
+
+
+
+
+#ifdef DOMINTRACE
+  streetNodes.dump("streetNodes");
+#endif
+assert(true==false);
+  /************************************************************/
+  osrmi->useOsrm(oldStateOsrm);
+  osrmi->clear();
+#endif  // with OSRMCLIENT
+}
+
+
+
 
 /*!
 
