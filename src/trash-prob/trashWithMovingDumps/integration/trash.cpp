@@ -129,6 +129,17 @@ int main(int argc, char **argv)
             std::cout << "getOsrmStreetNames Failed!" << std::endl;
             return 1;
         }
+
+        names.clear();
+        if ( osrmi->getOsrmNamesOnRoute( names ) ) {
+            std::cout << "NamesOnRoute:" << std::endl;
+            for (int i=0; i<names.size(); i++)
+                std::cout << "i: " << i << ", name: " << names[i] << std::endl;
+        }
+        else {
+            std::cout << "getOsrmNamesOnRoute Failed!" << std::endl;
+            return 1;
+        }
     }
     else {
         std::cout << "getOsrmViaroute Failed!" << std::endl;
