@@ -232,18 +232,12 @@ double Node::positionAlongSegment(const Node &v, const Node &w, double tol) cons
 
   // beyond the v end of the segment
   if ( t < 0.0 ) {
-    if (distanceToSquared(v) > tolSq )
       return -1.0;
-    else
-      return 0.0;
   }
 
   // beyond the w end of the segment
   if ( t > 1.0 ) {
-    if ( distanceToSquared(w) > tolSq )
       return -1.0;
-    else
-      return 1.0;
   }
 
   // projection falls on the segment
