@@ -263,17 +263,16 @@ DLOG(INFO) << "1) inserting: " << bestNode.id()  << "\tfrom street: " << bestNod
       // get containers that are in the path
       twc->getNodesOnPath(truck.Path(), truck.getDumpSite(), unassigned, streetNodes);
 
-      while (streetNodes.size() != 0) {
+      while (streetNodes.size() > 0) {
         aux.clear();
         aux.push_back(streetNodes[0]);
-        if (truck.findFastestNodeTo(false, aux, bestPos, bestNode, bestTime) ) {
+        truck.findFastestNodeTo(false, aux, bestPos, bestNode, bestTime);
         // insert only nodes that dont change the structure of the path ???  some nodes change
 DLOG(INFO) << "2) inserting: " << bestNode.id()  << "\tfrom street: " << bestNode.streetId() << "\t time:" <<bestTime;
-          truck.e_insert(bestNode, bestPos);
-          assigned.push_back(bestNode);
+        truck.e_insert(bestNode, bestPos);
+        assigned.push_back(bestNode);
 truck.tau();
-          unassigned.push_back(bestNode);
-        }
+        unassigned.erase(bestNode);
         streetNodes.erase(bestNode);
       }
     // first = false;

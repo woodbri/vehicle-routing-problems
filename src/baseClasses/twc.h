@@ -300,7 +300,9 @@ void getNodesOnPath(
      streetMapPtr = streetNames.find(names[i]);
      if (streetMapPtr == streetNames.end()) continue;
      streetIDs.insert(streetMapPtr->second);
+#ifdef VRPMAXTRACE
     DLOG(INFO) << "name:" << names[i] << "\tid:" << streetMapPtr->second;
+#endif
   }
   
 
@@ -308,6 +310,8 @@ void getNodesOnPath(
   std::set < int >::const_iterator streetsPtr;
 #ifdef VRPMINTRACE
   DLOG(INFO) << "streetIDs.size" << streetIDs.size();
+#endif
+#ifdef VRPMAXTRACE
   int count =0;
   for (streetsPtr = streetIDs.begin();
        streetsPtr != streetIDs.end();
@@ -326,7 +330,7 @@ void getNodesOnPath(
   TwBucket<knode> streetNodes;
   for (unsigned int i = 0; i < unassigned.size(); ++i) {
     if (streetIDs.find(unassigned[i].streetId()) != streetIDs.end()) {
-#ifdef VRPMINTRACE
+#ifdef VRPMAXTRACE
     DLOG(INFO) << "Posible on route inserting: " << unassigned[i].id();
 #endif
       streetNodes.push_back(unassigned[i]);
