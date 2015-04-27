@@ -428,7 +428,7 @@ void getNodesOnPath(
     });
 
     // remove the nodes we already used
-    for (it = seg.end()-1; it >= seg.begin(); it--)
+    for (it = seg.begin(); it != seg.end(); it++)
         streetNodes.erase(it->second);
     
     // and repeat for next segment
