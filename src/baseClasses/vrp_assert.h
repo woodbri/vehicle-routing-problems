@@ -23,6 +23,8 @@
 #ifndef VRP_ASSERT_H
 #define VRP_ASSERT_H
 
+#include <cassert>
+#if 0
 #include <exception>
 
 #ifdef assert
@@ -83,5 +85,5 @@ public:
   virtual const char *what() const throw();
   AssertFailedException( const char *_str );
 };
-
+#endif
 #endif

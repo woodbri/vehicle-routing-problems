@@ -229,7 +229,7 @@ double TruckManyVisitsDump::e_evalIns(Vehicle &truck, POS i, POS j){
 
 
 void TruckManyVisitsDump::fillOneTruck(
-         Vehicle &truck,       // truck to be filled
+         Vehicle &truckToBeFilled,  // truck to be filled
          Bucket &unassigned,   // unassigned containers
          Bucket &assigned ) {  // assigned containers
   
@@ -239,12 +239,12 @@ void TruckManyVisitsDump::fillOneTruck(
   Trashnode bestNode;
   UID bestPos;
   double bestTime;
-  Bucket streetNodes;
+  Bucket streetNodes, tmp;
   Bucket unassignedStreetNodes;
   Bucket aux;
   uint64_t  street_id;
   bool first = true;
-  
+  Vehicle truck = truckToBeFilled; 
 
   while (unassigned.size() != 0) {
 #ifdef VRPMINTRACE
@@ -257,15 +257,23 @@ void TruckManyVisitsDump::fillOneTruck(
       // of the costly node find the cheaper position
       truck.findFastestNodeTo(false, aux, bestPos, bestNode, bestTime);
       
-DLOG(INFO) << "1) inserting: " << bestNode.id()  << "\tfrom street: " << bestNode.streetId() << "\t time:" <<bestTime;
+DLOG(INFO) << "1) inserting: " << bestNode.id();
       truck.e_insert(bestNode, bestPos);
    truck.tau();
       assigned.push_back(bestNode);
       unassigned.erase(bestNode);
 
       // get containers that are in the path
+      streetNodes.clear();
       twc->getNodesOnPath(truck.Path(), truck.getDumpSite(), unassigned, streetNodes);
+
+
+  DLOG(INFO) << "main StreetNodes.size" << streetNodes.size();
+
+
+      // insert the containers that are in the path
       while (streetNodes.size() > 0) {
+streetNodes.dump("streetNodes in cycle");
 #ifdef VRPMINTRACE
         assert(pickups == (unassigned + problematic + assigned));
 #endif
@@ -276,70 +284,53 @@ DLOG(INFO) << "1) inserting: " << bestNode.id()  << "\tfrom street: " << bestNod
         truck.findFastestNodeTo(false, aux, bestPos, bestNode, bestTime);
         // insert only nodes that dont change the structure of the path ???  some nodes change
         float oldTime = truck.getDumpSite().totTravelTime();
-DLOG(INFO) << "2) inserting: " << bestNode.id()  << "\tfrom street: " << bestNode.streetId() << "\t time:" <<bestTime;
+DLOG(INFO) << "2) inserting: " << bestNode.id();
         truck.e_insert(bestNode, bestPos);
         float newTime = truck.getDumpSite().totTravelTime();
-DLOG(INFO) << " newTime - oldtime: " << newTime-oldTime;
         if ((newTime - oldTime) > 0.2 ) {
-DLOG(INFO) << "3) removing: " << bestNode.id()  << "\tfrom street: " << bestNode.streetId() << "\t time:" <<bestTime;
           truck.e_remove(bestPos);
         } else {
           assigned.push_back(bestNode);
           unassigned.erase(bestNode);
 truck.tau();
         }
-        //} else streetNodes.erase(bestNode);
+DLOG(INFO) << " estimatedZ(): " << truck.estimatedZ() << "size: " << truck.size()-1;
+        if (truck.estimatedZ() <= truck.size()-1) {
+           break;
+        }
+      }  // while inserting with cost 0
+
+      if (truck.estimatedZ() <= (truck.size()-1)) {
+DLOG(INFO) << " estimatedZ(): " << truck.estimatedZ() << "size: " << truck.size()-1;
+        if (truckToBeFilled.size() > 1) 
+          truckToBeFilled.push_back(truckToBeFilled.getDumpSite());
+          // insert the trip
+        for (unsigned int i = 1; i < truck.size(); ++i) 
+          truckToBeFilled.push_back(truck[i]);
+        Trashnode dumpS = truckToBeFilled.getDumpSite();
+        dumpS.set_x(truck.getDepot().x());
+        dumpS.set_y(truck.getDepot().y());
+        dumpS.set_type(Twnode::kStart);
+        dumpS.set_demand(0);
+        truck.clear();
+        truck.push_back(dumpS);
+        streetNodes.clear(); 
+DLOG(INFO) << " truck & truck to be filled ";
+truck.tau();
+DLOG(INFO) << " status of truck ";
+truckToBeFilled.tau();
+//        assert(true == false);
       }
+
 #ifdef VRPMINTRACE
       assert(streetNodes.size() == 0);
 #endif
 
-    // first = false;
+     first = false;
     } else break;
   }
 assert(true==false);
 
-#if 0
-      // store same street
-      street_id = bestNode.streetId();
-      unsigned int i = 0;
-      while (i < unassigned.size()) {
-        if (unassigned[i].streetId() == street_id) {
-          streetNodes.push_back(unassigned[i]);
-          unassigned.erase(unassigned[i]);
-        } else i++;
-      }
-  assert(streetNodes.size() == 0);
-  if (unassigned.size() != 0) fillOneTruck(truck, unassigned, assigned);
-#endif
-
-#if 0
-      while (streetNodes.size() != 0) {
-        if (truck.findFastestNodeTo(streetNodes, bestPos, bestNode, bestTime)) {
-DLOG(INFO) << "3) inserting: " << bestNode.id()  << "\tfrom street: " << bestNode.streetId() << "\t time:" <<bestTime;
-          truck.e_insert(bestNode, bestPos);
-    truck.tau();
-          //truck.e_adjustDumpsToNoCV(bestPos);
-          assigned.push_back(bestNode);
-          streetNodes.erase(bestNode);
-          // unassigned.erase(bestNode);
-        }
-      }
-#endif
-
-
-
-#if 0
-assert(true==false);
-  // add unassigned nodes at end
-  while (unassigned.size() != 0) {
-      bestNode = unassigned[0];
-      truck.push_back(bestNode);
-      assigned.push_back(bestNode);
-      unassigned.erase(bestNode);
-assert(true==false);
-  }
-#endif
 }
 
 
