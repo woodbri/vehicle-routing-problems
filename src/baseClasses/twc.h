@@ -308,10 +308,8 @@ void getNodesOnPath(
 
 
   std::set < int >::const_iterator streetsPtr;
-#ifdef VRPMINTRACE
-  DLOG(INFO) << "streetIDs.size" << streetIDs.size();
-#endif
 #ifdef VRPMAXTRACE
+  DLOG(INFO) << "streetIDs.size" << streetIDs.size();
   int count =0;
   for (streetsPtr = streetIDs.begin();
        streetsPtr != streetIDs.end();
@@ -436,9 +434,9 @@ void getNodesOnPath(
   }
   // orderedStreetNodes should be ready now
 
-#ifdef VRPMINTRACE
+#ifdef VRPMAXTRACE
   DLOG(INFO) << "orderedStreetNodes.size" << streetNodes.size();
-  //orderedStreetNodes.dump("orderedStreetNodes");
+  orderedStreetNodes.dump("orderedStreetNodes");
 #endif
 //assert(true==false);
   /************************************************************/

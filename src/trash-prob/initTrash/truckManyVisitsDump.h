@@ -59,6 +59,7 @@ public:
 
 private:
   void fillOneTruck(Vehicle &truck, Bucket &unassigned, Bucket &assigned);
+  void insertTrip(Vehicle &trip, Vehicle &truck);
   void insertGoing( Bucket &bigTruck, Vehicle &truck, UID goingPos );
   void insertComming( Bucket &bigTruck, Vehicle &truck, UID goingPos );
   double e_evalIntraSw(Vehicle &truck, POS i, POS j);
