@@ -376,9 +376,9 @@ void getNodesOnPath(
 #endif
 
   // tolerance to determine if a container is "on" the segment
-  // Node::.positionAlongSegment() is doing Euclidean calcuations
+  // Node::positionAlongSegment() is doing Euclidean calcuations
   // so this needs to be set in degrees or meters depending on the
-  // underlying projection the the node x,y values are in.
+  // underlying projection that the node x,y values are in.
 
   // Approximate meters in degrees longitude at equator
   // 0.00009 degrees === 10 meters
