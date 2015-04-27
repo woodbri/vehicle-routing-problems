@@ -246,17 +246,42 @@ void TruckManyVisitsDump::fillOneTruck(
   bool first = true;
   
 
-  //insert 1 node from each street
   while (unassigned.size() != 0) {
-    if (truck.findFastestNodeTo(first, unassigned, bestPos, bestNode, bestTime)) {
+    // find a costly node
+    if (truck.findFastestNodeTo(true, unassigned, bestPos, bestNode, bestTime)) {
+      aux.clear();
+      aux.push_back(bestNode);
+      // of the costly node find the cheaper position
+      truck.findFastestNodeTo(false, aux, bestPos, bestNode, bestTime);
+      
 DLOG(INFO) << "1) inserting: " << bestNode.id()  << "\tfrom street: " << bestNode.streetId() << "\t time:" <<bestTime;
       truck.e_insert(bestNode, bestPos);
-    truck.tau();
-      //truck.e_adjustDumpsToNoCV(bestPos);
+   truck.tau();
       assigned.push_back(bestNode);
       unassigned.erase(bestNode);
 
+      // get containers that are in the path
       twc->getNodesOnPath(truck.Path(), truck.getDumpSite(), unassigned, streetNodes);
+
+      while (streetNodes.size() != 0) {
+        aux.clear();
+        aux.push_back(streetNodes[0]);
+        if (truck.findFastestNodeTo(false, aux, bestPos, bestNode, bestTime) ) {
+        // insert only nodes that dont change the structure of the path ???  some nodes change
+DLOG(INFO) << "2) inserting: " << bestNode.id()  << "\tfrom street: " << bestNode.streetId() << "\t time:" <<bestTime;
+          truck.e_insert(bestNode, bestPos);
+          assigned.push_back(bestNode);
+truck.tau();
+          unassigned.push_back(bestNode);
+        }
+        streetNodes.erase(bestNode);
+      }
+    // first = false;
+    } else break;
+  }
+assert(true==false);
+
+#if 0
       // store same street
       street_id = bestNode.streetId();
       unsigned int i = 0;
@@ -266,32 +291,9 @@ DLOG(INFO) << "1) inserting: " << bestNode.id()  << "\tfrom street: " << bestNod
           unassigned.erase(unassigned[i]);
         } else i++;
       }
-    // TODO insert all containers in rout that have cost 0 HERE
-
-
-
-    first = false;
-    } else break;
-  }
-#if 1  // insert only nodes that dont change the route 
-      while (streetNodes.size() != 0) {
-        aux.clear();
-        aux.push_back(streetNodes[0]);
-        if (truck.findFastestNodeTo(false, aux, bestPos, bestNode, bestTime) && bestTime < 0.00005) {
-DLOG(INFO) << "2) inserting: " << bestNode.id()  << "\tfrom street: " << bestNode.streetId() << "\t time:" <<bestTime;
-          truck.e_insert(bestNode, bestPos);
-          assigned.push_back(bestNode);
-          // truck.e_adjustDumpsToNoCV(bestPos);
-    truck.tau();
-        } else {
-          unassigned.push_back(bestNode);
-        }
-        streetNodes.erase(bestNode);
-      }
-#endif
   assert(streetNodes.size() == 0);
   if (unassigned.size() != 0) fillOneTruck(truck, unassigned, assigned);
-
+#endif
 
 #if 0
       while (streetNodes.size() != 0) {

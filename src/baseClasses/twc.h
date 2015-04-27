@@ -383,7 +383,7 @@ void getNodesOnPath(
   // Approximate meters in degrees longitude at equator
   // 0.00009 degrees === 10 meters
   // 0.00027 degrees === 30 meters
-  const double tol = 0.00027;
+  const double tol = 0.00009;
 
   std::deque< Node >::iterator git = geometry.begin();
   git++;    // we need pairs segment( (git-1), git )
@@ -425,7 +425,7 @@ void getNodesOnPath(
 #ifdef VRPMINTRACE
   orderedStreetNodes.dump("orderedStreetNodes");
 #endif
-assert(true==false);
+//assert(true==false);
   /************************************************************/
   osrmi->useOsrm(oldStateOsrm);
   osrmi->clear();
