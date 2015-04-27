@@ -247,6 +247,9 @@ void TruckManyVisitsDump::fillOneTruck(
   
 
   while (unassigned.size() != 0) {
+#ifdef VRPMINTRACE
+  assert(pickups == (unassigned + problematic + assigned));
+#endif
     // find a costly node
     if (truck.findFastestNodeTo(true, unassigned, bestPos, bestNode, bestTime)) {
       aux.clear();
@@ -262,19 +265,35 @@ DLOG(INFO) << "1) inserting: " << bestNode.id()  << "\tfrom street: " << bestNod
 
       // get containers that are in the path
       twc->getNodesOnPath(truck.Path(), truck.getDumpSite(), unassigned, streetNodes);
-
       while (streetNodes.size() > 0) {
+#ifdef VRPMINTRACE
+        assert(pickups == (unassigned + problematic + assigned));
+#endif
         aux.clear();
         aux.push_back(streetNodes[0]);
+        streetNodes.erase(streetNodes[0]);
+        
         truck.findFastestNodeTo(false, aux, bestPos, bestNode, bestTime);
         // insert only nodes that dont change the structure of the path ???  some nodes change
+        float oldTime = truck.getDumpSite().totTravelTime();
 DLOG(INFO) << "2) inserting: " << bestNode.id()  << "\tfrom street: " << bestNode.streetId() << "\t time:" <<bestTime;
         truck.e_insert(bestNode, bestPos);
-        assigned.push_back(bestNode);
+        float newTime = truck.getDumpSite().totTravelTime();
+DLOG(INFO) << " newTime - oldtime: " << newTime-oldTime;
+        if ((newTime - oldTime) > 0.2 ) {
+DLOG(INFO) << "3) removing: " << bestNode.id()  << "\tfrom street: " << bestNode.streetId() << "\t time:" <<bestTime;
+          truck.e_remove(bestPos);
+        } else {
+          assigned.push_back(bestNode);
+          unassigned.erase(bestNode);
 truck.tau();
-        unassigned.erase(bestNode);
-        streetNodes.erase(bestNode);
+        }
+        //} else streetNodes.erase(bestNode);
       }
+#ifdef VRPMINTRACE
+      assert(streetNodes.size() == 0);
+#endif
+
     // first = false;
     } else break;
   }
