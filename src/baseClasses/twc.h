@@ -416,10 +416,20 @@ void getNodesOnPath(
 
     // move the nodes to orderedStreetNodes
     std::deque< std::pair< double, unsigned int > >::iterator it;
-    for (it = seg.begin(); it != seg.end(); it++) {
+    for (it = seg.begin(); it != seg.end(); it++)
         orderedStreetNodes.push_back( streetNodes[it->second] );
+
+    // sort the seg container based on index to order them for erase
+    // NOTE: using C++11 lambda
+    std::sort(seg.begin(), seg.end(),
+        [](const std::pair<double,int> &left,
+           const std::pair<double,int> &right) {
+                return left.second > right.second;
+    });
+
+    // remove the nodes we already used
+    for (it = seg.end()-1; it >= seg.begin(); it--)
         streetNodes.erase(it->second);
-    }
     
     // and repeat for next segment
     git++;
