@@ -1000,6 +1000,8 @@ class TwBucket {
     path.push_front(node);
     return true;
   }
+  iterator begin() { path.begin(); }
+  iterator end() { path.begin(); }
   void pop_back() { path.pop_back(); }
   void pop_front() { path.pop_front(); }
   /*! \brief disables resizing to a larger bucket */

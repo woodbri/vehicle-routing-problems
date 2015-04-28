@@ -188,6 +188,7 @@ public:
   bool isDepot(int i) const { return path[i].isDepot(); };
   bool cargo(int i) const { return path[i].cargo(); };
   bool has_cv() const { return path[path.size() - 1].has_cv(maxcapacity); };
+  bool has_twv() const { return endingSite.has_twv(); };
 
 
 };

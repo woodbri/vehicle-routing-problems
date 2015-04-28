@@ -245,7 +245,9 @@ void TruckManyVisitsDump::fillOneTruck(
   uint64_t  street_id;
   bool first = true;
   Vehicle truck = truckToBeFilled; 
+  bool cv_flag = false;
 
+DLOG(INFO) << " STARTING\n ";
   while (unassigned.size() != 0) {
 #ifdef VRPMINTRACE
   assert(pickups == (unassigned + problematic + assigned));
@@ -256,18 +258,26 @@ void TruckManyVisitsDump::fillOneTruck(
       aux.push_back(bestNode);
       // of the costly node find the cheaper position
       truck.findFastestNodeTo(false, aux, bestPos, bestNode, bestTime);
-      
-DLOG(INFO) << "1) inserting: " << bestNode.id();
+
       truck.e_insert(bestNode, bestPos);
-      assigned.push_back(bestNode);
-      unassigned.erase(bestNode);
+
+      if (truck.has_cv()) {
+        truck.e_remove(bestPos);
+        cv_flag = true;
+        break;
+      } else {
+DLOG(INFO) << "1) inserting: " << bestNode.id();
+        assigned.push_back(bestNode);
+        unassigned.erase(bestNode);
+        cv_flag = false;
+      }
 
       // get containers that are in the path
       streetNodes.clear();
       twc->getNodesOnPath(truck.Path(), truck.getDumpSite(), unassigned, streetNodes);
 
 
-//   DLOG(INFO) << "main StreetNodes.size" << streetNodes.size();
+   DLOG(INFO) << "main StreetNodes.size" << streetNodes.size();
 
 
       // insert the containers that are in the path
@@ -285,23 +295,34 @@ DLOG(INFO) << "1) inserting: " << bestNode.id();
  DLOG(INFO) << "2) inserting: " << bestNode.id();
         truck.e_insert(bestNode, bestPos);
         float newTime = truck.getDumpSite().totTravelTime();
+       
+        if (truck.has_cv()) {
+          truck.e_remove(bestPos);
+          cv_flag = true;
+          break;
+        }  
+
         if ((newTime - oldTime) > 0.2 ) {
           truck.e_remove(bestPos);
         } else {
           assigned.push_back(bestNode);
           unassigned.erase(bestNode);
         }
-        if (truck.estimatedZ() <= truck.size()-1) {
+
+        if (truck.getz1() <= truck.size()-1) {
            break;
         }
       }  // while inserting with cost 0
 
+      if (cv_flag) break;
+
 // DLOG(INFO) << "OUT  estimatedZ(): " << truck.estimatedZ() << "size: " << truck.size()-1;
-      if (truck.estimatedZ() <= (truck.size()-1)) {
+      if (truck.getz1() <= (truck.size()-1)) {
         insertTrip(truck, truckToBeFilled);
         streetNodes.clear(); 
       }
 
+       
 #ifdef VRPMINTRACE
       assert(streetNodes.size() == 0);
 #endif
@@ -309,6 +330,7 @@ DLOG(INFO) << "1) inserting: " << bestNode.id();
     } else break;
   }
 
+  // we got out either, because of CV or because we dont have more containers
   insertTrip(truck, truckToBeFilled);
 assert(true==false);
 }
@@ -333,6 +355,20 @@ DLOG(INFO) << " filling trip ";
   trip.push_back(dumpS);
 DLOG(INFO) << " status of truck ";
 truckToBeFilled.tau();
+  truckToBeFilled.evaluate();
+
+  if (!truckToBeFilled.feasable()) { 
+    DLOG(INFO) << " NOT feasable";
+    if (truckToBeFilled.has_cv()) { 
+      DLOG(INFO) << " HAS CV";
+    }
+    if (truckToBeFilled.has_twv()) { 
+      DLOG(INFO) << " HAS TWV";
+    }
+    truckToBeFilled.dumpeval();
+    DLOG(INFO) << " end ";
+  assert(true==false);
+  }
 }
 
 
