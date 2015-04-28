@@ -439,7 +439,7 @@ void getNodesOnPath(
   std::sort(orderedStreetNodes.begin(), orderedStreetNodes.end(),
     [dumpSite](const TwBucket<knode> &left,
        const TwBucket<knode> &right) {
-        return left.distanceToSquared( dumpSite ) > right.distanceToSquared( dumpSite );
+        return left.distanceToSquared(dumpSite) > right.distanceToSquared( dumpSite );
   });
 
 #ifdef VRPMAXTRACE
