@@ -397,6 +397,7 @@ void getNodesOnPath(
     // loop through the nodes and see which are on this segment
     for ( unsigned int i=0; i<streetNodes.size(); i++ ) {
       double pos = streetNodes[i].positionAlongSegment( *(git-1), *git, tol );
+      double distToDump = streetNodes[i].distanceToSquared( dumpSite );
       if ( pos > 0 ) {
         // found one on the segment so save it so we can order them
         std::pair< double, unsigned int > p( pos, i );
@@ -432,7 +433,14 @@ void getNodesOnPath(
     // and repeat for next segment
     git++;
   }
+
   // orderedStreetNodes should be ready now
+  // but we need to resort them by distance to dump
+  std::sort(orderedStreetNodes.begin(), orderedStreetNodes.end(),
+    [dumpSite](const TwBucket<knode> &left,
+       const TwBucket<knode> &right) {
+        return left.distanceToSquared( dumpSite ) > right.distanceToSquared( dumpSite );
+  });
 
 #ifdef VRPMAXTRACE
   DLOG(INFO) << "orderedStreetNodes.size" << streetNodes.size();
