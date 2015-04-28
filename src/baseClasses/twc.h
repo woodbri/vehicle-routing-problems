@@ -308,10 +308,8 @@ void getNodesOnPath(
 
 
   std::set < int >::const_iterator streetsPtr;
-#ifdef VRPMINTRACE
-  DLOG(INFO) << "streetIDs.size" << streetIDs.size();
-#endif
 #ifdef VRPMAXTRACE
+  DLOG(INFO) << "streetIDs.size" << streetIDs.size();
   int count =0;
   for (streetsPtr = streetIDs.begin();
        streetsPtr != streetIDs.end();
@@ -336,7 +334,7 @@ void getNodesOnPath(
       streetNodes.push_back(unassigned[i]);
     } 
   }
-#ifdef VRPMINTRACE
+#ifdef VRPMAXTRACE
   DLOG(INFO) << "StreetNodes.size" << streetNodes.size();
   streetNodes.dump("streetNodes");
 #endif
@@ -387,7 +385,7 @@ void getNodesOnPath(
   // Approximate meters in degrees longitude at equator
   // 0.00009 degrees === 10 meters
   // 0.00027 degrees === 30 meters
-  const double tol = 0.00009;
+  const double tol = 0.00007;
 
   std::deque< Node >::iterator git = geometry.begin();
   git++;    // we need pairs segment( (git-1), git )
@@ -444,7 +442,8 @@ void getNodesOnPath(
         return left.distanceToSquared( dumpSite ) > right.distanceToSquared( dumpSite );
   });
 
-#ifdef VRPMINTRACE
+#ifdef VRPMAXTRACE
+  DLOG(INFO) << "orderedStreetNodes.size" << streetNodes.size();
   orderedStreetNodes.dump("orderedStreetNodes");
 #endif
 //assert(true==false);

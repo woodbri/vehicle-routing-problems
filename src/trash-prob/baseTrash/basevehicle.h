@@ -101,6 +101,7 @@ public:
 
   const Trashnode &operator[]( int i ) const { return path[i]; };
   Trashnode  &operator[](int i)  { return path[i]; };
+  void clear() { path.clear();}
 
 #ifdef DOVRPLOG
   //--------------------------------------------------------------------

@@ -57,8 +57,7 @@ double BaseVehicle::getCostOsrm() const
 }
 
 
-double BaseVehicle::getTotTravelTimeOsrm() const
-{
+double BaseVehicle::getTotTravelTimeOsrm() const {
   return endingSite.getTotTravelTimeOsrm();
 };
 #endif
