@@ -263,8 +263,8 @@ DLOG(INFO) << " STARTING\n ";
 
       if (truck.has_cv()) {
         truck.e_remove(bestPos);
-        cv_flag = true;
-        break;
+        if (!insertTrip(truck, truckToBeFilled)) break;
+        continue;
       } else {
 DLOG(INFO) << "1) inserting: " << bestNode.id();
         assigned.push_back(bestNode);
@@ -298,7 +298,7 @@ DLOG(INFO) << "1) inserting: " << bestNode.id();
        
         if (truck.has_cv()) {
           truck.e_remove(bestPos);
-          cv_flag = true;
+          insertTrip(truck, truckToBeFilled);
           break;
         }  
 
@@ -314,15 +314,15 @@ DLOG(INFO) << "1) inserting: " << bestNode.id();
         }
       }  // while inserting with cost 0
 
-      if (cv_flag) break;
+      //if (cv_flag) break;
 
 // DLOG(INFO) << "OUT  estimatedZ(): " << truck.estimatedZ() << "size: " << truck.size()-1;
       if (truck.getz1() <= (truck.size()-1)) {
         insertTrip(truck, truckToBeFilled);
-        streetNodes.clear(); 
       }
 
        
+      streetNodes.clear(); 
 #ifdef VRPMINTRACE
       assert(streetNodes.size() == 0);
 #endif
@@ -332,11 +332,12 @@ DLOG(INFO) << "1) inserting: " << bestNode.id();
 
   // we got out either, because of CV or because we dont have more containers
   insertTrip(truck, truckToBeFilled);
+  dumpCostValues();
 assert(true==false);
 }
 
 
-void TruckManyVisitsDump::insertTrip(
+bool TruckManyVisitsDump::insertTrip(
      Vehicle &trip,
      Vehicle &truckToBeFilled) {
 DLOG(INFO) << " filling trip ";
@@ -360,26 +361,39 @@ truckToBeFilled.tau();
   if (!truckToBeFilled.feasable()) { 
     DLOG(INFO) << " NOT feasable";
     if (truckToBeFilled.has_cv()) { 
-      DLOG(INFO) << " HAS CV";
+      DLOG(INFO) << " This should not happen I checked for CV";
     }
     if (truckToBeFilled.has_twv()) { 
       DLOG(INFO) << " HAS TWV";
     }
+
     truckToBeFilled.dumpeval();
     DLOG(INFO) << " end ";
-  assert(true==false);
+    return saveGetTruck(truckToBeFilled);
   }
+  return true;
 }
 
 
-
-
-Vehicle  TruckManyVisitsDump::getTruck()
-{
-  Vehicle truck = unusedTrucks[0];
+bool  TruckManyVisitsDump::getTruck(Vehicle &truck) {
+  truck = unusedTrucks[0];
   unusedTrucks.erase( unusedTrucks.begin() );
   usedTrucks.push_back( truck );
-  return truck;
+  return true;
+}
+
+
+//    PROCESS
+//
+
+
+bool  TruckManyVisitsDump::saveGetTruck(Vehicle &truck) {
+  fleet.push_back(truck);
+  if (unusedTrucks.size() == 0) {
+    truck.clear();
+    return false;
+  } 
+  return getTruck(truck);
 }
 
 
@@ -403,7 +417,8 @@ DLOG(INFO) << "Starting initial Solution Proccess\n";
 
   // preparing a big truck where to store everything
   osrmi->useOsrm(true);
-  Vehicle bigTruck = getTruck();
+  Vehicle bigTruck;
+  getTruck(bigTruck);
   bigTruck.getCost();
   fillOneTruck(bigTruck, unassigned, assigned);
   //osrmi->useOsrm(false);

@@ -437,8 +437,8 @@ void getNodesOnPath(
   // orderedStreetNodes should be ready now
   // but we need to resort them by distance to dump
   std::sort(orderedStreetNodes.begin(), orderedStreetNodes.end(),
-    [dumpSite](const TwBucket<knode> &left,
-       const TwBucket<knode> &right) {
+    [dumpSite](const knode &left,
+       const knode &right) {
         return left.distanceToSquared(dumpSite) > right.distanceToSquared( dumpSite );
   });
 
