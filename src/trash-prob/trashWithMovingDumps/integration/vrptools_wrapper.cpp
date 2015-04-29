@@ -31,7 +31,7 @@
 #endif
 
 #include "trashprob.h"
-#include "feasableSolLoop.h"
+#include "truckManyVisitsDump.h"
 #include "tabuopt.h"
 
 //#define PGR_LOGGER_ON
@@ -87,16 +87,38 @@ int vrp_trash_collection( container_t *containers, unsigned int container_count,
 
     THROW_ON_SIGINT
 
-    FeasableSolLoop tp( prob );
+    TruckManyVisitsDump tp( prob );
     tp.computeCosts();
+
+    Solution initial_sol( tp );
+    double initial_cost = tp.getCost();
 
     THROW_ON_SIGINT
 
     TabuOpt ts( tp , iteration);
+    Solution opt_sol = ts.getBestSolution();
+    opt_sol.computeCosts();
+    double opt_cost = opt_sol.getCost();
+
+#ifdef DOVRPLOG
+    DLOG(INFO) << "Initial solution cost: " << initial_cost
+               << " Optimized cost: " << opt_cost;
+#endif
 
     unsigned long int count = 0;
-    *vehicle_paths = ts.getSolutionForPg( count );
-    *vehicle_path_count = count;
+    if ( initial_cost < opt_cost ) {
+#ifdef DOVRPLOG
+        DLOG(INFO) << "Initial solution is better!";
+#endif
+        *vehicle_paths = initial_sol.getSolutionForPg( count );
+    }
+    else {
+#ifdef DOVRPLOG
+        DLOG(INFO) << "Optimized solution is better!";
+#endif
+        *vehicle_paths = ts.getSolutionForPg( count );
+    }
+        
 
     if ( count == -1 ) {
       *err_msg = strdup ( "Failed to allocate memory for results!");
