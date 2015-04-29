@@ -61,6 +61,8 @@ int vrp_trash_collection( container_t *containers, unsigned int container_count,
       FLAGS_minloglevel = google::INFO;
     }
 
+    DLOG(INFO) << "Starting vrp_trash_collection() ---------------------";
+
 #endif
 
 

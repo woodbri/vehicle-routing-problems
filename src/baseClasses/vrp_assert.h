@@ -23,8 +23,9 @@
 #ifndef VRP_ASSERT_H
 #define VRP_ASSERT_H
 
+#ifdef COMMANDLINE_DEBUG
 #include <cassert>
-#if 0
+#else
 #include <exception>
 
 #ifdef assert
