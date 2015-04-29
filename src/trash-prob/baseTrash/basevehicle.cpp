@@ -151,6 +151,15 @@ DLOG(INFO) << "bestTime: " << bestTime
 }
 
 
+int BaseVehicle::countPickups() const {
+  int count = 0;
+  for ( POS i = 1; i < path.size(); i++ )
+    if ( path[i].isPickup() ) count++;
+
+  return count;
+}
+
+
 
 #ifdef DOVRPLOG
 void BaseVehicle::dump() const {

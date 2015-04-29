@@ -61,7 +61,12 @@ int vrp_trash_collection( container_t *containers, unsigned int container_count,
       FLAGS_minloglevel = google::INFO;
     }
 
-    DLOG(INFO) << "Starting vrp_trash_collection() ---------------------";
+    DLOG(INFO) << "Starting vrp_trash_collection(): num. container: "
+               << container_count << ", num. other_loc: "
+               << otherloc_count  << ", num. vehicle: "
+               << vehicle_count   << ", num. ttime: "
+               << ttime_count     << ", num. iteration: "
+               << iteration;
 
 #endif
 
@@ -95,12 +100,26 @@ int vrp_trash_collection( container_t *containers, unsigned int container_count,
     Solution initial_sol( tp );
     double initial_cost = tp.getCost();
 
+#ifdef DOVRPLOG
+    DLOG(INFO) << "=-=-=-=-=-=- INITIAL SOLUTION -=-=-=-=-=-=-=";
+    DLOG(INFO) << "Number of containers: " << initial_sol.countPickups();
+    initial_sol.dumpCostValues();
+    DLOG(INFO) << "=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=";
+#endif
+
     THROW_ON_SIGINT
 
     TabuOpt ts( tp , iteration);
     Solution opt_sol = ts.getBestSolution();
     opt_sol.computeCosts();
     double opt_cost = opt_sol.getCost();
+
+#ifdef DOVRPLOG
+    DLOG(INFO) << "=-=-=-=-=-=- OPTIMIZED SOLUTION -=-=-=-=-=-=-=";
+    DLOG(INFO) << "Number of containers: " << opt_sol.countPickups();
+    opt_sol.dumpCostValues();
+    DLOG(INFO) << "=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=";
+#endif
 
 #ifdef DOVRPLOG
     DLOG(INFO) << "Initial solution cost: " << initial_cost
@@ -120,6 +139,7 @@ int vrp_trash_collection( container_t *containers, unsigned int container_count,
 #endif
         *vehicle_paths = ts.getSolutionForPg( count );
     }
+    *vehicle_path_count = count;
         
 
     if ( count == -1 ) {

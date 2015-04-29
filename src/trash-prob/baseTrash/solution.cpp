@@ -40,6 +40,15 @@ void Solution::evaluate()
 }
 
 
+int Solution::countPickups() {
+    assert( fleet.size() );
+
+    int count = 0;
+    for ( UINT i = 0; i < fleet.size(); i++ )
+      count += fleet[i].countPickups();
+
+    return count;
+}
 
 
 int Solution::v_computeCosts()

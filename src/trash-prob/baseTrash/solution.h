@@ -112,6 +112,8 @@ public:
 
 
 
+  int countPickups();
+    
 
 
 
