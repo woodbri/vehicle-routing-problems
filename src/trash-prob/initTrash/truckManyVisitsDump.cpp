@@ -159,9 +159,9 @@ DLOG(INFO) << " filling trip ";
     DLOG(INFO) << " NOT feasable";
     // if this happens then revise the CV before calling 
     // the function has to be revised
-    assert(!truckToBeFilled.has_cv());
+    //assert(!truckToBeFilled.has_cv());
     //the violation then should be twv
-    assert(truckToBeFilled.has_twv());
+    //assert(truckToBeFilled.has_twv());
 #ifdef VRPMINTRACE
     if (truckToBeFilled.has_twv()) { 
       DLOG(INFO) << " HAS TWV";
