@@ -41,6 +41,14 @@ class TruckManyVisitsDump : public Solution {
     process();
   }
 
+  TruckManyVisitsDump( const Prob_trash &P ): Solution( P ) {
+    unusedTrucks = trucks;
+    unassigned = pickups;
+    fleet.clear();
+    process();
+  };
+
+
  private:
   void fillOneTruck(Vehicle &truck);
   bool insertTrip(Vehicle &trip, Vehicle &truck);
