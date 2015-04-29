@@ -11,22 +11,17 @@
  * the terms of the MIT License. Please file LICENSE for details.
  *
  ********************************************************************VRP*/
-#ifndef TRUCKMANYVISITSDUMP_H
-#define TRUCKMANYVISITSDUMP_H
+#ifndef SRC_TRASH_PROB_INITTRASH_TRUCKMANYVISITSDUMP_H_
+#define SRC_TRASH_PROB_INITTRASH_TRUCKMANYVISITSDUMP_H_
 
 #include <string>
-#include <iostream>
-#include <vector>
+#include <deque>
 
-#include "trashnode.h"
-#include "prob_trash.h"
-#include "twbucket.h"
-#include "solution.h"
-#include "vehicle.h"
+#include "./solution.h"
 
 
 class TruckManyVisitsDump : public Solution {
-private:
+ private:
   typedef  TwBucket<Trashnode> Bucket;
   typedef  unsigned long int UID;
   typedef  unsigned long int POS;
@@ -39,37 +34,19 @@ private:
   Bucket assigned;
 
 
-  int tmp;
-public:
-
-  TruckManyVisitsDump(const std::string &infile): Solution(infile) {
+ public:
+  explicit TruckManyVisitsDump(const std::string &infile): Solution(infile) {
     unusedTrucks = trucks;
     unassigned = pickups;
-    tmp = 0;
     process();
-  };
-#if 0
-  TruckManyVisitsDump(const Solution &sol): Solution(sol) {
-    unusedTrucks = trucks;
-    unassigned = pickups;
-    tmp = 0;
-    process();
-  };
-#endif
+  }
 
-private:
-  void fillOneTruck(Vehicle &truck, Bucket &unassigned, Bucket &assigned);
+ private:
+  void fillOneTruck(Vehicle &truck);
   bool insertTrip(Vehicle &trip, Vehicle &truck);
-//  void insertGoing( Bucket &bigTruck, Vehicle &truck, UID goingPos );
-//  void insertComming( Bucket &bigTruck, Vehicle &truck, UID goingPos );
-  double e_evalIntraSw(Vehicle &truck, POS i, POS j);
-  double e_evalIns(Vehicle &truck, POS i, POS j);
   void IntraSwMoves(Vehicle &truck);
-  void InsMoves(Vehicle &truck);
-  bool getTruck(Vehicle &truck);
-  bool saveGetTruck(Vehicle &truck);
+  Vehicle getTruck();
   void process();
-
 };
 
-#endif
+#endif  // SRC_TRASH_PROB_INITTRASH_TRUCKMANYVISITSDUMP_H_

@@ -1,0 +1,238 @@
+i0	seq:1	VID:1	nid1000001	ntype0	deltaTime0	cargo0
+i1	seq:2	VID:1	nid1534	ntype1	deltaTime6.26667	cargo216
+i2	seq:3	VID:1	nid7356	ntype1	deltaTime2.08333	cargo288
+i3	seq:4	VID:1	nid1564	ntype1	deltaTime2.58333	cargo216
+i4	seq:5	VID:1	nid1540	ntype1	deltaTime2.26667	cargo216
+i5	seq:6	VID:1	nid812	ntype1	deltaTime2.68333	cargo288
+i6	seq:7	VID:1	nid805	ntype1	deltaTime2.51667	cargo288
+i7	seq:8	VID:1	nid1531	ntype1	deltaTime2.25	cargo288
+i8	seq:9	VID:1	nid1496	ntype1	deltaTime2.5	cargo216
+i9	seq:10	VID:1	nid1544	ntype1	deltaTime2.21667	cargo288
+i10	seq:11	VID:1	nid1504	ntype1	deltaTime3.25	cargo216
+i11	seq:12	VID:1	nid1506	ntype1	deltaTime2.13333	cargo216
+i12	seq:13	VID:1	nid1501	ntype1	deltaTime2.21667	cargo216
+i13	seq:14	VID:1	nid1509	ntype1	deltaTime2.06667	cargo288
+i14	seq:15	VID:1	nid1502	ntype1	deltaTime3	cargo216
+i15	seq:16	VID:1	nid1522	ntype1	deltaTime2.61667	cargo288
+i16	seq:17	VID:1	nid1521	ntype1	deltaTime2.25	cargo288
+i17	seq:18	VID:1	nid1533	ntype1	deltaTime2.03333	cargo288
+i18	seq:19	VID:1	nid1577	ntype1	deltaTime2.35	cargo216
+i19	seq:20	VID:1	nid1578	ntype1	deltaTime2.08333	cargo216
+i20	seq:21	VID:1	nid1550	ntype1	deltaTime3.81667	cargo216
+i21	seq:22	VID:1	nid1000002	ntype2	deltaTime32.7167	cargo-4968
+i22	seq:23	VID:1	nid7839	ntype1	deltaTime15.2333	cargo216
+i23	seq:24	VID:1	nid1497	ntype1	deltaTime2.91667	cargo216
+i24	seq:25	VID:1	nid1526	ntype1	deltaTime2.53333	cargo288
+i25	seq:26	VID:1	nid1523	ntype1	deltaTime2.11667	cargo288
+i26	seq:27	VID:1	nid1513	ntype1	deltaTime2.71667	cargo288
+i27	seq:28	VID:1	nid1524	ntype1	deltaTime3.01667	cargo216
+i28	seq:29	VID:1	nid1510	ntype1	deltaTime2.71667	cargo288
+i29	seq:30	VID:1	nid1507	ntype1	deltaTime2.55	cargo288
+i30	seq:31	VID:1	nid1514	ntype1	deltaTime2.08333	cargo216
+i31	seq:32	VID:1	nid1511	ntype1	deltaTime2.26667	cargo216
+i32	seq:33	VID:1	nid1505	ntype1	deltaTime2.11667	cargo288
+i33	seq:34	VID:1	nid803	ntype1	deltaTime3.36667	cargo216
+i34	seq:35	VID:1	nid804	ntype1	deltaTime2.4	cargo216
+i35	seq:36	VID:1	nid1512	ntype1	deltaTime2.76667	cargo288
+i36	seq:37	VID:1	nid7354	ntype1	deltaTime3.13333	cargo288
+i37	seq:38	VID:1	nid1542	ntype1	deltaTime2.28333	cargo288
+i38	seq:39	VID:1	nid1535	ntype1	deltaTime2.71667	cargo216
+i39	seq:40	VID:1	nid1547	ntype1	deltaTime2.7	cargo288
+i40	seq:41	VID:1	nid1563	ntype1	deltaTime2.81667	cargo216
+i41	seq:42	VID:1	nid1000002	ntype2	deltaTime32.8333	cargo-4824
+i42	seq:43	VID:1	nid1574	ntype1	deltaTime14.55	cargo288
+i43	seq:44	VID:1	nid1576	ntype1	deltaTime3.4	cargo288
+i44	seq:45	VID:1	nid1567	ntype1	deltaTime2.71667	cargo216
+i45	seq:46	VID:1	nid1525	ntype1	deltaTime3.66667	cargo288
+i46	seq:47	VID:1	nid9398	ntype1	deltaTime2.01667	cargo216
+i47	seq:48	VID:1	nid7236	ntype1	deltaTime2.91667	cargo288
+i48	seq:49	VID:1	nid1498	ntype1	deltaTime2.55	cargo216
+i49	seq:50	VID:1	nid1528	ntype1	deltaTime2.73333	cargo288
+i50	seq:51	VID:1	nid1532	ntype1	deltaTime2.08333	cargo288
+i51	seq:52	VID:1	nid1561	ntype1	deltaTime2.36667	cargo216
+i52	seq:53	VID:1	nid7234	ntype1	deltaTime2.16667	cargo216
+i53	seq:54	VID:1	nid7235	ntype1	deltaTime2.4	cargo288
+i54	seq:55	VID:1	nid1197	ntype1	deltaTime2.33333	cargo216
+i55	seq:56	VID:1	nid1562	ntype1	deltaTime3.4	cargo288
+i56	seq:57	VID:1	nid1560	ntype1	deltaTime2.15	cargo288
+i57	seq:58	VID:1	nid1570	ntype1	deltaTime2.25	cargo288
+i58	seq:59	VID:1	nid1569	ntype1	deltaTime2.08333	cargo216
+i59	seq:60	VID:1	nid1000002	ntype2	deltaTime32.9667	cargo-4392
+i60	seq:61	VID:1	nid1000001	ntype3	deltaTime8.63333	cargo0
+i61	seq:62	VID:2	nid1000001	ntype0	deltaTime0	cargo0
+i62	seq:63	VID:2	nid1518	ntype1	deltaTime6.98333	cargo288
+i63	seq:64	VID:2	nid7351	ntype1	deltaTime2.33333	cargo288
+i64	seq:65	VID:2	nid1516	ntype1	deltaTime2.7	cargo288
+i65	seq:66	VID:2	nid1503	ntype1	deltaTime2.46667	cargo216
+i66	seq:67	VID:2	nid1530	ntype1	deltaTime2.21667	cargo288
+i67	seq:68	VID:2	nid7353	ntype1	deltaTime2.53333	cargo288
+i68	seq:69	VID:2	nid7872	ntype1	deltaTime2.11667	cargo216
+i69	seq:70	VID:2	nid1551	ntype1	deltaTime2.3	cargo288
+i70	seq:71	VID:2	nid7358	ntype1	deltaTime3.3	cargo288
+i71	seq:72	VID:2	nid7359	ntype1	deltaTime2.88333	cargo216
+i72	seq:73	VID:2	nid1556	ntype1	deltaTime2.65	cargo288
+i73	seq:74	VID:2	nid7357	ntype1	deltaTime3.11667	cargo288
+i74	seq:75	VID:2	nid1559	ntype1	deltaTime2.65	cargo216
+i75	seq:76	VID:2	nid1573	ntype1	deltaTime2.66667	cargo288
+i76	seq:77	VID:2	nid1568	ntype1	deltaTime2.28333	cargo216
+i77	seq:78	VID:2	nid1571	ntype1	deltaTime2.08333	cargo288
+i78	seq:79	VID:2	nid1575	ntype1	deltaTime2.23333	cargo288
+i79	seq:80	VID:2	nid1558	ntype1	deltaTime2.21667	cargo288
+i80	seq:81	VID:2	nid1000002	ntype2	deltaTime32.8333	cargo-4824
+i81	seq:82	VID:2	nid1555	ntype1	deltaTime14.7	cargo288
+i82	seq:83	VID:2	nid1557	ntype1	deltaTime2.33333	cargo288
+i83	seq:84	VID:2	nid1541	ntype1	deltaTime3.63333	cargo216
+i84	seq:85	VID:2	nid7348	ntype1	deltaTime2.18333	cargo288
+i85	seq:86	VID:2	nid7231	ntype1	deltaTime2.01667	cargo288
+i86	seq:87	VID:2	nid7233	ntype1	deltaTime2.75	cargo216
+i87	seq:88	VID:2	nid1529	ntype1	deltaTime2.73333	cargo288
+i88	seq:89	VID:2	nid801	ntype1	deltaTime2.3	cargo288
+i89	seq:90	VID:2	nid1519	ntype1	deltaTime2.25	cargo216
+i90	seq:91	VID:2	nid7232	ntype1	deltaTime2.3	cargo216
+i91	seq:92	VID:2	nid1515	ntype1	deltaTime2.01667	cargo288
+i92	seq:93	VID:2	nid1500	ntype1	deltaTime3.01667	cargo288
+i93	seq:94	VID:2	nid7352	ntype1	deltaTime3.03333	cargo216
+i94	seq:95	VID:2	nid1508	ntype1	deltaTime2.03333	cargo216
+i95	seq:96	VID:2	nid1499	ntype1	deltaTime2.15	cargo216
+i96	seq:97	VID:2	nid1537	ntype1	deltaTime3.41667	cargo216
+i97	seq:98	VID:2	nid1545	ntype1	deltaTime3.15	cargo288
+i98	seq:99	VID:2	nid1549	ntype1	deltaTime2.1	cargo288
+i99	seq:100	VID:2	nid7350	ntype1	deltaTime2.5	cargo288
+i100	seq:101	VID:2	nid1000002	ntype2	deltaTime33.1833	cargo-4896
+i101	seq:102	VID:2	nid1539	ntype1	deltaTime15	cargo288
+i102	seq:103	VID:2	nid1538	ntype1	deltaTime2.23333	cargo288
+i103	seq:104	VID:2	nid806	ntype1	deltaTime2.13333	cargo288
+i104	seq:105	VID:2	nid1536	ntype1	deltaTime2.75	cargo288
+i105	seq:106	VID:2	nid1543	ntype1	deltaTime2.11667	cargo288
+i106	seq:107	VID:2	nid1520	ntype1	deltaTime3.05	cargo216
+i107	seq:108	VID:2	nid1517	ntype1	deltaTime2.01667	cargo216
+i108	seq:109	VID:2	nid7349	ntype1	deltaTime2.75	cargo288
+i109	seq:110	VID:2	nid7355	ntype1	deltaTime3.26667	cargo216
+i110	seq:111	VID:2	nid1546	ntype1	deltaTime3.66667	cargo288
+i111	seq:112	VID:2	nid1565	ntype1	deltaTime2.11667	cargo288
+i112	seq:113	VID:2	nid1572	ntype1	deltaTime2.13333	cargo288
+i113	seq:114	VID:2	nid1548	ntype1	deltaTime3.01667	cargo288
+i114	seq:115	VID:2	nid1552	ntype1	deltaTime2.46667	cargo288
+i115	seq:116	VID:2	nid1553	ntype1	deltaTime4.11667	cargo288
+i116	seq:117	VID:2	nid1566	ntype1	deltaTime3.75	cargo288
+i117	seq:118	VID:2	nid1000002	ntype2	deltaTime32.8333	cargo-4392
+i118	seq:119	VID:2	nid1000001	ntype3	deltaTime8.63333	cargo0
+VID: 1	id: 1000001	ntype: 0	Departure: 1320	deltaTime:0	deltaCargo0
+VID: 1	id: 1534	ntype: 1	Departure: 1326.27	deltaTime:6.26667	deltaCargo216
+VID: 1	id: 7356	ntype: 1	Departure: 1328.35	deltaTime:2.08333	deltaCargo288
+VID: 1	id: 1564	ntype: 1	Departure: 1330.93	deltaTime:2.58333	deltaCargo216
+VID: 1	id: 1540	ntype: 1	Departure: 1333.2	deltaTime:2.26667	deltaCargo216
+VID: 1	id: 812	ntype: 1	Departure: 1335.88	deltaTime:2.68333	deltaCargo288
+VID: 1	id: 805	ntype: 1	Departure: 1338.4	deltaTime:2.51667	deltaCargo288
+VID: 1	id: 1531	ntype: 1	Departure: 1340.65	deltaTime:2.25	deltaCargo288
+VID: 1	id: 1496	ntype: 1	Departure: 1343.15	deltaTime:2.5	deltaCargo216
+VID: 1	id: 1544	ntype: 1	Departure: 1345.37	deltaTime:2.21667	deltaCargo288
+VID: 1	id: 1504	ntype: 1	Departure: 1348.62	deltaTime:3.25	deltaCargo216
+VID: 1	id: 1506	ntype: 1	Departure: 1350.75	deltaTime:2.13333	deltaCargo216
+VID: 1	id: 1501	ntype: 1	Departure: 1352.97	deltaTime:2.21667	deltaCargo216
+VID: 1	id: 1509	ntype: 1	Departure: 1355.03	deltaTime:2.06667	deltaCargo288
+VID: 1	id: 1502	ntype: 1	Departure: 1358.03	deltaTime:3	deltaCargo216
+VID: 1	id: 1522	ntype: 1	Departure: 1360.65	deltaTime:2.61667	deltaCargo288
+VID: 1	id: 1521	ntype: 1	Departure: 1362.9	deltaTime:2.25	deltaCargo288
+VID: 1	id: 1533	ntype: 1	Departure: 1364.93	deltaTime:2.03333	deltaCargo288
+VID: 1	id: 1577	ntype: 1	Departure: 1367.28	deltaTime:2.35	deltaCargo216
+VID: 1	id: 1578	ntype: 1	Departure: 1369.37	deltaTime:2.08333	deltaCargo216
+VID: 1	id: 1550	ntype: 1	Departure: 1373.18	deltaTime:3.81667	deltaCargo216
+VID: 1	id: 1000002	ntype: 2	Departure: 1405.9	deltaTime:32.7167	deltaCargo-4968
+VID: 1	id: 7839	ntype: 1	Departure: 1421.13	deltaTime:15.2333	deltaCargo216
+VID: 1	id: 1497	ntype: 1	Departure: 1424.05	deltaTime:2.91667	deltaCargo216
+VID: 1	id: 1526	ntype: 1	Departure: 1426.58	deltaTime:2.53333	deltaCargo288
+VID: 1	id: 1523	ntype: 1	Departure: 1428.7	deltaTime:2.11667	deltaCargo288
+VID: 1	id: 1513	ntype: 1	Departure: 1431.42	deltaTime:2.71667	deltaCargo288
+VID: 1	id: 1524	ntype: 1	Departure: 1434.43	deltaTime:3.01667	deltaCargo216
+VID: 1	id: 1510	ntype: 1	Departure: 1437.15	deltaTime:2.71667	deltaCargo288
+VID: 1	id: 1507	ntype: 1	Departure: 1439.7	deltaTime:2.55	deltaCargo288
+VID: 1	id: 1514	ntype: 1	Departure: 1441.78	deltaTime:2.08333	deltaCargo216
+VID: 1	id: 1511	ntype: 1	Departure: 1444.05	deltaTime:2.26667	deltaCargo216
+VID: 1	id: 1505	ntype: 1	Departure: 1446.17	deltaTime:2.11667	deltaCargo288
+VID: 1	id: 803	ntype: 1	Departure: 1449.53	deltaTime:3.36667	deltaCargo216
+VID: 1	id: 804	ntype: 1	Departure: 1451.93	deltaTime:2.4	deltaCargo216
+VID: 1	id: 1512	ntype: 1	Departure: 1454.7	deltaTime:2.76667	deltaCargo288
+VID: 1	id: 7354	ntype: 1	Departure: 1457.83	deltaTime:3.13333	deltaCargo288
+VID: 1	id: 1542	ntype: 1	Departure: 1460.12	deltaTime:2.28333	deltaCargo288
+VID: 1	id: 1535	ntype: 1	Departure: 1462.83	deltaTime:2.71667	deltaCargo216
+VID: 1	id: 1547	ntype: 1	Departure: 1465.53	deltaTime:2.7	deltaCargo288
+VID: 1	id: 1563	ntype: 1	Departure: 1468.35	deltaTime:2.81667	deltaCargo216
+VID: 1	id: 1000002	ntype: 2	Departure: 1501.18	deltaTime:32.8333	deltaCargo-4824
+VID: 1	id: 1574	ntype: 1	Departure: 1515.73	deltaTime:14.55	deltaCargo288
+VID: 1	id: 1576	ntype: 1	Departure: 1519.13	deltaTime:3.4	deltaCargo288
+VID: 1	id: 1567	ntype: 1	Departure: 1521.85	deltaTime:2.71667	deltaCargo216
+VID: 1	id: 1525	ntype: 1	Departure: 1525.52	deltaTime:3.66667	deltaCargo288
+VID: 1	id: 9398	ntype: 1	Departure: 1527.53	deltaTime:2.01667	deltaCargo216
+VID: 1	id: 7236	ntype: 1	Departure: 1530.45	deltaTime:2.91667	deltaCargo288
+VID: 1	id: 1498	ntype: 1	Departure: 1533	deltaTime:2.55	deltaCargo216
+VID: 1	id: 1528	ntype: 1	Departure: 1535.73	deltaTime:2.73333	deltaCargo288
+VID: 1	id: 1532	ntype: 1	Departure: 1537.82	deltaTime:2.08333	deltaCargo288
+VID: 1	id: 1561	ntype: 1	Departure: 1540.18	deltaTime:2.36667	deltaCargo216
+VID: 1	id: 7234	ntype: 1	Departure: 1542.35	deltaTime:2.16667	deltaCargo216
+VID: 1	id: 7235	ntype: 1	Departure: 1544.75	deltaTime:2.4	deltaCargo288
+VID: 1	id: 1197	ntype: 1	Departure: 1547.08	deltaTime:2.33333	deltaCargo216
+VID: 1	id: 1562	ntype: 1	Departure: 1550.48	deltaTime:3.4	deltaCargo288
+VID: 1	id: 1560	ntype: 1	Departure: 1552.63	deltaTime:2.15	deltaCargo288
+VID: 1	id: 1570	ntype: 1	Departure: 1554.88	deltaTime:2.25	deltaCargo288
+VID: 1	id: 1569	ntype: 1	Departure: 1556.97	deltaTime:2.08333	deltaCargo216
+VID: 1	id: 1000002	ntype: 2	Departure: 1589.93	deltaTime:32.9667	deltaCargo-4392
+VID: 1	id: 1000001	type: 3	Departure: 1598.57	deltaTime:8.63333	deltaCargo0
+VID: 2	id: 1000001	ntype: 0	Departure: 1320	deltaTime:0	deltaCargo0
+VID: 2	id: 1518	ntype: 1	Departure: 1326.98	deltaTime:6.98333	deltaCargo288
+VID: 2	id: 7351	ntype: 1	Departure: 1329.32	deltaTime:2.33333	deltaCargo288
+VID: 2	id: 1516	ntype: 1	Departure: 1332.02	deltaTime:2.7	deltaCargo288
+VID: 2	id: 1503	ntype: 1	Departure: 1334.48	deltaTime:2.46667	deltaCargo216
+VID: 2	id: 1530	ntype: 1	Departure: 1336.7	deltaTime:2.21667	deltaCargo288
+VID: 2	id: 7353	ntype: 1	Departure: 1339.23	deltaTime:2.53333	deltaCargo288
+VID: 2	id: 7872	ntype: 1	Departure: 1341.35	deltaTime:2.11667	deltaCargo216
+VID: 2	id: 1551	ntype: 1	Departure: 1343.65	deltaTime:2.3	deltaCargo288
+VID: 2	id: 7358	ntype: 1	Departure: 1346.95	deltaTime:3.3	deltaCargo288
+VID: 2	id: 7359	ntype: 1	Departure: 1349.83	deltaTime:2.88333	deltaCargo216
+VID: 2	id: 1556	ntype: 1	Departure: 1352.48	deltaTime:2.65	deltaCargo288
+VID: 2	id: 7357	ntype: 1	Departure: 1355.6	deltaTime:3.11667	deltaCargo288
+VID: 2	id: 1559	ntype: 1	Departure: 1358.25	deltaTime:2.65	deltaCargo216
+VID: 2	id: 1573	ntype: 1	Departure: 1360.92	deltaTime:2.66667	deltaCargo288
+VID: 2	id: 1568	ntype: 1	Departure: 1363.2	deltaTime:2.28333	deltaCargo216
+VID: 2	id: 1571	ntype: 1	Departure: 1365.28	deltaTime:2.08333	deltaCargo288
+VID: 2	id: 1575	ntype: 1	Departure: 1367.52	deltaTime:2.23333	deltaCargo288
+VID: 2	id: 1558	ntype: 1	Departure: 1369.73	deltaTime:2.21667	deltaCargo288
+VID: 2	id: 1000002	ntype: 2	Departure: 1402.57	deltaTime:32.8333	deltaCargo-4824
+VID: 2	id: 1555	ntype: 1	Departure: 1417.27	deltaTime:14.7	deltaCargo288
+VID: 2	id: 1557	ntype: 1	Departure: 1419.6	deltaTime:2.33333	deltaCargo288
+VID: 2	id: 1541	ntype: 1	Departure: 1423.23	deltaTime:3.63333	deltaCargo216
+VID: 2	id: 7348	ntype: 1	Departure: 1425.42	deltaTime:2.18333	deltaCargo288
+VID: 2	id: 7231	ntype: 1	Departure: 1427.43	deltaTime:2.01667	deltaCargo288
+VID: 2	id: 7233	ntype: 1	Departure: 1430.18	deltaTime:2.75	deltaCargo216
+VID: 2	id: 1529	ntype: 1	Departure: 1432.92	deltaTime:2.73333	deltaCargo288
+VID: 2	id: 801	ntype: 1	Departure: 1435.22	deltaTime:2.3	deltaCargo288
+VID: 2	id: 1519	ntype: 1	Departure: 1437.47	deltaTime:2.25	deltaCargo216
+VID: 2	id: 7232	ntype: 1	Departure: 1439.77	deltaTime:2.3	deltaCargo216
+VID: 2	id: 1515	ntype: 1	Departure: 1441.78	deltaTime:2.01667	deltaCargo288
+VID: 2	id: 1500	ntype: 1	Departure: 1444.8	deltaTime:3.01667	deltaCargo288
+VID: 2	id: 7352	ntype: 1	Departure: 1447.83	deltaTime:3.03333	deltaCargo216
+VID: 2	id: 1508	ntype: 1	Departure: 1449.87	deltaTime:2.03333	deltaCargo216
+VID: 2	id: 1499	ntype: 1	Departure: 1452.02	deltaTime:2.15	deltaCargo216
+VID: 2	id: 1537	ntype: 1	Departure: 1455.43	deltaTime:3.41667	deltaCargo216
+VID: 2	id: 1545	ntype: 1	Departure: 1458.58	deltaTime:3.15	deltaCargo288
+VID: 2	id: 1549	ntype: 1	Departure: 1460.68	deltaTime:2.1	deltaCargo288
+VID: 2	id: 7350	ntype: 1	Departure: 1463.18	deltaTime:2.5	deltaCargo288
+VID: 2	id: 1000002	ntype: 2	Departure: 1496.37	deltaTime:33.1833	deltaCargo-4896
+VID: 2	id: 1539	ntype: 1	Departure: 1511.37	deltaTime:15	deltaCargo288
+VID: 2	id: 1538	ntype: 1	Departure: 1513.6	deltaTime:2.23333	deltaCargo288
+VID: 2	id: 806	ntype: 1	Departure: 1515.73	deltaTime:2.13333	deltaCargo288
+VID: 2	id: 1536	ntype: 1	Departure: 1518.48	deltaTime:2.75	deltaCargo288
+VID: 2	id: 1543	ntype: 1	Departure: 1520.6	deltaTime:2.11667	deltaCargo288
+VID: 2	id: 1520	ntype: 1	Departure: 1523.65	deltaTime:3.05	deltaCargo216
+VID: 2	id: 1517	ntype: 1	Departure: 1525.67	deltaTime:2.01667	deltaCargo216
+VID: 2	id: 7349	ntype: 1	Departure: 1528.42	deltaTime:2.75	deltaCargo288
+VID: 2	id: 7355	ntype: 1	Departure: 1531.68	deltaTime:3.26667	deltaCargo216
+VID: 2	id: 1546	ntype: 1	Departure: 1535.35	deltaTime:3.66667	deltaCargo288
+VID: 2	id: 1565	ntype: 1	Departure: 1537.47	deltaTime:2.11667	deltaCargo288
+VID: 2	id: 1572	ntype: 1	Departure: 1539.6	deltaTime:2.13333	deltaCargo288
+VID: 2	id: 1548	ntype: 1	Departure: 1542.62	deltaTime:3.01667	deltaCargo288
+VID: 2	id: 1552	ntype: 1	Departure: 1545.08	deltaTime:2.46667	deltaCargo288
+VID: 2	id: 1553	ntype: 1	Departure: 1549.2	deltaTime:4.11667	deltaCargo288
+VID: 2	id: 1566	ntype: 1	Departure: 1552.95	deltaTime:3.75	deltaCargo288
+VID: 2	id: 1000002	ntype: 2	Departure: 1585.78	deltaTime:32.8333	deltaCargo-4392
+VID: 2	id: 1000001	type: 3	Departure: 1594.42	deltaTime:8.63333	deltaCargo0

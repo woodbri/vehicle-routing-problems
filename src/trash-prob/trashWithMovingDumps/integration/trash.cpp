@@ -105,7 +105,6 @@ int main(int argc, char **argv)
 #endif  // OSRMCLIENT
    
     TruckManyVisitsDump tp(infile);
-assert(true==false);
 
 #ifdef VRPMINTRACE
     tp.dumpCostValues();
