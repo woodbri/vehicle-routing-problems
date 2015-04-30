@@ -157,6 +157,8 @@ DLOG(INFO) << " filling trip ";
 
   if (!truckToBeFilled.feasable()) { 
     DLOG(INFO) << " NOT feasable";
+    // TODO fix the last trip
+    //truckToBeFilled.dumpeval();
     // if this happens then revise the CV before calling 
     // the function has to be revised
     //assert(!truckToBeFilled.has_cv());

@@ -61,6 +61,18 @@ int vrp_trash_collection( container_t *containers, unsigned int container_count,
       FLAGS_minloglevel = google::INFO;
     }
 
+    osrmi->useOsrm( true );
+
+    std::string err = osrmi->getErrorMsg();
+
+    if (not osrmi->getConnection()) {
+#ifdef DOVRPLOG
+        DLOG(INFO) << "in wrapper, OSRM connection is not available!";
+#endif
+        *err_msg = strdup( "OSRM connection is not available!" );
+        return -1;
+    }
+
     DLOG(INFO) << "Starting vrp_trash_collection(): num. container: "
                << container_count << ", num. other_loc: "
                << otherloc_count  << ", num. vehicle: "
