@@ -132,8 +132,11 @@ DLOG(INFO) << " STARTING\n ";
 
   // we got out either, because of CV or because we dont have more containers
   insertTrip(trip, truckToBeFilled);
-  if (truckToBeFilled.size() > 1) 
-    fleet.push_back(truckToBeFilled);
+  fleet.push_back(truckToBeFilled);
+  truckToBeFilled.dumpeval(); 
+  assert(unassigned.size()==0);
+  assert(assigned == pickups);
+  assert(countPickups() == pickups.size());
 }
 
 
@@ -157,6 +160,7 @@ DLOG(INFO) << " filling trip ";
 
   if (!truckToBeFilled.feasable()) { 
     DLOG(INFO) << " NOT feasable";
+    truckToBeFilled.dumpeval(); 
     // if this happens then revise the CV before calling 
     // the function has to be revised
     //assert(!truckToBeFilled.has_cv());

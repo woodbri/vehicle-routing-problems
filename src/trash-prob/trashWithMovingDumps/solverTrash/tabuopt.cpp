@@ -165,12 +165,14 @@ void TabuOpt::search()
     currentSolution.tau();
 #endif
 
+#ifdef VRPMAXTRACE
     for ( int j = 0; j < cycleLimit; j++ ) {
 #ifdef VRPMINTRACE
       DLOG( INFO ) << "------------------TABUSEARCH: Ins: " << j;
 #endif
       improvedBest |= doNeighborhoodMoves( Move::Ins, 1 );
     }
+#endif
 
 #ifdef VRPMINTRACE
     currentSolution.tau();

@@ -608,9 +608,7 @@ bool Vehicle::applyMoveINSinsertPart( const Trashnode &node, POS pos )
   e_makeFeasable( pos );
 
 #ifdef DOVRPLOG
-
   if ( not feasable() ) dumpeval();
-
 #endif
 
   assert ( feasable() );
