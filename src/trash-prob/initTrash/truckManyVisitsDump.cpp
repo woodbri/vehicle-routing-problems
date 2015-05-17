@@ -77,8 +77,8 @@ DLOG(INFO) << " STARTING\n ";
       streetNodes.clear();
       twc->getNodesOnPath(trip.Path(), trip.getDumpSite(), unassigned, streetNodes);
 
-
       // insert the containers that are in the path
+      int lastBestPos = 0;
       while (streetNodes.size() > 0) {
 #ifdef VRPMINTRACE
         assert(pickups == (unassigned + problematic + assigned));
@@ -91,8 +91,9 @@ DLOG(INFO) << " STARTING\n ";
         // insert only nodes that dont change the structure of the path ???  some nodes change
         float oldTime = trip.getDumpSite().totTravelTime();
 #ifdef VRPMINTRACE
-        DLOG(INFO) << "trying inserting node in path: " << bestNode.id();
+        DLOG(INFO) << "trying inserting node in path: " << bestNode.id() << " at position " << bestPos;
 #endif
+        if (bestPos <= lastBestPos) bestPos++;
         trip.e_insert(bestNode, bestPos);
         float newTime = trip.getDumpSite().totTravelTime();
        
@@ -110,9 +111,9 @@ DLOG(INFO) << " STARTING\n ";
         }  
 
 #ifdef VRPMINTRACE
-        DLOG(INFO) << "newtime = " << newtime;
-        DLOG(INFO) << "oldtime = " << oldtime;
-        DLOG(INFO) << "differe = " << newtime-oldtime;
+        DLOG(INFO) << "newtime = " << newTime;
+        DLOG(INFO) << "oldtime = " << oldTime;
+        DLOG(INFO) << "differe = " << newTime-oldTime;
 #endif
         if ((newTime - oldTime) > 0.3 ) {
 #ifdef VRPMINTRACE
@@ -122,6 +123,7 @@ DLOG(INFO) << " STARTING\n ";
         } else {
 #ifdef VRPMINTRACE
         DLOG(INFO) << " ---> success: " << bestNode.id();
+        lastBestPos = bestPos;
         trip.tau();
 #endif
           assigned.push_back(bestNode);
