@@ -65,7 +65,8 @@ DLOG(INFO) << " STARTING\n ";
         continue;
       } else {
 #ifdef VRPMINTRACE
-        DLOG(INFO) << "1) inserting: " << bestNode.id();
+        DLOG(INFO) << "inserting a node: " << bestNode.id();
+        trip.tau();
 #endif
         assigned.push_back(bestNode);
         unassigned.erase(bestNode);
@@ -90,12 +91,15 @@ DLOG(INFO) << " STARTING\n ";
         // insert only nodes that dont change the structure of the path ???  some nodes change
         float oldTime = trip.getDumpSite().totTravelTime();
 #ifdef VRPMINTRACE
-        DLOG(INFO) << "2) inserting: " << bestNode.id();
+        DLOG(INFO) << "trying inserting node in path: " << bestNode.id();
 #endif
         trip.e_insert(bestNode, bestPos);
         float newTime = trip.getDumpSite().totTravelTime();
        
         if (trip.has_cv()) {
+#ifdef VRPMINTRACE
+        DLOG(INFO) << " ---> failed generated a cv: " << bestNode.id();
+#endif
           trip.e_remove(bestPos);
           insertTrip(trip, truckToBeFilled);
           streetNodes.clear(); 
@@ -106,8 +110,15 @@ DLOG(INFO) << " STARTING\n ";
         }  
 
         if ((newTime - oldTime) > 0.2 ) {
+#ifdef VRPMINTRACE
+        DLOG(INFO) << " ---> failed The structure of the path changed: " << bestNode.id();
+#endif
           trip.e_remove(bestPos);
         } else {
+#ifdef VRPMINTRACE
+        DLOG(INFO) << " ---> success: " << bestNode.id();
+        trip.tau();
+#endif
           assigned.push_back(bestNode);
           unassigned.erase(bestNode);
         }
