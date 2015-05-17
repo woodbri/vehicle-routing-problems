@@ -109,7 +109,12 @@ DLOG(INFO) << " STARTING\n ";
           break;
         }  
 
-        if ((newTime - oldTime) > 0.2 ) {
+#ifdef VRPMINTRACE
+        DLOG(INFO) << "newtime = " << newtime;
+        DLOG(INFO) << "oldtime = " << oldtime;
+        DLOG(INFO) << "differe = " << newtime-oldtime;
+#endif
+        if ((newTime - oldTime) > 0.3 ) {
 #ifdef VRPMINTRACE
         DLOG(INFO) << " ---> failed The structure of the path changed: " << bestNode.id();
 #endif
