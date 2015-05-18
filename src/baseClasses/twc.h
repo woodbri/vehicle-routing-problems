@@ -122,6 +122,7 @@ template <class knode> class TWC {
   mutable std::vector<std::vector<double> > twcij;
   mutable std::vector<std::vector<double> > travel_Time;
   mutable std::vector<std::vector<double> > travel_time_onTrip;
+  mutable std::vector<std::vector<int> > containers_onTrip;
 
 
  public:
@@ -221,7 +222,7 @@ template <class knode> class TWC {
         if ( isCompatibleIAJ(truck[j], unassigned[i], truck[j + 1]) ) {
           d = truck.segmentDistanceToPoint(j , unassigned[i]);
 
-          if ( d < bestDist ) {
+          if (d < bestDist) {
             bestDist = d;
             pos = j + 1;
             bestNode = unassigned[i];
@@ -245,30 +246,53 @@ void fill_travel_time_onTrip() {
   // initializing the vector
   int siz = original.size();
   travel_time_onTrip.resize(siz);
-  for (int i = 0; i < siz; i++)
+  containers_onTrip.resize(siz);
+  for (int i = 0; i < siz; i++) {
       travel_time_onTrip[i].resize(siz);
-original.dump("original");
+      containers_onTrip[i].resize(siz);
+  }
+//original.dump("original");
 
   unsigned int i,j;
   TwBucket <knode> trip;
   TwBucket <knode> nodesOnPath;
   for (i = 0; i < original.size(); ++i) {
     for (j= 0; j < original.size(); ++j) {
-     DLOG(INFO) << "fill_travel_time_onTrip " << original[i].id() << "," << original[j].id() << "\n";
+#ifdef VRPMAXTRACE
+      DLOG(INFO) << "fill_travel_time_onTrip " << original[i].id() << "," << original[j].id() << "\n";
+#endif
       if (i == j) {
         travel_time_onTrip[i][j] = 0;
         continue;
       }
+      if (travel_time_onTrip[i][j] != 0) continue;
       trip.clear();
       nodesOnPath.clear();
       trip.push_back(original[i]);
       getNodesOnPath(trip, original[j], original, nodesOnPath);
-      nodesOnPath.dump("nodesOnPath");
-      nodesOnPath.push_front(original[i]);
+      if (nodesOnPath.size() == 0 || nodesOnPath[0].nid() != original[i].nid()) nodesOnPath.push_front(original[i]);
+      if (nodesOnPath[nodesOnPath.size()-1].nid() != original[j].nid()) nodesOnPath.push_back(original[j]);
+      nodesOnPath.dumpid("nodesOnPath");
       fill_times(nodesOnPath);
-assert(true==false);
     }
   }
+  int count=0;
+  for (int ii = 0; ii < travel_time_onTrip.size(); ++ii) {
+    for (int jj = 0; jj < travel_time_onTrip.size(); ++jj) {
+      if (travel_time_onTrip[ii][jj] != 0) count++;
+      if (travel_time_onTrip[ii][jj] != travel_Time[ii][jj]) {
+#ifdef VRPMINTRACE
+        DLOG(INFO) << original[ii].id() << "," << original[jj].id() << " -> " << travel_time_onTrip[ii][jj]
+            << " with " << containers_onTrip[ii][jj];
+        // DLOG(INFO) << original[ii].id() << "," << original[jj].id() << " -> tt" << travel_Time[ii][jj];
+#endif
+      }
+    }
+  }
+#ifdef VRPMAXTRACE
+      DLOG(INFO) << "total times values got:" << count;
+#endif
+assert(true==false);
   return;
 }
 
@@ -293,14 +317,16 @@ void fill_times(const TwBucket<knode> nodesOnPath) {
   }
   std::deque< double > times;
   if (!osrmi->getOsrmTimes(times)){
+#ifdef VRPMINTRACE
      DLOG(INFO) << "getOsrmTimes failed";
+#endif
      osrmi->useOsrm(oldStateOsrm);
      return;
   }
 
 
   // lets have a peek
-  #ifdef VRPMINTRACE 
+  #ifdef VRPMAXTRACE 
   DLOG(INFO) << "sequential for the times";
   for (unsigned int i= 0; i < call.size(); ++i) {
     DLOG(INFO) << call[i].id() << "," << times[i];
@@ -310,14 +336,25 @@ void fill_times(const TwBucket<knode> nodesOnPath) {
 
   for (int i = 0; i < nodesOnPath.size()-1; ++i)
     for (int j = i + 1; j < nodesOnPath.size(); ++j)
-      travel_time_onTrip[nodesOnPath[i].nid()][nodesOnPath[j].nid()] = times[j]-times[i];
-
-  for (int i = 0; i < travel_time_onTrip.size(); ++i) {
-    for (int j = i + 1; j < travel_time_onTrip.size(); ++j) {
-      DLOG(INFO) << original[i].id() << "," << original[j].id() <<travel_time_onTrip[i][j] ;
-    }
-  }
-  
+      if (nodesOnPath[i].nid() != nodesOnPath[j].nid() ) {
+        if (travel_time_onTrip[nodesOnPath[i].nid()][nodesOnPath[j].nid()] == 0) {
+          travel_time_onTrip[nodesOnPath[i].nid()][nodesOnPath[j].nid()] = times[j]-times[i];
+          containers_onTrip[nodesOnPath[i].nid()][nodesOnPath[j].nid()] = j-i-1;
+          continue;
+        }
+        if (std::abs(travel_time_onTrip[nodesOnPath[i].nid()][nodesOnPath[j].nid()] - (times[j]-times[i])) > 0.0001) {
+          if (travel_time_onTrip[nodesOnPath[i].nid()][nodesOnPath[j].nid()] > (times[j]-times[i])) {
+  #ifdef VRPMINTRACE 
+            DLOG(INFO) << nodesOnPath[i].id() << "," << nodesOnPath[j].id() << " -> ";
+            DLOG(INFO) << " old value " << travel_time_onTrip[nodesOnPath[i].nid()][nodesOnPath[j].nid()];
+            DLOG(INFO) << " new value " << times[j]-times[i];
+            DLOG(INFO) << " ----> changed ";
+  #endif
+            travel_time_onTrip[nodesOnPath[i].nid()][nodesOnPath[j].nid()] = times[j]-times[i];
+            containers_onTrip[nodesOnPath[i].nid()][nodesOnPath[j].nid()] = j-i-1;
+          }
+        }
+      }
 } 
 
 
@@ -351,7 +388,7 @@ void getNodesOnPath(
   osrmi->addViaPoints(call);
   if (!osrmi->getOsrmViaroute()) {
 #ifdef VRPMINTRACE
-     DLOG(INFO) << "getOsrmViaroute failed";
+     DLOG(INFO) << "getNodesOnPath getOsrmViaroute failed";
 #endif
      osrmi->useOsrm(oldStateOsrm);
      return;
@@ -361,7 +398,7 @@ void getNodesOnPath(
   std::deque<std::string> names;
   if (!osrmi->getOsrmNamesOnRoute(names) ) {
 #ifdef VRPMINTRACE
-     DLOG(INFO) << "getOsrmNamesOnRoute failed";
+     DLOG(INFO) << "getNodesOnPath getOsrmNamesOnRoute failed";
 #endif
      osrmi->useOsrm(oldStateOsrm);
      return;
@@ -371,7 +408,7 @@ void getNodesOnPath(
   std::deque< Node > geometry;
   if (!osrmi->getOsrmGeometry(geometry) ) {
 #ifdef VRPMINTRACE
-     DLOG(INFO) << "getOsrmGeometry failed";
+     DLOG(INFO) << "getNodesOnPath getOsrmGeometry failed";
 #endif
      osrmi->useOsrm(oldStateOsrm);
      return;
@@ -385,7 +422,7 @@ void getNodesOnPath(
      streetMapPtr = streetNames.find(names[i]);
      if (streetMapPtr == streetNames.end()) continue;
      streetIDs.insert(streetMapPtr->second);
-#ifdef VRPMINTRACE
+#ifdef VRPMAXTRACE
     DLOG(INFO) << "name:" << names[i] << "\tid:" << streetMapPtr->second;
 #endif
   }
@@ -393,7 +430,7 @@ void getNodesOnPath(
 
 
   std::set < int >::const_iterator streetsPtr;
-#ifdef VRPMINTRACE
+#ifdef VRPMAXTRACE
   DLOG(INFO) << "streetIDs.size" << streetIDs.size();
   int count =0;
   for (streetsPtr = streetIDs.begin();
@@ -413,13 +450,13 @@ void getNodesOnPath(
   TwBucket<knode> streetNodes;
   for (unsigned int i = 0; i < unassigned.size(); ++i) {
     if (streetIDs.find(unassigned[i].streetId()) != streetIDs.end()) {
-#ifdef VRPMINTRACE
+#ifdef VRPMAXTRACE
     DLOG(INFO) << "Posible on route inserting: " << unassigned[i].id();
 #endif
       streetNodes.push_back(unassigned[i]);
     } 
   }
-#ifdef VRPMINTRACE
+#ifdef VRPMAXTRACE
   DLOG(INFO) << "StreetNodes.size" << streetNodes.size();
   streetNodes.dump("streetNodes");
 #endif
@@ -528,7 +565,7 @@ void getNodesOnPath(
   });
 #endif
 
-#ifdef VRPMINTRACE
+#ifdef VRPMAXTRACE
   DLOG(INFO) << "orderedStreetNodes.size" << streetNodes.size();
   orderedStreetNodes.dump("orderedStreetNodes");
 #endif
@@ -2182,8 +2219,10 @@ bool setTravelingTimesInsertingOneNode(
           // setting the street
           street_ptr = streetNames.find(streets[k]);
           if (street_ptr == streetNames.end()) {
-            original[j].set_streetId(streetNames.size());
-            streetNames[streets[k]] = streetNames.size();
+            int newStreetId = streetNames.size();
+            streetNames[streets[k]] = newStreetId;
+            original[j].set_streetId(newStreetId);
+            assert(streetNames.find(streets[k]) != streetNames.end());
           } else {
             original[j].set_streetId(street_ptr->second);
           }
@@ -2195,6 +2234,7 @@ bool setTravelingTimesInsertingOneNode(
 #endif
       }
     }
+    fill_travel_time_onTrip();
 
 #ifdef DOSTATS
     STATS->addto("TWC::getAllHintsAndStreets Cumultaive time:", timer.duration());
