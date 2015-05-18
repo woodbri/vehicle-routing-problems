@@ -257,6 +257,8 @@ void TruckManyVisitsDump::process()
   assert(!(problematic * assigned).size());
   //END INVARIANT
 #endif
+  DLOG(INFO) << "Starting getting times on trip\n";
+  twc->fill_travel_time_onTrip();
 
   DLOG(INFO) << "Starting initial Solution Proccess\n";
   bool oldState = osrmi->getUse();

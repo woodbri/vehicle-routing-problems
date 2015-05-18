@@ -121,6 +121,7 @@ template <class knode> class TWC {
   std::map< std::string, int> streetNames; 
   mutable std::vector<std::vector<double> > twcij;
   mutable std::vector<std::vector<double> > travel_Time;
+  mutable std::vector<std::vector<double> > travel_time_onTrip;
 
 
  public:
@@ -236,6 +237,90 @@ template <class knode> class TWC {
     return flag;
   }
 
+//TODO
+void fill_travel_time_onTrip() {
+#ifdef VRPMINTRACE
+     DLOG(INFO) << "fill_travel_time_onTrip\n";
+#endif
+  // initializing the vector
+  int siz = original.size();
+  travel_time_onTrip.resize(siz);
+  for (int i = 0; i < siz; i++)
+      travel_time_onTrip[i].resize(siz);
+original.dump("original");
+
+  unsigned int i,j;
+  TwBucket <knode> trip;
+  TwBucket <knode> nodesOnPath;
+  for (i = 0; i < original.size(); ++i) {
+    for (j= 0; j < original.size(); ++j) {
+     DLOG(INFO) << "fill_travel_time_onTrip " << original[i].id() << "," << original[j].id() << "\n";
+      if (i == j) {
+        travel_time_onTrip[i][j] = 0;
+        continue;
+      }
+      trip.clear();
+      nodesOnPath.clear();
+      trip.push_back(original[i]);
+      getNodesOnPath(trip, original[j], original, nodesOnPath);
+      nodesOnPath.dump("nodesOnPath");
+      nodesOnPath.push_front(original[i]);
+      fill_times(nodesOnPath);
+assert(true==false);
+    }
+  }
+  return;
+}
+
+void fill_times(const TwBucket<knode> nodesOnPath) {
+  //get all the times using osrm
+  bool oldStateOsrm = osrmi->getUse();
+  osrmi->useOsrm(true);  //forcing osrm usage
+  osrmi->clear();
+
+  // buld call
+  std::deque< Node > call;
+  for (unsigned int i = 0; i < nodesOnPath.size(); ++i) {
+      call.push_back(nodesOnPath[i]);
+  }
+  osrmi->addViaPoints(call);
+  if (!osrmi->getOsrmViaroute()) {
+#ifdef VRPMINTRACE
+     DLOG(INFO) << "getOsrmViaroute failed";
+#endif
+     osrmi->useOsrm(oldStateOsrm);
+     return;
+  }
+  std::deque< double > times;
+  if (!osrmi->getOsrmTimes(times)){
+     DLOG(INFO) << "getOsrmTimes failed";
+     osrmi->useOsrm(oldStateOsrm);
+     return;
+  }
+
+
+  // lets have a peek
+  #ifdef VRPMINTRACE 
+  DLOG(INFO) << "sequential for the times";
+  for (unsigned int i= 0; i < call.size(); ++i) {
+    DLOG(INFO) << call[i].id() << "," << times[i];
+  }
+  #endif
+  osrmi->useOsrm(oldStateOsrm);
+
+  for (int i = 0; i < nodesOnPath.size()-1; ++i)
+    for (int j = i + 1; j < nodesOnPath.size(); ++j)
+      travel_time_onTrip[nodesOnPath[i].nid()][nodesOnPath[j].nid()] = times[j]-times[i];
+
+  for (int i = 0; i < travel_time_onTrip.size(); ++i) {
+    for (int j = i + 1; j < travel_time_onTrip.size(); ++j) {
+      DLOG(INFO) << original[i].id() << "," << original[j].id() <<travel_time_onTrip[i][j] ;
+    }
+  }
+  
+} 
+
+
 /*!
  From the unassigned bucket all nodes that are in the truck's path
   will be placed on streetNodes Bucket
@@ -300,7 +385,7 @@ void getNodesOnPath(
      streetMapPtr = streetNames.find(names[i]);
      if (streetMapPtr == streetNames.end()) continue;
      streetIDs.insert(streetMapPtr->second);
-#ifdef VRPMAXTRACE
+#ifdef VRPMINTRACE
     DLOG(INFO) << "name:" << names[i] << "\tid:" << streetMapPtr->second;
 #endif
   }
@@ -308,7 +393,7 @@ void getNodesOnPath(
 
 
   std::set < int >::const_iterator streetsPtr;
-#ifdef VRPMAXTRACE
+#ifdef VRPMINTRACE
   DLOG(INFO) << "streetIDs.size" << streetIDs.size();
   int count =0;
   for (streetsPtr = streetIDs.begin();
@@ -328,13 +413,13 @@ void getNodesOnPath(
   TwBucket<knode> streetNodes;
   for (unsigned int i = 0; i < unassigned.size(); ++i) {
     if (streetIDs.find(unassigned[i].streetId()) != streetIDs.end()) {
-#ifdef VRPMAXTRACE
+#ifdef VRPMINTRACE
     DLOG(INFO) << "Posible on route inserting: " << unassigned[i].id();
 #endif
       streetNodes.push_back(unassigned[i]);
     } 
   }
-#ifdef VRPMAXTRACE
+#ifdef VRPMINTRACE
   DLOG(INFO) << "StreetNodes.size" << streetNodes.size();
   streetNodes.dump("streetNodes");
 #endif
@@ -433,7 +518,7 @@ void getNodesOnPath(
     // and repeat for next segment
     git++;
   }
-
+#if 0
   // orderedStreetNodes should be ready now
   // but we need to resort them by distance to dump
   std::sort(orderedStreetNodes.begin(), orderedStreetNodes.end(),
@@ -441,8 +526,9 @@ void getNodesOnPath(
        const knode &right) {
         return left.distanceToSquared(dumpSite) > right.distanceToSquared( dumpSite );
   });
+#endif
 
-#ifdef VRPMAXTRACE
+#ifdef VRPMINTRACE
   DLOG(INFO) << "orderedStreetNodes.size" << streetNodes.size();
   orderedStreetNodes.dump("orderedStreetNodes");
 #endif
