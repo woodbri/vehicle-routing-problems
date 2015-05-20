@@ -943,6 +943,18 @@ class TwBucket {
     return true;
   }
 
+  /*! \brief Insert node into deque
+   * \param[in] atPos The position it should be inserted at
+   * \param[in] node The node to insert
+   */
+  bool insert(const TwBucket<knode> &nodes, POS atPos) {
+    assert(atPos <= path.size());
+    for (UINT i = 0; i < nodes.size(); i++) {
+      path.insert(path.begin() + atPos + i, nodes[i]);
+    } 
+    return true;
+  }
+
 
   /*! \brief Erase the node from deque at location atPos
    * \param[in] atPos The position of the node to be erased.

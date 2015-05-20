@@ -34,6 +34,41 @@
 #include "move.h"
 
 
+void BaseVehicle::set_endingSite(const Trashnode &other) {
+  endingSite.set_id(other.id());
+  endingSite.set_nid(other.nid());
+  endingSite.set_x(other.x());
+  endingSite.set_y(other.y());
+  endingSite.set_closes(other.departureTime()+10);
+  endingSite.set_serviceTime(0);
+  endingSite.set_demand(0);
+  endingSite.set_type(Twnode::kEnd);
+}
+
+void BaseVehicle::set_startingSite(const Trashnode &other) {
+  depot.set_id(other.id());
+  depot.set_nid(other.nid());
+  depot.set_x(other.x());
+  depot.set_y(other.y());
+  depot.set_opens(other.departureTime()+1);
+  depot.set_serviceTime(0);
+  depot.set_demand(0);
+  depot.set_type(Twnode::kStart);
+  path.push_front(depot);
+}
+
+
+
+bool  BaseVehicle::findNodeHasMoreNodesOnPath(
+  const TwBucket<Trashnode> &assigned, const TwBucket<Trashnode> &unassigned,
+  UINT &bestNode, UINT &bestPos, TwBucket<Trashnode> &subPath) {
+  assert(unassigned.size());
+    bool found = twc->findNodeHasMoreNodesOnPath(path, assigned, unassigned,
+                       dumpSite, bestNode, bestPos, subPath);
+  assert(found);
+  return found;
+}
+
 
 void  BaseVehicle::setTravelingTimesOfRoute() const {
     twc->setTravelingTimesOfRoute(path,dumpSite);
@@ -184,8 +219,9 @@ void BaseVehicle::dump( const std::string &title ) const
 }
 
 
-void BaseVehicle::dumpeval() const
+void BaseVehicle::dumpeval(const std::string &title) const
 {
+  DLOG( INFO ) << "\n************* " << title << " ********************\n";
   DLOG( INFO ) << "\nStarting site:";
   path[0].dumpeval(maxcapacity);
 
@@ -201,6 +237,9 @@ void BaseVehicle::dumpeval() const
   DLOG( INFO )  << "TOTAL COST=" << cost;
 }
 
+void BaseVehicle::dumpeval() const {
+  dumpeval("NO TITLE");
+}
 
 void BaseVehicle::smalldump() const
 {

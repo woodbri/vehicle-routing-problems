@@ -121,8 +121,8 @@ template <class knode> class TWC {
   std::map< std::string, int> streetNames; 
   mutable std::vector<std::vector<double> > twcij;
   mutable std::vector<std::vector<double> > travel_Time;
-  mutable std::vector<std::vector<double> > travel_time_onTrip;
-  mutable std::vector<std::vector<int> > containers_onTrip;
+  std::vector<std::vector<double> > travel_time_onTrip;
+  std::vector< std::vector< std::deque< int64_t> > > nodes_onTrip;
 
 
  public:
@@ -238,18 +238,110 @@ template <class knode> class TWC {
     return flag;
   }
 
-//TODO
+
+// TODO
+bool  findNodeHasMoreNodesOnPath(const TwBucket<knode> &trip,
+    const TwBucket<knode> &assigned, const TwBucket<knode> &unassigned,
+    const knode &dumpSite, UINT &bestNode, UINT &bestPos, TwBucket<knode> &subPath) const {
+  assert(unassigned.size() != 0);
+  subPath.clear();
+  TwBucket<knode> l_trip = trip;
+  l_trip.push_back(dumpSite);
+  bestNode = unassigned[0].nid();
+  bestPos = 1;
+  UINT bestPrevNode = l_trip[0].nid();
+  UINT bestNextNode = l_trip[1].nid();
+  UINT actual = 0;
+  int max = -1;
+
+
+
+  for (UINT i =0; i< l_trip.size() - 1; ++i) {
+    for (unsigned int j = 0; j < unassigned.size(); ++j) {
+      UINT from = l_trip[i].nid();
+      UINT middle = unassigned[j].nid();
+      UINT to = l_trip[i+1].nid();
+      assert(from < original.size());
+      assert(middle < original.size());
+      assert(to < original.size());
+      actual = actualCantNodesOnTrip(from, middle, assigned)
+               + actualCantNodesOnTrip(middle, to, assigned) + 1;
+      if ((actual > max) || (max < 0)) {
+        max = actual;
+        bestPrevNode = from;
+        bestNode = middle;
+        bestNextNode = to;
+        bestPos = i + 1;
+        assert(bestPrevNode < original.size());
+        assert(bestNode < original.size());
+        assert(bestNextNode < original.size());
+        assert(bestPos < l_trip.size());
+      }
+    }
+  }
+  // build the whole subpath, nodes on trip need to be in unassigned set
+#ifdef VRPMAXTRACE
+  for (unsigned int i = 0; i < nodes_onTrip[bestPrevNode][bestNode].size(); ++i) {
+    DLOG(INFO) << nodes_onTrip[bestPrevNode][bestNode][i];
+  }
+#endif
+
+  for (unsigned int i = 0; i < nodes_onTrip[bestPrevNode][bestNode].size(); ++i) {
+    int nid = nodes_onTrip[bestPrevNode][bestNode][i];
+    assert(nid < original.size());
+    subPath.push_back(original[nid]);
+  }
+  subPath.push_back(original[bestNode]);
+  for (unsigned int i = 0; i < nodes_onTrip[bestNode][bestNextNode].size(); ++i) {
+    int nid = nodes_onTrip[bestNode][bestNextNode][i];
+    assert(nid < original.size());
+    subPath.push_back(original[nid]);
+  }
+
+  TwBucket<knode> l_subPath = subPath;
+  TwBucket<knode> m_assigned = assigned;
+  l_subPath = l_subPath - m_assigned;
+  for (UINT i = 0; i < subPath.size(); ++i) 
+    if (!l_subPath.hasNid(subPath[i])) {
+      subPath.erase(i);
+      --i;
+    }
+#ifdef VRPMAXTRACE
+  l_trip.dumpid("trip");
+  subPath.dumpid("subpath");
+  DLOG(INFO) << "bespPos " << bestPos;
+#endif
+  assert(subPath.size() != 0);
+  return true;
+}
+
+int actualCantNodesOnTrip(UINT from, UINT to, const TwBucket<knode> &assigned) const {
+  assert(from < original.size());
+  assert(to < original.size());
+  TwBucket<knode> subPath;
+  TwBucket<knode> m_assigned = assigned;
+  int count = 0;
+  for (unsigned int i = 0; i < nodes_onTrip[from][to].size(); ++i)
+    subPath.push_back(original[i]);
+  subPath = subPath - m_assigned;
+  assert(subPath.size() <= nodes_onTrip[from][to].size());
+  return subPath.size();
+}
+
+
+
+
 void fill_travel_time_onTrip() {
 #ifdef VRPMINTRACE
-     DLOG(INFO) << "fill_travel_time_onTrip\n";
+     DLOG(INFO) << "fill_travel_time_onTrip to be checked:" << original.size();
 #endif
   // initializing the vector
   int siz = original.size();
   travel_time_onTrip.resize(siz);
-  containers_onTrip.resize(siz);
+  nodes_onTrip.resize(siz);
   for (int i = 0; i < siz; i++) {
       travel_time_onTrip[i].resize(siz);
-      containers_onTrip[i].resize(siz);
+      nodes_onTrip[i].resize(siz);
   }
 //original.dump("original");
 
@@ -257,6 +349,9 @@ void fill_travel_time_onTrip() {
   TwBucket <knode> trip;
   TwBucket <knode> nodesOnPath;
   for (i = 0; i < original.size(); ++i) {
+#ifdef VRPMINTRACE
+    DLOG(INFO) << "fill_travel_time_onTrip doing" << i <<"th " << original[i].id() << "\n";
+#endif
     for (j= 0; j < original.size(); ++j) {
 #ifdef VRPMAXTRACE
       DLOG(INFO) << "fill_travel_time_onTrip " << original[i].id() << "," << original[j].id() << "\n";
@@ -272,27 +367,31 @@ void fill_travel_time_onTrip() {
       getNodesOnPath(trip, original[j], original, nodesOnPath);
       if (nodesOnPath.size() == 0 || nodesOnPath[0].nid() != original[i].nid()) nodesOnPath.push_front(original[i]);
       if (nodesOnPath[nodesOnPath.size()-1].nid() != original[j].nid()) nodesOnPath.push_back(original[j]);
+#ifdef VRPMAXTRACE
       nodesOnPath.dumpid("nodesOnPath");
+#endif
       fill_times(nodesOnPath);
+#ifdef VRPMAXTRACE
+      DLOG(INFO) << original[i].id() << "," << original[j].id() << " -> " << travel_time_onTrip[i][j]
+            << " with " << nodes_onTrip[i][j].size();
+      DLOG(INFO) << original[i].id() << "," << original[j].id() << " -> tt " << travel_Time[i][j];
+#endif
     }
   }
+#ifdef VRPMAXTRACE
   int count=0;
   for (int ii = 0; ii < travel_time_onTrip.size(); ++ii) {
     for (int jj = 0; jj < travel_time_onTrip.size(); ++jj) {
       if (travel_time_onTrip[ii][jj] != 0) count++;
       if (travel_time_onTrip[ii][jj] != travel_Time[ii][jj]) {
-#ifdef VRPMINTRACE
         DLOG(INFO) << original[ii].id() << "," << original[jj].id() << " -> " << travel_time_onTrip[ii][jj]
-            << " with " << containers_onTrip[ii][jj];
-        // DLOG(INFO) << original[ii].id() << "," << original[jj].id() << " -> tt" << travel_Time[ii][jj];
-#endif
+            << " with " << nodes_onTrip[ii][jj].size();
+        DLOG(INFO) << original[ii].id() << "," << original[jj].id() << " -> tt" << travel_Time[ii][jj];
       }
     }
   }
-#ifdef VRPMAXTRACE
-      DLOG(INFO) << "total times values got:" << count;
+  DLOG(INFO) << "total times values got:" << count;
 #endif
-assert(true==false);
   return;
 }
 
@@ -326,7 +425,7 @@ void fill_times(const TwBucket<knode> nodesOnPath) {
 
 
   // lets have a peek
-  #ifdef VRPMAXTRACE 
+  #ifdef VRPMMAXTRACE 
   DLOG(INFO) << "sequential for the times";
   for (unsigned int i= 0; i < call.size(); ++i) {
     DLOG(INFO) << call[i].id() << "," << times[i];
@@ -334,28 +433,57 @@ void fill_times(const TwBucket<knode> nodesOnPath) {
   #endif
   osrmi->useOsrm(oldStateOsrm);
 
-  for (int i = 0; i < nodesOnPath.size()-1; ++i)
-    for (int j = i + 1; j < nodesOnPath.size(); ++j)
-      if (nodesOnPath[i].nid() != nodesOnPath[j].nid() ) {
-        if (travel_time_onTrip[nodesOnPath[i].nid()][nodesOnPath[j].nid()] == 0) {
-          travel_time_onTrip[nodesOnPath[i].nid()][nodesOnPath[j].nid()] = times[j]-times[i];
-          containers_onTrip[nodesOnPath[i].nid()][nodesOnPath[j].nid()] = j-i-1;
+  for (int i = 0; i < nodesOnPath.size()-1; ++i) {
+    for (int j = i + 1; j < nodesOnPath.size(); ++j) {
+      UINT from = nodesOnPath[i].nid();
+      UINT to = nodesOnPath[j].nid();
+      assert (from < original.size());
+      assert (to < original.size());
+      assert(from != to);
+      if (from != to) {
+        if (travel_time_onTrip[from][to] == 0) {
+          travel_time_onTrip[from][to] = times[j]-times[i];
+          nodes_onTrip[from][to].clear();
+          for (int k = i + 1; k < j; ++k) {
+            UINT nodeOnPath = nodesOnPath[k].nid();
+            assert (nodeOnPath < original.size());
+            nodes_onTrip[from][to].push_back(nodeOnPath);
+          }
+  #ifdef VRPMAXTRACE 
+          for (unsigned int i = 0; i < nodes_onTrip[from][to].size(); ++i) {
+            DLOG(INFO) << nodes_onTrip[from][to][i];
+          }
+  #endif
           continue;
         }
-        if (std::abs(travel_time_onTrip[nodesOnPath[i].nid()][nodesOnPath[j].nid()] - (times[j]-times[i])) > 0.0001) {
-          if (travel_time_onTrip[nodesOnPath[i].nid()][nodesOnPath[j].nid()] > (times[j]-times[i])) {
-  #ifdef VRPMINTRACE 
-            DLOG(INFO) << nodesOnPath[i].id() << "," << nodesOnPath[j].id() << " -> ";
-            DLOG(INFO) << " old value " << travel_time_onTrip[nodesOnPath[i].nid()][nodesOnPath[j].nid()];
+        if (std::abs(travel_time_onTrip[from][to] - (times[j]-times[i])) > 0.0001) {
+          if (travel_time_onTrip[from][to] > (times[j]-times[i])) {
+  #ifdef VRPMAXTRACE 
+            DLOG(INFO) << from << "," << to << " -> ";
+            DLOG(INFO) << " old value " << travel_time_onTrip[from][to];
             DLOG(INFO) << " new value " << times[j]-times[i];
             DLOG(INFO) << " ----> changed ";
   #endif
-            travel_time_onTrip[nodesOnPath[i].nid()][nodesOnPath[j].nid()] = times[j]-times[i];
-            containers_onTrip[nodesOnPath[i].nid()][nodesOnPath[j].nid()] = j-i-1;
+            travel_time_onTrip[from][to] = times[j]-times[i];
+            nodes_onTrip[from][to].clear();
+            for (int k = i + 1; k < j; ++k) {
+              UINT nodeOnPath = nodesOnPath[k].nid();
+              assert (nodeOnPath < original.size());
+              nodes_onTrip[from][to].push_back(nodeOnPath);
+            }
+  #ifdef VRPMAXTRACE 
+            for (unsigned int i = 0; i < nodes_onTrip[from][to].size(); ++i) {
+              DLOG(INFO) << nodes_onTrip[from][to][i];
+            }
+  #endif
+
           }
         }
       }
-} 
+    }
+  }
+}
+
 
 
 /*!
@@ -1778,6 +1906,17 @@ bool setTravelingTimesInsertingOneNode(
 
 #ifdef DOVRPLOG
 
+  void print_nodes_onTrip(int from, int to) {
+    std::stringstream ss;
+    std::deque<int64_t>::iterator i;
+    for (i = nodes_onTrip[from][to].begin();
+         i != nodes_onTrip[from][to].end();
+         ++i) {
+      ss << original[*i].id() << " ";
+    }
+    DLOG(INFO) << ss.str();
+  }
+
   /*! \brief Print the original nodes.  */
   void dump() const  {
     assert(original.size());
@@ -2234,7 +2373,6 @@ bool setTravelingTimesInsertingOneNode(
 #endif
       }
     }
-    fill_travel_time_onTrip();
 
 #ifdef DOSTATS
     STATS->addto("TWC::getAllHintsAndStreets Cumultaive time:", timer.duration());

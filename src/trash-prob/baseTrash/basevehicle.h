@@ -58,6 +58,9 @@ public:
   bool findFastestNodeTo(bool first, Bucket &unassigned, POS &pos, Trashnode &bestNode, double &bestTime);
   bool e_setPath(const Bucket &sol);
   void setTravelingTimesOfRoute() const;
+  bool findNodeHasMoreNodesOnPath(
+    const TwBucket<Trashnode> &assigned, const TwBucket<Trashnode> &unassigned,
+    UINT &bestNode, UINT &bestPos, TwBucket<Trashnode> &subPath);
   bool e_adjustDumpsToNoCV(int currentPos);
 
   //--------------------------------------------------------------------
@@ -98,6 +101,8 @@ public:
   Trashnode &getStartingSite() {return path[0];}
   Trashnode &getDumpSite()  { return dumpSite; };
   Trashnode &getEndingSite()  {return endingSite;}
+  void set_endingSite(const Trashnode &other);
+  void set_startingSite(const Trashnode &other);
 
   int countPickups() const;
 
@@ -111,6 +116,7 @@ public:
   //--------------------------------------------------------------------
   void dump() const;
   void dump( const std::string &title ) const;
+  void dumpeval(const std::string &title) const;
   void dumpeval() const;
   void smalldump() const;
   void dumppath() const;
@@ -135,9 +141,11 @@ public:
   dumpSite
   endingSite
   */
-  bool feasable() const { return path.feasable() and dumpSite.feasable() and endingSite.feasable(); };
-  bool hascv()const { return endingSite.cvTot() != 0; };
-  bool hastwv()const { return endingSite.twvTot() != 0; };
+  bool feasable() const { return path[size()-1].feasable(maxcapacity) and dumpSite.feasable(maxcapacity) and endingSite.feasable(maxcapacity); };
+  bool has_cv()const { return endingSite.cvTot() != 0; };
+  bool has_twv()const { return endingSite.twvTot() != 0; };
+  //bool has_cv() const { return path[path.size() - 1].has_cv(maxcapacity); };
+  //bool has_twv() const { return endingSite.has_twv(); };
 
   void evalLast();
   void evaluate();
@@ -189,8 +197,9 @@ public:
   bool isPickup(int i) const { return path[i].isPickup(); };
   bool isDepot(int i) const { return path[i].isDepot(); };
   bool cargo(int i) const { return path[i].cargo(); };
-  bool has_cv() const { return path[path.size() - 1].has_cv(maxcapacity); };
-  bool has_twv() const { return endingSite.has_twv(); };
+  bool insert(const TwBucket<Trashnode> &nodes, POS atPos) {
+    return path.insert(nodes, atPos);
+  }
 
 
 };

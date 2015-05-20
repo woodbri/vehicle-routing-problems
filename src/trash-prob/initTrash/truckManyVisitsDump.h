@@ -50,6 +50,10 @@ class TruckManyVisitsDump : public Solution {
 
 
  private:
+  void fillTrip(Vehicle &truck);
+  void fillTruck(Vehicle &truck, std::deque<Vehicle> &trips);
+  void fillFleet();
+  void insertNodesOnPath(Vehicle &trip);
   void fillOneTruck(Vehicle &truck);
   bool insertTrip(Vehicle &trip, Vehicle &truck);
   void IntraSwMoves(Vehicle &truck);

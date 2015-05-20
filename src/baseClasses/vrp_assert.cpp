@@ -11,7 +11,8 @@
  * the terms of the MIT License. Please file LICENSE for details.
  *
  ********************************************************************VRP*/
-#ifndef COMMANDLINE_DEBUG
+#if 1
+#else
 #include "vrp_assert.h"
 #include <exception>
 
@@ -34,4 +35,3 @@ const char *AssertFailedException::what() const throw()
 AssertFailedException::AssertFailedException( const char *_str ) : str(
     _str ) {};
 #endif
-
