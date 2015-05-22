@@ -39,7 +39,6 @@ void BaseVehicle::set_endingSite(const Trashnode &other) {
   endingSite.set_nid(other.nid());
   endingSite.set_x(other.x());
   endingSite.set_y(other.y());
-  endingSite.set_closes(other.departureTime()+10);
   endingSite.set_serviceTime(0);
   endingSite.set_demand(0);
   endingSite.set_type(Twnode::kEnd);
@@ -50,7 +49,6 @@ void BaseVehicle::set_startingSite(const Trashnode &other) {
   depot.set_nid(other.nid());
   depot.set_x(other.x());
   depot.set_y(other.y());
-  depot.set_opens(other.departureTime()+1);
   depot.set_serviceTime(0);
   depot.set_demand(0);
   depot.set_type(Twnode::kStart);
@@ -58,6 +56,16 @@ void BaseVehicle::set_startingSite(const Trashnode &other) {
 }
 
 
+
+bool  BaseVehicle::findPairNodesHasMoreNodesOnPath(
+  const TwBucket<Trashnode> &assigned, const TwBucket<Trashnode> &unassigned,
+  UINT &bestFrom, UINT &bestTo, TwBucket<Trashnode> &subPath) {
+  assert(unassigned.size());
+    bool found = twc->findPairNodesHasMoreNodesOnPath(assigned, unassigned,
+                       bestFrom, bestTo, subPath);
+  assert(found);
+  return found;
+}
 
 bool  BaseVehicle::findNodeHasMoreNodesOnPath(
   const TwBucket<Trashnode> &assigned, const TwBucket<Trashnode> &unassigned,
@@ -250,10 +258,9 @@ void BaseVehicle::smalldump() const
   DLOG( INFO )  << "TOTAL COST=" << cost;
 }
 
-void BaseVehicle::tau() const
-{
+void BaseVehicle::tau(const std::string &title) const {
   std::stringstream ss;
-  ss << " ";
+  ss << title << ": ";
 
   for (POS i = 0; i < path.size(); i++) {
     ss << id(i) << " ";
@@ -263,6 +270,9 @@ void BaseVehicle::tau() const
   ss << dumpSite.id() << " ";
   ss << endingSite.id();
   DLOG( INFO ) << ss.str();
+}
+void BaseVehicle::tau() const {
+  tau("");
 }
 #endif
 

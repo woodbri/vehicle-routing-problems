@@ -58,6 +58,9 @@ public:
   bool findFastestNodeTo(bool first, Bucket &unassigned, POS &pos, Trashnode &bestNode, double &bestTime);
   bool e_setPath(const Bucket &sol);
   void setTravelingTimesOfRoute() const;
+  bool findPairNodesHasMoreNodesOnPath(
+    const TwBucket<Trashnode> &assigned, const TwBucket<Trashnode> &unassigned,
+    UINT &bestFrom, UINT &bestTo, TwBucket<Trashnode> &subPath);
   bool findNodeHasMoreNodesOnPath(
     const TwBucket<Trashnode> &assigned, const TwBucket<Trashnode> &unassigned,
     UINT &bestNode, UINT &bestPos, TwBucket<Trashnode> &subPath);
@@ -120,6 +123,7 @@ public:
   void dumpeval() const;
   void smalldump() const;
   void dumppath() const;
+  void tau(const std::string &title) const ;
   void tau() const ;
 #endif
 
@@ -199,6 +203,10 @@ public:
   bool cargo(int i) const { return path[i].cargo(); };
   bool insert(const TwBucket<Trashnode> &nodes, POS atPos) {
     return path.insert(nodes, atPos);
+  }
+  void e_clean() {
+             path.resize(1);
+             evalLast();
   }
 
 

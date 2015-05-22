@@ -50,7 +50,15 @@ class TruckManyVisitsDump : public Solution {
 
 
  private:
-  void fillTrip(Vehicle &truck);
+  void invariant();
+  bool insertBestPairInCleanTrip(Vehicle &trip);
+  bool insertBigSubPathAtBegin(Vehicle &trip);
+  bool insertBigSubPathAtEnd(Vehicle &trip);
+  void deleteTrip(Vehicle &trip);
+  void remove_CV(Vehicle &trip);
+  void initializeTrip(Vehicle &trip);
+  void fillTrip(Vehicle &trip);
+  void initializeTruck(Vehicle &truck, std::deque<Vehicle> &trips);
   void fillTruck(Vehicle &truck, std::deque<Vehicle> &trips);
   void fillFleet();
   void insertNodesOnPath(Vehicle &trip);
