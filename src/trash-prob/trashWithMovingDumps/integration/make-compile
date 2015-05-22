@@ -1,9 +1,17 @@
 #!/bin/bash
 
+if [ "$1" == "" ] ; then
+    PGVERSION=`pg_config --version | sed "s/[^0-9]*\([0-9]\.[0-9]\).*/\1/"`
+else
+    PGVERSION=$1
+fi
+
+echo "# Using PGVERSION=$PGVERSION"
+
 make clean all
 
-make -f Makefile.library PGVER=9.4 clean all
+make -f Makefile.library PGVER=$PGVERSION clean all
 
-sudo make -f Makefile.library PGVER=9.4 install
+sudo make -f Makefile.library PGVER=$PGVERSION install
 
 
