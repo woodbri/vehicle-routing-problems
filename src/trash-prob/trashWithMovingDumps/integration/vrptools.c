@@ -1141,12 +1141,18 @@ PG_FUNCTION_INFO_V1( vrp_get_osrm_route_compressed_geom );
 Datum vrp_get_osrm_route_compressed_geom( PG_FUNCTION_ARGS ) {
     float8  *lat;
     float8  *lon;
+    float8   otime = -1.0;
     int      numlat;
     int      numlon;
     char    *gtext = NULL;
     int      ret = -1;
     char    *ptext;
     char    *err_msg;
+    TupleDesc    tuple_desc;
+    HeapTuple    tuple;
+    Datum    result;
+    Datum   *values;
+    char    *nulls;
 
     DBG("Calling get_pgarray() for lat and lon.");
 
@@ -1157,9 +1163,18 @@ Datum vrp_get_osrm_route_compressed_geom( PG_FUNCTION_ARGS ) {
         elog(ERROR, "Error, lat and lon must be arrays of equal length and be greater than 1 in length!");
     }
 
+    DBG("Calling get_call_result_type");
+    if ( get_call_result_type( fcinfo, NULL, &tuple_desc ) != TYPEFUNC_COMPOSITE )
+        ereport( ERROR,
+                     ( errcode( ERRCODE_FEATURE_NOT_SUPPORTED ),
+                       errmsg( "function returning record called in context "
+                               "that cannot accept type record" ) ) );
+
+    tuple_desc = BlessTupleDesc( tuple_desc );
+
     DBG("Calling get_osrm_route_geom()");
 
-    ret = get_osrm_route_geom(lat, lon, numlat, &gtext, &err_msg);
+    ret = get_osrm_route_geom(lat, lon, numlat, &otime, &gtext, &err_msg);
 
     DBG("Returned with ret=%d", ret);
 
@@ -1171,10 +1186,34 @@ Datum vrp_get_osrm_route_compressed_geom( PG_FUNCTION_ARGS ) {
         elog(ERROR, "OSRM failed to return the route!");
     }
 
+    DBG("otime: %.6f", (float) otime);
     DBG("strlen(gtext) = %d", (int) strlen(gtext));
     
     ptext = pstrdup( gtext );
     free( gtext );
 
-    PG_RETURN_TEXT_P( cstring_to_text( ptext ) );
+    DBG("gtext: %s", gtext);
+
+    values = palloc( 2*sizeof(Datum) );
+    nulls  = palloc( 2*sizeof(bool) );
+
+    values[0] = Float8GetDatum( otime );
+    nulls[0] = false;
+    values[1] = PointerGetDatum( cstring_to_text( ptext ) );
+    nulls[1] = false;
+
+    DBG("calling heap_form_tuple");
+
+    tuple = heap_form_tuple( tuple_desc, values, nulls );
+
+    DBG("calling HeapTupleGetDatum");
+
+    result = HeapTupleGetDatum( tuple );
+
+    DBG("returning result");
+
+    PG_RETURN_DATUM( result );
 }
+
+
+
