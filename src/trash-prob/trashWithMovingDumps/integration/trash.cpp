@@ -118,7 +118,7 @@ int main(int argc, char **argv)
     TabuOpt tsi(tp, iteration);
     Solution opt_sol = tsi.getBestSolution();
 
-    if (best_cost < opt_sol.getCostOsrm()) {
+    if (best_cost > opt_sol.getCostOsrm()) {
       DLOG(INFO) << "Optimization: 0 is best";
       best_cost = opt_sol.getCost();
       best_sol = opt_sol;
@@ -137,7 +137,7 @@ int main(int argc, char **argv)
 
       DLOG(INFO) << "optimization: " << icase;
 
-      if (best_cost < ts.getBestSolution().getCostOsrm()) {
+      if (best_cost > ts.getBestSolution().getCostOsrm()) {
         DLOG(INFO) << "Optimization: " << icase << " is best";
         best_cost = ts.getBestSolution().getCost();
         best_sol = ts.getBestSolution();
