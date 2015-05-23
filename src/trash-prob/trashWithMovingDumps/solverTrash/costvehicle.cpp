@@ -108,7 +108,6 @@ void CostVehicle::setInitialValues( const Trashnode &node,
 };
 
 void CostVehicle::setCost(const Trashnode &last) {
-
   realttSC = path.size() > 1 ? path[1].totTravelTime()  : ttSC;
   ttSC = std::min( realttSC, ttSC );
 
@@ -155,11 +154,10 @@ void CostVehicle::setCost(const Trashnode &last) {
   z = (realN() == 1)?  n: n % Z;
   //>0 good, we can work more containers/trip
   //double deltaZ = Z - z;
-  Z = std::max( Z, z );
 
   // ==0 we are in the limit of container pickup
   // >0 we need to pickup more containers
-  Zmissing = Z - z;
+  Zmissing = Z - z > 0? Z - z: 0;
 
   //its never negative
   assert(Zmissing >= 0);
@@ -266,10 +264,6 @@ void CostVehicle::setCost(const Trashnode &last) {
 #endif
 
 
-  //workNotDonePerc = ( double ( realz1 + realz2 ) )  / ( double ( double(
-  //                      n ) + double( realz1 ) + double( realz2 ) ) );
-  //double workDonePerc = 1 - workNotDonePerc;
-  // v_cost =  realTotalTime * (1 + workNotDonePerc) + sumIdle * ( 1 + workDonePerc) + getDuration();
   v_cost = getDuration();
 };
 

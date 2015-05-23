@@ -208,8 +208,6 @@ public:
              path.resize(1);
              evalLast();
   }
-
-
 };
 
 

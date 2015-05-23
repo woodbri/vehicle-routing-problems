@@ -28,9 +28,6 @@
 
 #include "twpath.h"
 #include "basevehicle.h"
-#ifdef WITHOSRM
-#include "vrposrm.h"
-#endif
 #include "move.h"
 
 
@@ -430,7 +427,6 @@ void BaseVehicle::evalLast()
 }
 
 void BaseVehicle::evaluate() {
-  setTravelingTimesOfRoute();  // uses osrm
   path.evaluate(0, getmaxcapacity());
   evalLast();
 }
@@ -438,20 +434,9 @@ void BaseVehicle::evaluate() {
 
 #ifdef OSRMCLIENT
 void BaseVehicle::evaluateOsrm() {
-  if (!osrmi->getConnection()) {
-    DLOG(INFO)<<"OSRM connection not found: using normal evaluation";
-    evaluate();
-    return;
-  };
-  bool oldUse=osrmi->getUse();
-  osrmi->useOsrm(true);
-  path.evaluateOsrm(getmaxcapacity());
-
-  Trashnode last = path[path.size() - 1];
-  dumpSite.evaluateOsrm(last, getmaxcapacity());
-  endingSite.evaluate(dumpSite, getmaxcapacity());
-  osrmi->clear();
-  osrmi->useOsrm(oldUse);
+  setTravelingTimesOfRoute();  // uses osrm
+  path.evaluate(0, getmaxcapacity());
+  evalLast();
 };
 #endif
 

@@ -32,20 +32,24 @@ class TruckManyVisitsDump : public Solution {
   Bucket unassigned;
   Bucket problematic;
   Bucket assigned;
+  int icase;
 
 
  public:
+  void process(int pcase);
+
   explicit TruckManyVisitsDump(const std::string &infile): Solution(infile) {
     unusedTrucks = trucks;
     unassigned = pickups;
-    process();
+    fleet.clear();
+    twc->fill_travel_time_onTrip();
   }
 
   TruckManyVisitsDump( const Prob_trash &P ): Solution( P ) {
     unusedTrucks = trucks;
     unassigned = pickups;
     fleet.clear();
-    process();
+    twc->fill_travel_time_onTrip();
   };
 
 
@@ -56,8 +60,10 @@ class TruckManyVisitsDump : public Solution {
   bool insertBigSubPathAtEnd(Vehicle &trip);
   void deleteTrip(Vehicle &trip);
   void remove_CV(Vehicle &trip);
-  void initializeTrip(Vehicle &trip);
+  void remove_TWV(Vehicle &trip);
+  void initializeTrip(Vehicle &trip, bool fromStart);
   void fillTrip(Vehicle &trip);
+  void buildTruck(Vehicle &truck, std::deque<Vehicle> &trips);
   void initializeTruck(Vehicle &truck, std::deque<Vehicle> &trips);
   void fillTruck(Vehicle &truck, std::deque<Vehicle> &trips);
   void fillFleet();
@@ -66,7 +72,6 @@ class TruckManyVisitsDump : public Solution {
   bool insertTrip(Vehicle &trip, Vehicle &truck);
   void IntraSwMoves(Vehicle &truck);
   Vehicle getTruck();
-  void process();
 };
 
 #endif  // SRC_TRASH_PROB_INITTRASH_TRUCKMANYVISITSDUMP_H_

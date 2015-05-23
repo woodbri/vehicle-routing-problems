@@ -104,55 +104,55 @@ int main(int argc, char **argv)
 #endif  // VRPMINTRACE
 #endif  // OSRMCLIENT
    
-    TruckManyVisitsDump tp(infile);
-
-#ifdef VRPMINTRACE
-    tp.dumpCostValues();
-#ifdef DOSTATS
-    DLOG(INFO) << "FeasableSol time: " << starttime.duration();
-#endif
-#endif
-
-#ifdef DOSTATS
-    STATS->set("FeasableSol time", starttime.duration());
-#endif
-
-    tp.setInitialValues();
-    tp.computeCosts();
-#ifdef DOSTATS
-    STATS->set("Initial cost", tp.getCost());
-    STATS->set("Node count", tp.getNodeCount());
-    STATS->set("Vehicle count", tp.getFleetSize());
-    Timer searchtime;
-#endif
-
+    
     int iteration = 3;
-    TabuOpt ts(tp, iteration);
+    double best_cost = 9999999;
 
-#ifdef DOSTATS
-    STATS->set("Search time", searchtime.duration());
-#endif
+    TruckManyVisitsDump tp(infile);
+    tp.process(0);
+    DLOG(INFO) << "Initial solution: 0 is best";
 
-    Solution best = ts.getBestSolution();
-    best.computeCosts();
+    Solution best_sol(tp);
+    best_cost = best_sol.getCostOsrm();
 
-#ifdef DOSTATS
-    STATS->set("Total time", starttime.duration());
-#endif
+    TabuOpt tsi(tp, iteration);
+    Solution opt_sol = tsi.getBestSolution();
+
+    if (best_cost < opt_sol.getCostOsrm()) {
+      DLOG(INFO) << "Optimization: 0 is best";
+      best_cost = opt_sol.getCost();
+      best_sol = opt_sol;
+    }
+
+    for (int icase = 1; icase < 2; ++icase) {
+      DLOG(INFO) << "initial solution: " << icase;
+      tp.process(icase);
+      if (best_cost < tp.getCostOsrm()) {
+        DLOG(INFO) << "initial solution: " << icase << " is best";
+        best_cost = tp.getCost();
+        best_sol = tp;
+      }
+
+      TabuOpt ts(tp, iteration);
+
+      DLOG(INFO) << "optimization: " << icase;
+
+      if (best_cost < ts.getBestSolution().getCostOsrm()) {
+        DLOG(INFO) << "Optimization: " << icase << " is best";
+        best_cost = ts.getBestSolution().getCost();
+        best_sol = ts.getBestSolution();
+      }
+assert(true==false);
+    }
+
+
 
 #ifdef VRPMINTRACE
-    best.dumpCostValues();
-    best.tau();
+    best_sol.dumpCostValues();
+    best_sol.tau();
 #endif
 
-#ifdef DOSTATS
-    STATS->set("best cost", best.getCost());
-    STATS->set("Best distance", best.getDistance());
-
-    STATS->dump("Final");
-#endif
-
-    best.dumpSolutionForPg();
+    best_sol.dumpSolutionForPg();
     twc->cleanUp();
 
   } catch (const std::exception &e) {

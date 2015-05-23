@@ -51,7 +51,7 @@ TabuOpt::TabuOpt( const OptSol &initialSolution, unsigned int iteration ) :
   bestSolution.optimizeTruckNumber();
   bestTabuList.clear();
   bestSolution.evaluate();
-  computeCosts( bestSolution );
+  computeCosts(bestSolution);
   bestSolutionCost = bestSolution.getCost();
   setBestAsCurrent();
 #ifdef VRPMINTRACE

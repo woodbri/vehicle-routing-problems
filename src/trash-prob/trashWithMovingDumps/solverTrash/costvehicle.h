@@ -112,6 +112,13 @@ double serviceE() const;
 
     return v_cost;
   };
+  double getCostOsrm() {
+    evaluateOsrm();
+    if (size() > 1) setCost(path.last());
+    else setCost(C);
+
+    return v_cost;
+  };
 
   int getz1() const  {return realz1;};
   int getz2() const {return realz2;};

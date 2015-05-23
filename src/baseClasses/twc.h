@@ -358,6 +358,7 @@ bool  findPairNodesHasMoreNodesOnPath(
 
 
 
+
 bool  findNodeHasMoreNodesOnPath(const TwBucket<knode> &trip,
     const TwBucket<knode> &assigned, const TwBucket<knode> &unassigned,
     const knode &dumpSite, UINT &bestNode, UINT &bestPos, TwBucket<knode> &subPath) const {
