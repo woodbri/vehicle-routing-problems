@@ -77,6 +77,15 @@ int Solution::v_computeCosts()
 }
 
 
+double Solution::getCostOsrm() {
+  totalCost = 0.0;
+
+  for ( UINT i = 0; i < fleet.size(); i++ ) {
+    totalCost += fleet[i].getCostOsrm();
+  }
+
+  return totalCost;
+}
 
 int Solution::computeCosts()
 {

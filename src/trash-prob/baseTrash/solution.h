@@ -69,6 +69,7 @@ public:
 
   int computeCosts();
   double getCost() const ;
+  double getCostOsrm();
   double getDistance() const ;
   int getFleetSize() const { return fleet.size(); };
   double getAverageRouteDurationLength();
