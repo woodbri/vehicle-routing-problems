@@ -120,7 +120,7 @@ int main(int argc, char **argv)
 
     if (best_cost > opt_sol.getCostOsrm()) {
       DLOG(INFO) << "Optimization: 0 is best";
-      best_cost = opt_sol.getCost();
+      best_cost = opt_sol.getCostOsrm();
       best_sol = opt_sol;
     }
 
@@ -129,7 +129,7 @@ int main(int argc, char **argv)
       tp.process(icase);
       if (best_cost < tp.getCostOsrm()) {
         DLOG(INFO) << "initial solution: " << icase << " is best";
-        best_cost = tp.getCost();
+        best_cost = tp.getCostOsrm();
         best_sol = tp;
       }
 
@@ -139,10 +139,9 @@ int main(int argc, char **argv)
 
       if (best_cost > ts.getBestSolution().getCostOsrm()) {
         DLOG(INFO) << "Optimization: " << icase << " is best";
-        best_cost = ts.getBestSolution().getCost();
+        best_cost = ts.getBestSolution().getCostOsrm();
         best_sol = ts.getBestSolution();
       }
-assert(true==false);
     }
 
 
