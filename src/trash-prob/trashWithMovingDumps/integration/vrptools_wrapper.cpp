@@ -52,7 +52,6 @@ int vrp_trash_collection( container_t *containers, unsigned int container_count,
     REG_SIGINT
 
 #ifdef DOVRPLOG
-
     if ( not google::IsGoogleLoggingInitialized() ) {
       FLAGS_log_dir = "/tmp/";
       google::InitGoogleLogging( "vrp_trash_collection" );
@@ -60,6 +59,7 @@ int vrp_trash_collection( container_t *containers, unsigned int container_count,
       FLAGS_stderrthreshold = google::FATAL;
       FLAGS_minloglevel = google::INFO;
     }
+#endif
 
     osrmi->useOsrm( true );
 
@@ -73,14 +73,15 @@ int vrp_trash_collection( container_t *containers, unsigned int container_count,
         return -1;
     }
 
+#ifdef DOVRPLOG
     DLOG(INFO) << "Starting vrp_trash_collection(): num. container: "
                << container_count << ", num. other_loc: "
                << otherloc_count  << ", num. vehicle: "
                << vehicle_count   << ", num. ttime: "
                << ttime_count     << ", num. iteration: "
                << iteration;
-
 #endif
+
 
 
     TrashProb prob(containers, container_count, otherlocs, otherloc_count, ttimes,
@@ -107,50 +108,76 @@ int vrp_trash_collection( container_t *containers, unsigned int container_count,
     THROW_ON_SIGINT
 
     TruckManyVisitsDump tp( prob );
-    tp.computeCosts();
+    tp.process(0);
+#ifdef DOVRPLOG
+    DLOG(INFO) << "Initial solution: 0 is best";
+#endif
 
-    Solution initial_sol( tp );
-    double initial_cost = tp.getCost();
+    double best_cost = 9999999;
+    Solution best_sol( tp );
+    best_cost = tp.getCostOsrm();
 
 #ifdef DOVRPLOG
     DLOG(INFO) << "=-=-=-=-=-=- INITIAL SOLUTION -=-=-=-=-=-=-=";
-    DLOG(INFO) << "Number of containers: " << initial_sol.countPickups();
-    initial_sol.dumpCostValues();
+    DLOG(INFO) << "Number of containers: " << best_sol.countPickups();
+    best_sol.dumpCostValues();
     DLOG(INFO) << "=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=";
 #endif
 
     THROW_ON_SIGINT
 
-    TabuOpt ts( tp , iteration);
-    Solution opt_sol = ts.getBestSolution();
-    opt_sol.computeCosts();
-    double opt_cost = opt_sol.getCost();
+    TabuOpt tsi( tp , iteration);
+    Solution opt_sol = tsi.getBestSolution();
+
+    if (best_cost > opt_sol.getCostOsrm()) {
+#ifdef DOVRPLOG
+      DLOG(INFO) << "Optimization: 0 is best";
+#endif
+      best_cost = opt_sol.getCostOsrm();
+      best_sol = opt_sol;
+    }
+
+    for (int icase = 1; icase < 2; ++icase) {
+#ifdef DOVRPLOG
+      DLOG(INFO) << "initial solution: " << icase;
+#endif
+      tp.process(icase);
+      if (best_cost < tp.getCostOsrm()) {
+#ifdef DOVRPLOG
+        DLOG(INFO) << "initial solution: " << icase << " is best";
+#endif
+        best_cost = tp.getCostOsrm();
+        best_sol = tp;
+      }
+
+      TabuOpt ts(tp, iteration);
+
+      THROW_ON_SIGINT
+
+#ifdef DOVRPLOG
+      DLOG(INFO) << "optimization: " << icase;
+#endif
+
+      if (best_cost > ts.getBestSolution().getCostOsrm()) {
+#ifdef DOVRPLOG
+        DLOG(INFO) << "Optimization: " << icase << " is best";
+#endif
+        best_cost = ts.getBestSolution().getCostOsrm();
+        best_sol = ts.getBestSolution();
+      }
+    }
 
 #ifdef DOVRPLOG
     DLOG(INFO) << "=-=-=-=-=-=- OPTIMIZED SOLUTION -=-=-=-=-=-=-=";
     DLOG(INFO) << "Number of containers: " << opt_sol.countPickups();
-    opt_sol.dumpCostValues();
+    best_sol.dumpCostValues();
+    DLOG(INFO) << "=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=";
+    best_col.tau();
     DLOG(INFO) << "=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=";
 #endif
 
-#ifdef DOVRPLOG
-    DLOG(INFO) << "Initial solution cost: " << initial_cost
-               << " Optimized cost: " << opt_cost;
-#endif
-
     unsigned long int count = 0;
-    if ( initial_cost < opt_cost ) {
-#ifdef DOVRPLOG
-        DLOG(INFO) << "Initial solution is better!";
-#endif
-        *vehicle_paths = initial_sol.getSolutionForPg( count );
-    }
-    else {
-#ifdef DOVRPLOG
-        DLOG(INFO) << "Optimized solution is better!";
-#endif
-        *vehicle_paths = ts.getSolutionForPg( count );
-    }
+    *vehicle_paths = best_sol.getSolutionForPg( count );
     *vehicle_path_count = count;
         
 
@@ -193,7 +220,6 @@ int get_osrm_route_geom( float8 *lat, float8 *lon, int num, char **gtext,
     REG_SIGINT
 
 #ifdef DOVRPLOG
-
     if ( not google::IsGoogleLoggingInitialized() ) {
       FLAGS_log_dir = "/tmp/";
       google::InitGoogleLogging( "vrp_trash_collection" );
@@ -202,7 +228,6 @@ int get_osrm_route_geom( float8 *lat, float8 *lon, int num, char **gtext,
       FLAGS_minloglevel = google::INFO;
       PGR_LOG("Initializing InitGoogleLogging");
     }
-
 #endif
 
     DLOG(INFO) << "Called get_osrm_route_geom";
