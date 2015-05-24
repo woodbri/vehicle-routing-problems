@@ -50,6 +50,9 @@ DLOG(INFO) << " STARTING\n ";
 #ifdef VRPMINTRACE
   assert(pickups == (unassigned + problematic + assigned));
 #endif
+
+    THROW_ON_SIGINT
+
     // find a costly node
     if (trip.findFastestNodeTo(true, unassigned, bestPos, bestNode, bestTime)) {
       aux.clear();
@@ -83,6 +86,9 @@ DLOG(INFO) << " STARTING\n ";
 #ifdef VRPMINTRACE
         assert(pickups == (unassigned + problematic + assigned));
 #endif
+
+        THROW_ON_SIGINT
+
         aux.clear();
         aux.push_back(streetNodes[0]);
         streetNodes.erase(streetNodes[0]);

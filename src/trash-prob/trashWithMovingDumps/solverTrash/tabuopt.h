@@ -18,6 +18,7 @@
 #include <cstdlib>
 
 #include "vrp_assert.h"
+#include "signalhandler.h"
 
 #include "pg_types_vrp.h"
 #include "tabubase.h"

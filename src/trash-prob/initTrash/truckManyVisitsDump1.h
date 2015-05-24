@@ -18,6 +18,7 @@
 #include <deque>
 
 #include "./solution.h"
+#include "signalhandler.h"
 
 
 class TruckManyVisitsDump : public Solution {

@@ -172,7 +172,7 @@ int vrp_trash_collection( container_t *containers, unsigned int container_count,
     DLOG(INFO) << "Number of containers: " << opt_sol.countPickups();
     best_sol.dumpCostValues();
     DLOG(INFO) << "=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=";
-    best_col.tau();
+    best_sol.tau();
     DLOG(INFO) << "=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=";
 #endif
 

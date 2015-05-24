@@ -130,6 +130,8 @@ void TabuOpt::search()
     DLOG( INFO ) << "TABUSEARCH: Starting iteration: " << currentIteration;
 #endif
 
+    THROW_ON_SIGINT
+
 #if defined (OSRMCLIENT) && defined (VRPMINTRACE)
 
     if ( osrmi->getUse() )
@@ -161,6 +163,8 @@ void TabuOpt::search()
       improvedBest |= doNeighborhoodMoves( Move::InterSw, 1  );
     }
 
+    THROW_ON_SIGINT
+
 #ifdef VRPMINTRACE
     currentSolution.tau();
 #endif
@@ -173,6 +177,8 @@ void TabuOpt::search()
       improvedBest |= doNeighborhoodMoves( Move::Ins, 1 );
     }
 #endif
+
+    THROW_ON_SIGINT
 
 #ifdef VRPMINTRACE
     currentSolution.tau();
@@ -399,6 +405,7 @@ bool TabuOpt::doNeighborhoodMoves( Move::Mtype whichNeighborhood, int maxMoves)
 
   do {
 
+    THROW_ON_SIGINT
 
 #ifdef VRPMINTRACE
     DLOG( INFO ) << ( getTotalMovesMade() - actualMoveCount ) << " > " << maxMoves
