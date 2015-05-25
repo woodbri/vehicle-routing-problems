@@ -55,6 +55,7 @@ int get_osrm_route_geom(
   float8 *lat,
   float8 *lon,
   int num,
+  float8 *time,
   char **gtext,
   char **err_msg
 );

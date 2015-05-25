@@ -59,6 +59,7 @@ int vrp_trash_collection( container_t *containers, unsigned int container_count,
       FLAGS_stderrthreshold = google::FATAL;
       FLAGS_minloglevel = google::INFO;
     }
+    PGR_LOGF("google::IsGoogleLoggingInitialized: %d\n", google::IsGoogleLoggingInitialized());
 #endif
 
     osrmi->useOsrm( true );
@@ -209,8 +210,8 @@ int vrp_trash_collection( container_t *containers, unsigned int container_count,
 }
 
 
-int get_osrm_route_geom( float8 *lat, float8 *lon, int num, char **gtext,
-          char **err_msg ) {
+int get_osrm_route_geom( float8 *lat, float8 *lon, int num, double *time,
+          char **gtext, char **err_msg ) {
 
 #ifdef OSRMCLIENT
   bool ret;
@@ -218,6 +219,9 @@ int get_osrm_route_geom( float8 *lat, float8 *lon, int num, char **gtext,
   try {
     // register the signal handler
     REG_SIGINT
+
+    DLOG(INFO) << "Called get_osrm_route_geom";
+    PGR_LOG("Called get_osrm_route_geom");
 
 #ifdef DOVRPLOG
     if ( not google::IsGoogleLoggingInitialized() ) {
@@ -236,7 +240,7 @@ int get_osrm_route_geom( float8 *lat, float8 *lon, int num, char **gtext,
     osrmi->useOsrm( true );
 
     std::string err = osrmi->getErrorMsg();
-    PGR_LOG( err.c_str() );
+    PGR_LOGF("osrmi err: '%s'\n", err.c_str() );
 
     if (not osrmi->getConnection()) {
 #ifdef DOVRPLOG
@@ -254,18 +258,22 @@ int get_osrm_route_geom( float8 *lat, float8 *lon, int num, char **gtext,
         osrmi->addViaPoint(lat[i], lon[i]);
 #ifdef DOVRPLOG
         DLOG(INFO) << i << "\t" << lat[i] << "\t" << lon[i];
+        //PGR_LOGF("%d: %.6f, %.6f\n", i, lat[i], lon[i]);
 #endif
     }
 
     THROW_ON_SIGINT
 
     std::string geom;
+    double otime;
 
     if (osrmi->getOsrmViaroute()) {
         // success
         PGR_LOG( osrmi->getHttpContent().c_str() );
         if (osrmi->getOsrmGeometryText( geom )) {
             *gtext = strdup( geom.c_str() );
+            osrmi->getOsrmTime( otime );
+            *time = otime;
         }
         else {
 #ifdef DOVRPLOG

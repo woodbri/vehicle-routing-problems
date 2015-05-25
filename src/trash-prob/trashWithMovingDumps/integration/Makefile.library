@@ -1,15 +1,15 @@
 ifndef PGVER
-    $(error pgver error: make PGVER=9.2|9.3 clean|install)
+    $(error pgver error: make PGVER=9.2|9.3|9.4 clean|install)
 endif
 
 include build/vrptools-mk.inc
 
 ifndef VRP_CFLAGS
-    $(error Please run make -f Makefile.vrptools)
+    $(error Please run make -f Makefile)
 endif
 
 CPP = g++
-PG_CPPFLAGS = -fPIC -DPGROUTING -DNDEBUG $(VRP_CFLAGS)
+PG_CPPFLAGS = -fPIC -DPGROUTING $(VRP_CFLAGS)
 
 VRPTOOLS_VERSION = 1.0
 OBJS = vrptools.o vrptools_wrapper.o

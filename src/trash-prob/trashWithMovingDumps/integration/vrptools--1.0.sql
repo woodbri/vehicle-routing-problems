@@ -35,7 +35,9 @@ CREATE OR REPLACE FUNCTION vrp_trashCollectionCheck(
 
 CREATE OR REPLACE FUNCTION vrp_getOsrmRouteCompressedGeom(
         IN lat float8[],
-        IN lon float8[]
-    ) RETURNS text
+        IN lon float8[],
+        OUT otime float8,
+        OUT cgeom text
+    ) RETURNS RECORD
     AS 'MODULE_PATHNAME', 'vrp_get_osrm_route_compressed_geom'
     LANGUAGE c STABLE STRICT;

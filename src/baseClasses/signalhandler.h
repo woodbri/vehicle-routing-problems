@@ -120,7 +120,7 @@ private:
 
 #define THROW_ON_SIGINT do { \
     SIGINT_Handler *sigint_handler = (SIGINT_Handler *)SignalHandler::instance()->getHandler(SIGINT); \
-    if ( sigint_handler->gracefulQuit() == 1 ) \
+    if ( sigint_handler and sigint_handler->gracefulQuit() == 1 ) \
         throw( UserQuitException( "Abort on User Request!" ) ); \
     } while (0);
 
