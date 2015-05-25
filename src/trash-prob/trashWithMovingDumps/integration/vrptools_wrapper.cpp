@@ -234,9 +234,6 @@ int get_osrm_route_geom( float8 *lat, float8 *lon, int num, double *time,
     }
 #endif
 
-    DLOG(INFO) << "Called get_osrm_route_geom";
-    PGR_LOG("Called get_osrm_route_geom");
-
     osrmi->useOsrm( true );
 
     std::string err = osrmi->getErrorMsg();

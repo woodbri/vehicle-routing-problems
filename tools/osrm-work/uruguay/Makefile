@@ -23,7 +23,9 @@ kill:
 	-sudo rm -f /tmp/osrm.lock
 	-sudo rm -f /run/shm/*
 	-sudo killall osrm-routed
-	-osrm-datastore --springclean
+	-sudo osrm-datastore --springclean
+	-sudo osrm-unlock-all
+	-sudo osrm-springclean
 
 prep: montevideo.osrm
 
