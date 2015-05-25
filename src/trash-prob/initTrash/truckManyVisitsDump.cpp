@@ -760,6 +760,7 @@ void TruckManyVisitsDump::process(int pcase)
   usedTrucks.clear();
   assigned.clear();
   unassigned = pickups;
+  fleet.clear();
   icase = pcase;
 #ifdef VRPMINTRACE
   // THE INVARIANT
