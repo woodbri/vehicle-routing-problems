@@ -138,7 +138,8 @@ int vrp_trash_collection( container_t *containers, unsigned int container_count,
       best_sol = opt_sol;
     }
 
-    for (int icase = 1; icase < 2; ++icase) {
+    // icase=2 to disable until next solution
+    for (int icase = 2; icase < 2; ++icase) {
 #ifdef DOVRPLOG
       DLOG(INFO) << "initial solution: " << icase;
 #endif
@@ -170,7 +171,7 @@ int vrp_trash_collection( container_t *containers, unsigned int container_count,
 
 #ifdef DOVRPLOG
     DLOG(INFO) << "=-=-=-=-=-=- OPTIMIZED SOLUTION -=-=-=-=-=-=-=";
-    DLOG(INFO) << "Number of containers: " << opt_sol.countPickups();
+    DLOG(INFO) << "Number of containers: " << best_sol.countPickups();
     best_sol.dumpCostValues();
     DLOG(INFO) << "=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=";
     best_sol.tau();
