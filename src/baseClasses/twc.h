@@ -45,6 +45,7 @@
 #include "./twpath.h"
 #include "./singleton.h"
 #include "./pg_types_vrp.h"
+#include "./signalhandler.h"
 
 
 /*! \class TWC
@@ -582,6 +583,9 @@ void fill_times(const TwBucket<knode> nodesOnPath) {
 
   for (int i = 0; i < nodesOnPath.size()-1; ++i) {
     for (int j = i + 1; j < nodesOnPath.size(); ++j) {
+
+      THROW_ON_SIGINT
+
       UINT from = nodesOnPath[i].nid();
       UINT to = nodesOnPath[j].nid();
       assert (from < original.size());
