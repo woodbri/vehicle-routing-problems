@@ -312,12 +312,12 @@ bool  findBestFromNodeHasMoreNodesOnPath(
 bool  findPairNodesHasMoreNodesOnPath(
     const TwBucket<knode> &assigned, const TwBucket<knode> &unassigned,
     UINT &bestFrom, UINT &bestTo, TwBucket<knode> &subPath) const {
-  assert(unassigned.size() != 0);
+  assert(unassigned.size() > 1);
   subPath.clear();
   bestFrom = unassigned[0].nid();
-  bestTo = unassigned[0].nid();
+  bestTo = unassigned[1].nid();
   UINT actual = 0;
-  int max = -1;
+  int max = 0;
 
   for (UINT i =0; i< unassigned.size() - 1; ++i) {
     for (UINT j = 0; j < unassigned.size(); ++j) {
@@ -337,6 +337,7 @@ bool  findPairNodesHasMoreNodesOnPath(
       }
     }
   }
+  assert(bestFrom != bestTo);
     // build the whole subpath, nodes on trip need to be in unassigned set
 #ifdef VRPMAXTRACE
   for (unsigned int i = 0; i < nodes_onTrip[bestFrom][bestTo].size(); ++i) {
@@ -348,6 +349,7 @@ bool  findPairNodesHasMoreNodesOnPath(
   for (unsigned int i = 0; i < nodes_onTrip[bestFrom][bestTo].size(); ++i) {
     int nid = nodes_onTrip[bestFrom][bestTo][i];
     assert(nid < original.size());
+    if (assigned.hasNid(nid)) continue;
     subPath.push_back(original[nid]);
   }
   subPath.push_back(original[bestTo]);
@@ -408,11 +410,13 @@ bool  findNodeHasMoreNodesOnPath(const TwBucket<knode> &trip,
   for (unsigned int i = 0; i < nodes_onTrip[bestPrevNode][bestNode].size(); ++i) {
     int nid = nodes_onTrip[bestPrevNode][bestNode][i];
     assert(nid < original.size());
+    if (assigned.hasNid(nid)) continue;
     subPath.push_back(original[nid]);
   }
   subPath.push_back(original[bestNode]);
   for (unsigned int i = 0; i < nodes_onTrip[bestNode][bestNextNode].size(); ++i) {
     int nid = nodes_onTrip[bestNode][bestNextNode][i];
+    if (assigned.hasNid(nid)) continue;
     assert(nid < original.size());
     subPath.push_back(original[nid]);
   }
@@ -442,6 +446,7 @@ int actualCantNodesOnTrip(UINT from, UINT to, const TwBucket<knode> &assigned) c
   int count = 0;
   for (unsigned int i = 0; i < nodes_onTrip[from][to].size(); ++i) {
     UINT nid = nodes_onTrip[from][to][i];
+    if (assigned.hasNid(nid)) continue;
     subPath.push_back(original[nid]);
   }
   subPath = subPath - m_assigned;
@@ -457,6 +462,7 @@ TwBucket<knode> actualNodesOnTrip(UINT from, UINT to, const TwBucket<knode> &ass
   int count = 0;
   for (unsigned int i = 0; i < nodes_onTrip[from][to].size(); ++i) {
     UINT nid = nodes_onTrip[from][to][i];
+    if (assigned.hasNid(nid)) continue;
     subPath.push_back(original[nid]);
   }
   TwBucket<knode> l_subPath = subPath;
