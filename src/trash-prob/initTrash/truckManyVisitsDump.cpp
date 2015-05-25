@@ -43,21 +43,19 @@ void TruckManyVisitsDump::initializeTrip(Vehicle &trip, bool fromStart) {
 #endif
   assert(trip.feasable());
   if (unassigned.size() == 0) return;
-
+#if 1
   if (fromStart) { 
     UINT bestPos;
     float8 bestTime;
     Trashnode bestNode;
-    trip.findFastestNodeTo(true, unassigned, bestPos, bestNode, bestTime); 
     insertBestPairInCleanTrip(trip);
-    trip.e_insert(bestNode, 1);
-    assigned.push_back(bestNode);
-    unassigned.erase(bestNode);
-    
     insertNodesOnPath(trip);
   } else {
     insertBestPairInCleanTrip(trip);
   }
+#else
+  insertBestPairInCleanTrip(trip);
+#endif  
   switch (icase) {
     case 1:
       insertBigSubPathAtBegin(trip);
@@ -77,17 +75,28 @@ void TruckManyVisitsDump::initializeTrip(Vehicle &trip, bool fromStart) {
 
 
 bool TruckManyVisitsDump::insertBestPairInCleanTrip(Vehicle &trip) {
+#ifdef VRPMINTRACE
+  DLOG(INFO) << "TruckManyVisitsDump::insertBestPairInCleanTrip";
+#endif
   invariant();
   assert(trip.feasable());
   assert(trip.size() == 1);
   if (unassigned.size() == 0) return false;
+  if (unassigned.size() == 1) {
+    Trashnode onlyNode = unassigned[0];
+    trip.e_insert(onlyNode,1);
+    assigned.push_back(onlyNode);
+    unassigned.erase(onlyNode);
+    return true;
+  };
+
   UINT bestFrom;
   UINT bestTo;
   Bucket subPath;
   // subpath includes bestFrom and bestTo
   trip.findPairNodesHasMoreNodesOnPath(assigned, unassigned, bestFrom, bestTo, subPath);
   assert(subPath.size() != 0);
-#ifdef VRPMMAXTRACE
+#ifdef VRPMAXTRACE
   subPath.dumpid("BEST SUBPATH FOR INITIALIZING TRIP");
 #endif
   trip.insert(subPath, 1);
@@ -95,7 +104,7 @@ bool TruckManyVisitsDump::insertBestPairInCleanTrip(Vehicle &trip) {
   unassigned = unassigned - subPath;
 
   trip.getCostOsrm();
-#ifdef VRPMMAXTRACE
+#ifdef VRPMINTRACE
   trip.tau("after inserting");
 #endif
   invariant();
@@ -104,6 +113,9 @@ bool TruckManyVisitsDump::insertBestPairInCleanTrip(Vehicle &trip) {
 
 
 bool TruckManyVisitsDump::insertBigSubPathAtBegin(Vehicle &trip) {
+#ifdef VRPMINTRACE
+  DLOG(INFO) << "TruckManyVisitsDump::insertBigSubPathAtBegin";
+#endif
   invariant();
   if (unassigned.size() == 0) return false;
   UINT bestNode;
@@ -122,7 +134,7 @@ bool TruckManyVisitsDump::insertBigSubPathAtBegin(Vehicle &trip) {
   unassigned = unassigned - subPath;
 
   trip.getCostOsrm();
-#ifdef VRPMAXTRACE
+#ifdef VRPMINTRACE
   trip.tau("after inserting");
 #endif
   invariant();
@@ -130,6 +142,9 @@ bool TruckManyVisitsDump::insertBigSubPathAtBegin(Vehicle &trip) {
 }
 
 bool TruckManyVisitsDump::insertBigSubPathAtEnd(Vehicle &trip) {
+#ifdef VRPMINTRACE
+  DLOG(INFO) << "TruckManyVisitsDump::insertBigSubPathAtEnd";
+#endif
   invariant();
   if (unassigned.size() == 0) return false;
   UINT bestNode;
@@ -147,7 +162,7 @@ bool TruckManyVisitsDump::insertBigSubPathAtEnd(Vehicle &trip) {
   unassigned = unassigned - subPath;
 
   trip.getCostOsrm();
-#ifdef VRPMAXTRACE
+#ifdef VRPMINTRACE
   trip.tau("after inserting" );
 #endif
   invariant();
@@ -358,7 +373,7 @@ void TruckManyVisitsDump::initializeTruck(Vehicle &truck, std::deque<Vehicle> &t
     } else {
       // adding the trip makes it infeasable
       // clear the trip
-#ifdef VRPMAXTRACE
+#ifdef VRPMINTRACE
       truck.tau("truck of trip made infeasable truck");
       trip.tau("trip made infeasable truck");
 #endif
@@ -399,7 +414,7 @@ void TruckManyVisitsDump::fillTruck(Vehicle &truck, std::deque<Vehicle> &trips) 
   invariant();
   assert(unassigned.size() != 0);
   initializeTruck(truck, trips);
-#ifdef VRPMAXTRACE
+#ifdef VRPMINTRACE
   truck.tau("final truck initialization");
   truck.dumpCostValues();
   for (UINT i = 0; i < trips.size(); ++i) {
@@ -411,9 +426,8 @@ void TruckManyVisitsDump::fillTruck(Vehicle &truck, std::deque<Vehicle> &trips) 
   }
 #endif
 
-  deleteTrip(trips[trips.size()-1]);
+  if (trips.size() > 1) deleteTrip(trips[trips.size()-1]);
   trips.pop_back();
-#if 1
   //iterate thru the trips to fill them
   for (UINT i = 0; i < trips.size(); ++i) {
 #ifdef VRPMAXTRACE
@@ -439,10 +453,8 @@ void TruckManyVisitsDump::fillTruck(Vehicle &truck, std::deque<Vehicle> &trips) 
       trips[i].tau(" after");
     }
   }
-#endif
 
   buildTruck(truck, trips);
-
   invariant();
 }
 
