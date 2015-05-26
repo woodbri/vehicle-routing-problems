@@ -1,4 +1,7 @@
 
+TESTPREFIX =  ../tests/c_du_rm_cl_02
+#TESTPREFIX =  ../tests/ch_du_rm_cl_05
+
 AR = ar
 RANLIB = ranlib
 CPP = g++
@@ -269,7 +272,6 @@ bin/trash: build/trash.o $(OBJS) $(BASECLASSES_OBJS) $(BASETRASH_OBJS) $(INITTRA
 bin/trash_given_sol: build/trash_given_sol.o $(OBJS) $(BASECLASSES_OBJS) $(BASETRASH_OBJS) $(INITTRASH_OBJS) $(SOLVERTRASH_OBJS) $(BASECLASSES_HEADS) $(BASETRASH_HEADS) $(INITTRASH_HEADS) $(SOLVERTRASH_HEADS)
 	$(CPP) $(CPPFLAGS_OUT) $^ -o $@ $(LDFLAGS)
 
-TESTPREFIX =  ../tests/ch_du_rm_cl_05
 TESTFILES =  $(TESTPREFIX).containers.txt $(TESTPREFIX).otherlocs.txt $(TESTPREFIX).dmatrix-time.txt $(TESTPREFIX).vehicles.txt
 
 

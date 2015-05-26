@@ -54,6 +54,16 @@ class TruckManyVisitsDump : public Solution {
 
 
  private:
+bool safeInsertNode(Vehicle &trip, const Trashnode &node, UINT pos);
+bool safeDeleteNode(Vehicle &trip, UINT pos);
+bool safeInsertSubpath(Vehicle &trip, Bucket &subPath, UINT pos);
+bool safePushFrontSubpath(Vehicle &trip, Bucket &subPath);
+bool safePushBackSubpath(Vehicle &trip, Bucket &subPath);
+bool safePushBackNode(Vehicle &trip, Trashnode &node);
+bool safePushFrontNode(Vehicle &trip, Trashnode &node);
+bool safePopBackNode(Vehicle &trip); 
+bool safePopFrontNode(Vehicle &trip); 
+
   void invariant();
   bool insertBestPairInCleanTrip(Vehicle &trip);
   bool insertBigSubPathAtBegin(Vehicle &trip);

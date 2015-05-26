@@ -590,7 +590,7 @@ void fill_times(const TwBucket<knode> nodesOnPath) {
       UINT to = nodesOnPath[j].nid();
       assert (from < original.size());
       assert (to < original.size());
-      assert(from != to);
+      // assert(from != to);
       if (from != to) {
         if (travel_time_onTrip[from][to] == 0) {
           travel_time_onTrip[from][to] = times[j]-times[i];
