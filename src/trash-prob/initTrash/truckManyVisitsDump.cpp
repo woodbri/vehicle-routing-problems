@@ -575,7 +575,6 @@ void TruckManyVisitsDump::fillTruck(Vehicle &truck, std::deque<Vehicle> &trips) 
       trips[i].tau(" $$$$$$$$$$$$$   after");
     }
   }
-assert(true==false);
 
   buildTruck(truck, trips);
   invariant();
