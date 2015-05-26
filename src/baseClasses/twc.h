@@ -274,6 +274,31 @@ bool  findBestToNodeHasMoreNodesOnPath(
   subPath.push_back(original[bestTo]);
 }
 
+float8 getTimeOverNodesCount(
+    const knode &fromNode, const knode &toNode,
+    const TwBucket<knode> &assigned,
+    const TwBucket<knode> &subPath) const {
+  UINT from = fromNode.nid();
+  UINT to = toNode.nid();
+  assert(from != to);
+  assert(subPath.size());
+  UINT beginS = subPath[0].nid();
+  UINT endS = subPath[subPath.size()-1].nid();
+  float8 totalNodes = actualCantNodesOnTrip(from, beginS, assigned)
+         + actualCantNodesOnTrip(beginS, endS, assigned)
+         + actualCantNodesOnTrip(endS, to, assigned);
+  float8 totalTime = travel_time_onTrip[from][beginS]
+         + travel_time_onTrip[beginS][endS]
+         + travel_time_onTrip[endS][to];
+  float8 result = totalTime/(totalNodes + 2);
+  return result;
+}
+
+float8 getTimeOnTrip(const knode from, const knode middle, const knode to) {
+  return travel_time_onTrip[from.nid()][middle.nid()]
+       + travel_time_onTrip[middle.nid()][to.nid()];
+}
+
 bool  findBestFromNodeHasMoreNodesOnPath(
     const TwBucket<knode> &assigned, const TwBucket<knode> &unassigned,
     UINT &bestFrom, UINT To, TwBucket<knode> &subPath) const {
@@ -492,14 +517,14 @@ void fill_travel_time_onTrip() {
   }
 //original.dump("original");
 
-  unsigned int i,j;
+  int i,j;
   TwBucket <knode> trip;
   TwBucket <knode> nodesOnPath;
-  for (i = 0; i < original.size(); ++i) {
+  for (i = original.size()-1; i >= 0; --i) {
 #ifdef VRPMINTRACE
     DLOG(INFO) << "fill_travel_time_onTrip doing" << i <<"th " << original[i].id() << "\n";
 #endif
-    for (j= 0; j < original.size(); ++j) {
+    for (j = original.size()-1; j >= 0; --j) {
 #ifdef VRPMAXTRACE
       DLOG(INFO) << "fill_travel_time_onTrip " << original[i].id() << "," << original[j].id() << "\n";
 #endif
@@ -507,22 +532,24 @@ void fill_travel_time_onTrip() {
         travel_time_onTrip[i][j] = 0;
         continue;
       }
-      if (travel_time_onTrip[i][j] != 0) continue;
-      trip.clear();
-      nodesOnPath.clear();
-      trip.push_back(original[i]);
-      getNodesOnPath(trip, original[j], original, nodesOnPath);
-      if (nodesOnPath.size() == 0 || nodesOnPath[0].nid() != original[i].nid()) nodesOnPath.push_front(original[i]);
-      if (nodesOnPath[nodesOnPath.size()-1].nid() != original[j].nid()) nodesOnPath.push_back(original[j]);
-#ifdef VRPMAXTRACE
-      nodesOnPath.dumpid("nodesOnPath");
-#endif
-      fill_times(nodesOnPath);
-#ifdef VRPMAXTRACE
-      DLOG(INFO) << original[i].id() << "," << original[j].id() << " -> " << travel_time_onTrip[i][j]
-            << " with " << nodes_onTrip[i][j].size();
-      DLOG(INFO) << original[i].id() << "," << original[j].id() << " -> tt " << travel_Time[i][j];
-#endif
+      if (travel_time_onTrip[i][j] == 0) {
+        trip.clear();
+        nodesOnPath.clear();
+        trip.push_back(original[i]);
+        getNodesOnPath(trip, original[j], original, nodesOnPath);
+        if (nodesOnPath.size() == 0 || nodesOnPath[0].nid() != original[i].nid()) nodesOnPath.push_front(original[i]);
+        if (nodesOnPath[nodesOnPath.size()-1].nid() != original[j].nid()) nodesOnPath.push_back(original[j]);
+        fill_times(nodesOnPath);
+      }
+      if (travel_time_onTrip[j][i] == 0) {
+        trip.clear();
+        nodesOnPath.clear();
+        trip.push_back(original[j]);
+        getNodesOnPath(trip, original[i], original, nodesOnPath);
+        if (nodesOnPath.size() == 0 || nodesOnPath[0].nid() != original[j].nid()) nodesOnPath.push_front(original[j]);
+        if (nodesOnPath[nodesOnPath.size()-1].nid() != original[i].nid()) nodesOnPath.push_back(original[i]);
+        fill_times(nodesOnPath);
+      }
     }
   }
 #ifdef VRPMAXTRACE

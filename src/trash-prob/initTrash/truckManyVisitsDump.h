@@ -66,6 +66,7 @@ bool safePopFrontNode(Vehicle &trip);
 
   void invariant();
   bool insertBestPairInCleanTrip(Vehicle &trip);
+  bool insertBestPairSubPath(std::deque<Vehicle> &trips);
   bool insertBigSubPathAtBegin(Vehicle &trip);
   bool insertBigSubPathAtEnd(Vehicle &trip);
   void deleteTrip(Vehicle &trip);
