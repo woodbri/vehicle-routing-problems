@@ -41,7 +41,8 @@ class CostVehicle: public BaseVehicle
 public:
 const Trashnode& last() const;
 double shiftLength() const;
-double estimatedZ() const ;
+double estimatedZ() const;
+int estimatedN() const; //!< estimated number of trips
 double arrivalEclosesLast(const Trashnode &last) const;
 double serviceE() const;
 

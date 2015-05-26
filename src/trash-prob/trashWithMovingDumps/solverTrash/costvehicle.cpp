@@ -45,6 +45,7 @@ double CostVehicle::shiftLength() const {return endTime - startTime; }
 
 /*! \brief Estimated number of containers in each trip */
 double CostVehicle::estimatedZ() const {return  floor(maxcapacity / C.demand()); }
+int CostVehicle::estimatedN() const {return  N;}
 
 /*! \brief Arrival time at endsite when departing from the average closing 
   time of the nodes*/
@@ -70,13 +71,33 @@ void CostVehicle::setInitialValues( const Trashnode &node,
   //e_makeFeasable( 0 );
   double Z = estimatedZ();
   totalTime = 0;
-  N = -1;
+  double fixedTime = depot.serviceTime() // begining of trip
+                   + ttDE + serviceE();  // ending of trip 
+  double variableTime = 0.0;
+  totalTime = fixedTime + variableTime;
+  N = 0;
   do {
+    if (N == 0) { //first trip
+      variableTime =
+          C.opens() + ttSC
+          + estimatedZ() * C.serviceTime() 
+          + estimatedZ() * ttCC
+          + ttCD + dumpSite.serviceTime();
+    } else { // not first trip
+      variableTime =
+          ttDC   
+          + estimatedZ() * C.serviceTime() 
+          + estimatedZ() * ttCC
+          + ttCD + dumpSite.serviceTime();
+    }
+    totalTime += variableTime;
+#ifdef VRPMAXTRACE
+DLOG(INFO) << "estimated number of trips N " << N;
+DLOG(INFO) << "totalTime " << totalTime;
+DLOG(INFO) << "arrivalEcloseslst(C) " << arrivalEclosesLast(C);
+#endif
     N++;
-    totalTime = depot.serviceTime()  + ttSC + ttDE + serviceE()
-                + N * Z * C.serviceTime() + N * ( Z - 1 ) * ttCC + ( N - 1 ) * ttDC
-                + N * ( dumpSite.serviceTime() + ttCD );
-  } while ( totalTime < arrivalEclosesLast(C) + serviceE() );
+  } while (totalTime + C.departureTime() < arrivalEclosesLast(C) + serviceE());
   // N has now the estimated number of trips
 
   //estimated:
