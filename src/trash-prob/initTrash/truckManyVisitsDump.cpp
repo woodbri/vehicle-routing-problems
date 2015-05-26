@@ -34,7 +34,7 @@ void TruckManyVisitsDump::invariant() {
 // inserts node if only if node is not being in assigned set
 bool TruckManyVisitsDump::safeInsertNode(Vehicle &trip, const Trashnode &node, UINT pos) {
   invariant();
-  assert(unassigned.hasNid(node.nid()) == true);
+  if (unassigned.hasNid(node.nid()) == false) return false;
   assert(assigned.hasNid(node.nid()) == false);
   assert(trip.Path().hasNid(node.nid()) == false);
 
@@ -52,7 +52,7 @@ bool TruckManyVisitsDump::safeDeleteNode(Vehicle &trip, UINT pos) {
   invariant();
   assert(pos < trip.size());
   Trashnode node = trip[pos];
-  assert(assigned.hasNid(node.nid()) == true);
+  if (assigned.hasNid(node.nid()) == false) return false;
   assert(unassigned.hasNid(node.nid()) == false);
   assert(trip.Path().hasNid(node.nid()) == true);
 
@@ -69,12 +69,12 @@ bool TruckManyVisitsDump::safeDeleteNode(Vehicle &trip, UINT pos) {
 
 bool TruckManyVisitsDump::safeInsertSubpath(Vehicle &trip, Bucket &subPath, UINT pos){
   invariant();
+  assert(pos != 0);
   assert(pos <= trip.size());
   assert(subPath.size() != 0);
   Trashnode node;
   for (UINT i = 0; i < subPath.size(); ++i) { 
     node = subPath[i];
-    //TODO
     assert(assigned.hasNid(node.nid()) == false);
     assert(unassigned.hasNid(node.nid()) == true);
   }
@@ -142,30 +142,32 @@ void TruckManyVisitsDump::initializeTrip(Vehicle &trip, bool fromStart) {
   float8 bestTime;
   if (unassigned.size() == 0) return;
   switch (icase) {
-    case 0:
+    case 4:
       insertBestPairInCleanTrip(trip);
-      insertBigSubPathAtBegin(trip);
-      insertBigSubPathAtEnd(trip);
       insertNodesOnPath(trip);
+      break;
+    case 3:
+      trip.findFastestNodeTo(true, unassigned, bestPos, bestNode, bestTime);
+      safePushBackNode(trip, bestNode);
+      insertBigSubPathAtEnd(trip);
+      break;
     case 2:
       trip.findFastestNodeTo(true, unassigned, bestPos, bestNode, bestTime);
       safePushBackNode(trip, bestNode);
-      insertNodesOnPath(trip);
       insertBigSubPathAtBegin(trip);
-      insertNodesOnPath(trip);
       break;
     case 1:
       insertBestPairInCleanTrip(trip);
       insertBigSubPathAtBegin(trip);
       break;
-    default:
+    case 0:
       insertBestPairInCleanTrip(trip);
+      break;
+    default:
     ;
   }
-  trip.evaluate();
-  trip.tau("initializing step 1");
+  trip.getCostOsrm();
   remove_CV(trip);
-  trip.tau("initializing step 2");
   invariant();
 }
 
@@ -263,7 +265,55 @@ bool TruckManyVisitsDump::insertBigSubPathAtEnd(Vehicle &trip) {
 }
 
 
+bool TruckManyVisitsDump::insertBestPairSubPath(std::deque<Vehicle> &trips) {
+#ifdef VRPMINTRACE
+  DLOG(INFO) << "TruckManyVisitsDump::insertBestPairSubPath";
+#endif
+  invariant();
+  float8 bestAvgNodeTime = 999999;
+  float8 currAvgNodeTime = 999999;
+  int lessFilledTrip = 0;
+  float8 worseProportion = 1;
+
+  for( UINT i = 0; i< trips.size(); ++i) {
+    if (i == 0 || worseProportion > trips[i].size()/trips[i].estimatedZ()) {
+      worseProportion = trips[i].size()/trips[i].estimatedZ();
+      lessFilledTrip = i;
+    }
+  };
+
+  DLOG(INFO) << "lessFilledTrip" << lessFilledTrip;
+  UINT from, to;
+  Bucket subPath;
+  assert(unassigned.size());
+  twc->findPairNodesHasMoreNodesOnPath(assigned, unassigned, from, to, subPath);
+
+  if (subPath.size() < 3) return false;
+  float8 bestTime; 
+  Trashnode bestNode;
+  UINT bestPos;
+  
+  Bucket aux;  
+  trips[lessFilledTrip].findFastestNodeTo(true, subPath, bestPos, bestNode, bestTime);
+  for (UINT i = 0; i < subPath.size(); ++i) {
+    invariant();
+    aux.clear();
+    aux.push_back(subPath[i]);
+    trips[lessFilledTrip].findFastestNodeTo(false, aux, bestPos, bestNode, bestTime);
+    safeInsertNode(trips[lessFilledTrip], bestNode, bestPos);
+    DLOG(INFO) << "bestNode" << bestNode.id();
+    DLOG(INFO) << "at pos " << bestPos << " after " << trips[lessFilledTrip][bestPos-1].id();
+    insertNodesOnPath(trips[lessFilledTrip]);
+  }
+
+  invariant();
+  return true;
+}
+
 void TruckManyVisitsDump::fillTrip(Vehicle &trip) {
+#ifdef VRPMINTRACE
+  DLOG(INFO) << "TruckManyVisitsDump::fillTrip";
+#endif
   invariant();
   UINT oldSize = trip.size();;
   trip.getCostOsrm();
@@ -283,33 +333,56 @@ void TruckManyVisitsDump::fillTrip(Vehicle &trip) {
   DLOG(INFO) << "trip needs " << trip.getz1() << " nodes";
   trip.tau("before inserting nodes in path");
 #endif
-  float8 bestTime;
+  float8 bestTime, currTime;
 
+  
   Bucket aux;
   // bestNode = unassigned[0];
-  trip.findFastestNodeTo(true, unassigned, bestPos, bestNode, bestTime);
-  aux.push_back(bestNode);
-  invariant();
-  trip.findFastestNodeTo(false, aux, bestPos, bestNode, bestTime);
-  trip.e_insert(bestNode, bestPos);
-  DLOG(INFO) << "bestNode" << bestNode.id();
-  DLOG(INFO) << "at pos " << bestPos << " after " << trip[bestPos-1].id();
-  assigned.push_back(bestNode);
-  unassigned.erase(bestNode);
-  insertNodesOnPath(trip);
-  invariant();
-  trip.tau("after inserting");
+  // instead of this:
+  //trip.findFastestNodeTo(true, unassigned, bestPos, bestNode, bestTime);
+  // use twc->getTimeOnTrip(from, middle, to)
+  while (!trip.has_cv()) {
+    bestTime = 99999;
+    oldSize = trip.size();
+    if (unassigned.size() == 0) break;
+    for (UINT i = 0; i < trip.size(); i++) {
+      for (UINT j = 0; j < unassigned.size(); j++) {
+        if (i < trip.size() - 1) {
+          currTime = twc->getTimeOnTrip(trip[i], unassigned[j], trip[i+1]);
+        } else {
+          currTime = twc->getTimeOnTrip(trip[i], unassigned[j], trip.getDumpSite());
+        }
+        if (currTime < bestTime) {
+          bestTime = currTime;
+          bestPos = i + 1;
+          bestNode = unassigned[j];
+        }
+      }
+    }
+    aux.clear();
+    aux.push_back(bestNode);
+    trip.findFastestNodeTo(false, aux, bestPos, bestNode, bestTime);
+    DLOG(INFO) << "inside while bestNode" << bestNode.id();
+    DLOG(INFO) << "at pos " << bestPos << " after " << trip[bestPos-1].id();
+    safeInsertNode(trip, bestNode, bestPos);
+    insertNodesOnPath(trip);
+    invariant();
+    trip.tau("after inserting nodes on path");
 
  
 #ifdef VRPMINTRACE
-  trip.tau("after inserting nodes in path");
-  DLOG(INFO)  << "oldSize" << oldSize << "  newsize " << trip.size();
-  DLOG(INFO) << "assigned " << assigned.size();
-  DLOG(INFO) << "unassigned " << unassigned.size();
-  trip.evaluate();
-#endif
+    trip.tau("after inserting nodes in path");
+    DLOG(INFO)  << "oldSize" << oldSize << "  newsize " << trip.size();
+    DLOG(INFO) << "assigned " << assigned.size();
+    DLOG(INFO) << "unassigned " << unassigned.size();
+    trip.evaluate();
+ #endif
+  }
 
-  assert(oldSize < trip.size());
+  assert(oldSize <= trip.size());
+  remove_CV(trip);
+  invariant();
+  return;
   trip.evaluate();
   if (trip.feasable()) {
     fillTrip(trip); // recursive until its unfeasable
@@ -341,6 +414,9 @@ void TruckManyVisitsDump::fillTrip(Vehicle &trip) {
 }
 
 void TruckManyVisitsDump::remove_CV(Vehicle &trip) {
+#ifdef VRPMINTRACE
+  DLOG(INFO) << "TruckManyVisitsDump::remove_CV";
+#endif
   invariant();
   trip.getCostOsrm();
   if (trip.has_cv()) {
@@ -352,14 +428,12 @@ void TruckManyVisitsDump::remove_CV(Vehicle &trip) {
     while(trip.has_cv()) {
       // TODO use the safe
       safePopBackNode(trip);
-      safePopFrontNode(trip);
-      trip.evaluate();
+      trip.getCostOsrm();
     }
 #ifdef VRPMINTRACE
   trip.tau("trip with no cv");
 #endif
   }
-  trip.getCostOsrm();
   assert(!trip.has_cv());
   invariant();
 }
@@ -396,21 +470,20 @@ void TruckManyVisitsDump::initializeTruck(Vehicle &truck, std::deque<Vehicle> &t
   truck.getCostOsrm();
 #ifdef VRPMINTRACE
   DLOG(INFO) << "Estimated number of trips" << truck.estimatedN();
-  truck.dumpCostValues();
-  truck.tau("truck:");
 #endif
-  Vehicle trip = truck;
+  Vehicle trip;
   trips.clear();
   for (int i = 0; i < truck.estimatedN(); i++) {
+    trip = truck;
     if (i == 0) {
       initializeTrip(trip, true);
     } else {
       trip.clear();
-      trip.set_startingSite(truck.getDumpSite()); 
+      trip.set_startingSite(trips[i-1].getDumpSite()); 
       initializeTrip(trip, false);
     }
     if ( i < truck.estimatedN() - 1 ) {
-      trip.set_endingSite(truck.getDumpSite());
+      trip.set_endingSite(trip.getDumpSite());
       trip.getCostOsrm();
       trips.push_back(trip);
     } else {
@@ -457,31 +530,49 @@ void TruckManyVisitsDump::fillTruck(Vehicle &truck, std::deque<Vehicle> &trips) 
   }
 #endif
 
+  for (UINT i = 0; i < trips.size(); ++i) {
+    insertNodesOnPath(trips[i]);
+    remove_CV(trips[i]);
+  }
+
+#ifdef VRPMINTRACE
+  for (UINT i = 0; i < trips.size(); ++i) {
+    trips[i].tau("After inserting nodes on trip");
+  }
+#endif
+
+#if 0
+  while (insertBestPairSubPath(trips)) {};
+  
+
+#ifdef VRPMAXTRACE
+  for (UINT i = 0; i < trips.size(); ++i) {
+    insertNodesOnPath(trips[i]);
+    trips[i].tau("AfterInsertBestPairSubPath");
+  }
+#endif
+
+
   //if (trips.size() > 1) deleteTrip(trips[trips.size()-1]);
   //trips.pop_back();
   //iterate thru the trips to fill them
   for (UINT i = 0; i < trips.size(); ++i) {
-#ifdef VRPMAXTRACE
-    DLOG(INFO) << "insertNodesOnPath trip: " << i;
-    trips[i].tau(" before");
-#endif
     insertNodesOnPath(trips[i]);
     remove_CV(trips[i]);
-    assert(!trips[i].has_cv());
-    trips[i].tau("After InsertNodesOnPath");
   }
+#endif 
 
   if (unassigned.size() > 0) {
     for (UINT i = 0; i < trips.size(); ++i) {
 #ifdef VRPMINTRACE
-      DLOG(INFO) << "Fill trip: " << i;
-      trips[i].tau(" before");
+      DLOG(INFO) << "$$$$$$$$$$$$$$$$$$$$$  Filling trip: " << i;
+      trips[i].tau(" $$$$$$$$$$$$$   before");
 #endif
-      if (trips[i].getz1() > 0 && trips[i].feasable() && unassigned.size()) {
+      if (trips[i].getz1() > 0 && trips[i].feasable() && unassigned.size() > 0) {
         trips[i].getCostOsrm();
         fillTrip(trips[i]);
       }
-      trips[i].tau(" after");
+      trips[i].tau(" $$$$$$$$$$$$$   after");
     }
   }
 
@@ -540,6 +631,9 @@ void TruckManyVisitsDump::fillFleet() {
 }
 
 void TruckManyVisitsDump::insertNodesOnPath(Vehicle &trip) {
+#ifdef VRPMINTRACE
+  DLOG(INFO) << "--> TruckManyVisitsDump::insertNodesOnPath";
+#endif
   Bucket streetNodes, tmp;
   invariant();
 
@@ -571,6 +665,9 @@ void TruckManyVisitsDump::insertNodesOnPath(Vehicle &trip) {
         invariant();
   }
   invariant();
+#ifdef VRPMINTRACE
+  DLOG(INFO) << "<-- TruckManyVisitsDump::insertNodesOnPath";
+#endif
 }
 
 

@@ -124,7 +124,7 @@ int main(int argc, char **argv)
       best_sol = opt_sol;
     }
 
-    for (int icase = 2; icase < 2; ++icase) {
+    for (int icase = 1; icase < 5; ++icase) {
       DLOG(INFO) << "initial solution: " << icase;
       tp.process(icase);
       if (best_cost < tp.getCostOsrm()) {
