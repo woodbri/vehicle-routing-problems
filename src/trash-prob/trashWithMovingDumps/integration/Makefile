@@ -51,7 +51,7 @@ WITH_STATS = yes
 WITH_MD5 =
 WITH_OSRM =
 WITH_PLOT =
-DEBUG_MODE = yes
+DEBUG_MODE =
 
 ifeq ("$(DEBUG_MODE)", "")
 else

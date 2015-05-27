@@ -116,7 +116,7 @@ int vrp_trash_collection( container_t *containers, unsigned int container_count,
 
     double best_cost = 9999999;
     Solution best_sol( tp );
-    best_cost = tp.getCostOsrm();
+    best_cost = best_sol.getCostOsrm();
 
 #ifdef DOVRPLOG
     DLOG(INFO) << "=-=-=-=-=-=- INITIAL SOLUTION -=-=-=-=-=-=-=";
@@ -138,8 +138,7 @@ int vrp_trash_collection( container_t *containers, unsigned int container_count,
       best_sol = opt_sol;
     }
 
-    // icase=2 to disable until next solution
-    for (int icase = 2; icase < 2; ++icase) {
+    for (int icase = 1; icase < 7; ++icase) {
 #ifdef DOVRPLOG
       DLOG(INFO) << "initial solution: " << icase;
 #endif
@@ -151,6 +150,8 @@ int vrp_trash_collection( container_t *containers, unsigned int container_count,
         best_cost = tp.getCostOsrm();
         best_sol = tp;
       }
+
+      THROW_ON_SIGINT
 
       TabuOpt ts(tp, iteration);
 
@@ -181,7 +182,8 @@ int vrp_trash_collection( container_t *containers, unsigned int container_count,
     unsigned long int count = 0;
     *vehicle_paths = best_sol.getSolutionForPg( count );
     *vehicle_path_count = count;
-        
+
+    twc->cleanUp();
 
     if ( count == -1 ) {
       *err_msg = strdup ( "Failed to allocate memory for results!");
@@ -189,7 +191,6 @@ int vrp_trash_collection( container_t *containers, unsigned int container_count,
       return -1;
     }
 
-    twc->cleanUp();
   } catch ( std::exception &e ) {
 #ifdef DOVRPLOG
     DLOG(INFO) << "in wrapper, caught exception: " << e.what();
