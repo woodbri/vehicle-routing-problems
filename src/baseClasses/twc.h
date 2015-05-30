@@ -700,11 +700,11 @@ void fill_times(const TwBucket<knode> nodesOnPath) {
           l_nid = nodesOnPath[l].nid();
           timejkl = timejk + travel_time_onTrip[k_nid][l_nid];
           travel_Time4Insert(j_nid, j_nid, k_nid, l_nid, timejkl);
-//DLOG(INFO) <<  original[j_nid].id() << ", " << original[k_nid].id() << ", " << original[l_nid].id() << " -> " << timejkl;
+// DLOG(INFO) <<  original[j_nid].id() << ", " << original[k_nid].id() << ", " << original[l_nid].id() << " -> " << timejkl;
 
           timeijkl = timeijk + travel_time_onTrip[k_nid][l_nid];
           travel_Time4Insert(i_nid, j_nid, k_nid, l_nid, timeijkl);
-DLOG(INFO) << original[i_nid].id() << ", " << original[j_nid].id() << ", " << original[k_nid].id() << ", " << original[l_nid].id() << " -> " << timeijkl;
+// DLOG(INFO) << original[i_nid].id() << ", " << original[j_nid].id() << ", " << original[k_nid].id() << ", " << original[l_nid].id() << " -> " << timeijkl;
         }  // l
       }  //k
     }  // j
