@@ -542,7 +542,7 @@ void fill_travel_time_onTrip(double timeLim) {
         travel_time_onTrip[i][j] = 0;
         continue;
       }
-      if (travel_Time[i][j] < timeLim &&  travel_Time[i][j] == -1) continue; 
+      if (travel_Time[i][j] < timeLim &&  travel_Time[i][j] != -1) continue; 
 
 
       if (travel_time_onTrip[i][j] == 0) {
@@ -620,6 +620,8 @@ void fill_times(const TwBucket<knode> nodesOnPath) {
   #endif
   osrmi->useOsrm(oldStateOsrm);
 
+
+  // fills the 2D table
   for (int i = 0; i < nodesOnPath.size()-1; ++i) {
     for (int j = i + 1; j < nodesOnPath.size(); ++j) {
 
@@ -646,7 +648,7 @@ void fill_times(const TwBucket<knode> nodesOnPath) {
   #endif
           continue;
         }
-        if (std::abs(travel_time_onTrip[from][to] - (times[j]-times[i])) > 0.0001) {
+  //      if (std::abs(travel_time_onTrip[from][to] - (times[j]-times[i])) > 0.0001) {
           if (travel_time_onTrip[from][to] > (times[j]-times[i])) {
   #ifdef VRPMAXTRACE 
             DLOG(INFO) << from << "," << to << " -> ";
@@ -668,12 +670,55 @@ void fill_times(const TwBucket<knode> nodesOnPath) {
   #endif
 
           }
-        }
+//        }
       }
     }
   }
+
+  // extract triplets/quadruplets and store in table
+
+  UINT i_nid, j_nid, k_nid, l_nid;
+  double timeij, timejk, timeijk, timeijkl, timejkl; 
+  for (unsigned int i = 0; i < nodesOnPath.size()-2; ++i) {
+    if (!(i< nodesOnPath.size())) continue;
+    i_nid = nodesOnPath[i].nid();
+
+    for (unsigned int j = i + 1; j < nodesOnPath.size()-1; ++j) {
+      j_nid = nodesOnPath[j].nid();
+      timeij = travel_time_onTrip[i_nid][j_nid];
+      travel_Time[i_nid][j_nid] = timeij;
+
+      for (unsigned int k = j + 1; k < nodesOnPath.size(); ++k) {
+        k_nid = nodesOnPath[k].nid();
+        timejk = travel_time_onTrip[j_nid][k_nid];
+        timeijk = timeij + timejk;
+        travel_Time4Insert(i_nid, i_nid, j_nid, k_nid, timeijk);
+
+// DLOG(INFO) << original[i_nid].id() << ", " << original[j_nid].id() << ", " << original[k_nid].id()  << " -> " << timeijk;
+        for (unsigned int l = k + 1; l < nodesOnPath.size(); ++l) {
+          if (!(l < nodesOnPath.size())) continue;
+          l_nid = nodesOnPath[l].nid();
+          timejkl = timejk + travel_time_onTrip[k_nid][l_nid];
+          travel_Time4Insert(j_nid, j_nid, k_nid, l_nid, timejkl);
+//DLOG(INFO) <<  original[j_nid].id() << ", " << original[k_nid].id() << ", " << original[l_nid].id() << " -> " << timejkl;
+
+          timeijkl = timeijk + travel_time_onTrip[k_nid][l_nid];
+          travel_Time4Insert(i_nid, j_nid, k_nid, l_nid, timeijkl);
+DLOG(INFO) << original[i_nid].id() << ", " << original[j_nid].id() << ", " << original[k_nid].id() << ", " << original[l_nid].id() << " -> " << timeijkl;
+        }  // l
+      }  //k
+    }  // j
+  }  // i
+  
+// assert(true==false);
 }
 
+void travel_Time4Insert(UINT i_nid, UINT j_nid, UINT k_nid, UINT l_nid, double time) const {
+  TTindex index(i_nid, j_nid, k_nid, l_nid);
+  if (travel_Time4.find(index) == travel_Time4.end()) return;
+  travel_Time4.insert(std::pair<TTindex,double>(index, time));
+}
+  
 
 
 /*!
@@ -1009,8 +1054,11 @@ bool setTravelingTimesOfRoute(
   DLOG(INFO) << "triplets";
   #endif 
   for (unsigned int i = 0; i < call.size()-2; ++i) {
-    TTindex index(call[i].nid(), call[i].nid(), call[i+1].nid(), call[i+2].nid());
-    travel_Time4.insert(std::pair<TTindex,double>(index, times[i+2]-times[i]));
+
+    // TTindex index(call[i].nid(), call[i].nid(), call[i+1].nid(), call[i+2].nid());
+    // travel_Time4.insert(std::pair<TTindex,double>(index, times[i+2]-times[i]));
+    travel_Time4Insert( call[i].nid(), call[i].nid(), call[i+1].nid(), call[i+2].nid(), times[i+2]-times[i]);
+
     #ifdef VRPMAXTRACE 
     DLOG(INFO) << call[i].id() << " -> " 
                << call[i+1].id() << " -> "
@@ -1024,8 +1072,9 @@ bool setTravelingTimesOfRoute(
   DLOG(INFO) << "quadruplets";
   #endif 
   for (unsigned int i= 0; i < call.size()-3; ++i) {
-    TTindex index(call[i].nid(), call[i+1].nid(), call[i+2].nid(), call[i+3].nid());
-    travel_Time4.insert(std::pair<TTindex,double>(index, times[i+3]-times[i]));
+    // TTindex index(call[i].nid(), call[i+1].nid(), call[i+2].nid(), call[i+3].nid());
+    //travel_Time4.insert(std::pair<TTindex,double>(index, times[i+3]-times[i]));
+    travel_Time4Insert( call[i].nid(), call[i+1].nid(), call[i+2].nid(), call[i+3].nid(), times[i+3]-times[i]);
     #ifdef VRPMAXTRACE 
     DLOG(INFO) << call[i].id() << " -> " 
                << call[i+1].id() << " -> " 
@@ -1143,8 +1192,9 @@ bool setTravelingTimesInsertingOneNode(
   #endif 
   for (unsigned int i = 0; i < call.size()-1; ++i) {
     if (call[i].id() == call[i+2].id()) continue;
-    TTindex index(call[i].nid(), call[i].nid(), call[i+1].nid(), call[i+2].nid());
-    travel_Time4.insert(std::pair<TTindex,double>(index, times[i+2]-times[i]));
+    // TTindex index(call[i].nid(), call[i].nid(), call[i+1].nid(), call[i+2].nid());
+    // travel_Time4.insert(std::pair<TTindex,double>(index, times[i+2]-times[i]));
+    travel_Time4Insert( call[i].nid(), call[i].nid(), call[i+1].nid(), call[i+2].nid(), times[i+2]-times[i]);
     #ifdef VRPMAXTRACE 
     DLOG(INFO) << call[i].id() << " -> " 
                << call[i+1].id() << " -> "
@@ -1158,8 +1208,9 @@ bool setTravelingTimesInsertingOneNode(
   DLOG(INFO) << "quadruplets";
   #endif 
   for (unsigned int i= 3; i < call.size()-1; i+=4) {
-    TTindex index(call[i].nid(), call[i+1].nid(), call[i+2].nid(), call[i+3].nid());
-    travel_Time4.insert(std::pair<TTindex,double>(index, times[i+3]-times[i]));
+    // TTindex index(call[i].nid(), call[i+1].nid(), call[i+2].nid(), call[i+3].nid());
+    // travel_Time4.insert(std::pair<TTindex,double>(index, times[i+3]-times[i]));
+    travel_Time4Insert( call[i].nid(), call[i+1].nid(), call[i+2].nid(), call[i+3].nid(), times[i+3]-times[i]);
     #ifdef VRPMAXTRACE 
     DLOG(INFO) << call[i].id() << " -> " 
                << call[i+1].id() << " -> " 
@@ -1581,12 +1632,14 @@ bool setTravelingTimesInsertingOneNode(
     if ( prev == from ) {  // 3 parameters
       if (osrmi->getOsrmTime(original[from], original[middle], original[to]
                             , time)) {
-          travel_Time4.insert(std::pair<TTindex, double>(index, time));
+          travel_Time4Insert(prev, from, middle, to, time);
+          // travel_Time4.insert(std::pair<TTindex, double>(index, time));
           return time;
       }
 
       time = getTravelTime(from, middle) + getTravelTime(middle, to);
-      travel_Time4.insert(std::pair<TTindex,double>(index,time));
+      // travel_Time4.insert(std::pair<TTindex,double>(index,time));
+      travel_Time4Insert(prev, from, middle, to, time);
       return time;
     }
     // 4 parameters
@@ -1597,7 +1650,8 @@ bool setTravelingTimesInsertingOneNode(
     }
     time =  getTravelTime(prev, from) + getTravelTime(from, middle)
             + getTravelTime(middle, to);
-    travel_Time4.insert(std::pair<TTindex,double>(index,time));
+    // travel_Time4.insert(std::pair<TTindex,double>(index,time));
+    travel_Time4Insert(prev, from, middle, to, time);
     return time;
   }
 #endif  // with OSRM
