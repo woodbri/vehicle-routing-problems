@@ -212,13 +212,33 @@ void Prob_trash::loadProblem( const std::string &infile )
   load_trucks( datafile + ".vehicles.txt" );
 
 #ifdef OSRMCLIENT
+#ifdef VRPMINTRACE
   DLOG(INFO) << "Setting hints";
+#endif
   twc->setHints( dumps );
+#ifdef VRPMINTRACE
+  DLOG(INFO) << "    hints for dumps done";
+#endif
   twc->setHints( nodes );
+#ifdef VRPMINTRACE
+  DLOG(INFO) << "    hints for nodes done";
+#endif
   twc->setHints( depots );
+#ifdef VRPMINTRACE
+  DLOG(INFO) << "    hints for depots done";
+#endif
   twc->setHints( pickups );
+#ifdef VRPMINTRACE
+  DLOG(INFO) << "    hints for pickups done";
+#endif
   twc->setHints( endings );
+#ifdef VRPMINTRACE
+  DLOG(INFO) << "    hints for endings done";
+#endif
   twc->settCC( C, pickups );
+#ifdef VRPMINTRACE
+  DLOG(INFO) << "    settCC for pickups done";
+#endif
 #endif  // OSRMCLIENT
 
   assert( trucks.size() and depots.size() and dumps.size() and endings.size() );
@@ -226,6 +246,9 @@ void Prob_trash::loadProblem( const std::string &infile )
   for ( UINT i = 0; i < trucks.size(); i++ ) {
     trucks[i].setInitialValues( C, pickups );
   }
+#ifdef VRPMINTRACE
+  DLOG(INFO) << "trucks[i].setInitialValues( C, pickups ) done";
+#endif
 
 #ifdef VRPMAXTRACE
   C.dump();
@@ -240,11 +263,16 @@ void Prob_trash::loadProblem( const std::string &infile )
 
   for ( int i = 0; i < trucks.size(); i++ ) trucks[i].tau();
 
+#ifdef VRPMINTRACE
   DLOG( INFO ) << "INVALID TRUCKS";
+#endif
   if (invalidTrucks.size()==0) DLOG( INFO ) << " NONE\n";
   for ( int i = 0; i < invalidTrucks.size(); i++ ) invalidTrucks[i].tau();
 
   //twc->dump();
+#endif
+#ifdef VRPMINTRACE
+  DLOG( INFO ) << "-------- Leaving Prob_trash::LoadProblem --------------";
 #endif
 }
 
