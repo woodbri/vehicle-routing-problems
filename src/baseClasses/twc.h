@@ -502,8 +502,6 @@ TwBucket<knode> actualNodesOnTrip(UINT from, UINT to, const TwBucket<knode> &ass
   return subPath;
 }
 
-
-
 void fill_travel_time_onTrip() {
 #ifdef VRPMINTRACE
      DLOG(INFO) << "fill_travel_time_onTrip to be checked:" << original.size();
@@ -517,6 +515,14 @@ void fill_travel_time_onTrip() {
       nodes_onTrip[i].resize(siz);
   }
 //original.dump("original");
+  fill_travel_time_onTrip(5);
+  fill_travel_time_onTrip(2);
+  fill_travel_time_onTrip(1);
+  fill_travel_time_onTrip(0);
+}
+
+
+void fill_travel_time_onTrip(double timeLim) {
 
   int i,j;
   TwBucket <knode> trip;
@@ -526,13 +532,16 @@ void fill_travel_time_onTrip() {
     DLOG(INFO) << "fill_travel_time_onTrip doing" << i <<"th " << original[i].id() << "\n";
 #endif
     for (j = original.size()-1; j >= 0; --j) {
-#ifdef VRPMAXTRACE
+#ifdef VRPAXTRACE
       DLOG(INFO) << "fill_travel_time_onTrip " << original[i].id() << "," << original[j].id() << "\n";
 #endif
       if (i == j) {
         travel_time_onTrip[i][j] = 0;
         continue;
       }
+      if (travel_Time[i][j] < timeLim &&  travel_Time[i][j] == -1) continue; 
+
+
       if (travel_time_onTrip[i][j] == 0) {
         trip.clear();
         nodesOnPath.clear();
