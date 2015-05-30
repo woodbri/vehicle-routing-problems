@@ -69,6 +69,7 @@ int main(int argc, char **argv)
     FLAGS_logtostderr = 0;
     FLAGS_stderrthreshold = google::FATAL;
     FLAGS_minloglevel = google::INFO;
+    FLAGS_logbufsecs = 0;
   }
 #endif
 
