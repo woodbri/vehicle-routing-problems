@@ -1503,6 +1503,7 @@ bool setTravelingTimesInsertingOneNode(
     #endif
   }
 
+#if 0
   void fillTravelTime() const {
     int siz = travel_Time.size();
     for ( int i = 0; i < siz; i++ )
@@ -1517,11 +1518,12 @@ bool setTravelingTimesInsertingOneNode(
         }
       }
   }
+#endif
 
   double getTravelTime(UID from, UID to) const {
     assert(from < original.size() && to < original.size());
     double time;
-    if (travel_Time[from][to] == -1) setTraveTime(from,to);
+    if (travel_Time[from][to] == -1) setTravelTime(from,to);
     return travel_Time[from][to];
   }
 

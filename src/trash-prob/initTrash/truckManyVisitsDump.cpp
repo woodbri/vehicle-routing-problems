@@ -370,9 +370,9 @@ void TruckManyVisitsDump::fillTrip(Vehicle &trip) {
         }
       }
     }
-    aux.clear();
-    aux.push_back(bestNode);
-    trip.findFastestNodeTo(false, aux, bestPos, bestNode, bestTime);
+//    aux.clear();
+//    aux.push_back(bestNode);
+//    trip.findFastestNodeTo(false, aux, bestPos, bestNode, bestTime);
     DLOG(INFO) << "inside while bestNode" << bestNode.id();
     DLOG(INFO) << "at pos " << bestPos << " after " << trip[bestPos-1].id();
     safeInsertNode(trip, bestNode, bestPos);
