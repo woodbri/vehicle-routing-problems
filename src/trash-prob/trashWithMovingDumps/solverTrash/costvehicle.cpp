@@ -64,8 +64,8 @@ void CostVehicle::setInitialValues( const Trashnode &node,
   ttSC = twc->getAverageTime(depot, picks);
   ttDC = twc->getAverageTime(dumpSite, picks);
   ttCD = twc->getAverageTime(picks, dumpSite);
-  ttDE = twc->TravelTime(dumpSite, endingSite);
-  ttCC = twc->TravelTime(C, C);
+  ttDE = twc->TravelTime(dumpSite.nid(), endingSite.nid());
+  ttCC = twc->TravelTime(C.nid(), C.nid());
   //double serviceE = endingSite.serviceTime();
   //shiftLength = endTime - startTime;
   //e_makeFeasable( 0 );

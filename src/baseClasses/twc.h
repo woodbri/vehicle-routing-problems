@@ -531,6 +531,9 @@ void fill_travel_time_onTrip(double timeLim) {
 #ifdef VRPMINTRACE
     DLOG(INFO) << "fill_travel_time_onTrip doing" << i <<"th " << original[i].id() << "\n";
 #endif
+
+
+
     for (j = original.size()-1; j >= 0; --j) {
 #ifdef VRPAXTRACE
       DLOG(INFO) << "fill_travel_time_onTrip " << original[i].id() << "," << original[j].id() << "\n";
@@ -1518,7 +1521,7 @@ bool setTravelingTimesInsertingOneNode(
   double getTravelTime(UID from, UID to) const {
     assert(from < original.size() && to < original.size());
     double time;
-    if (travel_Time[from][to] == -1) fillTravelTime();
+    if (travel_Time[from][to] == -1) setTraveTime(from,to);
     return travel_Time[from][to];
   }
 
@@ -1527,14 +1530,14 @@ bool setTravelingTimesInsertingOneNode(
    (interface)
   */
   double TravelTime(UID from, UID to) const {
-    return getTravelTime(from, to);
+    return travel_Time[from][to];
   }
 
   /*! \brief Fetch the travel time from node \b from to node \b to
    (interface)
   */
   double TravelTime(const knode &from, const knode &to) const {
-    return getTravelTime(from.nid(), to.nid());
+    return TravelTime(from.nid(), to.nid());
   }
 
   /*! \todo comments   */
@@ -2388,15 +2391,19 @@ bool setTravelingTimesInsertingOneNode(
    * \return The average travel time from start to destination.
    */
   double getAverageTime(const Bucket &from, const knode &to) const {
+    DLOG(INFO) << "getAverageTime to" << to.nid();
     assert(to.nid() < original.size());
     double time = 0;
     int j = to.nid();
+    int count = 0;
 
     for ( int i = 0; i < from.size(); i++ ) {
-      time += TravelTime(from[i].nid(), j);
+      if (travel_Time[from[i].nid()][j]==-1) continue;
+      time += travel_Time[from[i].nid()][j];
+      ++count;
     }
 
-    time = time / from.size();
+    time = time / count;
     return time;
   }
 
@@ -2408,14 +2415,18 @@ bool setTravelingTimesInsertingOneNode(
    * \return The average travel time from start to destination.
    */
   double getAverageTime(const knode &from, const Bucket &to) const {
+    DLOG(INFO) << "getAverageTime from" << from.nid();
     assert(from.nid() < original.size());
     double time = 0;
     int j = from.nid();
+    int count = 0;
 
-    for ( int i = 0; i < to.size(); i++ )
+    for ( int i = 0; i < to.size(); i++ ) {
+      if (travel_Time[j][to[i].nid()]==-1) continue;
       time += travel_Time[j][to[i].nid()];
-
-    time = time / to.size();
+      ++count;
+    }
+    time = time / count;
     return time;
   }
 

@@ -245,10 +245,10 @@ void Prob_trash::loadProblem( const std::string &infile )
 
   for ( UINT i = 0; i < trucks.size(); i++ ) {
     trucks[i].setInitialValues( C, pickups );
-  }
 #ifdef VRPMINTRACE
-  DLOG(INFO) << "trucks[i].setInitialValues( C, pickups ) done";
+  DLOG(INFO) << "trucks[i].setInitialValues( C, pickups ) done for" << i;
 #endif
+  }
 
 #ifdef VRPMAXTRACE
   C.dump();
