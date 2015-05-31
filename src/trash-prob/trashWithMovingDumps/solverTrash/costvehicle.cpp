@@ -66,6 +66,7 @@ void CostVehicle::setInitialValues( const Trashnode &node,
   ttCD = twc->getAverageTime(picks, dumpSite);
   ttDE = twc->TravelTime(dumpSite.nid(), endingSite.nid());
   ttCC = twc->TravelTime(C.nid(), C.nid());
+
   //double serviceE = endingSite.serviceTime();
   //shiftLength = endTime - startTime;
   //e_makeFeasable( 0 );
@@ -91,7 +92,7 @@ void CostVehicle::setInitialValues( const Trashnode &node,
           + ttCD + dumpSite.serviceTime();
     }
     totalTime += variableTime;
-#ifdef VRPMAXTRACE
+#ifdef VRPMINTRACE
 DLOG(INFO) << "estimated number of trips N " << N;
 DLOG(INFO) << "totalTime " << totalTime;
 DLOG(INFO) << "arrivalEcloseslst(C) " << arrivalEclosesLast(C);
@@ -132,8 +133,7 @@ void CostVehicle::setCost(const Trashnode &last) {
   realttSC = path.size() > 1 ? path[1].totTravelTime()  : ttSC;
   ttSC = std::min( realttSC, ttSC );
 
-  realttCC = size() > 1 ? ( path.getTotTravelTime() - realttSC ) /
-             ( size() - 1 ) : ttCC;
+  realttCC = size() > 1 ? (path.getTotTravelTime() - realttSC) / (size() - 1) : ttCC;
   ttCC = std::min( realttCC, ttCC );
 
   realttCD = 0;

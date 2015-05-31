@@ -187,21 +187,21 @@ void Prob_trash::loadProblem( const std::string &infile )
 
 
   nodes = pickups + otherlocs;
-  nodes.push_back( C );
+  nodes.push_back(C);
 
   for ( UINT i = 0; i < nodes.size(); i++ ) {
-    nodes[i].set_nid( i );
+    nodes[i].set_nid(i);
     id = nodes[i].id();
 
     if ( pickups.hasId( id ) )
       pickups[ pickups.posFromId( id ) ].set_nid( i );
-    else if ( otherlocs.hasId( id ) )
-      otherlocs[ otherlocs.posFromId( id ) ].set_nid( i );
+    else if (otherlocs.hasId(id))
+      otherlocs[otherlocs.posFromId(id)].set_nid(i);
   };
 
   C = nodes.back();
-  assert( pickups.size() );
-  assert( otherlocs.size() );
+  assert(pickups.size());
+  assert(otherlocs.size());
 
   datanodes = nodes;
 
@@ -212,34 +212,16 @@ void Prob_trash::loadProblem( const std::string &infile )
   load_trucks( datafile + ".vehicles.txt" );
 
 #ifdef OSRMCLIENT
-#ifdef VRPMINTRACE
-  DLOG(INFO) << "Setting hints";
-#endif
   twc->setHints( dumps );
-#ifdef VRPMINTRACE
-  DLOG(INFO) << "    hints for dumps done";
-#endif
   twc->setHints( nodes );
-#ifdef VRPMINTRACE
-  DLOG(INFO) << "    hints for nodes done";
-#endif
   twc->setHints( depots );
-#ifdef VRPMINTRACE
-  DLOG(INFO) << "    hints for depots done";
-#endif
   twc->setHints( pickups );
-#ifdef VRPMINTRACE
-  DLOG(INFO) << "    hints for pickups done";
-#endif
   twc->setHints( endings );
-#ifdef VRPMINTRACE
-  DLOG(INFO) << "    hints for endings done";
-#endif
-  twc->settCC( C, pickups );
-#ifdef VRPMINTRACE
-  DLOG(INFO) << "    settCC for pickups done";
-#endif
+
+  twc->fill_travel_time_onTrip();
+  twc->settCC(C, pickups);
 #endif  // OSRMCLIENT
+
 
   assert( trucks.size() and depots.size() and dumps.size() and endings.size() );
 

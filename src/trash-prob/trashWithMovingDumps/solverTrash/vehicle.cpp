@@ -96,6 +96,75 @@ double Vehicle::timePCN( POS from, Trashnode &middle ) const
     return path.timePCN( from, middle );
 }
 
+#if 1
+// the truck treated as a trip
+void Vehicle::intraTripOptimizationNoOsrm() {
+  bool oldStateOsrm = osrmi->getUse();
+  osrmi->useOsrm(false);
+
+  // POS fromPos, withPos;
+  Vehicle trip = (*this);
+  trip.push_back(getDumpSite());
+#if 0
+  Bucket inPath, notInPath;
+  for (UINT i = 1; i < trip.size()-1; ++i) {
+    if (twc->isInPath(trip[i-1], trip[i], trip[i+1])) {
+      inPath.push_back(trip[i]);
+    } else {
+      notInPath.push_back(trip[i]);
+    };
+  }
+  inPath.dumpid("inPath");
+  notInPath.dumpid("notInPath");
+#endif
+
+  double removeTime, insertTime, deltaTime, bestDelta;
+  for (int pos = trip.size()-2; pos > 0; --pos) { 
+    // DLOG(INFO) << "POS = " << pos;
+    UINT from = trip[pos-1].nid();
+    UINT middle = trip[pos].nid();
+    UINT to = trip[pos+1].nid();
+    Trashnode node = trip[pos];
+    bestDelta = 9999999;
+    int bestI=pos-1;
+
+    removeTime = twc->TravelTime(from, to) - twc->TravelTime(from, middle, to);
+    // DLOG(INFO) << trip[pos-1].id() << " " << node.id() << " " << trip[pos+1].id() << " from " << twc->TravelTime(from, middle, to);
+    // DLOG(INFO) << trip[pos].id() << " " << trip[pos+1].id() << "to" << twc->TravelTime(from, to);
+
+    // trip.tau("before erasing the last node");
+    trip.e_remove(pos);
+    // trip.tau("after erasing the last node");
+    for (UINT i = 0; i < trip.size()-2; ++i) {
+      UINT i_nid = trip[i].nid();
+      UINT j_nid = trip[i+1].nid();
+
+      insertTime = twc->TravelTime(i_nid, middle, j_nid) - twc->TravelTime(i_nid, j_nid);
+      // DLOG(INFO) << trip[i].id() << " " << trip[i+1].id() << " from " << twc->TravelTime(i_nid, j_nid);
+      // DLOG(INFO) << trip[i].id() << " " << node.id() << " " << trip[i+1].id() << "  to" << twc->TravelTime(i_nid, middle, j_nid);
+      // DLOG(INFO) << "remove " <<  removeTime << " insert: " << insertTime << " delta: "<< removeTime+insertTime;
+      deltaTime = removeTime + insertTime;
+      if (deltaTime < bestDelta) {
+        bestDelta = deltaTime;
+        bestI = i;
+      }
+    }  // for i
+
+    // DLOG(INFO) << "inserting after " << trip[bestI].id();
+    trip.e_insert(node, bestI+1);
+    // trip.tau("after moving the last node");
+    if (bestI == pos+1) pos = trip.size()-1;
+  
+  }  // for pos
+
+// assert(true==false);
+  trip.tau("before deleteing dump");
+  trip.e_remove(trip.size()-1);
+  trip.tau("after deleteing dump");
+  (*this) = trip;
+  osrmi->useOsrm(oldStateOsrm);
+}
+#endif
 
 /**
 
@@ -109,6 +178,7 @@ if \f$ n = 0 \f$ then moves does not change
 
 return the number of moves added to moves
 */
+
 
 
 

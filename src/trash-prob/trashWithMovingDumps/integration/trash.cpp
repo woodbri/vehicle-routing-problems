@@ -128,12 +128,13 @@ int main(int argc, char **argv)
     for (int icase = 1; icase < 7; ++icase) {
       DLOG(INFO) << "initial solution: " << icase;
       tp.process(icase);
-      if (best_cost < tp.getCostOsrm()) {
+      if (best_cost > tp.getCostOsrm()) {
         DLOG(INFO) << "initial solution: " << icase << " is best";
         best_cost = tp.getCostOsrm();
         best_sol = tp;
       }
 
+#if 0
       TabuOpt ts(tp, iteration);
 
       DLOG(INFO) << "optimization: " << icase;
@@ -143,6 +144,7 @@ int main(int argc, char **argv)
         best_cost = ts.getBestSolution().getCostOsrm();
         best_sol = ts.getBestSolution();
       }
+#endif 
     }
 
 

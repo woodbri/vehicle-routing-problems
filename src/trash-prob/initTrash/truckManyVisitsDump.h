@@ -42,7 +42,6 @@ class TruckManyVisitsDump : public Solution {
     unusedTrucks = trucks;
     unassigned = pickups;
     fleet.clear();
-    twc->fill_travel_time_onTrip();
   }
 
   TruckManyVisitsDump( const Prob_trash &P ): Solution( P ) {

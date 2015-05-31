@@ -542,29 +542,34 @@ void fill_travel_time_onTrip(double timeLim) {
         travel_time_onTrip[i][j] = 0;
         continue;
       }
-      if (travel_Time[i][j] < timeLim &&  travel_Time[i][j] != -1) continue; 
+
+      if (travel_Time[i][j] >= timeLim ||  travel_Time[i][j] == -1) {
+        if (travel_time_onTrip[i][j] == 0) {
+          trip.clear();
+          nodesOnPath.clear();
+          trip.push_back(original[i]);
+          getNodesOnPath(trip, original[j], original, nodesOnPath);
+          if (nodesOnPath.size() == 0 || nodesOnPath[0].nid() != original[i].nid()) nodesOnPath.push_front(original[i]);
+          if (nodesOnPath[nodesOnPath.size()-1].nid() != original[j].nid()) nodesOnPath.push_back(original[j]);
+          fill_times(nodesOnPath);
+        }
+      }
 
 
-      if (travel_time_onTrip[i][j] == 0) {
-        trip.clear();
-        nodesOnPath.clear();
-        trip.push_back(original[i]);
-        getNodesOnPath(trip, original[j], original, nodesOnPath);
-        if (nodesOnPath.size() == 0 || nodesOnPath[0].nid() != original[i].nid()) nodesOnPath.push_front(original[i]);
-        if (nodesOnPath[nodesOnPath.size()-1].nid() != original[j].nid()) nodesOnPath.push_back(original[j]);
-        fill_times(nodesOnPath);
+      if (travel_Time[j][i] >= timeLim ||  travel_Time[j][i] == -1) {
+        if (travel_time_onTrip[j][i] == 0) {
+          trip.clear();
+          nodesOnPath.clear();
+          trip.push_back(original[j]);
+          getNodesOnPath(trip, original[i], original, nodesOnPath);
+          if (nodesOnPath.size() == 0 || nodesOnPath[0].nid() != original[j].nid()) nodesOnPath.push_front(original[j]);
+          if (nodesOnPath[nodesOnPath.size()-1].nid() != original[i].nid()) nodesOnPath.push_back(original[i]);
+          fill_times(nodesOnPath);
+        }
       }
-      if (travel_time_onTrip[j][i] == 0) {
-        trip.clear();
-        nodesOnPath.clear();
-        trip.push_back(original[j]);
-        getNodesOnPath(trip, original[i], original, nodesOnPath);
-        if (nodesOnPath.size() == 0 || nodesOnPath[0].nid() != original[j].nid()) nodesOnPath.push_front(original[j]);
-        if (nodesOnPath[nodesOnPath.size()-1].nid() != original[i].nid()) nodesOnPath.push_back(original[i]);
-        fill_times(nodesOnPath);
-      }
-    }
-  }
+
+    } // for j
+  } // for i
 #ifdef VRPMAXTRACE
   int count=0;
   for (int ii = 0; ii < travel_time_onTrip.size(); ++ii) {
@@ -1571,6 +1576,7 @@ bool setTravelingTimesInsertingOneNode(
   }
 #endif
 
+private:
   double getTravelTime(UID from, UID to) const {
     assert(from < original.size() && to < original.size());
     double time;
@@ -1578,23 +1584,6 @@ bool setTravelingTimesInsertingOneNode(
     return travel_Time[from][to];
   }
 
- public:
-  /*!  \brief Retruns travel time from node id \b from to node id \b to.
-   (interface)
-  */
-  double TravelTime(UID from, UID to) const {
-    return travel_Time[from][to];
-  }
-
-  /*! \brief Fetch the travel time from node \b from to node \b to
-   (interface)
-  */
-  double TravelTime(const knode &from, const knode &to) const {
-    return TravelTime(from.nid(), to.nid());
-  }
-
-  /*! \todo comments   */
- private:
 #ifndef OSRMCLIENT
   double getTravelTime(UID prev, UID from, UID middle, UID to) const {
     assert(prev < original.size() && from < original.size()
@@ -1659,7 +1648,18 @@ bool setTravelingTimesInsertingOneNode(
 
 
  public:
-  // this one is an interface
+  /*!  \brief Retruns travel time from node id \b from to node id \b to.
+   interfaces
+  */
+  //@{
+  double TravelTime(UID from, UID to) const {
+    return getTravelTime(from,to);
+  }
+
+  double TravelTime(const knode &from, const knode &to) const {
+    return TravelTime(from.nid(), to.nid());
+  }
+
   double TravelTime(UID from, UID middle, UID to) const {
     assert(from < original.size());
     assert(middle < original.size());
@@ -1667,21 +1667,14 @@ bool setTravelingTimesInsertingOneNode(
     return getTravelTime(from, from, middle, to);
   }
 
-  // this one is an interface, the other one is the one that does all the work
-  double TravelTime(const knode &from, const knode &middle,
-                     const knode &to) const {
-    return getTravelTime(from.nid(), from.nid(), middle.nid(),
-                          to.nid());
+  double TravelTime(const knode &from, const knode &middle, const knode &to) const {
+    return getTravelTime(from.nid(), from.nid(), middle.nid(), to.nid());
   }
 
-  // this one is an interface, the other one is the one that does all the work
-  double TravelTime(const knode &prev, const knode &from, const knode &middle,
-                     const knode &to) const {
-    return getTravelTime(prev.nid(), from.nid(), middle.nid(),
-                          to.nid());
+  double TravelTime(const knode &prev, const knode &from, const knode &middle, const knode &to) const {
+    return getTravelTime(prev.nid(), from.nid(), middle.nid(), to.nid());
   }
 
-  // this one is an interface, the other one is the one that does all the work
   double TravelTime(UID prev, UID from, UID middle, UID to) const {
     assert(prev < original.size());
     assert(from < original.size());
@@ -1689,7 +1682,16 @@ bool setTravelingTimesInsertingOneNode(
     assert(to < original.size());
     return getTravelTime(prev, from, middle, to);
   }
+  //@}
 
+  bool isInPath(UINT from, UINT middle, UINT to) {
+    return TravelTime(from, to) >= (TravelTime(from,middle) + TravelTime(middle,to));
+  }
+
+  bool isInPath(const knode &from, const knode &middle, const knode& to) {
+DLOG(INFO) << TravelTime(from,to) << " ?? " << TravelTime(from,middle) << " + " << TravelTime(middle,to);
+    return TravelTime(from,to) >= (TravelTime(from,middle) + TravelTime(middle,to));
+  }
 
 
 
@@ -2451,15 +2453,12 @@ bool setTravelingTimesInsertingOneNode(
     assert(to.nid() < original.size());
     double time = 0;
     int j = to.nid();
-    int count = 0;
 
     for ( int i = 0; i < from.size(); i++ ) {
-      if (travel_Time[from[i].nid()][j]==-1) continue;
-      time += travel_Time[from[i].nid()][j];
-      ++count;
+      time += TravelTime(from[i].nid(),j);
     }
 
-    time = time / count;
+    time = time / from.size();
     return time;
   }
 
@@ -2475,29 +2474,32 @@ bool setTravelingTimesInsertingOneNode(
     assert(from.nid() < original.size());
     double time = 0;
     int j = from.nid();
-    int count = 0;
 
     for ( int i = 0; i < to.size(); i++ ) {
-      if (travel_Time[j][to[i].nid()]==-1) continue;
-      time += travel_Time[j][to[i].nid()];
-      ++count;
+      time += TravelTime(j, to[i].nid());
     }
-    time = time / count;
+    time = time / to.size();
     return time;
   }
 
+
+
+
+
+
+
   /*!
-   * \brief Set tCC for a given node related to a given bucket
-   *
-   * \todo VICKY Please explain!
-   *
-   * \param[in] C
+   * \brief Set tCC set average travel time  between containers in bucket picks
+   * \param[in] C    average contaienr
    * \param[in] picks
    */
   void settCC(const knode &C, const Bucket &picks) {
     int pos = C.nid();
     travel_Time[pos][pos] = getAverageTime(C, picks);
   }
+
+
+
 
   /*!
    * \brief Test if two nodes are on the same street.

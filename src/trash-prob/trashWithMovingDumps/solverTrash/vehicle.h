@@ -44,8 +44,8 @@ public:
   /*! @name constructors */
   ///@{
   Vehicle():CostVehicle(){};
-  Vehicle( std::string line, const Bucket &otherlocs )
-    : CostVehicle( line, otherlocs )   { }
+  Vehicle(const std::string &line, const Bucket &otherlocs )
+    : CostVehicle(line, otherlocs)   { };
   Vehicle( int _vid, int _start_id, int _dump_id, int _end_id,
            int _capacity, int _dumpservicetime, int _starttime,
            int _endtime, const Bucket &otherlocs )
@@ -61,6 +61,12 @@ public:
   double timePCN( POS from, POS middle, POS to ) const;
   double timePCN( POS from, Trashnode &middle ) const;
   ///@}
+
+  ///@{
+  void intraTripOptimizationNoOsrm();
+
+  ///}
+
 
   /*! @name evaluation of moves for optimization */
   ///@{
