@@ -143,7 +143,7 @@ int vrp_trash_collection( container_t *containers, unsigned int container_count,
       DLOG(INFO) << "initial solution: " << icase;
 #endif
       tp.process(icase);
-      if (best_cost < tp.getCostOsrm()) {
+      if (best_cost > tp.getCostOsrm()) {
 #ifdef DOVRPLOG
         DLOG(INFO) << "initial solution: " << icase << " is best";
 #endif
