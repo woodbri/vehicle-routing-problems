@@ -94,8 +94,10 @@ class CompareSecond {
  public:
   bool operator()(const Pair& firstPair, const Pair& secondPair) {
     if (firstPair.second > secondPair.second) return true;
-    if (firstPair.second == secondPair.second)
-      return firstPair.first > secondPair.first;
+    if (firstPair.second < secondPair.second) return false;
+    if (firstPair.first.second > secondPair.first.second) return true;
+    if (firstPair.first.second < secondPair.first.second) return false;
+      return firstPair.first.first > secondPair.first.first;
     return false;
   }
 };
@@ -137,9 +139,9 @@ class CompareSecond {
   std::vector<std::vector<double> > travel_time_onTrip;
   std::vector< std::vector< std::deque< int64_t> > > nodes_onTrip;
 
-  typedef std::pair<UINT, double> id_time;
+  typedef std::pair< std::pair <UINT, UINT>,  double> id_time;
   // typedef pair<UINT, double>::iterator i_id_time;
-  std::vector< std::set<id_time, CompareSecond< id_time > > > process_order;
+   std::set<id_time, CompareSecond< id_time > >  process_order;
 
 
  public:
@@ -159,28 +161,29 @@ class CompareSecond {
 
 
   void getProcessOrder() {
-    process_order.resize(original.size());
+    //process_order.resize(original.size());
     for (UINT i = 0; i < original.size()-1; ++i) {
 //      DLOG(INFO) << "preparing " << i;
       for (UINT j = i+1; j < original.size(); ++j) {
         if (travel_Time[i][j] == -1) {
-          process_order[j].insert(std::make_pair(i, 999999));
+          process_order.insert(std::make_pair(std::make_pair(i,j),  original[i].distance(original[j]) / 250));
         } else {
-          process_order[j].insert(std::make_pair(i, travel_Time[i][j]));
+          process_order.insert(std::make_pair(std::make_pair(i,j), travel_Time[i][j]));
         }
       }
     }
+#if 0
 #if 0
     int i = 0;
     for(auto it = process_order.begin(); it != process_order.end() ; ++it) {
       DLOG(INFO) << original[i].id() << ", " << " size -> " << (*it).size();
       i++;
     }
-    UINT j =  original.size()-2;
-    for(auto it = process_order[j].begin(); it != process_order[j].end() ; ++it) {
-      DLOG(INFO) << original[j].id() << ", " << original[it->first].id() << " -> " << it->second;
-      i++;
+#endif
+    for(auto it = process_order.begin(); it != process_order.end(); ++it) {
+      DLOG(INFO) << original[it->first.first].id() << ", " << original[it->first.second].id() << " -> " << it->second;
     }
+assert(true==false);
 #endif
   } 
 
@@ -570,16 +573,17 @@ void fill_travel_time_onTrip(double timeLim) {
   int i,j;
   TwBucket <knode> trip;
   TwBucket <knode> nodesOnPath;
-  for (i = original.size()-1; i >= 0; --i) {
+  // for (i = original.size()-1; i >= 0; --i) {
 #ifdef VRPMINTRACE
-    DLOG(INFO) << "fill_travel_time_onTrip doing " << i <<" th " << original[i].id() << " size" << process_order[i].size() << "\n";
+    DLOG(INFO) << "fill_travel_time_onTrip doing " << i <<" th " << original[i].id() << " size" << process_order.size() << "\n";
 #endif
 
-    while (process_order[i].size() > 0) {
-      UINT   j = process_order[i].begin()->first;
-      double p_tim = process_order[i].begin()->second;
-#ifdef VRPMAXTRACE
-      DLOG(INFO) << "fill_travel_time_onTrip " << i << " size " << process_order[i].size() << " working with " <<original[i].id() << "," << original[j].id()
+    while (process_order.size() > 0) {
+      UINT   i = process_order.begin()->first.first;
+      UINT   j = process_order.begin()->first.second;
+      double p_tim = process_order.begin()->second;
+#ifdef VRPMINTRACE
+      DLOG(INFO) << "fill_travel_time_onTrip " << i << " size " << process_order.size() << " working with " <<original[i].id() << "," << original[j].id()
                  << " onTrip time" << travel_time_onTrip[i][j] 
                  << " on data time" << travel_Time[i][j] 
                  << " onTrip time" << travel_time_onTrip[j][i] 
@@ -588,7 +592,7 @@ void fill_travel_time_onTrip(double timeLim) {
 
       if (p_tim < timeLim) break;
 //DLOG(INFO) << "In time limit";
-      process_order[i].erase(process_order[i].begin());
+      process_order.erase(process_order.begin());
 
     // for (j = original.size()-1; j >= 0; --j) {
       if (i == j) {
@@ -622,8 +626,8 @@ void fill_travel_time_onTrip(double timeLim) {
           fill_times(nodesOnPath);
         }
       // }
-    } // for j
-  } // for i
+    } // while
+  // } // for i
 // assert(true==false);
 #ifdef VRPMAXTRACE
   int count=0;
