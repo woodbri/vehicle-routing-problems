@@ -127,7 +127,7 @@ int main(int argc, char **argv)
     }
 #endif
 
-    for (int icase = 1; icase < 7; ++icase) {
+    for (int icase = 7; icase < 7; ++icase) {
       DLOG(INFO) << "initial solution: " << icase;
       tp.process(icase);
       if (best_cost > tp.getCostOsrm()) {

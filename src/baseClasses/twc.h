@@ -83,10 +83,22 @@
  * values appropriately if you plan to use the reachability functions.
  *
  */
+
+
 template <class knode> class TWC {
  private:
   typedef TwBucket<knode> Bucket;
 
+template<typename Pair>
+class CompareSecond {
+ public:
+  bool operator()(const Pair& firstPair, const Pair& secondPair) {
+    if (firstPair.second > secondPair.second) return true;
+    if (firstPair.second == secondPair.second)
+      return firstPair.first > secondPair.first;
+    return false;
+  }
+};
 #ifdef OSRMCLIENT
   /*! \todo */
   class TTindex {  // all are ids when prev==from its a 3 node call
@@ -125,6 +137,10 @@ template <class knode> class TWC {
   std::vector<std::vector<double> > travel_time_onTrip;
   std::vector< std::vector< std::deque< int64_t> > > nodes_onTrip;
 
+  typedef std::pair<UINT, double> id_time;
+  // typedef pair<UINT, double>::iterator i_id_time;
+  std::vector< std::set<id_time, CompareSecond< id_time > > > process_order;
+
 
  public:
   bool emptiedTruck;
@@ -142,6 +158,31 @@ template <class knode> class TWC {
   }
 
 
+  void getProcessOrder() {
+    process_order.resize(original.size());
+    for (UINT i = 0; i < original.size()-1; ++i) {
+//      DLOG(INFO) << "preparing " << i;
+      for (UINT j = i+1; j < original.size(); ++j) {
+        if (travel_Time[i][j] == -1) {
+          process_order[j].insert(std::make_pair(i, 999999));
+        } else {
+          process_order[j].insert(std::make_pair(i, travel_Time[i][j]));
+        }
+      }
+    }
+#if 0
+    int i = 0;
+    for(auto it = process_order.begin(); it != process_order.end() ; ++it) {
+      DLOG(INFO) << original[i].id() << ", " << " size -> " << (*it).size();
+      i++;
+    }
+    UINT j =  original.size()-2;
+    for(auto it = process_order[j].begin(); it != process_order[j].end() ; ++it) {
+      DLOG(INFO) << original[j].id() << ", " << original[it->first].id() << " -> " << it->second;
+      i++;
+    }
+#endif
+  } 
 
 
   // -------------------  major tools  ----------------------------
@@ -514,7 +555,9 @@ void fill_travel_time_onTrip() {
       travel_time_onTrip[i].resize(siz);
       nodes_onTrip[i].resize(siz);
   }
+  getProcessOrder();
 //original.dump("original");
+  fill_travel_time_onTrip(10);
   fill_travel_time_onTrip(5);
   fill_travel_time_onTrip(2);
   fill_travel_time_onTrip(1);
@@ -529,22 +572,33 @@ void fill_travel_time_onTrip(double timeLim) {
   TwBucket <knode> nodesOnPath;
   for (i = original.size()-1; i >= 0; --i) {
 #ifdef VRPMINTRACE
-    DLOG(INFO) << "fill_travel_time_onTrip doing" << i <<"th " << original[i].id() << "\n";
+    DLOG(INFO) << "fill_travel_time_onTrip doing " << i <<" th " << original[i].id() << "\n";
 #endif
 
-
-
-    for (j = original.size()-1; j >= 0; --j) {
-#ifdef VRPAXTRACE
-      DLOG(INFO) << "fill_travel_time_onTrip " << original[i].id() << "," << original[j].id() << "\n";
+    while (process_order[i].size() > 0) {
+      UINT   j = process_order[i].begin()->first;
+      double p_tim = process_order[i].begin()->second;
+#ifdef VRPMAXTRACE
+      DLOG(INFO) << "fill_travel_time_onTrip " << i << " size " << process_order[i].size() << " working with " <<original[i].id() << "," << original[j].id()
+                 << " onTrip time" << travel_time_onTrip[i][j] 
+                 << " on data time" << travel_Time[i][j] 
+                 << " onTrip time" << travel_time_onTrip[j][i] 
+                 << " on data time" << travel_Time[j][i] << "\n";
 #endif
+
+      if (p_tim < timeLim) break;
+//DLOG(INFO) << "In time limit";
+      process_order[i].erase(process_order[i].begin());
+
+    // for (j = original.size()-1; j >= 0; --j) {
       if (i == j) {
         travel_time_onTrip[i][j] = 0;
         continue;
       }
 
-      if (travel_Time[i][j] >= timeLim ||  travel_Time[i][j] == -1) {
+      // if (travel_Time[i][j] >= timeLim ||  travel_Time[i][j] == -1) {
         if (travel_time_onTrip[i][j] == 0) {
+//DLOG(INFO) << "proccessing 1";
           trip.clear();
           nodesOnPath.clear();
           trip.push_back(original[i]);
@@ -553,11 +607,12 @@ void fill_travel_time_onTrip(double timeLim) {
           if (nodesOnPath[nodesOnPath.size()-1].nid() != original[j].nid()) nodesOnPath.push_back(original[j]);
           fill_times(nodesOnPath);
         }
-      }
+      // }
 
 
-      if (travel_Time[j][i] >= timeLim ||  travel_Time[j][i] == -1) {
+      // if (travel_Time[j][i] >= timeLim ||  travel_Time[j][i] == -1) {
         if (travel_time_onTrip[j][i] == 0) {
+//DLOG(INFO) << "proccessing 2";
           trip.clear();
           nodesOnPath.clear();
           trip.push_back(original[j]);
@@ -566,10 +621,10 @@ void fill_travel_time_onTrip(double timeLim) {
           if (nodesOnPath[nodesOnPath.size()-1].nid() != original[i].nid()) nodesOnPath.push_back(original[i]);
           fill_times(nodesOnPath);
         }
-      }
-
+      // }
     } // for j
   } // for i
+// assert(true==false);
 #ifdef VRPMAXTRACE
   int count=0;
   for (int ii = 0; ii < travel_time_onTrip.size(); ++ii) {
@@ -640,6 +695,8 @@ void fill_times(const TwBucket<knode> nodesOnPath) {
       if (from != to) {
         if (travel_time_onTrip[from][to] == 0) {
           travel_time_onTrip[from][to] = times[j]-times[i];
+          travel_Time[from][to] = times[j]-times[i];
+
           nodes_onTrip[from][to].clear();
           for (int k = i + 1; k < j; ++k) {
             UINT nodeOnPath = nodesOnPath[k].nid();
@@ -662,6 +719,8 @@ void fill_times(const TwBucket<knode> nodesOnPath) {
             DLOG(INFO) << " ----> changed ";
   #endif
             travel_time_onTrip[from][to] = times[j]-times[i];
+            travel_Time[from][to] = times[j]-times[i];
+
             nodes_onTrip[from][to].clear();
             for (int k = i + 1; k < j; ++k) {
               UINT nodeOnPath = nodesOnPath[k].nid();
@@ -2561,6 +2620,7 @@ DLOG(INFO) << TravelTime(from,to) << " ?? " << TravelTime(from,middle) << " + " 
   void prepareTravelTime() {
     int siz = original.size();
     travel_Time.resize(siz);
+    //process_order.resize(siz);
 
     for ( int i = 0; i < siz; i++ )
       travel_Time[i].resize(siz);
@@ -2744,7 +2804,7 @@ DLOG(INFO) << TravelTime(from,to) << " ?? " << TravelTime(from,middle) << " + " 
       buffer >> to;
       buffer >> time;
 
-      if ( invalid.hasId(from) || invalid.hasId(to) ) continue;
+      if (invalid.hasId(from) || invalid.hasId(to)) continue;
 
       fromId = getNidFromId(from);
       toId = getNidFromId(to);
@@ -2752,6 +2812,7 @@ DLOG(INFO) << TravelTime(from,to) << " ?? " << TravelTime(from,middle) << " + " 
       if ( fromId == -1 || toId == -1 ) continue;
 
       travel_Time[fromId][toId] = time;
+      // process_order[fromId].insert(std::make_pair(toId, time));
     }
 
     in.close();
