@@ -118,19 +118,12 @@ int vrp_trash_collection( container_t *containers, unsigned int container_count,
     Solution best_sol( tp );
     best_cost = best_sol.getCostOsrm();
 
-#ifdef DOVRPLOG
-    DLOG(INFO) << "=-=-=-=-=-=- INITIAL SOLUTION -=-=-=-=-=-=-=";
-    DLOG(INFO) << "Number of containers: " << best_sol.countPickups();
-    best_sol.dumpCostValues();
-    DLOG(INFO) << "=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=";
-#endif
-
     THROW_ON_SIGINT
 
+#if 0
     TabuOpt tsi( tp , iteration);
     Solution opt_sol = tsi.getBestSolution();
 
-#if 0
     if (best_cost > opt_sol.getCostOsrm()) {
 #ifdef DOVRPLOG
       DLOG(INFO) << "Optimization: 0 is best";
