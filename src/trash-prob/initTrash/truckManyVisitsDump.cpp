@@ -167,11 +167,11 @@ void TruckManyVisitsDump::initializeTrip(Vehicle &trip, bool fromStart) {
       safePushBackNode(trip, bestNode);
       insertBigSubPathAtBegin(trip);
       break;
-    case 0:
+    case 1:
       insertBestPairInCleanTrip(trip);
       insertBigSubPathAtBegin(trip);
       break;
-    case 1:
+    case 0:
       insertBestPairInCleanTrip(trip);
       break;
     default:
