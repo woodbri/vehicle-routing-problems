@@ -572,7 +572,7 @@ void fill_travel_time_onTrip(double timeLim) {
   TwBucket <knode> nodesOnPath;
   for (i = original.size()-1; i >= 0; --i) {
 #ifdef VRPMINTRACE
-    DLOG(INFO) << "fill_travel_time_onTrip doing " << i <<" th " << original[i].id() << "\n";
+    DLOG(INFO) << "fill_travel_time_onTrip doing " << i <<" th " << original[i].id() << " size" << process_order[i].size() << "\n";
 #endif
 
     while (process_order[i].size() > 0) {
