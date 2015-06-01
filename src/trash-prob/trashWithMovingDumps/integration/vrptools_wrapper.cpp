@@ -130,6 +130,7 @@ int vrp_trash_collection( container_t *containers, unsigned int container_count,
     TabuOpt tsi( tp , iteration);
     Solution opt_sol = tsi.getBestSolution();
 
+#if 0
     if (best_cost > opt_sol.getCostOsrm()) {
 #ifdef DOVRPLOG
       DLOG(INFO) << "Optimization: 0 is best";
@@ -137,6 +138,7 @@ int vrp_trash_collection( container_t *containers, unsigned int container_count,
       best_cost = opt_sol.getCostOsrm();
       best_sol = opt_sol;
     }
+#endif
 
     for (int icase = 1; icase < 7; ++icase) {
 #ifdef DOVRPLOG
@@ -153,6 +155,7 @@ int vrp_trash_collection( container_t *containers, unsigned int container_count,
 
       THROW_ON_SIGINT
 
+#if 0
       TabuOpt ts(tp, iteration);
 
       THROW_ON_SIGINT
@@ -168,6 +171,13 @@ int vrp_trash_collection( container_t *containers, unsigned int container_count,
         best_cost = ts.getBestSolution().getCostOsrm();
         best_sol = ts.getBestSolution();
       }
+#endif
+    }
+
+    TabuOpt ts(best_sol, iteration);
+    if (best_cost > ts.getBestSolution().getCostOsrm()) {
+        best_cost = ts.getBestSolution().getCostOsrm();
+        best_sol = ts.getBestSolution();
     }
 
 #ifdef DOVRPLOG

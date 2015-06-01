@@ -117,7 +117,7 @@ TrashProb::TrashProb(  container_t *p_containers, unsigned int container_count,
 
   twc->setHints( endings );
 
-  twc->fill_travel_onTrip();
+  twc->fill_travel_time_onTrip();
 
   twc->settCC( C, pickups );
 
