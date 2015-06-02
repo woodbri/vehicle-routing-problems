@@ -199,7 +199,7 @@ BASETRASH_HEADS = $(BASETRASH_HDS) $(BASECLASSES_HEADS)
 
 
 
-INITTRASH_SRCS =  $(INITTRASH_DIR)/truckManyVisitsDump.cpp $(INITTRASH_DIR)/feasableSolLoop.cpp  $(INITTRASH_DIR)/givenInitialSol.cpp
+INITTRASH_SRCS =  $(INITTRASH_DIR)/truckManyVisitsDump.cpp $(INITTRASH_DIR)/basicOperations.cpp  $(INITTRASH_DIR)/givenInitialSol.cpp
 INITTRASH_HDS = $(INITTRASH_SRCS:.cpp=.h)
 INITTRASH_OBJS = $(addprefix $(BUILD_DIR)/$(INITTRASH)/,$(notdir $(INITTRASH_SRCS:.cpp=.o)))
 INITTRASH_HEADS = $(INITTRASH_HDS)  $(BASECLASSES_HEADS)

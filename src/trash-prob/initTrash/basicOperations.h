@@ -11,18 +11,17 @@
  * the terms of the MIT License. Please file LICENSE for details.
  *
  ********************************************************************VRP*/
-#ifndef SRC_TRASH_PROB_INITTRASH_TRUCKMANYVISITSDUMP_H_
-#define SRC_TRASH_PROB_INITTRASH_TRUCKMANYVISITSDUMP_H_
+#ifndef SRC_TRASH_PROB_INITTRASH_BASICOPERATIONS_H_
+#define SRC_TRASH_PROB_INITTRASH_BASICOPERATIONS_H_
 
 #include <string>
 #include <deque>
 
-#include "./basicOperations.h"
+#include "./solution.h"
 
 
-class TruckManyVisitsDump : public Basicoperations {
-#if 0
- private:
+class Basicoperations : public Solution {
+ protected:
   typedef  TwBucket<Trashnode> Bucket;
   typedef  unsigned long int UID;
   typedef  unsigned long int POS;
@@ -33,20 +32,16 @@ class TruckManyVisitsDump : public Basicoperations {
   Bucket unassigned;
   Bucket problematic;
   Bucket assigned;
-#endif
-  int icase;
 
 
  public:
-  void process(int pcase);
-
-  explicit TruckManyVisitsDump(const std::string &infile): Basicoperations(infile) {
+  explicit Basicoperations(const std::string &infile): Solution(infile) {
     unusedTrucks = trucks;
     unassigned = pickups;
     fleet.clear();
   }
 
-  TruckManyVisitsDump(const Prob_trash &P): Basicoperations(P) {
+  Basicoperations( const Prob_trash &P ): Solution( P ) {
     unusedTrucks = trucks;
     unassigned = pickups;
     fleet.clear();
@@ -54,8 +49,7 @@ class TruckManyVisitsDump : public Basicoperations {
   };
 
 
- private:
-#if 0
+ protected:
 bool safeInsertNode(Vehicle &trip, const Trashnode &node, UINT pos);
 bool safeDeleteNode(Vehicle &trip, UINT pos);
 bool safeInsertSubpath(Vehicle &trip, Bucket &subPath, UINT pos);
@@ -65,10 +59,9 @@ bool safePushBackNode(Vehicle &trip, Trashnode &node);
 bool safePushFrontNode(Vehicle &trip, Trashnode &node);
 bool safePopBackNode(Vehicle &trip); 
 bool safePopFrontNode(Vehicle &trip); 
-  void invariant();
-  Vehicle getTruck();
-#endif
-
+Vehicle getTruck();
+void invariant();
+#if 0
   bool insertBestPairInCleanTrip(Vehicle &trip);
   bool insertBestPairSubPath(std::deque<Vehicle> &trips);
   bool insertBigSubPathAtBegin(Vehicle &trip);
@@ -86,6 +79,7 @@ bool safePopFrontNode(Vehicle &trip);
   void fillOneTruck(Vehicle &truck);
   bool insertTrip(Vehicle &trip, Vehicle &truck);
   void IntraSwMoves(Vehicle &truck);
+#endif
 };
 
-#endif  // SRC_TRASH_PROB_INITTRASH_TRUCKMANYVISITSDUMP_H_
+#endif  // SRC_TRASH_PROB_INITTRASH_BASICOPERATIONS_H_
