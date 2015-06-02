@@ -89,6 +89,10 @@ int main(int argc, char **argv)
     //CONFIG->dump("CONFIG");
 #endif
 
+#ifdef VRPMINTRACE
+   DLOG(INFO) << "log file started for: " << infile;
+#endif
+
 #ifdef OSRMCLIENT
     osrmi->useOsrm(true);
     bool testResult = osrmi->testOsrmClient(

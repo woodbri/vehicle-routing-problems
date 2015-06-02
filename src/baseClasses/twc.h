@@ -127,9 +127,11 @@ class CompareSecond {
              rhs.middle() ? true : lhs.to() < rhs.to();
     }
   };
+#if 0
   typedef std::map<TTindex, double, classcomp>  TT4;
   typedef typename std::map<TTindex, double, classcomp>::iterator p_TT4;
   mutable TT4 travel_Time4;
+#endif
 #endif
 
   TwBucket<knode> original;
@@ -156,7 +158,7 @@ class CompareSecond {
     twcij.clear();
     travel_Time.clear();
 #ifdef OSRMCLIENT
-    travel_Time4.clear();
+    // travel_Time4.clear();
 #endif
   }
 
@@ -559,6 +561,7 @@ void fill_travel_time_onTrip() {
       travel_time_onTrip[i].resize(siz);
       nodes_onTrip[i].resize(siz);
   }
+  compulsory_fill();
   getProcessOrder();
 //original.dump("original");
   if (original.size() < 500) 
@@ -632,6 +635,25 @@ void process_pair_onPath(UINT i, UINT j) const{
   }
 }
 
+
+// the values for non containers to/from containers should be filled
+bool compulsory_fill() {
+  DLOG(INFO) << "started compulsory fill";
+  for (int i = original.size()-1; !original[i].isPickup(); --i) {
+    for (UINT j = 0; j < i; ++j) {
+#if 0
+    DLOG(INFO) << "working with " << original[i].id() << ", " << original[j].id() 
+                 << " onTrip time" << travel_time_onTrip[i][j] 
+                 << " on data time" << travel_Time[i][j] 
+                 << " onTrip time" << travel_time_onTrip[j][i] 
+                 << " on data time" << travel_Time[j][i] << "\n";
+#endif
+      process_pair_onPath(i,j);
+      process_pair_onPath(j,i);
+    }
+  }
+  DLOG(INFO) << "Ended compulsory fill";
+}
 
 
 
@@ -732,8 +754,8 @@ void fill_times(const TwBucket<knode> nodesOnPath) const {
     }
   }
 
+#if 0
   // extract triplets/quadruplets and store in table
-
   UINT i_nid, j_nid, k_nid, l_nid;
   double timeij, timejk, timeijk, timeijkl, timejkl; 
   for (unsigned int i = 0; i < nodesOnPath.size()-2; ++i) {
@@ -768,14 +790,16 @@ void fill_times(const TwBucket<knode> nodesOnPath) const {
   }  // i
   
 // assert(true==false);
-}
+#endif 
 
+}
+#if 0
 void travel_Time4Insert(UINT i_nid, UINT j_nid, UINT k_nid, UINT l_nid, double time) const {
   TTindex index(i_nid, j_nid, k_nid, l_nid);
   if (travel_Time4.find(index) == travel_Time4.end()) return;
   travel_Time4.insert(std::pair<TTindex,double>(index, time));
 }
-  
+#endif
 
 
 /*!
@@ -1000,9 +1024,6 @@ void getNodesOnPath(
 
 
 /*!
-
-\returns array of times for route 0 1 2 3 4 5 6 D
-
 truck: 0 1 2 3 4 5 6 D  
 call: 0 1 2 3 4 5 6 D       D 6 5 4 3 2 1 0
       |_____________|       |_____________|
@@ -1094,11 +1115,11 @@ bool setTravelingTimesOfRoute(
   #endif 
 
 
-  // extract triplets and store in table
   #ifdef VRPMAXTRACE 
   DLOG(INFO) << "pairs";
   #endif 
   for (unsigned int i = 0; i < call.size()-1; ++i) {
+    TravelTime(call[i].nid(), call[i+1].nid());
     travel_Time[call[i].nid()][call[i+1].nid()] = times[i+1]-times[i];
     #ifdef VRPMAXTRACE 
     DLOG(INFO) << call[i].id() << " -> " 
@@ -1106,6 +1127,7 @@ bool setTravelingTimesOfRoute(
     #endif 
   }
 
+#if 0
   // extract triplets and store in table
   #ifdef VRPMAXTRACE 
   DLOG(INFO) << "triplets";
@@ -1139,12 +1161,10 @@ bool setTravelingTimesOfRoute(
                << call[i+3].id() << " = " <<  times[i+3]-times[i];
     #endif 
   }
-
+#endif
   osrmi->useOsrm(oldStateOsrm);  
 #endif  // with OSRMCLIENT
 }
-
-
 
 
 
@@ -1243,6 +1263,20 @@ bool setTravelingTimesInsertingOneNode(
   }
   #endif 
 
+
+  #ifdef VRPMAXTRACE 
+  DLOG(INFO) << "pairs";
+  #endif 
+  for (unsigned int i = 0; i < call.size()-1; ++i) {
+    TravelTime(call[i].nid(), call[i+1].nid());
+    travel_Time[call[i].nid()][call[i+1].nid()] = times[i+1]-times[i];
+    #ifdef VRPMAXTRACE 
+    DLOG(INFO) << call[i].id() << " -> " 
+               << call[i+1].id() << " = " << times[i+1] - times[i];
+    #endif 
+  }
+
+#if 0
   // extract triplets and store in table
   #ifdef VRPMAXTRACE 
   DLOG(INFO) << "triplets";
@@ -1275,6 +1309,7 @@ bool setTravelingTimesInsertingOneNode(
                << call[i+3].id() << " = " <<  times[i+3]-times[i];
     #endif 
   }
+#endif
 
   osrmi->useOsrm(oldStateOsrm);  
 #endif  // with OSRMCLIENT
