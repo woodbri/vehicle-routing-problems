@@ -50,36 +50,17 @@ class Basicoperations : public Solution {
 
 
  protected:
-bool safeInsertNode(Vehicle &trip, const Trashnode &node, UINT pos);
-bool safeDeleteNode(Vehicle &trip, UINT pos);
-bool safeInsertSubpath(Vehicle &trip, Bucket &subPath, UINT pos);
-bool safePushFrontSubpath(Vehicle &trip, Bucket &subPath);
-bool safePushBackSubpath(Vehicle &trip, Bucket &subPath);
-bool safePushBackNode(Vehicle &trip, Trashnode &node);
-bool safePushFrontNode(Vehicle &trip, Trashnode &node);
-bool safePopBackNode(Vehicle &trip); 
-bool safePopFrontNode(Vehicle &trip); 
-Vehicle getTruck();
-void invariant();
-#if 0
-  bool insertBestPairInCleanTrip(Vehicle &trip);
-  bool insertBestPairSubPath(std::deque<Vehicle> &trips);
-  bool insertBigSubPathAtBegin(Vehicle &trip);
-  bool insertBigSubPathAtEnd(Vehicle &trip);
-  void deleteTrip(Vehicle &trip);
-  void remove_CV(Vehicle &trip);
-  void remove_TWV(Vehicle &trip);
-  void initializeTrip(Vehicle &trip, bool fromStart);
-  void fillTrip(Vehicle &trip);
-  void buildTruck(Vehicle &truck, std::deque<Vehicle> &trips);
-  void initializeTruck(Vehicle &truck, std::deque<Vehicle> &trips);
-  void fillTruck(Vehicle &truck, std::deque<Vehicle> &trips);
-  void fillFleet();
-  void insertNodesOnPath(Vehicle &trip);
-  void fillOneTruck(Vehicle &truck);
-  bool insertTrip(Vehicle &trip, Vehicle &truck);
-  void IntraSwMoves(Vehicle &truck);
-#endif
+  bool safeInsertNode(Vehicle &trip, const Trashnode &node, UINT pos);
+  bool safeDeleteNode(Vehicle &trip, UINT pos);
+  bool safeInsertSubpath(Vehicle &trip, Bucket &subPath, UINT pos);
+  bool safePushFrontSubpath(Vehicle &trip, Bucket &subPath);
+  bool safePushBackSubpath(Vehicle &trip, Bucket &subPath);
+  bool safePushBackNode(Vehicle &trip, Trashnode &node);
+  bool safePushFrontNode(Vehicle &trip, Trashnode &node);
+  bool safePopBackNode(Vehicle &trip); 
+  bool safePopFrontNode(Vehicle &trip); 
+  Vehicle getTruck();
+  void invariant();
 };
 
 #endif  // SRC_TRASH_PROB_INITTRASH_BASICOPERATIONS_H_

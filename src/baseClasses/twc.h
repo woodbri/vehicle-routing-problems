@@ -162,7 +162,10 @@ class CompareSecond {
 #endif
   }
 
-
+  void initializeTravelTime() {
+    travel_Time = travel_time_onTrip;
+  };
+    
   void getProcessOrder() {
     //process_order.resize(original.size());
     for (UINT i = 0; i < original.size()-1; ++i) {
@@ -584,7 +587,8 @@ void fill_travel_time_onTrip_work(
       UINT   j = process_order.begin()->first.second;
       double p_tim = process_order.begin()->second;
 #ifdef VRPMINTRACE
-      DLOG(INFO) << "fill_travel_time_onTrip " << i << " size " << process_order.size() << " working with " <<original[i].id() << "," << original[j].id()
+      if ((process_order.size() % 20) == 0)
+        DLOG(INFO) << "fill_travel_time_onTrip " << i << " size " << process_order.size() << " working with " <<original[i].id() << "," << original[j].id()
                  << " onTrip time" << travel_time_onTrip[i][j] 
                  << " on data time" << travel_Time[i][j] 
                  << " onTrip time" << travel_time_onTrip[j][i] 
