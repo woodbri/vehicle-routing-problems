@@ -1642,6 +1642,7 @@ private:
     return travel_Time[from][to];
   }
 
+#if 0
 #ifndef OSRMCLIENT
   double getTravelTime(UID prev, UID from, UID middle, UID to) const {
     assert(prev < original.size() && from < original.size()
@@ -1702,7 +1703,7 @@ private:
     return time;
   }
 #endif  // with OSRM
-
+#endif
 
 
  public:
@@ -1714,31 +1715,37 @@ private:
     return getTravelTime(from,to);
   }
 
-  double TravelTime(const knode &from, const knode &to) const {
-    return TravelTime(from.nid(), to.nid());
-  }
-
   double TravelTime(UID from, UID middle, UID to) const {
     assert(from < original.size());
     assert(middle < original.size());
     assert(to < original.size());
-    return getTravelTime(from, from, middle, to);
-  }
+    TravelTime(from,to);
+    return  TravelTime(from, middle) + TravelTime(middle, to);
+   }
 
-  double TravelTime(const knode &from, const knode &middle, const knode &to) const {
-    return getTravelTime(from.nid(), from.nid(), middle.nid(), to.nid());
-  }
-
-  double TravelTime(const knode &prev, const knode &from, const knode &middle, const knode &to) const {
-    return getTravelTime(prev.nid(), from.nid(), middle.nid(), to.nid());
-  }
 
   double TravelTime(UID prev, UID from, UID middle, UID to) const {
     assert(prev < original.size());
     assert(from < original.size());
     assert(middle < original.size());
     assert(to < original.size());
-    return getTravelTime(prev, from, middle, to);
+    TravelTime(prev,to);
+    TravelTime(from,to);
+    TravelTime(prev, middle);
+    return  TravelTime(prev, from) +  TravelTime(from, middle)
+          + TravelTime(middle, to);
+  }
+
+  double TravelTime(const knode &from, const knode &to) const {
+    return TravelTime(from.nid(), to.nid());
+  }
+
+  double TravelTime(const knode &from, const knode &middle, const knode &to) const {
+    return TravelTime(from.nid(), from.nid(), middle.nid(), to.nid());
+  }
+
+  double TravelTime(const knode &prev, const knode &from, const knode &middle, const knode &to) const {
+    return TravelTime(prev.nid(), from.nid(), middle.nid(), to.nid());
   }
   //@}
 
