@@ -136,12 +136,13 @@ class CompareSecond {
   std::map< std::string, int> streetNames; 
   mutable std::vector<std::vector<double> > twcij;
   mutable std::vector<std::vector<double> > travel_Time;
-  std::vector<std::vector<double> > travel_time_onTrip;
-  std::vector< std::vector< std::deque< int64_t> > > nodes_onTrip;
+  mutable std::vector<std::vector<double> > travel_time_onTrip;
+  mutable std::vector< std::vector< std::deque< int64_t> > > nodes_onTrip;
 
   typedef std::pair< std::pair <UINT, UINT>,  double> id_time;
   // typedef pair<UINT, double>::iterator i_id_time;
    std::set<id_time, CompareSecond< id_time > >  process_order;
+   std::set<id_time, CompareSecond< id_time > >  process_order_far;
 
 
  public:
@@ -166,7 +167,7 @@ class CompareSecond {
 //      DLOG(INFO) << "preparing " << i;
       for (UINT j = i+1; j < original.size(); ++j) {
         if (travel_Time[i][j] == -1) {
-          process_order.insert(std::make_pair(std::make_pair(i,j),  original[i].distance(original[j]) / 250));
+          process_order_far.insert(std::make_pair(std::make_pair(i,j),  original[i].distance(original[j]) / 250));
         } else {
           process_order.insert(std::make_pair(std::make_pair(i,j), travel_Time[i][j]));
         }
@@ -560,22 +561,19 @@ void fill_travel_time_onTrip() {
   }
   getProcessOrder();
 //original.dump("original");
-  fill_travel_time_onTrip(10);
-  fill_travel_time_onTrip(5);
-  fill_travel_time_onTrip(2);
-  fill_travel_time_onTrip(1);
-  fill_travel_time_onTrip(0);
+  if (original.size() < 500) 
+    fill_travel_time_onTrip_work(process_order_far);
+  fill_travel_time_onTrip_work(process_order);
 }
 
 
-void fill_travel_time_onTrip(double timeLim) {
-
+void fill_travel_time_onTrip_work(
+  std::set<id_time, CompareSecond< id_time > >  &process_order) {
   int i,j;
   TwBucket <knode> trip;
   TwBucket <knode> nodesOnPath;
-  // for (i = original.size()-1; i >= 0; --i) {
 #ifdef VRPMINTRACE
-    DLOG(INFO) << "fill_travel_time_onTrip doing " << i <<" th " << original[i].id() << " size" << process_order.size() << "\n";
+    DLOG(INFO) << "fill_travel_time_onTrip doing " <<  " size" << process_order.size() << "\n";
 #endif
 
     while (process_order.size() > 0) {
@@ -590,44 +588,15 @@ void fill_travel_time_onTrip(double timeLim) {
                  << " on data time" << travel_Time[j][i] << "\n";
 #endif
 
-      if (p_tim < timeLim) break;
-//DLOG(INFO) << "In time limit";
       process_order.erase(process_order.begin());
 
-    // for (j = original.size()-1; j >= 0; --j) {
       if (i == j) {
         travel_time_onTrip[i][j] = 0;
         continue;
       }
-
-      // if (travel_Time[i][j] >= timeLim ||  travel_Time[i][j] == -1) {
-        if (travel_time_onTrip[i][j] == 0) {
-//DLOG(INFO) << "proccessing 1";
-          trip.clear();
-          nodesOnPath.clear();
-          trip.push_back(original[i]);
-          getNodesOnPath(trip, original[j], original, nodesOnPath);
-          if (nodesOnPath.size() == 0 || nodesOnPath[0].nid() != original[i].nid()) nodesOnPath.push_front(original[i]);
-          if (nodesOnPath[nodesOnPath.size()-1].nid() != original[j].nid()) nodesOnPath.push_back(original[j]);
-          fill_times(nodesOnPath);
-        }
-      // }
-
-
-      // if (travel_Time[j][i] >= timeLim ||  travel_Time[j][i] == -1) {
-        if (travel_time_onTrip[j][i] == 0) {
-//DLOG(INFO) << "proccessing 2";
-          trip.clear();
-          nodesOnPath.clear();
-          trip.push_back(original[j]);
-          getNodesOnPath(trip, original[i], original, nodesOnPath);
-          if (nodesOnPath.size() == 0 || nodesOnPath[0].nid() != original[j].nid()) nodesOnPath.push_front(original[j]);
-          if (nodesOnPath[nodesOnPath.size()-1].nid() != original[i].nid()) nodesOnPath.push_back(original[i]);
-          fill_times(nodesOnPath);
-        }
-      // }
+      process_pair_onPath(i,j);
+      process_pair_onPath(j,i);
     } // while
-  // } // for i
 // assert(true==false);
 #ifdef VRPMAXTRACE
   int count=0;
@@ -646,7 +615,27 @@ void fill_travel_time_onTrip(double timeLim) {
   return;
 }
 
-void fill_times(const TwBucket<knode> nodesOnPath) {
+void process_pair_onPath(UINT i, UINT j) const{
+  TwBucket <knode> trip;
+  TwBucket <knode> nodesOnPath;
+  if (travel_time_onTrip[i][j] == 0) {
+#ifdef DOSTATS
+    STATS->inc("TWC::process_pair_onPath");
+#endif
+    trip.clear();
+    nodesOnPath.clear();
+    trip.push_back(original[i]);
+    getNodesOnPath(trip, original[j], original, nodesOnPath);
+    if (nodesOnPath.size() == 0 || nodesOnPath[0].nid() != original[i].nid()) nodesOnPath.push_front(original[i]);
+    if (nodesOnPath[nodesOnPath.size()-1].nid() != original[j].nid()) nodesOnPath.push_back(original[j]);
+    fill_times(nodesOnPath);
+  }
+}
+
+
+
+
+void fill_times(const TwBucket<knode> nodesOnPath) const {
   //get all the times using osrm
   bool oldStateOsrm = osrmi->getUse();
   osrmi->useOsrm(true);  //forcing osrm usage
@@ -798,7 +787,7 @@ void getNodesOnPath(
    const TwBucket<knode> &truck,
    const knode &dumpSite,
    const TwBucket<knode> &unassigned,
-   TwBucket<knode> &orderedStreetNodes) {
+   TwBucket<knode> &orderedStreetNodes) const {
 #ifndef OSRMCLIENT
   DLOG(INFO) << "NO OSRM";
   return;
@@ -1643,7 +1632,13 @@ private:
   double getTravelTime(UID from, UID to) const {
     assert(from < original.size() && to < original.size());
     double time;
-    if (travel_Time[from][to] == -1) setTravelTime(from,to);
+    if (travel_Time[from][to] == -1) {
+#ifdef DOSTATS
+    STATS->inc("TWC::extra process_pair_onPath");
+#endif
+      process_pair_onPath(from,to);
+      process_pair_onPath(to,from);
+    }
     return travel_Time[from][to];
   }
 
