@@ -41,7 +41,7 @@ else
 endif
 
 
-#RIGHTSIDE = -DRIGHT_SIDE_PICKUP_ONLY
+RIGHTSIDE = -DRIGHT_SIDE_PICKUP_ONLY
 
 # <blank> is NO
 # anything else  
