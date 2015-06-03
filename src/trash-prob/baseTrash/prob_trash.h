@@ -22,7 +22,7 @@
 #include <deque>
 #include <math.h>
 
-#include "vehicle.h"
+#include "tripVehicle.h"
 #include "twpath.h"
 #include "twc.h"
 

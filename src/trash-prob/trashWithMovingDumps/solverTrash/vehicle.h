@@ -36,17 +36,17 @@
 
 
 
-class Vehicle: public CostVehicle {
+class Vehicle1: public CostVehicle {
 protected:
   typedef std::set<Move, Move::compMove> Moves;
 
 public:
   /*! @name constructors */
   ///@{
-  Vehicle():CostVehicle(){};
-  Vehicle(const std::string &line, const Bucket &otherlocs )
+  Vehicle1():CostVehicle(){};
+  Vehicle1(const std::string &line, const Bucket &otherlocs )
     : CostVehicle(line, otherlocs)   { };
-  Vehicle( int _vid, int _start_id, int _dump_id, int _end_id,
+  Vehicle1( int _vid, int _start_id, int _dump_id, int _end_id,
            int _capacity, int _dumpservicetime, int _starttime,
            int _endtime, const Bucket &otherlocs )
     : CostVehicle( _vid, _start_id, _dump_id, _end_id,
@@ -71,10 +71,10 @@ public:
   /*! @name evaluation of moves for optimization */
   ///@{
   long int eval_intraSwapMoveDumps( Moves &moves, POS  truckPos) const;
-  long int eval_interSwapMoveDumps( Moves &moves, const Vehicle &otherTruck,
+  long int eval_interSwapMoveDumps( Moves &moves, const Vehicle1 &otherTruck,
                                     POS  truckPos, POS  otherTruckPos,
                                     double factor   ) const;
-  long int eval_interSwapMoveDumps( Moves &moves, const Vehicle &otherTruck,
+  long int eval_interSwapMoveDumps( Moves &moves, const Vehicle1 &otherTruck,
                                     POS  truckPos, POS  otherTruckPos,
                                     POS fromPos, POS toPos   ) const;
   long int eval_insertMoveDumps( const Trashnode &node, Moves &moves,
@@ -87,7 +87,7 @@ public:
   ///@{
   bool applyMoveINSerasePart( UID nodeNid, POS pos );
   bool applyMoveINSinsertPart( const Trashnode &node, POS pos );
-  bool applyMoveInterSw( Vehicle &otherTruck, POS truckPos, POS otherTruckPos );
+  bool applyMoveInterSw( Vehicle1 &otherTruck, POS truckPos, POS otherTruckPos );
   bool applyMoveIntraSw( POS fromPos, POS withPos );
   ///@}
 

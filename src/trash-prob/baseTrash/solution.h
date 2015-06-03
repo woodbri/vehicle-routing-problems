@@ -26,7 +26,7 @@
 #include "twbucket.h"
 #include "twpath.h"
 #include "pg_types_vrp.h"
-#include "vehicle.h"
+#include "tripVehicle.h"
 #include "move.h"
 
 const double EPSILON = 0.001;

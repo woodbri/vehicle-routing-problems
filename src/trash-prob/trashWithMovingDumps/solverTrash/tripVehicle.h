@@ -1,15 +1,30 @@
+#ifndef TRIPVEHICLE_H
+#define TRIPVEHICLE_H
+
 #include "vehicle.h"
 
 
 // TODO move the code to .cpp keep the headers
 
-class Trip: public Vehicle {
+class Trip: public Vehicle1 {
 
 };
 
 
-class Truck: public Vehicle {
+class Vehicle: public Vehicle1 {
  public:
+
+
+  Vehicle():Vehicle1(){};
+  Vehicle(const std::string &line, const Bucket &otherlocs )
+    : Vehicle1(line, otherlocs)   { };
+  Vehicle( int _vid, int _start_id, int _dump_id, int _end_id,
+           int _capacity, int _dumpservicetime, int _starttime,
+           int _endtime, const Bucket &otherlocs )
+    : Vehicle1( _vid, _start_id, _dump_id, _end_id,
+                   _capacity, _dumpservicetime, _starttime,
+                   _endtime, otherlocs ) {};
+
 
   std::deque< Trip > trips;
 
@@ -33,4 +48,4 @@ class Truck: public Vehicle {
     
   }
 };
-
+#endif // TRIPVEHICLE_H
