@@ -52,6 +52,66 @@ void BaseVehicle::set_startingSite(const Trashnode &other) {
   path.push_front(depot);
 }
 
+void BaseVehicle::e_add_trip(const BaseVehicle &trip) {
+  if (this->size() > 1) path.push_back(dumpSite);
+  for (UINT j = 1; j < trip.size(); ++j) {
+    path.push_back(trip[j]);
+  }
+  evaluate();
+}
+
+
+
+void BaseVehicle::print_short_eval() const {
+  DLOG(INFO) << "starting site";
+  path[0].dumpeval(maxcapacity);
+  DLOG(INFO) << "dump site";
+  dumpSite.dumpeval(maxcapacity);
+  DLOG(INFO) << "endig site";
+  endingSite.dumpeval(maxcapacity);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 bool  BaseVehicle::findPairNodesHasMoreNodesOnPath(

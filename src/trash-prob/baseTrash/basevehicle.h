@@ -53,6 +53,21 @@ protected:
   double w3;          // weight for CV in cost
 
 public:
+  double travelTimeInWorkArea() const {
+    return size() == 0? 0 : path[path.size()-1].totTravelTime() - path[1].totTravelTime();
+  }
+
+class Comptrips {
+  public:
+  bool operator ()(const BaseVehicle &a, const BaseVehicle &b) const {
+    if (a.size() > b.size()) return true;
+    return a.travelTimeInWorkArea() > b.travelTimeInWorkArea();
+  }
+};
+
+
+  void e_add_trip(const BaseVehicle &trip);
+
   bool isvalid() const {return vid >= 0;};  // more complicated than this
   bool findNearestNodeTo(Bucket &unassigned, POS &pos, Trashnode &bestNode);
   bool findFastestNodeTo(bool first, Bucket &unassigned, POS &pos, Trashnode &bestNode, double &bestTime);
@@ -125,6 +140,7 @@ public:
   void dumppath() const;
   void tau(const std::string &title) const ;
   void tau() const ;
+  void print_short_eval() const;
 #endif
 
 #ifdef DOPLOT

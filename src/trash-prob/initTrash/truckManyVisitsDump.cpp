@@ -527,11 +527,12 @@ void TruckManyVisitsDump::fillTruck(Vehicle &truck, std::deque<Vehicle> &trips) 
     trips[i].tau("Trip to be optimized");
     trips[i].intraTripOptimizationNoOsrm();
     trips[i].tau("Optimized trip");
-    trips[i].dumpCostValues();
+    // trips[i].dumpCostValues();
   }
 
   buildTruck(truck, trips);
   truck.dumpCostValues();
+assert(true==false);
   invariant();
 }
 
@@ -541,17 +542,34 @@ void TruckManyVisitsDump::buildTruck(Vehicle &truck, std::deque<Vehicle> &trips)
   truck.e_clean();
   for (UINT i = 0; i < trips.size(); ++i) {
     trips[i].getCostOsrm();
+  }
+  std::sort(trips.begin(), trips.end(), BaseVehicle::Comptrips());
+  for (UINT i = 0; i < trips.size(); ++i) {
+    // trips[i].getCostOsrm();
+    truck.e_add_trip(trips[i]);
+    trips[i].tau();
+  }
+  truck.evaluate();
+  truck.dumpeval();
+  truck.getCostOsrm();
+  truck.dumpCostValues();
+#if 0
     for (UINT j = 1; j < trips[i].size(); ++j) {
       truck.push_back(trips[i][j]);
     }
     if (i != trips.size() - 1) truck.push_back(truck.getDumpSite());   
   }
   if (truck[truck.size()-1].isDump()) truck.Path().pop_back();
+#endif
   truck.getCostOsrm();
-  truck.tau("before adjust dumps");
+  // truck.tau("before adjust dumps");
   truck.e_adjustDumpsToNoCV(1);
   truck.getCostOsrm();
-  truck.tau("before adjust adjust time window");
+  // truck.tau("before adjust adjust time window");
+  truck.getCostOsrm();
+  truck.dumpCostValues();
+  truck.tau();
+  assert(true==false);
   remove_TWV(truck);
   truck.getCostOsrm();
   truck.tau("after adjust adjust time window");
