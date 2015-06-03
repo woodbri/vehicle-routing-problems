@@ -86,6 +86,7 @@ class Node {
   Node operator-(const Node &v) const;
   Node operator*(double f) const;
   double dotProduct(const Node &p) const;
+  double crossProductZ( const Node &p ) const;
   double length() const;
   double gradient(const Node &pi) const;
   Node unit() const;

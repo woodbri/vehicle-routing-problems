@@ -15,6 +15,7 @@
 #include <cmath>
 #include <string>
 #include <iostream>
+#include <iomanip>
 #include <sstream>
 
 #ifdef DOVRPLOG
@@ -86,7 +87,9 @@ void Node::set(const std::string &line) {
 /*!  * \brief Print the contents of this node.  */
 #ifdef DOVRPLOG
 void Node::dump() const {
-  DLOG(INFO) << nid_
+  DLOG(INFO)
+             // << std::setprecision(10)
+             << nid_
              << ", " << x_
              << ", " << y_
              << ", " << hint_;
@@ -113,6 +116,9 @@ double Node::dotProduct( const Node &p ) const { return x_ * p.x_ + y_ * p.y_; }
 
 /*! \brief Compute the Euclidean length of a vector */
 double Node::length() const { return sqrt( x_ * x_ + y_ * y_ ); }
+
+/*! \brief Compute Z value of cross product of two Nodes.*/
+double Node::crossProductZ( const Node &p ) const { return x_ * p.y_ - y_ * p.x_; }
 
 /*! \brief Compute the gradient or slope of a vector defined by the vector n->p
  * \bug This is not safe as it can generate a divide by zero
@@ -245,6 +251,33 @@ double Node::positionAlongSegment(const Node &v, const Node &w, double tol) cons
 
   if (distanceToSquared(projection) > tolSq )
     return -1.0;
+
+  // vector along the segment cross
+  // a vector from the start of the segment to the reference node
+  // if the Z value of the cross product is negative
+  // this is to right of the segment
+  // if it is zero it is on the segment
+  // if it is positive it is to the left of the segment
+#ifdef RIGHT_SIDE_PICKUP_ONLY
+  // if its on the left side return -1
+  double z = (w - v).crossProductZ(((*this) - v));
+#if 0
+  DLOG(INFO) << "STEVE: " << std::setprecision(10) 
+             << nid_
+             << ", " << x_
+             << ", " << y_
+             << ", " << z; 
+  v.dump();
+  w.dump();
+#endif
+  if (z > 0)
+    return -1.0;
+#endif
+#ifdef LEFT_SIDE_PICKUP_ONLY
+  // if its on the right side return -1
+  if ((w - v).crossProductZ(((*this) - v)) < 0)
+    return -1.0;
+#endif
 
   return t;
 }
