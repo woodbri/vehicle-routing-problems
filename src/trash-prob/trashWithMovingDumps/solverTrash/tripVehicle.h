@@ -15,8 +15,12 @@ class Trip: public Vehicle1 {
     : Vehicle1(S, D, E, maxcap) {};
 
   void swapBestToDump(Trip &other);
-  void bestRemoval(UINT &best, POS &pos, double &btime);
-  void bestInsertion(UINT n_id, UINT &ins_aft, POS &ins_pos, double &btime );
+  void exchange(Trip &other, POS del_pos, POS o_ins_pos, POS o_del_pos, POS ins_pos);
+
+
+  bool getRemovalValues(const Trip &other, POS &o_ins_pos, POS &del_pos, double &delta) const;
+  void bestRemoval(UINT &best, POS &pos, double &btime) const;
+  void bestInsertion(UINT n_id, UINT &ins_aft, POS &ins_pos, double &btime) const;
 };
 
 

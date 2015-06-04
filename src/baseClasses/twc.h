@@ -1811,14 +1811,16 @@ private:
        process_pair_onPath(from, middle);
     if (travel_time_onTrip[middle][to] == 0) 
        process_pair_onPath(middle, to);
+#if 0
  DLOG(INFO) << from << "," << middle <<"," << to;
  DLOG(INFO) <<
      travel_time_onTrip[from][to]  << " ?? " <<  travel_time_onTrip[from][middle] << " + " <<travel_time_onTrip[middle][to];
+#endif
     return travel_time_onTrip[from][to] >= (travel_time_onTrip[from][middle] + travel_time_onTrip[middle][to]);
   }
 
   bool isInPath(const knode &from, const knode &middle, const knode& to) {
- DLOG(INFO) << from.nid() << "," << middle.nid() <<"," << to.nid();
+// DLOG(INFO) << from.nid() << "," << middle.nid() <<"," << to.nid();
 // DLOG(INFO) << TravelTime(from,to) << " ?? " << TravelTime(from,middle) << " + " << TravelTime(middle,to);
     return isInPath(from.nid(),middle.nid(),to.nid());
     //return TravelTime(from,to) >= (TravelTime(from,middle) + TravelTime(middle,to));

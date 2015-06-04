@@ -262,20 +262,18 @@ void TruckManyVisitsDump::fillTrip(Trip &trip) {
 //    aux.clear();
 //    aux.push_back(bestNode);
 //    trip.findFastestNodeTo(false, aux, bestPos, bestNode, bestTime);
-    DLOG(INFO) << "inside while bestNode" << bestNode.id();
-    DLOG(INFO) << "at pos " << bestPos << " after " << trip[bestPos-1].id();
+//    DLOG(INFO) << "inside while bestNode" << bestNode.id();
+//    DLOG(INFO) << "at pos " << bestPos << " after " << trip[bestPos-1].id();
     safeInsertNode(trip, bestNode, bestPos);
     insertNodesOnPath(trip);
+    trip.evaluate();
     invariant();
-    trip.tau("after inserting nodes on path");
-
  
-#ifdef VRPMINTRACE
+#ifdef VRPMAXTRACE
     trip.tau("after inserting nodes in path");
     DLOG(INFO)  << "oldSize" << oldSize << "  newsize " << trip.size();
     DLOG(INFO) << "assigned " << assigned.size();
     DLOG(INFO) << "unassigned " << unassigned.size();
-    trip.evaluate();
  #endif
   }
 
@@ -531,11 +529,9 @@ void TruckManyVisitsDump::fillTruck(Vehicle &truck, std::deque<Trip> &trips) {
     trips[i].tau("Optimized trip");
     // trips[i].dumpCostValues();
   }
-
-
   buildTruck(truck, trips);
 
-  truck.swapBestToDump();
+  truck.manualControl();
 
 
 assert(true==false);
@@ -550,7 +546,7 @@ void TruckManyVisitsDump::buildTruck(Vehicle &truck, std::deque<Trip> &trips) {
   for (UINT i = 0; i < trips.size(); ++i) {
     trips[i].getCostOsrm();
   }
-  std::sort(trips.begin(), trips.end(), BaseVehicle::Comptrips());
+  // std::sort(trips.begin(), trips.end(), BaseVehicle::Comptrips());
   for (UINT i = 0; i < trips.size(); ++i) {
     // trips[i].getCostOsrm();
     truck.add_trip(trips[i]);
