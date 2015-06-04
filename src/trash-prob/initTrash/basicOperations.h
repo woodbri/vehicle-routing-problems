@@ -50,15 +50,15 @@ class Basicoperations : public Solution {
 
 
  protected:
-  bool safeInsertNode(Vehicle &trip, const Trashnode &node, UINT pos);
-  bool safeDeleteNode(Vehicle &trip, UINT pos);
-  bool safeInsertSubpath(Vehicle &trip, Bucket &subPath, UINT pos);
-  bool safePushFrontSubpath(Vehicle &trip, Bucket &subPath);
-  bool safePushBackSubpath(Vehicle &trip, Bucket &subPath);
-  bool safePushBackNode(Vehicle &trip, Trashnode &node);
-  bool safePushFrontNode(Vehicle &trip, Trashnode &node);
-  bool safePopBackNode(Vehicle &trip); 
-  bool safePopFrontNode(Vehicle &trip); 
+  bool safeInsertNode(Trip &trip, const Trashnode &node, UINT pos);
+  bool safeDeleteNode(Trip &trip, UINT pos);
+  bool safeInsertSubpath(Trip &trip, Bucket &subPath, UINT pos);
+  bool safePushFrontSubpath(Trip &trip, Bucket &subPath);
+  bool safePushBackSubpath(Trip &trip, Bucket &subPath);
+  bool safePushBackNode(Trip &trip, Trashnode &node);
+  bool safePushFrontNode(Trip &trip, Trashnode &node);
+  bool safePopBackNode(Trip &trip); 
+  bool safePopFrontNode(Trip &trip); 
   Vehicle getTruck();
   void invariant();
 };

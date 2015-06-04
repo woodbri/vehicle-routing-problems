@@ -44,6 +44,10 @@ public:
   /*! @name constructors */
   ///@{
   Vehicle1():CostVehicle(){};
+  Vehicle1(const Trashnode &S, const Trashnode &D, const Trashnode &E, double maxcap)
+    : CostVehicle(S, D, E, maxcap) { 
+   DLOG(INFO)<< "Vehicle1 constructor";}
+
   Vehicle1(const std::string &line, const Bucket &otherlocs )
     : CostVehicle(line, otherlocs)   { };
   Vehicle1( int _vid, int _start_id, int _dump_id, int _end_id,

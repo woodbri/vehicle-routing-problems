@@ -163,7 +163,13 @@ class CompareSecond {
   }
 
   void initializeTravelTime() {
-    travel_Time = travel_time_onTrip;
+    for (UINT i = 0; i < travel_Time.size(); ++i) 
+      for (UINT j = 0; i < travel_Time.size(); ++i) 
+        if (i != j && travel_time_onTrip[i][j] == 0)
+          travel_Time[i][j] = -1;
+        else {
+          travel_Time[i][j] = travel_time_onTrip[i][j];
+        }
   };
     
   void getProcessOrder() {
@@ -564,14 +570,16 @@ void fill_travel_time_onTrip() {
       travel_time_onTrip[i].resize(siz);
       nodes_onTrip[i].resize(siz);
   }
+  // TODO change to 0 when fast testing
+#if 1 
   compulsory_fill();
   getProcessOrder();
-//original.dump("original");
+
   if (original.size() < 500) 
     fill_travel_time_onTrip_work(process_order_far);
+#endif
   fill_travel_time_onTrip_work(process_order);
 }
-
 
 void fill_travel_time_onTrip_work(
   std::set<id_time, CompareSecond< id_time > >  &process_order) {
@@ -587,7 +595,7 @@ void fill_travel_time_onTrip_work(
       UINT   j = process_order.begin()->first.second;
       double p_tim = process_order.begin()->second;
 #ifdef VRPMINTRACE
-      if ((process_order.size() % 20) == 0)
+      if ((process_order.size() % 200) == 0)
         DLOG(INFO) << "fill_travel_time_onTrip " << i << " size " << process_order.size() << " working with " <<original[i].id() << "," << original[j].id()
                  << " onTrip time" << travel_time_onTrip[i][j] 
                  << " on data time" << travel_Time[i][j] 
@@ -625,7 +633,6 @@ void fill_travel_time_onTrip_work(
 void process_pair_onPath(UINT i, UINT j) const{
   TwBucket <knode> trip;
   TwBucket <knode> nodesOnPath;
-  if (travel_time_onTrip[i][j] == 0) {
 #ifdef DOSTATS
     STATS->inc("TWC::process_pair_onPath");
 #endif
@@ -636,7 +643,6 @@ void process_pair_onPath(UINT i, UINT j) const{
     if (nodesOnPath.size() == 0 || nodesOnPath[0].nid() != original[i].nid()) nodesOnPath.push_front(original[i]);
     if (nodesOnPath[nodesOnPath.size()-1].nid() != original[j].nid()) nodesOnPath.push_back(original[j]);
     fill_times(nodesOnPath);
-  }
 }
 
 
@@ -1123,7 +1129,7 @@ bool setTravelingTimesOfRoute(
   DLOG(INFO) << "pairs";
   #endif 
   for (unsigned int i = 0; i < call.size()-1; ++i) {
-    TravelTime(call[i].nid(), call[i+1].nid());
+    //TravelTime(call[i].nid(), call[i+1].nid());
     travel_Time[call[i].nid()][call[i+1].nid()] = times[i+1]-times[i];
     #ifdef VRPMAXTRACE 
     DLOG(INFO) << call[i].id() << " -> " 
@@ -1789,12 +1795,33 @@ private:
   //@}
 
   bool isInPath(UINT from, UINT middle, UINT to) {
-    return TravelTime(from, to) >= (TravelTime(from,middle) + TravelTime(middle,to));
+#if 0
+    TravelTime(from,to);
+    if (travel_time_onTrip[from][to] == 0) 
+       process_pair_onPath(from, to);
+
+    if (std::find(nodes_onTrip[from][to].begin(),
+                  nodes_onTrip[from][to].end(), middle) 
+        != nodes_onTrip[from][to].end()) return false;
+    return true;
+#endif
+    if (travel_time_onTrip[from][to] == 0) 
+       process_pair_onPath(from, to);
+    if (travel_time_onTrip[from][middle] == 0) 
+       process_pair_onPath(from, middle);
+    if (travel_time_onTrip[middle][to] == 0) 
+       process_pair_onPath(middle, to);
+ DLOG(INFO) << from << "," << middle <<"," << to;
+ DLOG(INFO) <<
+     travel_time_onTrip[from][to]  << " ?? " <<  travel_time_onTrip[from][middle] << " + " <<travel_time_onTrip[middle][to];
+    return travel_time_onTrip[from][to] >= (travel_time_onTrip[from][middle] + travel_time_onTrip[middle][to]);
   }
 
   bool isInPath(const knode &from, const knode &middle, const knode& to) {
-DLOG(INFO) << TravelTime(from,to) << " ?? " << TravelTime(from,middle) << " + " << TravelTime(middle,to);
-    return TravelTime(from,to) >= (TravelTime(from,middle) + TravelTime(middle,to));
+ DLOG(INFO) << from.nid() << "," << middle.nid() <<"," << to.nid();
+// DLOG(INFO) << TravelTime(from,to) << " ?? " << TravelTime(from,middle) << " + " << TravelTime(middle,to);
+    return isInPath(from.nid(),middle.nid(),to.nid());
+    //return TravelTime(from,to) >= (TravelTime(from,middle) + TravelTime(middle,to));
   }
 
 

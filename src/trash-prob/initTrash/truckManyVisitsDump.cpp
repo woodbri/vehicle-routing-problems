@@ -15,7 +15,7 @@
 #include "truckManyVisitsDump.h"
 
 
-void TruckManyVisitsDump::initializeTrip(Vehicle &trip, bool fromStart) {
+void TruckManyVisitsDump::initializeTrip(Trip &trip, bool fromStart) {
   invariant();
   trip.evaluate();
 #ifdef VRPMINTRACE
@@ -73,7 +73,7 @@ void TruckManyVisitsDump::initializeTrip(Vehicle &trip, bool fromStart) {
 
 
 
-bool TruckManyVisitsDump::insertBestPairInCleanTrip(Vehicle &trip) {
+bool TruckManyVisitsDump::insertBestPairInCleanTrip(Trip &trip) {
 #ifdef VRPMINTRACE
   DLOG(INFO) << "TruckManyVisitsDump::insertBestPairInCleanTrip";
 #endif
@@ -107,7 +107,7 @@ bool TruckManyVisitsDump::insertBestPairInCleanTrip(Vehicle &trip) {
 }
 
 
-bool TruckManyVisitsDump::insertBigSubPathAtBegin(Vehicle &trip) {
+bool TruckManyVisitsDump::insertBigSubPathAtBegin(Trip &trip) {
 #ifdef VRPMINTRACE
   DLOG(INFO) << "TruckManyVisitsDump::insertBigSubPathAtBegin";
 #endif
@@ -136,7 +136,7 @@ bool TruckManyVisitsDump::insertBigSubPathAtBegin(Vehicle &trip) {
   return true;
 }
 
-bool TruckManyVisitsDump::insertBigSubPathAtEnd(Vehicle &trip) {
+bool TruckManyVisitsDump::insertBigSubPathAtEnd(Trip &trip) {
 #ifdef VRPMINTRACE
   DLOG(INFO) << "TruckManyVisitsDump::insertBigSubPathAtEnd";
 #endif
@@ -165,7 +165,7 @@ bool TruckManyVisitsDump::insertBigSubPathAtEnd(Vehicle &trip) {
 }
 
 
-bool TruckManyVisitsDump::insertBestPairSubPath(std::deque<Vehicle> &trips) {
+bool TruckManyVisitsDump::insertBestPairSubPath(std::deque<Trip> &trips) {
 #ifdef VRPMINTRACE
   DLOG(INFO) << "TruckManyVisitsDump::insertBestPairSubPath";
 #endif
@@ -210,7 +210,7 @@ bool TruckManyVisitsDump::insertBestPairSubPath(std::deque<Vehicle> &trips) {
   return true;
 }
 
-void TruckManyVisitsDump::fillTrip(Vehicle &trip) {
+void TruckManyVisitsDump::fillTrip(Trip &trip) {
 #ifdef VRPMINTRACE
   DLOG(INFO) << "TruckManyVisitsDump::fillTrip";
 #endif
@@ -313,7 +313,7 @@ void TruckManyVisitsDump::fillTrip(Vehicle &trip) {
   assert(trip.feasable());
 }
 
-void TruckManyVisitsDump::remove_CV(Vehicle &trip) {
+void TruckManyVisitsDump::remove_CV(Trip &trip) {
 #ifdef VRPMINTRACE
   DLOG(INFO) << "TruckManyVisitsDump::remove_CV";
 #endif
@@ -339,7 +339,7 @@ void TruckManyVisitsDump::remove_CV(Vehicle &trip) {
 }
 
 
-void TruckManyVisitsDump::remove_TWV(Vehicle &trip) {
+void TruckManyVisitsDump::remove_TWV(Trip &trip) {
   invariant();
   trip.getCostOsrm();
   if (trip.has_twv()) {
@@ -389,17 +389,17 @@ ManyVisitsDump::remove_TWV_fromTruck(Vehicle &trip) {
 }
 */
 
-void TruckManyVisitsDump::initializeTruck(Vehicle &truck, std::deque<Vehicle> &trips) {
+void TruckManyVisitsDump::initializeTruck(Vehicle &truck, std::deque<Trip> &trips) {
   invariant();
   assert(unassigned.size() != 0);
   truck.getCostOsrm();
 #ifdef VRPMINTRACE
   DLOG(INFO) << "Estimated number of trips" << truck.estimatedN();
 #endif
-  Vehicle trip;
+  Trip trip;
   trips.clear();
   for (int i = 0; i < truck.estimatedN(); i++) {
-    trip = truck;
+    trip = truck.get_new_trip();
     if (i == 0) {
       initializeTrip(trip, true);
     } else {
@@ -419,6 +419,8 @@ void TruckManyVisitsDump::initializeTruck(Vehicle &truck, std::deque<Vehicle> &t
       }
     }
   }
+
+
 
 #if 0 
   std::deque<Vehicle>  flipTrips;
@@ -448,7 +450,7 @@ void TruckManyVisitsDump::initializeTruck(Vehicle &truck, std::deque<Vehicle> &t
   invariant();
 }
 
-void TruckManyVisitsDump::deleteTrip(Vehicle &trip) {
+void TruckManyVisitsDump::deleteTrip(Trip &trip) {
   // remove last trip to give time to trips to work
   invariant();
   while (trip.size() > 1) {
@@ -459,7 +461,7 @@ void TruckManyVisitsDump::deleteTrip(Vehicle &trip) {
 }
 
 
-void TruckManyVisitsDump::fillTruck(Vehicle &truck, std::deque<Vehicle> &trips) {
+void TruckManyVisitsDump::fillTruck(Vehicle &truck, std::deque<Trip> &trips) {
   invariant();
   assert(unassigned.size() != 0);
   initializeTruck(truck, trips);
@@ -530,15 +532,20 @@ void TruckManyVisitsDump::fillTruck(Vehicle &truck, std::deque<Vehicle> &trips) 
     // trips[i].dumpCostValues();
   }
 
+
   buildTruck(truck, trips);
-  truck.dumpCostValues();
+
+  truck.swapBestToDump();
+
+
 assert(true==false);
+  truck.dumpCostValues();
   invariant();
 }
 
 // based on the trips we build the truck
 // if 
-void TruckManyVisitsDump::buildTruck(Vehicle &truck, std::deque<Vehicle> &trips) {
+void TruckManyVisitsDump::buildTruck(Vehicle &truck, std::deque<Trip> &trips) {
   truck.e_clean();
   for (UINT i = 0; i < trips.size(); ++i) {
     trips[i].getCostOsrm();
@@ -546,13 +553,10 @@ void TruckManyVisitsDump::buildTruck(Vehicle &truck, std::deque<Vehicle> &trips)
   std::sort(trips.begin(), trips.end(), BaseVehicle::Comptrips());
   for (UINT i = 0; i < trips.size(); ++i) {
     // trips[i].getCostOsrm();
-    truck.e_add_trip(trips[i]);
+    truck.add_trip(trips[i]);
     trips[i].tau();
   }
-  truck.evaluate();
-  truck.dumpeval();
-  truck.getCostOsrm();
-  truck.dumpCostValues();
+  return;
 #if 0
     for (UINT j = 1; j < trips[i].size(); ++j) {
       truck.push_back(trips[i][j]);
@@ -570,7 +574,7 @@ void TruckManyVisitsDump::buildTruck(Vehicle &truck, std::deque<Vehicle> &trips)
   truck.dumpCostValues();
   truck.tau();
   assert(true==false);
-  remove_TWV(truck);
+  //remove_TWV(truck);
   truck.getCostOsrm();
   truck.tau("after adjust adjust time window");
   // once the truck is built need to reconstruct the trips
@@ -587,7 +591,7 @@ void TruckManyVisitsDump::fillFleet() {
   while (unassigned.size() > 0) {
     DLOG(INFO) << "-+-+-+-+-+-+-+-+-+-+-+-+-+-+- TRUCK " << i << " +-+-+-+-+-+-+-+-+-+-+-+-+-+-";
     Vehicle truck;
-    std::deque<Vehicle> trips;
+    std::deque<Trip> trips;
     truck = getTruck();
     trips.clear();
     fillTruck(truck, trips);
@@ -605,7 +609,7 @@ void TruckManyVisitsDump::fillFleet() {
   assert(unassigned.size() == 0);
 }
 
-void TruckManyVisitsDump::insertNodesOnPath(Vehicle &trip) {
+void TruckManyVisitsDump::insertNodesOnPath(Trip &trip) {
 #ifdef VRPMINTRACE1
   DLOG(INFO) << "--> TruckManyVisitsDump::insertNodesOnPath";
 #endif

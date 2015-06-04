@@ -32,7 +32,7 @@ void Basicoperations::invariant() {
 }
 
 // inserts node if only if node is not being in assigned set
-bool Basicoperations::safeInsertNode(Vehicle &trip, const Trashnode &node, UINT pos) {
+bool Basicoperations::safeInsertNode(Trip &trip, const Trashnode &node, UINT pos) {
   invariant();
   if (unassigned.hasNid(node.nid()) == false) return false;
   assert(assigned.hasNid(node.nid()) == false);
@@ -48,7 +48,7 @@ bool Basicoperations::safeInsertNode(Vehicle &trip, const Trashnode &node, UINT 
   return true;
 }
 
-bool Basicoperations::safeDeleteNode(Vehicle &trip, UINT pos) {
+bool Basicoperations::safeDeleteNode(Trip &trip, UINT pos) {
   invariant();
   assert(pos < trip.size());
   Trashnode node = trip[pos];
@@ -67,7 +67,7 @@ bool Basicoperations::safeDeleteNode(Vehicle &trip, UINT pos) {
   return true;
 }
 
-bool Basicoperations::safeInsertSubpath(Vehicle &trip, Bucket &subPath, UINT pos){
+bool Basicoperations::safeInsertSubpath(Trip &trip, Bucket &subPath, UINT pos){
   invariant();
   assert(pos != 0);
   assert(pos <= trip.size());
@@ -91,34 +91,34 @@ bool Basicoperations::safeInsertSubpath(Vehicle &trip, Bucket &subPath, UINT pos
   invariant();
 }
 
-bool Basicoperations::safePushFrontSubpath(Vehicle &trip, Bucket &subPath){
+bool Basicoperations::safePushFrontSubpath(Trip &trip, Bucket &subPath){
   invariant();
     safeInsertSubpath(trip, subPath, 1);
 }
 
-bool Basicoperations::safePushBackSubpath(Vehicle &trip, Bucket &subPath){
+bool Basicoperations::safePushBackSubpath(Trip &trip, Bucket &subPath){
   invariant();
     safeInsertSubpath(trip, subPath, trip.size());
 }
 
-bool Basicoperations::safePushBackNode(Vehicle &trip, Trashnode &node) {
+bool Basicoperations::safePushBackNode(Trip &trip, Trashnode &node) {
   invariant();
     return safeInsertNode(trip, node, trip.size());
 }
 
-bool Basicoperations::safePushFrontNode(Vehicle &trip, Trashnode &node) {
+bool Basicoperations::safePushFrontNode(Trip &trip, Trashnode &node) {
   invariant();
     return safeInsertNode(trip, node, 1);
 }
 
 
-bool Basicoperations::safePopBackNode(Vehicle &trip) {
+bool Basicoperations::safePopBackNode(Trip &trip) {
   invariant();
     if (trip.size() == 1) return false;
     return safeDeleteNode(trip, trip.size()-1);
 }
 
-bool Basicoperations::safePopFrontNode(Vehicle &trip) {
+bool Basicoperations::safePopFrontNode(Trip &trip) {
   invariant();
     if (trip.size() == 1) return false;
     return safeDeleteNode(trip, 1);

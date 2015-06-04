@@ -40,8 +40,8 @@ protected:
   int vid;
   Twpath<Trashnode> path;
   Trashnode depot; //just for keeps
-  Trashnode endingSite;
   Trashnode dumpSite;
+  Trashnode endingSite;
   double startTime;
   double endTime;
 
@@ -86,6 +86,18 @@ class Comptrips {
   //--------------------------------------------------------------------
 
   BaseVehicle();
+
+  BaseVehicle(const Trashnode &S, const Trashnode &D, const Trashnode &E, double maxcap)
+      : depot(S), dumpSite(D), endingSite(E),
+        startTime(S.opens()), endTime(E.closes()), maxcapacity(maxcap) {
+    depot.set_type(Twnode::kStart);
+    dumpSite.set_type(Twnode::kDump);
+    endingSite.set_type(Twnode::kEnd);
+    path.push_front(depot);
+  }
+
+
+
   BaseVehicle(int vid, int start_id, int dump_id, int _nd_id,
               double capacity, double dumpservicetime, double starttime,
               double endtime, const Bucket &otherlocs);
@@ -141,6 +153,7 @@ class Comptrips {
   void tau(const std::string &title) const ;
   void tau() const ;
   void print_short_eval() const;
+  void print_short_eval(const std::string &title) const;
 #endif
 
 #ifdef DOPLOT

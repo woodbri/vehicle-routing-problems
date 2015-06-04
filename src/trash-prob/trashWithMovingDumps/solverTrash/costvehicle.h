@@ -52,6 +52,21 @@ double serviceE() const;
 
 
 
+  CostVehicle(const Trashnode &S, const Trashnode &D, const Trashnode &E, double maxcap)
+    : BaseVehicle(S, D, E, maxcap),
+      ttSC(0.0), ttDC(0.0), ttCD(0.0), ttDE(0.0), ttCC(0.0),
+      realttSC(0.0), realttDC(0.0), realttCD(0.0), realttDE(0.0), realttCC(0.0),
+      N(0), Nreal(0), minDumpVisits(0), maxDumpVisits(0), realDumpVisits(0),
+      Z(0), z1(0), z2(0), realz1(0), realz2(0), n(0), z(0), Zmissing(0), lastn(0),
+      totalTime(0.0), realTotalTime(0.0), lastRealTotalTime(0.0),
+      forcedWaitTime(0.0), totalWaitTime(0.0), idleTime(0.0),
+      realForcedWaitTime(0.0), realtotalWaitTime(0.0), realIdleTime(0.0),
+      idleTimeSCDE(0.0), idleTimeSDCDE(0.0),
+      realIdleTimeSCDE(0.0), realIdleTimeSDCDE(0.0),
+      sumIdle(0.0), penalty(0.0),
+      v_cost(0.0), workNotDonePerc(0.0) {
+   DLOG(INFO)<< "CostVehicle constructor";}
+
 
 
   CostVehicle()

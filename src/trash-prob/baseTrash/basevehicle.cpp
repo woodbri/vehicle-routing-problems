@@ -63,6 +63,11 @@ void BaseVehicle::e_add_trip(const BaseVehicle &trip) {
 
 
 void BaseVehicle::print_short_eval() const {
+  print_short_eval("short eval");
+}
+
+void BaseVehicle::print_short_eval(const std::string& title) const {
+  DLOG(INFO) << title;
   DLOG(INFO) << "starting site";
   path[0].dumpeval(maxcapacity);
   DLOG(INFO) << "dump site";

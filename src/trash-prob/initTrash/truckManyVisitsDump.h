@@ -68,23 +68,27 @@ bool safePopFrontNode(Vehicle &trip);
   void invariant();
   Vehicle getTruck();
 #endif
+/*
+template <class V>
+void remove_CV(V &trip);
+*/
 
-  bool insertBestPairInCleanTrip(Vehicle &trip);
-  bool insertBestPairSubPath(std::deque<Vehicle> &trips);
-  bool insertBigSubPathAtBegin(Vehicle &trip);
-  bool insertBigSubPathAtEnd(Vehicle &trip);
-  void deleteTrip(Vehicle &trip);
-  void remove_CV(Vehicle &trip);
-  void remove_TWV(Vehicle &trip);
-  void initializeTrip(Vehicle &trip, bool fromStart);
-  void fillTrip(Vehicle &trip);
-  void buildTruck(Vehicle &truck, std::deque<Vehicle> &trips);
-  void initializeTruck(Vehicle &truck, std::deque<Vehicle> &trips);
-  void fillTruck(Vehicle &truck, std::deque<Vehicle> &trips);
+  bool insertBestPairInCleanTrip(Trip &trip);
+  bool insertBestPairSubPath(std::deque<Trip> &trips);
+  bool insertBigSubPathAtBegin(Trip &trip);
+  bool insertBigSubPathAtEnd(Trip &trip);
+  void deleteTrip(Trip &trip);
+  void remove_CV(Trip &trip);
+  void remove_TWV(Trip &trip);
+  void initializeTrip(Trip &trip, bool fromStart);
+  void fillTrip(Trip &trip);
+  void buildTruck(Vehicle &truck, std::deque<Trip> &trips);
+  void initializeTruck(Vehicle &truck, std::deque<Trip> &trips);
+  void fillTruck(Vehicle &truck, std::deque<Trip> &trips);
   void fillFleet();
-  void insertNodesOnPath(Vehicle &trip);
+  void insertNodesOnPath(Trip &trip);
   void fillOneTruck(Vehicle &truck);
-  bool insertTrip(Vehicle &trip, Vehicle &truck);
+  bool insertTrip(Trip &trip, Vehicle &truck);
   void IntraSwMoves(Vehicle &truck);
 };
 
