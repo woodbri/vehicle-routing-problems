@@ -402,19 +402,17 @@ void TruckManyVisitsDump::initializeTruck(Vehicle &truck, std::deque<Trip> &trip
       initializeTrip(trip, true);
     } else {
       trip.clear();
+      trips[i-1].getDumpSite().dump();
       trip.set_startingSite(trips[i-1].getDumpSite()); 
       initializeTrip(trip, false);
     }
+    
     if ( i < truck.estimatedN() - 1 ) {
       trip.set_endingSite(trip.getDumpSite());
       trip.getCostOsrm();
       trips.push_back(trip);
     } else {
-      if (trip.size() > 1) { 
         trips.push_back(trip);
-      } else {
-        trips[trips.size() - 1].set_endingSite(truck.getEndingSite());
-      }
     }
   }
 
@@ -643,7 +641,7 @@ void TruckManyVisitsDump::insertNodesOnPath(Trip &trip) {
         invariant();
   }
   invariant();
-#ifdef VRPMINTRACE
+#ifdef VRPMAXTRACE
   DLOG(INFO) << "<-- TruckManyVisitsDump::insertNodesOnPath";
 #endif
 }

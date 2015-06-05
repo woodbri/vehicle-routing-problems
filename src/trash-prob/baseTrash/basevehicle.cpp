@@ -42,6 +42,8 @@ void BaseVehicle::set_endingSite(const Trashnode &other) {
 }
 
 void BaseVehicle::set_startingSite(const Trashnode &other) {
+DLOG(INFO) << other.id();
+DLOG(INFO) << other.nid();
   depot.set_id(other.id());
   depot.set_nid(other.nid());
   depot.set_x(other.x());

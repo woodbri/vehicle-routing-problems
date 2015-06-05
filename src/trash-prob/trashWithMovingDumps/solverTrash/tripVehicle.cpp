@@ -29,15 +29,21 @@ void Vehicle::manualControl() {
   trip = 2; 
   o_trip = 1;
 
-#if 1
+  exchanges(2,0,10);
+  exchanges(2,1,10);
+  exchanges(1,0,10);
+  exchanges(2,0,10);
+  exchanges(2,1,10);
+  exchanges(1,0,10);
+
+#if 0
   for (UINT i=0; i< 10; ++i) {
     exchanges(2,1);
   }
   for (UINT i=0; i< 10; ++i) {
     exchangesWithOnPath(2,1);
   }
-#else
-  exchanges(1,0);
+// #else
   exchangesWithOnPath(1,0);
   exchanges(2,1);
   exchangesWithOnPath(2,1);
@@ -66,9 +72,11 @@ void Vehicle::exchangesWithOnPath(UINT trip, UINT o_trip) {
   for (UINT i=0; i< 1; ++i) {
     tauTrips();
     inPath1 = trips[trip].getRemovalValues(trips[o_trip], o_ins_pos, del_pos, delta_del, o_delta_ins);
-    inPath2 = trips[trip].chooseMyBest(trips[o_trip], o_ins_pos, ins_pos, o_del_pos, o_delta_del, delta_ins);
+// bool Trip::chooseMyBest(const Trip &other, POS o_ins_pos, POS del_pos, POS &ins_pos, POS &o_del_pos, double &o_delta_del, double &delta_ins) const {
+
+    inPath2 = trips[trip].chooseMyBest(trips[o_trip], o_ins_pos, del_pos, ins_pos, o_del_pos, o_delta_del, delta_ins);
     if (inPath2) {
-       DLOG(INFO) <<  "delta shortest " << delta_del + delta_ins ; 
+       DLOG(INFO) <<  "-> with on trips delta shortest " << delta_del + delta_ins ; 
        DLOG(INFO) <<  "delta total " <<   delta_del + delta_ins + o_delta_del + o_delta_ins;
        DLOG(INFO) <<  "in path trip " << trip << "\tnode " << trips[trip][del_pos].id() << " to trip " << o_trip << "\t after " << trips[o_trip][o_ins_pos-1].id();
        DLOG(INFO) <<  "in path trip " << o_trip << "\tnode " << trips[o_trip][o_del_pos].id() << " to trip " << trip << "\t after " << trips[trip][ins_pos-1].id();
@@ -79,30 +87,32 @@ void Vehicle::exchangesWithOnPath(UINT trip, UINT o_trip) {
   }
 }
 
-void Vehicle::exchanges(UINT trip, UINT o_trip) {
+void Vehicle::exchanges(UINT trip, UINT o_trip, int lim_iter) {
+  for (UINT i=0; i< lim_iter; ++i) {
+    if (!exchange(trip, o_trip)) break;
+  }
+}
+
+
+bool Vehicle::exchange(UINT trip, UINT o_trip) {
   POS  del_pos, ins_pos;
   POS  o_del_pos, o_ins_pos;
   double delta_del, delta_ins;
   double o_delta_del, o_delta_ins;
   bool inPath1, inPath2;
 
-  for (UINT i=0; i< 1; ++i) {
-    tauTrips();
-    inPath1 = trips[trip].getRemovalValues(trips[o_trip], o_ins_pos, del_pos, delta_del, o_delta_ins);
-    trips[o_trip].getRemovalValues(trips[trip], ins_pos, o_del_pos, o_delta_del, delta_ins);
-    if ( delta_del + delta_ins + o_delta_del + o_delta_ins <= 0) {
-       DLOG(INFO) <<  "delta shortest " << delta_del + delta_ins ; 
-       DLOG(INFO) <<  "delta total " <<   delta_del + delta_ins + o_delta_del + o_delta_ins;
-       DLOG(INFO) <<  "trip " << trip << "\tnode " << trips[trip][del_pos].id() << " to trip " << o_trip << "\t before " << trips[o_trip][o_ins_pos-1].id();
-       DLOG(INFO) <<  "trip " << o_trip << "\tnode " << trips[o_trip][o_del_pos].id() << " to trip " << trip << "\t before " << trips[trip][ins_pos-1].id();
-       trips[trip].exchange(trips[o_trip], del_pos, o_ins_pos, o_del_pos, ins_pos);
-    } else {
-      break;
-    }
+  inPath1 = trips[trip].getRemovalValues(trips[o_trip], o_ins_pos, del_pos, delta_del, o_delta_ins);
+  trips[o_trip].getRemovalValues(trips[trip], ins_pos, o_del_pos, o_delta_del, delta_ins);
+  if ( delta_del + delta_ins + o_delta_del + o_delta_ins <= 0) {
+     DLOG(INFO) <<  "delta shortest " << delta_del + delta_ins ;
+     DLOG(INFO) <<  "delta total " <<  delta_del + delta_ins + o_delta_del + o_delta_ins;
+     DLOG(INFO) <<  "trip " << trip << "\tnode " << trips[trip][del_pos].id() << " to trip " << o_trip << "\t after " << trips[o_trip][o_ins_pos-1].id();
+     DLOG(INFO) <<  "trip " << o_trip << "\tnode " << trips[o_trip][o_del_pos].id() << " to trip " << trip << "\t after " << trips[trip][ins_pos-1].id();
+     trips[trip].exchange(trips[o_trip], del_pos, o_ins_pos, o_del_pos, ins_pos);
+     return true;
   }
+  return false;
 }
-
-
 
 
 
@@ -161,12 +171,12 @@ bool Trip::getRemovalValues(const Trip &other, POS &o_ins_pos, POS &del_pos, dou
   insertInPath = other.bestInsertion(del_node, ins_after, o_ins_pos, o_delta_ins);
 
 //  tau("best removal trip:");
-  DLOG(INFO) << "\tnode to be removed:" << path[del_pos].id()
+  DLOG(INFO) << "\tnode to be removed: " << path[del_pos].id()
              << " at pos: " << del_pos
-             << "\tdelta:" << delta_del;
-  DLOG(INFO) << "\tinsert after node:" << other[o_ins_pos-1].id()
+             << "\tdelta: " << delta_del;
+  DLOG(INFO) << "\tinsert after node: " << other[o_ins_pos-1].id()
              << " at pos: " << o_ins_pos
-             << "\tdelta:" << o_delta_ins;
+             << "\tdelta: " << o_delta_ins;
   double delta = o_delta_ins + delta_del;
   return delta < 0;
 }
@@ -176,27 +186,26 @@ bool Trip::getRemovalValues(const Trip &other, POS &o_ins_pos, POS &del_pos, dou
 // special case when  best inserted is in  del_pos
 // this: S 0 1 2 3 4 5 6 7
 //             |
-//            o_d
+//             d
 
 // nor it can not be from o_ins_pos sorroundings
 // other: S A B (C D)  E F G
 //                 |
 //                o_i
 
-// in the example C D nor E can be inserted
+// in the example C D  are forbidden 
 
 // So I search on this nodes
 // o_nodes: A B F G
 // suppose this nodes from the other trip are on my path
 // nodesOnPath:  B D F
 
-bool Trip::chooseMyBest(const Trip &other, POS o_ins_pos, POS del_pos POS &ins_pos, POS &o_del_pos, double &o_delta_del, double &delta_ins) const {
+bool Trip::chooseMyBest(const Trip &other, POS o_ins_pos, POS del_pos, POS &ins_pos, POS &o_del_pos, double &o_delta_del, double &delta_ins) const {
   Bucket o_nodes;
   Bucket nodesOnPath;  // the nodes on my path
   o_nodes = other.path; // choose from this
-  if (o_forbidden_pos-1 < o_nodes.size()) o_nodes.erase(o_forbidden_pos-1); // this three nodes the other cant give
-  if (o_forbidden_pos-1 < o_nodes.size()) o_nodes.erase(o_forbidden_pos-1);
-  if (o_forbidden_pos-1 < o_nodes.size()) o_nodes.erase(o_forbidden_pos-1);
+  if (o_ins_pos-1 < o_nodes.size()) o_nodes.erase(o_ins_pos-1); // this nodes the other cant give
+  if (o_ins_pos-1 < o_nodes.size()) o_nodes.erase(o_ins_pos-1);
   o_nodes.pop_front();  // delete the starting site
   twc->getNodesOnPath(path, dumpSite, o_nodes, nodesOnPath);
   o_nodes = o_nodes - nodesOnPath;
@@ -206,27 +215,70 @@ bool Trip::chooseMyBest(const Trip &other, POS o_ins_pos, POS del_pos POS &ins_p
   UINT o_del_node, ins_after;
 
 
-  o_del_node = nodesOnPath[0].nid();
-  o_del_pos = other.path.pos(o_del_node);
-  DLOG(INFO) << nodesOnPath[j].nid() <<","<<other[o_del_pos].nid();
-  bestInsertion(o_del_node, ins_after, ins_pos, delta_ins);
-
-
-  for(auto j = 0; j < nodesOnPath.size(); ++j) {
-    if (j == 0) {
-      o_del_node = nodesOnPath[j].nid();
-      o_del_pos = other.path.pos(o_del_node);
-      DLOG(INFO) << nodesOnPath[j].nid() <<","<<other[o_del_pos].nid();
-      bestInsertion(o_del_node, ins_after, ins_pos, delta_ins);
+  double time0, time1, deltaTime;
+  if (nodesOnPath.size() > 0) {
+    o_del_node = nodesOnPath[0].nid();
+    o_del_pos = other.path.pos(o_del_node);
+    o_delta_del = 999999;
+    for(auto j = 0; j < nodesOnPath.size(); ++j) {
+      UINT node = nodesOnPath[j].nid(); // working with node
+      POS pos_o = other.path.pos(node); // located at this postition in the others path
+      if (o_del_pos == other.path.size()-1) { // its the last node
+        time0 = twc->TravelTime(other[pos_o - 1].nid(), other[pos_o].nid(), other.dumpSite.nid());
+        time1 = twc->TravelTime(other[pos_o - 1].nid(), other.dumpSite.nid());
+      } else {
+        time0 = twc->TravelTime(other[pos_o - 1].nid(), other[pos_o].nid(), other[pos_o + 1].nid());
+        time1 = twc->TravelTime(other[pos_o - 1].nid(), other[pos_o+ 1].nid());
+      } 
+      deltaTime = time1 - time0; 
+      if (deltaTime < o_delta_del) {
+        // its the best removal at the moment, so I check its not inserted in wrong place
+        bestInsertion(o_del_node, ins_after, ins_pos, delta_ins);
+        // special postion (del_pos) calculate the delta_ins ?????
+        o_delta_del = deltaTime;
+        o_del_pos = pos_o;
+        o_del_node = node;
+        found = true;
+      }
     }
-
-    // to do find the "best one" what is best in this case?
+    if (found) {
+      return true;
+      // we got here because we found a node from the other trip that is in my path
+    }
+    assert(true==false);
   }
-assert(true==false);
-  if (!found) return false;
-  // DLOG(INFO) << "o_del_node" << o_del_node;
-  return true;
 }
+
+double  Trip::delta_del(POS del_pos) const {
+  assert(del_pos > 0 && del_pos < path.size());
+  double time0, time1;
+  if (del_pos == path.size()-1) { // its the last node
+    if (twc->isInPath(path[del_pos - 1], path[del_pos], dumpSite)) return 0; 
+    time0 = twc->TravelTime(path[del_pos - 1].nid(), path[del_pos].nid(), dumpSite.nid());
+    time1 = twc->TravelTime(path[del_pos - 1].nid(), dumpSite.nid());
+  } else {
+    if (twc->isInPath(path[del_pos - 1], path[del_pos], path[del_pos + 1])) return 0;
+    time0 = twc->TravelTime(path[del_pos - 1].nid(), path[del_pos].nid(), path[del_pos + 1].nid());
+    time1 = twc->TravelTime(path[del_pos - 1].nid(), path[del_pos+ 1].nid());
+  } 
+  return time1 - time0;
+}
+
+
+#if 0
+    // DLOG(INFO) << nodesOnPath[j].nid() <<","<<other[o_del_pos].nid();
+    // bestInsertion(o_del_node, ins_after, ins_pos, delta_ins);
+
+
+      if (j == 0) {
+        o_del_node = nodesOnPath[j].nid();
+        o_del_pos = other.path.pos(o_del_node);
+        DLOG(INFO) << nodesOnPath[j].nid() <<","<<other[o_del_pos].nid();
+        bestInsertion(o_del_node, ins_after, ins_pos, delta_ins);
+      }
+
+      // to do find the "best one" what is best in this case?
+#endif
 
 
 
@@ -236,20 +288,22 @@ assert(true==false);
 
 
 // return the deltaTime
-void Trip::bestRemoval(UINT &best, POS &pos, double &delta_del) const {
+void Trip::bestRemoval(UINT &d_node, POS &d_pos, double &d_delta) const {
   assert(size() > 1); // if size == 1 the trip shoudnt exist
   //tau("bestRemoval");
   // getCostOsrm();
   // evaluate();
-  pos = 1;
+  d_pos = 1;
   if (size()==1) {
-    best = path[1].nid();
-    delta_del = -99999;
+    d_node = path[1].nid();
+    d_delta = delta_del(1);
 // DLOG(INFO) << "best removal" << path[pos].id();;
     return;
   }
-  double time0, time1, deltaTime;
+  double deltaTime;
+  d_delta = 99999;
   for (UINT i = 1; i < path.size()-1; ++i) {
+#if 0
     if (i == path.size()-1) {
       if (twc->isInPath(path[i-1], path[i], dumpSite)) continue;
       time0 = twc->TravelTime(path[i-1].nid(), path[i].nid(), dumpSite.nid());
@@ -259,14 +313,15 @@ void Trip::bestRemoval(UINT &best, POS &pos, double &delta_del) const {
       time0 = twc->TravelTime(path[i-1].nid(), path[i].nid(), path[i+1].nid());
       time1 = twc->TravelTime(path[i-1].nid(), path[i+1].nid());
     }
-    deltaTime = time1 - time0; 
+#endif
+    deltaTime = delta_del(i); 
 
-    if (deltaTime < delta_del) {
-      delta_del = deltaTime;
-      pos = i;
+    if (d_delta > deltaTime) {
+      d_delta = deltaTime;
+      d_pos = i;
+      d_node = path[d_pos].nid();
     }
   }
-  best = path[pos].nid();
   return;
 }
 
@@ -324,16 +379,9 @@ void Vehicle::swapBestToDump() {
 
 void Vehicle::tauTrips() const {
   DLOG(INFO) << "trips";
-#if 0
-  for (UINT i = 0; i < trips.size(); ++i) {
-    DLOG(INFO) << "trip " << i;
-    trips[i].tau();
-  }
-#else
   for (auto &trip : trips) {
     trip.tau();
   }
-#endif
 }
 
 Trip Vehicle::get_new_trip() {
@@ -390,6 +438,6 @@ void Vehicle::add_trip(const Trip &p_trip) {
 
     // that the trip inserted has ending as the last
     // that the other trips have dump as ending
+    trip.trip_id() = trips.size();
     trips.push_back(trip); 
-    
 }
