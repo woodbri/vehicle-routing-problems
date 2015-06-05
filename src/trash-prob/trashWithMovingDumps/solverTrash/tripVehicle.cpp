@@ -14,63 +14,97 @@ void Trip::swapBestToDump(Trip &other) {
 
 
 
+
 void Vehicle::manualControl() {
 
-  swapBestToDump();
 
   DLOG(INFO) << "manual control:";
+  swapBestToDump();
+  intraTripOptimizationNoOsrm();
+
   POS  del_pos, ins_pos;
   POS  o_del_pos, o_ins_pos;
   UINT  trip, o_trip;
   double delta1, delta2;
   trip = 2; 
   o_trip = 1;
-#if 0
-  trips[del_trip1].bestRemoval(del_node1, del_pos1, del_delta1);
-  DLOG(INFO) << "best removal trip:" << del_trip1
-             << " at pos: " << del_pos1
-             << "node:" << trips[del_trip1][del_pos1].id()
-             << "delta:" << del_delta1;
 
-  trips[ins_trip1].bestInsertion(del_node1, ins_after1, ins_pos1, ins_delta1);
-  DLOG(INFO) << "best insertion trip:" << ins_trip1
-             << " at pos: " << ins_pos1
-             << "after node:" << trips[ins_trip1][ins_pos1-1].id()
-             << "delta:" << ins_delta1;
+#if 1
+  for (UINT i=0; i< 10; ++i) {
+    exchanges(2,1);
+  }
+  for (UINT i=0; i< 10; ++i) {
+    exchangesWithOnPath(2,1);
+  }
+#else
+  exchanges(1,0);
+  exchangesWithOnPath(1,0);
+  exchanges(2,1);
+  exchangesWithOnPath(2,1);
+  exchanges(1,0);
+  exchangesWithOnPath(1,0);
 #endif
-  trips[0].tau("trip 0 not used");
- 
-  for (UINT i=0; i< 10; ++i) {
-  trips[trip].tau("trip 2");
-  trips[o_trip].tau("trip 1");
-  trips[trip].getRemovalValues(trips[o_trip], o_ins_pos, del_pos, delta1);
-  trips[o_trip].getRemovalValues(trips[trip], ins_pos, o_del_pos, delta2);
-  DLOG(INFO) << "deltas" << delta1 + delta2;
-  if (delta1 + delta2 > 0) break;
-  trips[trip].exchange(trips[o_trip], del_pos, o_ins_pos, o_del_pos, ins_pos);
-  trips[trip].tau("trip 2");
-  trips[o_trip].tau("trip 1");
-  }
-
-  trip = 1; 
-  o_trip = 0;
-  for (UINT i=0; i< 10; ++i) {
-  trips[trip].tau("trip 1");
-  trips[o_trip].tau("trip 0");
-  trips[trip].getRemovalValues(trips[o_trip], o_ins_pos, del_pos, delta1);
-  trips[o_trip].getRemovalValues(trips[trip], ins_pos, o_del_pos, delta2);
-  DLOG(INFO) << "deltas" << delta1 + delta2;
-  if (delta1 + delta2 > 0) break;
-  trips[trip].exchange(trips[o_trip], del_pos, o_ins_pos, o_del_pos, ins_pos);
-  trips[trip].tau("trip 1");
-  trips[o_trip].tau("trip 0");
-  }
-
-
-
-  assert(true == false);
   tauTrips();
+  assert(true == false);
+
 }
+
+void Vehicle::intraTripOptimizationNoOsrm() {
+  tauTrips();
+  for (auto &trip : trips) {
+    trip.intraTripOptimizationNoOsrm();
+  }
+}
+
+void Vehicle::exchangesWithOnPath(UINT trip, UINT o_trip) {
+  POS  del_pos, ins_pos;
+  POS  o_del_pos, o_ins_pos;
+  double delta_del, delta_ins;
+  double o_delta_del, o_delta_ins;
+  bool inPath1, inPath2;
+
+  for (UINT i=0; i< 1; ++i) {
+    tauTrips();
+    inPath1 = trips[trip].getRemovalValues(trips[o_trip], o_ins_pos, del_pos, delta_del, o_delta_ins);
+    inPath2 = trips[trip].chooseMyBest(trips[o_trip], o_ins_pos, ins_pos, o_del_pos, o_delta_del, delta_ins);
+    if (inPath2) {
+       DLOG(INFO) <<  "delta shortest " << delta_del + delta_ins ; 
+       DLOG(INFO) <<  "delta total " <<   delta_del + delta_ins + o_delta_del + o_delta_ins;
+       DLOG(INFO) <<  "in path trip " << trip << "\tnode " << trips[trip][del_pos].id() << " to trip " << o_trip << "\t after " << trips[o_trip][o_ins_pos-1].id();
+       DLOG(INFO) <<  "in path trip " << o_trip << "\tnode " << trips[o_trip][o_del_pos].id() << " to trip " << trip << "\t after " << trips[trip][ins_pos-1].id();
+       trips[trip].exchange(trips[o_trip], del_pos, o_ins_pos, o_del_pos, ins_pos);
+    } else {
+      break;
+    }
+  }
+}
+
+void Vehicle::exchanges(UINT trip, UINT o_trip) {
+  POS  del_pos, ins_pos;
+  POS  o_del_pos, o_ins_pos;
+  double delta_del, delta_ins;
+  double o_delta_del, o_delta_ins;
+  bool inPath1, inPath2;
+
+  for (UINT i=0; i< 1; ++i) {
+    tauTrips();
+    inPath1 = trips[trip].getRemovalValues(trips[o_trip], o_ins_pos, del_pos, delta_del, o_delta_ins);
+    trips[o_trip].getRemovalValues(trips[trip], ins_pos, o_del_pos, o_delta_del, delta_ins);
+    if ( delta_del + delta_ins + o_delta_del + o_delta_ins <= 0) {
+       DLOG(INFO) <<  "delta shortest " << delta_del + delta_ins ; 
+       DLOG(INFO) <<  "delta total " <<   delta_del + delta_ins + o_delta_del + o_delta_ins;
+       DLOG(INFO) <<  "trip " << trip << "\tnode " << trips[trip][del_pos].id() << " to trip " << o_trip << "\t before " << trips[o_trip][o_ins_pos-1].id();
+       DLOG(INFO) <<  "trip " << o_trip << "\tnode " << trips[o_trip][o_del_pos].id() << " to trip " << trip << "\t before " << trips[trip][ins_pos-1].id();
+       trips[trip].exchange(trips[o_trip], del_pos, o_ins_pos, o_del_pos, ins_pos);
+    } else {
+      break;
+    }
+  }
+}
+
+
+
+
 
 
 void Trip::exchange(Trip &other,
@@ -102,8 +136,8 @@ void Trip::exchange(Trip &other,
   path.insert(hisNode, ins_pos);
   // D A 3 B C D E F G H I J
   other.path.insert(myNode, o_ins_pos);
-  tau("this after insert");
-  other.tau("other after insert");
+  // tau("this after insert");
+  // other.tau("other after insert");
   
   //calculate the delete position
   del_pos = del_pos < ins_pos? del_pos: ++del_pos;
@@ -112,30 +146,87 @@ void Trip::exchange(Trip &other,
   other.path.erase(o_del_pos);
   tau("this after remove");
   other.tau("other after remove");
-
 }
+
+
 
 // this trip wants to remove
 // asks for values to other trip
-
-bool Trip::getRemovalValues(const Trip &other, POS &o_ins_pos, POS &del_pos, double &delta) const{
+// true when the removal of this can be inserted in a path of the other
+bool Trip::getRemovalValues(const Trip &other, POS &o_ins_pos, POS &del_pos, double &o_delta_ins, double &delta_del) const{
   UINT del_node;
   UINT ins_after;
-  double del_delta, ins_delta;
-  bestRemoval(del_node, del_pos, del_delta);
-  other.bestInsertion(del_node, ins_after, o_ins_pos, ins_delta);
+  bool insertInPath;
+  bestRemoval(del_node, del_pos, delta_del);
+  insertInPath = other.bestInsertion(del_node, ins_after, o_ins_pos, o_delta_ins);
 
 //  tau("best removal trip:");
   DLOG(INFO) << "\tnode to be removed:" << path[del_pos].id()
              << " at pos: " << del_pos
-             << "\tdelta:" << del_delta;
+             << "\tdelta:" << delta_del;
   DLOG(INFO) << "\tinsert after node:" << other[o_ins_pos-1].id()
              << " at pos: " << o_ins_pos
-             << "\tdelta:" << ins_delta;
-  delta = del_delta + ins_delta;
+             << "\tdelta:" << o_delta_ins;
+  double delta = o_delta_ins + delta_del;
   return delta < 0;
 }
 
+
+// I want node from other
+// special case when  best inserted is in  del_pos
+// this: S 0 1 2 3 4 5 6 7
+//             |
+//            o_d
+
+// nor it can not be from o_ins_pos sorroundings
+// other: S A B (C D)  E F G
+//                 |
+//                o_i
+
+// in the example C D nor E can be inserted
+
+// So I search on this nodes
+// o_nodes: A B F G
+// suppose this nodes from the other trip are on my path
+// nodesOnPath:  B D F
+
+bool Trip::chooseMyBest(const Trip &other, POS o_ins_pos, POS del_pos POS &ins_pos, POS &o_del_pos, double &o_delta_del, double &delta_ins) const {
+  Bucket o_nodes;
+  Bucket nodesOnPath;  // the nodes on my path
+  o_nodes = other.path; // choose from this
+  if (o_forbidden_pos-1 < o_nodes.size()) o_nodes.erase(o_forbidden_pos-1); // this three nodes the other cant give
+  if (o_forbidden_pos-1 < o_nodes.size()) o_nodes.erase(o_forbidden_pos-1);
+  if (o_forbidden_pos-1 < o_nodes.size()) o_nodes.erase(o_forbidden_pos-1);
+  o_nodes.pop_front();  // delete the starting site
+  twc->getNodesOnPath(path, dumpSite, o_nodes, nodesOnPath);
+  o_nodes = o_nodes - nodesOnPath;
+  o_nodes.dumpid("nodes not in my path");
+  nodesOnPath.dumpid("nodes in my path");
+  auto found = false;
+  UINT o_del_node, ins_after;
+
+
+  o_del_node = nodesOnPath[0].nid();
+  o_del_pos = other.path.pos(o_del_node);
+  DLOG(INFO) << nodesOnPath[j].nid() <<","<<other[o_del_pos].nid();
+  bestInsertion(o_del_node, ins_after, ins_pos, delta_ins);
+
+
+  for(auto j = 0; j < nodesOnPath.size(); ++j) {
+    if (j == 0) {
+      o_del_node = nodesOnPath[j].nid();
+      o_del_pos = other.path.pos(o_del_node);
+      DLOG(INFO) << nodesOnPath[j].nid() <<","<<other[o_del_pos].nid();
+      bestInsertion(o_del_node, ins_after, ins_pos, delta_ins);
+    }
+
+    // to do find the "best one" what is best in this case?
+  }
+assert(true==false);
+  if (!found) return false;
+  // DLOG(INFO) << "o_del_node" << o_del_node;
+  return true;
+}
 
 
 
@@ -145,7 +236,7 @@ bool Trip::getRemovalValues(const Trip &other, POS &o_ins_pos, POS &del_pos, dou
 
 
 // return the deltaTime
-void Trip::bestRemoval(UINT &best, POS &pos, double &btime) const {
+void Trip::bestRemoval(UINT &best, POS &pos, double &delta_del) const {
   assert(size() > 1); // if size == 1 the trip shoudnt exist
   //tau("bestRemoval");
   // getCostOsrm();
@@ -153,7 +244,7 @@ void Trip::bestRemoval(UINT &best, POS &pos, double &btime) const {
   pos = 1;
   if (size()==1) {
     best = path[1].nid();
-    btime = -99999;
+    delta_del = -99999;
 // DLOG(INFO) << "best removal" << path[pos].id();;
     return;
   }
@@ -162,85 +253,56 @@ void Trip::bestRemoval(UINT &best, POS &pos, double &btime) const {
     if (i == path.size()-1) {
       if (twc->isInPath(path[i-1], path[i], dumpSite)) continue;
       time0 = twc->TravelTime(path[i-1].nid(), path[i].nid(), dumpSite.nid());
-     // DLOG(INFO) << "old Time" << path[i-1].id() << "->* " << path[i].id() << "->" << dumpSite.id() << " =  " << time0;
       time1 = twc->TravelTime(path[i-1].nid(), dumpSite.nid());
-     // DLOG(INFO) << "new Time" << path[i-1].id() << "->" << dumpSite.id() << "=  " << time1;
     } else {
       if (twc->isInPath(path[i-1], path[i], path[i+1])) continue;
       time0 = twc->TravelTime(path[i-1].nid(), path[i].nid(), path[i+1].nid());
-     // DLOG(INFO) << "old Time" << path[i-1].id() << "->* " << path[i].id() << "->" << path[i+1].id() <<" =  " << time0;
       time1 = twc->TravelTime(path[i-1].nid(), path[i+1].nid());
-     // DLOG(INFO) << "new Time" << path[i-1].id() << "->" <<  path[i+1].id() << " = " << time1;
     }
     deltaTime = time1 - time0; 
-    #if 0
-    DLOG(INFO) << "delta TIme = new -old " << deltaTime;
-    if (deltaTime > 0) {
-      DLOG(INFO) << "removing the container increments the time";
-      continue;
-    } else {
-      DLOG(INFO) << "  old Time" << path[i-1].id() << " " << path[i].id() << " other" << " =  " << time0;
-      DLOG(INFO) << "  new Time" << path[i-1].id() << " other"  << "=  " << time1;
-   }
-   #endif
 
-    if (deltaTime < btime) {
-    //  DLOG(INFO) << "old best " << btime;
-    //  DLOG(INFO) << "new best " << deltaTime;
-      btime = deltaTime;
+    if (deltaTime < delta_del) {
+      delta_del = deltaTime;
       pos = i;
     }
   }
   best = path[pos].nid();
-// DLOG(INFO) << "best removal" << path[pos].id();;
   return;
 }
 
-void Trip::bestInsertion(UINT n_ins, UINT &ins_aft, POS &ins_pos, double &btime) const {
-  //tau("bestInsertion");
+bool Trip::bestInsertion(UINT n_ins, UINT &ins_aft, POS &ins_pos, double &delta_ins) const {
   assert(size() > 1); // will never use insert into an empty truck
   ins_pos = 1;
-  btime = 999999;
+  delta_ins = 999999;
   double time0, time1, deltaTime;
   for (UINT i = 1; i < path.size(); ++i) {
-    // DLOG(INFO) << "in cycle" << i;
     if (i == path.size()-1) {
       if (twc->isInPath(path[i].nid(), n_ins, dumpSite.nid())) {
-        // cool, fits perfectly
         ins_pos = i;
         ins_aft = path[i-1].nid();
-        btime = 0;
-// DLOG(INFO) << "best insertion after " << path[ins_pos-1].id();
-        return;
+        delta_ins = 0;
+        return true;
       }
       time1 = twc->TravelTime(path[i].nid(), n_ins, dumpSite.nid());
-      // DLOG(INFO) << "new Time" << path[i].id() << "->* " << n_ins << "->" << dumpSite.id() << " =  " << time1;
       time0 = twc->TravelTime(path[i].nid(), dumpSite.nid());
-      // DLOG(INFO) << "old Time" << path[i].id() << "->" << dumpSite.id() << "=  " << time0;
     } else {
       if (twc->isInPath(path[i-1].nid(), n_ins, path[i].nid())) {
-        // cool, fits perfectly
         ins_pos = i;
         ins_aft = path[i-1].nid();
-        btime = 0;
-// DLOG(INFO) << "best insertion after " << path[ins_pos-1].id();
-        return;
+        delta_ins = 0;
+        return true;
       }
       time1 = twc->TravelTime(path[i-1].nid(), n_ins, path[i].nid());
-      // DLOG(INFO) << "new Time" << path[i-1].id() << "->* " << n_ins << "->" << path[i].id() <<" =  " << time1;
       time0 = twc->TravelTime(path[i-1].nid(), path[i].nid());
-      // DLOG(INFO) << "old Time" << path[i-1].id() << "->" <<  path[i].id() << " = " << time0;
     }
     deltaTime = time1 - time0;
-    // DLOG(INFO) << "delta TIme = new -old " << deltaTime;
-    if (deltaTime < btime) {
-      btime = deltaTime;
+    if (deltaTime < delta_ins) {
+      delta_ins = deltaTime;
       ins_pos = i;
       ins_aft = path[i-1].nid();
     }
   }
-// DLOG(INFO) << "best insertion after " << path[ins_pos-1].id();
-  return;
+  return false;
 }
 
     
@@ -261,9 +323,17 @@ void Vehicle::swapBestToDump() {
 
 
 void Vehicle::tauTrips() const {
-  for (UINT i = 0; i < trips.size()-1; ++i) {
+  DLOG(INFO) << "trips";
+#if 0
+  for (UINT i = 0; i < trips.size(); ++i) {
+    DLOG(INFO) << "trip " << i;
     trips[i].tau();
   }
+#else
+  for (auto &trip : trips) {
+    trip.tau();
+  }
+#endif
 }
 
 Trip Vehicle::get_new_trip() {

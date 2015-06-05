@@ -18,9 +18,10 @@ class Trip: public Vehicle1 {
   void exchange(Trip &other, POS del_pos, POS o_ins_pos, POS o_del_pos, POS ins_pos);
 
 
-  bool getRemovalValues(const Trip &other, POS &o_ins_pos, POS &del_pos, double &delta) const;
-  void bestRemoval(UINT &best, POS &pos, double &btime) const;
-  void bestInsertion(UINT n_id, UINT &ins_aft, POS &ins_pos, double &btime) const;
+  bool getRemovalValues(const Trip &other, POS &o_ins_pos, POS &del_pos, double &o_delta_ins, double &delta_del) const;
+  bool chooseMyBest(const Trip &other,  POS forbidden_pos, POS &o_ins_pos, POS &del_pos, double &o_delta_ins, double &delta_del) const;
+  void bestRemoval(UINT &best, POS &pos, double &delta_del) const;
+  bool bestInsertion(UINT n_id, UINT &ins_aft, POS &ins_pos, double &delta_ins) const;
 };
 
 
@@ -41,11 +42,14 @@ class Vehicle: public Vehicle1 {
 
 
 
-
   void manualControl();
+  void exchanges(UINT trip, UINT o_trip);
+  void exchangesWithOnPath(UINT trip, UINT o_trip);
+  void swapBestToDump();
+  void intraTripOptimizationNoOsrm();
+
   void tauTrips() const;
   Trip get_new_trip();
   void add_trip(const Trip &p_trip);
-  void swapBestToDump();
 };
 #endif // TRIPVEHICLE_H

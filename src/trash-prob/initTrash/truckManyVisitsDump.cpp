@@ -522,15 +522,18 @@ void TruckManyVisitsDump::fillTruck(Vehicle &truck, std::deque<Trip> &trips) {
     }
   }
 
-  
+ #if 0 
   for (UINT i = 0; i < trips.size(); ++i) {
     trips[i].tau("Trip to be optimized");
     trips[i].intraTripOptimizationNoOsrm();
     trips[i].tau("Optimized trip");
     // trips[i].dumpCostValues();
   }
+  #endif
+
   buildTruck(truck, trips);
 
+  // optimize the truck goes here
   truck.manualControl();
 
 
