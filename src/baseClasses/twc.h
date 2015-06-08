@@ -963,7 +963,7 @@ void getNodesOnPath(
   // Approximate meters in degrees longitude at equator
   // 0.00009 degrees === 10 meters
   // 0.00027 degrees === 30 meters
-  const double tol = 0.00007;
+  const double tol = 0.00014;
 
   std::deque< Node >::iterator git = geometry.begin();
   git++;    // we need pairs segment( (git-1), git )

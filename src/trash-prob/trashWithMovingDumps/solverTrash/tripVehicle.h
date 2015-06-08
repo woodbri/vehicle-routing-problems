@@ -74,6 +74,7 @@ class Vehicle: public Vehicle1 {
 
   void tauTrips() const;
   Trip get_new_trip();
+  void reconstruct();
   void add_trip(const Trip &p_trip);
 };
 #endif // TRIPVEHICLE_H

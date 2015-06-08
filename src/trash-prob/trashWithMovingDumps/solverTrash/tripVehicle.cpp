@@ -21,7 +21,7 @@ void Vehicle::manualControl() {
   DLOG(INFO) << "manual control:";
   // swapBestToDump();
   tauTrips();
-#if 1
+#if 0
   trips[2].intraTripOptimizationNoOsrm();
   tauTrips();
   trips[2].intraTripOptimizationNoOsrm();
@@ -45,30 +45,32 @@ assert(true==false);
   DLOG(INFO) << "start exchanges" ;
   tauTrips();
 
+#if 1
+  for (UINT i = 0; i < 2; ++i) {
+    count = exchangesWorse(10);
+    tot_count += count;
+    DLOG(INFO) << "exchangeAllWorse Performed: " << count;
+    //if (count == 0) break;
+  }
+  DLOG(INFO) << "total exchangeAllWorse Performed: " << count;
+#endif
+
   for (UINT i = 0; i < 5; ++i) {
     for (auto &trip : trips) {
       for (auto &o_trip : trips) {
         DLOG(INFO) << "exchanges " << trip.trip_id() << " , " << o_trip.trip_id();
         exchangesWithOnPath(trip, o_trip);
-        exchangesWithOnPath(o_trip, trip);
+ //       intraTripOptimizationNoOsrm();
+//        exchangesWithOnPath(o_trip, trip);
       }
     }
   }
-  intraTripOptimizationNoOsrm();
+//  intraTripOptimizationNoOsrm();
 
-
-#if 0
-  for (UINT i = 0; i < 2; ++i) {
-    count = exchangesWorse(10);
-    tot_count += count;
-    DLOG(INFO) << "exchangeAllWorse Performed: " << count;
-    if (count == 0) break;
-  }
-  DLOG(INFO) << "total exchangeAllWorse Performed: " << count;
-#endif
 
   tauTrips();
-  assert(true == false);
+//TODO reconstruct the truck
+  //assert(true == false);
 
 }
 
@@ -81,6 +83,7 @@ void Vehicle::intraTripOptimizationNoOsrm() {
 }
 
 void Trip::intraTripOptimizationNoOsrm() {
+  getCostOsrm();
   bool oldStateOsrm = osrmi->getUse();
   osrmi->useOsrm(false);
   POS i_pos;
@@ -104,9 +107,9 @@ void Trip::intraTripOptimizationNoOsrm() {
     auto node = nodesOnTripPath[siz];
     auto d_node = nodesOnTripPath[siz].nid();
     trip.bestInsertion(d_node, i_pos, i_delta);
-    DLOG(INFO) << "node " << node.id() <<  "\t inserted in " << i_pos << " after " << trip[i_pos - 1].id();
+    //DLOG(INFO) << "node " << node.id() <<  "\t inserted in " << i_pos << " after " << trip[i_pos - 1].id();
     trip.path.insert(node, i_pos);
-    trip.tau("after");
+    //trip.tau("after");
     nodesOnTripPath.pop_back();
     path.erase(node);
   }
@@ -137,8 +140,8 @@ void Trip::intraTripOptimizationNoOsrm() {
   path.erase(d_pos);
   trip.bestInsertion(d_node, i_pos, i_delta);
   trip.path.insert(node, i_pos);
-  DLOG(INFO) << "node " << node.id() <<   "\t inserted in " << i_pos << " after " << trip[i_pos - 1].id();
-  trip.tau("after");
+  //DLOG(INFO) << "node " << node.id() <<   "\t inserted in " << i_pos << " after " << trip[i_pos - 1].id();
+  //trip.tau("after");
   }
   path = trip.path;
 #else
@@ -248,7 +251,7 @@ void Trip::intraTripOptimizationNoOsrm() {
 
 
 bool Vehicle::exchangesWithOnPath(Trip &trip, Trip &o_trip) {
-  if (!(trip.trip_id() == o_trip.trip_id() + 1)) return false;
+  if (!(trip.trip_id() > o_trip.trip_id() )) return false;
   POS  d_pos, i_pos;
   POS  o_d_pos, o_i_pos;
   double d_delta, i_delta;
@@ -283,7 +286,8 @@ bool Vehicle::exchangesWithOnPath(Trip &trip, Trip &o_trip) {
     DLOG(INFO) <<  "trip " << trip.trip_id() << "\tnode " << trip[d_pos].id() << " to o_trip " << o_trip.trip_id() << "\t after " << o_trip[o_i_pos - 1].id();
     DLOG(INFO) <<  "o_trip " << o_trip.trip_id() << "\tnode " << o_trip[o_d_pos].id() << " to trip " << trip.trip_id() << "\t after " << trip[i_pos - 1].id();
     if (o_d_delta + d_delta + o_i_delta + i_delta > 0) {
-      continue;
+      // nodesOnTripPath.pop_front();
+      // continue;
       DLOG(INFO) <<  " main " << trip.trip_id() << " delta: " << d_delta + i_delta;
       DLOG(INFO) <<  "o_trip " << o_trip.trip_id() << " delta: " << o_d_delta + o_i_delta;
       if ( d_delta + i_delta > 0) {
@@ -653,6 +657,13 @@ assert(true==false);
   return trip;
 }
     
+void Vehicle::reconstruct() {
+    auto tmp_trips = trips;
+    trips.clear();
+    for (Trip &trip : tmp_trips) {
+      add_trip(trip);
+    }
+};
 
 
 void Vehicle::add_trip(const Trip &p_trip) {
