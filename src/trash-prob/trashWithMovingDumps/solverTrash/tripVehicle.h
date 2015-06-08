@@ -32,6 +32,8 @@ class Trip: public Vehicle1 {
 
   void getNodesOnPath(const Trip &o_trip, POS o_ins_pos, Bucket &nodesOnPath) const;
   void getNodesOnPath(const Trip &o_trip, Bucket &nodesOnPath) const;
+  void orderNodesAlongPath(Bucket &orderedNodes) const;
+  void orderNodesAlongPath();
   double  delta_del(POS del_pos) const;
   double  delta_ins(UINT n_nid, POS del_pos) const;
   int&   trip_id() {return m_trip_id;} 

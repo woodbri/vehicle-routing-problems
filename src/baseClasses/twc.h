@@ -1034,6 +1034,145 @@ void getNodesOnPath(
 
 
 
+/*!
+ Take the nodes on the path and make sure they are in the correct order.
+ There is a bug in osrm that causes nodes on the same segment to be out
+ of order.
+*/
+void orderNodesAlongPath(
+   const TwBucket<knode> &truck,
+   const knode &dumpSite,
+   TwBucket<knode> &orderedStreetNodes) const {
+#ifndef OSRMCLIENT
+  DLOG(INFO) << "NO OSRM";
+  return;
+#else  // with OSRMCLIENT
+
+
+  bool oldStateOsrm = osrmi->getUse();
+  osrmi->useOsrm(true);  //forcing osrm usage
+  osrmi->clear();
+
+  // buld call
+  osrmi->setWantGeometry(true);
+  std::deque< Node > call;
+  for (unsigned int i = 0; i < truck.size(); ++i) {
+      call.push_back(truck[i]);
+  }
+  call.push_back(dumpSite);
+  osrmi->addViaPoints(call);
+  if (!osrmi->getOsrmViaroute()) {
+#ifdef VRPMINTRACE
+     DLOG(INFO) << "orderNodesAlongPath getOsrmViaroute failed";
+#endif
+     osrmi->useOsrm(oldStateOsrm);
+     return;
+  }
+
+  // get the geometry of the path
+  std::deque< Node > geometry;
+  if (!osrmi->getOsrmGeometry(geometry) ) {
+#ifdef VRPMINTRACE
+     DLOG(INFO) << "getNodesOnPath getOsrmGeometry failed";
+#endif
+     osrmi->useOsrm(oldStateOsrm);
+     return;
+  }
+
+  // clone the truck nodes into streetNodes
+  TwBucket<knode> streetNodes(truck);
+  streetNodes.push_back(dumpSite);
+
+
+  /************************************************************
+  At this point we have
+    geometry
+    streetNodes
+
+  This needs to be filled
+    orderedStreetNodes
+  ************************************************************/
+
+  // tolerance to determine if a container is "on" the segment
+  // Node::positionAlongSegment() is doing Euclidean calcuations
+  // so this needs to be set in degrees or meters depending on the
+  // underlying projection that the node x,y values are in.
+
+  // Approximate meters in degrees longitude at equator
+  // 0.00009 degrees === 10 meters
+  // 0.00027 degrees === 30 meters
+  const double tol = 0.00027;
+
+  std::deque< Node >::iterator git = geometry.begin();
+  git++;    // we need pairs segment( (git-1), git )
+  while ( git != geometry.end() ) {
+
+    // container to hold nodes for this segment
+    std::deque< std::pair< double, unsigned int > > seg;
+
+    // loop through the nodes and see which are on this segment
+    for ( unsigned int i=0; i<streetNodes.size(); i++ ) {
+      double pos = streetNodes[i].positionAlongSegment( *(git-1), *git, tol );
+      if ( pos > 0 ) {
+        // found one on the segment so save it so we can order them
+        std::pair< double, unsigned int > p( pos, i );
+        seg.push_back( p );
+      }
+    }
+
+    // sort the seg container based on pos to order them
+    // NOTE: using C++11 lambda
+    std::sort(seg.begin(), seg.end(),
+        [](const std::pair<double,int> &left,
+           const std::pair<double,int> &right) {
+                return left.first < right.first;
+    });
+
+    // move the nodes to orderedStreetNodes
+    std::deque< std::pair< double, unsigned int > >::iterator it;
+    for (it = seg.begin(); it != seg.end(); it++)
+        orderedStreetNodes.push_back( streetNodes[it->second] );
+
+    // sort the seg container based on index to order them for erase
+    // NOTE: using C++11 lambda
+    std::sort(seg.begin(), seg.end(),
+        [](const std::pair<double,int> &left,
+           const std::pair<double,int> &right) {
+                return left.second > right.second;
+    });
+
+    // remove the nodes we already used
+    for (it = seg.begin(); it != seg.end(); it++)
+        streetNodes.erase(it->second);
+
+    // check if we are done early
+    if (streetNodes.size() == 0) break;
+
+    // and repeat for next segment
+    git++;
+  }
+
+#if 1
+  if (streetNodes.size() != 0) {
+    DLOG(INFO) << "truck.size" << truck.size();
+    DLOG(INFO) << "streetNodes.size" << streetNodes.size();
+    DLOG(INFO) << "orderedStreetNodes.size" << orderedStreetNodes.size();
+    truck.dump("truck");
+    streetNodes.dump("streetNodes");
+    orderedStreetNodes.dump("orderedStreetNodes");
+  }
+#endif
+  assert(streetNodes.size() == 0);
+//assert(true==false);
+
+  /************************************************************/
+  osrmi->useOsrm(oldStateOsrm);
+  osrmi->clear();
+#endif  // with OSRMCLIENT
+}
+
+
+
 
 /*!
 truck: 0 1 2 3 4 5 6 D  
