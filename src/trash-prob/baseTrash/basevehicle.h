@@ -34,9 +34,10 @@
 
 class BaseVehicle
 {
-protected:
+public:
   typedef  TwBucket<Trashnode> Bucket;
 
+protected:
   int vid;
   Twpath<Trashnode> path;
   Trashnode depot; //just for keeps

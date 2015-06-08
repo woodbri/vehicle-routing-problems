@@ -636,6 +636,7 @@ void process_pair_onPath(UINT i, UINT j) const{
 #ifdef DOSTATS
     STATS->inc("TWC::process_pair_onPath");
 #endif
+  if (travel_time_onTrip[i][j] == 0) {
     trip.clear();
     nodesOnPath.clear();
     trip.push_back(original[i]);
@@ -643,6 +644,7 @@ void process_pair_onPath(UINT i, UINT j) const{
     if (nodesOnPath.size() == 0 || nodesOnPath[0].nid() != original[i].nid()) nodesOnPath.push_front(original[i]);
     if (nodesOnPath[nodesOnPath.size()-1].nid() != original[j].nid()) nodesOnPath.push_back(original[j]);
     fill_times(nodesOnPath);
+  }
 }
 
 
@@ -1805,11 +1807,11 @@ private:
         != nodes_onTrip[from][to].end()) return false;
     return true;
 #endif
-    if (travel_time_onTrip[from][to] == 0) 
+    //if (travel_time_onTrip[from][to] == 0) 
        process_pair_onPath(from, to);
-    if (travel_time_onTrip[from][middle] == 0) 
+    //if (travel_time_onTrip[from][middle] == 0) 
        process_pair_onPath(from, middle);
-    if (travel_time_onTrip[middle][to] == 0) 
+    //if (travel_time_onTrip[middle][to] == 0) 
        process_pair_onPath(middle, to);
 #if 0
  DLOG(INFO) << from << "," << middle <<"," << to;

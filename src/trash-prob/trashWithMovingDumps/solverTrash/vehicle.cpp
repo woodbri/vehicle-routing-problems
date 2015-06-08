@@ -96,7 +96,7 @@ double Vehicle1::timePCN( POS from, Trashnode &middle ) const
     return path.timePCN( from, middle );
 }
 
-#if 1
+#if 0
 // the truck treated as a trip
 void Vehicle1::intraTripOptimizationNoOsrm() {
   bool oldStateOsrm = osrmi->getUse();

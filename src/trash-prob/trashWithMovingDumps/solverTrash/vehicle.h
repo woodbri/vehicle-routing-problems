@@ -67,7 +67,7 @@ public:
   ///@}
 
   ///@{
-  void intraTripOptimizationNoOsrm();
+  // void intraTripOptimizationNoOsrm();
 
   ///}
 
