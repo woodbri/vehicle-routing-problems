@@ -31,7 +31,7 @@ assert(true==false);
   tauTrips();
   intraTripOptimizationNoOsrm();
   tauTrips();
-// assert(true==false);
+  assert(true==false);
 
   POS  del_pos, ins_pos;
   POS  o_del_pos, o_ins_pos;
@@ -45,7 +45,7 @@ assert(true==false);
   DLOG(INFO) << "start exchanges" ;
   tauTrips();
 
-#if 1
+#if 0
   for (UINT i = 0; i < 2; ++i) {
     count = exchangesWorse(10);
     tot_count += count;
@@ -90,18 +90,23 @@ void Trip::intraTripOptimizationNoOsrm() {
   double i_delta;
 
   Trip trip = *this;
+#if 0
   while (trip.size() > 3) {
     trip.e_remove(2);
   }
   trip.tau("only the begining and the end");
   e_remove(1);
   path.pop_back();
-  
+#endif
 
   Bucket nodesOnTripPath;
+//////////////////////////////////////////////////////////////////////
+  // instead of this:
   trip.getNodesOnPath(*this, nodesOnTripPath);
-  nodesOnTripPath.dumpid("nodes on path");
 
+  
+  nodesOnTripPath.dumpid("nodes on path");
+//////////////////////////////////////////////////////////////////////
   while (nodesOnTripPath.size() > 0) { 
     auto siz = nodesOnTripPath.size() - 1;
     auto node = nodesOnTripPath[siz];
@@ -439,6 +444,14 @@ void Trip::getNodesOnPath(const Trip &o_trip, POS o_i_pos, Bucket &nodesOnPath) 
   o_nodes.pop_front();  // delete the starting site
   twc->getNodesOnPath(path, dumpSite, o_nodes, nodesOnPath);
 };
+
+///////////////////////////////////////
+
+
+
+
+
+///////////////////////////////////////
 
 void Trip::getNodesOnPath(const Trip &o_trip, Bucket &nodesOnPath) const {
   Bucket o_nodes;
