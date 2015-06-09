@@ -535,7 +535,7 @@ void TruckManyVisitsDump::fillTruck(Vehicle &truck, std::deque<Trip> &trips) {
   truck.manualControl();
 
 
-assert(true==false);
+// assert(true==false);
   truck.dumpCostValues();
   invariant();
 }

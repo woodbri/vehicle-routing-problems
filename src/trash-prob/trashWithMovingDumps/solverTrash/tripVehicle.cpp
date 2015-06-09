@@ -31,7 +31,7 @@ assert(true==false);
   tauTrips();
   intraTripOptimizationNoOsrm();
   tauTrips();
-  assert(true==false);
+  // assert(true==false);
 
   POS  del_pos, ins_pos;
   POS  o_del_pos, o_ins_pos;
@@ -45,7 +45,7 @@ assert(true==false);
   DLOG(INFO) << "start exchanges" ;
   tauTrips();
 
-#if 0
+#if 1
   for (UINT i = 0; i < 2; ++i) {
     count = exchangesWorse(10);
     tot_count += count;
@@ -65,10 +65,12 @@ assert(true==false);
       }
     }
   }
-//  intraTripOptimizationNoOsrm();
+  intraTripOptimizationNoOsrm();
 
 
   tauTrips();
+  reconstruct();
+  tau("truck");
 //TODO reconstruct the truck
   //assert(true == false);
 
@@ -256,7 +258,7 @@ bool Vehicle::exchangesWithOnPath(Trip &trip, Trip &o_trip) {
   Bucket nodesOnTripPath;
   trip.getNodesOnPath(o_trip, nodesOnTripPath);
   if (nodesOnTripPath.size() == 0) {
-    DLOG(INFO) << "We cant  exchange: o_trip does not have nodes in trip's path" ;
+    // DLOG(INFO) << "We cant  exchange: o_trip does not have nodes in trip's path" ;
     return false; 
   }
   assert(nodesOnTripPath.size() > 0);
@@ -273,17 +275,19 @@ bool Vehicle::exchangesWithOnPath(Trip &trip, Trip &o_trip) {
     trip.bestInsertion(o_d_node, i_pos, i_delta);
 
     // condtitions to do the exchange
+#if 0
     DLOG(INFO) <<  "d_delta + o_i_delta " << d_delta << " +  " << o_i_delta  <<   " = " << d_delta + o_i_delta;
     DLOG(INFO) <<  "o_d_delta + i_delta " << o_d_delta << " +  " << i_delta  <<   " = " << o_d_delta + i_delta;
     DLOG(INFO) << " total del delta " << o_d_delta + d_delta << " total ins delta " <<  o_i_delta + i_delta << " total "  << o_d_delta + d_delta + o_i_delta + i_delta  ;
 
     DLOG(INFO) <<  "trip " << trip.trip_id() << "\tnode " << trip[d_pos].id() << " to o_trip " << o_trip.trip_id() << "\t after " << o_trip[o_i_pos - 1].id();
     DLOG(INFO) <<  "o_trip " << o_trip.trip_id() << "\tnode " << o_trip[o_d_pos].id() << " to trip " << trip.trip_id() << "\t after " << trip[i_pos - 1].id();
+#endif
     if (o_d_delta + d_delta + o_i_delta + i_delta > 0) {
       // nodesOnTripPath.pop_front();
       // continue;
-      DLOG(INFO) <<  " main " << trip.trip_id() << " delta: " << d_delta + i_delta;
-      DLOG(INFO) <<  "o_trip " << o_trip.trip_id() << " delta: " << o_d_delta + o_i_delta;
+//      DLOG(INFO) <<  " main " << trip.trip_id() << " delta: " << d_delta + i_delta;
+//      DLOG(INFO) <<  "o_trip " << o_trip.trip_id() << " delta: " << o_d_delta + o_i_delta;
       if ( d_delta + i_delta > 0) {
         nodesOnTripPath.pop_front();
         continue;
@@ -330,9 +334,11 @@ bool Vehicle::exchangesWorse(Trip &trip, Trip &o_trip) {
     if (trip[del_pos].id() == trip[ins_pos-1].id()
         ||  o_trip[o_del_pos].id() ==  o_trip[o_ins_pos-1].id()) return false;
      // DLOG(INFO) <<  "delta shortest " << delta_del + delta_ins ;
+#if 0
      DLOG(INFO) <<  "delta total " <<  delta_del + delta_ins + o_delta_del + o_delta_ins;
      DLOG(INFO) <<  "trip " << trip.trip_id() << "\tnode " << trip[del_pos].id() << " to trip " << o_trip.trip_id() << "\t after " << o_trip[o_ins_pos-1].id();
      DLOG(INFO) <<  "trip " << o_trip.trip_id() << "\tnode " << o_trip[o_del_pos].id() << " to trip " << trip.trip_id() << "\t after " << trip[ins_pos-1].id();
+#endif 
      trip.exchange(o_trip, del_pos, o_ins_pos, o_del_pos, ins_pos);
      return true;
   }
@@ -365,8 +371,8 @@ void Trip::exchange(Trip &other,
   Trashnode myNode = path[del_pos]; 
   Trashnode hisNode = other.path[o_del_pos]; 
 
-  tau("this before insert");
-  other.tau("other before insert");
+  // tau("this before insert");
+  //other.tau("other before insert");
   // D 0 1 3 2 4 5 6 F 7 8 9
   path.insert(hisNode, ins_pos);
   // D A 3 B C D E F G H I J
@@ -379,8 +385,8 @@ void Trip::exchange(Trip &other,
   o_del_pos = o_del_pos < o_ins_pos? o_del_pos: ++o_del_pos;
   path.erase(del_pos);
   other.path.erase(o_del_pos);
-  tau("this after remove");
-  other.tau("other after remove");
+  // tau("this after remove");
+  // other.tau("other after remove");
 }
 
 
@@ -393,16 +399,6 @@ bool Trip::getRemovalValues(const Trip &other, POS &o_ins_pos, POS &del_pos, dou
   bool insertInPath;
   bestRemoval(del_node, del_pos, delta_del);
   return other.bestInsertion(del_node, o_ins_pos, o_delta_ins);
-  
-//  tau("best removal trip:");
-  DLOG(INFO) << "\tnode to be removed: " << path[del_pos].id()
-             << " at pos: " << del_pos
-             << "\tdelta: " << delta_del;
-  DLOG(INFO) << "\tinsert after node: " << other[o_ins_pos-1].id()
-             << " at pos: " << o_ins_pos
-             << "\tdelta: " << o_delta_ins;
-  double delta = o_delta_ins + delta_del;
-  return delta < 0;
 };
 
 
@@ -434,7 +430,6 @@ void Trip::getNodesOnPath(const Trip &o_trip, POS o_i_pos, Bucket &nodesOnPath) 
   twc->getNodesOnPath(path, dumpSite, o_nodes, nodesOnPath);
 };
 
-///////////////////////////////////////
 
 void Trip::getNodesInOrder() {
   Bucket nodes;
@@ -442,32 +437,31 @@ void Trip::getNodesInOrder() {
   nodes = path; 
   nodes.pop_front();  // delete the starting site
   twc->getNodesOnPath(path, dumpSite, nodes, nodesInOrder);
-  nodesInOrder.dumpid("nodesInOrder");
+  // nodesInOrder.dumpid("nodesInOrder");
   Trip test = *this;
   test.path.clear();
   test.path.push_back(this->path[0]);
-  test.tau("only depot");
+  // test.tau("only depot");
   for (const auto &node : nodesInOrder.Path()) {
-    DLOG(INFO) << "working with " << node.id();
+    // DLOG(INFO) << "working with " << node.id();
     test.path.push_back(node);
-    test.tau("after insertion");
+    // test.tau("after insertion");
   }
-  nodes.dumpid("initial nodes");
+  // nodes.dumpid("initial nodes");
   nodes = nodes - nodesInOrder;
-  nodes.dumpid("missing nodes");
+  // nodes.dumpid("missing nodes");
   POS i_pos;
   double i_delta;
   for (const auto &node : nodes.Path()) {
     test.bestInsertion(node.nid(), i_pos, i_delta);
     test.path.insert(node, i_pos);
   }
-  test.tau("after filling with missing nodes");
+  // test.tau("after filling with missing nodes");
   this->path = test.path;
 }
 
 
 
-///////////////////////////////////////
 
 void Trip::getNodesOnPath(const Trip &o_trip, Bucket &nodesOnPath) const {
   Bucket o_nodes;
@@ -488,8 +482,8 @@ bool Trip::chooseMyBest(const Trip &other, POS o_ins_pos, POS del_pos, POS &ins_
   o_nodes.pop_front();  // delete the starting site
   twc->getNodesOnPath(path, dumpSite, o_nodes, nodesOnPath);
   o_nodes = o_nodes - nodesOnPath;
-  o_nodes.dumpid("nodes not in my path");
-  nodesOnPath.dumpid("nodes in my path");
+  // o_nodes.dumpid("nodes not in my path");
+  // nodesOnPath.dumpid("nodes in my path");
   removeRestricted(nodesOnPath, del_pos);
   auto found = false;
   UINT o_del_node, ins_after;
@@ -565,18 +559,6 @@ double Trip::delta_ins(UINT n_ins, POS ins_pos) const {
 
 
 
-#if 0
-bool Trip::ord_delta_del(const Trashnode &n1, const Trashnode &n2) const {
-  return delta_del(path.pos(n1.nid())) <  delta_del(path.pos(n2.nid()));
-}
-
-
-void Trip::sortBasedOnBestRemoval(Bucket &nodes) const {
-    std::sort( nodes.begin(), nodes.end(), [=] {
-       return delta_del(path.pos(n1.nid())) <  delta_del(path.pos(n2.nid()))
-    };
-}
-#endif
 
 // return the deltaTime
 void Trip::bestRemoval(UINT &d_node, POS &d_pos, double &d_delta) const {
@@ -640,12 +622,12 @@ void Trip::removeRestricted(Bucket &nodesOnPath, POS special) const {
 
 
 void Vehicle::swapBestToDump() {
-  DLOG(INFO) << "before swap";
+//  DLOG(INFO) << "before swap";
   tauTrips();
   for (UINT i = 0; i < trips.size()-1; ++i) {
     trips[i+1].swapBestToDump(trips[i]);
   }
-  DLOG(INFO) << "after swap";
+//  DLOG(INFO) << "after swap";
   tauTrips();
 }
 
@@ -658,17 +640,17 @@ void Vehicle::tauTrips() const {
 }
 
 Trip Vehicle::get_new_trip() {
-  DLOG(INFO) << "get_new_trip";
+//  DLOG(INFO) << "get_new_trip";
   Trashnode S,D,E;
   if (path.size()==1) {
     S = path[0];
     D = dumpSite;
     E = endingSite;
-  DLOG(INFO) << "truck size is 1";
+//  DLOG(INFO) << "truck size is 1";
   } else {
-  DLOG(INFO) << "truck size is not 1";
+//  DLOG(INFO) << "truck size is not 1";
   tau("truck");
-assert(true==false);
+// assert(true==false);
     S = dumpSite;
     D = dumpSite;
     E = endingSite;
@@ -691,8 +673,13 @@ assert(true==false);
 void Vehicle::reconstruct() {
     auto tmp_trips = trips;
     trips.clear();
+    while (path.size() > 1) {
+      path.pop_back();
+    }
+    // tau("truck empty");
     for (Trip &trip : tmp_trips) {
       add_trip(trip);
+      // tau("truck growing");
     }
 };
 
@@ -700,9 +687,9 @@ void Vehicle::reconstruct() {
 void Vehicle::add_trip(const Trip &p_trip) {
 
     Trip trip = p_trip;
-    tau("before inserting trip");
+    // tau("before inserting trip");
     this->e_add_trip(trip);
-    tau("after inserting trip");
+    // tau("after inserting trip");
     // the start of the trip does not change
     // the dump of the trip must have the same values as the dump of the truck
     trip.getCostOsrm();
