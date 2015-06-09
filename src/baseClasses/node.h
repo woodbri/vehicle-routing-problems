@@ -86,6 +86,7 @@ class Node {
   Node operator-(const Node &v) const;
   Node operator*(double f) const;
   double dotProduct(const Node &p) const;
+  double dotProductGOOD(const Node &p) const;
   double length() const;
   double gradient(const Node &pi) const;
   Node unit() const;
@@ -109,7 +110,7 @@ class Node {
   ///@}
 
   double positionAlongSegment(const Node &v, const Node &w, double tol) const;
-  double positionAlongSegmentAlt(const Node &v, const Node &w, double tol) const;
+  double positionAlongSegmentAlt(const Node &v, const Node &w, double tol, double &distToSegSq) const;
 
   // dump
   void dump() const;

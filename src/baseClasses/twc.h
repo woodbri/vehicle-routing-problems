@@ -17,6 +17,7 @@
 // #include <iostream>
 #include <fstream>
 // #include <sstream>
+#include <iomanip>
 #include <string>
 #include <vector>
 #include <deque>
@@ -1101,24 +1102,41 @@ void orderNodesAlongPath(
   // Approximate meters in degrees longitude at equator
   // 0.00009 degrees === 10 meters
   // 0.00027 degrees === 30 meters
-  const double tol = 0.00027;
+  const double tol = 0.00014;
 
+  int cnt = 0;
   std::deque< Node >::iterator git = geometry.begin();
   git++;    // we need pairs segment( (git-1), git )
   while ( git != geometry.end() ) {
+
+#ifdef VRPMINTRACE
+    DLOG(INFO) << std::setprecision(10) << "cnt: " << cnt << " (" << (git-1)->x() << ", " << (git-1)->y() << ") - (" << git->x() << ", " << git->y() << ")";
+#endif
 
     // container to hold nodes for this segment
     std::deque< std::pair< double, unsigned int > > seg;
 
     // loop through the nodes and see which are on this segment
     for ( unsigned int i=0; i<streetNodes.size(); i++ ) {
-      double pos = streetNodes[i].positionAlongSegmentAlt( *(git-1), *git, tol );
-      if ( pos > 0 ) {
+      double distSq = -1.0;
+      double pos = streetNodes[i].positionAlongSegmentAlt( *(git-1), *git, tol, distSq );
+#ifdef VRPMINTRACE
+      if ( streetNodes[i].id() == 3955 ) {
+        DLOG(INFO) << "Node: 3955, segment: " << cnt << ", pos: " << pos << ", distSq: " << distSq;
+      }
+#endif
+      if ( pos >= 0 ) {
+#ifdef VRPMINTRACE
+        streetNodes[i].dump();
+        DLOG(INFO) << "segment: " << cnt << ", id: " << streetNodes[i].id()
+                   << ", pos: " << pos << ", distSq: " << distSq;
+#endif
         // found one on the segment so save it so we can order them
         std::pair< double, unsigned int > p( pos, i );
         seg.push_back( p );
       }
     }
+    cnt++;
 
     // sort the seg container based on pos to order them
     // NOTE: using C++11 lambda
@@ -1156,9 +1174,9 @@ void orderNodesAlongPath(
 
 #if 1
   if (streetNodes.size() != 0) {
-    DLOG(INFO) << "truck.size" << truck.size();
-    DLOG(INFO) << "streetNodes.size" << streetNodes.size();
-    DLOG(INFO) << "orderedStreetNodes.size" << orderedStreetNodes.size();
+    DLOG(INFO) << "truck.size: " << truck.size();
+    DLOG(INFO) << "streetNodes.size: " << streetNodes.size();
+    DLOG(INFO) << "orderedStreetNodes.size: " << orderedStreetNodes.size();
     truck.dumpid("truck");
     streetNodes.dumpid("streetNodes");
     orderedStreetNodes.dumpid("orderedStreetNodes");

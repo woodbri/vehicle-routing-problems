@@ -111,6 +111,9 @@ Node  Node::operator*(double f) const { return Node( x_ * f, y_ * f ); }
 /*! \brief Compute the vector dot product between two Nodes.*/
 double Node::dotProduct( const Node &p ) const { return x_ * p.x_ + y_ * p.y_; }
 
+/*! \brief Compute the vector dot product between two Nodes.*/
+double Node::dotProductGOOD( const Node &p ) const { return x_ * y_ +  p.x_ * p.y_; }
+
 /*! \brief Compute the Euclidean length of a vector */
 double Node::length() const { return sqrt( x_ * x_ + y_ * y_ ); }
 
@@ -259,7 +262,7 @@ double Node::positionAlongSegment(const Node &v, const Node &w, double tol) cons
  *  \param[in] tol tolerance for distance test
  *  \return position 0.0 to 1.0 along the segment of -1.0 if it is not within tolerance
 */
-double Node::positionAlongSegmentAlt(const Node &v, const Node &w, double tol) const {
+double Node::positionAlongSegmentAlt(const Node &v, const Node &w, double tol, double &distToSegSq) const {
   double tolSq = tol * tol;
 
   // i.e. |w-v|^2 ... avoid a sqrt
@@ -279,23 +282,26 @@ double Node::positionAlongSegmentAlt(const Node &v, const Node &w, double tol) c
   // it falls where t = [(p-v) . ((w-v) / |w-v|)]
   Node unitwv = (w - v).unit();
 
-  double t = ((*this) - v).dotProduct(unitwv);
+  double t = ((*this) - v).dotProductGOOD(unitwv);
+
+  // projection falls on the segment
+  // so compute the distance^2 from Node to projection
+  Node projection = v + (unitwv * t);
+  distToSegSq = distanceToSquared(projection);
 
   // beyond the v end of the segment
   if ( t < 0.0 ) {
-      return -1.0;
+      return t;
   }
 
   // beyond the w end of the segment
   if ( t > 1.0 ) {
-      return -1.0;
+      return -t;
   }
 
-  // projection falls on the segment
-  Node projection = v + (unitwv * t);
-
-  if (distanceToSquared(projection) > tolSq )
-    return -1.0;
+  // node is too far away
+  if (distToSegSq > tolSq )
+    return -sqrt(distToSegSq)-10.0;
 
   return t;
 }
