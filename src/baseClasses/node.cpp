@@ -218,17 +218,20 @@ double Node::positionAlongSegment(const Node &v, const Node &w, double tol) cons
   double distSq = v.distanceToSquared(w);
 
   if (distSq == 0.0) {  // v == w case
-    if (distanceToSquared(v) < tolSq)
+    if (distanceToSquared(v) < tolSq) {
       return 0.0;       // node == v == w case
-    else
+    }
+    else {
       return -1.0;      // node is not within tol
+    }
   }
 
   // consider the line extending the segment, parameterized as v + t (w - v)
   // we find projection of point p onto the line
-  // it falls where t = [(p-v) . (w-v)] / |w-v|^2
+  // it falls where t = [(p-v) . ((w-v) / |w-v|)]
+  Node unitwv = (w - v).unit();
 
-  double t = ((*this) - v).dotProduct(w - v) / distSq;
+  double t = ((*this) - v).dotProduct(unitwv);
 
   // beyond the v end of the segment
   if ( t < 0.0 ) {
@@ -241,7 +244,7 @@ double Node::positionAlongSegment(const Node &v, const Node &w, double tol) cons
   }
 
   // projection falls on the segment
-  Node projection = v + ((w - v) * t);
+  Node projection = v + (unitwv * t);
 
   if (distanceToSquared(projection) > tolSq )
     return -1.0;

@@ -1081,7 +1081,7 @@ void orderNodesAlongPath(
 
   // clone the truck nodes into streetNodes
   TwBucket<knode> streetNodes(truck);
-  streetNodes.push_back(dumpSite);
+  streetNodes.pop_front();  // remove the starting location
 
 
   /************************************************************
@@ -1152,14 +1152,16 @@ void orderNodesAlongPath(
     git++;
   }
 
+  orderedStreetNodes.push_front(truck[0]); // put the start node back in place
+
 #if 1
   if (streetNodes.size() != 0) {
     DLOG(INFO) << "truck.size" << truck.size();
     DLOG(INFO) << "streetNodes.size" << streetNodes.size();
     DLOG(INFO) << "orderedStreetNodes.size" << orderedStreetNodes.size();
-    truck.dump("truck");
-    streetNodes.dump("streetNodes");
-    orderedStreetNodes.dump("orderedStreetNodes");
+    truck.dumpid("truck");
+    streetNodes.dumpid("streetNodes");
+    orderedStreetNodes.dumpid("orderedStreetNodes");
   }
 #endif
   assert(streetNodes.size() == 0);

@@ -21,7 +21,7 @@ void Vehicle::manualControl() {
   DLOG(INFO) << "manual control:";
   // swapBestToDump();
   tauTrips();
-#if 0
+#if 1
   trips[2].intraTripOptimizationNoOsrm();
   tauTrips();
   trips[2].intraTripOptimizationNoOsrm();
@@ -101,11 +101,13 @@ void Trip::intraTripOptimizationNoOsrm() {
 
   Bucket nodesOnTripPath;
 //////////////////////////////////////////////////////////////////////
-  // instead of this:
-  trip.getNodesOnPath(*this, nodesOnTripPath);
 
-  
-  nodesOnTripPath.dumpid("nodes on path");
+// STEVE TEST trip.orderNodesAlongPath(orderedNodes);
+  Bucket orderedNodes;
+  trip.orderNodesAlongPath(orderedNodes);
+  assert(true==false);
+// END STEVE TEST
+
 //////////////////////////////////////////////////////////////////////
   while (nodesOnTripPath.size() > 0) { 
     auto siz = nodesOnTripPath.size() - 1;
@@ -148,13 +150,6 @@ void Trip::intraTripOptimizationNoOsrm() {
   //DLOG(INFO) << "node " << node.id() <<   "\t inserted in " << i_pos << " after " << trip[i_pos - 1].id();
   //trip.tau("after");
   }
-
-// STEVE TEST trip.orderNodesAlongPath(orderedNodes);
-  Bucket orderedNodes;
-  trip.orderNodesAlongPath(orderedNodes);
-  assert(true==false);
-// END STEVE TEST
-
 
   path = trip.path;
 #else
