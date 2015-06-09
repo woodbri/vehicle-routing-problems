@@ -453,21 +453,20 @@ void Trip::getNodesOnPath(const Trip &o_trip, POS o_i_pos, Bucket &nodesOnPath) 
 void Trip::orderNodesAlongPath(Bucket &orderedNodes) const {
   orderedNodes.clear();
   twc->orderNodesAlongPath(path, dumpSite, orderedNodes);
-  orderedNodes.pop_back();  // delete the dumpSite
+#ifdef VRPMINTRACE
+  //if (path.size() != orderedNodes.size()) {
+    DLOG(INFO) << "path.size: " << path.size();
+    DLOG(INFO) << "orderedNodes.size: " << orderedNodes.size();
+    path.dumpid("path");
+    orderedNodes.dumpid("orderedNodes");
+  //}
+  assert( path.size() == orderedNodes.size() );
+#endif
 };
 
 void Trip::orderNodesAlongPath() {
   Bucket orderedNodes;
   orderNodesAlongPath(orderedNodes);
-#ifdef VRPMINTRACE
-  if (path.size() != orderedNodes.size()) {
-    DLOG(INFO) << "path.size: " << path.size();
-    DLOG(INFO) << "orderedNodes.size: " << orderedNodes.size();
-    path.dump("path");
-    orderedNodes.dump("orderedNodes");
-  }
-  assert( path.size() == orderedNodes.size() );
-#endif
   path = orderedNodes;
 };
 

@@ -1094,7 +1094,7 @@ void orderNodesAlongPath(
   ************************************************************/
 
   // tolerance to determine if a container is "on" the segment
-  // Node::positionAlongSegment() is doing Euclidean calcuations
+  // Node::positionAlongSegmentAlt() is doing Euclidean calcuations
   // so this needs to be set in degrees or meters depending on the
   // underlying projection that the node x,y values are in.
 
@@ -1112,7 +1112,7 @@ void orderNodesAlongPath(
 
     // loop through the nodes and see which are on this segment
     for ( unsigned int i=0; i<streetNodes.size(); i++ ) {
-      double pos = streetNodes[i].positionAlongSegment( *(git-1), *git, tol );
+      double pos = streetNodes[i].positionAlongSegmentAlt( *(git-1), *git, tol );
       if ( pos > 0 ) {
         // found one on the segment so save it so we can order them
         std::pair< double, unsigned int > p( pos, i );

@@ -210,8 +210,56 @@ double Node::distanceToSegment(const Node &v, const Node &w, Node &q) const {
  *  \param[in] w end of segment
  *  \param[in] tol tolerance for distance test
  *  \return position 0.0 to 1.0 along the segment of -1.0 if it is not within tolerance
+ *  \note The vec algebra is wrong in this function, but it works for initial solution
 */
 double Node::positionAlongSegment(const Node &v, const Node &w, double tol) const {
+  double tolSq = tol * tol;
+
+  // i.e. |w-v|^2 ... avoid a sqrt
+  double distSq = v.distanceToSquared(w);
+
+  if (distSq == 0.0) {  // v == w case
+    if (distanceToSquared(v) < tolSq)
+      return 0.0;       // node == v == w case
+    else
+      return -1.0;      // node is not within tol
+  }
+
+  // consider the line extending the segment, parameterized as v + t (w - v)
+  // we find projection of point p onto the line
+  // it falls where t = [(p-v) . (w-v)] / |w-v|^2
+
+  double t = ((*this) - v).dotProduct(w - v) / distSq;
+
+  // beyond the v end of the segment
+  if ( t < 0.0 ) {
+      return -1.0;
+  }
+
+  // beyond the w end of the segment
+  if ( t > 1.0 ) {
+      return -1.0;
+  }
+
+  // projection falls on the segment
+  Node projection = v + ((w - v) * t);
+
+  if (distanceToSquared(projection) > tolSq )
+    return -1.0;
+
+  return t;
+}
+
+/*! \bref Compute position along the line segment
+ *  Check if the node is on the line segment and return -1.0 if distance
+ *  exceeds tol. Otherwise project the node onto the line segment and
+ *  return is position as a percentage.
+ *  \param[in] v start of segment
+ *  \param[in] w end of segment
+ *  \param[in] tol tolerance for distance test
+ *  \return position 0.0 to 1.0 along the segment of -1.0 if it is not within tolerance
+*/
+double Node::positionAlongSegmentAlt(const Node &v, const Node &w, double tol) const {
   double tolSq = tol * tol;
 
   // i.e. |w-v|^2 ... avoid a sqrt

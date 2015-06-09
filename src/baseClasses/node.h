@@ -109,6 +109,7 @@ class Node {
   ///@}
 
   double positionAlongSegment(const Node &v, const Node &w, double tol) const;
+  double positionAlongSegmentAlt(const Node &v, const Node &w, double tol) const;
 
   // dump
   void dump() const;
