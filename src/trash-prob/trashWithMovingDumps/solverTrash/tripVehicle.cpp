@@ -85,27 +85,15 @@ void Vehicle::intraTripOptimizationNoOsrm() {
 void Trip::intraTripOptimizationNoOsrm() {
   getCostOsrm();
   bool oldStateOsrm = osrmi->getUse();
-  osrmi->useOsrm(false);
-  POS i_pos;
-  double i_delta;
+  osrmi->useOsrm(true);
 
-  Trip trip = *this;
-#if 0
-  while (trip.size() > 3) {
-    trip.e_remove(2);
-  }
-  trip.tau("only the begining and the end");
-  e_remove(1);
-  path.pop_back();
-#endif
+  getNodesInOrder();
+  osrmi->useOsrm(oldStateOsrm);
+  return;
 
-  Bucket nodesOnTripPath;
-//////////////////////////////////////////////////////////////////////
-  // instead of this:
-  trip.getNodesOnPath(*this, nodesOnTripPath);
-
-  
-  nodesOnTripPath.dumpid("nodes on path");
+#if 0  
+  // nodesOnTripPath.dumpid("nodes on path");
+assert(true==false);
 //////////////////////////////////////////////////////////////////////
   while (nodesOnTripPath.size() > 0) { 
     auto siz = nodesOnTripPath.size() - 1;
@@ -249,6 +237,7 @@ void Trip::intraTripOptimizationNoOsrm() {
 
 #endif
   osrmi->useOsrm(oldStateOsrm);
+#endif
 }
 
 
@@ -447,7 +436,34 @@ void Trip::getNodesOnPath(const Trip &o_trip, POS o_i_pos, Bucket &nodesOnPath) 
 
 ///////////////////////////////////////
 
-
+void Trip::getNodesInOrder() {
+  Bucket nodes;
+  Bucket nodesInOrder;
+  nodes = path; 
+  nodes.pop_front();  // delete the starting site
+  twc->getNodesOnPath(path, dumpSite, nodes, nodesInOrder);
+  nodesInOrder.dumpid("nodesInOrder");
+  Trip test = *this;
+  test.path.clear();
+  test.path.push_back(this->path[0]);
+  test.tau("only depot");
+  for (const auto &node : nodesInOrder.Path()) {
+    DLOG(INFO) << "working with " << node.id();
+    test.path.push_back(node);
+    test.tau("after insertion");
+  }
+  nodes.dumpid("initial nodes");
+  nodes = nodes - nodesInOrder;
+  nodes.dumpid("missing nodes");
+  POS i_pos;
+  double i_delta;
+  for (const auto &node : nodes.Path()) {
+    test.bestInsertion(node.nid(), i_pos, i_delta);
+    test.path.insert(node, i_pos);
+  }
+  test.tau("after filling with missing nodes");
+  this->path = test.path;
+}
 
 
 
@@ -460,6 +476,8 @@ void Trip::getNodesOnPath(const Trip &o_trip, Bucket &nodesOnPath) const {
   o_nodes.pop_front();  // delete the starting site
   twc->getNodesOnPath(path, dumpSite, o_nodes, nodesOnPath);
 };
+
+
 
 bool Trip::chooseMyBest(const Trip &other, POS o_ins_pos, POS del_pos, POS &ins_pos, POS &o_del_pos, double &o_delta_del, double &i_delta) const {
   Bucket o_nodes;

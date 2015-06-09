@@ -19,16 +19,9 @@ class Trip: public Vehicle1 {
   void swapBestToDump(Trip &other);
   void exchange(Trip &other, POS del_pos, POS o_ins_pos, POS o_del_pos, POS ins_pos);
   void intraTripOptimizationNoOsrm();
+  void getNodesInOrder();
 
   
-#if 0
-  struct ord_delta_del {
-    bool operator() (const Trashnode &n1, const Trashnode &n2) const {
-      return delta_del(path.pos(n1.nid())) <  delta_del(path.pos(n2.nid()));
-    }
-  };
-  void sortBasedOnBestRemoval(Bucket &nodes) const;
-#endif
 
   void getNodesOnPath(const Trip &o_trip, POS o_ins_pos, Bucket &nodesOnPath) const;
   void getNodesOnPath(const Trip &o_trip, Bucket &nodesOnPath) const;
