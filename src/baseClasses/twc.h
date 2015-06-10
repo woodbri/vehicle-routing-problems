@@ -2593,8 +2593,8 @@ private:
     for ( int i = 0; i < from.size(); i++ ) {
       if (TravelTime(from[i].nid(), j) < 0) {
         DLOG(INFO) << "found a negative";
-        travel_Time[from[i].nid()][j] = 1;
-        travel_time_onTrip[from[i].nid()][j] = 1;
+        travel_Time[from[i].nid()][j] = 0.00001;
+        travel_time_onTrip[from[i].nid()][j] = 0.00001;
         --count;
         continue;
       }
