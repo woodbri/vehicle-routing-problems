@@ -248,6 +248,9 @@ assert(true==false);
 
 bool Vehicle::exchangesWithOnPath(Trip &trip, Trip &o_trip) {
   if (!(trip.trip_id() > o_trip.trip_id() )) return false;
+  if (o_trip.size() <=1) return false;
+  if (trip.trip_id() == o_trip.trip_id()) return false;
+
   POS  d_pos, i_pos;
   POS  o_d_pos, o_i_pos;
   double d_delta, i_delta;
@@ -394,6 +397,7 @@ void Trip::exchange(Trip &other,
 // this trip wants to remove
 // asks for values to other trip
 bool Trip::getRemovalValues(const Trip &other, POS &o_ins_pos, POS &del_pos, double &o_delta_ins, double &delta_del) const{
+  if (path.size() <=1) return false;
   UINT del_node;
   UINT ins_after;
   bool insertInPath;
@@ -558,8 +562,6 @@ double Trip::delta_ins(UINT n_ins, POS ins_pos) const {
 
 
 
-
-
 // return the deltaTime
 void Trip::bestRemoval(UINT &d_node, POS &d_pos, double &d_delta) const {
   assert(path.size() > 1); // if size == 1 the trip shoudnt exist
@@ -685,7 +687,8 @@ void Vehicle::reconstruct() {
 
 
 void Vehicle::add_trip(const Trip &p_trip) {
-
+    // not inserting empty trip
+    if (p_trip.size() == 1) return;
     Trip trip = p_trip;
     // tau("before inserting trip");
     this->e_add_trip(trip);

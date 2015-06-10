@@ -493,7 +493,10 @@ void TruckManyVisitsDump::fillTruck(Vehicle &truck, std::deque<Trip> &trips) {
           trips[i].tau("the trip that needs more nodes");
           trips[trips.size()-1].tau("the trip where we are taking nodes");
           deleteNodesOfTrip(trips[trips.size()-1], trips[i].getz1());
-          // assert(true==false);
+          if ( trips[trips.size()-1].size() == 1) {
+            DLOG(INFO) << "removing last trip";
+            trips.pop_back();
+          } 
           --i;
         }
       }
