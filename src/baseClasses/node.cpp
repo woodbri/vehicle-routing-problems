@@ -111,9 +111,6 @@ Node  Node::operator*(double f) const { return Node( x_ * f, y_ * f ); }
 /*! \brief Compute the vector dot product between two Nodes.*/
 double Node::dotProduct( const Node &p ) const { return x_ * p.x_ + y_ * p.y_; }
 
-/*! \brief Compute the vector dot product between two Nodes.*/
-double Node::dotProductGOOD( const Node &p ) const { return x_ * y_ +  p.x_ * p.y_; }
-
 /*! \brief Compute the Euclidean length of a vector */
 double Node::length() const { return sqrt( x_ * x_ + y_ * y_ ); }
 
@@ -282,7 +279,7 @@ double Node::positionAlongSegmentAlt(const Node &v, const Node &w, double tol, d
   // it falls where t = [(p-v) . ((w-v) / |w-v|)]
   Node unitwv = (w - v).unit();
 
-  double t = ((*this) - v).dotProductGOOD(unitwv);
+  double t = ((*this) - v).dotProduct(unitwv);
 
   // projection falls on the segment
   // so compute the distance^2 from Node to projection
