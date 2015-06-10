@@ -126,6 +126,7 @@ double serviceE() const;
              endingSite.serviceTime() ) ;
   }
 
+  Trashnode& avgC() {return C;}
   double getCost() const { return v_cost;};
   double getCost() {
     if (size() > 1) setCost(path.last());

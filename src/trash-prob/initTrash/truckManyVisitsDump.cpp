@@ -217,9 +217,11 @@ void TruckManyVisitsDump::fillTrip(Trip &trip) {
   invariant();
   UINT oldSize = trip.size();;
   trip.getCostOsrm();
+  remove_CV(trip);
 #ifdef VRPMINTRACE
   if (!trip.feasable()) {
      trip.tau("NOT FEASABLE in fillTrip");
+     return;
      assert(trip.feasable());
   }
 #endif
@@ -229,9 +231,11 @@ void TruckManyVisitsDump::fillTrip(Trip &trip) {
   Trashnode bestNode;
   UINT bestPos;
   Bucket subPath;
+  trip.getCostOsrm();
 #ifdef VRPMINTRACE
   DLOG(INFO) << "trip needs " << trip.getz1() << " nodes";
   trip.tau("before inserting nodes in path");
+  // if (trip.getz1()>10) assert(true==false);
 #endif
   float8 bestTime, currTime;
 
@@ -275,12 +279,13 @@ void TruckManyVisitsDump::fillTrip(Trip &trip) {
     DLOG(INFO) << "assigned " << assigned.size();
     DLOG(INFO) << "unassigned " << unassigned.size();
  #endif
-  }
+  } // while
 
   assert(oldSize <= trip.size());
   remove_CV(trip);
   invariant();
   return;
+
   trip.evaluate();
   if (trip.feasable()) {
     fillTrip(trip); // recursive until its unfeasable
@@ -398,6 +403,7 @@ void TruckManyVisitsDump::initializeTruck(Vehicle &truck, std::deque<Trip> &trip
   trips.clear();
   for (int i = 0; i < truck.estimatedN(); i++) {
     trip = truck.get_new_trip();
+    trip.setInitialValues(truck.avgC(), pickups);
     if (i == 0) {
       initializeTrip(trip, true);
     } else {
@@ -416,40 +422,13 @@ void TruckManyVisitsDump::initializeTruck(Vehicle &truck, std::deque<Trip> &trip
     }
   }
 
-
-
-#if 0 
-  std::deque<Vehicle>  flipTrips;
-  for (int i = 0; i < trips.size(); ++i ) {
-      Vehicle tmp=truck;
-      for (int j = 1; j < trips[i].size(); ++j) {
-        tmp.push_back(trips[i][j]);
-      }
-      tmp.evaluate();
-      flipTrips.push_front(tmp);
-  }
-  flipTrips[0].set_endingSite(truck.getDumpSite());
-  for (int i = 1; i < flipTrips.size(); ++i) {
-    flipTrips[i].set_startingSite(truck.getDumpSite());
-    flipTrips[i].e_remove(1);
-    if (i != flipTrips.size()-1) flipTrips[i].set_endingSite(truck.getDumpSite());
-  }
-
-  for (int i = 0; i < trips.size(); ++i ) {
-      trips[i].tau("ttrip");
-      flipTrips[i].tau("flipedtrip");
-  }
-  trips.clear();
-  trips = flipTrips;
-#endif
-  
   invariant();
 }
 
-void TruckManyVisitsDump::deleteTrip(Trip &trip) {
+void TruckManyVisitsDump::deleteNodesOfTrip(Trip &trip, int cant) {
   // remove last trip to give time to trips to work
   invariant();
-  while (trip.size() > 1) {
+  for (int i = 0; i < cant; i++) {
     safePopBackNode(trip);
   }
   invariant();
@@ -462,59 +441,60 @@ void TruckManyVisitsDump::fillTruck(Vehicle &truck, std::deque<Trip> &trips) {
   assert(unassigned.size() != 0);
   initializeTruck(truck, trips);
 #ifdef VRPMINTRACE
-  for (UINT i = 0; i < trips.size(); ++i) {
-    trips[i].tau("Initialization");
+  for (const auto &trip: trips) {
+    trip.tau("Initialization");
   }
 #endif
 
-  for (UINT i = 0; i < trips.size(); ++i) {
-    insertNodesOnPath(trips[i]);
-    remove_CV(trips[i]);
+  for (auto &trip: trips) {
+    insertNodesOnPath(trip);
+    remove_CV(trip);
   }
 
 #ifdef VRPMINTRACE
-  for (UINT i = 0; i < trips.size(); ++i) {
-    trips[i].tau("After inserting nodes on trip");
+  for (const auto &trip: trips) {
+    trip.tau("After inserting nodes on trip");
   }
 #endif
 
-#if 0
-  while (insertBestPairSubPath(trips)) {};
-  
-
-#ifdef VRPMAXTRACE
-  for (UINT i = 0; i < trips.size(); ++i) {
-    insertNodesOnPath(trips[i]);
-    trips[i].tau("AfterInsertBestPairSubPath");
-  }
-#endif
-
-
-  //if (trips.size() > 1) deleteTrip(trips[trips.size()-1]);
-  //trips.pop_back();
-  //iterate thru the trips to fill them
-  for (UINT i = 0; i < trips.size(); ++i) {
-    insertNodesOnPath(trips[i]);
-    remove_CV(trips[i]);
-  }
-#endif 
 
   if (unassigned.size() > 0) {
     for (UINT i = 0; i < trips.size(); ++i) {
 #ifdef VRPMINTRACE
       DLOG(INFO) << "/n/n/n $$$$$$$$$$$$$$$$$$$$$  Filling trip: " << i;
-      trips[i].tau(" $$$$$$$$$$$$$   before");
+      trips[i].tau("before");
 #endif
+      if (i == trips.size() - 1 && trips[i].size() == 1) {
+        trips.pop_back();
+        trips[i-1].set_endingSite(truck.getEndingSite());
+        continue;
+      }
+
+      if (!trips[i].feasable()){
+         trips[i].intraTripOptimizationNoOsrm();
+      }
       if (trips[i].getz1() > 0 && trips[i].feasable() && unassigned.size() > 0) {
-        trips[i].getCostOsrm();
-        fillTrip(trips[i]);
+        int oldz1;
+        do {
+          oldz1 = trips[i].getz1();
+          fillTrip(trips[i]);
+          trips[i].getCostOsrm();
+          if (!trips[i].feasable()){
+            trips[i].intraTripOptimizationNoOsrm();
+          }
+          // I am here without a CV but may have a TWV
+          assert(!trips[i].has_cv());
+        } while (trips[i].feasable() && unassigned.size() > 0 && trips[i].getz1() < oldz1); 
         trips[i].tau(" $$$$$$$$$$$$$   after");
         if (trips[i].getz1() > 0 && unassigned.size() == 0 && i < trips.size() - 1) {
+          DLOG(INFO) << "need a node";
+          trips[i].dumpCostValues();
           // its not full needs z1, no more nodes and its not the last trip
-          if (i == trips[i].size()-1) trips[i].set_endingSite(truck.getEndingSite());
-          deleteTrip(trips[trips.size()-1]);
+          trips[i].tau("the trip that needs more nodes");
+          trips[trips.size()-1].tau("the trip where we are taking nodes");
+          deleteNodesOfTrip(trips[trips.size()-1], trips[i].getz1());
+          // assert(true==false);
           --i;
-          //trips.pop_back();
         }
       }
     }
@@ -629,13 +609,13 @@ void TruckManyVisitsDump::insertNodesOnPath(Trip &trip) {
         aux.push_back(streetNodes[0]);
         streetNodes.erase(streetNodes[0]);
         trip.findFastestNodeTo(false, aux, bestPos, bestNode, bestTime);
-#ifdef VRPMINTRACE
+#ifdef VRPMINTRACE1
         DLOG(INFO) << "trying inserting node in path: " << bestNode.id() << " at position " << bestPos;
 #endif
         if (bestPos <= lastBestPos) bestPos++;
         trip.e_insert(bestNode, bestPos);
         lastBestPos = bestPos;
-        trip.tau("inserted on path");
+        // trip.tau("inserted on path");
         assigned.push_back(bestNode);
         unassigned.erase(bestNode);
         invariant();

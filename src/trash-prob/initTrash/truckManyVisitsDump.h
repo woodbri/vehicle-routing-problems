@@ -77,7 +77,7 @@ void remove_CV(V &trip);
   bool insertBestPairSubPath(std::deque<Trip> &trips);
   bool insertBigSubPathAtBegin(Trip &trip);
   bool insertBigSubPathAtEnd(Trip &trip);
-  void deleteTrip(Trip &trip);
+  void deleteNodesOfTrip(Trip &trip, int cant);
   void remove_CV(Trip &trip);
   void remove_TWV(Trip &trip);
   void initializeTrip(Trip &trip, bool fromStart);

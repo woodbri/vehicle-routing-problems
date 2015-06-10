@@ -320,7 +320,7 @@ g_du_rm_cl_01: ./bin/trash ../tests/g_du_rm_cl_01.containers.txt ../tests/g_du_r
 
 test: c_du_rm_cl_02
 
-test-all: a_du_rm_cl_01 a_du_rm_cl_08 c_du_rm_cl_02 ch_du_rm_cl_05 a_du_rm_cl_1533 g_du_rm_cl_01
+test-all: a_du_rm_cl_01 a_du_rm_cl_08 c_du_rm_cl_02 ch_du_rm_cl_05  g_du_rm_cl_01
 
 test1: ./bin/trash_given_sol ../muni-b/muni-b.containers.txt ../muni-b/muni-b.otherlocs.txt ../muni-b/muni-b.dmatrix-time.txt ../muni-b/muni-b.vehicles.txt
 	./bin/trash_given_sol ../muni-b/muni-b >./logs/muni-b.out
