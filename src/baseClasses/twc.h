@@ -2588,12 +2588,21 @@ private:
     assert(to.nid() < original.size());
     double time = 0;
     int j = to.nid();
+    int count = from.size();
 
     for ( int i = 0; i < from.size(); i++ ) {
+      if (TravelTime(from[i].nid(), j) < 0) {
+        DLOG(INFO) << "found a negative";
+        travel_Time[from[i].nid()][j] = 1;
+        travel_time_onTrip[from[i].nid()][j] = 1;
+        --count;
+        continue;
+      }
       time += TravelTime(from[i].nid(),j);
     }
 
-    time = time / from.size();
+    time = time / count;
+    DLOG(INFO) << "time = " << time;
     return time;
   }
 
@@ -2609,11 +2618,20 @@ private:
     assert(from.nid() < original.size());
     double time = 0;
     int j = from.nid();
+    int count = to.size();
 
-    for ( int i = 0; i < to.size(); i++ ) {
+    for (int i = 0; i < to.size(); i++) {
+      if (TravelTime(j, to[i].nid()) < 0) {
+        DLOG(INFO) << "found a negative";
+        travel_Time[j][to[i].nid()] = 1;
+        travel_time_onTrip[j][to[i].nid()]= 1;
+        --count;
+        continue;
+      }
       time += TravelTime(j, to[i].nid());
     }
-    time = time / to.size();
+    time = time / count;
+    DLOG(INFO) << "time = " << time;
     return time;
   }
 
