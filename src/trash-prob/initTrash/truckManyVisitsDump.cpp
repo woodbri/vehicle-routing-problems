@@ -13,6 +13,7 @@
  ********************************************************************VRP*/
 
 #include "truckManyVisitsDump.h"
+#include "fleetOpt.h"
 
 
 void TruckManyVisitsDump::initializeTrip(Trip &trip, bool fromStart) {
@@ -651,6 +652,16 @@ void TruckManyVisitsDump::process(int pcase)
   bool oldState = osrmi->getUse();
   osrmi->useOsrm(true);
   fillFleet();
+  DLOG(INFO) << "OPTIMIZING\n";
+  tau();
+  Fleetopt opt_fleet;
 
+  opt_fleet.insert(fleet);
+  opt_fleet.optimize();
+  fleet.clear();
+  fleet = opt_fleet.get_opt_fleet();
+  DLOG(INFO) << "OPTIMIZED\n";
+  tau();
+  assert(true==false);
   invariant();
 }

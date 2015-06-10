@@ -153,11 +153,13 @@ int main(int argc, char **argv)
 #endif 
     }
     
+#if 0
     TabuOpt ts(best_sol, iteration);
     if (best_cost > ts.getBestSolution().getCostOsrm()) {
         best_cost = ts.getBestSolution().getCostOsrm();
         best_sol = ts.getBestSolution();
     }
+#endif 
 
 
 
