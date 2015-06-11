@@ -23,6 +23,7 @@ class Trip: public Vehicle1 {
 
   
 
+  bool operator < (const Trip &o_trip) const;
   void getNodesOnPath(const Trip &o_trip, POS o_ins_pos, Bucket &nodesOnPath) const;
   void getNodesOnPath(const Trip &o_trip, Bucket &nodesOnPath) const;
   double  delta_del(POS del_pos) const;
@@ -53,7 +54,7 @@ class Vehicle: public Vehicle1 {
 
 
 
-  void manualControl();
+  void basicOptimization();
   ///{@
   int  exchangesWorse(int lim_iter);
   int  exchangesWorse(Trip &trip, Trip &o_trip, int lim_iter);
@@ -66,6 +67,7 @@ class Vehicle: public Vehicle1 {
   void intraTripOptimizationNoOsrm();
 
   void tauTrips() const;
+  void tauTrips(const std::string &title) const;
   Trip get_new_trip();
   void reconstruct();
   void add_trip(const Trip &p_trip);

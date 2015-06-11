@@ -318,7 +318,7 @@ test-g01: g_du_rm_cl_01
 g_du_rm_cl_01: ./bin/trash ../tests/g_du_rm_cl_01.containers.txt ../tests/g_du_rm_cl_01.dmatrix-time.txt ../tests/g_du_rm_cl_01.otherlocs.txt ../tests/g_du_rm_cl_01.vehicles.txt
 	-./bin/trash ../tests/$@ > /dev/null
 
-test: c_du_rm_cl_02
+test: g_du_rm_cl_01
 
 test-all: a_du_rm_cl_01 a_du_rm_cl_08 c_du_rm_cl_02 ch_du_rm_cl_05  g_du_rm_cl_01
 

@@ -11,11 +11,27 @@ void Fleetopt::extract_trips() {
       trips.push_back(trip);
     }
   }
-  tauTrips();
 }
 
 void Fleetopt::optimize() {
   extract_trips();
+  tauTrips("fleet::AFTER extract");
+
+  intraTripOptimizationNoOsrm();
+  auto count = 0;
+  auto tot_count = 0;
+
+  tauTrips("fleet::AFTER intraTripOptimizationNoOsrm");
+
+  for (UINT i = 0; i < 2; ++i) {
+    count = exchangesWorse(10);
+    tot_count += count;
+    DLOG(INFO) << "fleet::exchangeAllWorse Performed: " << count;
+  }
+  DLOG(INFO) << "fleet::total exchangeAllWorse Performed: " << count;
+  tauTrips("fleet::AFTER exchange all worse");
+
+
 }
 
 

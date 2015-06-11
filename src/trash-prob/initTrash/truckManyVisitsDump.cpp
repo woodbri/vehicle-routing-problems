@@ -516,7 +516,7 @@ void TruckManyVisitsDump::fillTruck(Vehicle &truck, std::deque<Trip> &trips) {
   buildTruck(truck, trips);
 
   // optimize the truck goes here
-  truck.manualControl();
+  truck.basicOptimization();
 
 
 // assert(true==false);
