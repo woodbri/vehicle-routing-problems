@@ -283,7 +283,7 @@ double Node::positionAlongSegmentAlt(const Node &v, const Node &w, double tol, d
 
   // projection falls on the segment
   // so compute the distance^2 from Node to projection
-  Node projection = v + (unitwv * t);
+  Node projection = v + (w - v) * t;
   distToSegSq = distanceToSquared(projection);
 
   // beyond the v end of the segment

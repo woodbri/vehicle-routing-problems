@@ -1102,7 +1102,7 @@ void orderNodesAlongPath(
   // Approximate meters in degrees longitude at equator
   // 0.00009 degrees === 10 meters
   // 0.00027 degrees === 30 meters
-  const double tol = 0.00014;
+  const double tol = 0.00019;
 
   int cnt = 0;
   std::deque< Node >::iterator git = geometry.begin();
@@ -1121,9 +1121,7 @@ void orderNodesAlongPath(
       double distSq = -1.0;
       double pos = streetNodes[i].positionAlongSegmentAlt( *(git-1), *git, tol, distSq );
 #ifdef VRPMINTRACE
-      if ( streetNodes[i].id() == 3955 ) {
-        DLOG(INFO) << "Node: 3955, segment: " << cnt << ", pos: " << pos << ", distSq: " << distSq;
-      }
+      DLOG(INFO) << "Node: " << streetNodes[i].id() << ", segment: " << cnt << ", pos: " << pos << ", distSq: " << distSq;
 #endif
       if ( pos >= 0 ) {
 #ifdef VRPMINTRACE
