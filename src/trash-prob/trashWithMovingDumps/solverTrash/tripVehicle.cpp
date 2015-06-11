@@ -56,10 +56,9 @@ assert(true==false);
   for (UINT i = 0; i < 5; ++i) {
     for (auto &trip : trips) {
       for (auto &o_trip : trips) {
-        DLOG(INFO) << "exchanges " << trip.trip_id() << " , " << o_trip.trip_id();
+        // DLOG(INFO) << "exchanges " << trip.getVid() << "," << trip.trip_id() << " with " << o_trip.getVid() << "," << o_trip.trip_id();
         exchangesWithOnPath(trip, o_trip);
- //       intraTripOptimizationNoOsrm();
-//        exchangesWithOnPath(o_trip, trip);
+        exchangesWithOnPath(o_trip, o_trip);
       }
     }
   }
@@ -95,16 +94,22 @@ void Trip::intraTripOptimizationNoOsrm() {
 
 
 
+
 bool Trip::operator < ( const Trip& o_trip) const {
+  if (this->vid < o_trip.vid) return true;
+  if (this->vid > o_trip.vid) return false;
+  return (this->m_trip_id < o_trip.m_trip_id);
+
   if (this->m_trip_id < o_trip.m_trip_id) return true;
   if (this->m_trip_id > o_trip.m_trip_id) return false;
   return this->vid < o_trip.vid;
 }
 
+
 bool Vehicle::exchangesWithOnPath(Trip &trip, Trip &o_trip) {
   if (!(o_trip < trip)) return false;
-  if (o_trip.size() <=1) return false;
-  if (trip.trip_id() == o_trip.trip_id()) return false;
+  if (o_trip.size() <= 1) return false;
+  DLOG(INFO) << "exchanges with on Path " << trip.getVid() << "," << trip.trip_id() << " with " << o_trip.getVid() << "," << o_trip.trip_id();
 
   POS  d_pos, i_pos;
   POS  o_d_pos, o_i_pos;
@@ -131,6 +136,7 @@ bool Vehicle::exchangesWithOnPath(Trip &trip, Trip &o_trip) {
     trip.bestRemoval(d_node, d_pos, d_delta);
     o_trip.bestInsertion(d_node, o_i_pos, o_i_delta);
     trip.bestInsertion(o_d_node, i_pos, i_delta);
+
 
     // condtitions to do the exchange
 #if 0
@@ -163,10 +169,11 @@ bool Vehicle::exchangesWithOnPath(Trip &trip, Trip &o_trip) {
 int Vehicle::exchangesWorse(int lim_iter) {
   auto count = 0;
   for (auto &trip : trips) {
-     if (trip.trip_id() == 0) continue;
-     auto other  = trip.trip_id() - 1;
-     DLOG(INFO) << "excahnging worse " << trip.trip_id() << " with " << other;
-     count += exchangesWorse(trip, trips[other], lim_iter);
+     for (auto &o_trip: trips) {
+       if (&trip == &o_trip) continue;
+       DLOG(INFO) << "exchanges worse" << trip.getVid() << "," << trip.trip_id() << " with " << o_trip.getVid() << "," << o_trip.trip_id();
+       count += exchangesWorse(trip, o_trip, lim_iter);
+     }
   }
   return count;
 }
@@ -570,5 +577,6 @@ void Vehicle::add_trip(const Trip &p_trip) {
     // that the trip inserted has ending as the last
     // that the other trips have dump as ending
     trip.trip_id() = trips.size();
+    trip.setVid(this->vid);
     trips.push_back(trip); 
 }

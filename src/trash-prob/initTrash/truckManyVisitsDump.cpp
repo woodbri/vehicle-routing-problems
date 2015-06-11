@@ -662,6 +662,6 @@ void TruckManyVisitsDump::process(int pcase)
   fleet = opt_fleet.get_opt_fleet();
   DLOG(INFO) << "OPTIMIZED\n";
   tau();
-  assert(true==false);
+  //assert(true==false);
   invariant();
 }

@@ -194,6 +194,7 @@ class Comptrips {
   //void setdepot(Trashnode _depot) { endingSite = _depot; };
   //void setdumpSite(Trashnode _dump) { dumpSite = _dump; };
 
+  void setVid(UINT p_vid) {vid = p_vid;};
   void setweights( double _w1, double _w2, double _w3 ) {
     w1 = _w1;
     w2 = _w2;
