@@ -32,7 +32,7 @@
 
 #include "trashprob.h"
 #include "truckManyVisitsDump.h"
-#include "tabuopt.h"
+#include "fleetOpt.h"
 
 //#define PGR_LOGGER_ON
 #include "./minilog.h"
@@ -148,29 +148,12 @@ int vrp_trash_collection( container_t *containers, unsigned int container_count,
 
       THROW_ON_SIGINT
 
-#if 0
-      TabuOpt ts(tp, iteration);
-
-      THROW_ON_SIGINT
-
-#ifdef DOVRPLOG
-      DLOG(INFO) << "optimization: " << icase;
-#endif
-
-      if (best_cost > ts.getBestSolution().getCostOsrm()) {
-#ifdef DOVRPLOG
-        DLOG(INFO) << "Optimization: " << icase << " is best";
-#endif
-        best_cost = ts.getBestSolution().getCostOsrm();
-        best_sol = ts.getBestSolution();
-      }
-#endif
     }
 
-    TabuOpt ts(best_sol, iteration);
-    if (best_cost > ts.getBestSolution().getCostOsrm()) {
-        best_cost = ts.getBestSolution().getCostOsrm();
-        best_sol = ts.getBestSolution();
+    Optimizer optSol(best_sol, iteration);
+    if (best_cost > optSol.getCostOsrm()) {
+        best_cost = optSol.getCostOsrm();
+        best_sol = optSol;
     }
 
 #ifdef DOVRPLOG
