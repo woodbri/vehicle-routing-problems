@@ -112,7 +112,7 @@ int main(int argc, char **argv)
 #endif  // OSRMCLIENT
    
     
-    int iteration = 3;
+    int iteration = 50;
     double best_cost = 9999999;
 
     TruckManyVisitsDump tp(infile);

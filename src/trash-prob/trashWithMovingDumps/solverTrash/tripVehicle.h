@@ -26,6 +26,7 @@ class Trip: public Vehicle1 {
   bool operator < (const Trip &o_trip) const;
   void getNodesOnPath(const Trip &o_trip, POS o_ins_pos, Bucket &nodesOnPath) const;
   void getNodesOnPath(const Trip &o_trip, Bucket &nodesOnPath) const;
+  void getNodesNotOnPath(const Trip &o_trip, Bucket &nodesNotOnPath) const;
   double  delta_del(POS del_pos) const;
   double  delta_ins(UINT n_nid, POS del_pos) const;
   int&   trip_id() {return m_trip_id;} 
@@ -61,7 +62,8 @@ class Vehicle: public Vehicle1 {
   bool exchangesWorse(Trip &trip, Trip &o_trip);
   ///@}
 
-  bool exchangesWithOnPath(Trip &trip, Trip &o_trip);
+  int exchangesWithOnPath(Trip &trip, Trip &o_trip);
+  int exchangesWithNotOnPath(Trip &trip, Trip &o_trip);
 
   void swapBestToDump();
   void intraTripOptimizationNoOsrm();

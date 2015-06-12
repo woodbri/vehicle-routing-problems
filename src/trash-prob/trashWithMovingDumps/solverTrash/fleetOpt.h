@@ -6,12 +6,14 @@
 
 class Fleetopt: public Vehicle {
   std::deque< Vehicle > fleet;
+  std::deque< UINT > ids;
   
   public:
   // default constructor & destructor
   std::deque<Vehicle> get_opt_fleet();
   void optimize(int iter);
   void insert(const std::deque < Vehicle> &p_fleet);
+  void reconstruct_fleet();
 
   void extract_trips();
 };

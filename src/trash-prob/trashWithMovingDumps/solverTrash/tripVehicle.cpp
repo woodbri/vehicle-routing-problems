@@ -105,9 +105,76 @@ bool Trip::operator < ( const Trip& o_trip) const {
 }
 
 
-bool Vehicle::exchangesWithOnPath(Trip &trip, Trip &o_trip) {
-  if (!(o_trip < trip)) return false;
-  if (o_trip.size() <= 1) return false;
+int Vehicle::exchangesWithNotOnPath(Trip &trip, Trip &o_trip) {
+  if (!(o_trip < trip)) return 0;
+  if (o_trip.size() <= 1) return 0;
+  DLOG(INFO) << "exchanges with NOT on Path " << trip.getVid() << "," << trip.trip_id() << " with " << o_trip.getVid() << "," << o_trip.trip_id();
+
+  POS  d_pos, i_pos;
+  POS  o_d_pos, o_i_pos;
+  double d_delta, i_delta;
+  double o_d_delta, o_i_delta;
+  bool inPath1, inPath2;
+  UINT d_node, o_d_node;
+  auto count = 0;
+  
+  Bucket nodesNotOnTripPath;
+  trip.getNodesNotOnPath(o_trip, nodesNotOnTripPath);
+  if (nodesNotOnTripPath.size() == 0) {
+    // DLOG(INFO) << "We cant  exchange: iall the nodes are on path";
+    return 0; 
+  }
+  assert(nodesNotOnTripPath.size() > 0);
+  nodesNotOnTripPath.dumpid("nodes on path");
+  while (nodesNotOnTripPath.size() > 0) { 
+    o_d_node = nodesNotOnTripPath[0].nid();
+    o_d_pos  = o_trip.Path().pos(o_d_node);
+    o_d_delta = o_trip.delta_del(o_d_pos);
+   
+
+    // trip wants to give o_trip his worse node: the one when its removed decreases the time by a lot
+    trip.bestRemoval(d_node, d_pos, d_delta);
+    o_trip.bestInsertion(d_node, o_i_pos, o_i_delta);
+    trip.bestInsertion(o_d_node, i_pos, i_delta);
+
+
+    // condtitions to do the exchange
+    if ( (i_pos == d_pos) || (i_pos == d_pos + 1) 
+      or (o_i_pos == o_d_pos) || (o_i_pos == o_d_pos + 1) ) {
+#if 0
+    DLOG(INFO) <<  "    trip (" << trip.getVid() << " , " << trip.trip_id() << ")node[" << d_pos << "]=" << trip[d_pos].id() <<
+                  " to o_trip(" << o_trip.getVid() << " , " << o_trip.trip_id() << ")at[" << o_i_pos << "]= after " << o_trip[o_i_pos - 1].id();
+
+    DLOG(INFO) <<  "no_trip (" << o_trip.getVid() << " , " << o_trip.trip_id() << ")node[" << o_d_pos << "]=" << o_trip[o_d_pos].id() <<
+                  " to trip(" << trip.getVid() << " , " << trip.trip_id() << ")at[" << i_pos << "]= after " << trip[i_pos - 1].id();
+
+
+    DLOG(INFO) <<  "d_delta + o_i_delta " << d_delta << " +  " << o_i_delta  <<   " = " << d_delta + o_i_delta;
+    DLOG(INFO) <<  "o_d_delta + i_delta " << o_d_delta << " +  " << i_delta  <<   " = " << o_d_delta + i_delta;
+    DLOG(INFO) << " total del delta " << o_d_delta + d_delta << " total ins delta " <<  o_i_delta + i_delta << " total "  << o_d_delta + d_delta + o_i_delta + i_delta  ;
+    DLOG(INFO) << " ";
+
+#endif
+       nodesNotOnTripPath.pop_front();
+       continue;
+    }
+    
+    if (o_d_delta + d_delta + o_i_delta + i_delta > 0) {
+      nodesNotOnTripPath.pop_front();
+      continue;
+    }
+
+    trip.exchange(o_trip, d_pos, o_i_pos, o_d_pos, i_pos);
+    ++count;
+    nodesNotOnTripPath.pop_front();
+  }
+  return count;
+}
+
+
+int Vehicle::exchangesWithOnPath(Trip &trip, Trip &o_trip) {
+  if (!(o_trip < trip)) return 0;
+  if (o_trip.size() <= 1) return 0;
   DLOG(INFO) << "exchanges with on Path " << trip.getVid() << "," << trip.trip_id() << " with " << o_trip.getVid() << "," << o_trip.trip_id();
 
   POS  d_pos, i_pos;
@@ -116,12 +183,13 @@ bool Vehicle::exchangesWithOnPath(Trip &trip, Trip &o_trip) {
   double o_d_delta, o_i_delta;
   bool inPath1, inPath2;
   UINT d_node, o_d_node;
+  auto count(0);
   
   Bucket nodesOnTripPath;
   trip.getNodesOnPath(o_trip, nodesOnTripPath);
   if (nodesOnTripPath.size() == 0) {
     // DLOG(INFO) << "We cant  exchange: o_trip does not have nodes in trip's path" ;
-    return false; 
+    return 0; 
   }
   assert(nodesOnTripPath.size() > 0);
   nodesOnTripPath.dumpid("nodes on path");
@@ -138,6 +206,8 @@ bool Vehicle::exchangesWithOnPath(Trip &trip, Trip &o_trip) {
 
 
     // condtitions to do the exchange
+    if ( (i_pos == d_pos) || (i_pos == d_pos + 1) 
+      or (o_i_pos == o_d_pos) || (o_i_pos == o_d_pos + 1) ) {
 #if 0
     DLOG(INFO) <<  "    trip (" << trip.getVid() << " , " << trip.trip_id() << ")node[" << d_pos << "]=" << trip[d_pos].id() <<
                   " to o_trip(" << o_trip.getVid() << " , " << o_trip.trip_id() << ")at[" << o_i_pos << "]= after " << o_trip[o_i_pos - 1].id();
@@ -152,21 +222,22 @@ bool Vehicle::exchangesWithOnPath(Trip &trip, Trip &o_trip) {
     DLOG(INFO) << " ";
 
 #endif
+       nodesOnTripPath.pop_front();
+       continue;
+    }
+    
     if (o_d_delta + d_delta + o_i_delta + i_delta > 0) {
-      // nodesOnTripPath.pop_front();
-      // continue;
-//      DLOG(INFO) <<  " main " << trip.trip_id() << " delta: " << d_delta + i_delta;
-//      DLOG(INFO) <<  "o_trip " << o_trip.trip_id() << " delta: " << o_d_delta + o_i_delta;
-      if ( d_delta + i_delta > 0) {
+      //if ( d_delta + i_delta > 0) {
         nodesOnTripPath.pop_front();
         continue;
-      }
+      //}
     }
 
     trip.exchange(o_trip, d_pos, o_i_pos, o_d_pos, i_pos);
+    ++count;
     nodesOnTripPath.pop_front();
   }
-  return true;
+  return count;
 }
 
 
@@ -340,6 +411,16 @@ void Trip::getNodesOnPath(const Trip &o_trip, Bucket &nodesOnPath) const {
   o_nodes = o_trip.path; // choose from this
   o_nodes.pop_front();  // delete the starting site
   twc->getNodesOnPath(path, dumpSite, o_nodes, nodesOnPath);
+};
+
+void Trip::getNodesNotOnPath(const Trip &o_trip, Bucket &nodesNotOnPath) const {
+  Bucket o_nodes;
+  Bucket nodesOnPath;
+  nodesNotOnPath.clear();
+  o_nodes = o_trip.path; // choose from this
+  o_nodes.pop_front();  // delete the starting site
+  twc->getNodesOnPath(path, dumpSite, o_nodes, nodesOnPath);
+  nodesNotOnPath = o_nodes - nodesOnPath;  
 };
 
 
