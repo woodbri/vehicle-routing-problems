@@ -517,12 +517,44 @@ void TruckManyVisitsDump::fillTruck(Vehicle &truck, std::deque<Trip> &trips) {
 
   // optimize the truck goes here
   truck.basicOptimization();
-
-
-// assert(true==false);
+  truck.dumpCostValues();
+  if (truck.getz2() > 0 && unassigned.size() > 0) {
+    DLOG(INFO) << "truck needs extra trip";
+    add_extra_trip(truck);
+  }
   truck.dumpCostValues();
   invariant();
 }
+
+void TruckManyVisitsDump::add_extra_trip(Vehicle &truck) {
+  Trip trip(truck.get_new_trip());
+  DLOG(INFO) << "NEW trip";
+  trip.evaluate();
+  trip.print_short_eval();
+  // DLOG(INFO) << "CHECK WITH";
+  // truck.dumpeval();
+  trip.setInitialValues(truck.avgC(), pickups);
+  initializeTrip(trip, false);
+  trip.dumpeval();
+  trip.dumpCostValues();
+  
+  int oldz1;
+  do {
+    oldz1 = trip.getz1();
+    fillTrip(trip);
+    trip.getCostOsrm();
+    if (!trip.feasable()){
+      trip.intraTripOptimizationNoOsrm();
+    }
+    // I am here without a CV but may have a TWV
+    assert(!trip.has_cv());
+  } while (trip.feasable() && unassigned.size() > 0 && trip.getz1() < oldz1); 
+  trip.intraTripOptimizationNoOsrm();
+  truck.add_trip(trip);
+
+}
+
+
 
 // based on the trips we build the truck
 // if 
@@ -533,9 +565,7 @@ void TruckManyVisitsDump::buildTruck(Vehicle &truck, std::deque<Trip> &trips) {
   }
   // std::sort(trips.begin(), trips.end(), BaseVehicle::Comptrips());
   for (UINT i = 0; i < trips.size(); ++i) {
-    // trips[i].getCostOsrm();
     truck.add_trip(trips[i]);
-    trips[i].tau();
   }
   return;
 #if 0
@@ -657,7 +687,7 @@ void TruckManyVisitsDump::process(int pcase)
   Fleetopt opt_fleet;
 
   opt_fleet.insert(fleet);
-  opt_fleet.optimize();
+  opt_fleet.optimize(10);
   fleet.clear();
   fleet = opt_fleet.get_opt_fleet();
   DLOG(INFO) << "OPTIMIZED\n";

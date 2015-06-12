@@ -82,6 +82,7 @@ void remove_CV(V &trip);
   void remove_TWV(Trip &trip);
   void initializeTrip(Trip &trip, bool fromStart);
   void fillTrip(Trip &trip);
+  void add_extra_trip(Vehicle &truck);
   void buildTruck(Vehicle &truck, std::deque<Trip> &trips);
   void initializeTruck(Vehicle &truck, std::deque<Trip> &trips);
   void fillTruck(Vehicle &truck, std::deque<Trip> &trips);

@@ -34,7 +34,9 @@
 
 #include "trashconfig.h"
 #include "truckManyVisitsDump.h"
-#include "tabuopt.h"
+#include "fleetOpt.h"
+
+//#include "tabuopt.h"
 
 
 void Usage()
@@ -120,17 +122,6 @@ int main(int argc, char **argv)
     Solution best_sol(tp);
     best_cost = best_sol.getCostOsrm();
 
-#if 0
-    TabuOpt tsi(tp, iteration);
-    Solution opt_sol = tsi.getBestSolution();
-
-    if (best_cost > opt_sol.getCostOsrm()) {
-      DLOG(INFO) << "Optimization: 0 is best";
-      best_cost = opt_sol.getCostOsrm();
-      best_sol = opt_sol;
-    }
-#endif
-
     for (int icase = 1; icase < 7; ++icase) {
       DLOG(INFO) << "initial solution: " << icase;
       tp.process(icase);
@@ -139,27 +130,14 @@ int main(int argc, char **argv)
         best_cost = tp.getCostOsrm();
         best_sol = tp;
       }
-
-#if 0
-      TabuOpt ts(tp, iteration);
-
-      DLOG(INFO) << "optimization: " << icase;
-
-      if (best_cost > ts.getBestSolution().getCostOsrm()) {
-        DLOG(INFO) << "Optimization: " << icase << " is best";
-        best_cost = ts.getBestSolution().getCostOsrm();
-        best_sol = ts.getBestSolution();
-      }
-#endif 
     }
     
-#if 0
-    TabuOpt ts(best_sol, iteration);
-    if (best_cost > ts.getBestSolution().getCostOsrm()) {
-        best_cost = ts.getBestSolution().getCostOsrm();
-        best_sol = ts.getBestSolution();
+
+    Optimizer optSol(best_sol, iteration);
+    if (best_cost > optSol.getCostOsrm()) {
+        best_cost = optSol.getCostOsrm();
+        best_sol = optSol;
     }
-#endif 
 
 
 

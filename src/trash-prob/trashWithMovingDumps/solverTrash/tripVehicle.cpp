@@ -56,7 +56,6 @@ assert(true==false);
   for (UINT i = 0; i < 5; ++i) {
     for (auto &trip : trips) {
       for (auto &o_trip : trips) {
-        // DLOG(INFO) << "exchanges " << trip.getVid() << "," << trip.trip_id() << " with " << o_trip.getVid() << "," << o_trip.trip_id();
         exchangesWithOnPath(trip, o_trip);
         exchangesWithOnPath(o_trip, o_trip);
       }
@@ -140,12 +139,18 @@ bool Vehicle::exchangesWithOnPath(Trip &trip, Trip &o_trip) {
 
     // condtitions to do the exchange
 #if 0
+    DLOG(INFO) <<  "    trip (" << trip.getVid() << " , " << trip.trip_id() << ")node[" << d_pos << "]=" << trip[d_pos].id() <<
+                  " to o_trip(" << o_trip.getVid() << " , " << o_trip.trip_id() << ")at[" << o_i_pos << "]= after " << o_trip[o_i_pos - 1].id();
+
+    DLOG(INFO) <<  "no_trip (" << o_trip.getVid() << " , " << o_trip.trip_id() << ")node[" << o_d_pos << "]=" << o_trip[o_d_pos].id() <<
+                  " to trip(" << trip.getVid() << " , " << trip.trip_id() << ")at[" << i_pos << "]= after " << trip[i_pos - 1].id();
+
+
     DLOG(INFO) <<  "d_delta + o_i_delta " << d_delta << " +  " << o_i_delta  <<   " = " << d_delta + o_i_delta;
     DLOG(INFO) <<  "o_d_delta + i_delta " << o_d_delta << " +  " << i_delta  <<   " = " << o_d_delta + i_delta;
     DLOG(INFO) << " total del delta " << o_d_delta + d_delta << " total ins delta " <<  o_i_delta + i_delta << " total "  << o_d_delta + d_delta + o_i_delta + i_delta  ;
+    DLOG(INFO) << " ";
 
-    DLOG(INFO) <<  "trip " << trip.trip_id() << "\tnode " << trip[d_pos].id() << " to o_trip " << o_trip.trip_id() << "\t after " << o_trip[o_i_pos - 1].id();
-    DLOG(INFO) <<  "o_trip " << o_trip.trip_id() << "\tnode " << o_trip[o_d_pos].id() << " to trip " << trip.trip_id() << "\t after " << trip[i_pos - 1].id();
 #endif
     if (o_d_delta + d_delta + o_i_delta + i_delta > 0) {
       // nodesOnTripPath.pop_front();
@@ -516,28 +521,20 @@ Trip Vehicle::get_new_trip() {
     S = path[0];
     D = dumpSite;
     E = endingSite;
-//  DLOG(INFO) << "truck size is 1";
+    Trip trip(S, D, E, maxcapacity);
+    return trip;
+
   } else {
-//  DLOG(INFO) << "truck size is not 1";
-  tau("truck");
-// assert(true==false);
     S = dumpSite;
+    S.set_opens(dumpSite.departureTime());
     D = dumpSite;
     E = endingSite;
+    Trip trip(S, D, E, maxcapacity);
+    trip.clear();
+    trip.set_startingSite(dumpSite);
+    trip.dumpeval();
+    return trip;
   } 
-#if 0
-  DLOG(INFO) << "truck short eval";
-  print_short_eval();
-
-  DLOG(INFO) << "going to initialize";
-#endif
-  Trip trip(S, D, E, maxcapacity);
-#if 0
-  DLOG(INFO) << "trips short eval";
-  trip.print_short_eval();
-  assert(true==false);
-#endif
-  return trip;
 }
     
 void Vehicle::reconstruct() {
