@@ -73,15 +73,20 @@ bool Basicoperations::safeInsertSubpath(Trip &trip, Bucket &subPath, UINT pos){
   assert(pos <= trip.size());
   assert(subPath.size() != 0);
   Trashnode node;
+  trip.tau("trip");
+  subPath.dumpid("subpath");
+  assigned.dumpid("assigned");
+  unassigned.dumpid("unassigned");
+  
   for (UINT i = 0; i < subPath.size(); ++i) { 
     node = subPath[i];
     assert(assigned.hasNid(node.nid()) == false);
     assert(unassigned.hasNid(node.nid()) == true);
   }
 
-    trip.insert(subPath, pos);
-    assigned = assigned + subPath;
-    unassigned = unassigned - subPath;
+  trip.insert(subPath, pos);
+  assigned = assigned + subPath;
+  unassigned = unassigned - subPath;
 
   for (UINT i = 0; i < subPath.size(); ++i) { 
     node = subPath[i];

@@ -728,7 +728,7 @@ void fill_times(const TwBucket<knode> nodesOnPath) const {
           for (int k = i + 1; k < j; ++k) {
             UINT nodeOnPath = nodesOnPath[k].nid();
             assert (nodeOnPath < original.size());
-            nodes_onTrip[from][to].push_back(nodeOnPath);
+            if (nodesOnPath[k].isPickup()) nodes_onTrip[from][to].push_back(nodeOnPath);
           }
   #ifdef VRPMAXTRACE 
           for (unsigned int i = 0; i < nodes_onTrip[from][to].size(); ++i) {
@@ -752,7 +752,7 @@ void fill_times(const TwBucket<knode> nodesOnPath) const {
             for (int k = i + 1; k < j; ++k) {
               UINT nodeOnPath = nodesOnPath[k].nid();
               assert (nodeOnPath < original.size());
-              nodes_onTrip[from][to].push_back(nodeOnPath);
+              if (nodesOnPath[k].isPickup()) nodes_onTrip[from][to].push_back(nodeOnPath);
             }
   #ifdef VRPMAXTRACE 
             for (unsigned int i = 0; i < nodes_onTrip[from][to].size(); ++i) {
