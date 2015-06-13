@@ -226,8 +226,9 @@ help:
 	@echo "  test-a1533 | a_du_rm_cl_1533 - run this test data"
 	@echo "  test-a08 | a_du_rm_cl_08 - run this test data"
 	@echo "  test-c02 | c_du_rm_cl_02 - run this test data"
+	@echo "  test-ch03 | ch_du_rm_cl_03 - run this test data"
 	@echo "  test-ch05 | ch_du_rm_cl_05 - run this test data"
-	@echo "  test-ch05 | ch_du_rm_cl_05 - run this test data"
+	@echo "  test-d07 | d_du_rm_cl_07 - run this test data"
 	@echo "  test-g01 | g_du_rm_cl_01 - run this test data"
 	@echo "  test-all - run all test files"
 	@echo "  clean - clean the build dir"
@@ -286,7 +287,7 @@ bin/trash: build/trash.o $(OBJS) $(BASECLASSES_OBJS) $(BASETRASH_OBJS) $(INITTRA
 bin/trash_given_sol: build/trash_given_sol.o $(OBJS) $(BASECLASSES_OBJS) $(BASETRASH_OBJS) $(INITTRASH_OBJS) $(SOLVERTRASH_OBJS) $(BASECLASSES_HEADS) $(BASETRASH_HEADS) $(INITTRASH_HEADS) $(SOLVERTRASH_HEADS)
 	$(CPP) $(CPPFLAGS_OUT) $^ -o $@ $(LDFLAGS)
 
-.PHONY: test-a01 a_du_rm_cl_01 test-a08 a_du_rm_cl_08 test-c02 c_du_rm_cl_02 test-ch05 ch_du_rm_cl_05 test test-all test1 test-a1533 a_du_rm_cl_1533 test-g01 g_du_rm_cl_01 d_du_rm_cl_07 test-g07
+.PHONY: test-a01 a_du_rm_cl_01 test-a08 a_du_rm_cl_08 test-c02 c_du_rm_cl_02 test-ch05 ch_du_rm_cl_05 test test-all test1 test-a1533 a_du_rm_cl_1533 test-g01 g_du_rm_cl_01 d_du_rm_cl_07 test-g07 test-ch03 ch_du_rm_cl_03
 
 test-a1533: a_du_rm_cl_1533
 
@@ -308,6 +309,11 @@ test-c02: c_du_rm_cl_02
 c_du_rm_cl_02: ./bin/trash ../tests/c_du_rm_cl_02.containers.txt ../tests/c_du_rm_cl_02.dmatrix-time.txt ../tests/c_du_rm_cl_02.otherlocs.txt ../tests/c_du_rm_cl_02.vehicles.txt
 	-./bin/trash ../tests/$@ > /dev/null
 
+test-ch03: ch_du_rm_cl_03
+
+ch_du_rm_cl_03: ./bin/trash ../tests/ch_du_rm_cl_03.containers.txt ../tests/ch_du_rm_cl_03.dmatrix-time.txt ../tests/ch_du_rm_cl_03.otherlocs.txt ../tests/ch_du_rm_cl_03.vehicles.txt
+	-./bin/trash ../tests/$@ > /dev/null
+
 test-ch05: ch_du_rm_cl_05
 
 ch_du_rm_cl_05: ./bin/trash ../tests/ch_du_rm_cl_05.containers.txt ../tests/ch_du_rm_cl_05.dmatrix-time.txt ../tests/ch_du_rm_cl_05.otherlocs.txt ../tests/ch_du_rm_cl_05.vehicles.txt
@@ -326,7 +332,7 @@ test-d07: d_du_rm_cl_07
 
 test: g_du_rm_cl_01
 
-test-all: a_du_rm_cl_01 a_du_rm_cl_08 c_du_rm_cl_02 ch_du_rm_cl_05 d_du_rm_cl_07 g_du_rm_cl_01
+test-all: a_du_rm_cl_01 a_du_rm_cl_08 c_du_rm_cl_02 ch_du_rm_cl_03 ch_du_rm_cl_05 d_du_rm_cl_07 g_du_rm_cl_01
 
 test1: ./bin/trash_given_sol ../muni-b/muni-b.containers.txt ../muni-b/muni-b.otherlocs.txt ../muni-b/muni-b.dmatrix-time.txt ../muni-b/muni-b.vehicles.txt
 	./bin/trash_given_sol ../muni-b/muni-b >./logs/muni-b.out
