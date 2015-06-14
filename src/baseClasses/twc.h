@@ -146,21 +146,25 @@ class CompareSecond {
    std::set<id_time, CompareSecond< id_time > >  process_order;
    std::set<id_time, CompareSecond< id_time > >  process_order_far;
 
-
  public:
-  bool emptiedTruck;
-  int z1Tot;
-  int z2Tot;
-
   /*! \brief cleans all the tables, leaving them blanck for a next execution */
   void cleanUp() {
     original.clear();
     twcij.clear();
     travel_Time.clear();
+    travel_time_onTrip.clear();
+    nodes_onTrip.clear();
+    process_order.clear();
+    process_order_far.clear();
 #ifdef OSRMCLIENT
     // travel_Time4.clear();
 #endif
   }
+
+
+  bool emptiedTruck;
+  int z1Tot;
+  int z2Tot;
 
   void initializeTravelTime() {
     for (UINT i = 0; i < travel_Time.size(); ++i) 
@@ -570,14 +574,12 @@ void fill_travel_time_onTrip() {
       travel_time_onTrip[i].resize(siz);
       nodes_onTrip[i].resize(siz);
   }
-  // TODO change to 0 when fast testing
-#if 1 
   compulsory_fill();
   getProcessOrder();
 
   if (original.size() < 500) 
     fill_travel_time_onTrip_work(process_order_far);
-#endif
+
   fill_travel_time_onTrip_work(process_order);
 }
 

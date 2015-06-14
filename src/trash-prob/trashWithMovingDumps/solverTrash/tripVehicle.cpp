@@ -100,9 +100,34 @@ void Trip::intraTripOptimizationNoOsrm() {
 
   getNodesInOrder();
 
+  POS i_pos;
+  double i_delta, d_delta, tot_delta;
+  // tau("trip");
+  for (UINT d_pos = path.size() - 1; d_pos > 0; --d_pos) {
+     auto myNode = path[d_pos]; 
+     d_delta = delta_del(d_pos);
+     path.erase(d_pos);
+     // getCostOsrm();
+     bestInsertion(myNode.nid(), i_pos, i_delta);
+     tot_delta = d_delta + i_delta;
+     if (i_delta < 0 || tot_delta > 0) {
+       i_pos = d_pos;
+     }
+     // DLOG(INFO) << "deleting " << myNode.id() << " located at " << d_pos << " inserting at " << i_pos;
+     // DLOG(INFO) << "delta_del " << d_delta << " delta ins " << i_delta;
+     // tau("after delete");
+     path.insert(myNode, i_pos);
+     // tau("trip");
+  }
+  getNodesInOrder();
   osrmi->useOsrm(oldStateOsrm);
   return;
 }
+
+
+
+
+
 
 
 
@@ -121,7 +146,7 @@ bool Trip::operator < ( const Trip& o_trip) const {
 int Vehicle::exchangesWithNotOnPath(Trip &trip, Trip &o_trip) {
   if (!(o_trip < trip)) return 0;
   if (o_trip.size() <= 1) return 0;
-  DLOG(INFO) << "exchanges with NOT on Path " << trip.getVid() << "," << trip.trip_id() << " with " << o_trip.getVid() << "," << o_trip.trip_id();
+  // DLOG(INFO) << "exchanges with NOT on Path " << trip.getVid() << "," << trip.trip_id() << " with " << o_trip.getVid() << "," << o_trip.trip_id();
 
   POS  d_pos, i_pos;
   POS  o_d_pos, o_i_pos;
@@ -188,7 +213,7 @@ int Vehicle::exchangesWithNotOnPath(Trip &trip, Trip &o_trip) {
 int Vehicle::exchangesWithOnPath(Trip &trip, Trip &o_trip) {
   if (!(o_trip < trip)) return 0;
   if (o_trip.size() <= 1) return 0;
-  DLOG(INFO) << "exchanges with on Path " << trip.getVid() << "," << trip.trip_id() << " with " << o_trip.getVid() << "," << o_trip.trip_id();
+  // DLOG(INFO) << "exchanges with on Path " << trip.getVid() << "," << trip.trip_id() << " with " << o_trip.getVid() << "," << o_trip.trip_id();
 
   POS  d_pos, i_pos;
   POS  o_d_pos, o_i_pos;
@@ -552,7 +577,7 @@ bool Trip::bestInsertion(UINT n_ins, POS &ins_pos, double &i_delta) const {
   i_delta = 999999;
 
   double time0, time1, deltaTime;
-  for (POS i = 1; i <= path.size(); ++i) {
+  for (POS i = 1; i < path.size(); ++i) {
     deltaTime = delta_ins(n_ins, i);
     // DLOG(INFO) << i << "delta" << deltaTime;
     if (deltaTime < i_delta) {
