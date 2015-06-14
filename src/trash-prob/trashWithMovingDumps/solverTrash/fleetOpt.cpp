@@ -61,7 +61,12 @@ void Fleetopt::optimize(int iter) {
     DLOG(INFO) << "fleet::exchanges Performed: " << count;
     if (count == 0) break;
     intraTripOptimizationNoOsrm();
+    intraTripOptimizationNoOsrm();
+    intraTripOptimizationNoOsrm();
   }
+  intraTripOptimizationNoOsrm();
+  intraTripOptimizationNoOsrm();
+  intraTripOptimizationNoOsrm();
   DLOG(INFO) << "fleet::total exchanges Performed: " << count;
 
   tauTrips("fleet::AFTER intraTripOptimizationNoOsrm");
