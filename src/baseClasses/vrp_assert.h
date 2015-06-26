@@ -23,7 +23,7 @@
 #ifndef VRP_ASSERT_H
 #define VRP_ASSERT_H
 
-#if 1
+#if 0
 #include <cassert>
 #else
 #include <exception>
