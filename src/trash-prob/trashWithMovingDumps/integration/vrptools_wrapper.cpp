@@ -85,8 +85,8 @@ int vrp_trash_collection( container_t *containers, unsigned int container_count,
 
 
 
-    TrashProb prob(containers, container_count, otherlocs, otherloc_count, ttimes,
-                   ttime_count, vehicles, vehicle_count) ;
+    TrashProb prob(containers, container_count, otherlocs, otherloc_count,
+                   ttimes, ttime_count, vehicles, vehicle_count, check);
 
 
     if (check == 1) {

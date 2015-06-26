@@ -22,7 +22,8 @@
 TrashProb::TrashProb(  container_t *p_containers, unsigned int container_count,
                        otherloc_t *p_otherlocs, unsigned int otherloc_count,
                        ttime_t *p_ttimes, unsigned int ttime_count,
-                       vehicle_t *p_vehicles, unsigned int vehicle_count)
+                       vehicle_t *p_vehicles, unsigned int vehicle_count,
+                       unsigned int check)
 {
 
   Bucket nodes;
@@ -78,7 +79,6 @@ TrashProb::TrashProb(  container_t *p_containers, unsigned int container_count,
 
 
   nodes = pickups + otherlocs;
-
   nodes.push_back( C );
 
   int id = 0;
@@ -96,7 +96,9 @@ TrashProb::TrashProb(  container_t *p_containers, unsigned int container_count,
   C = nodes.back();
 
   datanodes = nodes;
+
   twc->loadAndProcess_distance( p_ttimes, ttime_count, datanodes, invalid );
+
   addVehicles( p_vehicles, vehicle_count );
 
   if (not trucks.size()) {
@@ -108,19 +110,13 @@ TrashProb::TrashProb(  container_t *p_containers, unsigned int container_count,
 
 #ifdef OSRMCLIENT
   twc->setHints( dumps );
-
   twc->setHints( nodes );
-
   twc->setHints( depots );
-
   twc->setHints( pickups );
-
   twc->setHints( endings );
 
-  twc->fill_travel_time_onTrip();
-
+  if (not check) twc->fill_travel_time_onTrip();
   twc->settCC( C, pickups );
-
 #endif  // OSRMCLIENT
 
 
