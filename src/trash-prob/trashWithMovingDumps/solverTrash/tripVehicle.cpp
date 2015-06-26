@@ -572,8 +572,13 @@ void Trip::bestRemoval(UINT &d_node, POS &d_pos, double &d_delta) const {
 }
 
 bool Trip::bestInsertion(UINT n_ins, POS &ins_pos, double &i_delta) const {
-  assert(path.size() > 1); // will never use insert into an empty truck
+  assert(path.size() > 0); 
   ins_pos = 1;
+  if (path.size() == 1) {
+    i_delta = delta_ins(n_ins, ins_pos);
+    return true; 
+  }
+
   i_delta = 999999;
 
   double time0, time1, deltaTime;

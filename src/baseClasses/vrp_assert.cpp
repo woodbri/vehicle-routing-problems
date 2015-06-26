@@ -11,7 +11,7 @@
  * the terms of the MIT License. Please file LICENSE for details.
  *
  ********************************************************************VRP*/
-#if 0
+#if 1
 #else
 #include "vrp_assert.h"
 #include <exception>
