@@ -287,7 +287,10 @@ bin/trash: build/trash.o $(OBJS) $(BASECLASSES_OBJS) $(BASETRASH_OBJS) $(INITTRA
 bin/trash_given_sol: build/trash_given_sol.o $(OBJS) $(BASECLASSES_OBJS) $(BASETRASH_OBJS) $(INITTRASH_OBJS) $(SOLVERTRASH_OBJS) $(BASECLASSES_HEADS) $(BASETRASH_HEADS) $(INITTRASH_HEADS) $(SOLVERTRASH_HEADS)
 	$(CPP) $(CPPFLAGS_OUT) $^ -o $@ $(LDFLAGS)
 
-.PHONY: test-a01 a_du_rm_cl_01 test-a08 a_du_rm_cl_08 test-c02 c_du_rm_cl_02 test-ch05 ch_du_rm_cl_05 test test-all test1 test-a1533 a_du_rm_cl_1533 test-g01 g_du_rm_cl_01 d_du_rm_cl_07 test-g07 test-ch03 ch_du_rm_cl_03 issue23
+.PHONY: test-a01 a_du_rm_cl_01 test-a08 a_du_rm_cl_08 test-c02 c_du_rm_cl_02 test-ch05 ch_du_rm_cl_05 test test-all test1 test-a1533 a_du_rm_cl_1533 test-g01 g_du_rm_cl_01 d_du_rm_cl_07 test-g07 test-ch03 ch_du_rm_cl_03 issue23 issue26
+
+issue26: ./bin/trash ../tests/issue26.containers.txt ../tests/issue26.dmatrix-time.txt ../tests/issue26.otherlocs.txt ../tests/issue26.vehicles.txt
+	-./bin/trash ../tests/$@ > /dev/null
 
 issue23: ./bin/trash ../tests/issue23.containers.txt ../tests/issue23.dmatrix-time.txt ../tests/issue23.otherlocs.txt ../tests/issue23.vehicles.txt
 	-./bin/trash ../tests/$@ > /dev/null

@@ -44,7 +44,7 @@ public:
   void addContainers( container_t *containers, int count );
   void addOtherlocs( otherloc_t *otherlocs, int count );
   void addTtimes( ttime_t *ttimes, int count );
-  void addVehicles( vehicle_t *vehicles, int count );
+  void addVehicles( vehicle_t *vehicles, int count, unsigned int check );
 
   char **getErrorsForPg( int &count );
   bool isValid() const;

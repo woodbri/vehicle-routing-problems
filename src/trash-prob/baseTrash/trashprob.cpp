@@ -75,8 +75,15 @@ TrashProb::TrashProb(  container_t *p_containers, unsigned int container_count,
 
 #endif
     return;
-  };
+  }
 
+  if ( check ) {
+    addVehicles( p_vehicles, vehicle_count, check );
+    return;
+  }
+
+  if ( check )
+    return;     // we should never reach this statement
 
   nodes = pickups + otherlocs;
   nodes.push_back( C );
@@ -99,7 +106,7 @@ TrashProb::TrashProb(  container_t *p_containers, unsigned int container_count,
 
   twc->loadAndProcess_distance( p_ttimes, ttime_count, datanodes, invalid );
 
-  addVehicles( p_vehicles, vehicle_count );
+  addVehicles( p_vehicles, vehicle_count, check );
 
   if (not trucks.size()) {
 #ifdef VRPMINTRACE
@@ -115,7 +122,7 @@ TrashProb::TrashProb(  container_t *p_containers, unsigned int container_count,
   twc->setHints( pickups );
   twc->setHints( endings );
 
-  if (not check) twc->fill_travel_time_onTrip();
+  twc->fill_travel_time_onTrip();
   twc->settCC( C, pickups );
 #endif  // OSRMCLIENT
 
@@ -281,7 +288,7 @@ void TrashProb::addOtherlocs( otherloc_t *_otherlocs, int count )
 
 
 
-void TrashProb::addVehicles( vehicle_t *_vehicles, int count )
+void TrashProb::addVehicles( vehicle_t *_vehicles, int count, unsigned int check )
 {
   bool dataHasError = false;
   std::string errorStr;
@@ -356,6 +363,7 @@ void TrashProb::addVehicles( vehicle_t *_vehicles, int count )
 
     };
 
+    if ( check ) return;
 
     Vehicle truck( v.vid, v.start_id, v.dump_id, v.end_id, v.capacity,
                    v.dumpservicetime, v.starttime, v.endtime, otherlocs );

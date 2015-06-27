@@ -90,7 +90,7 @@ int vrp_trash_collection( container_t *containers, unsigned int container_count,
 
 
     if (check == 1) {
-      if ( prob.isValid() )
+      if ( prob.isValid() or prob.getErrorsString().size() == 0 )
         *data_err_msg = strdup( "OK" );
       else
         *data_err_msg = strdup( prob.getErrorsString().c_str() );
