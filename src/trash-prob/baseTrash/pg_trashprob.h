@@ -11,8 +11,8 @@
  * the terms of the MIT License. Please file LICENSE for details.
  *
  ********************************************************************VRP*/
-#ifndef TRASHPROB_H
-#define TRASHPROB_H
+#ifndef PG_TRASHPROB_H
+#define PG_TRASHPROB_H
 
 #include <string>
 #include <sstream>
@@ -54,4 +54,4 @@ public:
 
 };
 
-#endif
+#endif  // PG_TRASHPROB_H

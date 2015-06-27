@@ -12,7 +12,7 @@
  *
  ********************************************************************VRP*/
 
-#include "trashprob.h"
+#include "pg_trashprob.h"
 
 #ifdef DOVRPLOG
 #include "logger.h"
@@ -151,7 +151,7 @@ TrashProb::TrashProb(  container_t *p_containers, unsigned int container_count,
 #endif
 }
 
-bool isLatLon(double x, double y)
+static bool isLatLon(double x, double y)
 {
   return       -180.0 <= x and x <= 180.0
                and  - 180.0 <= y and y <= 180.0;
