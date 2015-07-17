@@ -211,6 +211,14 @@ vehicle_path_t *Solution::getSolutionForPg( UINT &count ) const
 #ifdef DOVRPLOG
   DLOG( INFO ) << "Solution::getSolutionForPg: seq: " << seq << ", count: " <<
                count;
+  for (UINT i = 0; i < count; i++)
+    DLOG( INFO ) << "i" << i <<
+              "\tseq:" << results[i].seq <<
+              "\tVID:" << results[i].vid <<
+              "\tnid" << results[i].nid <<
+              "\tntype" << results[i].ntype <<
+              "\tdeltaTime" << results[i].deltatime <<
+              "\tcargo" << results[i].cargo;
 #endif
   return results;
 }
