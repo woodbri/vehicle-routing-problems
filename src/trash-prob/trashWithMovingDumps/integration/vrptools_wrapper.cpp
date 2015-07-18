@@ -88,6 +88,10 @@ int vrp_trash_collection( container_t *containers, unsigned int container_count,
     TrashProb prob(containers, container_count, otherlocs, otherloc_count,
                    ttimes, ttime_count, vehicles, vehicle_count, check);
 
+#ifdef DOVRPLOG
+    DLOG(INFO) << "Problem definition -----------------------";
+    prob.dumpdataNodes();
+#endif
 
     if (check == 1) {
       if ( prob.isValid() or prob.getErrorsString().size() == 0 )
@@ -120,6 +124,10 @@ int vrp_trash_collection( container_t *containers, unsigned int container_count,
 
     THROW_ON_SIGINT
 
+#ifdef DOVRPLOG
+    best_sol.dumpSolutionForPg();
+#endif
+
 #if 0
     TabuOpt tsi( tp , iteration);
     Solution opt_sol = tsi.getBestSolution();
@@ -149,6 +157,11 @@ int vrp_trash_collection( container_t *containers, unsigned int container_count,
       THROW_ON_SIGINT
 
     }
+
+#ifdef DOVRPLOG
+    DLOG(INFO) << "Best initial solution selected";
+    best_sol.dumpSolutionForPg();
+#endif
 
     Optimizer optSol(best_sol, iteration);
     if (best_cost > optSol.getCostOsrm()) {
