@@ -45,6 +45,7 @@ tester
 testosrm
 collection
 trash
+trashpg
 
 #other types papers, excel, geogebra
 *.pdf
