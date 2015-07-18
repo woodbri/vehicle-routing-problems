@@ -88,7 +88,7 @@ int vrp_trash_collection( container_t *containers, unsigned int container_count,
     TrashProb prob(containers, container_count, otherlocs, otherloc_count,
                    ttimes, ttime_count, vehicles, vehicle_count, check);
 
-#ifdef DOVRPLOG
+#if 0
     DLOG(INFO) << "Problem definition -----------------------";
     prob.dumpdataNodes();
 #endif
@@ -124,7 +124,7 @@ int vrp_trash_collection( container_t *containers, unsigned int container_count,
 
     THROW_ON_SIGINT
 
-#ifdef DOVRPLOG
+#if 0
     best_sol.dumpSolutionForPg();
 #endif
 
@@ -158,7 +158,7 @@ int vrp_trash_collection( container_t *containers, unsigned int container_count,
 
     }
 
-#ifdef DOVRPLOG
+#if 0
     DLOG(INFO) << "Best initial solution selected";
     best_sol.dumpSolutionForPg();
 #endif

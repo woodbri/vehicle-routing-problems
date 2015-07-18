@@ -17,7 +17,7 @@
 #include <string>
 #include <sstream>
 
-//#include "vrptools.h"
+#include "pg_types_vrp.h"
 #include "prob_trash.h"
 
 class TrashProb : public Prob_trash

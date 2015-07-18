@@ -129,8 +129,8 @@ class Tweval: public Twnode {
   /*! \brief Construct from a string line */
   explicit Tweval(std::string line);
   /*! \brief Construct from parameters */
-  Tweval(int id, double x, double y, int opens, int closes,
-         int serviceTime, int demand, int streetId);
+  Tweval(int id, double x, double y, double opens, double closes,
+         double serviceTime, double demand, int streetId);
 
  private:
   /** @name Node evaluation members */

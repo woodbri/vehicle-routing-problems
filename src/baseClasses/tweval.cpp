@@ -146,8 +146,8 @@ Tweval::Tweval(std::string line)
  * \param[in] demand The demand in units of vehicle capacity
  * \param[in] streetId The street id this node is located
  */
-Tweval::Tweval(int id, double x, double y, int opens, int closes,
-               int serviceTime, int demand, int streetId)
+Tweval::Tweval(int id, double x, double y, double opens, double closes,
+               double serviceTime, double demand, int streetId)
   : Twnode(),
     travelTime_(0), arrivalTime_(0), waitTime_(0), departureTime_(0),
     deltaTime_(0), cargo_(0), twvTot_(0), cvTot_(0),
